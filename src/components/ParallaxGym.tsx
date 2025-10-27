@@ -126,7 +126,7 @@ export default function ParallaxGym() {
           {currentImage === 3 && !isTransitioning && (
             <motion.div
               key="climbing"
-              className="absolute top-0 left-[30%]"
+              className="absolute -top-8 left-[30%]"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
@@ -135,7 +135,7 @@ export default function ParallaxGym() {
               <img 
                 src="/boy_climbing.png" 
                 alt="Youth athlete climbing" 
-                className="h-96 w-auto drop-shadow-2xl"
+                className="h-[28.8rem] w-auto drop-shadow-2xl"
               />
             </motion.div>
           )}
