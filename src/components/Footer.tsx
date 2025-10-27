@@ -28,7 +28,7 @@ const Footer = ({ onContactClick, onLoginClick }: FooterProps) => {
       <div className="container-custom">
         {/* Main Footer Content */}
         <div className="py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
             {/* Brand Section */}
             <div className="lg:col-span-2">
               <motion.div
@@ -125,7 +125,7 @@ const Footer = ({ onContactClick, onLoginClick }: FooterProps) => {
             </div>
 
             {/* Contact Info */}
-            <div>
+            <div className="lg:col-span-2">
               <motion.h4
                 className="text-xl font-bold mb-6"
                 initial={{ opacity: 0, y: 20 }}
