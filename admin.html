@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vortex Athletics - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'vortex-red': '#DC2626',
+                        'vortex-gray': '#6B7280',
+                        'vortex-dark': '#111827',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-3xl font-bold text-vortex-dark mb-8">Vortex Athletics - Admin Dashboard</h1>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-vortex-red text-white p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">Total Registrations</h3>
+                    <p id="totalRegistrations" class="text-3xl font-bold">-</p>
+                </div>
+                <div class="bg-blue-600 text-white p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">Newsletter Subscribers</h3>
+                    <p id="totalSubscribers" class="text-3xl font-bold">-</p>
+                </div>
+                <div class="bg-green-600 text-white p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">Today's Registrations</h3>
+                    <p id="todayRegistrations" class="text-3xl font-bold">-</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="-mb-px flex space-x-8">
+                    <button id="registrationsTab" class="py-2 px-1 border-b-2 border-vortex-red font-medium text-sm text-vortex-red">
+                        Registrations
+                    </button>
+                    <button id="newsletterTab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Newsletter
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Registrations Table -->
+            <div id="registrationsContent">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Registration Data</h2>
+                    <button id="refreshRegistrations" class="bg-vortex-red text-white px-4 py-2 rounded hover:bg-red-700">
+                        Refresh
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interests</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registrationsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Newsletter Table -->
+            <div id="newsletterContent" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Newsletter Subscribers</h2>
+                    <button id="refreshNewsletter" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Refresh
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscribed</th>
+                            </tr>
+                        </thead>
+                        <tbody id="newsletterTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        // Tab switching
+        document.getElementById('registrationsTab').addEventListener('click', () => {
+            document.getElementById('registrationsContent').classList.remove('hidden');
+            document.getElementById('newsletterContent').classList.add('hidden');
+            document.getElementById('registrationsTab').classList.add('border-vortex-red', 'text-vortex-red');
+            document.getElementById('registrationsTab').classList.remove('border-transparent', 'text-gray-500');
+            document.getElementById('newsletterTab').classList.remove('border-vortex-red', 'text-vortex-red');
+            document.getElementById('newsletterTab').classList.add('border-transparent', 'text-gray-500');
+        });
+
+        document.getElementById('newsletterTab').addEventListener('click', () => {
+            document.getElementById('newsletterContent').classList.remove('hidden');
+            document.getElementById('registrationsContent').classList.add('hidden');
+            document.getElementById('newsletterTab').classList.add('border-vortex-red', 'text-vortex-red');
+            document.getElementById('newsletterTab').classList.remove('border-transparent', 'text-gray-500');
+            document.getElementById('registrationsTab').classList.remove('border-vortex-red', 'text-vortex-red');
+            document.getElementById('registrationsTab').classList.add('border-transparent', 'text-gray-500');
+        });
+
+        // Load registrations
+        async function loadRegistrations() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/registrations`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('registrationsTableBody');
+                    tbody.innerHTML = '';
+                    
+                    data.data.forEach(reg => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                ${reg.first_name} ${reg.last_name}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${reg.email}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${reg.phone || '-'}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${reg.athlete_age || '-'}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                                ${reg.interests || '-'}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${new Date(reg.created_at).toLocaleDateString()}
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    
+                    // Update stats
+                    document.getElementById('totalRegistrations').textContent = data.data.length;
+                    
+                    const today = new Date().toDateString();
+                    const todayCount = data.data.filter(reg => 
+                        new Date(reg.created_at).toDateString() === today
+                    ).length;
+                    document.getElementById('todayRegistrations').textContent = todayCount;
+                }
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+                alert('Error loading registrations. Make sure the backend server is running.');
+            }
+        }
+
+        // Load newsletter subscribers
+        async function loadNewsletter() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/newsletter`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('newsletterTableBody');
+                    tbody.innerHTML = '';
+                    
+                    data.data.forEach(sub => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${sub.email}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${new Date(sub.created_at).toLocaleDateString()}
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    
+                    // Update stats
+                    document.getElementById('totalSubscribers').textContent = data.data.length;
+                }
+            } catch (error) {
+                console.error('Error loading newsletter:', error);
+                alert('Error loading newsletter data. Make sure the backend server is running.');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('refreshRegistrations').addEventListener('click', loadRegistrations);
+        document.getElementById('refreshNewsletter').addEventListener('click', loadNewsletter);
+
+        // Load initial data
+        loadRegistrations();
+        loadNewsletter();
+    </script>
+</body>
+</html>
