@@ -28,10 +28,10 @@
   }
   
   .section-padding {
-    @apply py-16 px-4 sm:px-6 lg:px-8;
+    @apply py-16 px-6 sm:px-8 lg:px-12;
   }
   
   .container-custom {
-    @apply max-w-7xl mx-auto;
+    @apply max-w-7xl mx-auto px-6 sm:px-8 lg:px-12;
   }
 }
