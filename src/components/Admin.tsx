@@ -18,9 +18,10 @@ export default function Admin({ onLogout }: AdminProps) {
   const fetchData = async () => {
     try {
       setLoading(true)
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
       const [regResponse, newsResponse] = await Promise.all([
-        fetch('http://localhost:3001/api/admin/registrations'),
-        fetch('http://localhost:3001/api/admin/newsletter')
+        fetch(`${apiUrl}/api/admin/registrations`),
+        fetch(`${apiUrl}/api/admin/newsletter`)
       ])
 
       const regData = await regResponse.json()
