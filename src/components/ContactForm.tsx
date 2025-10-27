@@ -27,12 +27,33 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
     
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+      
+      // Convert athleteAge to a number if needed
+      const ageRange = formData.athleteAge
+      let athleteAgeNum: number | null = null
+      
+      if (ageRange === '3-5') athleteAgeNum = 4
+      else if (ageRange === '6-8') athleteAgeNum = 7
+      else if (ageRange === '9-12') athleteAgeNum = 10
+      else if (ageRange === '13-18') athleteAgeNum = 15
+      else if (ageRange === 'adult') athleteAgeNum = 18
+      
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        athleteAge: athleteAgeNum || undefined,
+        interests: formData.interests || undefined,
+        message: formData.message || undefined
+      }
+      
       const response = await fetch(`${apiUrl}/api/registrations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       })
 
       const result = await response.json()
