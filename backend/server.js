@@ -118,8 +118,8 @@ const registrationSchema = Joi.object({
   firstName: Joi.string().min(2).max(50).required(),
   lastName: Joi.string().min(2).max(50).required(),
   email: Joi.string().email().required(),
-  phone: Joi.string().pattern(/^[\+]?[1-9][\d]{0,15}$/).optional().allow(''),
-  athleteAge: Joi.number().integer().min(5).max(18).optional().allow(''),
+  phone: Joi.string().max(20).optional().allow('', null),
+  athleteAge: Joi.number().integer().min(5).max(18).optional().allow(null, ''),
   interests: Joi.string().max(500).optional().allow(''),
   message: Joi.string().max(1000).optional().allow('')
 })
