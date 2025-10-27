@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { LogOut, RefreshCw, Download, Mail, Phone } from 'lucide-react'
+import { LogOut, RefreshCw, Download } from 'lucide-react'
 
 interface AdminProps {
   onLogout: () => void
