@@ -56,7 +56,7 @@ export default function ParallaxGym() {
 
       {/* "The Complete Athlete" Text */}
       <motion.div
-        className="absolute top-[20%] right-8 z-20"
+        className="absolute top-[12%] right-8 z-20 lg:top-[12%]"
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -69,7 +69,7 @@ export default function ParallaxGym() {
       </motion.div>
 
       {/* Activity Boxes - Front Layer */}
-      <div className="absolute left-8 top-1/2 transform -translate-y-1/2 z-10 flex flex-col gap-3">
+      <div className="absolute left-8 lg:top-[12%] top-1/3 lg:transform-none transform -translate-y-0 z-10 flex flex-col gap-3">
         {activities.map((activity, index) => {
           const IconComponent = activity.icon
           return (
