@@ -22,7 +22,7 @@ export default function ParallaxGym() {
       setIsTransitioning(true)
       // After 1 second, change image
       setTimeout(() => {
-        setCurrentImage((prev) => (prev + 1) % 3)
+        setCurrentImage((prev) => (prev + 1) % 4)
         // After another 3 seconds (was 1 second), fade in
         setTimeout(() => {
           setIsTransitioning(false)
@@ -120,6 +120,22 @@ export default function ParallaxGym() {
                 alt="Youth athletes" 
                 className="h-96 w-auto max-w-none drop-shadow-2xl"
                 style={{ width: 'auto', height: '24rem' }}
+              />
+            </motion.div>
+          )}
+          {currentImage === 3 && !isTransitioning && (
+            <motion.div
+              key="climbing"
+              className="absolute top-0 left-[30%]"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 1 }}
+            >
+              <img 
+                src="/boy_climbing.png" 
+                alt="Youth athlete climbing" 
+                className="h-96 w-auto drop-shadow-2xl"
               />
             </motion.div>
           )}
