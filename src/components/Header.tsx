@@ -62,16 +62,6 @@ const Header = ({ onContactClick, onLoginClick }: HeaderProps) => {
             >
               Stay Informed
             </motion.button>
-            {onLoginClick && (
-              <motion.button
-                onClick={onLoginClick}
-                className="border-2 border-white/30 text-white px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-white/10"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Admin
-              </motion.button>
-            )}
           </nav>
 
           {/* Mobile Menu Button */}

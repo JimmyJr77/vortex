@@ -3,9 +3,10 @@ import { Mail, Phone, MapPin, Instagram, Facebook, Twitter, ArrowUp } from 'luci
 
 interface FooterProps {
   onContactClick: () => void
+  onLoginClick?: () => void
 }
 
-const Footer = ({ onContactClick }: FooterProps) => {
+const Footer = ({ onContactClick, onLoginClick }: FooterProps) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -107,9 +108,19 @@ const Footer = ({ onContactClick }: FooterProps) => {
                     onClick={onContactClick}
                     className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
                   >
-                    Contact Us
+                    Login
                   </button>
                 </li>
+                {onLoginClick && (
+                  <li>
+                    <button
+                      onClick={onLoginClick}
+                      className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
+                    >
+                      Admin
+                    </button>
+                  </li>
+                )}
               </motion.ul>
             </div>
 
