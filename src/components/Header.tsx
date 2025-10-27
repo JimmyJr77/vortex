@@ -4,10 +4,9 @@ import { useState } from 'react'
 
 interface HeaderProps {
   onContactClick: () => void
-  onLoginClick?: () => void
 }
 
-const Header = ({ onContactClick, onLoginClick }: HeaderProps) => {
+const Header = ({ onContactClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const menuItems = [

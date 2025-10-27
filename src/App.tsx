@@ -54,7 +54,6 @@ function App() {
     <div className="min-h-screen bg-white">
       <Header 
         onContactClick={() => setIsContactFormOpen(true)} 
-        onLoginClick={() => setIsLoginOpen(true)}
       />
       <Hero onContactClick={() => setIsContactFormOpen(true)} />
       <ParallaxGym />
