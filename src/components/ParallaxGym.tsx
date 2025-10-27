@@ -1,5 +1,5 @@
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
-import { useRef, useState, useEffect } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { useRef } from 'react'
 import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, TrendingUp, Play, Shield } from 'lucide-react'
 
 export default function ParallaxGym() {
@@ -10,28 +10,8 @@ export default function ParallaxGym() {
   })
 
   const y1 = useTransform(scrollYProgress, [0, 1], ['-20%', '20%'])
-  const y2 = useTransform(scrollYProgress, [0, 1], ['-10%', '10%'])
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 1, 0.3])
   
-  const [currentImage, setCurrentImage] = useState(0)
-  const [isTransitioning, setIsTransitioning] = useState(false)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Start fade out
-      setIsTransitioning(true)
-      // After 1 second, change image
-      setTimeout(() => {
-        setCurrentImage((prev) => (prev + 1) % 4)
-        // After another 3 seconds (was 1 second), fade in
-        setTimeout(() => {
-          setIsTransitioning(false)
-        }, 3000)
-      }, 1000)
-    }, 8000) // Total cycle: 4 seconds visible + 4 seconds transition
-
-    return () => clearInterval(interval)
-  }, [])
 
   const activities = [
     { icon: Activity, name: 'Gymnastics' },
@@ -66,80 +46,6 @@ export default function ParallaxGym() {
           {/* Subtle overlay for text readability */}
           <div className="absolute inset-0 bg-black/20" />
         </div>
-      </motion.div>
-
-      {/* Middle Layer - Rotating Images */}
-      <motion.div 
-        className="absolute inset-0"
-        style={{ y: y2 }}
-      >
-        <AnimatePresence mode="wait">
-          {currentImage === 0 && !isTransitioning && (
-            <motion.div
-              key="boy"
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 1 }}
-            >
-              <img 
-                src="/boy_flip.png" 
-                alt="Youth athlete" 
-                className="h-96 w-auto drop-shadow-2xl"
-              />
-            </motion.div>
-          )}
-          {currentImage === 1 && !isTransitioning && (
-            <motion.div
-              key="girl"
-              className="absolute top-[55%] left-[25%] transform -translate-x-1/2 -translate-y-1/2"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 1 }}
-            >
-              <img 
-                src="/girl_running.png" 
-                alt="Youth athlete" 
-                className="h-96 w-auto drop-shadow-2xl"
-              />
-            </motion.div>
-          )}
-          {currentImage === 2 && !isTransitioning && (
-            <motion.div
-              key="kids"
-              className="absolute top-[60%] left-[75%] transform -translate-x-1/2 -translate-y-1/2"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 1 }}
-            >
-              <img 
-                src="/kids_racing.png" 
-                alt="Youth athletes" 
-                className="h-96 w-auto max-w-none drop-shadow-2xl"
-                style={{ width: 'auto', height: '24rem' }}
-              />
-            </motion.div>
-          )}
-          {currentImage === 3 && !isTransitioning && (
-            <motion.div
-              key="climbing"
-              className="absolute -top-8 left-[30%]"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 1 }}
-            >
-              <img 
-                src="/boy_climbing.png" 
-                alt="Youth athlete climbing" 
-                className="h-[28.8rem] w-auto drop-shadow-2xl"
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
 
       {/* Overlay Gradient */}
