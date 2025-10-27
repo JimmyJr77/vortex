@@ -37,7 +37,7 @@ const Programs = () => {
     { classes: "1 Class/Week", price: "$150/mo", value: "50% longer sessions" },
     { classes: "2 Classes/Week", price: "$250/mo", value: "$50 discount" },
     { classes: "3 Classes/Week", price: "$325/mo", value: "$125 discount (Limited spaces)" },
-    { classes: "5 Classes/Week", price: "$400/mo", value: "$350 discount (Limited spaces)" }
+    { classes: "5 Classes/Week", price: "$500/mo", value: "$350 discount (Limited spaces)" }
   ]
 
   return (
