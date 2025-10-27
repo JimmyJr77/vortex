@@ -65,7 +65,9 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
         body: JSON.stringify(payload)
       })
 
+      console.log('Response status:', response.status)
       const result = await response.json()
+      console.log('Response data:', result)
 
       if (result.success) {
         setIsSubmitted(true)
@@ -84,7 +86,9 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
           onClose()
         }, 3000)
       } else {
-        alert(result.message || 'Registration failed. Please try again.')
+        console.error('Backend response:', result)
+        console.error('Validation errors:', result.errors)
+        alert(`Registration failed: ${result.message || 'Please try again.'}`)
       }
     } catch (error) {
       console.error('Registration error:', error)
