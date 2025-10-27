@@ -86,9 +86,27 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
           onClose()
         }, 3000)
       } else {
-        console.error('Backend response:', result)
-        console.error('Validation errors:', result.errors)
-        alert(`Registration failed: ${result.message || 'Please try again.'}`)
+        // If email already registered, show success anyway (they're already in the system)
+        if (result.message === 'Email already registered') {
+          setIsSubmitted(true)
+          setTimeout(() => {
+            setIsSubmitted(false)
+            setFormData({
+              firstName: '',
+              lastName: '',
+              email: '',
+              phone: '',
+              athleteAge: '',
+              interests: '',
+              message: ''
+            })
+            onClose()
+          }, 3000)
+        } else {
+          console.error('Backend response:', result)
+          console.error('Validation errors:', result.errors)
+          alert(`Registration failed: ${result.message || 'Please try again.'}`)
+        }
       }
     } catch (error) {
       console.error('Registration error:', error)
