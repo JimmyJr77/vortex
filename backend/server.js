@@ -30,6 +30,7 @@ app.use('/api/', limiter)
 
 // PostgreSQL Database setup
 const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || process.env.DB_URL,
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
   database: process.env.DB_NAME || 'vortex_athletics',
