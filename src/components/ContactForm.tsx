@@ -38,11 +38,20 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
       else if (ageRange === '13-18') athleteAgeNum = 15
       else if (ageRange === 'adult') athleteAgeNum = 18
       
+      // Clean phone number - remove all non-digit characters except + at the start
+      let cleanPhone = formData.phone?.trim() || ''
+      if (cleanPhone) {
+        cleanPhone = cleanPhone.replace(/[^\d+]/g, '') // Remove all non-digit, non-plus characters
+        if (cleanPhone.startsWith('+')) {
+          cleanPhone = '+' + cleanPhone.substring(1).replace(/\D/g, '')
+        }
+      }
+      
       const payload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        phone: formData.phone || undefined,
+        phone: cleanPhone || undefined,
         athleteAge: athleteAgeNum || undefined,
         interests: formData.interests || undefined,
         message: formData.message || undefined
