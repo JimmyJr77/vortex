@@ -18,6 +18,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
     message: ''
   })
 
+  const [newsletter, setNewsletter] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
@@ -70,6 +71,22 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
       console.log('Response data:', result)
 
       if (result.success) {
+        // If newsletter checkbox is checked, also subscribe to newsletter
+        if (newsletter) {
+          try {
+            await fetch(`${apiUrl}/api/newsletter`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ email: formData.email })
+            })
+          } catch (error) {
+            console.error('Newsletter subscription error:', error)
+            // Don't fail the form if newsletter subscription fails
+          }
+        }
+
         setIsSubmitted(true)
         // Reset form after 3 seconds
         setTimeout(() => {
@@ -83,11 +100,27 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
             interests: '',
             message: ''
           })
+          setNewsletter(false)
           onClose()
         }, 3000)
       } else {
-        // If email already registered, show success anyway (they're already in the system)
+          // If email already registered, show success anyway (they're already in the system)
         if (result.message === 'Email already registered') {
+          // Subscribe to newsletter if checkbox is checked
+          if (newsletter) {
+            try {
+              await fetch(`${apiUrl}/api/newsletter`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: formData.email })
+              })
+            } catch (error) {
+              console.error('Newsletter subscription error:', error)
+            }
+          }
+          
           setIsSubmitted(true)
           setTimeout(() => {
             setIsSubmitted(false)
@@ -100,6 +133,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
               interests: '',
               message: ''
             })
+            setNewsletter(false)
             onClose()
           }, 3000)
         } else {
@@ -290,6 +324,20 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors resize-none"
                       placeholder="Tell us about your athletic goals, experience level, or any questions you have..."
                     />
+                  </div>
+
+                  {/* Newsletter Checkbox */}
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      id="newsletter"
+                      checked={newsletter}
+                      onChange={(e) => setNewsletter(e.target.checked)}
+                      className="w-5 h-5 accent-vortex-red cursor-pointer"
+                    />
+                    <label htmlFor="newsletter" className="text-sm text-gray-700 cursor-pointer">
+                      I would like to receive fitness tips and news from Vortex Athletics
+                    </label>
                   </div>
 
                   {/* Submit Button */}
