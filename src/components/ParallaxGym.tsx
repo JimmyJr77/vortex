@@ -56,20 +56,20 @@ export default function ParallaxGym() {
 
       {/* "The Complete Athlete" Text */}
       <motion.div
-        className="absolute top-[12%] right-8 z-20 lg:top-[12%]"
+        className="absolute top-[12%] right-8 z-20 lg:top-[12%] sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:text-center sm:right-auto"
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 1, delay: 0.5 }}
       >
-        <h2 className="text-6xl md:text-8xl font-display font-bold text-white drop-shadow-2xl text-right">
+        <h2 className="text-5xl sm:text-6xl md:text-8xl font-display font-bold text-white drop-shadow-2xl text-right sm:text-center">
           THE COMPLETE<br />
           ATHLETE
         </h2>
       </motion.div>
 
       {/* Activity Boxes - Front Layer */}
-      <div className="absolute left-8 lg:top-[12%] top-1/3 lg:transform-none transform -translate-y-0 z-10 flex flex-col gap-3">
+      <div className="absolute left-8 lg:left-8 lg:top-[12%] top-[20%] lg:transform-none transform -translate-y-0 z-10 flex flex-col sm:grid sm:grid-cols-2 sm:gap-3 lg:flex lg:flex-col lg:gap-3 gap-3 sm:justify-center sm:left-1/2 sm:-translate-x-1/2">
         {activities.map((activity, index) => {
           const IconComponent = activity.icon
           return (
