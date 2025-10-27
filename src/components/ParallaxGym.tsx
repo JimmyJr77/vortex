@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
-import { Activity, Zap, Target, Gauge, Wind, Flame, Dumbbell, TrendingUp, Play, Shield } from 'lucide-react'
+import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, TrendingUp, Play, Shield } from 'lucide-react'
 
 export default function ParallaxGym() {
   const containerRef = useRef<HTMLDivElement>(null)
