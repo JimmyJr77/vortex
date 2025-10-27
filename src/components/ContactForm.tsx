@@ -393,15 +393,15 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
               <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4" />
-                  <span>info@vortexathletics.com</span>
+                  <span>team.vortexathletics@gmail.com</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Phone className="w-4 h-4" />
-                  <span>(301) 555-VORTEX</span>
+                  <span>619-838-5897</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <MapPin className="w-4 h-4" />
-                  <span>Melford, MD</span>
+                  <span>4961 Tesla Dr, Ste E, Bowie, MD 20715</span>
                 </div>
               </div>
             </div>

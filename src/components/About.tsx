@@ -118,8 +118,8 @@ const About = () => {
             STRATEGIC LOCATION
           </h3>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-4">
-            Located in Melford, MD near the intersection of MD Rt 301 and US Rt 50, 
-            our facility serves athletes across central Maryland.
+            Located in Bowie, MD, our facility serves athletes across central Maryland 
+            and beyond.
           </p>
           <div className="text-center">
             <p className="text-lg font-semibold text-vortex-red mb-2">

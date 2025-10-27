@@ -144,17 +144,17 @@ const Footer = ({ onContactClick, onLoginClick }: FooterProps) => {
               >
                 <div className="flex items-center space-x-3">
                   <Mail className="w-5 h-5 text-vortex-red" />
-                  <span className="text-gray-300">info@vortexathletics.com</span>
+                  <span className="text-gray-300">team.vortexathletics@gmail.com</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="w-5 h-5 text-vortex-red" />
-                  <span className="text-gray-300">(301) 555-VORTEX</span>
+                  <span className="text-gray-300">619-838-5897</span>
                 </div>
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-vortex-red mt-1" />
                   <div className="text-gray-300">
-                    <div>Melford, MD</div>
-                    <div className="text-sm">Near MD Rt 301 & US Rt 50</div>
+                    <div>4961 Tesla Dr, Ste E</div>
+                    <div className="text-sm">Bowie, MD 20715</div>
                   </div>
                 </div>
               </motion.div>
