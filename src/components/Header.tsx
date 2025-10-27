@@ -4,9 +4,10 @@ import { useState } from 'react'
 
 interface HeaderProps {
   onContactClick: () => void
+  onLoginClick?: () => void
 }
 
-const Header = ({ onContactClick }: HeaderProps) => {
+const Header = ({ onContactClick, onLoginClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const menuItems = [
@@ -61,6 +62,16 @@ const Header = ({ onContactClick }: HeaderProps) => {
             >
               Stay Informed
             </motion.button>
+            {onLoginClick && (
+              <motion.button
+                onClick={onLoginClick}
+                className="border-2 border-white/30 text-white px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-white/10"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Admin
+              </motion.button>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}

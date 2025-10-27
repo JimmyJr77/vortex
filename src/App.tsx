@@ -8,23 +8,54 @@ import Technology from './components/Technology'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
 import OpeningPopup from './components/OpeningPopup'
+import Login from './components/Login'
+import Admin from './components/Admin'
 
 function App() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isOpeningPopupOpen, setIsOpeningPopupOpen] = useState(false)
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    // Show opening popup after a short delay
-    const timer = setTimeout(() => {
-      setIsOpeningPopupOpen(true)
-    }, 1000) // 1 second delay
+    // Check if user is already logged in
+    const adminStatus = localStorage.getItem('vortex_admin')
+    if (adminStatus === 'true') {
+      setIsAdmin(true)
+    }
 
-    return () => clearTimeout(timer)
+    // Show opening popup after a short delay (only if not admin)
+    if (!adminStatus) {
+      const timer = setTimeout(() => {
+        setIsOpeningPopupOpen(true)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
   }, [])
 
+  const handleLoginSuccess = () => {
+    setIsAdmin(true)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('vortex_admin')
+    setIsAdmin(false)
+  }
+
+  // If user is admin, show admin panel
+  if (isAdmin) {
+    return (
+      <Admin onLogout={handleLogout} />
+    )
+  }
+
+  // Otherwise show normal website
   return (
     <div className="min-h-screen bg-white">
-      <Header onContactClick={() => setIsContactFormOpen(true)} />
+      <Header 
+        onContactClick={() => setIsContactFormOpen(true)} 
+        onLoginClick={() => setIsLoginOpen(true)}
+      />
       <Hero onContactClick={() => setIsContactFormOpen(true)} />
       <ParallaxGym />
       <About />
@@ -41,6 +72,13 @@ function App() {
         isOpen={isOpeningPopupOpen}
         onClose={() => setIsOpeningPopupOpen(false)}
         onSignUp={() => setIsContactFormOpen(true)}
+      />
+
+      {/* Login Modal */}
+      <Login
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onSuccess={handleLoginSuccess}
       />
     </div>
   )
