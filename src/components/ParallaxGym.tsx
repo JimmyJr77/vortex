@@ -55,17 +55,16 @@ export default function ParallaxGym() {
         style={{ opacity }}
       />
 
-      {/* "The Complete Athlete" Text */}
+      {/* Complete Athlete Title */}
       <motion.div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 text-center"
+        className="absolute top-[8%] left-1/2 -translate-x-1/2 z-20 text-center"
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 1, delay: 0.5 }}
       >
-        <h2 className="text-5xl sm:text-6xl md:text-8xl font-display font-bold text-white drop-shadow-2xl">
-          THE COMPLETE<br />
-          ATHLETE
+        <h2 className="text-5xl sm:text-6xl md:text-7xl font-display font-bold text-white drop-shadow-2xl">
+          Complete Athlete
         </h2>
       </motion.div>
 
