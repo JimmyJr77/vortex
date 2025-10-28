@@ -26,7 +26,7 @@ export default function Admin({ onLogout }: AdminProps) {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editData, setEditData] = useState<Partial<User>>({})
   const [expandedId, setExpandedId] = useState<number | null>(null)
-  const [sortConfig, setSortConfig] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'created_at', direction: 'desc' })
+  const [sortConfig] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'created_at', direction: 'desc' })
 
   useEffect(() => {
     fetchData()
@@ -58,13 +58,6 @@ export default function Admin({ onLogout }: AdminProps) {
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleSort = (field: string) => {
-    setSortConfig(prev => ({
-      field,
-      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
-    }))
   }
 
   const sortedUsers = [...users].sort((a, b) => {
