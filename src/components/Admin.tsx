@@ -444,7 +444,7 @@ export default function Admin({ onLogout }: AdminProps) {
                               <div><span className="text-gray-500">Phone:</span> {user.phone || '-'}</div>
                               <div><span className="text-gray-500">Age:</span> {user.athlete_age || '-'}</div>
                               <div><span className="text-gray-500">Interests:</span> {user.interests || '-'}</div>
-                              {user.message && <div><span className="text-gray-500">Message:</span> {user.message}</div>}
+                              {user.message && <div><span className="text-gray-500">Additional Information or Questions:</span> {user.message}</div>}
                               <div className="flex gap-2 pt-3">
                                 <button
                                   onClick={(e) => startEdit(e, user)}
