@@ -333,26 +333,26 @@ export default function Admin({ onLogout }: AdminProps) {
                 <div key={user.id} className="bg-gray-700 rounded-lg overflow-hidden">
                   {/* Header Row - Always Visible */}
                   <div 
-                    className="flex items-center cursor-pointer hover:bg-gray-600 transition-colors"
+                    className="flex items-center cursor-pointer hover:bg-gray-600 transition-colors px-3"
                     onClick={() => toggleExpand(user.id)}
                   >
                     {/* Date */}
-                    <div className="px-3 py-3 flex-1 min-w-[80px] text-xs md:text-sm text-gray-300">
+                    <div className="py-3 flex-1 min-w-[80px] text-xs md:text-sm text-gray-300">
                       {new Date(user.created_at).toLocaleDateString()}
                     </div>
                     
                     {/* Last Name */}
-                    <div className="px-3 py-3 flex-1 min-w-[100px] text-xs md:text-sm text-white font-medium">
+                    <div className="py-3 flex-1 min-w-[100px] text-xs md:text-sm text-white font-medium">
                       {user.last_name}
                     </div>
                     
                     {/* First Name */}
-                    <div className="px-3 py-3 flex-1 min-w-[100px] text-xs md:text-sm text-white font-medium">
+                    <div className="py-3 flex-1 min-w-[100px] text-xs md:text-sm text-white font-medium">
                       {user.first_name}
                     </div>
                     
                     {/* Newsletter Checkmark */}
-                    <div className="px-3 py-3 w-12 md:w-16 text-center">
+                    <div className="py-3 w-12 md:w-16 text-center">
                       {user.newsletter && (
                         <span className="inline-flex items-center justify-center w-5 h-5 bg-green-600 rounded-full">
                           <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -366,7 +366,7 @@ export default function Admin({ onLogout }: AdminProps) {
                     <div className="w-8"></div>
                     
                     {/* Interest Checkmark */}
-                    <div className="px-3 py-3 w-12 md:w-16 text-center">
+                    <div className="py-3 w-12 md:w-16 text-center">
                       {user.interests && (
                         <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-600 rounded-full">
                           <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -377,7 +377,7 @@ export default function Admin({ onLogout }: AdminProps) {
                     </div>
                     
                     {/* Expand/Collapse Icon */}
-                    <div className="px-3 py-3">
+                    <div className="py-3">
                       {expandedId === user.id ? (
                         <ChevronUp className="w-5 h-5 text-gray-400" />
                       ) : (
