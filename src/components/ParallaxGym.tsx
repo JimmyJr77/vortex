@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef, useState } from 'react'
-import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, TrendingUp, Play, Shield, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, TrendingUp, Play, Shield, ChevronLeft, ChevronRight, Building2 } from 'lucide-react'
 
 export default function ParallaxGym() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -15,6 +15,7 @@ export default function ParallaxGym() {
   
 
   const activities = [
+    { icon: Building2, name: 'Premium Facilities' },
     { icon: Activity, name: 'Gymnastics' },
     { icon: Zap, name: 'Trampoline Skills' },
     { icon: Zap, name: 'Tumbling & Flips' },
@@ -69,7 +70,7 @@ export default function ParallaxGym() {
       </div>
 
       {/* Activity Carousel */}
-      <div className="absolute bottom-[25%] left-1/2 transform -translate-x-1/2 z-10">
+      <div className="absolute bottom-[25%] left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center">
         <div className="flex items-center gap-3 w-[280px]">
           <button
             onClick={() => setSelectedActivity((prev) => (prev === 0 ? activities.length - 1 : prev - 1))}
@@ -109,6 +110,56 @@ export default function ParallaxGym() {
             />
           ))}
         </div>
+
+        {/* Activity Description */}
+        <motion.div
+          key={selectedActivity}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="mt-6 w-[450px] max-w-[90vw]"
+        >
+          <div className="bg-white/10 backdrop-blur-md px-4 py-3 rounded-xl border border-white/20">
+            <p className="text-white text-sm leading-relaxed text-center">
+              {activities[selectedActivity].name === 'Premium Facilities' && 
+                "State-of-the-art equipment across multiple training zones. Our world-class facility provides the foundation for developing all 8 core tenets—from explosive power zones to precision body control spaces, every athlete gets the tools they need to excel."}
+              
+              {activities[selectedActivity].name === 'Gymnastics' && 
+                "The foundation of athletic excellence. Develops core tenets: Flexibility, Balance, Coordination, and Body Control. Elite body awareness translates directly to any sport."}
+              
+              {activities[selectedActivity].name === 'Trampoline Skills' && 
+                "Develops aerial awareness, Coordination, and Balance while building explosive power. Athletes learn to control their body in space—essential for any dynamic sport."}
+              
+              {activities[selectedActivity].name === 'Tumbling & Flips' && 
+                "Builds Body Control, Spatial Awareness, and Coordination. Every flip strengthens the connection between mind and body, creating agile athletes ready for any challenge."}
+              
+              {activities[selectedActivity].name === 'Ninja Training' && 
+                "Functional movement meets elite athleticism. Develops Agility, Coordination, and Body Control through obstacle-based training that translates directly to competitive performance."}
+              
+              {activities[selectedActivity].name === 'Strength Training' && 
+                "Raw power development. Builds foundational Strength and Explosiveness while improving overall athletic performance. Strong athletes dominate in every arena."}
+              
+              {activities[selectedActivity].name === 'Plyometrics' && 
+                "Explosive power and Speed development. Jump training builds the elastic strength needed to generate maximum force quickly—critical for competitive athletes."}
+              
+              {activities[selectedActivity].name === 'Calisthenics' && 
+                "Bodyweight mastery. Develops functional Strength, Flexibility, and Body Control through progressive movement patterns that build resilient, capable athletes."}
+              
+              {activities[selectedActivity].name === 'Speed Work' && 
+                "Elite Speed and Explosiveness training. Perfect sprint mechanics and acceleration patterns develop the raw velocity needed to outperform the competition."}
+              
+              {activities[selectedActivity].name === 'Agility Drills' && 
+                "Sharpens Agility, Coordination, and Change of Direction. Pattern recognition and quick-twitch responses create unpredictable, unstoppable athletes."}
+              
+              {activities[selectedActivity].name === 'Coordination Games' && 
+                "Develops multi-limb Coordination and Body Control through playful training. Athletes learn to move efficiently and instinctively—the mark of true athleticism."}
+              
+              {activities[selectedActivity].name === 'Multi-Sport Training' && 
+                "Transferable skill development across all athletic domains. Combines all 8 core tenets to create adaptable champions who excel regardless of sport."}
+            </p>
+          </div>
+        </motion.div>
       </div>
 
       {/* Atmospheric Effects */}
