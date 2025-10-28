@@ -1,9 +1,10 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
-import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, TrendingUp, Play, Shield } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, TrendingUp, Play, Shield, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function ParallaxGym() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [selectedActivity, setSelectedActivity] = useState(0)
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start end', 'end start']
@@ -68,35 +69,88 @@ export default function ParallaxGym() {
         </h2>
       </motion.div>
 
-      {/* Activity Boxes - Front Layer */}
-      <div className="absolute left-8 lg:left-8 lg:top-[12%] top-[20%] lg:transform-none transform -translate-y-0 z-10 flex flex-col sm:grid sm:grid-cols-2 sm:gap-3 lg:flex lg:flex-col lg:gap-3 gap-3 sm:justify-center sm:left-1/2 sm:-translate-x-1/2">
-        {activities.map((activity, index) => {
-          const IconComponent = activity.icon
-          return (
-            <motion.div
-              key={activity.name}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: index * 0.05 }}
-            >
-              <div className="bg-white backdrop-blur-sm px-4 py-3 rounded-xl border-2 border-vortex-red flex items-center gap-3 w-56">
-                <IconComponent className="w-6 h-6 text-vortex-red flex-shrink-0" />
-                <p className="text-black text-sm font-semibold whitespace-nowrap">{activity.name}</p>
-              </div>
-            </motion.div>
-          )
-        })}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-        >
-          <div className="bg-vortex-red px-4 py-3 rounded-xl border-2 border-white flex items-center justify-center w-56">
-            <p className="text-white text-sm font-semibold whitespace-nowrap">Stay Informed</p>
-          </div>
-        </motion.div>
+      {/* Mobile: Activity Carousel */}
+      <div className="absolute bottom-[25%] left-1/2 transform -translate-x-1/2 z-10 lg:hidden">
+        <div className="flex items-center gap-3 w-[280px]">
+          <button
+            onClick={() => setSelectedActivity((prev) => (prev === 0 ? activities.length - 1 : prev - 1))}
+            className="bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-2 transition-colors"
+          >
+            <ChevronLeft className="w-6 h-6 text-white" />
+          </button>
+
+          <motion.div
+            key={selectedActivity}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white backdrop-blur-sm px-6 py-4 rounded-xl border-2 border-vortex-red flex items-center gap-3 w-full"
+          >
+            {(() => {
+              const IconComponent = activities[selectedActivity].icon
+              return (
+                <>
+                  <IconComponent className="w-7 h-7 text-vortex-red flex-shrink-0" />
+                  <p className="text-black text-base font-bold text-center flex-1">{activities[selectedActivity].name}</p>
+                </>
+              )
+            })()}
+          </motion.div>
+
+          <button
+            onClick={() => setSelectedActivity((prev) => (prev === activities.length - 1 ? 0 : prev + 1))}
+            className="bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-2 transition-colors"
+          >
+            <ChevronRight className="w-6 h-6 text-white" />
+          </button>
+        </div>
+
+        {/* Carousel Dots */}
+        <div className="flex justify-center gap-2 mt-4">
+          {activities.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedActivity(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                index === selectedActivity ? 'bg-white w-8' : 'bg-white/40'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: Activity Boxes Grid */}
+      <div className="hidden lg:block absolute left-8 lg:top-[12%] z-10">
+        <div className="flex flex-col gap-3">
+          {activities.map((activity, index) => {
+            const IconComponent = activity.icon
+            return (
+              <motion.div
+                key={activity.name}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: index * 0.05 }}
+              >
+                <button className="bg-white backdrop-blur-sm px-4 py-3 rounded-xl border-2 border-vortex-red flex items-center gap-3 w-56 hover:bg-gray-50 transition-colors">
+                  <IconComponent className="w-6 h-6 text-vortex-red flex-shrink-0" />
+                  <p className="text-black text-sm font-semibold whitespace-nowrap">{activity.name}</p>
+                </button>
+              </motion.div>
+            )
+          })}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+          >
+            <button className="bg-vortex-red px-4 py-3 rounded-xl border-2 border-white flex items-center justify-center w-56 hover:bg-red-700 transition-colors">
+              <p className="text-white text-sm font-semibold whitespace-nowrap">Stay Informed</p>
+            </button>
+          </motion.div>
+        </div>
       </div>
 
       {/* Atmospheric Effects */}
