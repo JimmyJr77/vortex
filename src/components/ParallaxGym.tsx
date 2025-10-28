@@ -57,13 +57,13 @@ export default function ParallaxGym() {
 
       {/* "The Complete Athlete" Text */}
       <motion.div
-        className="absolute top-[12%] right-8 z-20 lg:top-[12%] sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:text-center sm:right-auto"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 text-center"
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 1, delay: 0.5 }}
       >
-        <h2 className="text-5xl sm:text-6xl md:text-8xl font-display font-bold text-white drop-shadow-2xl text-right sm:text-center">
+        <h2 className="text-5xl sm:text-6xl md:text-8xl font-display font-bold text-white drop-shadow-2xl">
           THE COMPLETE<br />
           ATHLETE
         </h2>
