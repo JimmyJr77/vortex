@@ -70,7 +70,7 @@ export default function ParallaxGym() {
       </div>
 
       {/* Activity Carousel */}
-      <div className="absolute bottom-[15%] left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center">
+      <div className="absolute bottom-[8%] left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center">
         <div className="flex items-center gap-3 w-[280px]">
           <button
             onClick={() => setSelectedActivity((prev) => (prev === 0 ? activities.length - 1 : prev - 1))}
