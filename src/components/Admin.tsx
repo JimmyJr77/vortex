@@ -25,6 +25,7 @@ type FilterType = 'all' | 'newsletter' | 'interests'
 export default function Admin({ onLogout }: AdminProps) {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editData, setEditData] = useState<Partial<User>>({})
   const [expandedId, setExpandedId] = useState<number | null>(null)
@@ -39,12 +40,19 @@ export default function Admin({ onLogout }: AdminProps) {
   const fetchData = async () => {
     try {
       setLoading(true)
+      setError(null)
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
       
       const regResponse = await fetch(`${apiUrl}/api/admin/registrations`)
+      if (!regResponse.ok) {
+        throw new Error(`Backend returned ${regResponse.status}: ${regResponse.statusText}`)
+      }
       const regData = await regResponse.json()
       
       const newsResponse = await fetch(`${apiUrl}/api/admin/newsletter`)
+      if (!newsResponse.ok) {
+        throw new Error(`Backend returned ${newsResponse.status}: ${newsResponse.statusText}`)
+      }
       const newsData = await newsResponse.json()
       
       if (regData.success && newsData.success) {
@@ -59,6 +67,7 @@ export default function Admin({ onLogout }: AdminProps) {
       }
     } catch (error) {
       console.error('Error fetching data:', error)
+      setError(error instanceof Error ? error.message : 'Unable to connect to backend. Please check if the backend service is running on Render.')
     } finally {
       setLoading(false)
     }
@@ -279,7 +288,18 @@ export default function Admin({ onLogout }: AdminProps) {
             </div>
           </div>
 
-          {loading ? (
+          {error ? (
+            <div className="text-center py-12">
+              <div className="text-red-400 mb-4 font-semibold">Backend Connection Error</div>
+              <div className="text-gray-400 mb-4">{error}</div>
+              <button
+                onClick={fetchData}
+                className="bg-vortex-red hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          ) : loading ? (
             <div className="text-center py-12 text-gray-400">Loading...</div>
           ) : filteredUsers.length === 0 ? (
             <div className="text-center py-12 text-gray-400">No users match the selected filter</div>
