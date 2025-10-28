@@ -197,7 +197,7 @@ const Hero = ({ onContactClick }: HeroProps) => {
                 key={currentTextIndex}
                 className="text-6xl md:text-8xl font-display font-bold text-white mb-6 text-center"
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale:  acordo }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -50, scale: 0.9 }}
                 transition={{ duration: 0.6, ease: "easeInOut" }}
               >
