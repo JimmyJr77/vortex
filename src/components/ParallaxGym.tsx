@@ -57,7 +57,7 @@ export default function ParallaxGym() {
 
       {/* Complete Athlete Title */}
       <motion.div
-        className="absolute top-[8%] left-1/2 -translate-x-1/2 z-20 text-center"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 text-center"
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
