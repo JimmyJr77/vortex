@@ -214,7 +214,7 @@ const Hero = ({ onContactClick }: HeroProps) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Artistic Gymnastics
+              All Gymnastics
             </motion.button>
           </motion.div>
 

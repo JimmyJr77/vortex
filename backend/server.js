@@ -242,6 +242,7 @@ app.get('/api/admin/registrations', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT * FROM registrations 
+      WHERE archived IS NOT true
       ORDER BY created_at DESC
     `)
 
@@ -272,6 +273,55 @@ app.get('/api/admin/newsletter', async (req, res) => {
     })
   } catch (error) {
     console.error('Get subscribers error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Update registration (admin endpoint)
+app.put('/api/admin/registrations/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { first_name, last_name, email, phone, athlete_age, interests, message } = req.body
+
+    await pool.query(`
+      UPDATE registrations 
+      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, message = $7
+      WHERE id = $8
+    `, [first_name, last_name, email, phone, athlete_age, interests, message, id])
+
+    res.json({
+      success: true,
+      message: 'Registration updated successfully'
+    })
+  } catch (error) {
+    console.error('Update registration error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Archive/Delete registration (admin endpoint)
+app.delete('/api/admin/registrations/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    // Instead of deleting, we'll mark as archived (soft delete)
+    await pool.query(`
+      UPDATE registrations 
+      SET archived = true
+      WHERE id = $1
+    `, [id])
+
+    res.json({
+      success: true,
+      message: 'Registration archived successfully'
+    })
+  } catch (error) {
+    console.error('Archive registration error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error'

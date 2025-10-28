@@ -65,7 +65,7 @@ function App() {
         onClose={() => setIsContactFormOpen(false)}
       />
       <Footer 
-        onContactClick={() => setIsLoginOpen(true)} 
+        onContactClick={() => setIsContactFormOpen(true)} 
         onLoginClick={() => setIsLoginOpen(true)}
       />
       

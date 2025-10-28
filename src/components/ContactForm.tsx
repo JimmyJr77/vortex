@@ -18,7 +18,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
     message: ''
   })
 
-  const [newsletter, setNewsletter] = useState(false)
+  const [newsletter, setNewsletter] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
@@ -336,7 +336,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
                       className="w-5 h-5 accent-vortex-red cursor-pointer"
                     />
                     <label htmlFor="newsletter" className="text-sm text-gray-700 cursor-pointer">
-                      I would like to receive fitness tips and news from Vortex Athletics
+                      I would like to receive fitness tips, recruiting information, and high school or collegiate sporting news from Vortex Athletics.
                     </label>
                   </div>
 
@@ -390,18 +390,22 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
 
             {/* Footer */}
             <div className="bg-gray-50 px-8 py-6 rounded-b-3xl">
-              <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
-                <div className="flex items-center space-x-2">
-                  <Mail className="w-4 h-4" />
-                  <span>team.vortexathletics@gmail.com</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Phone className="w-4 h-4" />
-                  <span>619-838-5897</span>
-                </div>
+              <div className="space-y-4 text-sm text-gray-600">
+                {/* Address on one line */}
                 <div className="flex items-center space-x-2">
                   <MapPin className="w-4 h-4" />
                   <span>4961 Tesla Dr, Ste E, Bowie, MD 20715</span>
+                </div>
+                {/* Phone on left, email on right */}
+                <div className="flex items-center space-x-8">
+                  <div className="flex items-center space-x-2">
+                    <Phone className="w-4 h-4" />
+                    <span>619-838-5897</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Mail className="w-4 h-4" />
+                    <span>team.vortexathletics@gmail.com</span>
+                  </div>
                 </div>
               </div>
             </div>

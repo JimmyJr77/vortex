@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS registrations (
     athlete_age INTEGER CHECK (athlete_age >= 5 AND athlete_age <= 18),
     interests TEXT,
     message TEXT,
+    archived BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
