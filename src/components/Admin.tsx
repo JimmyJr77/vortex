@@ -20,12 +20,16 @@ interface User {
   archived?: boolean
 }
 
+type FilterType = 'all' | 'newsletter' | 'interests'
+
 export default function Admin({ onLogout }: AdminProps) {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editData, setEditData] = useState<Partial<User>>({})
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [filter, setFilter] = useState<FilterType>('all')
+  const [showExportDialog, setShowExportDialog] = useState(false)
   const [sortConfig] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'created_at', direction: 'desc' })
 
   useEffect(() => {
@@ -78,6 +82,14 @@ export default function Admin({ onLogout }: AdminProps) {
     }
     
     return 0
+  })
+
+  // Filter users based on filter selection
+  const filteredUsers = sortedUsers.filter(user => {
+    if (filter === 'all') return true
+    if (filter === 'newsletter') return user.newsletter
+    if (filter === 'interests') return !!user.interests
+    return true
   })
 
   const toggleExpand = (id: number) => {
@@ -141,13 +153,28 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
-  const exportToCSV = () => {
-    if (users.length === 0) return
+  const handleExportClick = () => {
+    setShowExportDialog(true)
+  }
 
+  const exportToCSV = (exportNewsletter: boolean, exportInterests: boolean) => {
     const headers = ['Name', 'Email', 'Phone', 'Age', 'Interests', 'Newsletter', 'Date']
+    
+    const dataToExport = users.filter(user => {
+      if (exportNewsletter && exportInterests) return user.newsletter || !!user.interests
+      if (exportNewsletter) return user.newsletter
+      if (exportInterests) return !!user.interests
+      return true
+    })
+    
+    if (dataToExport.length === 0) {
+      alert('No users match the selected criteria')
+      return
+    }
+
     const csv = [
       headers.join(','),
-      ...users.map(user => [
+      ...dataToExport.map(user => [
         `"${user.first_name} ${user.last_name}"`,
         user.email,
         user.phone || '',
@@ -162,9 +189,10 @@ export default function Admin({ onLogout }: AdminProps) {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'vortex_master_roster.csv'
+    a.download = 'vortex_roster.csv'
     a.click()
     URL.revokeObjectURL(url)
+    setShowExportDialog(false)
   }
 
   return (
@@ -185,7 +213,7 @@ export default function Admin({ onLogout }: AdminProps) {
               <span className="hidden md:inline">Refresh</span>
             </motion.button>
             <motion.button
-              onClick={exportToCSV}
+              onClick={handleExportClick}
               className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -207,18 +235,59 @@ export default function Admin({ onLogout }: AdminProps) {
 
         <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
           <div className="mb-4 md:mb-6">
-            <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-2">
-              Master Roster ({users.length})
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4">
+              Master Roster ({filteredUsers.length} of {users.length})
             </h2>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                  filter === 'all'
+                    ? 'bg-vortex-red text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                All Users ({users.length})
+              </button>
+              <button
+                onClick={() => setFilter('newsletter')}
+                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                  filter === 'newsletter'
+                    ? 'bg-vortex-red text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                Newsletter ({users.filter(u => u.newsletter).length})
+              </button>
+              <button
+                onClick={() => setFilter('interests')}
+                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                  filter === 'interests'
+                    ? 'bg-vortex-red text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                With Interests ({users.filter(u => u.interests).length})
+              </button>
+            </div>
           </div>
 
           {loading ? (
             <div className="text-center py-12 text-gray-400">Loading...</div>
-          ) : sortedUsers.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">No registrations yet</div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="text-center py-12 text-gray-400">No users match the selected filter</div>
           ) : (
             <div className="space-y-2">
-              {sortedUsers.map((user) => (
+              {/* Column Headers */}
+              <div className="hidden md:flex items-center bg-gray-600 px-3 py-2 rounded-t-lg">
+                <div className="px-3 flex-1 min-w-[80px] text-xs text-gray-300 font-semibold">Date</div>
+                <div className="px-3 flex-1 min-w-[100px] text-xs text-gray-300 font-semibold">Last Name</div>
+                <div className="px-3 flex-1 min-w-[100px] text-xs text-gray-300 font-semibold">First Name</div>
+                <div className="px-3 w-12 md:w-16 text-xs text-gray-300 font-semibold text-center">Newsletter</div>
+                <div className="px-3 w-12 md:w-16 text-xs text-gray-300 font-semibold text-center">Interests</div>
+                <div className="px-3 text-xs text-gray-300 font-semibold">▼</div>
+              </div>
+              {filteredUsers.map((user) => (
                 <div key={user.id} className="bg-gray-700 rounded-lg overflow-hidden">
                   {/* Header Row - Always Visible */}
                   <div 
@@ -404,6 +473,58 @@ export default function Admin({ onLogout }: AdminProps) {
           )}
         </div>
       </div>
+
+      {/* Export Dialog */}
+      <AnimatePresence>
+        {showExportDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowExportDialog(false)}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-xl"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <h3 className="text-2xl font-display font-bold text-white mb-4">Export Data</h3>
+              <p className="text-gray-400 mb-6">Select which data to export:</p>
+              <div className="space-y-3 mb-6">
+                <button
+                  onClick={() => exportToCSV(true, true)}
+                  className="w-full bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Export All
+                </button>
+                <button
+                  onClick={() => exportToCSV(true, false)}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Newsletter Only ({users.filter(u => u.newsletter).length})
+                </button>
+                <button
+                  onClick={() => exportToCSV(false, true)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  With Interests Only ({users.filter(u => u.interests).length})
+                </button>
+              </div>
+              <button
+                onClick={() => setShowExportDialog(false)}
+                className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+              >
+                Cancel
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
