@@ -30,7 +30,7 @@ export default function Admin({ onLogout }: AdminProps) {
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [filter, setFilter] = useState<FilterType>('all')
   const [showExportDialog, setShowExportDialog] = useState(false)
-  const [sortConfig] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'created_at', direction: 'desc' })
+  const [sortConfig, setSortConfig] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'created_at', direction: 'desc' })
 
   useEffect(() => {
     fetchData()
@@ -91,6 +91,13 @@ export default function Admin({ onLogout }: AdminProps) {
     if (filter === 'interests') return !!user.interests
     return true
   })
+
+  const handleSort = (field: string) => {
+    setSortConfig(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
+    }))
+  }
 
   const toggleExpand = (id: number) => {
     setExpandedId(expandedId === id ? null : id)
@@ -267,7 +274,7 @@ export default function Admin({ onLogout }: AdminProps) {
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
               >
-                With Interests ({users.filter(u => u.interests).length})
+                Interested ({users.filter(u => u.interests).length})
               </button>
             </div>
           </div>
@@ -280,12 +287,27 @@ export default function Admin({ onLogout }: AdminProps) {
             <div className="space-y-2">
               {/* Column Headers */}
               <div className="hidden md:flex items-center bg-gray-600 px-3 py-2 rounded-t-lg">
-                <div className="px-3 flex-1 min-w-[80px] text-xs text-gray-300 font-semibold">Date</div>
-                <div className="px-3 flex-1 min-w-[100px] text-xs text-gray-300 font-semibold">Last Name</div>
-                <div className="px-3 flex-1 min-w-[100px] text-xs text-gray-300 font-semibold">First Name</div>
+                <button 
+                  onClick={() => handleSort('created_at')}
+                  className="px-3 flex-1 min-w-[80px] text-xs text-gray-300 font-semibold text-left hover:text-white transition-colors"
+                >
+                  Date {sortConfig.field === 'created_at' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </button>
+                <button 
+                  onClick={() => handleSort('last_name')}
+                  className="px-3 flex-1 min-w-[100px] text-xs text-gray-300 font-semibold text-left hover:text-white transition-colors"
+                >
+                  Last Name {sortConfig.field === 'last_name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </button>
+                <button 
+                  onClick={() => handleSort('first_name')}
+                  className="px-3 flex-1 min-w-[100px] text-xs text-gray-300 font-semibold text-left hover:text-white transition-colors"
+                >
+                  First Name {sortConfig.field === 'first_name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </button>
                 <div className="px-3 w-12 md:w-16 text-xs text-gray-300 font-semibold text-center">Newsletter</div>
-                <div className="px-3 w-12 md:w-16 text-xs text-gray-300 font-semibold text-center">Interests</div>
-                <div className="px-3 text-xs text-gray-300 font-semibold">▼</div>
+                <div className="px-3 w-8"></div>
+                <div className="px-3 w-12 md:w-16 text-xs text-gray-300 font-semibold text-center">Interested</div>
               </div>
               {filteredUsers.map((user) => (
                 <div key={user.id} className="bg-gray-700 rounded-lg overflow-hidden">
@@ -319,6 +341,9 @@ export default function Admin({ onLogout }: AdminProps) {
                         </span>
                       )}
                     </div>
+                    
+                    {/* Spacer */}
+                    <div className="w-8"></div>
                     
                     {/* Interest Checkmark */}
                     <div className="px-3 py-3 w-12 md:w-16 text-center">
@@ -512,7 +537,7 @@ export default function Admin({ onLogout }: AdminProps) {
                   onClick={() => exportToCSV(false, true)}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
                 >
-                  With Interests Only ({users.filter(u => u.interests).length})
+                  Interested Only ({users.filter(u => u.interests).length})
                 </button>
               </div>
               <button
