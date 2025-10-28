@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, RefreshCw, Download, Edit2, Archive, X, Save, ArrowUpDown } from 'lucide-react'
+import { LogOut, RefreshCw, Download, Edit2, Archive, X, Save, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface AdminProps {
   onLogout: () => void
@@ -25,6 +25,7 @@ export default function Admin({ onLogout }: AdminProps) {
   const [loading, setLoading] = useState(true)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editData, setEditData] = useState<Partial<User>>({})
+  const [expandedId, setExpandedId] = useState<number | null>(null)
   const [sortConfig, setSortConfig] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'created_at', direction: 'desc' })
 
   useEffect(() => {
@@ -36,19 +37,15 @@ export default function Admin({ onLogout }: AdminProps) {
       setLoading(true)
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
       
-      // Fetch registrations
       const regResponse = await fetch(`${apiUrl}/api/admin/registrations`)
       const regData = await regResponse.json()
       
-      // Fetch newsletter subscribers
       const newsResponse = await fetch(`${apiUrl}/api/admin/newsletter`)
       const newsData = await newsResponse.json()
       
       if (regData.success && newsData.success) {
-        // Create a set of newsletter subscriber emails
         const newsletterEmails = new Set(newsData.data.map((sub: any) => sub.email))
         
-        // Combine registrations with newsletter status
         const combinedUsers = regData.data.map((user: any) => ({
           ...user,
           newsletter: newsletterEmails.has(user.email)
@@ -90,7 +87,13 @@ export default function Admin({ onLogout }: AdminProps) {
     return 0
   })
 
-  const startEdit = (user: User) => {
+  const toggleExpand = (id: number) => {
+    setExpandedId(expandedId === id ? null : id)
+    setEditingId(null)
+  }
+
+  const startEdit = (e: React.MouseEvent, user: User) => {
+    e.stopPropagation()
     setEditingId(user.id)
     setEditData({
       first_name: user.first_name,
@@ -103,7 +106,8 @@ export default function Admin({ onLogout }: AdminProps) {
     })
   }
 
-  const saveEdit = async () => {
+  const saveEdit = async (e: React.MouseEvent) => {
+    e.stopPropagation()
     if (!editingId) return
     
     try {
@@ -125,7 +129,8 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
-  const handleArchive = async (id: number) => {
+  const handleArchive = async (e: React.MouseEvent, id: number) => {
+    e.stopPropagation()
     if (!confirm('Archive this user?')) return
     
     try {
@@ -169,20 +174,6 @@ export default function Admin({ onLogout }: AdminProps) {
     URL.revokeObjectURL(url)
   }
 
-  const SortableHeader = ({ field, label }: { field: string; label: string }) => (
-    <th 
-      className="py-3 px-2 md:px-4 text-xs md:text-sm cursor-pointer hover:bg-gray-600 transition-colors"
-      onClick={() => handleSort(field)}
-    >
-      <div className="flex items-center space-x-1">
-        <span>{label}</span>
-        {sortConfig.field === field && (
-          <ArrowUpDown className={`w-3 h-3 ${sortConfig.direction === 'asc' ? '' : 'rotate-180'}`} />
-        )}
-      </div>
-    </th>
-  )
-
   return (
     <div className="min-h-screen bg-gray-900 p-4 md:p-8">
       <div className="max-w-full mx-auto">
@@ -221,168 +212,203 @@ export default function Admin({ onLogout }: AdminProps) {
           </div>
         </div>
 
-        {/* Master Roster Section */}
         <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
           <div className="mb-4 md:mb-6">
             <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-2">
               Master Roster ({users.length})
             </h2>
-            <p className="text-gray-400 text-sm">All registered users with newsletter subscription status</p>
           </div>
 
-          <div className="overflow-x-auto -mx-4 px-4">
-            <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-gray-600 text-left text-gray-200 uppercase text-xs">
-                  <SortableHeader field="last_name" label="Name" />
-                  <SortableHeader field="email" label="Email" />
-                  <SortableHeader field="phone" label="Phone" />
-                  <SortableHeader field="athlete_age" label="Age" />
-                  <SortableHeader field="interests" label="Interest" />
-                  <SortableHeader field="newsletter" label="Newsletter" />
-                  <SortableHeader field="created_at" label="Date" />
-                  <th className="py-3 px-2 text-xs">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-300 text-xs">
-                {loading ? (
-                  <tr>
-                    <td colSpan={8} className="py-4 text-center">Loading...</td>
-                  </tr>
-                ) : sortedUsers.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="py-4 text-center">No registrations yet</td>
-                  </tr>
-                ) : (
-                  sortedUsers.map((user) => (
-                    <AnimatePresence key={user.id}>
-                      {editingId === user.id ? (
-                        <motion.tr
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="border-b border-gray-700 bg-gray-600"
-                        >
-                          <td className="py-2 px-2">
-                            <input
-                              type="text"
-                              value={editData.first_name || ''}
-                              onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
-                              className="w-full px-2 py-1 bg-gray-700 text-white rounded text-xs"
-                            />
-                          </td>
-                          <td className="py-2 px-2">
-                            <input
-                              type="text"
-                              value={editData.last_name || ''}
-                              onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
-                              className="w-full px-2 py-1 bg-gray-700 text-white rounded text-xs"
-                            />
-                          </td>
-                          <td className="py-2 px-2">
-                            <input
-                              type="email"
-                              value={editData.email || ''}
-                              onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                              className="w-full px-2 py-1 bg-gray-700 text-white rounded text-xs"
-                            />
-                          </td>
-                          <td className="py-2 px-2">
-                            <input
-                              type="tel"
-                              value={editData.phone || ''}
-                              onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
-                              className="w-full px-2 py-1 bg-gray-700 text-white rounded text-xs"
-                            />
-                          </td>
-                          <td className="py-2 px-2">
-                            <input
-                              type="number"
-                              value={editData.athlete_age || ''}
-                              onChange={(e) => setEditData({ ...editData, athlete_age: parseInt(e.target.value) })}
-                              className="w-full px-2 py-1 bg-gray-700 text-white rounded text-xs"
-                            />
-                          </td>
-                          <td className="py-2 px-2">
-                            <input
-                              type="text"
-                              value={editData.interests || ''}
-                              onChange={(e) => setEditData({ ...editData, interests: e.target.value })}
-                              className="w-full px-2 py-1 bg-gray-700 text-white rounded text-xs"
-                            />
-                          </td>
-                          <td className="py-2 px-2 text-center">
-                            <span className={user.newsletter ? 'text-green-400' : 'text-gray-500'}>
-                              {user.newsletter ? '✓' : '✗'}
-                            </span>
-                          </td>
-                          <td className="py-2 px-2 text-center whitespace-nowrap">
-                            {new Date(user.created_at).toLocaleDateString()}
-                          </td>
-                          <td className="py-2 px-2">
-                            <div className="flex gap-1">
-                              <button
-                                onClick={saveEdit}
-                                className="p-1 bg-green-600 hover:bg-green-700 rounded text-white"
-                                title="Save"
-                              >
-                                <Save className="w-3 h-3" />
-                              </button>
-                              <button
-                                onClick={() => { setEditingId(null); setEditData({}) }}
-                                className="p-1 bg-gray-600 hover:bg-gray-700 rounded text-white"
-                                title="Cancel"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      ) : (
-                        <motion.tr
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="border-b border-gray-700 hover:bg-gray-700"
-                        >
-                          <td className="py-2 px-2">{user.first_name} {user.last_name}</td>
-                          <td className="py-2 px-2 break-all">{user.email}</td>
-                          <td className="py-2 px-2">{user.phone || '-'}</td>
-                          <td className="py-2 px-2">{user.athlete_age || '-'}</td>
-                          <td className="py-2 px-2">{user.interests || '-'}</td>
-                          <td className="py-2 px-2 text-center">
-                            <span className={user.newsletter ? 'text-green-400' : 'text-gray-500'}>
-                              {user.newsletter ? '✓' : '✗'}
-                            </span>
-                          </td>
-                          <td className="py-2 px-2 text-center whitespace-nowrap">
-                            {new Date(user.created_at).toLocaleDateString()}
-                          </td>
-                          <td className="py-2 px-2">
-                            <div className="flex gap-1">
-                              <button
-                                onClick={() => startEdit(user)}
-                                className="p-1 bg-blue-600 hover:bg-blue-700 rounded text-white"
-                                title="Edit"
-                              >
-                                <Edit2 className="w-3 h-3" />
-                              </button>
-                              <button
-                                onClick={() => handleArchive(user.id)}
-                                className="p-1 bg-red-600 hover:bg-red-700 rounded text-white"
-                                title="Archive"
-                              >
-                                <Archive className="w-3 h-3" />
-                              </button>
-                            </div>
-                          </td>
-                        </motion.tr>
+          {loading ? (
+            <div className="text-center py-12 text-gray-400">Loading...</div>
+          ) : sortedUsers.length === 0 ? (
+            <div className="text-center py-12 text-gray-400">No registrations yet</div>
+          ) : (
+            <div className="space-y-2">
+              {sortedUsers.map((user) => (
+                <div key={user.id} className="bg-gray-700 rounded-lg overflow-hidden">
+                  {/* Header Row - Always Visible */}
+                  <div 
+                    className="flex items-center cursor-pointer hover:bg-gray-600 transition-colors"
+                    onClick={() => toggleExpand(user.id)}
+                  >
+                    {/* Date */}
+                    <div className="px-3 py-3 flex-1 min-w-[80px] text-xs md:text-sm text-gray-300">
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </div>
+                    
+                    {/* Last Name */}
+                    <div className="px-3 py-3 flex-1 min-w-[100px] text-xs md:text-sm text-white font-medium">
+                      {user.last_name}
+                    </div>
+                    
+                    {/* First Name */}
+                    <div className="px-3 py-3 flex-1 min-w-[100px] text-xs md:text-sm text-white font-medium">
+                      {user.first_name}
+                    </div>
+                    
+                    {/* Newsletter Checkmark */}
+                    <div className="px-3 py-3 w-12 md:w-16 text-center">
+                      {user.newsletter && (
+                        <span className="inline-flex items-center justify-center w-5 h-5 bg-green-600 rounded-full">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </span>
                       )}
-                    </AnimatePresence>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                    
+                    {/* Interest Checkmark */}
+                    <div className="px-3 py-3 w-12 md:w-16 text-center">
+                      {user.interests && (
+                        <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-600 rounded-full">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Expand/Collapse Icon */}
+                    <div className="px-3 py-3">
+                      {expandedId === user.id ? (
+                        <ChevronUp className="w-5 h-5 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Expanded Details */}
+                  <AnimatePresence>
+                    {expandedId === user.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-4 pb-4 pt-2 border-t border-gray-600">
+                          {editingId === user.id ? (
+                            // Edit Mode
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-xs text-gray-400 block mb-1">First Name</label>
+                                  <input
+                                    type="text"
+                                    value={editData.first_name || ''}
+                                    onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
+                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-400 block mb-1">Last Name</label>
+                                  <input
+                                    type="text"
+                                    value={editData.last_name || ''}
+                                    onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
+                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-400 block mb-1">Email</label>
+                                  <input
+                                    type="email"
+                                    value={editData.email || ''}
+                                    onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-400 block mb-1">Phone</label>
+                                  <input
+                                    type="tel"
+                                    value={editData.phone || ''}
+                                    onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-400 block mb-1">Age</label>
+                                  <input
+                                    type="number"
+                                    value={editData.athlete_age || ''}
+                                    onChange={(e) => setEditData({ ...editData, athlete_age: parseInt(e.target.value) })}
+                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-400 block mb-1">Interests</label>
+                                  <input
+                                    type="text"
+                                    value={editData.interests || ''}
+                                    onChange={(e) => setEditData({ ...editData, interests: e.target.value })}
+                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-xs text-gray-400 block mb-1">Message</label>
+                                <textarea
+                                  value={editData.message || ''}
+                                  onChange={(e) => setEditData({ ...editData, message: e.target.value })}
+                                  rows={3}
+                                  className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600 resize-none"
+                                />
+                              </div>
+                              <div className="flex gap-2 pt-2">
+                                <button
+                                  onClick={saveEdit}
+                                  className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
+                                >
+                                  <Save className="w-4 h-4" />
+                                  Save
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setEditingId(null); setEditData({}) }}
+                                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
+                                >
+                                  <X className="w-4 h-4" />
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            // View Mode
+                            <div className="space-y-2 text-sm text-gray-300">
+                              <div><span className="text-gray-500">Email:</span> {user.email}</div>
+                              <div><span className="text-gray-500">Phone:</span> {user.phone || '-'}</div>
+                              <div><span className="text-gray-500">Age:</span> {user.athlete_age || '-'}</div>
+                              <div><span className="text-gray-500">Interests:</span> {user.interests || '-'}</div>
+                              {user.message && <div><span className="text-gray-500">Message:</span> {user.message}</div>}
+                              <div className="flex gap-2 pt-3">
+                                <button
+                                  onClick={(e) => startEdit(e, user)}
+                                  className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={(e) => handleArchive(e, user.id)}
+                                  className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
+                                >
+                                  <Archive className="w-4 h-4" />
+                                  Archive
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
