@@ -69,8 +69,8 @@ export default function ParallaxGym() {
         </h2>
       </motion.div>
 
-      {/* Mobile: Activity Carousel */}
-      <div className="absolute bottom-[25%] left-1/2 transform -translate-x-1/2 z-10 lg:hidden">
+      {/* Activity Carousel */}
+      <div className="absolute bottom-[25%] left-1/2 transform -translate-x-1/2 z-10">
         <div className="flex items-center gap-3 w-[280px]">
           <button
             onClick={() => setSelectedActivity((prev) => (prev === 0 ? activities.length - 1 : prev - 1))}
@@ -117,39 +117,6 @@ export default function ParallaxGym() {
               }`}
             />
           ))}
-        </div>
-      </div>
-
-      {/* Desktop: Activity Boxes Grid */}
-      <div className="hidden lg:block absolute left-8 lg:top-[12%] z-10">
-        <div className="flex flex-col gap-3">
-          {activities.map((activity, index) => {
-            const IconComponent = activity.icon
-            return (
-              <motion.div
-                key={activity.name}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: index * 0.05 }}
-              >
-                <button className="bg-white backdrop-blur-sm px-4 py-3 rounded-xl border-2 border-vortex-red flex items-center gap-3 w-56 hover:bg-gray-50 transition-colors">
-                  <IconComponent className="w-6 h-6 text-vortex-red flex-shrink-0" />
-                  <p className="text-black text-sm font-semibold whitespace-nowrap">{activity.name}</p>
-                </button>
-              </motion.div>
-            )
-          })}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            <button className="bg-vortex-red px-4 py-3 rounded-xl border-2 border-white flex items-center justify-center w-56 hover:bg-red-700 transition-colors">
-              <p className="text-white text-sm font-semibold whitespace-nowrap">Stay Informed</p>
-            </button>
-          </motion.div>
         </div>
       </div>
 
