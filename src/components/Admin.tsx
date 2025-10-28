@@ -306,7 +306,7 @@ export default function Admin({ onLogout }: AdminProps) {
           ) : (
             <div className="space-y-2">
               {/* Column Headers */}
-              <div className="hidden md:flex items-center bg-gray-600 rounded-t-lg">
+              <div className="hidden md:flex items-center bg-gray-600 rounded-t-lg px-3">
                 <button 
                   onClick={() => handleSort('created_at')}
                   className="px-3 py-3 flex-1 min-w-[80px] text-xs text-gray-300 font-semibold text-left hover:text-white transition-colors"
