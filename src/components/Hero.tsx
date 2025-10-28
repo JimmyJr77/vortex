@@ -8,6 +8,8 @@ interface HeroProps {
 
 const Hero = ({ onContactClick }: HeroProps) => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
+  const [touchStart, setTouchStart] = useState(0)
+  const [touchEnd, setTouchEnd] = useState(0)
   
   const rotatingTexts = [
     {
@@ -74,6 +76,59 @@ const Hero = ({ onContactClick }: HeroProps) => {
       bottomColor: "text-white"
     }
   ]
+
+  // Minimum swipe distance (in pixels)
+  const minSwipeDistance = 50
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(0) // Reset end position
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+
+    if (isLeftSwipe) {
+      // Swipe left - go to next
+      setCurrentTextIndex((prevIndex) => 
+        (prevIndex + 1) % rotatingTexts.length
+      )
+    } else if (isRightSwipe) {
+      // Swipe right - go to previous
+      setCurrentTextIndex((prevIndex) => 
+        prevIndex === 0 ? rotatingTexts.length - 1 : prevIndex - 1
+      )
+    }
+  }
+
+  const handleWheel = (e: React.WheelEvent) => {
+    // Handle touchpad/mouse wheel swipe
+    if (Math.abs(e.deltaX) > 50) {
+      if (e.deltaX > 0) {
+        // Swipe right on touchpad
+        setCurrentTextIndex((prevIndex) => 
+          prevIndex === 0 ? rotatingTexts.length - 1 : prevIndex - 1
+        )
+      } else {
+        // Swipe left on touchpad
+        setCurrentTextIndex((prevIndex) => 
+          (prevIndex + 1) % rotatingTexts.length
+        )
+      }
+    }
+  }
+
+  const goToSlide = (index: number) => {
+    setCurrentTextIndex(index)
+  }
 
   useEffect(() => {
     const interval = setInterval(() => {
