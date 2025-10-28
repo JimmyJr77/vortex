@@ -242,7 +242,6 @@ app.get('/api/admin/registrations', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT * FROM registrations 
-      WHERE archived IS NOT true
       ORDER BY created_at DESC
     `)
 
