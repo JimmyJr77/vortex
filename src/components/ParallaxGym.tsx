@@ -55,18 +55,18 @@ export default function ParallaxGym() {
         style={{ opacity }}
       />
 
-      {/* Complete Athlete Title */}
-      <motion.div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 text-center"
-        initial={{ opacity: 0, y: -20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1, delay: 0.5 }}
-      >
-        <h2 className="text-5xl sm:text-6xl md:text-7xl font-display font-bold text-white drop-shadow-2xl">
-          Complete Athlete
-        </h2>
-      </motion.div>
+      {/* THE COMPLETE ATHLETE Title - 8% from top */}
+      <div className="absolute top-[8%] left-1/2 -translate-x-1/2 z-20 w-full">
+        <motion.h2 
+          className="text-5xl sm:text-6xl md:text-7xl font-display font-bold text-white drop-shadow-2xl text-center"
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.5 }}
+        >
+          THE COMPLETE ATHLETE
+        </motion.h2>
+      </div>
 
       {/* Activity Carousel */}
       <div className="absolute bottom-[25%] left-1/2 transform -translate-x-1/2 z-10">
@@ -84,17 +84,9 @@ export default function ParallaxGym() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="bg-white backdrop-blur-sm px-6 py-4 rounded-xl border-2 border-vortex-red flex items-center gap-3 w-full"
+            className="bg-white backdrop-blur-sm px-3 py-3 rounded-xl border-2 border-vortex-red flex items-center justify-center w-full h-20"
           >
-            {(() => {
-              const IconComponent = activities[selectedActivity].icon
-              return (
-                <>
-                  <IconComponent className="w-7 h-7 text-vortex-red flex-shrink-0" />
-                  <p className="text-black text-base font-bold text-center flex-1">{activities[selectedActivity].name}</p>
-                </>
-              )
-            })()}
+            <p className="text-black text-base font-bold text-center leading-tight">{activities[selectedActivity].name}</p>
           </motion.div>
 
           <button
