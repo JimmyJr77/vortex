@@ -175,7 +175,7 @@ const Footer = ({ onContactClick, onLoginClick }: FooterProps) => {
               Ready to Transform?
             </h3>
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Join the waitlist and be the first to experience the future of athletic development.
+              Join the waitlist and be the first to experience the future of athletic development!
             </p>
             <motion.button
               onClick={onContactClick}
