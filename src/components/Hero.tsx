@@ -185,13 +185,19 @@ const Hero = ({ onContactClick }: HeroProps) => {
           </motion.div>
 
           {/* Main Headline with Rotating Text */}
-          <div className="relative h-96 flex items-center justify-center">
+          <div 
+            className="relative h-96 flex items-center justify-center"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onWheel={handleWheel}
+          >
             <AnimatePresence mode="wait">
               <motion.h1
                 key={currentTextIndex}
                 className="text-6xl md:text-8xl font-display font-bold text-white mb-6 text-center"
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
+                animate={{ opacity: 1, y: 0, scale:  acordo }}
                 exit={{ opacity: 0, y: -50, scale: 0.9 }}
                 transition={{ duration: 0.6, ease: "easeInOut" }}
               >
@@ -204,7 +210,7 @@ const Hero = ({ onContactClick }: HeroProps) => {
             </AnimatePresence>
             
             {/* Progress Indicators */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 cursor-pointer">
               {rotatingTexts.map((_, index) => (
                 <motion.div
                   key={index}
@@ -216,6 +222,9 @@ const Hero = ({ onContactClick }: HeroProps) => {
                     opacity: index === currentTextIndex ? 1 : 0.3
                   }}
                   transition={{ duration: 0.3 }}
+                  onClick={() => goToSlide(index)}
+                  whileHover={{ scale: 1.3 }}
+                  whileTap={{ scale: 0.9 }}
                 />
               ))}
             </div>
