@@ -12,9 +12,7 @@ const Footer = ({ onContactClick, onLoginClick }: FooterProps) => {
   }
 
   const quickLinks = [
-    { name: 'About', href: '#about' },
-    { name: 'Programs', href: '#programs' },
-    { name: 'Technology', href: '#technology' },
+    { name: 'FAQ', href: '#faq' },
   ]
 
   const socialLinks = [

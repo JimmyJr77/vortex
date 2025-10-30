@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
-import Hero from './components/Hero'
-import ParallaxGym from './components/ParallaxGym'
-import About from './components/About'
-import Programs from './components/Programs'
-import Technology from './components/Technology'
+import HomePage from './components/HomePage'
+import LandingPage from './components/LandingPage'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
 import OpeningPopup from './components/OpeningPopup'
@@ -16,6 +14,7 @@ function App() {
   const [isOpeningPopupOpen, setIsOpeningPopupOpen] = useState(false)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const location = useLocation()
 
   useEffect(() => {
     // Check if user is already logged in
@@ -24,14 +23,14 @@ function App() {
       setIsAdmin(true)
     }
 
-    // Show opening popup after a short delay (only if not admin)
-    if (!adminStatus) {
+    // Show opening popup after a short delay (only if not admin and on home page)
+    if (!adminStatus && location.pathname === '/') {
       const timer = setTimeout(() => {
         setIsOpeningPopupOpen(true)
-      }, 1000)
+      }, 1000);
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [location.pathname])
 
   const handleLoginSuccess = () => {
     setIsAdmin(true)
@@ -55,11 +54,16 @@ function App() {
       <Header 
         onContactClick={() => setIsContactFormOpen(true)} 
       />
-      <Hero onContactClick={() => setIsContactFormOpen(true)} />
-      <ParallaxGym />
-      <About />
-      <Programs />
-      <Technology />
+      <Routes>
+        <Route 
+          path="/" 
+          element={<HomePage onContactClick={() => setIsContactFormOpen(true)} />} 
+        />
+        <Route 
+          path="/overview" 
+          element={<LandingPage onSignUpClick={() => setIsContactFormOpen(true)} />} 
+        />
+      </Routes>
       <ContactForm
         isOpen={isContactFormOpen}
         onClose={() => setIsContactFormOpen(false)}
@@ -69,12 +73,14 @@ function App() {
         onLoginClick={() => setIsLoginOpen(true)}
       />
       
-      {/* Opening Popup */}
-      <OpeningPopup
-        isOpen={isOpeningPopupOpen}
-        onClose={() => setIsOpeningPopupOpen(false)}
-        onSignUp={() => setIsContactFormOpen(true)}
-      />
+      {/* Opening Popup - only show on home page */}
+      {location.pathname === '/' && (
+        <OpeningPopup
+          isOpen={isOpeningPopupOpen}
+          onClose={() => setIsOpeningPopupOpen(false)}
+          onSignUp={() => setIsContactFormOpen(true)}
+        />
+      )}
 
       {/* Login Modal */}
       <Login

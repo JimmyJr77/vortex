@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
 interface HeaderProps {
   onContactClick: () => void
@@ -8,13 +9,20 @@ interface HeaderProps {
 
 const Header = ({ onContactClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const location = useLocation()
+  const isOverviewPage = location.pathname === '/overview'
 
-  const menuItems = [
-    { name: 'About', href: '#about' },
-    { name: 'Programs', href: '#programs' },
-    { name: 'Technology', href: '#technology' },
-    { name: 'Contact', action: onContactClick },
-  ]
+  const menuItems = isOverviewPage 
+    ? [
+        { name: 'FAQ', href: '#faq' },
+        { name: 'Contact', action: onContactClick },
+      ]
+    : [
+        { name: 'About', href: '#about' },
+        { name: 'Programs', href: '#programs' },
+        { name: 'Technology', href: '#technology' },
+        { name: 'Contact', action: onContactClick },
+      ]
 
   return (
     <motion.header 
@@ -61,6 +69,17 @@ const Header = ({ onContactClick }: HeaderProps) => {
             >
               Stay Informed
             </motion.button>
+            {isOverviewPage && (
+              <Link to="/">
+                <motion.button
+                  className="bg-white text-vortex-red px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Home Page
+                </motion.button>
+              </Link>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -105,6 +124,17 @@ const Header = ({ onContactClick }: HeaderProps) => {
             >
               Stay Informed
             </button>
+            {isOverviewPage && (
+              <Link
+                to="/"
+                onClick={() => setIsMenuOpen(false)}
+                className="block"
+              >
+                <button className="bg-white text-vortex-red w-full px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-100">
+                  Home Page
+                </button>
+              </Link>
+            )}
           </div>
         </motion.nav>
       </div>
