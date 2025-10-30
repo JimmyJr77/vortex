@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 
 interface HeroProps {
   onContactClick: () => void
@@ -248,14 +249,15 @@ const Hero = ({ onContactClick }: HeroProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.8 }}
           >
-            <motion.button
-              onClick={onContactClick}
-              className="border-2 border-vortex-red bg-vortex-red text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg group"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Stay Informed
-            </motion.button>
+            <Link to="/overview">
+              <motion.button
+                className="bg-white text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg group"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Overview
+              </motion.button>
+            </Link>
             
             <motion.button
               className="btn-secondary group"
