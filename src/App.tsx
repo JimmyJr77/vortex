@@ -57,7 +57,7 @@ function App() {
       <Routes>
         <Route 
           path="/" 
-          element={<HomePage onContactClick={() => setIsContactFormOpen(true)} />} 
+          element={<HomePage />} 
         />
         <Route 
           path="/overview" 

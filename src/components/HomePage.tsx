@@ -4,14 +4,10 @@ import About from './About'
 import Programs from './Programs'
 import Technology from './Technology'
 
-interface HomePageProps {
-  onContactClick: () => void
-}
-
-const HomePage = ({ onContactClick }: HomePageProps) => {
+const HomePage = () => {
   return (
     <>
-      <Hero onContactClick={onContactClick} />
+      <Hero />
       <ParallaxGym />
       <About />
       <Programs />

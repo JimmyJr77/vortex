@@ -3,11 +3,7 @@ import { Zap } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
-interface HeroProps {
-  onContactClick: () => void
-}
-
-const Hero = ({ onContactClick }: HeroProps) => {
+const Hero = () => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
