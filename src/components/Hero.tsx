@@ -251,7 +251,7 @@ const Hero = ({ onContactClick }: HeroProps) => {
           >
             <Link to="/overview">
               <motion.button
-                className="bg-white text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg group"
+                className="bg-white text-vortex-red border-2 border-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg group"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
