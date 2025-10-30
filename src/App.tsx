@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import HomePage from './components/HomePage'
 import LandingPage from './components/LandingPage'
+import AthleticismAccelerator from './components/AthleticismAccelerator'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
 import OpeningPopup from './components/OpeningPopup'
@@ -62,6 +63,10 @@ function App() {
         <Route 
           path="/overview" 
           element={<LandingPage onSignUpClick={() => setIsContactFormOpen(true)} />} 
+        />
+        <Route 
+          path="/athleticism-accelerator" 
+          element={<AthleticismAccelerator onSignUpClick={() => setIsContactFormOpen(true)} />} 
         />
       </Routes>
       <ContactForm
