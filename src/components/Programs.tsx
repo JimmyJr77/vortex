@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Clock, Users, Target, Dumbbell } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const Programs = () => {
   const programs = [
@@ -62,16 +63,8 @@ const Programs = () => {
 
         {/* Programs Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
-          {programs.map((program, index) => (
-            <motion.div
-              key={program.title}
-              className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.6 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.02 }}
-            >
+          {programs.map((program, index) => {
+            const Content = (
               <div className="flex items-start space-x-4 mb-6">
                 <div className={`w-16 h-16 ${program.color} rounded-2xl flex items-center justify-center`}>
                   <program.icon className="w-8 h-8 text-white" />
@@ -81,7 +74,9 @@ const Programs = () => {
                   <p className="text-gray-600 leading-relaxed">{program.description}</p>
                 </div>
               </div>
-              
+            )
+
+            const Features = (
               <div className="flex flex-wrap gap-2">
                 {program.features.map((feature) => (
                   <span
@@ -92,8 +87,32 @@ const Programs = () => {
                   </span>
                 ))}
               </div>
-            </motion.div>
-          ))}
+            )
+
+            return (
+              <motion.div
+                key={program.title}
+                className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.02 }}
+              >
+                {program.title === "Athleticism Accelerator" ? (
+                  <Link to="/athleticism-accelerator">
+                    {Content}
+                    {Features}
+                  </Link>
+                ) : (
+                  <>
+                    {Content}
+                    {Features}
+                  </>
+                )}
+              </motion.div>
+            )
+          })}
         </div>
 
         {/* Pricing Section */}
