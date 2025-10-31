@@ -3,7 +3,11 @@ import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-const Header = () => {
+interface HeaderProps {
+  onContactClick: () => void
+}
+
+const Header = ({ onContactClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -37,7 +41,7 @@ const Header = () => {
             />
           </motion.div>
 
-          {/* Menu Button and Home Button */}
+          {/* Menu Button, Home Button, and Sign Up Button */}
           <div className="flex items-center space-x-4">
             {/* Hamburger Menu Button */}
             <button
@@ -57,6 +61,16 @@ const Header = () => {
                 Home
               </motion.button>
             </Link>
+
+            {/* Sign Up for Updates Button */}
+            <motion.button
+              onClick={onContactClick}
+              className="bg-vortex-red text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Sign Up for Updates
+            </motion.button>
           </div>
         </div>
 

@@ -56,7 +56,9 @@ function App() {
   // Otherwise show normal website
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header 
+        onContactClick={() => setIsContactFormOpen(true)} 
+      />
       <Routes>
         <Route 
           path="/" 
