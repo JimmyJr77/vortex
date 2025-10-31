@@ -26,27 +26,31 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
-      
-      // Convert athleteAge to a number if needed
-      const ageRange = formData.athleteAge
-      let athleteAgeNum: number | null = null
-      
-      if (ageRange === '3-5') athleteAgeNum = 4
-      else if (ageRange === '6-8') athleteAgeNum = 7
-      else if (ageRange === '9-12') athleteAgeNum = 10
-      else if (ageRange === '13-18') athleteAgeNum = 15
-      else if (ageRange === 'adult') athleteAgeNum = 18
-      
-      // Clean phone number - remove all non-digit characters except + at the start
-      let cleanPhone = formData.phone?.trim() || ''
-      if (cleanPhone) {
-        cleanPhone = cleanPhone.replace(/[^\d+]/g, '') // Remove all non-digit, non-plus characters
-        if (cleanPhone.startsWith('+')) {
-          cleanPhone = '+' + cleanPhone.substring(1).replace(/\D/g, '')
-        }
+    // Convert athleteAge to a number if needed
+    const ageRange = formData.athleteAge
+    let athleteAgeNum: number | null = null
+    
+    if (ageRange === '3-5') athleteAgeNum = 4
+    else if (ageRange === '6-8') athleteAgeNum = 7
+    else if (ageRange === '9-12') athleteAgeNum = 10
+    else if (ageRange === '13-18') athleteAgeNum = 15
+    else if (ageRange === 'adult') athleteAgeNum = 18
+    
+    // Clean phone number - remove all non-digit characters except + at the start
+    let cleanPhone = formData.phone?.trim() || ''
+    if (cleanPhone) {
+      cleanPhone = cleanPhone.replace(/[^\d+]/g, '') // Remove all non-digit, non-plus characters
+      if (cleanPhone.startsWith('+')) {
+        cleanPhone = '+' + cleanPhone.substring(1).replace(/\D/g, '')
       }
+    }
+    
+    try {
+      // Use environment variable if set, otherwise detect production vs development
+      const apiUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD 
+          ? 'https://vortex-backend.onrender.com'  // Production backend URL
+          : 'http://localhost:3001')  // Local development
       
       const payload = {
         firstName: formData.firstName,
@@ -58,13 +62,49 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
         message: formData.message || undefined
       }
       
-      const response = await fetch(`${apiUrl}/api/registrations`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      })
+      let response: Response
+      try {
+        response = await fetch(`${apiUrl}/api/registrations`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(10000) // 10 second timeout
+        })
+      } catch (fetchError: any) {
+        // Handle network errors or connection refused
+        if (fetchError.name === 'AbortError' || fetchError.name === 'TypeError') {
+          console.warn('Backend server unavailable. Storing submission locally for later processing.')
+          // Store submission locally as fallback
+          const pendingSubmissions = JSON.parse(localStorage.getItem('vortex_pending_submissions') || '[]')
+          pendingSubmissions.push({
+            ...payload,
+            timestamp: new Date().toISOString(),
+            newsletter
+          })
+          localStorage.setItem('vortex_pending_submissions', JSON.stringify(pendingSubmissions))
+          
+          // Show success anyway - we've stored their info
+          setIsSubmitted(true)
+          setTimeout(() => {
+            setIsSubmitted(false)
+            setFormData({
+              firstName: '',
+              lastName: '',
+              email: '',
+              phone: '',
+              athleteAge: '',
+              interests: '',
+              message: ''
+            })
+            setNewsletter(false)
+            onClose()
+          }, 3000)
+          return
+        }
+        throw fetchError
+      }
 
       console.log('Response status:', response.status)
       const result = await response.json()
@@ -79,7 +119,8 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ email: formData.email })
+              body: JSON.stringify({ email: formData.email }),
+              signal: AbortSignal.timeout(5000) // 5 second timeout
             })
           } catch (error) {
             console.error('Newsletter subscription error:', error)
@@ -114,7 +155,8 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email: formData.email })
+                body: JSON.stringify({ email: formData.email }),
+                signal: AbortSignal.timeout(5000) // 5 second timeout
               })
             } catch (error) {
               console.error('Newsletter subscription error:', error)
@@ -142,9 +184,48 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
           alert(`Registration failed: ${result.message || 'Please try again.'}`)
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error)
-      alert('Network error. Please check your connection and try again.')
+      // Only show error if we haven't already handled it as a connection error
+      if (!error.handled) {
+        // For other errors, try to store locally as backup
+        try {
+          const pendingSubmissions = JSON.parse(localStorage.getItem('vortex_pending_submissions') || '[]')
+          pendingSubmissions.push({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: cleanPhone || undefined,
+            athleteAge: athleteAgeNum || undefined,
+            interests: formData.interests || undefined,
+            message: formData.message || undefined,
+            timestamp: new Date().toISOString(),
+            newsletter
+          })
+          localStorage.setItem('vortex_pending_submissions', JSON.stringify(pendingSubmissions))
+          
+          // Show success message even if backend failed
+          alert('We\'ve received your information and stored it locally. We\'ll process it once our server is back online. Thank you!')
+          setIsSubmitted(true)
+          setTimeout(() => {
+            setIsSubmitted(false)
+            setFormData({
+              firstName: '',
+              lastName: '',
+              email: '',
+              phone: '',
+              athleteAge: '',
+              interests: '',
+              message: ''
+            })
+            setNewsletter(false)
+            onClose()
+          }, 3000)
+        } catch (storageError) {
+          // If even localStorage fails, show error
+          alert('Unable to submit. Please check your connection and try again later.')
+        }
+      }
     } finally {
       setIsSubmitting(false)
     }

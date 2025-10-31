@@ -230,7 +230,10 @@ export default function Admin({ onLogout }: AdminProps) {
     try {
       setLoading(true)
       setError(null)
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+      const apiUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD 
+          ? 'https://vortex-backend.onrender.com'  // Production backend URL
+          : 'http://localhost:3001')  // Local development
       
       const regResponse = await fetch(`${apiUrl}/api/admin/registrations`)
       if (!regResponse.ok) {
@@ -321,7 +324,10 @@ export default function Admin({ onLogout }: AdminProps) {
     if (!editingId) return
     
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+      const apiUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD 
+          ? 'https://vortex-backend.onrender.com'  // Production backend URL
+          : 'http://localhost:3001')  // Local development
       const response = await fetch(`${apiUrl}/api/admin/registrations/${editingId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -344,7 +350,10 @@ export default function Admin({ onLogout }: AdminProps) {
     if (!confirm('Archive this user?')) return
     
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+      const apiUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD 
+          ? 'https://vortex-backend.onrender.com'  // Production backend URL
+          : 'http://localhost:3001')  // Local development
       const response = await fetch(`${apiUrl}/api/admin/registrations/${id}`, {
         method: 'DELETE'
       })
