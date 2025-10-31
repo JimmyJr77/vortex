@@ -5,6 +5,9 @@ import HomePage from './components/HomePage'
 import LandingPage from './components/LandingPage'
 import AthleticismAccelerator from './components/AthleticismAccelerator'
 import TrampolineTumbling from './components/TrampolineTumbling'
+import ArtisticGymnastics from './components/ArtisticGymnastics'
+import RhythmicGymnastics from './components/RhythmicGymnastics'
+import Ninja from './components/Ninja'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
 import OpeningPopup from './components/OpeningPopup'
@@ -53,9 +56,7 @@ function App() {
   // Otherwise show normal website
   return (
     <div className="min-h-screen bg-white">
-      <Header 
-        onContactClick={() => setIsContactFormOpen(true)} 
-      />
+      <Header />
       <Routes>
         <Route 
           path="/" 
@@ -72,6 +73,18 @@ function App() {
         <Route 
           path="/trampoline-tumbling" 
           element={<TrampolineTumbling onSignUpClick={() => setIsContactFormOpen(true)} />} 
+        />
+        <Route 
+          path="/artistic-gymnastics" 
+          element={<ArtisticGymnastics onSignUpClick={() => setIsContactFormOpen(true)} />} 
+        />
+        <Route 
+          path="/rhythmic-gymnastics" 
+          element={<RhythmicGymnastics onSignUpClick={() => setIsContactFormOpen(true)} />} 
+        />
+        <Route 
+          path="/ninja" 
+          element={<Ninja onSignUpClick={() => setIsContactFormOpen(true)} />} 
         />
       </Routes>
       <ContactForm

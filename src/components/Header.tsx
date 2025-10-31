@@ -3,26 +3,18 @@ import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-interface HeaderProps {
-  onContactClick: () => void
-}
-
-const Header = ({ onContactClick }: HeaderProps) => {
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
-  const isOverviewPage = location.pathname === '/overview'
 
-  const menuItems = isOverviewPage 
-    ? [
-        { name: 'FAQ', href: '#faq' },
-        { name: 'Contact', action: onContactClick },
-      ]
-    : [
-        { name: 'About', href: '#about' },
-        { name: 'Programs', href: '#programs' },
-        { name: 'Technology', href: '#technology' },
-        { name: 'Contact', action: onContactClick },
-      ]
+  const menuItems = [
+    { name: 'Overview', to: '/overview' },
+    { name: 'Athleticism Accelerator', to: '/athleticism-accelerator' },
+    { name: 'Tramp & Tumble', to: '/trampoline-tumbling' },
+    { name: 'Artistic Gymnastics', to: '/artistic-gymnastics' },
+    { name: 'Rhythmic Gymnastics', to: '/rhythmic-gymnastics' },
+    { name: 'Ninja', to: '/ninja' },
+  ]
 
   return (
     <motion.header 
@@ -45,55 +37,32 @@ const Header = ({ onContactClick }: HeaderProps) => {
             />
           </motion.div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {menuItems.map((item, index) => (
-              <motion.a
-                key={item.name}
-                href={item.href}
-                onClick={item.action}
-                className="text-white hover:text-vortex-red transition-colors duration-300 font-medium"
-                whileHover={{ scale: 1.05 }}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                {item.name}
-              </motion.a>
-            ))}
-            <motion.button
-              onClick={onContactClick}
-              className="bg-vortex-red text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          {/* Menu Button and Home Button */}
+          <div className="flex items-center space-x-4">
+            {/* Hamburger Menu Button */}
+            <button
+              className="text-white hover:text-vortex-red transition-colors duration-300"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              Stay Informed
-            </motion.button>
-            {isOverviewPage && (
-              <Link to="/">
-                <motion.button
-                  className="bg-white text-vortex-red px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Home Page
-                </motion.button>
-              </Link>
-            )}
-          </nav>
+              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-white"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            {/* Home Button */}
+            <Link to="/" className="block">
+              <motion.button
+                className="bg-white text-vortex-red px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Home
+              </motion.button>
+            </Link>
+          </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Navigation Menu (Mobile & Desktop) */}
         <motion.nav
-          className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`}
+          className={`${isMenuOpen ? 'block' : 'hidden'}`}
           initial={{ opacity: 0, height: 0 }}
           animate={{ 
             opacity: isMenuOpen ? 1 : 0, 
@@ -103,38 +72,17 @@ const Header = ({ onContactClick }: HeaderProps) => {
         >
           <div className="py-4 space-y-4 border-t border-gray-800">
             {menuItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
-                onClick={() => {
-                  item.action?.()
-                  setIsMenuOpen(false)
-                }}
-                className="block text-white hover:text-vortex-red transition-colors duration-300 font-medium"
+                to={item.to}
+                onClick={() => setIsMenuOpen(false)}
+                className={`block ${
+                  location.pathname === item.to ? 'text-vortex-red' : 'text-white'
+                } hover:text-vortex-red transition-colors duration-300 font-medium`}
               >
                 {item.name}
-              </a>
-            ))}
-            <button
-              onClick={() => {
-                onContactClick()
-                setIsMenuOpen(false)
-              }}
-              className="btn-primary w-full"
-            >
-              Stay Informed
-            </button>
-            {isOverviewPage && (
-              <Link
-                to="/"
-                onClick={() => setIsMenuOpen(false)}
-                className="block"
-              >
-                <button className="bg-white text-vortex-red w-full px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-100">
-                  Home Page
-                </button>
               </Link>
-            )}
+            ))}
           </div>
         </motion.nav>
       </div>
