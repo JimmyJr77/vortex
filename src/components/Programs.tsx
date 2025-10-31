@@ -104,6 +104,11 @@ const Programs = () => {
                     {Content}
                     {Features}
                   </Link>
+                ) : program.title === "Competition Programs" ? (
+                  <Link to="/trampoline-tumbling">
+                    {Content}
+                    {Features}
+                  </Link>
                 ) : (
                   <>
                     {Content}

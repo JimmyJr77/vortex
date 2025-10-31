@@ -4,6 +4,7 @@ import Header from './components/Header'
 import HomePage from './components/HomePage'
 import LandingPage from './components/LandingPage'
 import AthleticismAccelerator from './components/AthleticismAccelerator'
+import TrampolineTumbling from './components/TrampolineTumbling'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
 import OpeningPopup from './components/OpeningPopup'
@@ -67,6 +68,10 @@ function App() {
         <Route 
           path="/athleticism-accelerator" 
           element={<AthleticismAccelerator onSignUpClick={() => setIsContactFormOpen(true)} />} 
+        />
+        <Route 
+          path="/trampoline-tumbling" 
+          element={<TrampolineTumbling onSignUpClick={() => setIsContactFormOpen(true)} />} 
         />
       </Routes>
       <ContactForm

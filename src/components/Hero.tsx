@@ -265,13 +265,15 @@ const Hero = () => {
               </motion.button>
             </Link>
             
-            <motion.button
-              className="btn-secondary group"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Trampoline & Tumbling
-            </motion.button>
+            <Link to="/trampoline-tumbling">
+              <motion.button
+                className="btn-secondary group"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Trampoline & Tumbling
+              </motion.button>
+            </Link>
             
             <motion.button
               className="btn-secondary group"
