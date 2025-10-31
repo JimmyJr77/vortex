@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Clock, Users, Target, Dumbbell } from 'lucide-react'
+import { Clock, Users, Target, Dumbbell, DollarSign, BarChart3, Zap, CheckCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const Programs = () => {
@@ -113,6 +113,88 @@ const Programs = () => {
             )
           })}
         </div>
+
+        {/* Value Section */}
+        <motion.div
+          className="bg-black rounded-3xl p-12"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <div className="text-center mb-12">
+            <h3 className="text-4xl font-display font-bold text-white mb-4">
+              VALUE
+            </h3>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Premium training, measurable results, and unmatched athletic development.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: DollarSign,
+                title: "Discounted Rates for Young Children",
+                description: "Special pricing available for early development athletes. Invest in foundational skills at accessible rates designed for growing families."
+              },
+              {
+                icon: BarChart3,
+                title: "Telemetry Data & Performance Tracking",
+                description: "Advanced data collection refines training and monitors development in real-time. Track progress, identify strengths, and optimize weaknesses with precision analytics."
+              },
+              {
+                icon: Clock,
+                title: "Longer Class Times",
+                description: "Extended sessions mean more time on equipment, deeper skill development, and comprehensive training without rushing. Quality over quantity, but we deliver both."
+              },
+              {
+                icon: Target,
+                title: "Wider Range of Skills Development",
+                description: "Comprehensive athletic development across all 8 tenets. Not just gymnastics—complete movement intelligence that transfers to every sport and life."
+              },
+              {
+                icon: Zap,
+                title: "Success-Driven Focus",
+                description: "Every session is designed for measurable progress. Our methodology prioritizes results through science-backed training and proven progression systems."
+              },
+              {
+                icon: Dumbbell,
+                title: "Small Group Excellence",
+                description: "More individualized attention, personalized feedback, and coach-to-athlete time means faster progress and better results."
+              }
+            ].map((value, index) => (
+              <motion.div
+                key={value.title}
+                className="bg-white/10 rounded-2xl p-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 bg-vortex-red/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <value.icon className="w-6 h-6 text-vortex-red" />
+                  </div>
+                  <h4 className="text-lg font-bold text-white">{value.title}</h4>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed text-center">{value.description}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <div className="inline-flex items-center space-x-2 text-lg text-gray-300 mb-2">
+              <CheckCircle className="w-5 h-5 text-vortex-red" />
+              <span className="font-semibold text-vortex-red">Telemetry & Athlete Data:</span>
+              <span>$250 one-time fee</span>
+            </div>
+            <p className="text-gray-400 text-sm">
+              Lifetime access to advanced performance tracking, data analytics, and continuous development monitoring
+            </p>
+          </div>
+        </motion.div>
       </div>
     </section>
   )
