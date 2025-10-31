@@ -14,6 +14,7 @@ import Footer from './components/Footer'
 import OpeningPopup from './components/OpeningPopup'
 import Login from './components/Login'
 import Admin from './components/Admin'
+import { trackPageView, trackEngagement } from './utils/analytics'
 
 function App() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
@@ -29,6 +30,11 @@ function App() {
       setIsAdmin(true)
     }
 
+    // Track page view
+    if (!adminStatus) {
+      trackPageView(location.pathname)
+    }
+
     // Show opening popup after a short delay (only if not admin and on home page)
     if (!adminStatus && location.pathname === '/') {
       const timer = setTimeout(() => {
@@ -37,6 +43,11 @@ function App() {
       return () => clearTimeout(timer)
     }
   }, [location.pathname])
+
+  const handleContactClick = () => {
+    trackEngagement('form_open', 'Contact Form', location.pathname)
+    setIsContactFormOpen(true)
+  }
 
   const handleLoginSuccess = () => {
     setIsAdmin(true)
@@ -58,7 +69,7 @@ function App() {
   return (
     <div className="min-h-screen bg-white">
       <Header 
-        onContactClick={() => setIsContactFormOpen(true)} 
+        onContactClick={handleContactClick} 
       />
       <Routes>
         <Route 
@@ -67,27 +78,27 @@ function App() {
         />
         <Route 
           path="/overview" 
-          element={<LandingPage onSignUpClick={() => setIsContactFormOpen(true)} />} 
+          element={<LandingPage onSignUpClick={handleContactClick} />} 
         />
         <Route 
           path="/athleticism-accelerator" 
-          element={<AthleticismAccelerator onSignUpClick={() => setIsContactFormOpen(true)} />} 
+          element={<AthleticismAccelerator onSignUpClick={handleContactClick} />} 
         />
         <Route 
           path="/trampoline-tumbling" 
-          element={<TrampolineTumbling onSignUpClick={() => setIsContactFormOpen(true)} />} 
+          element={<TrampolineTumbling onSignUpClick={handleContactClick} />} 
         />
         <Route 
           path="/artistic-gymnastics" 
-          element={<ArtisticGymnastics onSignUpClick={() => setIsContactFormOpen(true)} />} 
+          element={<ArtisticGymnastics onSignUpClick={handleContactClick} />} 
         />
         <Route 
           path="/rhythmic-gymnastics" 
-          element={<RhythmicGymnastics onSignUpClick={() => setIsContactFormOpen(true)} />} 
+          element={<RhythmicGymnastics onSignUpClick={handleContactClick} />} 
         />
         <Route 
           path="/ninja" 
-          element={<Ninja onSignUpClick={() => setIsContactFormOpen(true)} />} 
+          element={<Ninja onSignUpClick={handleContactClick} />} 
         />
         <Route 
           path="/value" 
@@ -99,7 +110,7 @@ function App() {
         onClose={() => setIsContactFormOpen(false)}
       />
       <Footer 
-        onContactClick={() => setIsContactFormOpen(true)} 
+        onContactClick={handleContactClick} 
         onLoginClick={() => setIsLoginOpen(true)}
       />
       
@@ -108,7 +119,7 @@ function App() {
         <OpeningPopup
           isOpen={isOpeningPopupOpen}
           onClose={() => setIsOpeningPopupOpen(false)}
-          onSignUp={() => setIsContactFormOpen(true)}
+          onSignUp={handleContactClick}
         />
       )}
 

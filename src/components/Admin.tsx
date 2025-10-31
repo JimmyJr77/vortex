@@ -1,9 +1,183 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, RefreshCw, Download, Edit2, Archive, X, Save, ChevronDown, ChevronUp } from 'lucide-react'
+import { LogOut, RefreshCw, Download, Edit2, Archive, X, Save, ChevronDown, ChevronUp, BarChart3, Users, Eye, MousePointer, Clock, TrendingUp } from 'lucide-react'
+import { getAnalyticsData, clearAnalyticsData } from '../utils/analytics'
 
 interface AdminProps {
   onLogout: () => void
+}
+
+interface AnalyticsData {
+  totalPageViews: number
+  totalEngagement: number
+  totalSessions: number
+  uniqueVisitorCount: number
+  avgSessionTime: number
+  engagementRate: string
+  pageViewStats: Array<{ path: string; count: number }>
+  buttonStats: Array<{ button: string; count: number }>
+  recentPageViews: any[]
+  recentEngagement: any[]
+}
+
+const AnalyticsView = ({ data }: { data: AnalyticsData | null }) => {
+  if (!data) {
+    return (
+      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+        <div className="text-center py-12 text-gray-400">Loading analytics...</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Overview Stats */}
+      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-6">
+          Overview Statistics
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="flex items-center space-x-3 mb-2">
+              <Eye className="w-6 h-6 text-vortex-red" />
+              <span className="text-gray-400 text-sm">Total Page Views</span>
+            </div>
+            <div className="text-3xl font-bold text-white">{data.totalPageViews.toLocaleString()}</div>
+          </div>
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="flex items-center space-x-3 mb-2">
+              <Users className="w-6 h-6 text-vortex-red" />
+              <span className="text-gray-400 text-sm">Unique Visitors</span>
+            </div>
+            <div className="text-3xl font-bold text-white">{data.uniqueVisitorCount.toLocaleString()}</div>
+          </div>
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="flex items-center space-x-3 mb-2">
+              <MousePointer className="w-6 h-6 text-vortex-red" />
+              <span className="text-gray-400 text-sm">Total Engagement</span>
+            </div>
+            <div className="text-3xl font-bold text-white">{data.totalEngagement.toLocaleString()}</div>
+          </div>
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="flex items-center space-x-3 mb-2">
+              <Clock className="w-6 h-6 text-vortex-red" />
+              <span className="text-gray-400 text-sm">Avg Session Time</span>
+            </div>
+            <div className="text-3xl font-bold text-white">{data.avgSessionTime}</div>
+            <div className="text-xs text-gray-400 mt-1">minutes</div>
+          </div>
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="flex items-center space-x-3 mb-2">
+              <TrendingUp className="w-6 h-6 text-vortex-red" />
+              <span className="text-gray-400 text-sm">Engagement Rate</span>
+            </div>
+            <div className="text-3xl font-bold text-white">{data.engagementRate}%</div>
+          </div>
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="flex items-center space-x-3 mb-2">
+              <BarChart3 className="w-6 h-6 text-vortex-red" />
+              <span className="text-gray-400 text-sm">Total Sessions</span>
+            </div>
+            <div className="text-3xl font-bold text-white">{data.totalSessions.toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Most Popular Pages */}
+      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+        <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-4">
+          Most Popular Pages
+        </h3>
+        <div className="space-y-2">
+          {data.pageViewStats.length > 0 ? (
+            data.pageViewStats.map((page, index) => (
+              <div key={page.path} className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-vortex-red/20 rounded-lg flex items-center justify-center text-vortex-red font-bold">
+                    {index + 1}
+                  </div>
+                  <span className="text-white font-medium">{page.path === '/' ? 'Home' : page.path}</span>
+                </div>
+                <div className="text-vortex-red font-bold">{page.count.toLocaleString()} views</div>
+              </div>
+            ))
+          ) : (
+            <div className="text-gray-400 text-center py-4">No page view data yet</div>
+          )}
+        </div>
+      </div>
+
+      {/* Most Clicked Buttons */}
+      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+        <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-4">
+          Most Clicked Buttons
+        </h3>
+        <div className="space-y-2">
+          {data.buttonStats.length > 0 ? (
+            data.buttonStats.map((button, index) => (
+              <div key={button.button} className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-vortex-red/20 rounded-lg flex items-center justify-center text-vortex-red font-bold">
+                    {index + 1}
+                  </div>
+                  <span className="text-white font-medium">{button.button}</span>
+                </div>
+                <div className="text-vortex-red font-bold">{button.count.toLocaleString()} clicks</div>
+              </div>
+            ))
+          ) : (
+            <div className="text-gray-400 text-center py-4">No button click data yet</div>
+          )}
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+          <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-4">
+            Recent Page Views
+          </h3>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {data.recentPageViews.length > 0 ? (
+              data.recentPageViews.map((pv, index) => (
+                <div key={index} className="bg-gray-700 rounded-lg p-3 text-sm">
+                  <div className="text-white font-medium">{pv.path === '/' ? 'Home' : pv.path}</div>
+                  <div className="text-gray-400 text-xs mt-1">
+                    {new Date(pv.timestamp).toLocaleString()}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-400 text-center py-4">No recent page views</div>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+          <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-4">
+            Recent Engagement
+          </h3>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {data.recentEngagement.length > 0 ? (
+              data.recentEngagement.map((event, index) => (
+                <div key={index} className="bg-gray-700 rounded-lg p-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white font-medium">{event.type.replace('_', ' ')}</span>
+                    <span className="text-vortex-red text-xs">{event.target}</span>
+                  </div>
+                  <div className="text-gray-400 text-xs mt-1">
+                    {new Date(event.timestamp).toLocaleString()}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-400 text-center py-4">No recent engagement</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 interface User {
@@ -21,6 +195,7 @@ interface User {
 }
 
 type FilterType = 'all' | 'newsletter' | 'interests'
+type TabType = 'users' | 'analytics'
 
 export default function Admin({ onLogout }: AdminProps) {
   const [users, setUsers] = useState<User[]>([])
@@ -32,10 +207,24 @@ export default function Admin({ onLogout }: AdminProps) {
   const [filter, setFilter] = useState<FilterType>('all')
   const [showExportDialog, setShowExportDialog] = useState(false)
   const [sortConfig, setSortConfig] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'created_at', direction: 'desc' })
+  const [activeTab, setActiveTab] = useState<TabType>('users')
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
 
   useEffect(() => {
     fetchData()
+    loadAnalytics()
   }, [])
+
+  const loadAnalytics = () => {
+    const data = getAnalyticsData()
+    setAnalyticsData(data)
+  }
+
+  useEffect(() => {
+    if (activeTab === 'analytics') {
+      loadAnalytics()
+    }
+  }, [activeTab])
 
   const fetchData = async () => {
     try {
@@ -211,32 +400,65 @@ export default function Admin({ onLogout }: AdminProps) {
     setShowExportDialog(false)
   }
 
+  const handleClearAnalytics = () => {
+    if (confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
+      clearAnalyticsData()
+      loadAnalytics()
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 p-4 md:p-8">
-      <div className="max-w-full mx-auto">
+      <div className="max-w-full mx-auto space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
             VORTEX <span className="text-vortex-red">ADMIN</span>
           </h1>
           <div className="flex gap-2">
-            <motion.button
-              onClick={fetchData}
-              className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <RefreshCw className="w-4 h-4" />
-              <span className="hidden md:inline">Refresh</span>
-            </motion.button>
-            <motion.button
-              onClick={handleExportClick}
-              className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Download className="w-4 h-4" />
-              <span className="hidden md:inline">Export</span>
-            </motion.button>
+            {activeTab === 'users' && (
+              <>
+                <motion.button
+                  onClick={fetchData}
+                  className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  <span className="hidden md:inline">Refresh</span>
+                </motion.button>
+                <motion.button
+                  onClick={handleExportClick}
+                  className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Download className="w-4 h-4" />
+                  <span className="hidden md:inline">Export</span>
+                </motion.button>
+              </>
+            )}
+            {activeTab === 'analytics' && (
+              <>
+                <motion.button
+                  onClick={loadAnalytics}
+                  className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  <span className="hidden md:inline">Refresh</span>
+                </motion.button>
+                <motion.button
+                  onClick={handleClearAnalytics}
+                  className="flex items-center space-x-2 bg-red-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors text-sm"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <X className="w-4 h-4" />
+                  <span className="hidden md:inline">Clear Data</span>
+                </motion.button>
+              </>
+            )}
             <motion.button
               onClick={onLogout}
               className="flex items-center space-x-2 bg-vortex-red text-white px-3 md:px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors text-sm"
@@ -249,11 +471,54 @@ export default function Admin({ onLogout }: AdminProps) {
           </div>
         </div>
 
-        <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
-          <div className="mb-4 md:mb-6">
-            <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4">
-              Master Roster ({filteredUsers.length} of {users.length})
-            </h2>
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+              activeTab === 'users'
+                ? 'bg-vortex-red text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Master Roster
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+              activeTab === 'analytics'
+                ? 'bg-vortex-red text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Analytics & Engagement
+          </button>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {activeTab === 'analytics' ? (
+            <motion.div
+              key="analytics"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <AnalyticsView data={analyticsData} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="users"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg"
+            >
+              <div className="mb-4 md:mb-6">
+                <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4">
+                  Master Roster ({filteredUsers.length} of {users.length})
+                </h2>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setFilter('all')}
@@ -516,7 +781,9 @@ export default function Admin({ onLogout }: AdminProps) {
               ))}
             </div>
           )}
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Export Dialog */}
