@@ -13,7 +13,7 @@ const Header = () => {
     { name: 'Tramp & Tumble', to: '/trampoline-tumbling' },
     { name: 'Artistic Gymnastics', to: '/artistic-gymnastics' },
     { name: 'Rhythmic Gymnastics', to: '/rhythmic-gymnastics' },
-    { name: 'Ninja', to: '/ninja' },
+    { name: 'Ninja and Fitness', to: '/ninja' },
   ]
 
   return (
