@@ -34,12 +34,6 @@ const Programs = () => {
     }
   ]
 
-  const pricing = [
-    { classes: "1 Class/Week", price: "$150/mo", value: "50% longer sessions" },
-    { classes: "2 Classes/Week", price: "$250/mo", value: "$50 discount" },
-    { classes: "3 Classes/Week", price: "$325/mo", value: "$125 discount (Limited spaces)" },
-    { classes: "5 Classes/Week", price: "$500/mo", value: "$250 discount (Limited spaces)" }
-  ]
 
   return (
     <section id="programs" className="section-padding bg-gray-50">
@@ -119,52 +113,6 @@ const Programs = () => {
             )
           })}
         </div>
-
-        {/* Pricing Section */}
-        <motion.div
-          className="bg-black rounded-3xl p-12"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <div className="text-center mb-12">
-            <h3 className="text-4xl font-display font-bold text-white mb-4">
-              TIERED PRICING
-            </h3>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Our pricing reflects the premium value of extended class durations, 
-              integrated fitness regimens, and cutting-edge technology. More Savings = More Success.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pricing.map((tier, index) => (
-              <motion.div
-                key={tier.classes}
-                className="bg-white/10 rounded-2xl p-6 text-center"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <div className="text-3xl font-bold text-vortex-red mb-2">{tier.price}</div>
-                <div className="text-white font-semibold mb-2">{tier.classes}</div>
-                <div className="text-gray-300 text-sm">{tier.value}</div>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="text-center mt-8">
-            <div className="text-lg text-gray-300 mb-2">
-              <span className="font-semibold text-vortex-red">Telemetry & Athlete Data:</span> $250 one-time fee
-            </div>
-            <p className="text-gray-400 text-sm">
-              Lifetime access to advanced performance tracking and data analytics
-            </p>
-          </div>
-        </motion.div>
       </div>
     </section>
   )

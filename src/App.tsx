@@ -8,6 +8,7 @@ import TrampolineTumbling from './components/TrampolineTumbling'
 import ArtisticGymnastics from './components/ArtisticGymnastics'
 import RhythmicGymnastics from './components/RhythmicGymnastics'
 import Ninja from './components/Ninja'
+import Value from './components/Value'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
 import OpeningPopup from './components/OpeningPopup'
@@ -87,6 +88,10 @@ function App() {
         <Route 
           path="/ninja" 
           element={<Ninja onSignUpClick={() => setIsContactFormOpen(true)} />} 
+        />
+        <Route 
+          path="/value" 
+          element={<Value />} 
         />
       </Routes>
       <ContactForm
