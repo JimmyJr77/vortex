@@ -41,16 +41,8 @@ const Header = ({ onContactClick }: HeaderProps) => {
             />
           </motion.div>
 
-          {/* Menu Button, Home Button, and Sign Up Button */}
+          {/* Home Button, Sign Up Button, and Hamburger Menu */}
           <div className="flex items-center space-x-4">
-            {/* Hamburger Menu Button */}
-            <button
-              className="text-white hover:text-vortex-red transition-colors duration-300"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-            </button>
-
             {/* Home Button */}
             <Link to="/" className="block">
               <motion.button
@@ -71,6 +63,14 @@ const Header = ({ onContactClick }: HeaderProps) => {
             >
               Sign Up for Updates
             </motion.button>
+
+            {/* Hamburger Menu Button */}
+            <button
+              className="text-white hover:text-vortex-red transition-colors duration-300"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
           </div>
         </div>
 
