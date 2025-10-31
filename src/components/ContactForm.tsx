@@ -26,6 +26,19 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
     e.preventDefault()
     setIsSubmitting(true)
     
+    // Frontend validation
+    if (formData.firstName.trim().length < 2) {
+      alert('First name must be at least 2 characters long.')
+      setIsSubmitting(false)
+      return
+    }
+    
+    if (formData.lastName.trim().length < 2) {
+      alert('Last name must be at least 2 characters long.')
+      setIsSubmitting(false)
+      return
+    }
+    
     // Convert athleteAge to a number if needed
     const ageRange = formData.athleteAge
     let athleteAgeNum: number | null = null
@@ -49,7 +62,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
       // Use environment variable if set, otherwise detect production vs development
       const apiUrl = import.meta.env.VITE_API_URL || 
         (import.meta.env.PROD 
-          ? 'https://vortex-backend.onrender.com'  // Production backend URL
+          ? 'https://vortex-backend-qybl.onrender.com'  // Production backend URL
           : 'http://localhost:3001')  // Local development
       
       const payload = {
@@ -181,7 +194,13 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
         } else {
           console.error('Backend response:', result)
           console.error('Validation errors:', result.errors)
-          alert(`Registration failed: ${result.message || 'Please try again.'}`)
+          
+          // Display validation errors in a user-friendly way
+          const errorMessage = result.errors && result.errors.length > 0
+            ? `Please fix the following errors:\n${result.errors.map((err: string) => `• ${err}`).join('\n')}`
+            : result.message || 'Please try again.'
+          
+          alert(`Registration failed: ${errorMessage}`)
         }
       }
     } catch (error: any) {
@@ -300,8 +319,9 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
                         value={formData.firstName}
                         onChange={handleChange}
                         required
+                        minLength={2}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
-                        placeholder="Enter first name"
+                        placeholder="Enter first name (minimum 2 characters)"
                       />
                     </div>
                     <div>
@@ -314,8 +334,9 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
                         value={formData.lastName}
                         onChange={handleChange}
                         required
+                        minLength={2}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
-                        placeholder="Enter last name"
+                        placeholder="Enter last name (minimum 2 characters)"
                       />
                     </div>
                   </div>

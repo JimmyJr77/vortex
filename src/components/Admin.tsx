@@ -232,7 +232,7 @@ export default function Admin({ onLogout }: AdminProps) {
       setError(null)
       const apiUrl = import.meta.env.VITE_API_URL || 
         (import.meta.env.PROD 
-          ? 'https://vortex-backend.onrender.com'  // Production backend URL
+          ? 'https://vortex-backend-qybl.onrender.com'  // Production backend URL
           : 'http://localhost:3001')  // Local development
       
       const regResponse = await fetch(`${apiUrl}/api/admin/registrations`)
@@ -326,7 +326,7 @@ export default function Admin({ onLogout }: AdminProps) {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 
         (import.meta.env.PROD 
-          ? 'https://vortex-backend.onrender.com'  // Production backend URL
+          ? 'https://vortex-backend-qybl.onrender.com'  // Production backend URL
           : 'http://localhost:3001')  // Local development
       const response = await fetch(`${apiUrl}/api/admin/registrations/${editingId}`, {
         method: 'PUT',
@@ -352,7 +352,7 @@ export default function Admin({ onLogout }: AdminProps) {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 
         (import.meta.env.PROD 
-          ? 'https://vortex-backend.onrender.com'  // Production backend URL
+          ? 'https://vortex-backend-qybl.onrender.com'  // Production backend URL
           : 'http://localhost:3001')  // Local development
       const response = await fetch(`${apiUrl}/api/admin/registrations/${id}`, {
         method: 'DELETE'
