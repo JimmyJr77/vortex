@@ -89,7 +89,7 @@ export default function OpeningPopup({ isOpen, onClose, onSignUp }: OpeningPopup
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Opening December 1st!
+                Opening November 30th, 2025!
               </motion.h2>
 
               {/* Message */}
@@ -100,7 +100,7 @@ export default function OpeningPopup({ isOpen, onClose, onSignUp }: OpeningPopup
                 transition={{ delay: 0.4 }}
               >
                 <p className="text-lg text-gray-700">
-                  Programs starting in the beginning of December
+                  Programs starting November 30th, 2025
                 </p>
                 
                 <div className="flex items-center justify-center space-x-2 text-vortex-red font-semibold">

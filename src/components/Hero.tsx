@@ -178,7 +178,7 @@ const Hero = () => {
             transition={{ delay: 0.2 }}
           >
             <Zap className="w-4 h-4" />
-            <span>OPENING SOON</span>
+            <span>OPENING NOVEMBER 30TH, 2025</span>
           </motion.div>
 
           {/* Main Headline with Rotating Text */}

@@ -28,7 +28,7 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
   const faqs = [
     {
       question: 'When does Vortex Athletics open?',
-      answer: 'We are opening our doors between December 2024 and January 2025. Join our waitlist to be notified as soon as registration opens!'
+      answer: 'We are opening our doors on November 30th, 2025. Join our waitlist to be notified as soon as registration opens!'
     },
     {
       question: 'Where are you located?',
@@ -101,7 +101,7 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
             transition={{ delay: 0.2 }}
           >
             <Calendar className="w-4 h-4" />
-            <span>OPENING DECEMBER 2024 - JANUARY 2025</span>
+            <span>OPENING NOVEMBER 30TH, 2025</span>
           </motion.div>
 
           {/* Main Headline */}
