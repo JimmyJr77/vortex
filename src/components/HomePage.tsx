@@ -75,7 +75,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
     <>
       <Hero />
       <ParallaxGym />
-      <About />
+      <About onSignUpClick={onSignUpClick} />
       <Programs />
       <Technology />
 

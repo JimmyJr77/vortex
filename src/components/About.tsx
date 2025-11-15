@@ -18,7 +18,11 @@ const D1Icon = ({ className }: { className?: string }) => (
   </span>
 )
 
-const About = () => {
+interface AboutProps {
+  onSignUpClick?: () => void
+}
+
+const About = ({ onSignUpClick }: AboutProps) => {
   const features = [
     {
       icon: Target,
@@ -102,6 +106,17 @@ const About = () => {
             way to success." We don't merely train athletes. We guide future leaders toward a complete 
             transformation that fuels excellence in every aspect of life.
           </p>
+          
+          {onSignUpClick && (
+            <motion.button
+              onClick={onSignUpClick}
+              className="border-2 border-vortex-red text-vortex-red px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Join the Transformation
+            </motion.button>
+          )}
         </motion.div>
 
         {/* Location */}
