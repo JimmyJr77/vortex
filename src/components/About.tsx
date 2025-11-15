@@ -25,9 +25,9 @@ interface AboutProps {
 const About = ({ onSignUpClick }: AboutProps) => {
   const features = [
     {
-      icon: Target,
-      title: "Kinematic Awareness",
-      description: "Precise understanding of where the body is in space - the key to athleticism that separates champions from competitors."
+      icon: D1Icon,
+      title: "Elite Development",
+      description: "Developing the 8 core tenets of athleticism: Flexibility, Balance, Coordination, Strength, Explosiveness, Speed, Agility, and Body Control."
     },
     {
       icon: Cpu,
@@ -35,14 +35,14 @@ const About = ({ onSignUpClick }: AboutProps) => {
       description: "High-speed cameras, haptic feedback tools, and telemetry data create detailed athlete profiles for measurable growth."
     },
     {
+      icon: Target,
+      title: "Kinematic Awareness",
+      description: "Precise understanding of where the body is in space - the key to athleticism that separates champions from competitors."
+    },
+    {
       icon: Trophy,
       title: "Fail Your Way to Success",
       description: "We teach children to find fun in overcoming adversity and achieving success through a competitive edge mindset."
-    },
-    {
-      icon: D1Icon,
-      title: "Elite Development",
-      description: "Developing the 8 core tenets of athleticism: Flexibility, Balance, Coordination, Strength, Explosiveness, Speed, Agility, and Body Control."
     }
   ]
 
