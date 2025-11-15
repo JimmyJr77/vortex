@@ -45,14 +45,14 @@ const Header = ({ onContactClick }: HeaderProps) => {
           {/* Sign Up Button and Hamburger Menu */}
           <div className="flex items-center space-x-4">
 
-            {/* Sign Up for Updates Button */}
+            {/* Stay Updated Button */}
             <motion.button
               onClick={onContactClick}
               className="bg-vortex-red text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Sign Up for Updates
+              Stay Updated
             </motion.button>
 
             {/* Hamburger Menu Button */}

@@ -124,7 +124,7 @@ export default function OpeningPopup({ isOpen, onClose, onSignUp }: OpeningPopup
                   onClick={handleSignUp}
                   className="flex-1 bg-vortex-red text-white px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg"
                 >
-                  Sign Up for Updates
+                  Stay Updated
                 </button>
                 <button
                   onClick={handleClose}
