@@ -68,23 +68,33 @@ const About = ({ onSignUpClick }: AboutProps) => {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              className="text-center p-6 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.6 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className="w-16 h-16 bg-vortex-red rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <feature.icon className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-black mb-3">{feature.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-            </motion.div>
-          ))}
+          {features.map((feature, index) => {
+            const isTechnologyDriven = feature.title === "Technology-Driven"
+            const Content = (
+              <motion.div
+                className="text-center p-6 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <div className="w-16 h-16 bg-vortex-red rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <feature.icon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-black mb-3">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+              </motion.div>
+            )
+
+            return isTechnologyDriven ? (
+              <a key={feature.title} href="#technology" className="block cursor-pointer">
+                {Content}
+              </a>
+            ) : (
+              <div key={feature.title}>{Content}</div>
+            )
+          })}
         </div>
 
         {/* Mission Statement */}

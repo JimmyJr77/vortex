@@ -74,10 +74,6 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
   return (
     <>
       <Hero />
-      <ParallaxGym />
-      <About onSignUpClick={onSignUpClick} />
-      <Programs />
-      <Technology />
 
       {/* What We Offer Section */}
       <section className="section-padding bg-gray-50">
@@ -154,6 +150,11 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
           )}
         </div>
       </section>
+
+      <ParallaxGym />
+      <About onSignUpClick={onSignUpClick} />
+      <Programs />
+      <Technology />
 
       {/* 8 Tenets Section */}
       <section className="section-padding bg-white">
