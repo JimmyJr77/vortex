@@ -63,7 +63,7 @@ const About = ({ onSignUpClick }: AboutProps) => {
           <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
             We're not just another athletics or gymnastics facility. We're a cutting-edge athletic development 
             center that places gymnastics at the heart of comprehensive athletic training, 
-            merging body controls and advanced technology with rigorous, science-backed, training.
+            merging body control and advanced technology with rigorous, science-backed training.
           </p>
         </motion.div>
 
