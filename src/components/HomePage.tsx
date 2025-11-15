@@ -166,9 +166,12 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-4">
-              THE 8 TENETS OF <span className="text-vortex-red">ATHLETICISM</span>
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-2">
+              ATHLETICISM ACCELERATOR <span className="text-vortex-red">PROGRAM</span>
             </h2>
+            <h3 className="text-2xl md:text-3xl font-display font-bold text-vortex-red mb-4">
+              8 Tenets of Athleticism
+            </h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Our Athleticism Accelerator focus means all training incorporates these core principles
             </p>
