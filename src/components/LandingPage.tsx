@@ -8,7 +8,7 @@ interface LandingPageProps {
 const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
   const tenets = [
     { name: 'Strength', description: 'Ability to exert force against resistance.' },
-    { name: 'Power', description: 'Exert maximal force in minimal time.' },
+    { name: 'Explosiveness', description: 'Exert maximal force in minimal time.' },
     { name: 'Speed', description: 'Rapid execution of movement and reaction.' },
     { name: 'Agility', description: 'Rapid direction changes with control.' },
     { name: 'Flexibility', description: 'Range of motion and muscular elasticity.' },

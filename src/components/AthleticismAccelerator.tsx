@@ -13,7 +13,7 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
       detail: 'Building foundational power through resistance training, calisthenics, and bodyweight movements to create a robust athletic base.'
     },
     { 
-      name: 'Power', 
+      name: 'Explosiveness', 
       description: 'Exert maximal force in minimal time.',
       detail: 'Developing explosive movement capability through plyometrics, jumping drills, and fast-twitch muscle activation for superior athletic performance.'
     },
