@@ -120,7 +120,7 @@ export default function ParallaxGym() {
           transition={{ duration: 0.3 }}
           className="mt-6 w-[600px] max-w-[90vw]"
         >
-          <div className="bg-white/10 backdrop-blur-md px-4 py-3 rounded-xl border border-white/20">
+          <div className="bg-white/10 backdrop-blur-md px-4 py-3 rounded-xl border border-white/20 min-h-[120px] flex items-center justify-center">
             <p className="text-white text-sm leading-relaxed text-center">
               {activities[selectedActivity].name === 'Premium Facilities' && 
                 "State-of-the-art equipment across multiple training zones. Our world-class facility provides the foundation for developing all 8 core tenets—from explosive power zones to precision body control spaces, every athlete gets the tools they need to excel."}
