@@ -85,25 +85,23 @@ const About = () => {
 
         {/* Mission Statement */}
         <motion.div
-          className="bg-black rounded-3xl p-12 text-center"
+          className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-12 md:p-16 text-center"
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h3 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-8">
             OUR MISSION
-          </h3>
-          <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-8">
-            At Vortex Athletics, our mission is to harness the power of science to transform 
-            youth athletes into champions, regardless of sport. By merging rigorous gymnastics 
-            training, advanced technology, and a relentless competitive fitness mindset, we empower each 
-            participant to cultivate strength, explosiveness, precise body control, and the 
-            resilience to "fail their way to success."
+          </h2>
+          <p className="text-xl md:text-2xl text-gray-300 max-w-5xl mx-auto leading-relaxed mb-8">
+            At Vortex Athletics, our mission is to harness the power of gymnastics to transform 
+            youth athletes into champions, regardless of sport. By merging rigorous gymnastics training, 
+            advanced technology, and a relentless competitive mindset, we empower each participant to 
+            cultivate strength, explosiveness, precise body control, and the resilience to "fail their 
+            way to success." We don't merely train athletes. We guide future leaders toward a complete 
+            transformation that fuels excellence in every aspect of life.
           </p>
-          <div className="text-3xl font-display font-bold text-vortex-red">
-            "Don't just train. Transform."
-          </div>
         </motion.div>
 
         {/* Location */}
