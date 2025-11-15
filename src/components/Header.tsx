@@ -12,7 +12,6 @@ const Header = ({ onContactClick }: HeaderProps) => {
   const location = useLocation()
 
   const menuItems = [
-    { name: 'Overview', to: '/overview' },
     { name: 'Athleticism Accelerator', to: '/athleticism-accelerator' },
     { name: 'Tramp & Tumble', to: '/trampoline-tumbling' },
     { name: 'Artistic Gymnastics', to: '/artistic-gymnastics' },
