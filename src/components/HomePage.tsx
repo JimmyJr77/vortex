@@ -19,7 +19,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
     { name: 'Flexibility', description: 'Range of motion and muscular elasticity.' },
     { name: 'Balance', description: 'Maintain stability in static or dynamic movement.' },
     { name: 'Coordination', description: 'Integrate multiple body parts for fluid motion.' },
-    { name: 'Body Control', description: 'Kinematic awareness - Precise understanding of where the body is in space.' },
+    { name: 'Kinematic Awareness', description: 'Precise understanding of where the body is in space.' },
   ]
 
   const physiologicalEmphasis = [
