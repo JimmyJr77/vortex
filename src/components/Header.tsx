@@ -28,30 +28,22 @@ const Header = ({ onContactClick }: HeaderProps) => {
     >
       <div className="container-custom">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <motion.div 
-            className="flex items-center"
-            whileHover={{ scale: 1.05 }}
-          >
-            <img 
-              src="/vortex_logo_1.png" 
-              alt="Vortex Athletics" 
-              className="h-16 w-auto"
-            />
-          </motion.div>
+          {/* Logo - Clickable */}
+          <Link to="/" className="block">
+            <motion.div 
+              className="flex items-center cursor-pointer"
+              whileHover={{ scale: 1.05 }}
+            >
+              <img 
+                src="/vortex_logo_1.png" 
+                alt="Vortex Athletics" 
+                className="h-16 w-auto"
+              />
+            </motion.div>
+          </Link>
 
-          {/* Home Button, Sign Up Button, and Hamburger Menu */}
+          {/* Sign Up Button and Hamburger Menu */}
           <div className="flex items-center space-x-4">
-            {/* Home Button */}
-            <Link to="/" className="block">
-              <motion.button
-                className="bg-white text-vortex-red px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Home
-              </motion.button>
-            </Link>
 
             {/* Sign Up for Updates Button */}
             <motion.button
