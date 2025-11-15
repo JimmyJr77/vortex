@@ -166,13 +166,10 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-2">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-4">
               ATHLETICISM ACCELERATOR <span className="text-vortex-red">PROGRAM</span>
             </h2>
-            <h3 className="text-2xl md:text-3xl font-display font-bold text-vortex-red mb-4">
-              8 Tenets of Athleticism
-            </h3>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
               Our Athleticism Accelerator focus means all training incorporates these core principles
             </p>
           </motion.div>
@@ -185,6 +182,9 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
+            <h3 className="text-2xl md:text-3xl font-display font-bold text-vortex-red mb-4 text-center">
+              8 Tenets of Athleticism
+            </h3>
             <table className="w-full border-collapse bg-white rounded-xl overflow-hidden shadow-lg">
               <thead>
                 <tr className="bg-black text-white">
