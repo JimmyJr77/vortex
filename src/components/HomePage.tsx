@@ -130,7 +130,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
             viewport={{ once: true }}
           >
             <p className="text-lg md:text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto text-center">
-              Use Vortex Athletics to supplement dance, cheer, acro, and gymnastics with focused tumbling and floor lessons from our international gymnast instructors and founders of A4 Gymnastics. Learn backflips, aerials, layouts, cartwheels, fulls, and more. Master the strength, technique, and body control needed to advance in your sport.
+              Supplement football, basketball, soccer, wrestling, lacrosse and more through our Athleticism Accelerator programs. Supplement dance, cheer, acro, and gymnastics with focused tumbling and floor lessons from our international gymnast instructors and founders of A4 Gymnastics. Learn backflips, aerials, layouts, cartwheels, fulls, and more. Master the strength, technique, and body control needed to advance in your sport.
             </p>
           </motion.div>
 
