@@ -135,6 +135,7 @@ const Technology = () => {
         </motion.div>
 
         {/* Data Visualization Preview */}
+        {/* 
         <motion.div
           className="mt-20 text-center"
           initial={{ opacity: 0, y: 50 }}
@@ -169,6 +170,7 @@ const Technology = () => {
             </p>
           </div>
         </motion.div>
+        */}
       </div>
     </section>
   )
