@@ -245,7 +245,7 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
                 'Neural priming', 'Rapid direction change', 'Mobility', 'Tendon conditioning',
                 'Eccentric training', 'Coordination games', 'Gymnastics',
                 'Tumbling & floor', 'Body control',
-                'Jump higher', 'Sprint faster', 'Move dynamically'
+                'Higher jumps', 'Faster Sprints', 'Dynamic movement'
               ].map((item, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-vortex-red rounded-full flex-shrink-0" />
