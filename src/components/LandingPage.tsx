@@ -192,7 +192,7 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
               OUR MISSION
             </h2>
             <p className="text-xl md:text-2xl text-gray-300 max-w-5xl mx-auto leading-relaxed mb-8">
-              At Vortex Athletics, our mission is to harness the power of gymnastics to transform 
+              At Vortex Athletics, our mission is to harness the power of gymnastics and technology to transform 
               youth athletes into champions, regardless of sport. By merging rigorous gymnastics training, 
               advanced technology, and a relentless competitive mindset, we empower each participant to 
               cultivate strength, explosiveness, precise body control, and the resilience to "fail their 
