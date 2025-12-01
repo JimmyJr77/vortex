@@ -361,7 +361,7 @@ const Value = () => {
                 viewport={{ once: true }}
               >
                 <p className="text-center text-gray-800 font-semibold">
-                  <span className="text-vortex-red">Important:</span> Discounts are automatically applied to the program(s) with the lowest monthly fee to maximize your savings.
+                  <span className="text-vortex-red">Note:</span> Discounts are automatically applied to the program(s) with the lowest monthly fee.
                 </p>
               </motion.div>
 
