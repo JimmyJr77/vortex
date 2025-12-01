@@ -8,7 +8,8 @@ import {
   Zap,
   Shield,
   Users,
-  Activity
+  Activity,
+  Tag
 } from 'lucide-react'
 
 const Value = () => {
@@ -243,11 +244,144 @@ const Value = () => {
 
             <div className="text-center mt-8">
               <div className="text-lg text-gray-300 mb-2">
-                <span className="font-semibold text-vortex-red">Telemetry & Athlete Data:</span> $250 one-time fee
+                <span className="font-semibold text-vortex-red">Telemetry & Athlete Data:</span> $250 one-time fee (first child)
+              </div>
+              <div className="text-lg text-gray-300 mb-2">
+                <span className="font-semibold text-vortex-red">Additional Children:</span> $125 one-time fee (50% discount)
               </div>
               <p className="text-gray-400 text-sm">
                 Lifetime access to advanced performance tracking, data analytics, and continuous development monitoring
               </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Multi-Family Discounts Section */}
+      <section className="section-padding bg-white">
+        <div className="container-custom">
+          <motion.div
+            className="max-w-5xl mx-auto"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <div className="bg-gradient-to-br from-vortex-red/10 to-vortex-red/5 rounded-3xl p-8 md:p-12 border-2 border-vortex-red/20">
+              <div className="flex items-center justify-center mb-8">
+                <div className="w-16 h-16 bg-vortex-red/20 rounded-2xl flex items-center justify-center">
+                  <Tag className="w-8 h-8 text-vortex-red" />
+                </div>
+              </div>
+              
+              <motion.div
+                className="text-center mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <h3 className="text-3xl md:text-4xl font-display font-bold text-black mb-4">
+                  Multi-Family Member <span className="text-vortex-red">Discounts</span>
+                </h3>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+                  Enroll multiple children from the same family and save on your investment in their athletic development.
+                </p>
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {/* 2 Kids Discount */}
+                <motion.div
+                  className="bg-white rounded-2xl p-6 border-2 border-vortex-red/30"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2, duration: 0.6 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-2xl font-bold text-black">2 Children</h4>
+                    <span className="text-3xl font-bold text-vortex-red">10% OFF</span>
+                  </div>
+                  <p className="text-gray-700 mb-4">
+                    Receive a <strong className="text-vortex-red">10% discount</strong> on the lesser-valued program when enrolling 2 children.
+                  </p>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm font-semibold text-gray-900 mb-2">Example:</p>
+                    <p className="text-sm text-gray-700">
+                      Child 1: 2 Classes/Week ($250/mo)
+                      <br />
+                      Child 2: 1 Class/Week ($150/mo)
+                      <br />
+                      <span className="font-semibold text-vortex-red">Discount: $15/mo off Child 2</span>
+                      <br />
+                      <span className="text-gray-600">Total: $385/mo (was $400/mo)</span>
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* 3+ Kids Discount */}
+                <motion.div
+                  className="bg-white rounded-2xl p-6 border-2 border-vortex-red/30"
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3, duration: 0.6 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-2xl font-bold text-black">3+ Children</h4>
+                    <span className="text-3xl font-bold text-vortex-red">15% OFF</span>
+                  </div>
+                  <p className="text-gray-700 mb-4">
+                    Receive a <strong className="text-vortex-red">15% discount</strong> on the lesser-valued program(s) when enrolling 3 or more children.
+                  </p>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm font-semibold text-gray-900 mb-2">Example:</p>
+                    <p className="text-sm text-gray-700">
+                      Child 1: 3 Classes/Week ($325/mo)
+                      <br />
+                      Child 2: 2 Classes/Week ($250/mo)
+                      <br />
+                      Child 3: 1 Class/Week ($150/mo)
+                      <br />
+                      <span className="font-semibold text-vortex-red">Discount: $22.50/mo off Child 3</span>
+                      <br />
+                      <span className="text-gray-600">Total: $702.50/mo (was $725/mo)</span>
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
+
+              <motion.div
+                className="bg-black/5 rounded-xl p-6 border border-vortex-red/20 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <p className="text-center text-gray-800 font-semibold">
+                  <span className="text-vortex-red">Important:</span> Discounts are automatically applied to the program(s) with the lowest monthly fee to maximize your savings.
+                </p>
+              </motion.div>
+
+              <motion.div
+                className="bg-gradient-to-r from-vortex-red/10 to-vortex-red/5 rounded-xl p-6 border-2 border-vortex-red/30"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <div className="flex items-center justify-center mb-3">
+                  <Tag className="w-6 h-6 text-vortex-red mr-2" />
+                  <h4 className="text-xl font-bold text-black">Telemetry Fee Discount</h4>
+                </div>
+                <p className="text-center text-gray-800">
+                  <span className="font-semibold">First child:</span> $250 one-time fee
+                  <br />
+                  <span className="font-semibold text-vortex-red">Additional children:</span> $125 one-time fee (50% off)
+                </p>
+              </motion.div>
             </div>
           </motion.div>
         </div>
