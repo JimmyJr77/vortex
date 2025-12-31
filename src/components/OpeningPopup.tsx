@@ -89,7 +89,7 @@ export default function OpeningPopup({ isOpen, onClose, onSignUp }: OpeningPopup
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Opening November 30th, 2025!
+                Classes Now Open!
               </motion.h2>
 
               {/* Message */}
@@ -100,7 +100,7 @@ export default function OpeningPopup({ isOpen, onClose, onSignUp }: OpeningPopup
                 transition={{ delay: 0.4 }}
               >
                 <p className="text-lg text-gray-700">
-                  Programs starting November 30th, 2025
+                  Gymnastics classes now open. Athleticism, Fitness, and Ninja classes will open in February
                 </p>
                 
                 <div className="flex items-center justify-center space-x-2 text-vortex-red font-semibold">
@@ -124,7 +124,7 @@ export default function OpeningPopup({ isOpen, onClose, onSignUp }: OpeningPopup
                   onClick={handleSignUp}
                   className="flex-1 bg-vortex-red text-white px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg"
                 >
-                  Stay Updated
+                  Interested
                 </button>
                 <button
                   onClick={handleClose}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, RefreshCw, Download, Edit2, Archive, X, Save, ChevronDown, ChevronUp, BarChart3, Users, Eye, MousePointer, Clock, TrendingUp } from 'lucide-react'
+import { LogOut, RefreshCw, Download, Edit2, Archive, X, Save, ChevronDown, ChevronUp, BarChart3, Users, Eye, MousePointer, Clock, TrendingUp, UserPlus, Plus } from 'lucide-react'
 import { getAnalyticsData, clearAnalyticsData } from '../utils/analytics'
 
 interface AdminProps {
@@ -195,7 +195,28 @@ interface User {
 }
 
 type FilterType = 'all' | 'newsletter' | 'interests'
-type TabType = 'users' | 'analytics'
+type TabType = 'users' | 'analytics' | 'membership'
+
+interface MemberChild {
+  id?: number
+  firstName: string
+  lastName: string
+  dateOfBirth: string
+}
+
+interface Member {
+  id: number
+  first_name: string
+  last_name: string
+  email: string
+  phone: string | null
+  address: string | null
+  account_status: 'active' | 'hold' | 'canceled' | 'past_due'
+  program: string | null
+  notes: string | null
+  created_at: string
+  children?: MemberChild[]
+}
 
 export default function Admin({ onLogout }: AdminProps) {
   const [users, setUsers] = useState<User[]>([])
@@ -209,6 +230,21 @@ export default function Admin({ onLogout }: AdminProps) {
   const [sortConfig, setSortConfig] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'created_at', direction: 'desc' })
   const [activeTab, setActiveTab] = useState<TabType>('users')
   const [analyticsData, setAnalyticsData] = useState<any>(null)
+  const [members, setMembers] = useState<Member[]>([])
+  const [membersLoading, setMembersLoading] = useState(false)
+  const [showMemberForm, setShowMemberForm] = useState(false)
+  const [editingMemberId, setEditingMemberId] = useState<number | null>(null)
+  const [memberFormData, setMemberFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    password: '',
+    program: '',
+    notes: '',
+    children: [] as MemberChild[]
+  })
 
   useEffect(() => {
     fetchData()
@@ -223,8 +259,36 @@ export default function Admin({ onLogout }: AdminProps) {
   useEffect(() => {
     if (activeTab === 'analytics') {
       loadAnalytics()
+    } else if (activeTab === 'membership') {
+      fetchMembers()
     }
   }, [activeTab])
+
+  const fetchMembers = async () => {
+    try {
+      setMembersLoading(true)
+      setError(null)
+      const apiUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD 
+          ? 'https://vortex-backend-qybl.onrender.com'
+          : 'http://localhost:3001')
+      
+      const response = await fetch(`${apiUrl}/api/admin/members`)
+      if (!response.ok) {
+        throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
+      }
+      const data = await response.json()
+      
+      if (data.success) {
+        setMembers(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching members:', error)
+      setError(error instanceof Error ? error.message : 'Unable to fetch members')
+    } finally {
+      setMembersLoading(false)
+    }
+  }
 
   const fetchData = async () => {
     try {
@@ -416,6 +480,108 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
+  const handleCreateMember = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD 
+          ? 'https://vortex-backend-qybl.onrender.com'
+          : 'http://localhost:3001')
+      
+      const response = await fetch(`${apiUrl}/api/admin/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: memberFormData.firstName,
+          lastName: memberFormData.lastName,
+          email: memberFormData.email,
+          phone: memberFormData.phone || null,
+          address: memberFormData.address || null,
+          password: memberFormData.password,
+          program: memberFormData.program || null,
+          notes: memberFormData.notes || null,
+          children: memberFormData.children
+        })
+      })
+
+      if (response.ok) {
+        await fetchMembers()
+        setShowMemberForm(false)
+        setMemberFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          address: '',
+          password: '',
+          program: '',
+          notes: '',
+          children: []
+        })
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to create member')
+      }
+    } catch (error) {
+      console.error('Error creating member:', error)
+      alert('Failed to create member')
+    }
+  }
+
+  const handleUpdateMemberStatus = async (id: number, status: string) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD 
+          ? 'https://vortex-backend-qybl.onrender.com'
+          : 'http://localhost:3001')
+      
+      const member = members.find(m => m.id === id)
+      if (!member) return
+
+      const response = await fetch(`${apiUrl}/api/admin/members/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: member.first_name,
+          lastName: member.last_name,
+          email: member.email,
+          phone: member.phone,
+          address: member.address,
+          accountStatus: status,
+          program: member.program,
+          notes: member.notes,
+          children: member.children || []
+        })
+      })
+
+      if (response.ok) {
+        await fetchMembers()
+      }
+    } catch (error) {
+      console.error('Error updating member status:', error)
+      alert('Failed to update member status')
+    }
+  }
+
+  const addChild = () => {
+    setMemberFormData({
+      ...memberFormData,
+      children: [...memberFormData.children, { firstName: '', lastName: '', dateOfBirth: '' }]
+    })
+  }
+
+  const removeChild = (index: number) => {
+    setMemberFormData({
+      ...memberFormData,
+      children: memberFormData.children.filter((_, i) => i !== index)
+    })
+  }
+
+  const updateChild = (index: number, field: keyof MemberChild, value: string) => {
+    const updatedChildren = [...memberFormData.children]
+    updatedChildren[index] = { ...updatedChildren[index], [field]: value }
+    setMemberFormData({ ...memberFormData, children: updatedChildren })
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 p-4 md:p-8">
       <div className="max-w-full mx-auto space-y-6">
@@ -445,6 +611,17 @@ export default function Admin({ onLogout }: AdminProps) {
                   <span className="hidden md:inline">Export</span>
                 </motion.button>
               </>
+            )}
+            {activeTab === 'membership' && (
+              <motion.button
+                onClick={fetchMembers}
+                className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span className="hidden md:inline">Refresh</span>
+              </motion.button>
             )}
             {activeTab === 'analytics' && (
               <>
@@ -502,6 +679,16 @@ export default function Admin({ onLogout }: AdminProps) {
           >
             Analytics & Engagement
           </button>
+          <button
+            onClick={() => setActiveTab('membership')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+              activeTab === 'membership'
+                ? 'bg-vortex-red text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Membership
+          </button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -514,6 +701,75 @@ export default function Admin({ onLogout }: AdminProps) {
               transition={{ duration: 0.3 }}
             >
               <AnalyticsView data={analyticsData} />
+            </motion.div>
+          ) : activeTab === 'membership' ? (
+            <motion.div
+              key="membership"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl md:text-3xl font-display font-bold text-white">
+                  Members ({members.length})
+                </h2>
+                <motion.button
+                  onClick={() => setShowMemberForm(true)}
+                  className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Create Member</span>
+                </motion.button>
+              </div>
+
+              {membersLoading ? (
+                <div className="text-center py-12 text-gray-400">Loading members...</div>
+              ) : members.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">No members yet</div>
+              ) : (
+                <div className="space-y-4">
+                  {members.map((member) => (
+                    <div key={member.id} className="bg-gray-700 rounded-lg p-4">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="text-white font-semibold text-lg">
+                            {member.first_name} {member.last_name}
+                          </div>
+                          <div className="text-gray-400 text-sm mt-1">{member.email}</div>
+                          {member.phone && <div className="text-gray-400 text-sm">{member.phone}</div>}
+                          {member.program && <div className="text-gray-400 text-sm">Program: {member.program}</div>}
+                          {member.children && member.children.length > 0 && (
+                            <div className="text-gray-400 text-sm mt-2">
+                              Children: {member.children.map(c => `${c.firstName} ${c.lastName}`).join(', ')}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <select
+                            value={member.account_status}
+                            onChange={(e) => handleUpdateMemberStatus(member.id, e.target.value)}
+                            className={`px-3 py-2 rounded-lg font-semibold text-sm ${
+                              member.account_status === 'active' ? 'bg-green-600 text-white' :
+                              member.account_status === 'hold' ? 'bg-yellow-600 text-white' :
+                              member.account_status === 'canceled' ? 'bg-gray-600 text-white' :
+                              'bg-red-600 text-white'
+                            }`}
+                          >
+                            <option value="active">Active</option>
+                            <option value="hold">Hold</option>
+                            <option value="canceled">Canceled</option>
+                            <option value="past_due">Past Due</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </motion.div>
           ) : (
             <motion.div
@@ -794,6 +1050,195 @@ export default function Admin({ onLogout }: AdminProps) {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Member Creation Form */}
+      <AnimatePresence>
+        {showMemberForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowMemberForm(false)}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">Create New Member</h3>
+                <button
+                  onClick={() => setShowMemberForm(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                    <input
+                      type="text"
+                      value={memberFormData.firstName}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, firstName: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                    <input
+                      type="text"
+                      value={memberFormData.lastName}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, lastName: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                    <input
+                      type="email"
+                      value={memberFormData.email}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, email: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Phone</label>
+                    <input
+                      type="tel"
+                      value={memberFormData.phone}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, phone: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Address</label>
+                    <input
+                      type="text"
+                      value={memberFormData.address}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, address: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
+                    <input
+                      type="password"
+                      value={memberFormData.password}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, password: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Program</label>
+                    <select
+                      value={memberFormData.program}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, program: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    >
+                      <option value="">Select Program</option>
+                      <option value="Athleticism Accelerator">Athleticism Accelerator</option>
+                      <option value="Trampoline & Tumbling">Trampoline & Tumbling</option>
+                      <option value="Artistic Gymnastics">Artistic Gymnastics</option>
+                      <option value="Rhythmic Gymnastics">Rhythmic Gymnastics</option>
+                      <option value="Ninja and Fitness">Ninja and Fitness</option>
+                      <option value="Competition Programs">Competition Programs</option>
+                      <option value="Daytime Programs">Daytime Programs</option>
+                      <option value="Private Coaching">Private Coaching</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Notes</label>
+                  <textarea
+                    value={memberFormData.notes}
+                    onChange={(e) => setMemberFormData({ ...memberFormData, notes: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-semibold text-gray-300">Children</label>
+                    <button
+                      type="button"
+                      onClick={addChild}
+                      className="flex items-center space-x-1 text-vortex-red hover:text-red-400 text-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Child</span>
+                    </button>
+                  </div>
+                  {memberFormData.children.map((child, index) => (
+                    <div key={index} className="bg-gray-700 p-3 rounded mb-2">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <input
+                          type="text"
+                          placeholder="First Name"
+                          value={child.firstName}
+                          onChange={(e) => updateChild(index, 'firstName', e.target.value)}
+                          className="px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Last Name"
+                          value={child.lastName}
+                          onChange={(e) => updateChild(index, 'lastName', e.target.value)}
+                          className="px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="date"
+                            value={child.dateOfBirth}
+                            onChange={(e) => updateChild(index, 'dateOfBirth', e.target.value)}
+                            className="flex-1 px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeChild(index)}
+                            className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <button
+                    onClick={handleCreateMember}
+                    className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Create Member
+                  </button>
+                  <button
+                    onClick={() => setShowMemberForm(false)}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Export Dialog */}
       <AnimatePresence>

@@ -178,7 +178,7 @@ const Hero = () => {
             transition={{ delay: 0.2 }}
           >
             <Zap className="w-4 h-4" />
-            <span>OPENING NOVEMBER 30TH, 2025</span>
+            <span>Gymnastics classes now open. Athleticism, Fitness, and Ninja classes will open in February</span>
           </motion.div>
 
           {/* Main Headline with Rotating Text */}

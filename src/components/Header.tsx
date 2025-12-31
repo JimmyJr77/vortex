@@ -5,9 +5,12 @@ import { Link, useLocation } from 'react-router-dom'
 
 interface HeaderProps {
   onContactClick: () => void
+  onMemberLoginClick?: () => void
+  member?: any
+  onMemberDashboardClick?: () => void
 }
 
-const Header = ({ onContactClick }: HeaderProps) => {
+const Header = ({ onContactClick, onMemberLoginClick, member, onMemberDashboardClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -45,6 +48,27 @@ const Header = ({ onContactClick }: HeaderProps) => {
           {/* Sign Up Button and Hamburger Menu */}
           <div className="flex items-center space-x-4">
 
+            {/* Member Dashboard or Login Button */}
+            {member && onMemberDashboardClick ? (
+              <motion.button
+                onClick={onMemberDashboardClick}
+                className="bg-vortex-red text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Member Portal
+              </motion.button>
+            ) : onMemberLoginClick ? (
+              <motion.button
+                onClick={onMemberLoginClick}
+                className="bg-gray-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-600 hover:scale-105 hover:shadow-lg"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Login
+              </motion.button>
+            ) : null}
+
             {/* Stay Updated Button */}
             <motion.button
               onClick={onContactClick}
@@ -52,7 +76,7 @@ const Header = ({ onContactClick }: HeaderProps) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Stay Updated
+              Interested
             </motion.button>
 
             {/* Hamburger Menu Button */}

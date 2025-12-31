@@ -1,10 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Mail, Phone, MapPin, Send } from 'lucide-react'
+import { X, Mail, Phone, MapPin, Send, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 interface ContactFormProps {
   isOpen: boolean
   onClose: () => void
+}
+
+interface AthleteData {
+  age: string
+  interests: string
 }
 
 const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
@@ -13,10 +18,12 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
     lastName: '',
     email: '',
     phone: '',
-    athleteAge: '',
-    interests: '',
     message: ''
   })
+
+  const [athletes, setAthletes] = useState<AthleteData[]>([
+    { age: '', interests: '' }
+  ])
 
   const [newsletter, setNewsletter] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -39,15 +46,15 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
       return
     }
     
-    // Convert athleteAge to a number if needed
-    const ageRange = formData.athleteAge
-    let athleteAgeNum: number | null = null
-    
-    if (ageRange === '3-5') athleteAgeNum = 4
-    else if (ageRange === '6-8') athleteAgeNum = 7
-    else if (ageRange === '9-12') athleteAgeNum = 10
-    else if (ageRange === '13-18') athleteAgeNum = 15
-    else if (ageRange === 'adult') athleteAgeNum = 18
+    // Helper function to convert age range to number
+    const convertAgeRange = (ageRange: string): number | null => {
+      if (ageRange === '3-5') return 4
+      if (ageRange === '6-8') return 7
+      if (ageRange === '9-12') return 10
+      if (ageRange === '13-18') return 15
+      if (ageRange === 'adult') return 18
+      return null
+    }
     
     // Clean phone number - remove all non-digit characters except + at the start
     let cleanPhone = formData.phone?.trim() || ''
@@ -65,14 +72,23 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
           ? 'https://vortex-backend-qybl.onrender.com'  // Production backend URL
           : 'http://localhost:3001')  // Local development
       
+      // Submit for each athlete (or at least one submission with first athlete's info)
+      const firstAthlete = athletes[0]
+      const athleteAgeNum = convertAgeRange(firstAthlete?.age || '')
+      
       const payload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         phone: cleanPhone || undefined,
         athleteAge: athleteAgeNum || undefined,
-        interests: formData.interests || undefined,
-        message: formData.message || undefined
+        interests: firstAthlete?.interests || undefined,
+        message: formData.message || undefined,
+        additionalAthletes: athletes.slice(1).map((athlete, index) => ({
+          name: `Athlete ${index + 2}`,
+          age: convertAgeRange(athlete.age),
+          interests: athlete.interests || undefined
+        }))
       }
       
       let response: Response
@@ -107,10 +123,9 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
               lastName: '',
               email: '',
               phone: '',
-              athleteAge: '',
-              interests: '',
               message: ''
             })
+            setAthletes([{ age: '', interests: '' }])
             setNewsletter(false)
             onClose()
           }, 3000)
@@ -150,10 +165,9 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
             lastName: '',
             email: '',
             phone: '',
-            athleteAge: '',
-            interests: '',
             message: ''
           })
+          setAthletes([{ age: '', interests: '' }])
           setNewsletter(false)
           onClose()
         }, 3000)
@@ -184,10 +198,9 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
               lastName: '',
               email: '',
               phone: '',
-              athleteAge: '',
-              interests: '',
               message: ''
             })
+            setAthletes([{ age: '', interests: '' }])
             setNewsletter(false)
             onClose()
           }, 3000)
@@ -210,14 +223,21 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
         // For other errors, try to store locally as backup
         try {
           const pendingSubmissions = JSON.parse(localStorage.getItem('vortex_pending_submissions') || '[]')
+          const firstAthlete = athletes[0]
+          const athleteAgeNum = convertAgeRange(firstAthlete?.age || '')
           pendingSubmissions.push({
             firstName: formData.firstName,
             lastName: formData.lastName,
             email: formData.email,
             phone: cleanPhone || undefined,
             athleteAge: athleteAgeNum || undefined,
-            interests: formData.interests || undefined,
+            interests: firstAthlete?.interests || undefined,
             message: formData.message || undefined,
+            additionalAthletes: athletes.slice(1).map((athlete, index) => ({
+              name: `Athlete ${index + 2}`,
+              age: convertAgeRange(athlete.age),
+              interests: athlete.interests || undefined
+            })),
             timestamp: new Date().toISOString(),
             newsletter
           })
@@ -233,10 +253,9 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
               lastName: '',
               email: '',
               phone: '',
-              athleteAge: '',
-              interests: '',
               message: ''
             })
+            setAthletes([{ age: '', interests: '' }])
             setNewsletter(false)
             onClose()
           }, 3000)
@@ -255,6 +274,26 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
       ...prev,
       [e.target.name]: e.target.value
     }))
+  }
+
+  const handleAthleteChange = (index: number, field: keyof AthleteData, value: string) => {
+    setAthletes(prev => {
+      const updated = [...prev]
+      updated[index] = { ...updated[index], [field]: value }
+      return updated
+    })
+  }
+
+  const addAthlete = () => {
+    if (athletes.length < 3) {
+      setAthletes(prev => [...prev, { age: '', interests: '' }])
+    }
+  }
+
+  const removeAthlete = (index: number) => {
+    if (athletes.length > 1) {
+      setAthletes(prev => prev.filter((_, i) => i !== index))
+    }
   }
 
   return (
@@ -291,7 +330,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
                     Stay Informed
                   </h2>
                   <p className="text-gray-600 mt-2">
-                    Be the first to know when Vortex Athletics opens its doors
+                    Tell us what you are interested in and we will let you know how we can help! Stay up to date with Vortex Athletics as we grow our program and offerings.
                   </p>
                 </div>
                 <button
@@ -372,45 +411,75 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
                     </div>
                   </div>
 
-                  {/* Athlete Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Athlete Age
-                      </label>
-                      <select
-                        name="athleteAge"
-                        value={formData.athleteAge}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
+                  {/* Athletes Info */}
+                  <div className="space-y-6">
+                    {athletes.map((athlete, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold text-gray-800">
+                            Athlete {index + 1}
+                          </h3>
+                          {athletes.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeAthlete(index)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Remove athlete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Athlete Age
+                            </label>
+                            <select
+                              value={athlete.age}
+                              onChange={(e) => handleAthleteChange(index, 'age', e.target.value)}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors bg-white"
+                            >
+                              <option value="">Select age range</option>
+                              <option value="3-5">3-5 years (Preschool)</option>
+                              <option value="6-8">6-8 years (Elementary)</option>
+                              <option value="9-12">9-12 years (Middle School)</option>
+                              <option value="13-18">13-18 years (High School)</option>
+                              <option value="adult">Adult (18+)</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Primary Interest
+                            </label>
+                            <select
+                              value={athlete.interests}
+                              onChange={(e) => handleAthleteChange(index, 'interests', e.target.value)}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors bg-white"
+                            >
+                              <option value="">Select interest</option>
+                              <option value="competition">Competition Gymnastics</option>
+                              <option value="recreational">Recreational Classes</option>
+                              <option value="athleticism">Athleticism Accelerator</option>
+                              <option value="private">Private Coaching</option>
+                              <option value="adult">Adult Fitness</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {athletes.length < 3 && (
+                      <button
+                        type="button"
+                        onClick={addAthlete}
+                        className="w-full flex items-center justify-center space-x-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-vortex-red hover:text-vortex-red transition-colors"
                       >
-                        <option value="">Select age range</option>
-                        <option value="3-5">3-5 years (Preschool)</option>
-                        <option value="6-8">6-8 years (Elementary)</option>
-                        <option value="9-12">9-12 years (Middle School)</option>
-                        <option value="13-18">13-18 years (High School)</option>
-                        <option value="adult">Adult (18+)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Primary Interest
-                      </label>
-                      <select
-                        name="interests"
-                        value={formData.interests}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
-                      >
-                        <option value="">Select interest</option>
-                        <option value="competition">Competition Gymnastics</option>
-                        <option value="recreational">Recreational Classes</option>
-                        <option value="athleticism">Athleticism Accelerator</option>
-                        <option value="private">Private Coaching</option>
-                        <option value="adult">Adult Fitness</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
+                        <Plus className="w-5 h-5" />
+                        <span>Add Another Athlete</span>
+                      </button>
+                    )}
                   </div>
 
                   {/* Message */}

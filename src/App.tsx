@@ -14,29 +14,52 @@ import Footer from './components/Footer'
 import OpeningPopup from './components/OpeningPopup'
 import Login from './components/Login'
 import Admin from './components/Admin'
+import MemberLogin from './components/MemberLogin'
+import MemberDashboard from './components/MemberDashboard'
 import { trackPageView, trackEngagement } from './utils/analytics'
 
 function App() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isOpeningPopupOpen, setIsOpeningPopupOpen] = useState(false)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const [isMemberLoginOpen, setIsMemberLoginOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [member, setMember] = useState<any>(null)
+  const [memberToken, setMemberToken] = useState<string | null>(null)
+  const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
-    // Check if user is already logged in
+    // Check if user is already logged in as admin
     const adminStatus = localStorage.getItem('vortex_admin')
     if (adminStatus === 'true') {
       setIsAdmin(true)
     }
 
+    // Check if member is already logged in
+    const storedToken = localStorage.getItem('vortex_member_token')
+    const storedMember = localStorage.getItem('vortex_member')
+    
+    if (storedToken && storedMember) {
+      try {
+        setMemberToken(storedToken)
+        setMember(JSON.parse(storedMember))
+        // Don't auto-show dashboard, let them browse the site
+        setShowMemberDashboard(false)
+      } catch (error) {
+        console.error('Error parsing stored member data:', error)
+        localStorage.removeItem('vortex_member_token')
+        localStorage.removeItem('vortex_member')
+      }
+    }
+
     // Track page view
-    if (!adminStatus) {
+    if (!adminStatus && !storedToken) {
       trackPageView(location.pathname)
     }
 
-    // Show opening popup after a short delay (only if not admin and on home page)
-    if (!adminStatus && location.pathname === '/') {
+    // Show opening popup after a short delay (only if not admin/member and on home page)
+    if (!adminStatus && !storedToken && location.pathname === '/') {
       const timer = setTimeout(() => {
         setIsOpeningPopupOpen(true)
       }, 1000);
@@ -58,6 +81,21 @@ function App() {
     setIsAdmin(false)
   }
 
+  const handleMemberLoginSuccess = (token: string, memberData: any) => {
+    localStorage.setItem('vortex_member_token', token)
+    localStorage.setItem('vortex_member', JSON.stringify(memberData))
+    setMemberToken(token)
+    setMember(memberData)
+    setShowMemberDashboard(true)
+  }
+
+  const handleMemberLogout = () => {
+    localStorage.removeItem('vortex_member_token')
+    localStorage.removeItem('vortex_member')
+    setMemberToken(null)
+    setMember(null)
+  }
+
   // If user is admin, show admin panel
   if (isAdmin) {
     return (
@@ -65,11 +103,25 @@ function App() {
     )
   }
 
+  // If member is logged in and wants to see dashboard, show member dashboard
+  if (member && memberToken && showMemberDashboard) {
+    return (
+      <MemberDashboard 
+        member={member} 
+        onLogout={handleMemberLogout}
+        onReturnToWebsite={() => setShowMemberDashboard(false)}
+      />
+    )
+  }
+
   // Otherwise show normal website
   return (
     <div className="min-h-screen bg-white">
       <Header 
-        onContactClick={handleContactClick} 
+        onContactClick={handleContactClick}
+        onMemberLoginClick={() => setIsMemberLoginOpen(true)}
+        member={member}
+        onMemberDashboardClick={() => setShowMemberDashboard(true)}
       />
       <Routes>
         <Route 
@@ -123,11 +175,18 @@ function App() {
         />
       )}
 
-      {/* Login Modal */}
+      {/* Admin Login Modal */}
       <Login
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
         onSuccess={handleLoginSuccess}
+      />
+
+      {/* Member Login Modal */}
+      <MemberLogin
+        isOpen={isMemberLoginOpen}
+        onClose={() => setIsMemberLoginOpen(false)}
+        onSuccess={handleMemberLoginSuccess}
       />
     </div>
   )
