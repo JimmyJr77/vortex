@@ -146,7 +146,7 @@ const Footer = ({ onContactClick, onLoginClick }: FooterProps) => {
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="w-5 h-5 text-vortex-red" />
-                  <span className="text-gray-300">619-838-5897</span>
+                  <span className="text-gray-300">+1 (443) 422-4794</span>
                 </div>
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-vortex-red mt-1" />

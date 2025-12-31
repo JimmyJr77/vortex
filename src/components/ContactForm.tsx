@@ -571,7 +571,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
                 <div className="flex items-center space-x-8">
                   <div className="flex items-center space-x-2">
                     <Phone className="w-4 h-4" />
-                    <span>619-838-5897</span>
+                    <span>+1 (443) 422-4794</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Mail className="w-4 h-4" />

@@ -48,6 +48,27 @@ const Header = ({ onContactClick, onMemberLoginClick, member, onMemberDashboardC
           {/* Sign Up Button and Hamburger Menu */}
           <div className="flex items-center space-x-4">
 
+            {/* Stay Updated Button */}
+            <motion.button
+              onClick={onContactClick}
+              className="bg-vortex-red text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Interested
+            </motion.button>
+
+            {/* Read Board Button */}
+            <Link to="/read-board">
+              <motion.button
+                className="bg-white text-black px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Read Board
+              </motion.button>
+            </Link>
+
             {/* Member Dashboard or Login Button */}
             {member && onMemberDashboardClick ? (
               <motion.button
@@ -68,16 +89,6 @@ const Header = ({ onContactClick, onMemberLoginClick, member, onMemberDashboardC
                 Login
               </motion.button>
             ) : null}
-
-            {/* Stay Updated Button */}
-            <motion.button
-              onClick={onContactClick}
-              className="bg-vortex-red text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Interested
-            </motion.button>
 
             {/* Hamburger Menu Button */}
             <button
