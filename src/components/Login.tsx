@@ -113,6 +113,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
                     name="usernameOrEmail"
                     value={usernameOrEmail}
                     onChange={(e) => setUsernameOrEmail(e.target.value)}
+                    placeholder="Enter username or email"
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
                     required
                     autoFocus
