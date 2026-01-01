@@ -561,11 +561,43 @@ export default function Admin({ onLogout }: AdminProps) {
   })
   const [eventSearchQuery, setEventSearchQuery] = useState('')
   const [useShortAsLong, setUseShortAsLong] = useState(true)
+  const [adminInfo, setAdminInfo] = useState<{ email: string; name: string } | null>(null)
+  const [showEditLog, setShowEditLog] = useState(false)
+  const [editLog, setEditLog] = useState<any[]>([])
+  const [editLogLoading, setEditLogLoading] = useState(false)
 
   useEffect(() => {
     fetchData()
     loadAnalytics()
+    
+    // Get or set admin info from localStorage
+    const storedAdmin = localStorage.getItem('vortex-admin-info')
+    if (storedAdmin) {
+      try {
+        setAdminInfo(JSON.parse(storedAdmin))
+      } catch (e) {
+        // If parsing fails, prompt for admin info
+        promptAdminInfo()
+      }
+    } else {
+      promptAdminInfo()
+    }
   }, [])
+
+  const promptAdminInfo = () => {
+    const email = prompt('Enter your admin email (for edit tracking):')
+    const name = prompt('Enter your name (for edit tracking):')
+    if (email && name) {
+      const adminData = { email, name }
+      setAdminInfo(adminData)
+      localStorage.setItem('vortex-admin-info', JSON.stringify(adminData))
+    } else if (email) {
+      // If only email provided, use email as name
+      const adminData = { email, name: email }
+      setAdminInfo(adminData)
+      localStorage.setItem('vortex-admin-info', JSON.stringify(adminData))
+    }
+  }
 
   const loadAnalytics = () => {
     const data = getAnalyticsData()
@@ -965,6 +997,26 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
+  const fetchEditLog = async (eventId: string | number) => {
+    try {
+      setEditLogLoading(true)
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/events/${eventId}/log`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch edit log: ${response.status}`)
+      }
+      const data = await response.json()
+      if (data.success) {
+        setEditLog(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching edit log:', error)
+      setEditLog([])
+    } finally {
+      setEditLogLoading(false)
+    }
+  }
+
   const handleCreateOrUpdateEvent = async () => {
     try {
       const apiUrl = getApiUrl()
@@ -978,7 +1030,12 @@ export default function Admin({ onLogout }: AdminProps) {
       // If checkbox is checked, use short description as long description
       const dataToSubmit = {
         ...eventFormData,
-        longDescription: useShortAsLong ? eventFormData.shortDescription : eventFormData.longDescription
+        longDescription: useShortAsLong ? eventFormData.shortDescription : eventFormData.longDescription,
+        // Include admin info for edit tracking (only for updates)
+        ...(editingEventId && adminInfo ? {
+          adminEmail: adminInfo.email,
+          adminName: adminInfo.name
+        } : {})
       }
       
       const response = await fetch(url, {
@@ -2402,7 +2459,130 @@ export default function Admin({ onLogout }: AdminProps) {
                     Cancel
                   </button>
                 </div>
+
+                {/* Edit Log Link - Only show when editing existing event */}
+                {editingEventId && (
+                  <div className="pt-4 border-t border-gray-700">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowEditLog(true)
+                        fetchEditLog(editingEventId)
+                      }}
+                      className="text-gray-400 hover:text-white text-sm underline"
+                    >
+                      Log
+                    </button>
+                  </div>
+                )}
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Log Modal */}
+      <AnimatePresence>
+        {showEditLog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowEditLog(false)}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-3xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">Edit Log</h3>
+                <button
+                  onClick={() => setShowEditLog(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {editLogLoading ? (
+                <div className="text-center py-12 text-gray-400">Loading log...</div>
+              ) : editLog.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">No edit history available</div>
+              ) : (
+                <div className="space-y-4">
+                  {editLog.map((log, index) => (
+                    <div key={log.id} className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <p className="text-white font-semibold">
+                            {log.adminName || 'Unknown Admin'}
+                          </p>
+                          <p className="text-gray-400 text-sm">{log.adminEmail}</p>
+                        </div>
+                        <p className="text-gray-400 text-sm">
+                          {new Date(log.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        {Object.entries(log.changes).map(([field, change]: [string, any]) => {
+                          const formatFieldName = (fieldName: string) => {
+                            return fieldName
+                              .replace(/([A-Z])/g, ' $1')
+                              .replace(/^./, str => str.toUpperCase())
+                              .trim()
+                          }
+                          
+                          const formatChangeValue = (val: any) => {
+                            if (val === null || val === undefined) return '(empty)'
+                            if (Array.isArray(val)) {
+                              if (val.length === 0) return '(empty array)'
+                              return val.map((item, idx) => {
+                                if (typeof item === 'object') {
+                                  return JSON.stringify(item, null, 2)
+                                }
+                                return `${idx + 1}. ${String(item)}`
+                              }).join('\n')
+                            }
+                            if (typeof val === 'object') {
+                              return JSON.stringify(val, null, 2)
+                            }
+                            return String(val)
+                          }
+                          
+                          return (
+                            <div key={field} className="bg-gray-600 rounded p-3">
+                              <p className="text-vortex-red font-semibold text-sm mb-2">
+                                {formatFieldName(field)}
+                              </p>
+                              <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                  <p className="text-gray-400 text-xs mb-1 font-semibold">Previous:</p>
+                                  <p className="text-gray-300 line-through whitespace-pre-wrap break-words">
+                                    {formatChangeValue(change.old)}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-400 text-xs mb-1 font-semibold">Updated:</p>
+                                  <p className="text-white whitespace-pre-wrap break-words">
+                                    {formatChangeValue(change.new)}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}

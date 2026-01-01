@@ -178,6 +178,24 @@ const initDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_events_end_date ON events(end_date)
     `)
 
+    // Event edit log table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS event_edit_log (
+        id SERIAL PRIMARY KEY,
+        event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+        admin_email VARCHAR(255) NOT NULL,
+        admin_name VARCHAR(255),
+        changes JSONB NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_event_edit_log_event_id ON event_edit_log(event_id)
+    `)
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_event_edit_log_created_at ON event_edit_log(created_at DESC)
+    `)
+
     console.log('✅ Database tables initialized successfully')
   } catch (error) {
     console.error('❌ Database initialization error:', error)
@@ -235,7 +253,9 @@ const eventSchema = Joi.object({
     description: Joi.string().optional().allow(''),
     allDay: Joi.boolean().optional()
   })).optional().default([]),
-  keyDetails: Joi.array().items(Joi.string()).optional().default([])
+  keyDetails: Joi.array().items(Joi.string()).optional().default([]),
+  adminEmail: Joi.string().email().optional(),
+  adminName: Joi.string().optional()
 })
 
 // Middleware to verify JWT token
@@ -1039,6 +1059,102 @@ app.put('/api/admin/events/:id', async (req, res) => {
       })
     }
 
+    // Get the current event to compare changes
+    const currentEventResult = await pool.query(`
+      SELECT 
+        event_name,
+        short_description,
+        long_description,
+        start_date,
+        end_date,
+        type,
+        address,
+        dates_and_times,
+        key_details
+      FROM events
+      WHERE id = $1
+    `, [id])
+
+    if (currentEventResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      })
+    }
+
+    const currentEvent = currentEventResult.rows[0]
+    
+    // Track changes
+    const changes = {}
+    const formatValue = (val) => {
+      if (val === null || val === undefined) return null
+      if (typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date)) {
+        return JSON.stringify(val)
+      }
+      if (val instanceof Date) {
+        return val.toISOString().split('T')[0]
+      }
+      return String(val)
+    }
+
+    // Normalize dates for comparison
+    const normalizeDate = (dateVal) => {
+      if (!dateVal) return null
+      if (dateVal instanceof Date) {
+        return dateVal.toISOString().split('T')[0]
+      }
+      if (typeof dateVal === 'string') {
+        // Handle ISO date strings
+        return dateVal.split('T')[0]
+      }
+      return String(dateVal)
+    }
+
+    if (formatValue(currentEvent.event_name) !== formatValue(value.eventName)) {
+      changes.eventName = { old: currentEvent.event_name, new: value.eventName }
+    }
+    if (formatValue(currentEvent.short_description) !== formatValue(value.shortDescription)) {
+      changes.shortDescription = { old: currentEvent.short_description, new: value.shortDescription }
+    }
+    if (formatValue(currentEvent.long_description) !== formatValue(value.longDescription)) {
+      changes.longDescription = { old: currentEvent.long_description, new: value.longDescription }
+    }
+    if (normalizeDate(currentEvent.start_date) !== normalizeDate(value.startDate)) {
+      changes.startDate = { old: currentEvent.start_date, new: value.startDate }
+    }
+    if (normalizeDate(currentEvent.end_date) !== normalizeDate(value.endDate)) {
+      changes.endDate = { old: currentEvent.end_date, new: value.endDate }
+    }
+    if (formatValue(currentEvent.type) !== formatValue(value.type)) {
+      changes.type = { old: currentEvent.type, new: value.type }
+    }
+    if (formatValue(currentEvent.address) !== formatValue(value.address)) {
+      changes.address = { old: currentEvent.address, new: value.address }
+    }
+    
+    const currentDatesAndTimes = typeof currentEvent.dates_and_times === 'string' 
+      ? JSON.parse(currentEvent.dates_and_times) 
+      : (currentEvent.dates_and_times || [])
+    const newDatesAndTimes = value.datesAndTimes || []
+    // Normalize dates in arrays for comparison
+    const normalizeDatesAndTimes = (arr) => {
+      return arr.map(item => ({
+        ...item,
+        date: item.date ? normalizeDate(item.date) : null
+      }))
+    }
+    if (JSON.stringify(normalizeDatesAndTimes(currentDatesAndTimes)) !== JSON.stringify(normalizeDatesAndTimes(newDatesAndTimes))) {
+      changes.datesAndTimes = { old: currentDatesAndTimes, new: newDatesAndTimes }
+    }
+    
+    const currentKeyDetails = typeof currentEvent.key_details === 'string'
+      ? JSON.parse(currentEvent.key_details)
+      : (currentEvent.key_details || [])
+    if (JSON.stringify(currentKeyDetails) !== JSON.stringify(value.keyDetails || [])) {
+      changes.keyDetails = { old: currentKeyDetails, new: value.keyDetails || [] }
+    }
+
+    // Update the event
     const result = await pool.query(`
       UPDATE events 
       SET event_name = $1, 
@@ -1076,14 +1192,25 @@ app.put('/api/admin/events/:id', async (req, res) => {
       id
     ])
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Event not found'
-      })
-    }
-
     const event = result.rows[0]
+    
+    // Log the changes if there are any and admin info is provided
+    if (Object.keys(changes).length > 0 && (value.adminEmail || value.adminName)) {
+      try {
+        await pool.query(`
+          INSERT INTO event_edit_log (event_id, admin_email, admin_name, changes)
+          VALUES ($1, $2, $3, $4)
+        `, [
+          id,
+          value.adminEmail || 'unknown@vortexathletics.com',
+          value.adminName || 'Unknown Admin',
+          JSON.stringify(changes)
+        ])
+      } catch (logError) {
+        console.error('Error logging event changes:', logError)
+        // Don't fail the update if logging fails
+      }
+    }
     
     // Parse JSONB fields
     let datesAndTimes = []
@@ -1143,6 +1270,41 @@ app.delete('/api/admin/events/:id', async (req, res) => {
     })
   } catch (error) {
     console.error('Delete event error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Get event edit log (admin endpoint)
+app.get('/api/admin/events/:id/log', async (req, res) => {
+  try {
+    const { id } = req.params
+    const result = await pool.query(`
+      SELECT 
+        id,
+        admin_email as "adminEmail",
+        admin_name as "adminName",
+        changes,
+        created_at as "createdAt"
+      FROM event_edit_log
+      WHERE event_id = $1
+      ORDER BY created_at DESC
+    `, [id])
+
+    const logs = result.rows.map(log => ({
+      ...log,
+      changes: typeof log.changes === 'string' ? JSON.parse(log.changes) : log.changes,
+      createdAt: new Date(log.createdAt)
+    }))
+
+    res.json({
+      success: true,
+      data: logs
+    })
+  } catch (error) {
+    console.error('Get event log error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error'
