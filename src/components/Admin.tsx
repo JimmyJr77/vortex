@@ -1136,9 +1136,9 @@ export default function Admin({ onLogout }: AdminProps) {
           }
           localStorage.setItem('vortex-admin-info', JSON.stringify(updatedAdmin))
           setAdminInfo(updatedAdmin)
+          // Close edit mode and refresh account data
           setEditingMyAccount(false)
-          setMyAccountData({ ...myAccountData, password: '' })
-          alert('Account updated successfully')
+          await fetchMyAccount()
         }
       } else {
         const data = await response.json()
@@ -1845,7 +1845,11 @@ export default function Admin({ onLogout }: AdminProps) {
                         )}
                       </div>
                       <button
-                        onClick={() => setEditingMyAccount(true)}
+                        onClick={async () => {
+                          // Ensure we have the latest account data before editing
+                          await fetchMyAccount()
+                          setEditingMyAccount(true)
+                        }}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium mt-4"
                       >
                         <Edit2 className="w-4 h-4" />
