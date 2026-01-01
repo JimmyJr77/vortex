@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LogOut, RefreshCw, Download, Edit2, Archive, X, Save, ChevronDown, ChevronUp, BarChart3, Users, Eye, MousePointer, Clock, TrendingUp, UserPlus, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search } from 'lucide-react'
 import { getAnalyticsData, clearAnalyticsData } from '../utils/analytics'
+import { getApiUrl } from '../utils/api'
 
 interface AdminProps {
   onLogout: () => void
@@ -186,7 +187,8 @@ const EventsView = ({
   searchQuery, 
   onSearchChange, 
   onEdit, 
-  onDelete 
+  onDelete,
+  error
 }: { 
   events: Event[]
   loading: boolean
@@ -194,6 +196,7 @@ const EventsView = ({
   onSearchChange: (query: string) => void
   onEdit: (event: Event) => void
   onDelete: (id: string | number) => void
+  error?: string | null
 }) => {
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', { 
@@ -253,12 +256,32 @@ const EventsView = ({
     ].join(' ').toLowerCase()
     
     return searchableText.includes(query)
-  }).sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+  }).sort((a, b) => {
+    // Handle cases where startDate might not be a valid Date object
+    try {
+      const aTime = a.startDate instanceof Date ? a.startDate.getTime() : new Date(a.startDate).getTime()
+      const bTime = b.startDate instanceof Date ? b.startDate.getTime() : new Date(b.startDate).getTime()
+      return aTime - bTime
+    } catch (e) {
+      return 0
+    }
+  })
 
   if (loading) {
     return (
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
         <div className="text-center py-12 text-gray-600">Loading events...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <div className="text-center py-12">
+          <div className="text-red-600 mb-4 font-semibold">Error Loading Events</div>
+          <div className="text-gray-600 mb-4">{error}</div>
+        </div>
       </div>
     )
   }
@@ -282,13 +305,13 @@ const EventsView = ({
       {/* Calendar of Events */}
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
         <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
-          Calendar of Events
+          Calendar of Events {events.length > 0 && `(${events.length} total)`}
         </h2>
         
         {filteredEvents.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-xl text-gray-600">
-              {searchQuery ? `No events found matching "${searchQuery}"` : 'No events at this time.'}
+              {searchQuery ? `No events found matching "${searchQuery}"` : `No events at this time. (Total events in database: ${events.length})`}
             </p>
           </div>
         ) : (
@@ -563,10 +586,7 @@ export default function Admin({ onLogout }: AdminProps) {
     try {
       setMembersLoading(true)
       setError(null)
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'
-          : 'http://localhost:3001')
+      const apiUrl = getApiUrl()
       
       const response = await fetch(`${apiUrl}/api/admin/members`)
       if (!response.ok) {
@@ -777,10 +797,7 @@ export default function Admin({ onLogout }: AdminProps) {
 
   const handleCreateMember = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'
-          : 'http://localhost:3001')
+      const apiUrl = getApiUrl()
       
       const response = await fetch(`${apiUrl}/api/admin/members`, {
         method: 'POST',
@@ -824,10 +841,7 @@ export default function Admin({ onLogout }: AdminProps) {
 
   const handleUpdateMemberStatus = async (id: number, status: string) => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'
-          : 'http://localhost:3001')
+      const apiUrl = getApiUrl()
       
       const member = members.find(m => m.id === id)
       if (!member) return
@@ -881,29 +895,67 @@ export default function Admin({ onLogout }: AdminProps) {
     try {
       setEventsLoading(true)
       setError(null)
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'
-          : 'http://localhost:3001')
+      const apiUrl = getApiUrl()
       
+      console.log('Fetching events from:', `${apiUrl}/api/admin/events`)
       const response = await fetch(`${apiUrl}/api/admin/events`)
       if (!response.ok) {
         throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
       }
       const data = await response.json()
       
-      if (data.success) {
+      console.log('Events response:', data)
+      
+      if (data.success && data.data && Array.isArray(data.data)) {
         // Convert date strings to Date objects
-        const eventsWithDates = data.data.map((event: any) => ({
-          ...event,
-          startDate: new Date(event.startDate),
-          endDate: event.endDate ? new Date(event.endDate) : undefined,
-          datesAndTimes: event.datesAndTimes?.map((dt: any) => ({
-            ...dt,
-            date: new Date(dt.date)
-          })) || []
-        }))
+        const eventsWithDates = data.data.map((event: any) => {
+          try {
+            const parsedEvent = {
+              ...event,
+              startDate: event.startDate ? new Date(event.startDate) : new Date(),
+              endDate: event.endDate ? new Date(event.endDate) : undefined,
+              datesAndTimes: Array.isArray(event.datesAndTimes) 
+                ? event.datesAndTimes.map((dt: any) => {
+                    try {
+                      return {
+                        ...dt,
+                        date: dt.date ? new Date(dt.date) : new Date()
+                      }
+                    } catch (e) {
+                      console.error('Error parsing date in datesAndTimes:', e, dt)
+                      return {
+                        ...dt,
+                        date: new Date()
+                      }
+                    }
+                  })
+                : []
+            }
+            // Validate that startDate is a valid Date
+            if (isNaN(parsedEvent.startDate.getTime())) {
+              console.error('Invalid startDate for event:', event)
+              parsedEvent.startDate = new Date()
+            }
+            return parsedEvent
+          } catch (e) {
+            console.error('Error parsing event:', e, event)
+            return {
+              ...event,
+              startDate: new Date(),
+              endDate: undefined,
+              datesAndTimes: []
+            }
+          }
+        })
+        console.log('Setting events:', eventsWithDates.length, 'events')
+        console.log('First event sample:', eventsWithDates[0])
         setEvents(eventsWithDates)
+        setError(null) // Clear any previous errors
+      } else {
+        console.error('API returned success: false or no data', data)
+        const errorMsg = data.message || 'Failed to fetch events'
+        setError(errorMsg)
+        setEvents([])
       }
     } catch (error) {
       console.error('Error fetching events:', error)
@@ -915,10 +967,7 @@ export default function Admin({ onLogout }: AdminProps) {
 
   const handleCreateOrUpdateEvent = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'
-          : 'http://localhost:3001')
+      const apiUrl = getApiUrl()
       
       const url = editingEventId 
         ? `${apiUrl}/api/admin/events/${editingEventId}`
@@ -991,10 +1040,7 @@ export default function Admin({ onLogout }: AdminProps) {
     if (!confirm('Are you sure you want to delete this event?')) return
     
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'
-          : 'http://localhost:3001')
+      const apiUrl = getApiUrl()
       
       const response = await fetch(`${apiUrl}/api/admin/events/${id}`, {
         method: 'DELETE'
@@ -1404,6 +1450,7 @@ export default function Admin({ onLogout }: AdminProps) {
                   onSearchChange={setEventSearchQuery}
                   onEdit={handleEditEvent}
                   onDelete={handleDeleteEvent}
+                  error={error}
                 />
               </motion.div>
             ) : activeTab === 'membership' ? (

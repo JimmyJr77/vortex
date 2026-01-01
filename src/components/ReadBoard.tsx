@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, Users, Award, Trophy, Zap, CheckCircle, Search } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getApiUrl } from '../utils/api'
 
 interface DateTimeEntry {
   date: Date // Single date for this entry
@@ -300,195 +301,50 @@ const ReadBoard = () => {
     }
   ]
 
-  // Events - chronologically ordered
-  // In production, these would be loaded from a database
-  // NOTE: When creating events in the admin portal, the default address should be "Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715"
-  const allEvents: Event[] = [
-    {
-      id: 1,
-      eventName: 'Christmas Camp',
-      shortDescription: 'Celebrate the holidays with our exciting Christmas Camp! This week-long adventure combines gymnastics fundamentals, ninja obstacle training, and athletic development activities.',
-      longDescription: 'Celebrate the holidays with our exciting Christmas Camp! This week-long adventure combines gymnastics fundamentals, ninja obstacle training, and athletic development activities. Perfect for keeping kids active and engaged during the holiday break while building strength, coordination, and confidence. Our experienced coaches will guide athletes through fun, age-appropriate challenges that make learning feel like play.',
-      startDate: new Date(2026, 11, 20), // Dec 20, 2026
-      endDate: new Date(2026, 11, 28), // Dec 28, 2026
-      type: 'camp',
-      datesAndTimes: [
-        { date: new Date(2026, 11, 20), startTime: '9:00 AM', endTime: '3:00 PM' },
-        { date: new Date(2026, 11, 21), startTime: '9:00 AM', endTime: '3:00 PM' },
-        { date: new Date(2026, 11, 22), startTime: '9:00 AM', endTime: '3:00 PM' },
-        { date: new Date(2026, 11, 23), startTime: '9:00 AM', endTime: '3:00 PM' },
-        { date: new Date(2026, 11, 24), startTime: '9:00 AM', endTime: '12:00 PM', description: 'Half day - Holiday Eve' },
-        { date: new Date(2026, 11, 26), startTime: '9:00 AM', endTime: '3:00 PM' },
-        { date: new Date(2026, 11, 27), startTime: '9:00 AM', endTime: '3:00 PM' },
-        { date: new Date(2026, 11, 28), startTime: '9:00 AM', endTime: '3:00 PM' }
-      ],
-      keyDetails: [
-        'Ages 5-18 welcome - grouped by age and skill level',
-        'Includes healthy lunch and afternoon snacks',
-        'Early drop-off (8:00 AM) and late pick-up (4:00 PM) available',
-        'Holiday-themed activities and games',
-        'Progress tracking through Athleticism Accelerator™',
-        'Take-home camp certificate and progress report'
-      ],
-      address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
-    },
-    {
-      id: 2,
-      eventName: 'NCAA College Football National Championship Watch Party',
-      shortDescription: 'Join the Vortex community for the biggest game in college football! Watch the NCAA College Football National Championship Game on our big screen.',
-      longDescription: 'Join the Vortex community for the biggest game in college football! Watch the NCAA College Football National Championship Game on our big screen as we cheer on the nation\'s top collegiate teams competing for the national title. This is a perfect opportunity to come together as a community, enjoy great food and company, and experience the excitement of championship football. Bring the whole family for an evening of fun, community, and gridiron action!',
-      startDate: new Date(2026, 0, 19), // Jan 19, 2026
-      type: 'watch-party',
-      datesAndTimes: [
-        { date: new Date(2026, 0, 19), startTime: '6:00 PM', endTime: '10:00 PM', description: 'Pre-game coverage starts at 6:00 PM, kickoff at 7:00 PM' }
-      ],
-      keyDetails: [
-        'All ages welcome - family-friendly event',
-        'Complimentary pizza, snacks, and beverages',
-        'Raffle prizes throughout the evening',
-        'Game day atmosphere with large screen viewing',
-        'Meet and connect with other Vortex families',
-        'Free event - no registration required'
-      ],
-      address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
-    },
-    {
-      id: 3,
-      eventName: 'International Gymnastics Camp',
-      shortDescription: 'Experience world-class training at our International Gymnastics Camp! This intensive 6-day camp brings together elite coaches from international programs.',
-      longDescription: 'Experience world-class training at our International Gymnastics Camp! This intensive 6-day camp brings together elite coaches from international programs to share advanced techniques, training methodologies, and competitive strategies. Designed for competitive team members and advanced athletes, this camp focuses on skill refinement, routine construction, mental preparation, and performance optimization. Athletes will receive personalized feedback, video analysis, and training plans to elevate their competitive performance.',
-      startDate: new Date(2026, 0, 15), // Jan 15, 2026
-      endDate: new Date(2026, 0, 20), // Jan 20, 2026
-      type: 'camp',
-      datesAndTimes: [
-        { date: new Date(2026, 0, 15), startTime: '8:00 AM', endTime: '5:00 PM', description: 'Day 1 - Orientation & Assessment' },
-        { date: new Date(2026, 0, 16), description: 'All day training' },
-        { date: new Date(2026, 0, 17), description: 'All day training' },
-        { date: new Date(2026, 0, 18), description: 'All day training' },
-        { date: new Date(2026, 0, 19), description: 'All day training' },
-        { date: new Date(2026, 0, 20), startTime: '8:00 AM', endTime: '2:00 PM', description: 'Final day - Showcase & Evaluations' }
-      ],
-      keyDetails: [
-        'Guest coaches from top international programs',
-        'Comprehensive skill assessments and video analysis',
-        'Personalized training plans and feedback',
-        'Routine construction and choreography workshops',
-        'Mental training and competition preparation',
-        'For competitive team members and advanced athletes (evaluation required)',
-        'Limited spots available - early registration recommended'
-      ],
-      address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
-    },
-    {
-      id: 4,
-      eventName: 'Superbowl Watch Party',
-      shortDescription: 'Get ready for the biggest game of the year! Join the Vortex family for our annual Superbowl Watch Party.',
-      longDescription: 'Get ready for the biggest game of the year! Join the Vortex family for our annual Superbowl Watch Party. We\'ll transform our main gym into the ultimate viewing experience with a large screen, comfortable seating, and game day atmosphere. This is a great opportunity to relax, have fun, and connect with the Vortex community while watching the championship game. Whether you\'re a football fan or just here for the snacks and company, everyone is welcome!',
-      startDate: new Date(2026, 1, 8), // Feb 8, 2026
-      type: 'watch-party',
-      keyDetails: [
-        '6:00 PM kickoff (pre-game coverage starts earlier)',
-        'Game day snacks, pizza, and beverages provided',
-        'Family-friendly environment - all ages welcome',
-        'Raffle prizes and halftime games',
-        'Comfortable viewing area with seating',
-        'Free event for Vortex athletes and families',
-        'RSVP recommended for planning purposes'
-      ],
-      address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
-    },
-    {
-      id: 5,
-      eventName: 'Athleticism Accelerator and Vortex Ninja Classes Begin',
-      shortDescription: 'The wait is over! Our highly anticipated Athleticism Accelerator and Vortex Ninja programs officially launch on February 15th.',
-      longDescription: 'The wait is over! Our highly anticipated Athleticism Accelerator and Vortex Ninja programs officially launch on February 15th. These programs combine cutting-edge athletic development with fun, engaging training that builds strength, agility, coordination, and confidence. The Athleticism Accelerator focuses on the 8 Tenets of Athleticism through science-backed training methods, while Vortex Ninja offers obstacle-based training that develops functional movement and body control. Both programs integrate seamlessly with our gymnastics foundation to create complete athletes.',
-      startDate: new Date(2026, 1, 15), // Feb 15, 2026
-      type: 'class',
-      keyDetails: [
-        'New class schedules and times available now',
-        'Open enrollment for all skill levels - beginner to advanced',
-        'Free trial classes available - experience before you commit',
-        'Small group sizes for personalized attention',
-        'Technology-integrated training with real-time feedback',
-        'Progress tracking through Athleticism Accelerator™ system',
-        'Flexible scheduling options available',
-        'Contact us to register or schedule a free trial class'
-      ],
-      address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
-    },
-    {
-      id: 6,
-      eventName: 'Winter Showcase & Evaluations',
-      shortDescription: 'Join us for our Winter Showcase, celebrating three months of growth and achievement!',
-      longDescription: 'Join us for our Winter Showcase, celebrating three months of growth and achievement! This special event provides parents with the opportunity to see firsthand the learning and improvement their athletes have made during the winter season (December, January, and February). Athletes will demonstrate their skills and progress through routines and skill demonstrations. Additionally, our coaches will conduct internal evaluations for all athletes to determine level advancement or identify areas needing additional development time.',
-      startDate: new Date(2026, 1, 28), // Feb 28, 2026
-      type: 'event',
-      keyDetails: [
-        'Athlete skill demonstrations and routines',
-        'Parent viewing of athlete progress and achievements',
-        'Internal evaluations for level advancement decisions',
-        'Individual progress reports and feedback',
-        'Celebration of winter season accomplishments',
-        'All program participants welcome',
-        'Schedule and timing details to be announced'
-      ],
-      address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
-    },
-    {
-      id: 7,
-      eventName: 'Spring Showcase & Evaluations',
-      shortDescription: 'Celebrate the spring season at our Spring Showcase! This quarterly event showcases the incredible progress athletes have made.',
-      longDescription: 'Celebrate the spring season at our Spring Showcase! This quarterly event showcases the incredible progress athletes have made during the spring months (March, April, and May). Parents will witness their athletes\' growth through skill demonstrations, routine performances, and progress presentations. Our coaching team will conduct comprehensive evaluations to assess each athlete\'s readiness for level advancement, ensuring appropriate placement and continued development.',
-      startDate: new Date(2026, 4, 30), // May 30, 2026
-      type: 'event',
-      keyDetails: [
-        'Spring season progress demonstrations',
-        'Parent viewing of athlete achievements and skill development',
-        'Comprehensive athlete evaluations for level placement',
-        'Individualized feedback and progress assessments',
-        'Recognition of spring season accomplishments',
-        'All program levels and ages participate',
-        'Schedule and timing details to be announced'
-      ],
-      address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
-    },
-    {
-      id: 8,
-      eventName: 'Summer Showcase & Evaluations',
-      shortDescription: 'Showcase the summer season\'s achievements at our Summer Showcase!',
-      longDescription: 'Showcase the summer season\'s achievements at our Summer Showcase! This event highlights the dedication and progress athletes have shown throughout the summer months (June, July, and August). Parents will see their athletes demonstrate new skills, improved techniques, and overall growth. Our coaching staff will perform detailed evaluations to determine each athlete\'s progression path, identifying those ready to advance to the next level and those who would benefit from additional time at their current level.',
-      startDate: new Date(2026, 7, 29), // Aug 29, 2026
-      type: 'event',
-      keyDetails: [
-        'Summer season skill demonstrations and routines',
-        'Parent viewing of athlete learning and improvement',
-        'Detailed evaluations for level advancement decisions',
-        'Progress reports and personalized feedback',
-        'Celebration of summer achievements',
-        'All athletes participate in showcase',
-        'Schedule and timing details to be announced'
-      ],
-      address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
-    },
-    {
-      id: 9,
-      eventName: 'Autumn/Fall Showcase & Evaluations',
-      shortDescription: 'Close out the year with our Autumn/Fall Showcase! This final showcase of the year celebrates the growth and achievements athletes have accomplished.',
-      longDescription: 'Close out the year with our Autumn/Fall Showcase! This final showcase of the year celebrates the growth and achievements athletes have accomplished during the fall season (September, October, and November). Parents will have the opportunity to see their athletes\' progress through comprehensive skill demonstrations and routine performances. Our coaches will conduct year-end evaluations to assess readiness for level advancement, ensuring each athlete is placed appropriately for continued success in the coming year.',
-      startDate: new Date(2026, 10, 28), // Nov 28, 2026
-      type: 'event',
-      keyDetails: [
-        'Fall season progress demonstrations and performances',
-        'Parent viewing of athlete learning and improvement',
-        'Year-end evaluations for level advancement',
-        'Comprehensive progress reports and assessments',
-        'Celebration of fall season and annual achievements',
-        'All program participants showcase their progress',
-        'Schedule and timing details to be announced'
-      ],
-      address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
+  // Events - fetched from database
+  const [allEvents, setAllEvents] = useState<Event[]>([])
+  const [eventsLoading, setEventsLoading] = useState(true)
+  const [eventsError, setEventsError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setEventsLoading(true)
+        setEventsError(null)
+        const apiUrl = getApiUrl()
+        
+        const response = await fetch(`${apiUrl}/api/events`)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch events: ${response.status}`)
+        }
+        const data = await response.json()
+        
+        if (data.success) {
+          // Convert date strings to Date objects and parse JSON fields
+          const events = data.data.map((event: any) => ({
+            ...event,
+            startDate: new Date(event.startDate),
+            endDate: event.endDate ? new Date(event.endDate) : undefined,
+            datesAndTimes: Array.isArray(event.datesAndTimes) 
+              ? event.datesAndTimes.map((dt: any) => ({
+                  ...dt,
+                  date: new Date(dt.date)
+                }))
+              : [],
+            keyDetails: Array.isArray(event.keyDetails) ? event.keyDetails : []
+          }))
+          setAllEvents(events)
+        }
+      } catch (error) {
+        console.error('Error fetching events:', error)
+        setEventsError(error instanceof Error ? error.message : 'Unable to fetch events')
+      } finally {
+        setEventsLoading(false)
+      }
     }
-  ]
+
+    fetchEvents()
+  }, [])
 
   // Filter out events more than 1 week in the past
   const oneWeekAgo = new Date()
@@ -880,7 +736,15 @@ const ReadBoard = () => {
                   Calendar of <span className="text-vortex-red">Events</span>
                 </h2>
                 
-                {filteredEvents.length === 0 ? (
+                {eventsLoading ? (
+                  <div className="text-center py-12">
+                    <p className="text-xl text-gray-600">Loading events...</p>
+                  </div>
+                ) : eventsError ? (
+                  <div className="text-center py-12">
+                    <p className="text-xl text-red-600">Error loading events: {eventsError}</p>
+                  </div>
+                ) : filteredEvents.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-xl text-gray-600">
                       {searchQuery ? `No events found matching "${searchQuery}"` : 'No upcoming events at this time.'}
@@ -931,7 +795,15 @@ const ReadBoard = () => {
                   Event <span className="text-vortex-red">Details</span>
                 </h2>
                 
-                {filteredEvents.length === 0 ? (
+                {eventsLoading ? (
+                  <div className="text-center py-12">
+                    <p className="text-xl text-gray-600">Loading events...</p>
+                  </div>
+                ) : eventsError ? (
+                  <div className="text-center py-12">
+                    <p className="text-xl text-red-600">Error loading events: {eventsError}</p>
+                  </div>
+                ) : filteredEvents.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-xl text-gray-600">
                       {searchQuery ? `No events found matching "${searchQuery}"` : 'No upcoming events at this time.'}

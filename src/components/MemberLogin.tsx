@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Lock, Mail } from 'lucide-react'
+import { getApiUrl } from '../utils/api'
 
 interface MemberLoginProps {
   isOpen: boolean
@@ -20,10 +21,7 @@ export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginP
     setIsSubmitting(true)
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'
-          : 'http://localhost:3001')
+      const apiUrl = getApiUrl()
       
       const response = await fetch(`${apiUrl}/api/members/login`, {
         method: 'POST',

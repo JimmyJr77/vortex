@@ -131,6 +131,24 @@ const initDatabase = async () => {
       )
     `)
 
+    // Events table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS events (
+        id SERIAL PRIMARY KEY,
+        event_name VARCHAR(255) NOT NULL,
+        short_description TEXT NOT NULL,
+        long_description TEXT NOT NULL,
+        start_date DATE NOT NULL,
+        end_date DATE,
+        type VARCHAR(50) DEFAULT 'event' CHECK (type IN ('camp', 'class', 'event', 'watch-party')),
+        address TEXT,
+        dates_and_times JSONB DEFAULT '[]'::jsonb,
+        key_details JSONB DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     // Create indexes for better performance
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_registrations_email ON registrations(email)
@@ -149,6 +167,12 @@ const initDatabase = async () => {
     `)
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_member_children_member_id ON member_children(member_id)
+    `)
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_events_start_date ON events(start_date)
+    `)
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_events_end_date ON events(end_date)
     `)
 
     console.log('✅ Database tables initialized successfully')
@@ -191,6 +215,24 @@ const memberSchema = Joi.object({
 const memberLoginSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required()
+})
+
+const eventSchema = Joi.object({
+  eventName: Joi.string().min(1).max(255).required(),
+  shortDescription: Joi.string().min(1).required(),
+  longDescription: Joi.string().min(1).required(),
+  startDate: Joi.date().required(),
+  endDate: Joi.date().optional().allow(null),
+  type: Joi.string().valid('camp', 'class', 'event', 'watch-party').optional().default('event'),
+  address: Joi.string().max(500).optional().allow('', null),
+  datesAndTimes: Joi.array().items(Joi.object({
+    date: Joi.date().required(),
+    startTime: Joi.string().optional().allow(''),
+    endTime: Joi.string().optional().allow(''),
+    description: Joi.string().optional().allow(''),
+    allDay: Joi.boolean().optional()
+  })).optional().default([]),
+  keyDetails: Joi.array().items(Joi.string()).optional().default([])
 })
 
 // Middleware to verify JWT token
@@ -762,6 +804,342 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
     })
   } catch (error) {
     console.error('Get member error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// ========== EVENT ENDPOINTS ==========
+
+// Get all events (public endpoint for ReadBoard)
+app.get('/api/events', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        id,
+        event_name as "eventName",
+        short_description as "shortDescription",
+        long_description as "longDescription",
+        start_date as "startDate",
+        end_date as "endDate",
+        type,
+        address,
+        dates_and_times as "datesAndTimes",
+        key_details as "keyDetails",
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+      FROM events
+      ORDER BY start_date ASC, created_at DESC
+    `)
+
+    // Convert date strings to Date objects and parse JSON fields
+    const events = result.rows.map(event => {
+      // Parse JSONB fields (PostgreSQL returns them as JSON strings)
+      let datesAndTimes = []
+      let keyDetails = []
+      
+      try {
+        datesAndTimes = typeof event.datesAndTimes === 'string' 
+          ? JSON.parse(event.datesAndTimes) 
+          : (event.datesAndTimes || [])
+        keyDetails = typeof event.keyDetails === 'string'
+          ? JSON.parse(event.keyDetails)
+          : (event.keyDetails || [])
+      } catch (e) {
+        console.error('Error parsing JSON fields:', e)
+      }
+      
+      return {
+        ...event,
+        startDate: new Date(event.startDate),
+        endDate: event.endDate ? new Date(event.endDate) : undefined,
+        datesAndTimes: Array.isArray(datesAndTimes) 
+          ? datesAndTimes.map(dt => ({
+              ...dt,
+              date: new Date(dt.date)
+            }))
+          : [],
+        keyDetails: Array.isArray(keyDetails) ? keyDetails : []
+      }
+    })
+
+    res.json({
+      success: true,
+      data: events
+    })
+  } catch (error) {
+    console.error('Get events error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Get all events (admin endpoint)
+app.get('/api/admin/events', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        id,
+        event_name as "eventName",
+        short_description as "shortDescription",
+        long_description as "longDescription",
+        start_date as "startDate",
+        end_date as "endDate",
+        type,
+        address,
+        dates_and_times as "datesAndTimes",
+        key_details as "keyDetails",
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+      FROM events
+      ORDER BY start_date ASC, created_at DESC
+    `)
+
+    // Convert date strings to Date objects and parse JSON fields
+    const events = result.rows.map(event => {
+      // Parse JSONB fields (PostgreSQL returns them as JSON strings)
+      let datesAndTimes = []
+      let keyDetails = []
+      
+      try {
+        datesAndTimes = typeof event.datesAndTimes === 'string' 
+          ? JSON.parse(event.datesAndTimes) 
+          : (event.datesAndTimes || [])
+        keyDetails = typeof event.keyDetails === 'string'
+          ? JSON.parse(event.keyDetails)
+          : (event.keyDetails || [])
+      } catch (e) {
+        console.error('Error parsing JSON fields:', e)
+      }
+      
+      return {
+        ...event,
+        startDate: new Date(event.startDate),
+        endDate: event.endDate ? new Date(event.endDate) : undefined,
+        datesAndTimes: Array.isArray(datesAndTimes) 
+          ? datesAndTimes.map(dt => ({
+              ...dt,
+              date: new Date(dt.date)
+            }))
+          : [],
+        keyDetails: Array.isArray(keyDetails) ? keyDetails : []
+      }
+    })
+
+    res.json({
+      success: true,
+      data: events
+    })
+  } catch (error) {
+    console.error('Get events error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Create event (admin endpoint)
+app.post('/api/admin/events', async (req, res) => {
+  try {
+    const { error, value } = eventSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    const result = await pool.query(`
+      INSERT INTO events 
+      (event_name, short_description, long_description, start_date, end_date, type, address, dates_and_times, key_details)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING 
+        id,
+        event_name as "eventName",
+        short_description as "shortDescription",
+        long_description as "longDescription",
+        start_date as "startDate",
+        end_date as "endDate",
+        type,
+        address,
+        dates_and_times as "datesAndTimes",
+        key_details as "keyDetails"
+    `, [
+      value.eventName,
+      value.shortDescription,
+      value.longDescription,
+      value.startDate,
+      value.endDate || null,
+      value.type || 'event',
+      value.address || null,
+      JSON.stringify(value.datesAndTimes || []),
+      JSON.stringify(value.keyDetails || [])
+    ])
+
+    const event = result.rows[0]
+    
+    // Parse JSONB fields
+    let datesAndTimes = []
+    let keyDetails = []
+    
+    try {
+      datesAndTimes = typeof event.datesAndTimes === 'string' 
+        ? JSON.parse(event.datesAndTimes) 
+        : (event.datesAndTimes || [])
+      keyDetails = typeof event.keyDetails === 'string'
+        ? JSON.parse(event.keyDetails)
+        : (event.keyDetails || [])
+    } catch (e) {
+      console.error('Error parsing JSON fields:', e)
+    }
+    
+    event.startDate = new Date(event.startDate)
+    event.endDate = event.endDate ? new Date(event.endDate) : undefined
+    event.datesAndTimes = Array.isArray(datesAndTimes) 
+      ? datesAndTimes.map(dt => ({
+          ...dt,
+          date: new Date(dt.date)
+        }))
+      : []
+    event.keyDetails = Array.isArray(keyDetails) ? keyDetails : []
+
+    res.json({
+      success: true,
+      message: 'Event created successfully',
+      data: event
+    })
+  } catch (error) {
+    console.error('Create event error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Update event (admin endpoint)
+app.put('/api/admin/events/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { error, value } = eventSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    const result = await pool.query(`
+      UPDATE events 
+      SET event_name = $1, 
+          short_description = $2, 
+          long_description = $3, 
+          start_date = $4, 
+          end_date = $5, 
+          type = $6, 
+          address = $7, 
+          dates_and_times = $8, 
+          key_details = $9,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $10
+      RETURNING 
+        id,
+        event_name as "eventName",
+        short_description as "shortDescription",
+        long_description as "longDescription",
+        start_date as "startDate",
+        end_date as "endDate",
+        type,
+        address,
+        dates_and_times as "datesAndTimes",
+        key_details as "keyDetails"
+    `, [
+      value.eventName,
+      value.shortDescription,
+      value.longDescription,
+      value.startDate,
+      value.endDate || null,
+      value.type || 'event',
+      value.address || null,
+      JSON.stringify(value.datesAndTimes || []),
+      JSON.stringify(value.keyDetails || []),
+      id
+    ])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      })
+    }
+
+    const event = result.rows[0]
+    
+    // Parse JSONB fields
+    let datesAndTimes = []
+    let keyDetails = []
+    
+    try {
+      datesAndTimes = typeof event.datesAndTimes === 'string' 
+        ? JSON.parse(event.datesAndTimes) 
+        : (event.datesAndTimes || [])
+      keyDetails = typeof event.keyDetails === 'string'
+        ? JSON.parse(event.keyDetails)
+        : (event.keyDetails || [])
+    } catch (e) {
+      console.error('Error parsing JSON fields:', e)
+    }
+    
+    event.startDate = new Date(event.startDate)
+    event.endDate = event.endDate ? new Date(event.endDate) : undefined
+    event.datesAndTimes = Array.isArray(datesAndTimes) 
+      ? datesAndTimes.map(dt => ({
+          ...dt,
+          date: new Date(dt.date)
+        }))
+      : []
+    event.keyDetails = Array.isArray(keyDetails) ? keyDetails : []
+
+    res.json({
+      success: true,
+      message: 'Event updated successfully',
+      data: event
+    })
+  } catch (error) {
+    console.error('Update event error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Delete event (admin endpoint)
+app.delete('/api/admin/events/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const result = await pool.query('DELETE FROM events WHERE id = $1 RETURNING id', [id])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Event deleted successfully'
+    })
+  } catch (error) {
+    console.error('Delete event error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error'

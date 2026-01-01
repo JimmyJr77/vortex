@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Phone, MapPin, Send, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { getApiUrl } from '../utils/api'
 
 interface ContactFormProps {
   isOpen: boolean
@@ -66,11 +67,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
     }
     
     try {
-      // Use environment variable if set, otherwise detect production vs development
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'  // Production backend URL
-          : 'http://localhost:3001')  // Local development
+      const apiUrl = getApiUrl()
       
       // Submit for each athlete (or at least one submission with first athlete's info)
       const firstAthlete = athletes[0]
