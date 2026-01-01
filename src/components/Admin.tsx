@@ -570,34 +570,25 @@ export default function Admin({ onLogout }: AdminProps) {
     fetchData()
     loadAnalytics()
     
-    // Get or set admin info from localStorage
+    // Get admin info from localStorage (set during login)
     const storedAdmin = localStorage.getItem('vortex-admin-info')
     if (storedAdmin) {
       try {
         setAdminInfo(JSON.parse(storedAdmin))
       } catch (e) {
-        // If parsing fails, prompt for admin info
-        promptAdminInfo()
+        // If parsing fails, use default admin info
+        const defaultAdmin = { email: 'admin@vortexathletics.com', name: 'Admin' }
+        setAdminInfo(defaultAdmin)
+        localStorage.setItem('vortex-admin-info', JSON.stringify(defaultAdmin))
       }
     } else {
-      promptAdminInfo()
+      // If no admin info stored, use default (shouldn't happen if login worked)
+      const defaultAdmin = { email: 'admin@vortexathletics.com', name: 'Admin' }
+      setAdminInfo(defaultAdmin)
+      localStorage.setItem('vortex-admin-info', JSON.stringify(defaultAdmin))
     }
   }, [])
 
-  const promptAdminInfo = () => {
-    const email = prompt('Enter your admin email (for edit tracking):')
-    const name = prompt('Enter your name (for edit tracking):')
-    if (email && name) {
-      const adminData = { email, name }
-      setAdminInfo(adminData)
-      localStorage.setItem('vortex-admin-info', JSON.stringify(adminData))
-    } else if (email) {
-      // If only email provided, use email as name
-      const adminData = { email, name: email }
-      setAdminInfo(adminData)
-      localStorage.setItem('vortex-admin-info', JSON.stringify(adminData))
-    }
-  }
 
   const loadAnalytics = () => {
     const data = getAnalyticsData()

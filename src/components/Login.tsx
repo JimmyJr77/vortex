@@ -22,6 +22,12 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
       onClose()
       // Store login state in localStorage
       localStorage.setItem('vortex_admin', 'true')
+      // Store admin info for edit tracking
+      const adminData = {
+        email: 'admin@vortexathletics.com',
+        name: 'Admin'
+      }
+      localStorage.setItem('vortex-admin-info', JSON.stringify(adminData))
     } else {
       setError('Invalid username or password')
     }

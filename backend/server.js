@@ -34,6 +34,9 @@ app.use(cors({
     // Allow requests with no origin (like Postman, curl, etc)
     if (!origin) return callback(null, true)
     
+    // Log the origin for debugging
+    console.log('CORS request from origin:', origin)
+    
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
@@ -41,7 +44,9 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'))
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
 app.use(express.json({ limit: '10mb' }))
