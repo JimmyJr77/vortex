@@ -201,6 +201,40 @@ const initDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_event_edit_log_created_at ON event_edit_log(created_at DESC)
     `)
 
+    // Admins table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admins (
+        id SERIAL PRIMARY KEY,
+        first_name VARCHAR(50) NOT NULL,
+        last_name VARCHAR(50) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        phone VARCHAR(20),
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        is_master BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_admins_email ON admins(email)
+    `)
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_admins_username ON admins(username)
+    `)
+
+    // Create master admin if it doesn't exist
+    const masterAdminCheck = await pool.query('SELECT id FROM admins WHERE is_master = TRUE LIMIT 1')
+    if (masterAdminCheck.rows.length === 0) {
+      const masterPasswordHash = await bcrypt.hash('T3@Mvortex25!', 10)
+      await pool.query(`
+        INSERT INTO admins (first_name, last_name, email, phone, username, password_hash, is_master)
+        VALUES ('Admin', 'User', 'admin@vortexathletics.com', NULL, 'admin', $1, TRUE)
+        ON CONFLICT (username) DO NOTHING
+      `, [masterPasswordHash])
+      console.log('✅ Master admin created')
+    }
+
     console.log('✅ Database tables initialized successfully')
   } catch (error) {
     console.error('❌ Database initialization error:', error)
@@ -261,6 +295,28 @@ const eventSchema = Joi.object({
   keyDetails: Joi.array().items(Joi.string()).optional().default([]),
   adminEmail: Joi.string().email().optional(),
   adminName: Joi.string().optional()
+})
+
+const adminLoginSchema = Joi.object({
+  usernameOrEmail: Joi.string().required(),
+  password: Joi.string().required()
+})
+
+const adminSchema = Joi.object({
+  firstName: Joi.string().min(2).max(50).required(),
+  lastName: Joi.string().min(2).max(50).required(),
+  email: Joi.string().email().required(),
+  phone: Joi.string().max(20).optional().allow('', null),
+  username: Joi.string().min(3).max(50).required(),
+  password: Joi.string().min(6).required()
+})
+
+const adminUpdateSchema = Joi.object({
+  firstName: Joi.string().min(2).max(50).optional(),
+  lastName: Joi.string().min(2).max(50).optional(),
+  email: Joi.string().email().optional(),
+  phone: Joi.string().max(20).optional().allow('', null),
+  password: Joi.string().min(6).optional()
 })
 
 // Middleware to verify JWT token
@@ -1353,6 +1409,263 @@ app.post('/api/admin/events/seed', async (req, res) => {
       success: false,
       message: 'Internal server error',
       error: error.message
+    })
+  }
+})
+
+// Admin login (accepts username or email)
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { error, value } = adminLoginSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    // Find admin by username or email
+    const result = await pool.query(
+      'SELECT * FROM admins WHERE username = $1 OR email = $1',
+      [value.usernameOrEmail]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid username/email or password'
+      })
+    }
+
+    const admin = result.rows[0]
+
+    // Verify password
+    const isValid = await bcrypt.compare(value.password, admin.password_hash)
+    if (!isValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid username/email or password'
+      })
+    }
+
+    // Return admin info (without password)
+    res.json({
+      success: true,
+      admin: {
+        id: admin.id,
+        firstName: admin.first_name,
+        lastName: admin.last_name,
+        email: admin.email,
+        phone: admin.phone,
+        username: admin.username,
+        isMaster: admin.is_master
+      }
+    })
+  } catch (error) {
+    console.error('Admin login error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Get all admins (admin endpoint)
+app.get('/api/admin/admins', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT id, first_name as "firstName", last_name as "lastName", 
+             email, phone, username, is_master as "isMaster", 
+             created_at as "createdAt", updated_at as "updatedAt"
+      FROM admins
+      ORDER BY created_at DESC
+    `)
+
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get admins error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Get current admin info (by ID from query param or body)
+app.get('/api/admin/admins/me', async (req, res) => {
+  try {
+    const adminId = req.query.id || req.body.id
+    if (!adminId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Admin ID required'
+      })
+    }
+
+    const result = await pool.query(`
+      SELECT id, first_name as "firstName", last_name as "lastName", 
+             email, phone, username, is_master as "isMaster", 
+             created_at as "createdAt", updated_at as "updatedAt"
+      FROM admins
+      WHERE id = $1
+    `, [adminId])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Get admin error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Create new admin (master admin only - check should be added in production)
+app.post('/api/admin/admins', async (req, res) => {
+  try {
+    const { error, value } = adminSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    // Check if username or email already exists
+    const existing = await pool.query(
+      'SELECT id FROM admins WHERE username = $1 OR email = $2',
+      [value.username, value.email]
+    )
+
+    if (existing.rows.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: 'Username or email already exists'
+      })
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(value.password, 10)
+
+    // Insert admin
+    const result = await pool.query(`
+      INSERT INTO admins (first_name, last_name, email, phone, username, password_hash)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, first_name as "firstName", last_name as "lastName", 
+                email, phone, username, is_master as "isMaster", 
+                created_at as "createdAt", updated_at as "updatedAt"
+    `, [
+      value.firstName,
+      value.lastName,
+      value.email,
+      value.phone || null,
+      value.username,
+      passwordHash
+    ])
+
+    res.json({
+      success: true,
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Create admin error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Update admin (admin can update their own info)
+app.put('/api/admin/admins/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { error, value } = adminUpdateSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    // Build update query dynamically
+    const updates = []
+    const values = []
+    let paramCount = 1
+
+    if (value.firstName) {
+      updates.push(`first_name = $${paramCount++}`)
+      values.push(value.firstName)
+    }
+    if (value.lastName) {
+      updates.push(`last_name = $${paramCount++}`)
+      values.push(value.lastName)
+    }
+    if (value.email) {
+      updates.push(`email = $${paramCount++}`)
+      values.push(value.email)
+    }
+    if (value.phone !== undefined) {
+      updates.push(`phone = $${paramCount++}`)
+      values.push(value.phone || null)
+    }
+    if (value.password) {
+      const passwordHash = await bcrypt.hash(value.password, 10)
+      updates.push(`password_hash = $${paramCount++}`)
+      values.push(passwordHash)
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No fields to update'
+      })
+    }
+
+    updates.push(`updated_at = CURRENT_TIMESTAMP`)
+    values.push(id)
+
+    const result = await pool.query(`
+      UPDATE admins
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING id, first_name as "firstName", last_name as "lastName", 
+                email, phone, username, is_master as "isMaster", 
+                created_at as "createdAt", updated_at as "updatedAt"
+    `, values)
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Update admin error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
     })
   }
 })
