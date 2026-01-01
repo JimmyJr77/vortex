@@ -9,6 +9,7 @@ import ArtisticGymnastics from './components/ArtisticGymnastics'
 import RhythmicGymnastics from './components/RhythmicGymnastics'
 import Ninja from './components/Ninja'
 import Value from './components/Value'
+import ReadBoard from './components/ReadBoard'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
 import OpeningPopup from './components/OpeningPopup'
@@ -58,8 +59,8 @@ function App() {
       trackPageView(location.pathname)
     }
 
-    // Show opening popup after a short delay (only if not admin/member and on home page)
-    if (!adminStatus && !storedToken && location.pathname === '/') {
+    // Show opening popup after a short delay (only if not admin/member and first visit)
+    if (!adminStatus && !storedToken) {
       const timer = setTimeout(() => {
         setIsOpeningPopupOpen(true)
       }, 1000);
@@ -156,6 +157,10 @@ function App() {
           path="/value" 
           element={<Value />} 
         />
+        <Route 
+          path="/read-board" 
+          element={<ReadBoard />} 
+        />
       </Routes>
       <ContactForm
         isOpen={isContactFormOpen}
@@ -166,14 +171,12 @@ function App() {
         onLoginClick={() => setIsLoginOpen(true)}
       />
       
-      {/* Opening Popup - only show on home page */}
-      {location.pathname === '/' && (
-        <OpeningPopup
-          isOpen={isOpeningPopupOpen}
-          onClose={() => setIsOpeningPopupOpen(false)}
-          onSignUp={handleContactClick}
-        />
-      )}
+      {/* Opening Popup - shows on first visit */}
+      <OpeningPopup
+        isOpen={isOpeningPopupOpen}
+        onClose={() => setIsOpeningPopupOpen(false)}
+        onSignUp={handleContactClick}
+      />
 
       {/* Admin Login Modal */}
       <Login

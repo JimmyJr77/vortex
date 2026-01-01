@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, RefreshCw, Download, Edit2, Archive, X, Save, ChevronDown, ChevronUp, BarChart3, Users, Eye, MousePointer, Clock, TrendingUp, UserPlus, Plus } from 'lucide-react'
+import { LogOut, RefreshCw, Download, Edit2, Archive, X, Save, ChevronDown, ChevronUp, BarChart3, Users, Eye, MousePointer, Clock, TrendingUp, UserPlus, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search } from 'lucide-react'
 import { getAnalyticsData, clearAnalyticsData } from '../utils/analytics'
 
 interface AdminProps {
@@ -23,8 +23,8 @@ interface AnalyticsData {
 const AnalyticsView = ({ data }: { data: AnalyticsData | null }) => {
   if (!data) {
     return (
-      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
-        <div className="text-center py-12 text-gray-400">Loading analytics...</div>
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <div className="text-center py-12 text-gray-600">Loading analytics...</div>
       </div>
     )
   }
@@ -32,149 +32,403 @@ const AnalyticsView = ({ data }: { data: AnalyticsData | null }) => {
   return (
     <div className="space-y-6">
       {/* Overview Stats */}
-      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-6">
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
           Overview Statistics
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gray-700 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-3 mb-2">
               <Eye className="w-6 h-6 text-vortex-red" />
-              <span className="text-gray-400 text-sm">Total Page Views</span>
+              <span className="text-gray-600 text-sm">Total Page Views</span>
             </div>
-            <div className="text-3xl font-bold text-white">{data.totalPageViews.toLocaleString()}</div>
+            <div className="text-3xl font-bold text-black">{data.totalPageViews.toLocaleString()}</div>
           </div>
-          <div className="bg-gray-700 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-3 mb-2">
               <Users className="w-6 h-6 text-vortex-red" />
-              <span className="text-gray-400 text-sm">Unique Visitors</span>
+              <span className="text-gray-600 text-sm">Unique Visitors</span>
             </div>
-            <div className="text-3xl font-bold text-white">{data.uniqueVisitorCount.toLocaleString()}</div>
+            <div className="text-3xl font-bold text-black">{data.uniqueVisitorCount.toLocaleString()}</div>
           </div>
-          <div className="bg-gray-700 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-3 mb-2">
               <MousePointer className="w-6 h-6 text-vortex-red" />
-              <span className="text-gray-400 text-sm">Total Engagement</span>
+              <span className="text-gray-600 text-sm">Total Engagement</span>
             </div>
-            <div className="text-3xl font-bold text-white">{data.totalEngagement.toLocaleString()}</div>
+            <div className="text-3xl font-bold text-black">{data.totalEngagement.toLocaleString()}</div>
           </div>
-          <div className="bg-gray-700 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-3 mb-2">
               <Clock className="w-6 h-6 text-vortex-red" />
-              <span className="text-gray-400 text-sm">Avg Session Time</span>
+              <span className="text-gray-600 text-sm">Avg Session Time</span>
             </div>
-            <div className="text-3xl font-bold text-white">{data.avgSessionTime}</div>
-            <div className="text-xs text-gray-400 mt-1">minutes</div>
+            <div className="text-3xl font-bold text-black">{data.avgSessionTime}</div>
+            <div className="text-xs text-gray-600 mt-1">minutes</div>
           </div>
-          <div className="bg-gray-700 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-3 mb-2">
               <TrendingUp className="w-6 h-6 text-vortex-red" />
-              <span className="text-gray-400 text-sm">Engagement Rate</span>
+              <span className="text-gray-600 text-sm">Engagement Rate</span>
             </div>
-            <div className="text-3xl font-bold text-white">{data.engagementRate}%</div>
+            <div className="text-3xl font-bold text-black">{data.engagementRate}%</div>
           </div>
-          <div className="bg-gray-700 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-3 mb-2">
               <BarChart3 className="w-6 h-6 text-vortex-red" />
-              <span className="text-gray-400 text-sm">Total Sessions</span>
+              <span className="text-gray-600 text-sm">Total Sessions</span>
             </div>
-            <div className="text-3xl font-bold text-white">{data.totalSessions.toLocaleString()}</div>
+            <div className="text-3xl font-bold text-black">{data.totalSessions.toLocaleString()}</div>
           </div>
         </div>
       </div>
 
       {/* Most Popular Pages */}
-      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
-        <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-4">
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <h3 className="text-xl md:text-2xl font-display font-bold text-black mb-4">
           Most Popular Pages
         </h3>
         <div className="space-y-2">
           {data.pageViewStats.length > 0 ? (
             data.pageViewStats.map((page, index) => (
-              <div key={page.path} className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+              <div key={page.path} className="flex items-center justify-between bg-gray-50 rounded-lg p-3 border border-gray-200">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-vortex-red/20 rounded-lg flex items-center justify-center text-vortex-red font-bold">
                     {index + 1}
                   </div>
-                  <span className="text-white font-medium">{page.path === '/' ? 'Home' : page.path}</span>
+                  <span className="text-black font-medium">{page.path === '/' ? 'Home' : page.path}</span>
                 </div>
                 <div className="text-vortex-red font-bold">{page.count.toLocaleString()} views</div>
               </div>
             ))
           ) : (
-            <div className="text-gray-400 text-center py-4">No page view data yet</div>
+            <div className="text-gray-600 text-center py-4">No page view data yet</div>
           )}
         </div>
       </div>
 
       {/* Most Clicked Buttons */}
-      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
-        <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-4">
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <h3 className="text-xl md:text-2xl font-display font-bold text-black mb-4">
           Most Clicked Buttons
         </h3>
         <div className="space-y-2">
           {data.buttonStats.length > 0 ? (
             data.buttonStats.map((button, index) => (
-              <div key={button.button} className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+              <div key={button.button} className="flex items-center justify-between bg-gray-50 rounded-lg p-3 border border-gray-200">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-vortex-red/20 rounded-lg flex items-center justify-center text-vortex-red font-bold">
                     {index + 1}
                   </div>
-                  <span className="text-white font-medium">{button.button}</span>
+                  <span className="text-black font-medium">{button.button}</span>
                 </div>
                 <div className="text-vortex-red font-bold">{button.count.toLocaleString()} clicks</div>
               </div>
             ))
           ) : (
-            <div className="text-gray-400 text-center py-4">No button click data yet</div>
+            <div className="text-gray-600 text-center py-4">No button click data yet</div>
           )}
         </div>
       </div>
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-4">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+          <h3 className="text-xl md:text-2xl font-display font-bold text-black mb-4">
             Recent Page Views
           </h3>
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {data.recentPageViews.length > 0 ? (
               data.recentPageViews.map((pv, index) => (
-                <div key={index} className="bg-gray-700 rounded-lg p-3 text-sm">
-                  <div className="text-white font-medium">{pv.path === '/' ? 'Home' : pv.path}</div>
-                  <div className="text-gray-400 text-xs mt-1">
+                <div key={index} className="bg-gray-50 rounded-lg p-3 text-sm border border-gray-200">
+                  <div className="text-black font-medium">{pv.path === '/' ? 'Home' : pv.path}</div>
+                  <div className="text-gray-600 text-xs mt-1">
                     {new Date(pv.timestamp).toLocaleString()}
                   </div>
                 </div>
               ))
             ) : (
-              <div className="text-gray-400 text-center py-4">No recent page views</div>
+              <div className="text-gray-600 text-center py-4">No recent page views</div>
             )}
           </div>
         </div>
 
-        <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-4">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+          <h3 className="text-xl md:text-2xl font-display font-bold text-black mb-4">
             Recent Engagement
           </h3>
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {data.recentEngagement.length > 0 ? (
               data.recentEngagement.map((event, index) => (
-                <div key={index} className="bg-gray-700 rounded-lg p-3 text-sm">
+                <div key={index} className="bg-gray-50 rounded-lg p-3 text-sm border border-gray-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-white font-medium">{event.type.replace('_', ' ')}</span>
+                    <span className="text-black font-medium">{event.type.replace('_', ' ')}</span>
                     <span className="text-vortex-red text-xs">{event.target}</span>
                   </div>
-                  <div className="text-gray-400 text-xs mt-1">
+                  <div className="text-gray-600 text-xs mt-1">
                     {new Date(event.timestamp).toLocaleString()}
                   </div>
                 </div>
               ))
             ) : (
-              <div className="text-gray-400 text-center py-4">No recent engagement</div>
+              <div className="text-gray-600 text-center py-4">No recent engagement</div>
             )}
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+const EventsView = ({ 
+  events, 
+  loading, 
+  searchQuery, 
+  onSearchChange, 
+  onEdit, 
+  onDelete 
+}: { 
+  events: Event[]
+  loading: boolean
+  searchQuery: string
+  onSearchChange: (query: string) => void
+  onEdit: (event: Event) => void
+  onDelete: (id: string | number) => void
+}) => {
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    })
+  }
+
+  const formatDateRange = (start: Date, end?: Date) => {
+    if (!end || start.getTime() === end.getTime()) {
+      return formatDate(start)
+    }
+    return `${formatDate(start)} - ${formatDate(end)}`
+  }
+
+  const formatDateTimeEntry = (entry: DateTimeEntry) => {
+    const dateStr = formatDate(entry.date)
+    
+    if (entry.startTime && entry.endTime) {
+      return `${dateStr}: ${entry.startTime} - ${entry.endTime}`
+    } else if (entry.startTime) {
+      return `${dateStr}: ${entry.startTime}`
+    } else if (entry.description) {
+      return `${dateStr}: ${entry.description}`
+    } else {
+      return dateStr
+    }
+  }
+
+  const getEventIcon = (type?: Event['type']) => {
+    switch (type) {
+      case 'camp':
+        return Award
+      case 'class':
+        return Users
+      case 'watch-party':
+        return Trophy
+      default:
+        return Calendar
+    }
+  }
+
+  // Filter events based on search query
+  const filteredEvents = events.filter(event => {
+    if (!searchQuery.trim()) return true
+    
+    const query = searchQuery.toLowerCase()
+    const searchableText = [
+      event.eventName,
+      event.shortDescription,
+      event.longDescription,
+      event.address || '',
+      ...(event.keyDetails || [])
+    ].join(' ').toLowerCase()
+    
+    return searchableText.includes(query)
+  }).sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+
+  if (loading) {
+    return (
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <div className="text-center py-12 text-gray-600">Loading events...</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Search Bar */}
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <div className="relative max-w-2xl">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search events by name, description, or location..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
+          />
+        </div>
+      </div>
+
+      {/* Calendar of Events */}
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
+          Calendar of Events
+        </h2>
+        
+        {filteredEvents.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-xl text-gray-600">
+              {searchQuery ? `No events found matching "${searchQuery}"` : 'No events at this time.'}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredEvents.map((event) => (
+              <div
+                key={event.id}
+                className="flex items-start justify-between space-x-4 py-3 border-b border-gray-200 last:border-b-0"
+              >
+                <div className="flex items-start space-x-4 flex-1">
+                  <div className="flex-shrink-0 w-32">
+                    <p className="text-sm font-semibold text-vortex-red">
+                      {formatDateRange(event.startDate, event.endDate)}
+                    </p>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-display font-bold text-black mb-1">
+                      {event.eventName}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {event.shortDescription}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => onEdit(event)}
+                  className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium flex-shrink-0"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  Edit
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Event Details */}
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
+          Event Details
+        </h2>
+        
+        {filteredEvents.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-xl text-gray-600">
+              {searchQuery ? `No events found matching "${searchQuery}"` : 'No events at this time.'}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {filteredEvents.map((event) => {
+              const Icon = getEventIcon(event.type || 'event')
+              
+              return (
+                <div
+                  key={event.id}
+                  className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border-2 border-gray-200"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-vortex-red/10 rounded-xl flex items-center justify-center">
+                        <Icon className="w-6 h-6 text-vortex-red" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-display font-bold text-black">
+                          {event.eventName}
+                        </h3>
+                        <p className="text-gray-600 flex items-center space-x-2 mt-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>{formatDateRange(event.startDate, event.endDate)}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => onEdit(event)}
+                        className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => onDelete(event.id)}
+                        className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
+                      >
+                        <X className="w-4 h-4" />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-700 mb-4 leading-relaxed">
+                    {event.longDescription}
+                  </p>
+                  
+                  {event.datesAndTimes && event.datesAndTimes.length > 0 && (
+                    <div className="mb-4 space-y-2">
+                      <h4 className="font-bold text-black mb-2">Dates & Times:</h4>
+                      <ul className="space-y-1">
+                        {event.datesAndTimes.map((entry, entryIndex) => (
+                          <li key={entryIndex} className="flex items-start space-x-2 text-gray-700 text-sm">
+                            <Calendar className="w-4 h-4 text-vortex-red flex-shrink-0 mt-1" />
+                            <span>{formatDateTimeEntry(entry)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {event.keyDetails && event.keyDetails.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="font-bold text-black mb-2">Key Details:</h4>
+                      <ul className="space-y-1">
+                        {event.keyDetails.map((detail, detailIndex) => (
+                          <li key={detailIndex} className="flex items-start space-x-2">
+                            <CheckCircle className="w-5 h-5 text-vortex-red flex-shrink-0 mt-0.5" />
+                            <span className="text-gray-700 text-sm">{detail}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {event.address && (
+                    <div className="mt-4">
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 text-vortex-red hover:text-red-700 transition-colors text-sm"
+                      >
+                        <MapPin className="w-4 h-4" />
+                        <span className="underline">{event.address}</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -195,7 +449,27 @@ interface User {
 }
 
 type FilterType = 'all' | 'newsletter' | 'interests'
-type TabType = 'users' | 'analytics' | 'membership'
+type TabType = 'users' | 'analytics' | 'membership' | 'events'
+
+interface DateTimeEntry {
+  date: Date
+  startTime?: string
+  endTime?: string
+  description?: string
+}
+
+interface Event {
+  id: string | number
+  eventName: string
+  shortDescription: string
+  longDescription: string
+  startDate: Date
+  endDate?: Date
+  type?: 'camp' | 'class' | 'event' | 'watch-party'
+  datesAndTimes?: DateTimeEntry[]
+  keyDetails?: string[]
+  address?: string
+}
 
 interface MemberChild {
   id?: number
@@ -245,6 +519,23 @@ export default function Admin({ onLogout }: AdminProps) {
     notes: '',
     children: [] as MemberChild[]
   })
+  const [events, setEvents] = useState<Event[]>([])
+  const [eventsLoading, setEventsLoading] = useState(false)
+  const [showEventForm, setShowEventForm] = useState(false)
+  const [editingEventId, setEditingEventId] = useState<string | number | null>(null)
+  const [eventFormData, setEventFormData] = useState<Partial<Event>>({
+    eventName: '',
+    shortDescription: '',
+    longDescription: '',
+    startDate: new Date(),
+    endDate: undefined,
+    type: 'event',
+    datesAndTimes: [],
+    keyDetails: [],
+    address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
+  })
+  const [eventSearchQuery, setEventSearchQuery] = useState('')
+  const [useShortAsLong, setUseShortAsLong] = useState(true)
 
   useEffect(() => {
     fetchData()
@@ -261,6 +552,8 @@ export default function Admin({ onLogout }: AdminProps) {
       loadAnalytics()
     } else if (activeTab === 'membership') {
       fetchMembers()
+    } else if (activeTab === 'events') {
+      fetchEvents()
     }
   }, [activeTab])
 
@@ -582,13 +875,348 @@ export default function Admin({ onLogout }: AdminProps) {
     setMemberFormData({ ...memberFormData, children: updatedChildren })
   }
 
+  const fetchEvents = async () => {
+    try {
+      setEventsLoading(true)
+      setError(null)
+      const apiUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD 
+          ? 'https://vortex-backend-qybl.onrender.com'
+          : 'http://localhost:3001')
+      
+      const response = await fetch(`${apiUrl}/api/admin/events`)
+      if (!response.ok) {
+        throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
+      }
+      const data = await response.json()
+      
+      if (data.success) {
+        // Convert date strings to Date objects
+        const eventsWithDates = data.data.map((event: any) => ({
+          ...event,
+          startDate: new Date(event.startDate),
+          endDate: event.endDate ? new Date(event.endDate) : undefined,
+          datesAndTimes: event.datesAndTimes?.map((dt: any) => ({
+            ...dt,
+            date: new Date(dt.date)
+          })) || []
+        }))
+        setEvents(eventsWithDates)
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error)
+      setError(error instanceof Error ? error.message : 'Unable to fetch events')
+    } finally {
+      setEventsLoading(false)
+    }
+  }
+
+  const handleCreateOrUpdateEvent = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD 
+          ? 'https://vortex-backend-qybl.onrender.com'
+          : 'http://localhost:3001')
+      
+      const url = editingEventId 
+        ? `${apiUrl}/api/admin/events/${editingEventId}`
+        : `${apiUrl}/api/admin/events`
+      
+      const method = editingEventId ? 'PUT' : 'POST'
+      
+      // If checkbox is checked, use short description as long description
+      const dataToSubmit = {
+        ...eventFormData,
+        longDescription: useShortAsLong ? eventFormData.shortDescription : eventFormData.longDescription
+      }
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSubmit)
+      })
+
+      if (response.ok) {
+        await fetchEvents()
+        setShowEventForm(false)
+        setEditingEventId(null)
+        setEventFormData({
+          eventName: '',
+          shortDescription: '',
+          longDescription: '',
+          startDate: new Date(),
+          endDate: undefined,
+          type: 'event',
+          datesAndTimes: [],
+          keyDetails: [],
+          address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
+        })
+        setUseShortAsLong(true)
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to save event')
+      }
+    } catch (error) {
+      console.error('Error saving event:', error)
+      alert('Failed to save event')
+    }
+  }
+
+  const handleEditEvent = (event: Event) => {
+    setEditingEventId(event.id)
+    const shortMatchesLong = event.shortDescription === event.longDescription
+    // Ensure all datesAndTimes entries have allDay field for backward compatibility
+    const datesAndTimes = (event.datesAndTimes || []).map(entry => ({
+      ...entry,
+      allDay: entry.allDay || false
+    }))
+    setEventFormData({
+      eventName: event.eventName,
+      shortDescription: event.shortDescription,
+      longDescription: event.longDescription,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      type: event.type || 'event',
+      datesAndTimes,
+      keyDetails: event.keyDetails || [],
+      address: event.address || 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
+    })
+    setUseShortAsLong(shortMatchesLong)
+    setShowEventForm(true)
+  }
+
+  const handleDeleteEvent = async (id: string | number) => {
+    if (!confirm('Are you sure you want to delete this event?')) return
+    
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD 
+          ? 'https://vortex-backend-qybl.onrender.com'
+          : 'http://localhost:3001')
+      
+      const response = await fetch(`${apiUrl}/api/admin/events/${id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        await fetchEvents()
+      } else {
+        alert('Failed to delete event')
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error)
+      alert('Failed to delete event')
+    }
+  }
+
+  const parseTime = (timeStr: string): { hour: number; minute: number; ampm: 'am' | 'pm' } => {
+    // Default to 12:00am if empty
+    if (!timeStr || timeStr.trim() === '') {
+      return { hour: 12, minute: 0, ampm: 'am' }
+    }
+    
+    // Parse ##:##am/pm format
+    const match = timeStr.match(/(\d{1,2}):(\d{2})(am|pm)/i)
+    if (match) {
+      let hour = parseInt(match[1], 10)
+      const minute = parseInt(match[2], 10)
+      const ampm = match[3].toLowerCase() as 'am' | 'pm'
+      
+      // Convert to 24-hour for easier manipulation
+      if (ampm === 'pm' && hour !== 12) hour += 12
+      if (ampm === 'am' && hour === 12) hour = 0
+      
+      return { hour, minute, ampm }
+    }
+    
+    // Fallback
+    return { hour: 12, minute: 0, ampm: 'am' }
+  }
+
+  const formatTime = (hour: number, minute: number, ampm: 'am' | 'pm'): string => {
+    // Convert from 24-hour to 12-hour
+    let displayHour = hour
+    if (hour === 0) {
+      displayHour = 12
+    } else if (hour > 12) {
+      displayHour = hour - 12
+    }
+    
+    const hourStr = displayHour.toString().padStart(2, '0')
+    const minuteStr = minute.toString().padStart(2, '0')
+    
+    return `${hourStr}:${minuteStr}${ampm}`
+  }
+
+  const TimeSpinner = ({ value, onChange, allowEmpty = false }: { value: string; onChange: (value: string) => void; allowEmpty?: boolean }) => {
+    const isEmpty = !value || value.trim() === ''
+    
+    // If empty and allowEmpty, show placeholder state
+    if (isEmpty && allowEmpty) {
+      return (
+        <div className="flex items-center gap-2 bg-gray-600 rounded-lg border border-gray-500 px-2 py-2 h-[42px] w-fit">
+          <button
+            type="button"
+            onClick={() => onChange('12:00am')}
+            className="text-gray-400 hover:text-white text-sm"
+          >
+            Set Time
+          </button>
+        </div>
+      )
+    }
+    
+    const { hour, minute, ampm } = parseTime(value)
+    
+    const adjustHour = (delta: number) => {
+      let newHour = hour + delta
+      if (newHour < 0) newHour = 23
+      if (newHour > 23) newHour = 0
+      
+      // Determine am/pm based on new hour
+      let newAmpm: 'am' | 'pm' = ampm
+      if (newHour === 0) newAmpm = 'am'
+      else if (newHour === 12) newAmpm = 'pm'
+      else if (newHour < 12) newAmpm = 'am'
+      else newAmpm = 'pm'
+      
+      onChange(formatTime(newHour, minute, newAmpm))
+    }
+    
+    const adjustMinute = (delta: number) => {
+      let newMinute = minute + delta
+      // Loop continuously: 59 -> 00 when going up, 00 -> 59 when going down
+      if (newMinute < 0) {
+        newMinute = 59
+      } else if (newMinute > 59) {
+        newMinute = 0
+      }
+      onChange(formatTime(hour, newMinute, ampm))
+    }
+    
+    const toggleAmPm = () => {
+      const newAmpm = ampm === 'am' ? 'pm' : 'am'
+      onChange(formatTime(hour, minute, newAmpm))
+    }
+    
+    // Convert to 12-hour for display
+    let displayHour = hour
+    if (hour === 0) displayHour = 12
+    else if (hour > 12) displayHour = hour - 12
+    
+    return (
+      <div className="flex items-center gap-1 bg-gray-600 rounded-lg border border-gray-500 px-2 py-2 h-[42px] w-fit">
+        {/* Hour */}
+        <div className="flex items-center gap-1">
+          <input
+            type="number"
+            min="1"
+            max="12"
+            value={displayHour}
+            onChange={(e) => {
+              let newHour = parseInt(e.target.value) || 1
+              if (newHour < 1) newHour = 1
+              if (newHour > 12) newHour = 12
+              
+              // Convert to 24-hour
+              let hour24 = newHour
+              if (ampm === 'pm' && newHour !== 12) hour24 = newHour + 12
+              if (ampm === 'am' && newHour === 12) hour24 = 0
+              
+              onChange(formatTime(hour24, minute, ampm))
+            }}
+            className="w-10 text-center bg-transparent text-white border-none outline-none text-base font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
+          <div className="flex flex-col">
+            <button
+              type="button"
+              onClick={() => adjustHour(1)}
+              className="text-gray-300 hover:text-white transition-colors p-0.5"
+            >
+              <ChevronUp className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => adjustHour(-1)}
+              className="text-gray-300 hover:text-white transition-colors p-0.5"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        
+        <span className="text-white text-base font-mono">:</span>
+        
+        {/* Minute */}
+        <div className="flex items-center gap-1">
+          <input
+            type="text"
+            value={minute.toString().padStart(2, '0')}
+            onChange={(e) => {
+              let newMinute = parseInt(e.target.value) || 0
+              if (newMinute < 0) newMinute = 0
+              if (newMinute > 59) newMinute = 59
+              onChange(formatTime(hour, newMinute, ampm))
+            }}
+            className="w-10 text-center bg-transparent text-white border-none outline-none text-base font-mono [appearance:textfield]"
+          />
+          <div className="flex flex-col">
+            <button
+              type="button"
+              onClick={() => adjustMinute(1)}
+              className="text-gray-300 hover:text-white transition-colors p-0.5"
+            >
+              <ChevronUp className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => adjustMinute(-1)}
+              className="text-gray-300 hover:text-white transition-colors p-0.5"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        
+        {/* AM/PM */}
+        <div className="flex items-center gap-1 ml-1">
+          <button
+            type="button"
+            onClick={toggleAmPm}
+            className="text-white text-base font-semibold min-w-[2.5ch] text-center px-1.5 py-1 rounded hover:bg-gray-500 transition-colors"
+          >
+            {ampm.toUpperCase()}
+          </button>
+          <div className="flex flex-col">
+            <button
+              type="button"
+              onClick={toggleAmPm}
+              className="text-gray-300 hover:text-white transition-colors p-0.5"
+            >
+              <ChevronUp className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={toggleAmPm}
+              className="text-gray-300 hover:text-white transition-colors p-0.5"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-gray-900 p-4 md:p-8">
-      <div className="max-w-full mx-auto space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
-            VORTEX <span className="text-vortex-red">ADMIN</span>
-          </h1>
+    <div className="min-h-screen bg-gray-900">
+      {/* Admin Header Section - Dark Background */}
+      <div className="bg-gray-900 p-4 md:p-8">
+        <div className="max-w-full mx-auto space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
+              VORTEX <span className="text-vortex-red">ADMIN</span>
+            </h1>
           <div className="flex gap-2">
             {activeTab === 'users' && (
               <>
@@ -615,6 +1243,17 @@ export default function Admin({ onLogout }: AdminProps) {
             {activeTab === 'membership' && (
               <motion.button
                 onClick={fetchMembers}
+                className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span className="hidden md:inline">Refresh</span>
+              </motion.button>
+            )}
+            {activeTab === 'events' && (
+              <motion.button
+                onClick={fetchEvents}
                 className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -655,66 +1294,129 @@ export default function Admin({ onLogout }: AdminProps) {
               <span>Logout</span>
             </motion.button>
           </div>
-        </div>
+          </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-              activeTab === 'users'
-                ? 'bg-vortex-red text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Master Roster
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-              activeTab === 'analytics'
-                ? 'bg-vortex-red text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Analytics & Engagement
-          </button>
-          <button
-            onClick={() => setActiveTab('membership')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-              activeTab === 'membership'
-                ? 'bg-vortex-red text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Membership
-          </button>
+          {/* Tabs */}
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                activeTab === 'users'
+                  ? 'bg-vortex-red text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Master Roster
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                activeTab === 'analytics'
+                  ? 'bg-vortex-red text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Analytics & Engagement
+            </button>
+            <button
+              onClick={() => setActiveTab('membership')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                activeTab === 'membership'
+                  ? 'bg-vortex-red text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Membership
+            </button>
+            <button
+              onClick={() => setActiveTab('events')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                activeTab === 'events'
+                  ? 'bg-vortex-red text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Events
+            </button>
+          </div>
         </div>
+      </div>
 
-        <AnimatePresence mode="wait">
-          {activeTab === 'analytics' ? (
-            <motion.div
-              key="analytics"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <AnalyticsView data={analyticsData} />
-            </motion.div>
-          ) : activeTab === 'membership' ? (
-            <motion.div
-              key="membership"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl md:text-3xl font-display font-bold text-white">
-                  Members ({members.length})
-                </h2>
+      {/* Content Section - White Background */}
+      <div className="bg-white p-4 md:p-8">
+        <div className="max-w-full mx-auto">
+
+          <AnimatePresence mode="wait">
+            {activeTab === 'analytics' ? (
+              <motion.div
+                key="analytics"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <AnalyticsView data={analyticsData} />
+              </motion.div>
+            ) : activeTab === 'events' ? (
+              <motion.div
+                key="events"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200"
+              >
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
+                    Events Management
+                  </h2>
+                  <motion.button
+                    onClick={() => {
+                      setEditingEventId(null)
+                      setEventFormData({
+                        eventName: '',
+                        shortDescription: '',
+                        longDescription: '',
+                        startDate: new Date(),
+                        endDate: undefined,
+                        type: 'event',
+                        datesAndTimes: [],
+                        keyDetails: [],
+                        address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
+                      })
+                      setUseShortAsLong(true)
+                      setShowEventForm(true)
+                    }}
+                    className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add New Event</span>
+                  </motion.button>
+                </div>
+                <EventsView
+                  events={events}
+                  loading={eventsLoading}
+                  searchQuery={eventSearchQuery}
+                  onSearchChange={setEventSearchQuery}
+                  onEdit={handleEditEvent}
+                  onDelete={handleDeleteEvent}
+                />
+              </motion.div>
+            ) : activeTab === 'membership' ? (
+              <motion.div
+                key="membership"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200"
+              >
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
+                    Members ({members.length})
+                  </h2>
                 <motion.button
                   onClick={() => setShowMemberForm(true)}
                   className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
@@ -726,28 +1428,28 @@ export default function Admin({ onLogout }: AdminProps) {
                 </motion.button>
               </div>
 
-              {membersLoading ? (
-                <div className="text-center py-12 text-gray-400">Loading members...</div>
-              ) : members.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">No members yet</div>
-              ) : (
-                <div className="space-y-4">
-                  {members.map((member) => (
-                    <div key={member.id} className="bg-gray-700 rounded-lg p-4">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="text-white font-semibold text-lg">
-                            {member.first_name} {member.last_name}
-                          </div>
-                          <div className="text-gray-400 text-sm mt-1">{member.email}</div>
-                          {member.phone && <div className="text-gray-400 text-sm">{member.phone}</div>}
-                          {member.program && <div className="text-gray-400 text-sm">Program: {member.program}</div>}
-                          {member.children && member.children.length > 0 && (
-                            <div className="text-gray-400 text-sm mt-2">
-                              Children: {member.children.map(c => `${c.firstName} ${c.lastName}`).join(', ')}
+                {membersLoading ? (
+                  <div className="text-center py-12 text-gray-600">Loading members...</div>
+                ) : members.length === 0 ? (
+                  <div className="text-center py-12 text-gray-600">No members yet</div>
+                ) : (
+                  <div className="space-y-4">
+                    {members.map((member) => (
+                      <div key={member.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="text-black font-semibold text-lg">
+                              {member.first_name} {member.last_name}
                             </div>
-                          )}
-                        </div>
+                            <div className="text-gray-600 text-sm mt-1">{member.email}</div>
+                            {member.phone && <div className="text-gray-600 text-sm">{member.phone}</div>}
+                            {member.program && <div className="text-gray-600 text-sm">Program: {member.program}</div>}
+                            {member.children && member.children.length > 0 && (
+                              <div className="text-gray-600 text-sm mt-2">
+                                Children: {member.children.map(c => `${c.firstName} ${c.lastName}`).join(', ')}
+                              </div>
+                            )}
+                          </div>
                         <div className="flex flex-col gap-2">
                           <select
                             value={member.account_status}
@@ -772,114 +1474,114 @@ export default function Admin({ onLogout }: AdminProps) {
               )}
             </motion.div>
           ) : (
-            <motion.div
-              key="users"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg"
-            >
-              <div className="mb-4 md:mb-6">
-                <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4">
-                  Master Roster ({filteredUsers.length} of {users.length})
-                </h2>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setFilter('all')}
-                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
-                  filter === 'all'
-                    ? 'bg-vortex-red text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
+              <motion.div
+                key="users"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200"
               >
-                All Users ({users.length})
-              </button>
-              <button
-                onClick={() => setFilter('newsletter')}
-                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
-                  filter === 'newsletter'
-                    ? 'bg-vortex-red text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
-              >
-                Newsletter ({users.filter(u => u.newsletter).length})
-              </button>
-              <button
-                onClick={() => setFilter('interests')}
-                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
-                  filter === 'interests'
-                    ? 'bg-vortex-red text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
-              >
-                Interested ({users.filter(u => u.interests).length})
-              </button>
-            </div>
+                <div className="mb-4 md:mb-6">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-4">
+                    Master Roster ({filteredUsers.length} of {users.length})
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setFilter('all')}
+                      className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                        filter === 'all'
+                          ? 'bg-vortex-red text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      All Users ({users.length})
+                    </button>
+                    <button
+                      onClick={() => setFilter('newsletter')}
+                      className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                        filter === 'newsletter'
+                          ? 'bg-vortex-red text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      Newsletter ({users.filter(u => u.newsletter).length})
+                    </button>
+                    <button
+                      onClick={() => setFilter('interests')}
+                      className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                        filter === 'interests'
+                          ? 'bg-vortex-red text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      Interested ({users.filter(u => u.interests).length})
+                    </button>
+                  </div>
           </div>
 
-          {error ? (
-            <div className="text-center py-12">
-              <div className="text-red-400 mb-4 font-semibold">Backend Connection Error</div>
-              <div className="text-gray-400 mb-4">{error}</div>
-              <button
-                onClick={fetchData}
-                className="bg-vortex-red hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
-              >
-                Retry
-              </button>
-            </div>
-          ) : loading ? (
-            <div className="text-center py-12 text-gray-400">Loading...</div>
-          ) : filteredUsers.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">No users match the selected filter</div>
-          ) : (
-            <div className="space-y-2">
-              {/* Column Headers */}
-              <div className="hidden md:flex items-center bg-gray-600 rounded-t-lg">
-                <button 
-                  onClick={() => handleSort('created_at')}
-                  className="px-3 py-3 flex-1 min-w-[80px] text-xs text-gray-300 font-semibold text-left hover:text-white transition-colors"
-                >
-                  Date {sortConfig.field === 'created_at' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </button>
-                <button 
-                  onClick={() => handleSort('last_name')}
-                  className="px-3 py-3 flex-1 min-w-[100px] text-xs text-gray-300 font-semibold text-left hover:text-white transition-colors"
-                >
-                  Last Name {sortConfig.field === 'last_name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </button>
-                <button 
-                  onClick={() => handleSort('first_name')}
-                  className="px-3 py-3 flex-1 min-w-[100px] text-xs text-gray-300 font-semibold text-left hover:text-white transition-colors"
-                >
-                  First Name {sortConfig.field === 'first_name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </button>
-                <div className="px-3 py-3 w-12 md:w-16 text-xs text-gray-300 font-semibold text-center">Newsletter</div>
-                <div className="w-8"></div>
-                <div className="px-3 py-3 w-12 md:w-16 text-xs text-gray-300 font-semibold text-center">Interested</div>
-              </div>
-              {filteredUsers.map((user) => (
-                <div key={user.id} className="bg-gray-700 rounded-lg overflow-hidden">
-                  {/* Header Row - Always Visible */}
-                  <div 
-                    className="flex items-center cursor-pointer hover:bg-gray-600 transition-colors"
-                    onClick={() => toggleExpand(user.id)}
-                  >
-                    {/* Date */}
-                    <div className="px-3 py-3 flex-1 min-w-[80px] text-xs md:text-sm text-gray-300">
-                      {new Date(user.created_at).toLocaleDateString()}
+                  {error ? (
+                    <div className="text-center py-12">
+                      <div className="text-red-600 mb-4 font-semibold">Backend Connection Error</div>
+                      <div className="text-gray-600 mb-4">{error}</div>
+                      <button
+                        onClick={fetchData}
+                        className="bg-vortex-red hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                      >
+                        Retry
+                      </button>
                     </div>
-                    
-                    {/* Last Name */}
-                    <div className="px-3 py-3 flex-1 min-w-[100px] text-xs md:text-sm text-white font-medium">
-                      {user.last_name}
-                    </div>
-                    
-                    {/* First Name */}
-                    <div className="px-3 py-3 flex-1 min-w-[100px] text-xs md:text-sm text-white font-medium">
-                      {user.first_name}
-                    </div>
+                  ) : loading ? (
+                    <div className="text-center py-12 text-gray-600">Loading...</div>
+                  ) : filteredUsers.length === 0 ? (
+                    <div className="text-center py-12 text-gray-600">No users match the selected filter</div>
+                  ) : (
+                    <div className="space-y-2">
+                      {/* Column Headers */}
+                      <div className="hidden md:flex items-center bg-gray-100 rounded-t-lg border border-gray-200">
+                        <button 
+                          onClick={() => handleSort('created_at')}
+                          className="px-3 py-3 flex-1 min-w-[80px] text-xs text-gray-700 font-semibold text-left hover:text-black transition-colors"
+                        >
+                          Date {sortConfig.field === 'created_at' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                        </button>
+                        <button 
+                          onClick={() => handleSort('last_name')}
+                          className="px-3 py-3 flex-1 min-w-[100px] text-xs text-gray-700 font-semibold text-left hover:text-black transition-colors"
+                        >
+                          Last Name {sortConfig.field === 'last_name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                        </button>
+                        <button 
+                          onClick={() => handleSort('first_name')}
+                          className="px-3 py-3 flex-1 min-w-[100px] text-xs text-gray-700 font-semibold text-left hover:text-black transition-colors"
+                        >
+                          First Name {sortConfig.field === 'first_name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                        </button>
+                        <div className="px-3 py-3 w-12 md:w-16 text-xs text-gray-700 font-semibold text-center">Newsletter</div>
+                        <div className="w-8"></div>
+                        <div className="px-3 py-3 w-12 md:w-16 text-xs text-gray-700 font-semibold text-center">Interested</div>
+                      </div>
+                      {filteredUsers.map((user) => (
+                        <div key={user.id} className="bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
+                          {/* Header Row - Always Visible */}
+                          <div 
+                            className="flex items-center cursor-pointer hover:bg-gray-100 transition-colors"
+                            onClick={() => toggleExpand(user.id)}
+                          >
+                            {/* Date */}
+                            <div className="px-3 py-3 flex-1 min-w-[80px] text-xs md:text-sm text-gray-600">
+                              {new Date(user.created_at).toLocaleDateString()}
+                            </div>
+                            
+                            {/* Last Name */}
+                            <div className="px-3 py-3 flex-1 min-w-[100px] text-xs md:text-sm text-black font-medium">
+                              {user.last_name}
+                            </div>
+                            
+                            {/* First Name */}
+                            <div className="px-3 py-3 flex-1 min-w-[100px] text-xs md:text-sm text-black font-medium">
+                              {user.first_name}
+                            </div>
                     
                     {/* Newsletter Checkmark */}
                     <div className="px-3 py-3 w-12 md:w-16 text-center">
@@ -906,95 +1608,95 @@ export default function Admin({ onLogout }: AdminProps) {
                       )}
                     </div>
                     
-                    {/* Expand/Collapse Icon */}
-                    <div className="px-3 py-3">
-                      {expandedId === user.id ? (
-                        <ChevronUp className="w-5 h-5 text-gray-400" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
-                      )}
-                    </div>
-                  </div>
+                            {/* Expand/Collapse Icon */}
+                            <div className="px-3 py-3">
+                              {expandedId === user.id ? (
+                                <ChevronUp className="w-5 h-5 text-gray-600" />
+                              ) : (
+                                <ChevronDown className="w-5 h-5 text-gray-600" />
+                              )}
+                            </div>
+                          </div>
 
-                  {/* Expanded Details */}
-                  <AnimatePresence>
-                    {expandedId === user.id && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-4 pb-4 pt-2 border-t border-gray-600">
-                          {editingId === user.id ? (
-                            // Edit Mode
-                            <div className="space-y-3">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div>
-                                  <label className="text-xs text-gray-400 block mb-1">First Name</label>
-                                  <input
-                                    type="text"
-                                    value={editData.first_name || ''}
-                                    onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
-                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-xs text-gray-400 block mb-1">Last Name</label>
-                                  <input
-                                    type="text"
-                                    value={editData.last_name || ''}
-                                    onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
-                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-xs text-gray-400 block mb-1">Email</label>
-                                  <input
-                                    type="email"
-                                    value={editData.email || ''}
-                                    onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-xs text-gray-400 block mb-1">Phone</label>
-                                  <input
-                                    type="tel"
-                                    value={editData.phone || ''}
-                                    onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
-                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-xs text-gray-400 block mb-1">Age</label>
-                                  <input
-                                    type="number"
-                                    value={editData.athlete_age || ''}
-                                    onChange={(e) => setEditData({ ...editData, athlete_age: parseInt(e.target.value) })}
-                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-xs text-gray-400 block mb-1">Interests</label>
-                                  <input
-                                    type="text"
-                                    value={editData.interests || ''}
-                                    onChange={(e) => setEditData({ ...editData, interests: e.target.value })}
-                                    className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600"
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-400 block mb-1">Message</label>
-                                <textarea
-                                  value={editData.message || ''}
-                                  onChange={(e) => setEditData({ ...editData, message: e.target.value })}
-                                  rows={3}
-                                  className="w-full px-3 py-2 bg-gray-800 text-white rounded text-sm border border-gray-600 resize-none"
-                                />
-                              </div>
+                          {/* Expanded Details */}
+                          <AnimatePresence>
+                            {expandedId === user.id && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="px-4 pb-4 pt-2 border-t border-gray-200">
+                                  {editingId === user.id ? (
+                                    // Edit Mode
+                                    <div className="space-y-3">
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="text-xs text-gray-600 block mb-1">First Name</label>
+                                          <input
+                                            type="text"
+                                            value={editData.first_name || ''}
+                                            onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="text-xs text-gray-600 block mb-1">Last Name</label>
+                                          <input
+                                            type="text"
+                                            value={editData.last_name || ''}
+                                            onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="text-xs text-gray-600 block mb-1">Email</label>
+                                          <input
+                                            type="email"
+                                            value={editData.email || ''}
+                                            onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="text-xs text-gray-600 block mb-1">Phone</label>
+                                          <input
+                                            type="tel"
+                                            value={editData.phone || ''}
+                                            onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="text-xs text-gray-600 block mb-1">Age</label>
+                                          <input
+                                            type="number"
+                                            value={editData.athlete_age || ''}
+                                            onChange={(e) => setEditData({ ...editData, athlete_age: parseInt(e.target.value) })}
+                                            className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="text-xs text-gray-600 block mb-1">Interests</label>
+                                          <input
+                                            type="text"
+                                            value={editData.interests || ''}
+                                            onChange={(e) => setEditData({ ...editData, interests: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <label className="text-xs text-gray-600 block mb-1">Message</label>
+                                        <textarea
+                                          value={editData.message || ''}
+                                          onChange={(e) => setEditData({ ...editData, message: e.target.value })}
+                                          rows={3}
+                                          className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 resize-none"
+                                        />
+                                      </div>
                               <div className="flex gap-2 pt-2">
                                 <button
                                   onClick={saveEdit}
@@ -1012,14 +1714,14 @@ export default function Admin({ onLogout }: AdminProps) {
                                 </button>
                               </div>
                             </div>
-                          ) : (
-                            // View Mode
-                            <div className="space-y-2 text-sm text-gray-300">
-                              <div><span className="text-gray-500">Email:</span> {user.email}</div>
-                              <div><span className="text-gray-500">Phone:</span> {user.phone || '-'}</div>
-                              <div><span className="text-gray-500">Age:</span> {user.athlete_age || '-'}</div>
-                              <div><span className="text-gray-500">Interests:</span> {user.interests || '-'}</div>
-                              {user.message && <div><span className="text-gray-500">Additional Information or Questions:</span> {user.message}</div>}
+                                    ) : (
+                                      // View Mode
+                                      <div className="space-y-2 text-sm text-gray-700">
+                                        <div><span className="text-gray-600 font-medium">Email:</span> {user.email}</div>
+                                        <div><span className="text-gray-600 font-medium">Phone:</span> {user.phone || '-'}</div>
+                                        <div><span className="text-gray-600 font-medium">Age:</span> {user.athlete_age || '-'}</div>
+                                        <div><span className="text-gray-600 font-medium">Interests:</span> {user.interests || '-'}</div>
+                                        {user.message && <div><span className="text-gray-600 font-medium">Additional Information or Questions:</span> {user.message}</div>}
                               <div className="flex gap-2 pt-3">
                                 <button
                                   onClick={(e) => startEdit(e, user)}
@@ -1044,12 +1746,13 @@ export default function Admin({ onLogout }: AdminProps) {
                   </AnimatePresence>
                 </div>
               ))}
-            </div>
-          )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
 
       {/* Member Creation Form */}
       <AnimatePresence>
@@ -1287,6 +1990,370 @@ export default function Admin({ onLogout }: AdminProps) {
               >
                 Cancel
               </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Event Form Modal */}
+      <AnimatePresence>
+        {showEventForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                setShowEventForm(false)
+                setEditingEventId(null)
+              }}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">
+                  {editingEventId ? 'Edit Event' : 'Create New Event'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowEventForm(false)
+                    setEditingEventId(null)
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Event Name *</label>
+                    <input
+                      type="text"
+                      value={eventFormData.eventName || ''}
+                      onChange={(e) => setEventFormData({ ...eventFormData, eventName: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Event Type</label>
+                    <select
+                      value={eventFormData.type || 'event'}
+                      onChange={(e) => setEventFormData({ ...eventFormData, type: e.target.value as Event['type'] })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    >
+                      <option value="event">Event</option>
+                      <option value="camp">Camp</option>
+                      <option value="class">Class</option>
+                      <option value="watch-party">Watch Party</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Start Date *</label>
+                  <input
+                    type="date"
+                    value={eventFormData.startDate ? new Date(eventFormData.startDate).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setEventFormData({ ...eventFormData, startDate: new Date(e.target.value) })}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">End Date (Optional)</label>
+                  <input
+                    type="date"
+                    value={eventFormData.endDate ? new Date(eventFormData.endDate).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setEventFormData({ 
+                      ...eventFormData, 
+                      endDate: e.target.value ? new Date(e.target.value) : undefined 
+                    })}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Short Description *</label>
+                  <textarea
+                    value={eventFormData.shortDescription || ''}
+                    onChange={(e) => {
+                      const newShort = e.target.value
+                      setEventFormData({ 
+                        ...eventFormData, 
+                        shortDescription: newShort,
+                        longDescription: useShortAsLong ? newShort : eventFormData.longDescription
+                      })
+                    }}
+                    rows={3}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    placeholder="Brief description for calendar view..."
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="flex items-center space-x-2 mb-2">
+                    <input
+                      type="checkbox"
+                      checked={useShortAsLong}
+                      onChange={(e) => {
+                        const checked = e.target.checked
+                        setUseShortAsLong(checked)
+                        if (checked) {
+                          setEventFormData({ 
+                            ...eventFormData, 
+                            longDescription: eventFormData.shortDescription || '' 
+                          })
+                        }
+                      }}
+                      className="w-4 h-4 text-vortex-red bg-gray-700 border-gray-600 rounded focus:ring-vortex-red"
+                    />
+                    <span className="text-sm font-semibold text-gray-300">Use Short Description for Long Description</span>
+                  </label>
+                </div>
+                {!useShortAsLong && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Long Description *</label>
+                    <textarea
+                      value={eventFormData.longDescription || ''}
+                      onChange={(e) => setEventFormData({ ...eventFormData, longDescription: e.target.value })}
+                      rows={5}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      placeholder="Detailed description for event details section..."
+                      required
+                    />
+                  </div>
+                )}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Address</label>
+                  <input
+                    type="text"
+                    value={eventFormData.address || 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'}
+                    onChange={(e) => setEventFormData({ ...eventFormData, address: e.target.value })}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                  />
+                </div>
+
+                {/* Dates & Times */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-semibold text-gray-300">Dates & Times</label>
+                    <button
+                      type="button"
+                      onClick={() => setEventFormData({
+                        ...eventFormData,
+                        datesAndTimes: [...(eventFormData.datesAndTimes || []), { date: new Date(), startTime: '12:00am', endTime: '', description: '', allDay: false }]
+                      })}
+                      className="flex items-center space-x-1 text-vortex-red hover:text-red-400 text-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Date/Time Entry</span>
+                    </button>
+                  </div>
+                  {(eventFormData.datesAndTimes || []).map((entry, index) => (
+                    <div key={index} className="bg-gray-700 p-3 rounded mb-2 space-y-2">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <div className="flex flex-col">
+                          <label className="text-xs text-gray-400 mb-1">Date</label>
+                          <input
+                            type="date"
+                            value={entry.date ? new Date(entry.date).toISOString().split('T')[0] : ''}
+                            onChange={(e) => {
+                              const updated = [...(eventFormData.datesAndTimes || [])]
+                              updated[index] = { ...updated[index], date: new Date(e.target.value) }
+                              setEventFormData({ ...eventFormData, datesAndTimes: updated })
+                            }}
+                            className="px-3 py-2 bg-gray-600 text-white rounded-lg border border-gray-500 h-[42px]"
+                          />
+                        </div>
+                        {!entry.allDay && (
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-400 mb-1">Start Time</label>
+                            <TimeSpinner
+                              value={entry.startTime || '12:00am'}
+                              onChange={(newTime) => {
+                                const updated = [...(eventFormData.datesAndTimes || [])]
+                                updated[index] = { ...updated[index], startTime: newTime }
+                                setEventFormData({ ...eventFormData, datesAndTimes: updated })
+                              }}
+                            />
+                          </div>
+                        )}
+                        {!entry.allDay && (
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-400 mb-1">End Time (Optional)</label>
+                            <div className="flex items-center gap-2">
+                              <TimeSpinner
+                                value={entry.endTime || ''}
+                                onChange={(newTime) => {
+                                  const updated = [...(eventFormData.datesAndTimes || [])]
+                                  updated[index] = { ...updated[index], endTime: newTime }
+                                  setEventFormData({ ...eventFormData, datesAndTimes: updated })
+                                }}
+                                allowEmpty={true}
+                              />
+                              {entry.endTime && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...(eventFormData.datesAndTimes || [])]
+                                    updated[index] = { ...updated[index], endTime: '' }
+                                    setEventFormData({ ...eventFormData, datesAndTimes: updated })
+                                  }}
+                                  className="text-gray-400 hover:text-white text-xs"
+                                  title="Clear end time"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                              {!entry.endTime && (
+                                <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={entry.allDay || false}
+                                    onChange={(e) => {
+                                      const updated = [...(eventFormData.datesAndTimes || [])]
+                                      updated[index] = { 
+                                        ...updated[index], 
+                                        allDay: e.target.checked,
+                                        startTime: e.target.checked ? '' : (updated[index].startTime || '12:00am'),
+                                        endTime: e.target.checked ? '' : updated[index].endTime
+                                      }
+                                      setEventFormData({ ...eventFormData, datesAndTimes: updated })
+                                    }}
+                                    className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                                  />
+                                  <span>All Day</span>
+                                </label>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        {entry.allDay && (
+                          <div className="flex flex-col md:col-span-2">
+                            <label className="text-xs text-gray-400 mb-1">End Time (Optional)</label>
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center justify-center bg-gray-600 rounded-lg border border-gray-500 px-4 py-2 h-[42px]">
+                                <span className="text-white text-sm">All Day Event</span>
+                              </div>
+                              <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={true}
+                                  onChange={(e) => {
+                                    const updated = [...(eventFormData.datesAndTimes || [])]
+                                    updated[index] = { 
+                                      ...updated[index], 
+                                      allDay: false,
+                                      startTime: '12:00am',
+                                      endTime: ''
+                                    }
+                                    setEventFormData({ ...eventFormData, datesAndTimes: updated })
+                                  }}
+                                  className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                                />
+                                <span>All Day</span>
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Description (optional)"
+                          value={entry.description || ''}
+                          onChange={(e) => {
+                            const updated = [...(eventFormData.datesAndTimes || [])]
+                            updated[index] = { ...updated[index], description: e.target.value }
+                            setEventFormData({ ...eventFormData, datesAndTimes: updated })
+                          }}
+                          className="flex-1 px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = (eventFormData.datesAndTimes || []).filter((_, i) => i !== index)
+                            setEventFormData({ ...eventFormData, datesAndTimes: updated })
+                          }}
+                          className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Key Details */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-semibold text-gray-300">Key Details</label>
+                    <button
+                      type="button"
+                      onClick={() => setEventFormData({
+                        ...eventFormData,
+                        keyDetails: [...(eventFormData.keyDetails || []), '']
+                      })}
+                      className="flex items-center space-x-1 text-vortex-red hover:text-red-400 text-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Key Detail</span>
+                    </button>
+                  </div>
+                  {(eventFormData.keyDetails || []).map((detail, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        placeholder="Key detail..."
+                        value={detail}
+                        onChange={(e) => {
+                          const updated = [...(eventFormData.keyDetails || [])]
+                          updated[index] = e.target.value
+                          setEventFormData({ ...eventFormData, keyDetails: updated })
+                        }}
+                        className="flex-1 px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = (eventFormData.keyDetails || []).filter((_, i) => i !== index)
+                          setEventFormData({ ...eventFormData, keyDetails: updated })
+                        }}
+                        className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <button
+                    onClick={handleCreateOrUpdateEvent}
+                    className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    {editingEventId ? 'Update Event' : 'Create Event'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowEventForm(false)
+                      setEditingEventId(null)
+                    }}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}

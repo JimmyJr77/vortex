@@ -13,7 +13,7 @@ export default function OpeningPopup({ isOpen, onClose, onSignUp }: OpeningPopup
 
   useEffect(() => {
     // Check if user has already seen the popup
-    const seen = localStorage.getItem('vortex-opening-popup-seen')
+    const seen = localStorage.getItem('vortex-gymnastics-classes-popup-seen')
     if (seen) {
       setHasSeenPopup(true)
     }
@@ -21,7 +21,7 @@ export default function OpeningPopup({ isOpen, onClose, onSignUp }: OpeningPopup
 
   const handleClose = () => {
     // Mark as seen in localStorage
-    localStorage.setItem('vortex-opening-popup-seen', 'true')
+    localStorage.setItem('vortex-gymnastics-classes-popup-seen', 'true')
     setHasSeenPopup(true)
     onClose()
   }
