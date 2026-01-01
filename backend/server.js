@@ -7,6 +7,9 @@ import Joi from 'joi'
 import dotenv from 'dotenv'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 const { Pool } = pkg
 dotenv.config()
@@ -1143,6 +1146,46 @@ app.delete('/api/admin/events/:id', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Internal server error'
+    })
+  }
+})
+
+// Seed events (admin endpoint - for initial setup)
+app.post('/api/admin/events/seed', async (req, res) => {
+  try {
+    // Check if events already exist
+    const existingCount = await pool.query('SELECT COUNT(*) FROM events')
+    if (parseInt(existingCount.rows[0].count) > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Found ${existingCount.rows[0].count} existing events. Delete existing events first or use force=true parameter.`
+      })
+    }
+
+    // Read and execute the seed SQL
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = path.dirname(__filename)
+    const migrationPath = path.join(__dirname, 'migrations', 'seed_events.sql')
+    
+    const sql = fs.readFileSync(migrationPath, 'utf8')
+    const cleanedSql = sql.replace(/ ON CONFLICT DO NOTHING;/g, ';')
+    
+    await pool.query(cleanedSql)
+    
+    // Verify by counting events
+    const result = await pool.query('SELECT COUNT(*) FROM events')
+    
+    res.json({
+      success: true,
+      message: 'Events seeded successfully',
+      count: parseInt(result.rows[0].count)
+    })
+  } catch (error) {
+    console.error('Seed events error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
     })
   }
 })
