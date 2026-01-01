@@ -1476,10 +1476,10 @@ export default function Admin({ onLogout }: AdminProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-white">
       {/* Admin Header Section - Dark Background */}
-      <div className="bg-gray-900 p-4 md:p-8">
-        <div className="max-w-full mx-auto space-y-6">
+      <div className="bg-gradient-to-br from-black via-gray-900 to-black pt-32 pb-0">
+        <div className="container-custom">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
               VORTEX <span className="text-vortex-red">ADMIN</span>
@@ -1581,32 +1581,15 @@ export default function Admin({ onLogout }: AdminProps) {
           <div className="flex justify-center border-t border-gray-700">
             <div className="flex space-x-1">
               <button
-                onClick={() => setActiveTab('users')}
+                onClick={() => setActiveTab('admins')}
                 className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
-                  activeTab === 'users'
+                  activeTab === 'admins'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
-                Master Roster
-                {activeTab === 'users' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
-                  activeTab === 'analytics'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Analytics & Engagement
-                {activeTab === 'analytics' && (
+                Admins
+                {activeTab === 'admins' && (
                   <motion.div
                     className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
                     layoutId="activeTab"
@@ -1622,8 +1605,25 @@ export default function Admin({ onLogout }: AdminProps) {
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
-                Membership
+                Members
                 {activeTab === 'membership' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                  activeTab === 'users'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Inquiries
+                {activeTab === 'users' && (
                   <motion.div
                     className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
                     layoutId="activeTab"
@@ -1649,15 +1649,15 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
-                onClick={() => setActiveTab('admins')}
+                onClick={() => setActiveTab('analytics')}
                 className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
-                  activeTab === 'admins'
+                  activeTab === 'analytics'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
-                Admins
-                {activeTab === 'admins' && (
+                Analytics & Engagement
+                {activeTab === 'analytics' && (
                   <motion.div
                     className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
                     layoutId="activeTab"
@@ -1672,7 +1672,7 @@ export default function Admin({ onLogout }: AdminProps) {
 
       {/* Content Section - White Background */}
       <div className="bg-white p-4 md:p-8">
-        <div className="max-w-full mx-auto">
+        <div className="container-custom">
 
           <AnimatePresence mode="wait">
             {activeTab === 'analytics' ? (
@@ -1985,7 +1985,7 @@ export default function Admin({ onLogout }: AdminProps) {
               >
                 <div className="mb-4 md:mb-6">
                   <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-4">
-                    Master Roster ({filteredUsers.length} of {users.length})
+                    Inquiries ({filteredUsers.length} of {users.length})
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     <button
