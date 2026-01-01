@@ -1582,7 +1582,7 @@ export default function Admin({ onLogout }: AdminProps) {
             <div className="flex space-x-1">
               <button
                 onClick={() => setActiveTab('admins')}
-                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'admins'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -1599,7 +1599,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('membership')}
-                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'membership'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -1616,7 +1616,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('users')}
-                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'users'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -1633,7 +1633,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('events')}
-                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'events'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -1650,7 +1650,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('analytics')}
-                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'analytics'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
