@@ -1047,6 +1047,19 @@ export default function Admin({ onLogout }: AdminProps) {
             phone: data.data.phone || '',
             password: ''
           })
+          // Update adminInfo with the latest data including isMaster
+          const updatedAdminInfo = {
+            email: data.data.email,
+            name: `${data.data.firstName} ${data.data.lastName}`,
+            id: data.data.id,
+            firstName: data.data.firstName,
+            lastName: data.data.lastName,
+            phone: data.data.phone,
+            username: adminInfo?.username || '',
+            isMaster: data.data.isMaster
+          }
+          setAdminInfo(updatedAdminInfo)
+          localStorage.setItem('vortex-admin-info', JSON.stringify(updatedAdminInfo))
         }
       }
     } catch (error) {
@@ -1810,7 +1823,7 @@ export default function Admin({ onLogout }: AdminProps) {
                   <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
                     Admins ({admins.length})
                   </h2>
-                  {adminInfo?.isMaster && (
+                  {(adminInfo?.isMaster || admins.find(a => a.id === adminInfo?.id)?.isMaster) && (
                     <motion.button
                       onClick={() => setShowAdminForm(true)}
                       className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
