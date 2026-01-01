@@ -1001,13 +1001,22 @@ export default function Admin({ onLogout }: AdminProps) {
     try {
       setEditLogLoading(true)
       const apiUrl = getApiUrl()
+      console.log('Fetching edit log for event:', eventId, 'from:', `${apiUrl}/api/admin/events/${eventId}/log`)
       const response = await fetch(`${apiUrl}/api/admin/events/${eventId}/log`)
+      console.log('Edit log response status:', response.status)
       if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Edit log error response:', errorText)
         throw new Error(`Failed to fetch edit log: ${response.status}`)
       }
       const data = await response.json()
+      console.log('Edit log data:', data)
       if (data.success) {
         setEditLog(data.data)
+        console.log('Set edit log with', data.data.length, 'entries')
+      } else {
+        console.warn('Edit log response not successful:', data)
+        setEditLog([])
       }
     } catch (error) {
       console.error('Error fetching edit log:', error)
@@ -2466,6 +2475,7 @@ export default function Admin({ onLogout }: AdminProps) {
                     <button
                       type="button"
                       onClick={() => {
+                        console.log('View Edit Log clicked for event:', editingEventId)
                         setShowEditLog(true)
                         fetchEditLog(editingEventId)
                       }}
