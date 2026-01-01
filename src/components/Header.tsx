@@ -6,11 +6,12 @@ import { Link, useLocation } from 'react-router-dom'
 interface HeaderProps {
   onContactClick: () => void
   onMemberLoginClick?: () => void
+  onAdminLoginClick?: () => void
   member?: any
   onMemberDashboardClick?: () => void
 }
 
-const Header = ({ onContactClick, onMemberLoginClick, member, onMemberDashboardClick }: HeaderProps) => {
+const Header = ({ onContactClick, onMemberLoginClick, onAdminLoginClick, member, onMemberDashboardClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -48,14 +49,14 @@ const Header = ({ onContactClick, onMemberLoginClick, member, onMemberDashboardC
           {/* Sign Up Button and Hamburger Menu */}
           <div className="flex items-center space-x-4">
 
-            {/* Stay Updated Button */}
+            {/* Inquire Button */}
             <motion.button
               onClick={onContactClick}
               className="bg-vortex-red text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Interested
+              Inquire
             </motion.button>
 
             {/* Read Board Button */}
@@ -123,6 +124,44 @@ const Header = ({ onContactClick, onMemberLoginClick, member, onMemberDashboardC
                 {item.name}
               </Link>
             ))}
+            
+            {/* Divider Line */}
+            <div className="border-t border-gray-700 my-4"></div>
+            
+            {/* Login Links */}
+            <div className="space-y-3">
+              {onMemberLoginClick && !member && (
+                <button
+                  onClick={() => {
+                    onMemberLoginClick()
+                    setIsMenuOpen(false)
+                  }}
+                  className="block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium"
+                >
+                  Member Login
+                </button>
+              )}
+              {onAdminLoginClick && (
+                <button
+                  onClick={() => {
+                    onAdminLoginClick()
+                    setIsMenuOpen(false)
+                  }}
+                  className="block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium"
+                >
+                  Admin Login
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  onContactClick()
+                  setIsMenuOpen(false)
+                }}
+                className="block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium"
+              >
+                Inquire
+              </button>
+            </div>
           </div>
         </motion.nav>
       </div>
