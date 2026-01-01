@@ -213,7 +213,9 @@ const EventsView = ({
   const formatDateTimeEntry = (entry: DateTimeEntry) => {
     const dateStr = formatDate(entry.date)
     
-    if (entry.startTime && entry.endTime) {
+    if (entry.allDay) {
+      return `${dateStr}: All Day Event`
+    } else if (entry.startTime && entry.endTime) {
       return `${dateStr}: ${entry.startTime} - ${entry.endTime}`
     } else if (entry.startTime) {
       return `${dateStr}: ${entry.startTime}`
@@ -456,6 +458,7 @@ interface DateTimeEntry {
   startTime?: string
   endTime?: string
   description?: string
+  allDay?: boolean
 }
 
 interface Event {
@@ -507,7 +510,6 @@ export default function Admin({ onLogout }: AdminProps) {
   const [members, setMembers] = useState<Member[]>([])
   const [membersLoading, setMembersLoading] = useState(false)
   const [showMemberForm, setShowMemberForm] = useState(false)
-  const [editingMemberId, setEditingMemberId] = useState<number | null>(null)
   const [memberFormData, setMemberFormData] = useState({
     firstName: '',
     lastName: '',
@@ -2248,7 +2250,7 @@ export default function Admin({ onLogout }: AdminProps) {
                                 <input
                                   type="checkbox"
                                   checked={true}
-                                  onChange={(e) => {
+                                  onChange={() => {
                                     const updated = [...(eventFormData.datesAndTimes || [])]
                                     updated[index] = { 
                                       ...updated[index], 

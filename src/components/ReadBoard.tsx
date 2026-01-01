@@ -7,6 +7,7 @@ interface DateTimeEntry {
   startTime?: string // Optional start time (e.g., "9:00 AM")
   endTime?: string // Optional end time (e.g., "3:00 PM")
   description?: string // Optional description (e.g., "All day", "Overnight", "Morning session")
+  allDay?: boolean // Whether this is an all-day event
 }
 
 interface Event {
@@ -302,7 +303,6 @@ const ReadBoard = () => {
   // Events - chronologically ordered
   // In production, these would be loaded from a database
   // NOTE: When creating events in the admin portal, the default address should be "Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715"
-  const DEFAULT_EVENT_ADDRESS = 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
   const allEvents: Event[] = [
     {
       id: 1,
@@ -533,7 +533,9 @@ const ReadBoard = () => {
   const formatDateTimeEntry = (entry: DateTimeEntry) => {
     const dateStr = formatDate(entry.date)
     
-    if (entry.startTime && entry.endTime) {
+    if (entry.allDay) {
+      return `${dateStr}: All Day Event`
+    } else if (entry.startTime && entry.endTime) {
       return `${dateStr}: ${entry.startTime} - ${entry.endTime}`
     } else if (entry.startTime) {
       return `${dateStr}: ${entry.startTime}`
@@ -554,21 +556,6 @@ const ReadBoard = () => {
         return Trophy
       default:
         return Calendar
-    }
-  }
-
-  const getEventColor = (type: Event['type']) => {
-    switch (type) {
-      case 'camp':
-        return 'from-blue-600 to-blue-800'
-      case 'class':
-        return 'from-vortex-red to-red-800'
-      case 'watch-party':
-        return 'from-purple-600 to-purple-800'
-      case 'event':
-        return 'from-green-600 to-green-800'
-      default:
-        return 'from-gray-600 to-gray-800'
     }
   }
 
