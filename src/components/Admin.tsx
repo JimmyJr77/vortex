@@ -2462,16 +2462,16 @@ export default function Admin({ onLogout }: AdminProps) {
 
                 {/* Edit Log Link - Only show when editing existing event */}
                 {editingEventId && (
-                  <div className="pt-4 border-t border-gray-700">
+                  <div className="pt-4 mt-4 border-t border-gray-700">
                     <button
                       type="button"
                       onClick={() => {
                         setShowEditLog(true)
                         fetchEditLog(editingEventId)
                       }}
-                      className="text-gray-400 hover:text-white text-sm underline"
+                      className="text-gray-400 hover:text-white text-sm underline transition-colors"
                     >
-                      Log
+                      View Edit Log
                     </button>
                   </div>
                 )}
@@ -2517,7 +2517,7 @@ export default function Admin({ onLogout }: AdminProps) {
                 <div className="text-center py-12 text-gray-400">No edit history available</div>
               ) : (
                 <div className="space-y-4">
-                  {editLog.map((log, index) => (
+                  {editLog.map((log) => (
                     <div key={log.id} className="bg-gray-700 rounded-lg p-4 border border-gray-600">
                       <div className="flex justify-between items-start mb-3">
                         <div>
