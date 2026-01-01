@@ -1578,57 +1578,94 @@ export default function Admin({ onLogout }: AdminProps) {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                activeTab === 'users'
-                  ? 'bg-vortex-red text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Master Roster
-            </button>
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                activeTab === 'analytics'
-                  ? 'bg-vortex-red text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Analytics & Engagement
-            </button>
-            <button
-              onClick={() => setActiveTab('membership')}
-              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                activeTab === 'membership'
-                  ? 'bg-vortex-red text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Membership
-            </button>
-            <button
-              onClick={() => setActiveTab('events')}
-              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                activeTab === 'events'
-                  ? 'bg-vortex-red text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Events
-            </button>
-            <button
-              onClick={() => setActiveTab('admins')}
-              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                activeTab === 'admins'
-                  ? 'bg-vortex-red text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Admins
-            </button>
+          <div className="flex justify-center border-t border-gray-700">
+            <div className="flex space-x-1">
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                  activeTab === 'users'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Master Roster
+                {activeTab === 'users' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                  activeTab === 'analytics'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Analytics & Engagement
+                {activeTab === 'analytics' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('membership')}
+                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                  activeTab === 'membership'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Membership
+                {activeTab === 'membership' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('events')}
+                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                  activeTab === 'events'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Events
+                {activeTab === 'events' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('admins')}
+                className={`px-8 py-4 font-semibold text-lg transition-all duration-300 relative ${
+                  activeTab === 'admins'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Admins
+                {activeTab === 'admins' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
