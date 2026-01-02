@@ -476,6 +476,140 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() })
 })
 
+// Module 0 verification endpoint
+app.get('/api/verify/module0', async (req, res) => {
+  try {
+    const results = {
+      userRoleEnum: false,
+      facilityTable: false,
+      facilityData: null,
+      appUserTable: false,
+      migratedAdmins: { count: 0, sample: [] },
+      migratedMembers: { count: 0, sample: [] },
+      adminTableCount: 0,
+      memberTableCount: 0
+    }
+
+    // Check user_role enum
+    try {
+      const enumCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT 1 FROM pg_type WHERE typname = 'user_role'
+        )
+      `)
+      results.userRoleEnum = enumCheck.rows[0].exists
+    } catch (error) {
+      console.error('Error checking user_role enum:', error.message)
+    }
+
+    // Check facility table
+    try {
+      const tableCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT 1 FROM information_schema.tables 
+          WHERE table_name = 'facility'
+        )
+      `)
+      results.facilityTable = tableCheck.rows[0].exists
+      
+      if (results.facilityTable) {
+        const facilityData = await pool.query('SELECT * FROM facility')
+        results.facilityData = facilityData.rows
+      }
+    } catch (error) {
+      console.error('Error checking facility:', error.message)
+    }
+
+    // Check app_user table
+    try {
+      const tableCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT 1 FROM information_schema.tables 
+          WHERE table_name = 'app_user'
+        )
+      `)
+      results.appUserTable = tableCheck.rows[0].exists
+      
+      if (results.appUserTable) {
+        // Count admins
+        const adminCheck = await pool.query(`
+          SELECT COUNT(*) as count FROM app_user WHERE role = 'OWNER_ADMIN'
+        `)
+        results.migratedAdmins.count = parseInt(adminCheck.rows[0].count)
+        
+        const adminSample = await pool.query(`
+          SELECT id, email, full_name, role, is_active 
+          FROM app_user 
+          WHERE role = 'OWNER_ADMIN' 
+          LIMIT 5
+        `)
+        results.migratedAdmins.sample = adminSample.rows
+
+        // Count members
+        const memberCheck = await pool.query(`
+          SELECT COUNT(*) as count FROM app_user WHERE role = 'PARENT_GUARDIAN'
+        `)
+        results.migratedMembers.count = parseInt(memberCheck.rows[0].count)
+        
+        const memberSample = await pool.query(`
+          SELECT id, email, full_name, role, is_active 
+          FROM app_user 
+          WHERE role = 'PARENT_GUARDIAN' 
+          LIMIT 5
+        `)
+        results.migratedMembers.sample = memberSample.rows
+      }
+    } catch (error) {
+      console.error('Error checking app_user:', error.message)
+    }
+
+    // Check original table counts for comparison
+    try {
+      const adminCount = await pool.query('SELECT COUNT(*) as count FROM admins')
+      results.adminTableCount = parseInt(adminCount.rows[0].count)
+    } catch (error) {
+      // admins table might not exist, that's OK
+    }
+
+    try {
+      const memberCount = await pool.query('SELECT COUNT(*) as count FROM members')
+      results.memberTableCount = parseInt(memberCount.rows[0].count)
+    } catch (error) {
+      // members table might not exist, that's OK
+    }
+
+    // Determine overall status
+    const criticalPassed = results.userRoleEnum && results.facilityTable && results.appUserTable
+    const allPassed = criticalPassed && results.facilityData && results.facilityData.length > 0
+
+    res.json({
+      success: true,
+      status: allPassed ? 'complete' : (criticalPassed ? 'partial' : 'incomplete'),
+      results,
+      summary: {
+        message: allPassed 
+          ? '✅ Module 0 migration is complete!' 
+          : criticalPassed 
+            ? '⚠️ Core tables created, but some data may be missing'
+            : '❌ Module 0 migration appears incomplete',
+        recommendations: allPassed 
+          ? ['Migration successful! You can proceed with Module 1.']
+          : criticalPassed
+            ? ['Core migration completed. Check if you have existing admins/members to migrate.']
+            : ['Please restart your server to run the migration.', 'Check server logs for errors.']
+      }
+    }
+    })
+  } catch (error) {
+    console.error('Verification error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Verification failed',
+      error: error.message
+    })
+  }
+})
+
 // Submit registration
 app.post('/api/registrations', async (req, res) => {
   try {
