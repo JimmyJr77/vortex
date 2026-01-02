@@ -1694,7 +1694,7 @@ app.post('/api/admin/users', async (req, res) => {
     // Check if username already exists (if provided)
     if (username) {
       const existingUsername = await pool.query(
-        'SELECT id FROM app_user WHERE facility_id = $1 AND username = $2',
+        'SELECT id FROM app_user WHERE facility_id = $1 AND LOWER(username) = LOWER($2)',
         [facilityId, username]
       )
 
@@ -1846,7 +1846,7 @@ app.put('/api/admin/users/:id', async (req, res) => {
       
       if (username !== currentUsername) {
         const existingUsername = await pool.query(
-          'SELECT id FROM app_user WHERE facility_id = $1 AND username = $2 AND id != $3',
+          'SELECT id FROM app_user WHERE facility_id = $1 AND LOWER(username) = LOWER($2) AND id != $3',
           [facilityId, username, id]
         )
         
@@ -2821,25 +2821,27 @@ app.post('/api/members/login', async (req, res) => {
         params = [emailOrUsername]
       }
     } else {
+      // Username comparison - case insensitive
+      const usernameLower = emailOrUsername.toLowerCase()
       if (facilityId !== null) {
         query = `
           SELECT u.* 
           FROM app_user u
           WHERE u.facility_id = $1 
-            AND u.username = $2 
+            AND LOWER(u.username) = $2 
             AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
             AND u.is_active = TRUE
         `
-        params = [facilityId, emailOrUsername]
+        params = [facilityId, usernameLower]
       } else {
         query = `
           SELECT u.* 
           FROM app_user u
-          WHERE u.username = $1 
+          WHERE LOWER(u.username) = $1 
             AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
             AND u.is_active = TRUE
         `
-        params = [emailOrUsername]
+        params = [usernameLower]
       }
     }
     
@@ -4078,11 +4080,22 @@ app.post('/api/admin/login', async (req, res) => {
       })
     }
 
-    // Find admin by username or email
-    const result = await pool.query(
-      'SELECT * FROM admins WHERE username = $1 OR email = $1',
-      [value.usernameOrEmail]
-    )
+    // Find admin by username or email (username case-insensitive)
+    const usernameOrEmail = value.usernameOrEmail.trim()
+    const isEmail = usernameOrEmail.includes('@')
+    
+    let query, params
+    if (isEmail) {
+      // Email comparison is case-sensitive
+      query = 'SELECT * FROM admins WHERE email = $1'
+      params = [usernameOrEmail]
+    } else {
+      // Username comparison - case insensitive
+      query = 'SELECT * FROM admins WHERE LOWER(username) = LOWER($1)'
+      params = [usernameOrEmail]
+    }
+    
+    const result = await pool.query(query, params)
 
     if (result.rows.length === 0) {
       return res.status(401).json({
@@ -4199,9 +4212,9 @@ app.post('/api/admin/admins', async (req, res) => {
       })
     }
 
-    // Check if username or email already exists
+    // Check if username or email already exists (username case-insensitive)
     const existing = await pool.query(
-      'SELECT id FROM admins WHERE username = $1 OR email = $2',
+      'SELECT id FROM admins WHERE LOWER(username) = LOWER($1) OR email = $2',
       [value.username, value.email]
     )
 
@@ -5397,9 +5410,9 @@ app.put('/api/admin/admins/:id', async (req, res) => {
       values.push(value.phone || null)
     }
     if (value.username) {
-      // Check if username already exists (excluding current admin)
+      // Check if username already exists (excluding current admin, case-insensitive)
       const existing = await pool.query(
-        'SELECT id FROM admins WHERE username = $1 AND id != $2',
+        'SELECT id FROM admins WHERE LOWER(username) = LOWER($1) AND id != $2',
         [value.username, id]
       )
       if (existing.rows.length > 0) {
