@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, User, Calendar, Search, Edit2, Save, X, UserPlus, CheckCircle, MapPin, Award, Users, Trophy, ChevronDown, ChevronUp } from 'lucide-react'
+import { LogOut, Home, Calendar, Search, Edit2, Save, X, UserPlus, CheckCircle, MapPin, Award, Users, Trophy, ChevronDown, ChevronUp } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 
@@ -64,7 +64,7 @@ interface Event {
   archived?: boolean
 }
 
-export default function MemberDashboard({ member, onLogout, onReturnToWebsite }: MemberDashboardProps) {
+export default function MemberDashboard({ member: _member, onLogout, onReturnToWebsite }: MemberDashboardProps) {
   const [activeTab, setActiveTab] = useState<MemberTab>('profile')
   const [profileData, setProfileData] = useState<any>(null)
   const [editingProfile, setEditingProfile] = useState(false)
@@ -941,12 +941,12 @@ export default function MemberDashboard({ member, onLogout, onReturnToWebsite }:
             )}
 
             {activeTab === 'events' && (
-              <motion.div
+            <motion.div
                 key="events"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
+              transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
                 {/* Search Bar */}
@@ -1038,7 +1038,7 @@ export default function MemberDashboard({ member, onLogout, onReturnToWebsite }:
                     </div>
                   )}
                 </div>
-              </motion.div>
+            </motion.div>
             )}
           </AnimatePresence>
         </div>
