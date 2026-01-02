@@ -38,16 +38,24 @@ const allowedOrigins = [
   'http://localhost:5173',
   'https://vortexathletics.com',
   'https://www.vortexathletics.com',
+  // Allow Vercel deployments (pattern matching)
+  /^https:\/\/.*\.vercel\.app$/,
   // Allow from environment variable if set
   ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
 ].filter(Boolean) // Remove any undefined values
 
 // Helper function to check if origin is allowed
 function isOriginAllowed(origin) {
-  if (!origin) return true // Allow requests with no origin
+  // Allow requests with no origin (same-origin requests, server-to-server, etc.)
+  if (!origin) return true
   
   const normalizedOrigin = origin.toLowerCase().replace(/\/$/, '')
   return allowedOrigins.some(allowed => {
+    // Handle regex patterns (for Vercel deployments)
+    if (allowed instanceof RegExp) {
+      return allowed.test(normalizedOrigin)
+    }
+    // Handle string origins
     const normalizedAllowed = allowed.toLowerCase().replace(/\/$/, '')
     return normalizedOrigin === normalizedAllowed
   })
@@ -56,31 +64,51 @@ function isOriginAllowed(origin) {
 // Handle preflight OPTIONS requests explicitly
 app.options('*', (req, res) => {
   const origin = req.headers.origin
-  console.log('OPTIONS preflight request from origin:', origin)
+  
+  // Only log in development
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('OPTIONS preflight request from origin:', origin || '(no origin)')
+  }
   
   if (isOriginAllowed(origin)) {
-    res.header('Access-Control-Allow-Origin', origin)
+    // If origin is undefined, don't set Access-Control-Allow-Origin
+    // (browser will handle same-origin requests)
+    if (origin) {
+      res.header('Access-Control-Allow-Origin', origin)
+    }
     res.header('Access-Control-Allow-Credentials', 'true')
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     res.header('Access-Control-Max-Age', '86400') // 24 hours
     res.sendStatus(204)
   } else {
-    console.warn(`CORS blocked OPTIONS request from origin: ${origin}`)
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`CORS blocked OPTIONS request from origin: ${origin}`)
+    }
     res.sendStatus(403)
   }
 })
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Log the origin for debugging
-    console.log('CORS request from origin:', origin)
+    // Log the origin for debugging (only in development)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('CORS request from origin:', origin || '(no origin - same-origin request)')
+    }
+    
+    // Allow requests with no origin (same-origin, server-to-server, etc.)
+    if (!origin) {
+      return callback(null, true)
+    }
     
     if (isOriginAllowed(origin)) {
       callback(null, true)
     } else {
-      console.warn(`CORS blocked origin: ${origin}`)
-      console.warn('Allowed origins:', allowedOrigins)
+      // Only log warnings in development
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`CORS blocked origin: ${origin}`)
+        console.warn('Allowed origins:', allowedOrigins.filter(o => typeof o === 'string'))
+      }
       callback(new Error('Not allowed by CORS'))
     }
   },
