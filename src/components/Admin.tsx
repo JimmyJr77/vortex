@@ -641,6 +641,7 @@ export default function Admin({ onLogout }: AdminProps) {
     lastName: '',
     email: '',
     phone: '',
+    username: '',
     password: ''
   })
 
@@ -1112,6 +1113,7 @@ export default function Admin({ onLogout }: AdminProps) {
             lastName: data.data.lastName,
             email: data.data.email,
             phone: data.data.phone || '',
+            username: data.data.username || '',
             password: ''
           })
           // Update adminInfo with the latest data including isMaster
@@ -1122,7 +1124,7 @@ export default function Admin({ onLogout }: AdminProps) {
             firstName: data.data.firstName,
             lastName: data.data.lastName,
             phone: data.data.phone,
-            username: adminInfo?.username || '',
+            username: data.data.username || '',
             isMaster: data.data.isMaster
           }
           setAdminInfo(updatedAdminInfo)
@@ -1174,7 +1176,8 @@ export default function Admin({ onLogout }: AdminProps) {
         firstName: myAccountData.firstName,
         lastName: myAccountData.lastName,
         email: myAccountData.email,
-        phone: myAccountData.phone || null
+        phone: myAccountData.phone || null,
+        username: myAccountData.username
       }
       
       if (myAccountData.password) {
@@ -1198,8 +1201,8 @@ export default function Admin({ onLogout }: AdminProps) {
             firstName: data.data.firstName,
             lastName: data.data.lastName,
             phone: data.data.phone,
-            username: adminInfo?.username,
-            isMaster: adminInfo?.isMaster
+            username: data.data.username || '',
+            isMaster: data.data.isMaster
           }
           localStorage.setItem('vortex-admin-info', JSON.stringify(updatedAdmin))
           setAdminInfo(updatedAdmin)
@@ -1908,6 +1911,16 @@ export default function Admin({ onLogout }: AdminProps) {
                           />
                         </div>
                         <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Username *</label>
+                          <input
+                            type="text"
+                            value={myAccountData.username}
+                            onChange={(e) => setMyAccountData({ ...myAccountData, username: e.target.value })}
+                            className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                            required
+                          />
+                        </div>
+                        <div>
                           <label className="block text-sm font-semibold text-gray-700 mb-2">New Password (leave blank to keep current)</label>
                           <input
                             type="password"
@@ -1955,10 +1968,10 @@ export default function Admin({ onLogout }: AdminProps) {
                             <p className="text-lg font-semibold text-black">{myAccountData.phone}</p>
                           </div>
                         )}
-                        {adminInfo?.username && (
+                        {myAccountData.username && (
                           <div>
                             <p className="text-sm text-gray-600">Username</p>
-                            <p className="text-lg font-semibold text-black">{adminInfo.username}</p>
+                            <p className="text-lg font-semibold text-black">{myAccountData.username}</p>
                           </div>
                         )}
                       </div>

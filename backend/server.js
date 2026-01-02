@@ -332,6 +332,7 @@ const adminUpdateSchema = Joi.object({
   lastName: Joi.string().min(2).max(50).optional(),
   email: Joi.string().email().optional(),
   phone: Joi.string().max(20).optional().allow('', null),
+  username: Joi.string().min(3).max(50).optional(),
   password: Joi.string().min(6).optional()
 })
 
@@ -1721,6 +1722,21 @@ app.put('/api/admin/admins/:id', async (req, res) => {
     if (value.phone !== undefined) {
       updates.push(`phone = $${paramCount++}`)
       values.push(value.phone || null)
+    }
+    if (value.username) {
+      // Check if username already exists (excluding current admin)
+      const existing = await pool.query(
+        'SELECT id FROM admins WHERE username = $1 AND id != $2',
+        [value.username, id]
+      )
+      if (existing.rows.length > 0) {
+        return res.status(409).json({
+          success: false,
+          message: 'Username already taken'
+        })
+      }
+      updates.push(`username = $${paramCount++}`)
+      values.push(value.username)
     }
     if (value.password) {
       const passwordHash = await bcrypt.hash(value.password, 10)
