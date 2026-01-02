@@ -2523,6 +2523,9 @@ app.post('/api/admin/programs', async (req, res) => {
     let categoryId = value.categoryId
     let categoryEnum = value.category || null
     
+    // Valid enum values for program_category
+    const validEnumValues = ['EARLY_DEVELOPMENT', 'GYMNASTICS', 'VORTEX_NINJA', 'ATHLETICISM_ACCELERATOR', 'ADULT_FITNESS', 'HOMESCHOOL']
+    
     if (categoryId && !categoryEnum) {
       // Look up the category enum value from the categoryId
       const categoryResult = await pool.query(
@@ -2530,7 +2533,14 @@ app.post('/api/admin/programs', async (req, res) => {
         [categoryId]
       )
       if (categoryResult.rows.length > 0) {
-        categoryEnum = categoryResult.rows[0].name
+        const categoryName = categoryResult.rows[0].name
+        // Only use as enum if it's a valid enum value, otherwise set to null
+        if (validEnumValues.includes(categoryName)) {
+          categoryEnum = categoryName
+        } else {
+          // New category that doesn't match enum - set to null
+          categoryEnum = null
+        }
       } else {
         return res.status(400).json({
           success: false,
@@ -2546,6 +2556,9 @@ app.post('/api/admin/programs', async (req, res) => {
       if (categoryResult.rows.length > 0) {
         categoryId = categoryResult.rows[0].id
       }
+      // Ensure category is a valid enum value
+      if (!validEnumValues.includes(value.category)) {
+        categoryEnum = null
     }
 
     // If levelId is provided, use it; otherwise try to map from skillLevel enum
