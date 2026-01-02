@@ -189,6 +189,7 @@ const EventsView = ({
   onEdit, 
   onDelete,
   onArchive,
+  showArchived,
   error
 }: { 
   events: Event[]
@@ -198,6 +199,7 @@ const EventsView = ({
   onEdit: (event: Event) => void
   onDelete: (id: string | number) => void
   onArchive: (id: string | number, archived: boolean) => void
+  showArchived?: boolean
   error?: string | null
 }) => {
   const formatDate = (date: Date) => {
@@ -402,24 +404,32 @@ const EventsView = ({
                         <Edit2 className="w-4 h-4" />
                         Edit
                       </button>
-                      <button
-                        onClick={() => onArchive(event.id, !event.archived)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded text-white text-sm font-medium ${
-                          event.archived 
-                            ? 'bg-green-600 hover:bg-green-700' 
-                            : 'bg-yellow-600 hover:bg-yellow-700'
-                        }`}
-                      >
-                        <Archive className="w-4 h-4" />
-                        {event.archived ? 'Unarchive' : 'Archive'}
-                      </button>
-                      <button
-                        onClick={() => onDelete(event.id)}
-                        className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
-                      >
-                        <X className="w-4 h-4" />
-                        Delete
-                      </button>
+                      {showArchived ? (
+                        <>
+                          <button
+                            onClick={() => onArchive(event.id, false)}
+                            className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
+                          >
+                            <Archive className="w-4 h-4" />
+                            Unarchive
+                          </button>
+                          <button
+                            onClick={() => onDelete(event.id)}
+                            className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
+                          >
+                            <X className="w-4 h-4" />
+                            Delete
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => onArchive(event.id, true)}
+                          className="flex items-center gap-2 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white text-sm font-medium"
+                        >
+                          <Archive className="w-4 h-4" />
+                          Archive
+                        </button>
+                      )}
                     </div>
                   </div>
                   
@@ -581,6 +591,7 @@ export default function Admin({ onLogout }: AdminProps) {
   })
   const [eventSearchQuery, setEventSearchQuery] = useState('')
   const [useShortAsLong, setUseShortAsLong] = useState(true)
+  const [showArchivedEvents, setShowArchivedEvents] = useState(false)
   const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
   const [showEditLog, setShowEditLog] = useState(false)
   const [editLog, setEditLog] = useState<any[]>([])
@@ -1781,39 +1792,55 @@ export default function Admin({ onLogout }: AdminProps) {
                   <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
                     Events Management
                   </h2>
-                  <motion.button
-                    onClick={() => {
-                      setEditingEventId(null)
-                      setEventFormData({
-                        eventName: '',
-                        shortDescription: '',
-                        longDescription: '',
-                        startDate: new Date(),
-                        endDate: undefined,
-                        type: 'event',
-                        datesAndTimes: [],
-                        keyDetails: [],
-                        address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
-                      })
-                      setUseShortAsLong(true)
-                      setShowEventForm(true)
-                    }}
-                    className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add New Event</span>
-                  </motion.button>
+                  <div className="flex gap-2">
+                    <motion.button
+                      onClick={() => setShowArchivedEvents(!showArchivedEvents)}
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                        showArchivedEvents
+                          ? 'bg-gray-600 text-white hover:bg-gray-700'
+                          : 'bg-gray-500 text-white hover:bg-gray-600'
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Archive className="w-4 h-4" />
+                      <span>{showArchivedEvents ? 'Show Active' : 'Show Archives'}</span>
+                    </motion.button>
+                    <motion.button
+                      onClick={() => {
+                        setEditingEventId(null)
+                        setEventFormData({
+                          eventName: '',
+                          shortDescription: '',
+                          longDescription: '',
+                          startDate: new Date(),
+                          endDate: undefined,
+                          type: 'event',
+                          datesAndTimes: [],
+                          keyDetails: [],
+                          address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
+                        })
+                        setUseShortAsLong(true)
+                        setShowEventForm(true)
+                      }}
+                      className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add New Event</span>
+                    </motion.button>
+                  </div>
                 </div>
                 <EventsView
-                  events={events}
+                  events={showArchivedEvents ? events.filter(e => e.archived) : events.filter(e => !e.archived)}
                   loading={eventsLoading}
                   searchQuery={eventSearchQuery}
                   onSearchChange={setEventSearchQuery}
                   onEdit={handleEditEvent}
                   onDelete={handleDeleteEvent}
                   onArchive={handleArchiveEvent}
+                  showArchived={showArchivedEvents}
                   error={error}
                 />
               </motion.div>
