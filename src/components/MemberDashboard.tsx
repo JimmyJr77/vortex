@@ -925,23 +925,37 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     <div className="space-y-4">
                       {enrollments.map((enrollment) => {
                         const program = classes.find(c => c.id === enrollment.program_id)
-                        const member = familyMembers.find(fm => 
+                        // Find member - check familyMembers first, then check if it's the current user
+                        let member = familyMembers.find(fm => 
                           (fm.user_id || fm.id) === enrollment.athlete_user_id
-                        ) || (enrollment.athlete_user_id === profileData?.id ? profileData : null)
+                        )
+                        
+                        // If not found in familyMembers, check if it's the current user
+                        if (!member && enrollment.athlete_user_id === profileData?.id) {
+                          member = {
+                            first_name: profileData.firstName || '',
+                            last_name: profileData.lastName || '',
+                            user_id: profileData.id
+                          }
+                        }
+                        
+                        // Fallback to athlete name from enrollment if available
                         const memberName = member 
-                          ? (member.first_name || member.firstName || '') + ' ' + (member.last_name || member.lastName || '')
-                          : 'Unknown Member'
+                          ? `${member.first_name || ''} ${member.last_name || ''}`.trim() || 'You'
+                          : (enrollment.athlete_first_name && enrollment.athlete_last_name
+                              ? `${enrollment.athlete_first_name} ${enrollment.athlete_last_name}`
+                              : 'Unknown Member')
                         
                         return (
                           <div key={enrollment.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <h3 className="text-lg font-semibold text-black mb-2">
-                                  {program?.displayName || 'Unknown Class'}
+                                  {program?.displayName || enrollment.program_display_name || enrollment.program_name || 'Unknown Class'}
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
                                   <div>
-                                    <span className="font-medium">Member:</span> {memberName.trim() || 'Unknown'}
+                                    <span className="font-medium">Member:</span> {memberName}
                                   </div>
                                   <div>
                                     <span className="font-medium">Days Per Week:</span> {enrollment.days_per_week || 'N/A'}
@@ -950,7 +964,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                                     <div className="md:col-span-2">
                                       <span className="font-medium">Days:</span> {Array.isArray(enrollment.selected_days) 
                                         ? enrollment.selected_days.join(', ')
-                                        : enrollment.selected_days}
+                                        : (typeof enrollment.selected_days === 'string' 
+                                            ? enrollment.selected_days 
+                                            : JSON.parse(enrollment.selected_days).join(', '))}
                                     </div>
                                   )}
                                 </div>
