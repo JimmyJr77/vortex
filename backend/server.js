@@ -952,14 +952,22 @@ app.get('/api/events', async (req, res) => {
         console.error('Error parsing JSON fields:', e)
       }
       
+      // Parse dates in local timezone to avoid timezone shift
+      const parseLocalDate = (dateStr) => {
+        if (!dateStr) return undefined
+        if (dateStr instanceof Date) return dateStr
+        const [year, month, day] = dateStr.split('T')[0].split('-').map(Number)
+        return new Date(year, month - 1, day)
+      }
+      
       return {
         ...event,
-        startDate: new Date(event.startDate),
-        endDate: event.endDate ? new Date(event.endDate) : undefined,
+        startDate: parseLocalDate(event.startDate),
+        endDate: event.endDate ? parseLocalDate(event.endDate) : undefined,
         datesAndTimes: Array.isArray(datesAndTimes) 
           ? datesAndTimes.map(dt => ({
               ...dt,
-              date: new Date(dt.date)
+              date: parseLocalDate(dt.date)
             }))
           : [],
         keyDetails: Array.isArray(keyDetails) ? keyDetails : []
@@ -1062,15 +1070,25 @@ app.get('/api/admin/events', async (req, res) => {
         console.error('Error parsing JSON fields:', e)
       }
       
+      // Parse dates in local timezone to avoid timezone shift
+      const parseLocalDate = (dateStr) => {
+        if (!dateStr) return undefined
+        // If it's already a Date object, return it
+        if (dateStr instanceof Date) return dateStr
+        // Parse date string (YYYY-MM-DD) in local timezone
+        const [year, month, day] = dateStr.split('T')[0].split('-').map(Number)
+        return new Date(year, month - 1, day)
+      }
+      
       return {
         ...event,
         archived: event.archived || false,
-        startDate: new Date(event.startDate),
-        endDate: event.endDate ? new Date(event.endDate) : undefined,
+        startDate: parseLocalDate(event.startDate),
+        endDate: event.endDate ? parseLocalDate(event.endDate) : undefined,
         datesAndTimes: Array.isArray(datesAndTimes) 
           ? datesAndTimes.map(dt => ({
               ...dt,
-              date: new Date(dt.date)
+              date: parseLocalDate(dt.date)
             }))
           : [],
         keyDetails: Array.isArray(keyDetails) ? keyDetails : []
@@ -1146,12 +1164,20 @@ app.post('/api/admin/events', async (req, res) => {
       console.error('Error parsing JSON fields:', e)
     }
     
-    event.startDate = new Date(event.startDate)
-    event.endDate = event.endDate ? new Date(event.endDate) : undefined
+    // Parse dates in local timezone to avoid timezone shift
+    const parseLocalDate = (dateStr) => {
+      if (!dateStr) return undefined
+      if (dateStr instanceof Date) return dateStr
+      const [year, month, day] = dateStr.split('T')[0].split('-').map(Number)
+      return new Date(year, month - 1, day)
+    }
+    
+    event.startDate = parseLocalDate(event.startDate)
+    event.endDate = event.endDate ? parseLocalDate(event.endDate) : undefined
     event.datesAndTimes = Array.isArray(datesAndTimes) 
       ? datesAndTimes.map(dt => ({
           ...dt,
-          date: new Date(dt.date)
+          date: parseLocalDate(dt.date)
         }))
       : []
     event.keyDetails = Array.isArray(keyDetails) ? keyDetails : []
@@ -1351,12 +1377,20 @@ app.put('/api/admin/events/:id', async (req, res) => {
       console.error('Error parsing JSON fields:', e)
     }
     
-    event.startDate = new Date(event.startDate)
-    event.endDate = event.endDate ? new Date(event.endDate) : undefined
+    // Parse dates in local timezone to avoid timezone shift
+    const parseLocalDate = (dateStr) => {
+      if (!dateStr) return undefined
+      if (dateStr instanceof Date) return dateStr
+      const [year, month, day] = dateStr.split('T')[0].split('-').map(Number)
+      return new Date(year, month - 1, day)
+    }
+    
+    event.startDate = parseLocalDate(event.startDate)
+    event.endDate = event.endDate ? parseLocalDate(event.endDate) : undefined
     event.datesAndTimes = Array.isArray(datesAndTimes) 
       ? datesAndTimes.map(dt => ({
           ...dt,
-          date: new Date(dt.date)
+          date: parseLocalDate(dt.date)
         }))
       : []
     event.keyDetails = Array.isArray(keyDetails) ? keyDetails : []

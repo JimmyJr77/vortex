@@ -1210,9 +1210,27 @@ export default function Admin({ onLogout }: AdminProps) {
       
       const method = editingEventId ? 'PUT' : 'POST'
       
+      // Helper function to convert Date to YYYY-MM-DD string
+      const formatDateOnly = (date: Date | undefined): string | undefined => {
+        if (!date) return undefined
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+      
+      // Convert dates to date-only strings to avoid timezone issues
+      const datesAndTimesFormatted = (eventFormData.datesAndTimes || []).map(entry => ({
+        ...entry,
+        date: formatDateOnly(entry.date instanceof Date ? entry.date : new Date(entry.date)) || formatDateOnly(new Date())
+      }))
+      
       // If checkbox is checked, use short description as long description
       const dataToSubmit = {
         ...eventFormData,
+        startDate: formatDateOnly(eventFormData.startDate instanceof Date ? eventFormData.startDate : new Date(eventFormData.startDate || new Date())),
+        endDate: eventFormData.endDate ? formatDateOnly(eventFormData.endDate instanceof Date ? eventFormData.endDate : new Date(eventFormData.endDate)) : undefined,
+        datesAndTimes: datesAndTimesFormatted,
         longDescription: useShortAsLong ? eventFormData.shortDescription : eventFormData.longDescription,
         // Include admin info for edit tracking (only for updates)
         ...(editingEventId && adminInfo ? {
@@ -2609,7 +2627,13 @@ export default function Admin({ onLogout }: AdminProps) {
                   <label className="block text-sm font-semibold text-gray-300 mb-2">Start Date *</label>
                   <input
                     type="date"
-                    value={eventFormData.startDate ? new Date(eventFormData.startDate).toISOString().split('T')[0] : ''}
+                    value={eventFormData.startDate ? (() => {
+                      const date = eventFormData.startDate instanceof Date ? eventFormData.startDate : new Date(eventFormData.startDate)
+                      const year = date.getFullYear()
+                      const month = String(date.getMonth() + 1).padStart(2, '0')
+                      const day = String(date.getDate()).padStart(2, '0')
+                      return `${year}-${month}-${day}`
+                    })() : ''}
                     onChange={(e) => {
                       // Create date in local timezone to avoid timezone shift
                       const dateValue = e.target.value
@@ -2627,7 +2651,13 @@ export default function Admin({ onLogout }: AdminProps) {
                   <label className="block text-sm font-semibold text-gray-300 mb-2">End Date (Optional)</label>
                   <input
                     type="date"
-                    value={eventFormData.endDate ? new Date(eventFormData.endDate).toISOString().split('T')[0] : ''}
+                    value={eventFormData.endDate ? (() => {
+                      const date = eventFormData.endDate instanceof Date ? eventFormData.endDate : new Date(eventFormData.endDate)
+                      const year = date.getFullYear()
+                      const month = String(date.getMonth() + 1).padStart(2, '0')
+                      const day = String(date.getDate()).padStart(2, '0')
+                      return `${year}-${month}-${day}`
+                    })() : ''}
                     onChange={(e) => {
                       // Create date in local timezone to avoid timezone shift
                       const dateValue = e.target.value
@@ -2726,7 +2756,13 @@ export default function Admin({ onLogout }: AdminProps) {
                           <label className="text-xs text-gray-400 mb-1">Date</label>
                           <input
                             type="date"
-                            value={entry.date ? new Date(entry.date).toISOString().split('T')[0] : ''}
+                            value={entry.date ? (() => {
+                              const date = entry.date instanceof Date ? entry.date : new Date(entry.date)
+                              const year = date.getFullYear()
+                              const month = String(date.getMonth() + 1).padStart(2, '0')
+                              const day = String(date.getDate()).padStart(2, '0')
+                              return `${year}-${month}-${day}`
+                            })() : ''}
                             onChange={(e) => {
                               // Create date in local timezone to avoid timezone shift
                               const dateValue = e.target.value
