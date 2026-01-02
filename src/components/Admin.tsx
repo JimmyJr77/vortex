@@ -340,13 +340,41 @@ const EventsView = ({
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => onEdit(event)}
-                  className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium flex-shrink-0"
-                >
-                  <Edit2 className="w-4 h-4" />
-                  Edit
-                </button>
+                <div className="flex gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => onEdit(event)}
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    Edit
+                  </button>
+                  {showArchived ? (
+                    <>
+                      <button
+                        onClick={() => onArchive(event.id, false)}
+                        className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
+                      >
+                        <Archive className="w-4 h-4" />
+                        Unarchive
+                      </button>
+                      <button
+                        onClick={() => onDelete(event.id)}
+                        className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
+                      >
+                        <X className="w-4 h-4" />
+                        Delete
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => onArchive(event.id, true)}
+                      className="flex items-center gap-2 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white text-sm font-medium"
+                    >
+                      <Archive className="w-4 h-4" />
+                      Archive
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
