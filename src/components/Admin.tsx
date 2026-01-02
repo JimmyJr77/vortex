@@ -972,20 +972,41 @@ export default function Admin({ onLogout }: AdminProps) {
       console.log('Events response:', data)
       
       if (data.success && data.data && Array.isArray(data.data)) {
+        // Helper function to parse date strings in local timezone
+        const parseLocalDate = (dateValue: any): Date => {
+          if (!dateValue) return new Date()
+          if (dateValue instanceof Date) return dateValue
+          
+          // If it's already a Date object (from backend), use it
+          if (typeof dateValue === 'object' && dateValue.getTime) {
+            return new Date(dateValue)
+          }
+          
+          // If it's a string, parse it in local timezone
+          if (typeof dateValue === 'string') {
+            // Handle ISO strings (YYYY-MM-DDTHH:mm:ss.sssZ) by extracting just the date part
+            const dateStr = dateValue.split('T')[0] // Get YYYY-MM-DD part
+            const [year, month, day] = dateStr.split('-').map(Number)
+            return new Date(year, month - 1, day)
+          }
+          
+          return new Date(dateValue)
+        }
+        
         // Convert date strings to Date objects
         const eventsWithDates = data.data.map((event: any) => {
           try {
             const parsedEvent = {
               ...event,
               archived: event.archived || false,
-              startDate: event.startDate ? new Date(event.startDate) : new Date(),
-              endDate: event.endDate ? new Date(event.endDate) : undefined,
+              startDate: parseLocalDate(event.startDate),
+              endDate: event.endDate ? parseLocalDate(event.endDate) : undefined,
               datesAndTimes: Array.isArray(event.datesAndTimes) 
                 ? event.datesAndTimes.map((dt: any) => {
                     try {
                       return {
                         ...dt,
-                        date: dt.date ? new Date(dt.date) : new Date()
+                        date: parseLocalDate(dt.date)
                       }
                     } catch (e) {
                       console.error('Error parsing date in datesAndTimes:', e, dt)
