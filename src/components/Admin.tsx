@@ -655,7 +655,7 @@ export default function Admin({ onLogout }: AdminProps) {
   // @ts-expect-error - athletesLoading state is set by fetchAthletes but not displayed in UI
   const [athletesLoading, setAthletesLoading] = useState(false)
   const [showAthleteForm, setShowAthleteForm] = useState(false)
-  const [selectedFamilyId, setSelectedFamilyId] = useState<number | null>(null)
+  const [selectedFamilyId, _setSelectedFamilyId] = useState<number | null>(null)
   const [athleteFormData, setAthleteFormData] = useState({
     familyId: null as number | null,
     firstName: '',
@@ -680,7 +680,7 @@ export default function Admin({ onLogout }: AdminProps) {
     password: 'vortex',
     program: 'Non-Participant'
   })
-  const [newAdditionalAdult, setNewAdditionalAdult] = useState({
+  const [_newAdditionalAdult, _setNewAdditionalAdult] = useState({
     firstName: '',
     lastName: '',
     email: '',
@@ -715,13 +715,14 @@ export default function Admin({ onLogout }: AdminProps) {
     dateOfBirth: '',
     email: '',
     password: '',
+    username: '',
     medicalNotes: '',
     internalFlags: '',
     program: 'Non-Participant',
     userId: null as number | null // Optional: link to existing user if adult athlete
   })
-  const [availableUsers, setAvailableUsers] = useState<Array<{id: number, email: string, full_name: string, role: string}>>([])
-  const [userSearchQuery, setUserSearchQuery] = useState('')
+  const [_availableUsers, setAvailableUsers] = useState<Array<{id: number, email: string, full_name: string, role: string}>>([])
+  const [_userSearchQuery, setUserSearchQuery] = useState('')
   const [events, setEvents] = useState<Event[]>([])
   const [eventsLoading, setEventsLoading] = useState(false)
   const [showEventForm, setShowEventForm] = useState(false)
@@ -1379,52 +1380,51 @@ export default function Admin({ onLogout }: AdminProps) {
                             const today = new Date()
                             const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
                             
-          // Create user account for all children (with username and password)
-          const childUsername = child.username || await generateUsername(child.firstName)
-          try {
-            const childUserResponse = await fetch(`${apiUrl}/api/admin/users`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                fullName: `${child.firstName} ${child.lastName}`,
-                email: child.email || null,
-                phone: null,
-                password: child.password || 'vortex',
-                role: age >= 18 ? 'PARENT_GUARDIAN' : 'ATHLETE',
-                username: childUsername
-              })
-            })
+                            // Create user account for all children (with username and password)
+                            const childUsername = child.username || await generateUsername(child.firstName)
+                            try {
+                              const childUserResponse = await fetch(`${apiUrl}/api/admin/users`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  fullName: `${child.firstName} ${child.lastName}`,
+                                  email: child.email || null,
+                                  phone: null,
+                                  password: child.password || 'vortex',
+                                  role: age >= 18 ? 'PARENT_GUARDIAN' : 'ATHLETE',
+                                  username: childUsername
+                                })
+                              })
 
-                                if (childUserResponse.ok) {
-                                  const childUserData = await childUserResponse.json()
-                                  childUserId = childUserData.data.id
-                                  // Add to guardians if 18+
-                                  if (age >= 18 && childUserId !== null && !guardianIds.includes(childUserId)) {
-                                    guardianIds.push(childUserId)
-                                  }
-                                } else {
-                                  // If user creation fails (e.g., email exists), try to find existing user
-                                  const childData = await childUserResponse.json()
-                                  if (childUserResponse.status === 409 || childData.message?.toLowerCase().includes('email')) {
-                                    const searchResponse = await fetch(`${apiUrl}/api/admin/users?role=${age >= 18 ? 'PARENT_GUARDIAN' : 'ATHLETE'}&search=${encodeURIComponent(child.email)}`)
-                                    if (searchResponse.ok) {
-                                      const searchData = await searchResponse.json()
-                                      if (searchData.success && searchData.data && searchData.data.length > 0) {
-                                        const existingUser = searchData.data.find((u: any) => u.email.toLowerCase() === child.email.toLowerCase())
-                                        if (existingUser) {
-                                          childUserId = existingUser.id
-                                          if (age >= 18 && childUserId !== null && !guardianIds.includes(childUserId)) {
-                                            guardianIds.push(childUserId)
-                                          }
+                              if (childUserResponse.ok) {
+                                const childUserData = await childUserResponse.json()
+                                childUserId = childUserData.data.id
+                                // Add to guardians if 18+
+                                if (age >= 18 && childUserId !== null && !guardianIds.includes(childUserId)) {
+                                  guardianIds.push(childUserId)
+                                }
+                              } else {
+                                // If user creation fails (e.g., email exists), try to find existing user
+                                const childData = await childUserResponse.json()
+                                if (childUserResponse.status === 409 || childData.message?.toLowerCase().includes('email')) {
+                                  const searchResponse = await fetch(`${apiUrl}/api/admin/users?role=${age >= 18 ? 'PARENT_GUARDIAN' : 'ATHLETE'}&search=${encodeURIComponent(child.email)}`)
+                                  if (searchResponse.ok) {
+                                    const searchData = await searchResponse.json()
+                                    if (searchData.success && searchData.data && searchData.data.length > 0) {
+                                      const existingUser = searchData.data.find((u: any) => u.email.toLowerCase() === child.email.toLowerCase())
+                                      if (existingUser) {
+                                        childUserId = existingUser.id
+                                        if (age >= 18 && childUserId !== null && !guardianIds.includes(childUserId)) {
+                                          guardianIds.push(childUserId)
                                         }
                                       }
                                     }
                                   }
                                 }
-                              } catch (error) {
-                                console.error('Error creating user for family member:', error)
-                                // Continue without user account
                               }
+                            } catch (error) {
+                              console.error('Error creating user for family member:', error)
+                              // Continue without user account
                             }
                             
                             // Create athlete record
@@ -1463,7 +1463,7 @@ export default function Admin({ onLogout }: AdminProps) {
                         // Reset form
                         setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', username: '', password: 'vortex', program: 'Non-Participant' })
                         setNewChildren([])
-                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
                         setUserSearchQuery('')
                         setAvailableUsers([])
                         setMemberModalMode('search')
@@ -1574,34 +1574,6 @@ export default function Admin({ onLogout }: AdminProps) {
               console.error('Error creating user for family member:', error)
               // Continue without user account, but still create athlete record
             }
-          } else {
-            // Even if no email, create user account with username
-            try {
-              const childUsername = child.username || await generateUsername(child.firstName)
-              const childUserResponse = await fetch(`${apiUrl}/api/admin/users`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  fullName: `${child.firstName} ${child.lastName}`,
-                  email: null,
-                  phone: null,
-                  password: child.password || 'vortex',
-                  role: age >= 18 ? 'PARENT_GUARDIAN' : 'ATHLETE',
-                  username: childUsername
-                })
-              })
-              
-              if (childUserResponse.ok) {
-                const childUserData = await childUserResponse.json()
-                childUserId = childUserData.data.id
-                if (age >= 18 && childUserId !== null) {
-                  guardianIds.push(childUserId)
-                }
-              }
-            } catch (error) {
-              console.error('Error creating user for family member:', error)
-            }
-          }
           
           // Create athlete record
           await fetch(`${apiUrl}/api/admin/athletes`, {
@@ -1767,51 +1739,19 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
-  // Fetch available users for linking to athletes
-  const fetchAvailableUsers = async (search: string = '') => {
-    try {
-      const apiUrl = getApiUrl()
-      const params = new URLSearchParams()
-      params.append('role', 'PARENT_GUARDIAN')
-      if (search) {
-        params.append('search', search)
-      }
-      const response = await fetch(`${apiUrl}/api/admin/users?${params.toString()}`)
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success) {
-          setAvailableUsers(data.data)
-        } else {
-          setAvailableUsers([])
-        }
-      } else {
-        // If there's an error, just set empty array to avoid breaking the flow
-        setAvailableUsers([])
-      }
-    } catch (error) {
-      console.error('Error fetching users:', error)
-      setAvailableUsers([])
-    }
-  }
 
   // Add current child to children array
-  const handleAddChildToArray = () => {
+  const handleAddChildToArray = async () => {
     if (!currentChild.firstName || !currentChild.lastName || !currentChild.dateOfBirth) {
       alert('Please fill in at least first name, last name, and date of birth')
       return
     }
     
     // Generate username if not provided
-    if (!currentChild.username && currentChild.firstName) {
-      currentChild.username = await generateUsername(currentChild.firstName)
-    }
+    const username = currentChild.username || await generateUsername(currentChild.firstName)
+    const password = currentChild.password || 'vortex'
     
-    // Ensure password is set
-    if (!currentChild.password) {
-      currentChild.password = 'vortex'
-    }
-    
-    setNewChildren([...newChildren, { ...currentChild, username: currentChild.username || await generateUsername(currentChild.firstName), password: currentChild.password || 'vortex' }])
+    setNewChildren([...newChildren, { ...currentChild, username, password }])
     // Reset form
     setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
     // Only clear user search if not in new-family mode
@@ -4695,7 +4635,7 @@ export default function Admin({ onLogout }: AdminProps) {
                         setMemberModalMode('search')
                         setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', username: '', password: 'vortex', program: 'Non-Participant' })
                         setNewChildren([])
-                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
                         setUserSearchQuery('')
                         setAvailableUsers([])
                       }}
