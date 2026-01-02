@@ -2753,12 +2753,22 @@ app.patch('/api/admin/programs/:id/archive', async (req, res) => {
 app.get('/api/admin/categories', async (req, res) => {
   try {
     const { archived } = req.query
+    
+    // Check if description column exists
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'program_categories' 
+      AND column_name = 'description'
+    `)
+    const hasDescriptionColumn = columnCheck.rows.length > 0
+    
     let query = `
       SELECT 
         id,
         name,
         display_name as "displayName",
-        description,
+        ${hasDescriptionColumn ? 'description,' : 'NULL as description,'}
         archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
