@@ -2440,7 +2440,8 @@ app.get('/api/admin/programs', async (req, res) => {
     console.error('Get programs error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
@@ -2629,7 +2630,8 @@ app.get('/api/admin/categories', async (req, res) => {
     console.error('Get categories error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
@@ -2829,7 +2831,7 @@ app.delete('/api/admin/categories/:id', async (req, res) => {
     }
 
     const result = await pool.query(
-      'DELETE FROM program_category WHERE id = $1 RETURNING id',
+      'DELETE FROM program_categories WHERE id = $1 RETURNING id',
       [id]
     )
 
@@ -2907,7 +2909,8 @@ app.get('/api/admin/levels', async (req, res) => {
     console.error('Get levels error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
@@ -3109,7 +3112,7 @@ app.delete('/api/admin/levels/:id', async (req, res) => {
     }
 
     const result = await pool.query(
-      'DELETE FROM skill_level WHERE id = $1 RETURNING id',
+      'DELETE FROM skill_levels WHERE id = $1 RETURNING id',
       [id]
     )
 
