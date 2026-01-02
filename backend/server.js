@@ -2930,11 +2930,28 @@ app.post('/api/members/login', async (req, res) => {
     let athletes = []
     if (user.role === 'PARENT_GUARDIAN' && familyResult.rows.length > 0) {
       try {
-        const athletesResult = await pool.query(`
-          SELECT a.id, a.first_name, a.last_name, a.date_of_birth, a.user_id
-          FROM athlete a
-          WHERE a.family_id = $1
-        `, [familyResult.rows[0].id])
+        // Check if user_id column exists
+        const columnCheck = await pool.query(`
+          SELECT column_name 
+          FROM information_schema.columns 
+          WHERE table_name = 'athlete' AND column_name = 'user_id'
+        `)
+        const hasUserIdColumn = columnCheck.rows.length > 0
+        
+        let athletesResult
+        if (hasUserIdColumn) {
+          athletesResult = await pool.query(`
+            SELECT a.id, a.first_name, a.last_name, a.date_of_birth, a.user_id
+            FROM athlete a
+            WHERE a.family_id = $1
+          `, [familyResult.rows[0].id])
+        } else {
+          athletesResult = await pool.query(`
+            SELECT a.id, a.first_name, a.last_name, a.date_of_birth, NULL as user_id
+            FROM athlete a
+            WHERE a.family_id = $1
+          `, [familyResult.rows[0].id])
+        }
         athletes = athletesResult.rows
       } catch (athleteError) {
         console.log('Athlete query failed (non-critical):', athleteError.message)
@@ -3036,11 +3053,28 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
     let athletes = []
     if (user.role === 'PARENT_GUARDIAN' && familyResult.rows.length > 0) {
       try {
-        const athletesResult = await pool.query(`
-          SELECT a.id, a.first_name, a.last_name, a.date_of_birth, a.user_id
-          FROM athlete a
-          WHERE a.family_id = $1
-        `, [familyResult.rows[0].id])
+        // Check if user_id column exists
+        const columnCheck = await pool.query(`
+          SELECT column_name 
+          FROM information_schema.columns 
+          WHERE table_name = 'athlete' AND column_name = 'user_id'
+        `)
+        const hasUserIdColumn = columnCheck.rows.length > 0
+        
+        let athletesResult
+        if (hasUserIdColumn) {
+          athletesResult = await pool.query(`
+            SELECT a.id, a.first_name, a.last_name, a.date_of_birth, a.user_id
+            FROM athlete a
+            WHERE a.family_id = $1
+          `, [familyResult.rows[0].id])
+        } else {
+          athletesResult = await pool.query(`
+            SELECT a.id, a.first_name, a.last_name, a.date_of_birth, NULL as user_id
+            FROM athlete a
+            WHERE a.family_id = $1
+          `, [familyResult.rows[0].id])
+        }
         athletes = athletesResult.rows
       } catch (athleteError) {
         console.log('Athlete query failed (non-critical):', athleteError.message)
@@ -3215,41 +3249,86 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
     // Get all family members (guardians and athletes) - handle missing tables gracefully
     let guardiansResult = { rows: [] }
     try {
-      guardiansResult = await pool.query(`
-        SELECT 
-          u.id,
-          u.full_name,
-          u.email,
-          u.phone,
-          u.role,
-          CASE WHEN f.primary_user_id = u.id THEN TRUE ELSE FALSE END as is_primary,
-          FALSE as is_adult,
-          NULL::DATE as date_of_birth,
-          NULL::INTEGER as age,
-          u.id as user_id,
-          FALSE as marked_for_removal
-        FROM app_user u
-        LEFT JOIN family f ON f.primary_user_id = u.id
-        LEFT JOIN family_guardian fg ON fg.user_id = u.id
-        WHERE (f.id = $1 OR fg.family_id = $1)
-          AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER')
-        UNION ALL
-        SELECT 
-          a.id,
-          a.first_name || ' ' || a.last_name as full_name,
-          u.email,
-          u.phone,
-          COALESCE(u.role, 'ATHLETE') as role,
-          FALSE as is_primary,
-          CASE WHEN u.id IS NOT NULL THEN TRUE ELSE FALSE END as is_adult,
-          a.date_of_birth,
-          EXTRACT(YEAR FROM AGE(a.date_of_birth))::INTEGER as age,
-          a.user_id,
-          FALSE as marked_for_removal
-        FROM athlete a
-        LEFT JOIN app_user u ON a.user_id = u.id
-        WHERE a.family_id = $1
-      `, [familyId])
+      // Check if user_id column exists in athlete table
+      const columnCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'athlete' AND column_name = 'user_id'
+      `)
+      const hasUserIdColumn = columnCheck.rows.length > 0
+      
+      if (hasUserIdColumn) {
+        guardiansResult = await pool.query(`
+          SELECT 
+            u.id,
+            u.full_name,
+            u.email,
+            u.phone,
+            u.role,
+            CASE WHEN f.primary_user_id = u.id THEN TRUE ELSE FALSE END as is_primary,
+            FALSE as is_adult,
+            NULL::DATE as date_of_birth,
+            NULL::INTEGER as age,
+            u.id as user_id,
+            FALSE as marked_for_removal
+          FROM app_user u
+          LEFT JOIN family f ON f.primary_user_id = u.id
+          LEFT JOIN family_guardian fg ON fg.user_id = u.id
+          WHERE (f.id = $1 OR fg.family_id = $1)
+            AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER')
+          UNION ALL
+          SELECT 
+            a.id,
+            a.first_name || ' ' || a.last_name as full_name,
+            u.email,
+            u.phone,
+            COALESCE(u.role, 'ATHLETE') as role,
+            FALSE as is_primary,
+            CASE WHEN u.id IS NOT NULL THEN TRUE ELSE FALSE END as is_adult,
+            a.date_of_birth,
+            EXTRACT(YEAR FROM AGE(a.date_of_birth))::INTEGER as age,
+            a.user_id,
+            FALSE as marked_for_removal
+          FROM athlete a
+          LEFT JOIN app_user u ON a.user_id = u.id
+          WHERE a.family_id = $1
+        `, [familyId])
+      } else {
+        guardiansResult = await pool.query(`
+          SELECT 
+            u.id,
+            u.full_name,
+            u.email,
+            u.phone,
+            u.role,
+            CASE WHEN f.primary_user_id = u.id THEN TRUE ELSE FALSE END as is_primary,
+            FALSE as is_adult,
+            NULL::DATE as date_of_birth,
+            NULL::INTEGER as age,
+            u.id as user_id,
+            FALSE as marked_for_removal
+          FROM app_user u
+          LEFT JOIN family f ON f.primary_user_id = u.id
+          LEFT JOIN family_guardian fg ON fg.user_id = u.id
+          WHERE (f.id = $1 OR fg.family_id = $1)
+            AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER')
+          UNION ALL
+          SELECT 
+            a.id,
+            a.first_name || ' ' || a.last_name as full_name,
+            NULL as email,
+            NULL as phone,
+            'ATHLETE' as role,
+            FALSE as is_primary,
+            FALSE as is_adult,
+            a.date_of_birth,
+            EXTRACT(YEAR FROM AGE(a.date_of_birth))::INTEGER as age,
+            NULL as user_id,
+            FALSE as marked_for_removal
+          FROM athlete a
+          WHERE a.family_id = $1
+        `, [familyId])
+      }
     } catch (queryError) {
       console.log('Family members query failed (non-critical):', queryError.message)
       // Return empty family members if query fails
@@ -3641,9 +3720,11 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
         } else {
           // user_id column doesn't exist, so user can't enroll themselves directly
           // They need to be added as an athlete by a parent/guardian
+          // However, if they're a PARENT_GUARDIAN, they should be able to enroll children
+          // This error only applies when trying to enroll themselves
           return res.status(400).json({
             success: false,
-            message: 'Please contact an administrator to set up your athlete profile.'
+            message: 'Self-enrollment is not available. Please contact an administrator to set up your athlete profile, or enroll a family member instead.'
           })
         }
       } else {
@@ -3858,11 +3939,28 @@ app.get('/api/members/enrollments', authenticateMember, async (req, res) => {
     // Get all athletes in the family
     let athletes = []
     try {
-      const athletesResult = await pool.query(`
-        SELECT a.id, a.user_id, a.first_name, a.last_name
-        FROM athlete a
-        WHERE a.family_id = $1
-      `, [familyId])
+      // Check if user_id column exists
+      const columnCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'athlete' AND column_name = 'user_id'
+      `)
+      const hasUserIdColumn = columnCheck.rows.length > 0
+      
+      let athletesResult
+      if (hasUserIdColumn) {
+        athletesResult = await pool.query(`
+          SELECT a.id, a.user_id, a.first_name, a.last_name
+          FROM athlete a
+          WHERE a.family_id = $1
+        `, [familyId])
+      } else {
+        athletesResult = await pool.query(`
+          SELECT a.id, NULL as user_id, a.first_name, a.last_name
+          FROM athlete a
+          WHERE a.family_id = $1
+        `, [familyId])
+      }
       athletes = athletesResult.rows
     } catch (athleteError) {
       console.log('Athlete query failed (non-critical):', athleteError.message)
