@@ -1391,14 +1391,23 @@ export default function Admin({ onLogout }: AdminProps) {
       })
       
       if (response.ok) {
-        await fetchAllPrograms()
+        // Refresh both programs and categories to ensure UI is up to date
+        await Promise.all([fetchAllPrograms(), fetchAllCategories()])
+        // Clear editing state if the deleted program was being edited
+        if (editingProgramId === id) {
+          setEditingProgramId(null)
+          setProgramFormData({})
+        }
       } else {
         const data = await response.json()
-        alert(data.message || 'Failed to delete program')
+        const errorMessage = data.errors ? data.errors.join(', ') : (data.message || 'Failed to delete program')
+        alert(`Error deleting program: ${errorMessage}`)
+        console.error('Delete program error response:', data)
       }
     } catch (error) {
       console.error('Error deleting program:', error)
-      alert('Failed to delete program')
+      const errorMessage = error instanceof Error ? error.message : 'Network error'
+      alert(`Failed to delete program: ${errorMessage}`)
     }
   }
 
@@ -1551,7 +1560,8 @@ export default function Admin({ onLogout }: AdminProps) {
       description: program.description || '',
       skillRequirements: program.skillRequirements || '',
       isActive: program.isActive,
-      categoryId: program.categoryId || null
+      archived: program.archived, // Preserve archived status
+      categoryId: program.categoryId || null // Store for reference, but don't send in update
     })
   }
 
@@ -1560,23 +1570,31 @@ export default function Admin({ onLogout }: AdminProps) {
     
     try {
       const apiUrl = getApiUrl()
+      // Ensure we don't send categoryId in the update (it's not updatable via this endpoint)
+      const updateData = { ...programFormData }
+      delete updateData.categoryId
+      
       const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(programFormData)
+        body: JSON.stringify(updateData)
       })
       
       if (response.ok) {
-        await fetchAllPrograms()
+        // Refresh both programs and categories to ensure UI is up to date
+        await Promise.all([fetchAllPrograms(), fetchAllCategories()])
         setEditingProgramId(null)
         setProgramFormData({})
       } else {
         const data = await response.json()
-        alert(data.message || 'Failed to update program')
+        const errorMessage = data.errors ? data.errors.join(', ') : (data.message || 'Failed to update program')
+        alert(`Error updating program: ${errorMessage}`)
+        console.error('Update program error response:', data)
       }
     } catch (error) {
       console.error('Error updating program:', error)
-      alert('Failed to update program')
+      const errorMessage = error instanceof Error ? error.message : 'Network error'
+      alert(`Failed to update program: ${errorMessage}`)
     }
   }
 
