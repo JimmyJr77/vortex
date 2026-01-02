@@ -3669,15 +3669,6 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       })
     }
 
-    // Check if user has permission (is PARENT_GUARDIAN or is the athlete themselves)
-    const isAthleteSelf = hasUserIdColumn && athlete.user_id && String(athlete.user_id) === String(userId)
-    if (userRole !== 'PARENT_GUARDIAN' && !isAthleteSelf) {
-      return res.status(403).json({
-        success: false,
-        message: 'You do not have permission to enroll this family member'
-      })
-    }
-
     // Check if program exists
     // First check if archived column exists
     let programCheck
