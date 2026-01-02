@@ -1550,10 +1550,22 @@ export default function Admin({ onLogout }: AdminProps) {
     
     try {
       const apiUrl = getApiUrl()
+      // Only send fields that are being updated (exclude categoryId and empty values)
+      const updateData: any = {}
+      if (levelFormData.name !== undefined && levelFormData.name !== '') {
+        updateData.name = levelFormData.name
+      }
+      if (levelFormData.displayName !== undefined && levelFormData.displayName !== '') {
+        updateData.displayName = levelFormData.displayName
+      }
+      if (levelFormData.archived !== undefined) {
+        updateData.archived = levelFormData.archived
+      }
+      
       const response = await fetch(`${apiUrl}/api/admin/levels/${editingLevelId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(levelFormData)
+        body: JSON.stringify(updateData)
       })
       
       if (response.ok) {
