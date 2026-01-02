@@ -2822,18 +2822,47 @@ app.post('/api/admin/categories', async (req, res) => {
       })
     }
 
-    const result = await pool.query(`
-      INSERT INTO program_categories (facility_id, name, display_name, description)
-      VALUES ($1, $2, $3, $4)
-      RETURNING 
-        id,
-        name,
-        display_name as "displayName",
-        description,
-        archived,
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-    `, [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName, value.description || null])
+    // Check if description column exists
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'program_categories' 
+      AND column_name = 'description'
+    `)
+    const hasDescriptionColumn = columnCheck.rows.length > 0
+
+    let query, params
+    if (hasDescriptionColumn) {
+      query = `
+        INSERT INTO program_categories (facility_id, name, display_name, description)
+        VALUES ($1, $2, $3, $4)
+        RETURNING 
+          id,
+          name,
+          display_name as "displayName",
+          description,
+          archived,
+          created_at as "createdAt",
+          updated_at as "updatedAt"
+      `
+      params = [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName, value.description || null]
+    } else {
+      query = `
+        INSERT INTO program_categories (facility_id, name, display_name)
+        VALUES ($1, $2, $3)
+        RETURNING 
+          id,
+          name,
+          display_name as "displayName",
+          NULL as description,
+          archived,
+          created_at as "createdAt",
+          updated_at as "updatedAt"
+      `
+      params = [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName]
+    }
+
+    const result = await pool.query(query, params)
 
     res.json({
       success: true,
@@ -2880,6 +2909,21 @@ app.put('/api/admin/categories/:id', async (req, res) => {
       updates.push(`display_name = $${paramCount++}`)
       values.push(value.displayName)
     }
+    
+    // Check if description column exists before trying to update it
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'program_categories' 
+      AND column_name = 'description'
+    `)
+    const hasDescriptionColumn = columnCheck.rows.length > 0
+    
+    if (value.description !== undefined && hasDescriptionColumn) {
+      updates.push(`description = $${paramCount++}`)
+      values.push(value.description || null)
+    }
+
     if (value.archived !== undefined) {
       updates.push(`archived = $${paramCount++}`)
       values.push(value.archived)
@@ -2895,6 +2939,7 @@ app.put('/api/admin/categories/:id', async (req, res) => {
     updates.push(`updated_at = CURRENT_TIMESTAMP`)
     values.push(id)
 
+    const returnDescription = hasDescriptionColumn ? 'description,' : 'NULL as description,'
     const result = await pool.query(`
       UPDATE program_categories
       SET ${updates.join(', ')}
@@ -2903,7 +2948,7 @@ app.put('/api/admin/categories/:id', async (req, res) => {
         id,
         name,
         display_name as "displayName",
-        description,
+        ${returnDescription}
         archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
