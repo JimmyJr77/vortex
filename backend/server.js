@@ -3532,12 +3532,29 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
 
     const userRole = userResult.rows[0].role
 
+    // Check if user_id column exists in athlete table
+    const athleteUserIdColumnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'athlete' AND column_name = 'user_id'
+    `)
+    const hasUserIdColumn = athleteUserIdColumnCheck.rows.length > 0
+
     // Get family member - check if familyMemberId is an athlete ID or user ID
-    let athleteCheck = await pool.query(`
-      SELECT a.id, a.user_id, a.family_id, a.first_name, a.last_name
-      FROM athlete a
-      WHERE a.id = $1
-    `, [familyMemberId])
+    let athleteCheck
+    if (hasUserIdColumn) {
+      athleteCheck = await pool.query(`
+        SELECT a.id, a.user_id, a.family_id, a.first_name, a.last_name
+        FROM athlete a
+        WHERE a.id = $1
+      `, [familyMemberId])
+    } else {
+      athleteCheck = await pool.query(`
+        SELECT a.id, a.family_id, a.first_name, a.last_name
+        FROM athlete a
+        WHERE a.id = $1
+      `, [familyMemberId])
+    }
 
     let athlete
     
@@ -3546,65 +3563,88 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       // Check if familyMemberId matches the current user's ID (handle string/number comparison)
       if (String(familyMemberId) === String(userId)) {
         // User is enrolling themselves - check if they have an athlete record
-        const userAthleteCheck = await pool.query(`
-          SELECT a.id, a.user_id, a.family_id, a.first_name, a.last_name
-          FROM athlete a
-          WHERE a.user_id = $1
-        `, [userId])
-        
-        if (userAthleteCheck.rows.length > 0) {
-          athlete = userAthleteCheck.rows[0]
+        // Only check if user_id column exists
+        if (hasUserIdColumn) {
+          const userAthleteCheck = await pool.query(`
+            SELECT a.id, a.user_id, a.family_id, a.first_name, a.last_name
+            FROM athlete a
+            WHERE a.user_id = $1
+          `, [userId])
+          
+          if (userAthleteCheck.rows.length > 0) {
+            athlete = userAthleteCheck.rows[0]
+          } else {
+            // User doesn't have an athlete record - need to create one or get their family
+            // First, get user's family
+            const userFamilyResult = await pool.query(`
+              SELECT f.id, f.family_name, f.primary_user_id
+              FROM family f
+              WHERE f.primary_user_id = $1 OR EXISTS (
+                SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+              )
+              LIMIT 1
+            `, [userId])
+            
+            if (userFamilyResult.rows.length === 0) {
+              return res.status(404).json({
+                success: false,
+                message: 'No family found. Please contact administrator to set up your family account.'
+              })
+            }
+            
+            const familyId = userFamilyResult.rows[0].id
+            
+            // Get user's name
+            const userNameResult = await pool.query(`
+              SELECT full_name, email
+              FROM app_user
+              WHERE id = $1
+            `, [userId])
+            
+            if (userNameResult.rows.length === 0) {
+              return res.status(404).json({
+                success: false,
+                message: 'User not found'
+              })
+            }
+            
+            const userName = userNameResult.rows[0].full_name || userNameResult.rows[0].email || 'User'
+            const nameParts = userName.split(' ')
+            
+            // Create athlete record for the user
+            if (hasUserIdColumn) {
+              const createAthleteResult = await pool.query(`
+                INSERT INTO athlete (family_id, first_name, last_name, user_id, created_at, updated_at)
+                VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                RETURNING id, user_id, family_id, first_name, last_name
+              `, [
+                familyId,
+                nameParts[0] || '',
+                nameParts.slice(1).join(' ') || '',
+                userId
+              ])
+              athlete = createAthleteResult.rows[0]
+            } else {
+              // If user_id column doesn't exist, create athlete without it
+              const createAthleteResult = await pool.query(`
+                INSERT INTO athlete (family_id, first_name, last_name, created_at, updated_at)
+                VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                RETURNING id, family_id, first_name, last_name
+              `, [
+                familyId,
+                nameParts[0] || '',
+                nameParts.slice(1).join(' ') || ''
+              ])
+              athlete = { ...createAthleteResult.rows[0], user_id: null }
+            }
+          }
         } else {
-          // User doesn't have an athlete record - need to create one or get their family
-          // First, get user's family
-          const userFamilyResult = await pool.query(`
-            SELECT f.id, f.family_name, f.primary_user_id
-            FROM family f
-            WHERE f.primary_user_id = $1 OR EXISTS (
-              SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
-            )
-            LIMIT 1
-          `, [userId])
-          
-          if (userFamilyResult.rows.length === 0) {
-            return res.status(404).json({
-              success: false,
-              message: 'No family found. Please contact administrator to set up your family account.'
-            })
-          }
-          
-          const familyId = userFamilyResult.rows[0].id
-          
-          // Get user's name
-          const userNameResult = await pool.query(`
-            SELECT full_name, email
-            FROM app_user
-            WHERE id = $1
-          `, [userId])
-          
-          if (userNameResult.rows.length === 0) {
-            return res.status(404).json({
-              success: false,
-              message: 'User not found'
-            })
-          }
-          
-          const userName = userNameResult.rows[0].full_name || userNameResult.rows[0].email || 'User'
-          const nameParts = userName.split(' ')
-          
-          // Create athlete record for the user
-          const createAthleteResult = await pool.query(`
-            INSERT INTO athlete (family_id, first_name, last_name, user_id, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            RETURNING id, user_id, family_id, first_name, last_name
-          `, [
-            familyId,
-            nameParts[0] || '',
-            nameParts.slice(1).join(' ') || '',
-            userId
-          ])
-          
-          athlete = createAthleteResult.rows[0]
+          // user_id column doesn't exist, so user can't enroll themselves directly
+          // They need to be added as an athlete by a parent/guardian
+          return res.status(400).json({
+            success: false,
+            message: 'Please contact an administrator to set up your athlete profile.'
+          })
         }
       } else {
         return res.status(404).json({
@@ -3614,10 +3654,23 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       }
     } else {
       athlete = athleteCheck.rows[0]
+      // Add user_id property if column doesn't exist
+      if (!hasUserIdColumn) {
+        athlete.user_id = null
+      }
     }
 
     // Check if user has permission (is PARENT_GUARDIAN or is the athlete themselves)
-    const isAthleteSelf = athlete.user_id && String(athlete.user_id) === String(userId)
+    const isAthleteSelf = hasUserIdColumn && athlete.user_id && String(athlete.user_id) === String(userId)
+    if (userRole !== 'PARENT_GUARDIAN' && !isAthleteSelf) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to enroll this family member'
+      })
+    }
+
+    // Check if user has permission (is PARENT_GUARDIAN or is the athlete themselves)
+    const isAthleteSelf = hasUserIdColumn && athlete.user_id && String(athlete.user_id) === String(userId)
     if (userRole !== 'PARENT_GUARDIAN' && !isAthleteSelf) {
       return res.status(403).json({
         success: false,
@@ -3662,7 +3715,7 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     }
 
     // Ensure athlete has ATHLETE role if they have a user account
-    if (athlete.user_id) {
+    if (hasUserIdColumn && athlete.user_id) {
       await pool.query(`
         UPDATE app_user
         SET role = 'ATHLETE'
