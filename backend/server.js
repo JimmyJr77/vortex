@@ -3654,6 +3654,7 @@ app.get('/api/events', async (req, res) => {
 
     res.json({
       success: true,
+      events: events,
       data: events
     })
   } catch (error) {
