@@ -62,6 +62,12 @@ interface Event {
   keyDetails?: string[]
   address?: string
   archived?: boolean
+  tagType?: 'all_classes_and_parents' | 'specific_classes' | 'specific_categories' | 'all_parents' | 'boosters' | 'volunteers'
+  tagClassIds?: number[]
+  tagCategoryIds?: number[]
+  tagAllParents?: boolean
+  tagBoosters?: boolean
+  tagVolunteers?: boolean
 }
 
 export default function MemberDashboard({ member: _member, onLogout, onReturnToWebsite }: MemberDashboardProps) {
@@ -93,6 +99,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const [events, setEvents] = useState<Event[]>([])
   const [eventSearchQuery, setEventSearchQuery] = useState('')
   const [eventsLoading, setEventsLoading] = useState(false)
+  const [showAllEvents, setShowAllEvents] = useState(true)
+  const [selectedFamilyMembersForFilter, setSelectedFamilyMembersForFilter] = useState<number[]>([])
 
   const apiUrl = getApiUrl()
   const token = localStorage.getItem('vortex_member_token')
@@ -115,6 +123,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       fetchEnrollments()
     } else if (activeTab === 'events') {
       fetchEvents()
+      fetchEnrollments() // Need enrollments for filtering
     }
   }, [activeTab])
 
@@ -483,19 +492,79 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     return true
   })
 
-  // Filter events based on search
+  // Helper function to check if an event should be shown based on tags and family member enrollments
+  const isEventRelevant = (event: Event): boolean => {
+    // If no tags or tagType is all_classes_and_parents (default), show all events
+    if (!event.tagType || event.tagType === 'all_classes_and_parents') {
+      return true
+    }
+
+    // Get enrolled class IDs for selected family members (or all if none selected)
+    const familyMemberIds = selectedFamilyMembersForFilter.length > 0 
+      ? selectedFamilyMembersForFilter 
+      : familyMembers.map(fm => fm.user_id || fm.id).filter((id): id is number => id !== null && id !== undefined)
+    
+    // Get enrollments for selected family members
+    const relevantEnrollments = enrollments.filter(e => 
+      familyMemberIds.includes(e.athlete_user_id)
+    )
+    const enrolledClassIds = relevantEnrollments.map(e => e.program_id).filter((id): id is number => id !== null && id !== undefined)
+    
+    // Get classes for enrolled programs to check categories
+    const enrolledClasses = classes.filter(c => enrolledClassIds.includes(c.id))
+    const enrolledCategoryIds = enrolledClasses
+      .map(c => c.categoryId)
+      .filter((id): id is number => id !== null && id !== undefined)
+
+    // Check if current user is a parent
+    const isParent = profileData?.role === 'PARENT_GUARDIAN'
+
+    // Check event tags
+    switch (event.tagType) {
+      case 'all_parents':
+        return isParent
+      
+      case 'specific_classes':
+        if (!event.tagClassIds || event.tagClassIds.length === 0) return true
+        return event.tagClassIds.some(classId => enrolledClassIds.includes(classId))
+      
+      case 'specific_categories':
+        if (!event.tagCategoryIds || event.tagCategoryIds.length === 0) return true
+        return event.tagCategoryIds.some(categoryId => enrolledCategoryIds.includes(categoryId))
+      
+      case 'boosters':
+      case 'volunteers':
+        // Not applicable yet, but return false for now
+        return false
+      
+      default:
+        return true
+    }
+  }
+
+  // Filter events based on search and relevance
   const filteredEvents = events.filter(event => {
-    if (!eventSearchQuery.trim()) return true
+    // Search filter
+    if (eventSearchQuery.trim()) {
+      const query = eventSearchQuery.toLowerCase()
+      const searchableText = [
+        event.eventName,
+        event.shortDescription,
+        event.longDescription,
+        event.address || ''
+      ].join(' ').toLowerCase()
+      
+      if (!searchableText.includes(query)) {
+        return false
+      }
+    }
     
-    const query = eventSearchQuery.toLowerCase()
-    const searchableText = [
-      event.eventName,
-      event.shortDescription,
-      event.longDescription,
-      event.address || ''
-    ].join(' ').toLowerCase()
+    // Relevance filter (only apply if showing related events)
+    if (!showAllEvents) {
+      return isEventRelevant(event)
+    }
     
-    return searchableText.includes(query)
+    return true
   }).sort((a, b) => {
     try {
       const aTime = a.startDate instanceof Date ? a.startDate.getTime() : new Date(a.startDate).getTime()
@@ -933,6 +1002,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                         // If not found in familyMembers, check if it's the current user
                         if (!member && enrollment.athlete_user_id === profileData?.id) {
                           member = {
+                            id: profileData.id,
                             first_name: profileData.firstName || '',
                             last_name: profileData.lastName || '',
                             user_id: profileData.id
@@ -1094,8 +1164,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
               transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {/* Search Bar */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                {/* Search Bar and Filters */}
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200 space-y-4">
                   <div className="relative max-w-2xl">
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
@@ -1106,6 +1176,88 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                       className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
                     />
                   </div>
+
+                  {/* Toggle between All Events and Related Events */}
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="eventFilter"
+                        checked={showAllEvents}
+                        onChange={() => setShowAllEvents(true)}
+                        className="w-4 h-4 text-vortex-red focus:ring-vortex-red"
+                      />
+                      <span className="text-sm font-semibold text-gray-700">All Events</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="eventFilter"
+                        checked={!showAllEvents}
+                        onChange={() => setShowAllEvents(false)}
+                        className="w-4 h-4 text-vortex-red focus:ring-vortex-red"
+                      />
+                      <span className="text-sm font-semibold text-gray-700">Related Events</span>
+                    </label>
+                  </div>
+
+                  {/* Family Member Selector (only show when filtering related events) */}
+                  {!showAllEvents && familyMembers.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Filter by Family Members (leave empty to include all)
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {familyMembers.map((member) => {
+                          const memberId = member.user_id || member.id
+                          return (
+                            <label key={member.id} className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-gray-50">
+                              <input
+                                type="checkbox"
+                                checked={selectedFamilyMembersForFilter.includes(memberId)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedFamilyMembersForFilter([...selectedFamilyMembersForFilter, memberId])
+                                  } else {
+                                    setSelectedFamilyMembersForFilter(selectedFamilyMembersForFilter.filter(id => id !== memberId))
+                                  }
+                                }}
+                                className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded"
+                              />
+                              <span className="text-sm text-gray-700">
+                                {member.first_name} {member.last_name}
+                              </span>
+                            </label>
+                          )
+                        })}
+                        {/* Include current user if they're not in familyMembers */}
+                        {profileData && !familyMembers.some(fm => (fm.user_id || fm.id) === profileData.id) && (
+                          <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-gray-50">
+                            <input
+                              type="checkbox"
+                              checked={selectedFamilyMembersForFilter.includes(profileData.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedFamilyMembersForFilter([...selectedFamilyMembersForFilter, profileData.id])
+                                } else {
+                                  setSelectedFamilyMembersForFilter(selectedFamilyMembersForFilter.filter(id => id !== profileData.id))
+                                }
+                              }}
+                              className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded"
+                            />
+                            <span className="text-sm text-gray-700">
+                              {profileData.firstName || profileData.first_name} {profileData.lastName || profileData.last_name} (You)
+                            </span>
+                          </label>
+                        )}
+                      </div>
+                      {selectedFamilyMembersForFilter.length === 0 && (
+                        <p className="text-xs text-gray-500 mt-2">
+                          No family members selected - showing events for all family members
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Events List */}

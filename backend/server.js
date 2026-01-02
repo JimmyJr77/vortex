@@ -795,7 +795,13 @@ const eventSchema = Joi.object({
   })).optional().default([]),
   keyDetails: Joi.array().items(Joi.string()).optional().default([]),
   adminEmail: Joi.string().email().optional(),
-  adminName: Joi.string().optional()
+  adminName: Joi.string().optional(),
+  tagType: Joi.string().valid('all_classes_and_parents', 'specific_classes', 'specific_categories', 'all_parents', 'boosters', 'volunteers').optional().default('all_classes_and_parents'),
+  tagClassIds: Joi.array().items(Joi.number().integer()).optional().allow(null),
+  tagCategoryIds: Joi.array().items(Joi.number().integer()).optional().allow(null),
+  tagAllParents: Joi.boolean().optional().default(false),
+  tagBoosters: Joi.boolean().optional().default(false),
+  tagVolunteers: Joi.boolean().optional().default(false)
 })
 
 const adminLoginSchema = Joi.object({
@@ -3842,6 +3848,12 @@ app.get('/api/events', async (req, res) => {
         address,
         dates_and_times as "datesAndTimes",
         key_details as "keyDetails",
+        tag_type as "tagType",
+        tag_class_ids as "tagClassIds",
+        tag_category_ids as "tagCategoryIds",
+        tag_all_parents as "tagAllParents",
+        tag_boosters as "tagBoosters",
+        tag_volunteers as "tagVolunteers",
         created_at as "createdAt",
         updated_at as "updatedAt"
       FROM events
@@ -3884,7 +3896,13 @@ app.get('/api/events', async (req, res) => {
               date: parseLocalDate(dt.date)
             }))
           : [],
-        keyDetails: Array.isArray(keyDetails) ? keyDetails : []
+        keyDetails: Array.isArray(keyDetails) ? keyDetails : [],
+        tagType: event.tagType || 'all_classes_and_parents',
+        tagClassIds: event.tagClassIds || null,
+        tagCategoryIds: event.tagCategoryIds || null,
+        tagAllParents: event.tagAllParents || false,
+        tagBoosters: event.tagBoosters || false,
+        tagVolunteers: event.tagVolunteers || false
       }
     })
 
@@ -3961,6 +3979,12 @@ app.get('/api/admin/events', async (req, res) => {
         address,
         dates_and_times as "datesAndTimes",
         key_details as "keyDetails",
+        tag_type as "tagType",
+        tag_class_ids as "tagClassIds",
+        tag_category_ids as "tagCategoryIds",
+        tag_all_parents as "tagAllParents",
+        tag_boosters as "tagBoosters",
+        tag_volunteers as "tagVolunteers",
         archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
@@ -4006,7 +4030,13 @@ app.get('/api/admin/events', async (req, res) => {
               date: parseLocalDate(dt.date)
             }))
           : [],
-        keyDetails: Array.isArray(keyDetails) ? keyDetails : []
+        keyDetails: Array.isArray(keyDetails) ? keyDetails : [],
+        tagType: event.tagType || 'all_classes_and_parents',
+        tagClassIds: event.tagClassIds || null,
+        tagCategoryIds: event.tagCategoryIds || null,
+        tagAllParents: event.tagAllParents || false,
+        tagBoosters: event.tagBoosters || false,
+        tagVolunteers: event.tagVolunteers || false
       }
     })
 
@@ -4037,8 +4067,9 @@ app.post('/api/admin/events', async (req, res) => {
 
     const result = await pool.query(`
       INSERT INTO events 
-      (event_name, short_description, long_description, start_date, end_date, type, address, dates_and_times, key_details)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      (event_name, short_description, long_description, start_date, end_date, type, address, dates_and_times, key_details,
+       tag_type, tag_class_ids, tag_category_ids, tag_all_parents, tag_boosters, tag_volunteers)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING 
         id,
         event_name as "eventName",
@@ -4049,7 +4080,13 @@ app.post('/api/admin/events', async (req, res) => {
         type,
         address,
         dates_and_times as "datesAndTimes",
-        key_details as "keyDetails"
+        key_details as "keyDetails",
+        tag_type as "tagType",
+        tag_class_ids as "tagClassIds",
+        tag_category_ids as "tagCategoryIds",
+        tag_all_parents as "tagAllParents",
+        tag_boosters as "tagBoosters",
+        tag_volunteers as "tagVolunteers"
     `, [
       value.eventName,
       value.shortDescription,
@@ -4059,7 +4096,13 @@ app.post('/api/admin/events', async (req, res) => {
       value.type || 'event',
       value.address || null,
       JSON.stringify(value.datesAndTimes || []),
-      JSON.stringify(value.keyDetails || [])
+      JSON.stringify(value.keyDetails || []),
+      value.tagType || 'all_classes_and_parents',
+      value.tagClassIds && value.tagClassIds.length > 0 ? value.tagClassIds : null,
+      value.tagCategoryIds && value.tagCategoryIds.length > 0 ? value.tagCategoryIds : null,
+      value.tagAllParents || false,
+      value.tagBoosters || false,
+      value.tagVolunteers || false
     ])
 
     const event = result.rows[0]
@@ -4231,8 +4274,14 @@ app.put('/api/admin/events/:id', async (req, res) => {
           address = $7, 
           dates_and_times = $8, 
           key_details = $9,
+          tag_type = $10,
+          tag_class_ids = $11,
+          tag_category_ids = $12,
+          tag_all_parents = $13,
+          tag_boosters = $14,
+          tag_volunteers = $15,
           updated_at = CURRENT_TIMESTAMP
-      WHERE id = $10
+      WHERE id = $16
       RETURNING 
         id,
         event_name as "eventName",
@@ -4243,7 +4292,13 @@ app.put('/api/admin/events/:id', async (req, res) => {
         type,
         address,
         dates_and_times as "datesAndTimes",
-        key_details as "keyDetails"
+        key_details as "keyDetails",
+        tag_type as "tagType",
+        tag_class_ids as "tagClassIds",
+        tag_category_ids as "tagCategoryIds",
+        tag_all_parents as "tagAllParents",
+        tag_boosters as "tagBoosters",
+        tag_volunteers as "tagVolunteers"
     `, [
       value.eventName,
       value.shortDescription,
@@ -4254,6 +4309,12 @@ app.put('/api/admin/events/:id', async (req, res) => {
       value.address || null,
       JSON.stringify(value.datesAndTimes || []),
       JSON.stringify(value.keyDetails || []),
+      value.tagType || 'all_classes_and_parents',
+      value.tagClassIds && value.tagClassIds.length > 0 ? value.tagClassIds : null,
+      value.tagCategoryIds && value.tagCategoryIds.length > 0 ? value.tagCategoryIds : null,
+      value.tagAllParents || false,
+      value.tagBoosters || false,
+      value.tagVolunteers || false,
       id
     ])
 

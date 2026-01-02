@@ -553,6 +553,12 @@ interface Event {
   keyDetails?: string[]
   address?: string
   archived?: boolean
+  tagType?: 'all_classes_and_parents' | 'specific_classes' | 'specific_categories' | 'all_parents' | 'boosters' | 'volunteers'
+  tagClassIds?: number[]
+  tagCategoryIds?: number[]
+  tagAllParents?: boolean
+  tagBoosters?: boolean
+  tagVolunteers?: boolean
 }
 
 // Module 2: Family and Athlete interfaces
@@ -736,7 +742,13 @@ export default function Admin({ onLogout }: AdminProps) {
     type: 'event',
     datesAndTimes: [],
     keyDetails: [],
-    address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
+    address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715',
+    tagType: 'all_classes_and_parents',
+    tagClassIds: [],
+    tagCategoryIds: [],
+    tagAllParents: false,
+    tagBoosters: false,
+    tagVolunteers: false
   })
   const [eventSearchQuery, setEventSearchQuery] = useState('')
   const [useShortAsLong, setUseShortAsLong] = useState(true)
@@ -2556,7 +2568,13 @@ export default function Admin({ onLogout }: AdminProps) {
           type: 'event',
           datesAndTimes: [],
           keyDetails: [],
-          address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
+          address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715',
+          tagType: 'all_classes_and_parents',
+          tagClassIds: [],
+          tagCategoryIds: [],
+          tagAllParents: false,
+          tagBoosters: false,
+          tagVolunteers: false
         })
         setUseShortAsLong(true)
       } else {
@@ -2586,7 +2604,13 @@ export default function Admin({ onLogout }: AdminProps) {
       type: event.type || 'event',
       datesAndTimes,
       keyDetails: event.keyDetails || [],
-      address: event.address || 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'
+      address: event.address || 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715',
+      tagType: event.tagType || 'all_classes_and_parents',
+      tagClassIds: event.tagClassIds || [],
+      tagCategoryIds: event.tagCategoryIds || [],
+      tagAllParents: event.tagAllParents || false,
+      tagBoosters: event.tagBoosters || false,
+      tagVolunteers: event.tagVolunteers || false
     })
     setUseShortAsLong(shortMatchesLong)
     setShowEventForm(true)
@@ -6154,6 +6178,154 @@ export default function Admin({ onLogout }: AdminProps) {
                       </div>
                     </div>
                   ))}
+                </div>
+
+                {/* Tags Section */}
+                <div className="border-t border-gray-700 pt-4">
+                  <label className="block text-sm font-semibold text-gray-300 mb-4">Tags</label>
+                  
+                  <div className="space-y-4">
+                    {/* Tag Type Selection */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Tag Type *</label>
+                      <select
+                        value={eventFormData.tagType || 'all_classes_and_parents'}
+                        onChange={(e) => {
+                          const newTagType = e.target.value as Event['tagType']
+                          setEventFormData({
+                            ...eventFormData,
+                            tagType: newTagType,
+                            // Reset dependent fields when changing tag type
+                            tagClassIds: newTagType === 'specific_classes' ? (eventFormData.tagClassIds || []) : [],
+                            tagCategoryIds: newTagType === 'specific_categories' ? (eventFormData.tagCategoryIds || []) : [],
+                            tagAllParents: newTagType === 'all_parents',
+                            tagBoosters: newTagType === 'boosters',
+                            tagVolunteers: newTagType === 'volunteers'
+                          })
+                        }}
+                        className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      >
+                        <option value="all_classes_and_parents">All Classes and Parents (Default)</option>
+                        <option value="specific_classes">Specific Classes</option>
+                        <option value="specific_categories">Specific Categories</option>
+                        <option value="all_parents">All Parents</option>
+                        <option value="boosters">Boosters (Not Applicable Yet)</option>
+                        <option value="volunteers">Volunteers (Not Applicable Yet)</option>
+                      </select>
+                    </div>
+
+                    {/* Specific Classes Selection */}
+                    {eventFormData.tagType === 'specific_classes' && (
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Select Classes</label>
+                        <div className="max-h-48 overflow-y-auto border border-gray-600 rounded bg-gray-700 p-2 space-y-2">
+                          {programs.filter(p => !p.archived && p.isActive).map((program) => (
+                            <label key={program.id} className="flex items-center space-x-2 text-white cursor-pointer hover:bg-gray-600 p-2 rounded">
+                              <input
+                                type="checkbox"
+                                checked={eventFormData.tagClassIds?.includes(program.id) || false}
+                                onChange={(e) => {
+                                  const currentIds = eventFormData.tagClassIds || []
+                                  if (e.target.checked) {
+                                    setEventFormData({
+                                      ...eventFormData,
+                                      tagClassIds: [...currentIds, program.id]
+                                    })
+                                  } else {
+                                    setEventFormData({
+                                      ...eventFormData,
+                                      tagClassIds: currentIds.filter(id => id !== program.id)
+                                    })
+                                  }
+                                }}
+                                className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                              />
+                              <span className="text-sm">{program.displayName}</span>
+                            </label>
+                          ))}
+                          {programs.filter(p => !p.archived && p.isActive).length === 0 && (
+                            <div className="text-gray-400 text-sm p-2">No active classes available</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Specific Categories Selection */}
+                    {eventFormData.tagType === 'specific_categories' && (
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Select Categories</label>
+                        <div className="max-h-48 overflow-y-auto border border-gray-600 rounded bg-gray-700 p-2 space-y-2 mb-4">
+                          {categories.filter(c => !c.archived).map((category) => (
+                            <label key={category.id} className="flex items-center space-x-2 text-white cursor-pointer hover:bg-gray-600 p-2 rounded">
+                              <input
+                                type="checkbox"
+                                checked={eventFormData.tagCategoryIds?.includes(category.id) || false}
+                                onChange={(e) => {
+                                  const currentIds = eventFormData.tagCategoryIds || []
+                                  if (e.target.checked) {
+                                    setEventFormData({
+                                      ...eventFormData,
+                                      tagCategoryIds: [...currentIds, category.id]
+                                    })
+                                  } else {
+                                    setEventFormData({
+                                      ...eventFormData,
+                                      tagCategoryIds: currentIds.filter(id => id !== category.id)
+                                    })
+                                  }
+                                }}
+                                className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                              />
+                              <span className="text-sm">{category.displayName}</span>
+                            </label>
+                          ))}
+                          {categories.filter(c => !c.archived).length === 0 && (
+                            <div className="text-gray-400 text-sm p-2">No active categories available</div>
+                          )}
+                        </div>
+                        
+                        {/* Show classes for selected categories */}
+                        {eventFormData.tagCategoryIds && eventFormData.tagCategoryIds.length > 0 && (
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">
+                              Classes in Selected Categories (Auto-populated)
+                            </label>
+                            <div className="max-h-32 overflow-y-auto border border-gray-600 rounded bg-gray-700 p-2 space-y-1">
+                              {programs
+                                .filter(p => 
+                                  !p.archived && 
+                                  p.isActive && 
+                                  eventFormData.tagCategoryIds?.includes(p.categoryId || -1)
+                                )
+                                .map((program) => (
+                                  <div key={program.id} className="text-sm text-gray-300 p-1">
+                                    • {program.displayName}
+                                  </div>
+                                ))}
+                              {programs.filter(p => 
+                                !p.archived && 
+                                p.isActive && 
+                                eventFormData.tagCategoryIds?.includes(p.categoryId || -1)
+                              ).length === 0 && (
+                                <div className="text-gray-400 text-sm p-2">No classes found in selected categories</div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* All Parents, Boosters, Volunteers - these are handled by tagType selection */}
+                    {(eventFormData.tagType === 'all_parents' || eventFormData.tagType === 'boosters' || eventFormData.tagType === 'volunteers') && (
+                      <div className="bg-gray-700 p-3 rounded border border-gray-600">
+                        <p className="text-sm text-gray-300">
+                          {eventFormData.tagType === 'all_parents' && 'This event will be visible to all parents.'}
+                          {eventFormData.tagType === 'boosters' && 'Boosters tagging is not applicable yet.'}
+                          {eventFormData.tagType === 'volunteers' && 'Volunteers tagging is not applicable yet.'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Key Details */}
