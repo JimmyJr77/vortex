@@ -2941,6 +2941,45 @@ app.patch('/api/admin/programs/:id/archive', async (req, res) => {
   }
 })
 
+// Delete program (admin endpoint)
+app.delete('/api/admin/programs/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+
+    // First check if program exists
+    const checkResult = await pool.query('SELECT id FROM program WHERE id = $1', [id])
+    
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Program not found'
+      })
+    }
+
+    // Delete the program
+    const result = await pool.query('DELETE FROM program WHERE id = $1 RETURNING id', [id])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Program not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Program deleted successfully'
+    })
+  } catch (error) {
+    console.error('Delete program error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
 // ========== CATEGORY ENDPOINTS ==========
 
 // Get all categories (admin endpoint)
