@@ -1745,6 +1745,213 @@ app.post('/api/admin/users', async (req, res) => {
   }
 })
 
+// Get single user by ID (admin endpoint)
+app.get('/api/admin/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    
+    const result = await pool.query(`
+      SELECT 
+        u.id,
+        u.email,
+        u.full_name,
+        u.phone,
+        u.role,
+        u.is_active,
+        u.username,
+        u.created_at,
+        f.id as family_id,
+        f.family_name
+      FROM app_user u
+      LEFT JOIN family f ON u.id = f.primary_user_id
+      WHERE u.id = $1 AND u.facility_id = (SELECT id FROM facility LIMIT 1)
+    `, [id])
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      })
+    }
+    
+    res.json({
+      success: true,
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Get user error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Update user by ID (admin endpoint)
+app.put('/api/admin/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { fullName, email, phone, password, username } = req.body
+    
+    // Get facility
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+    const facilityId = facilityResult.rows[0].id
+    
+    // Check if user exists
+    const userCheck = await pool.query(
+      'SELECT id FROM app_user WHERE id = $1 AND facility_id = $2',
+      [id, facilityId]
+    )
+    
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      })
+    }
+    
+    // Check if username column exists
+    const usernameColumnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'app_user' AND column_name = 'username'
+    `)
+    
+    if (usernameColumnCheck.rows.length === 0) {
+      await pool.query('ALTER TABLE app_user ADD COLUMN username VARCHAR(50)')
+      await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_app_user_username ON app_user(facility_id, username)')
+    }
+    
+    // Check if username already exists (if provided and different from current)
+    if (username) {
+      const currentUser = await pool.query(
+        'SELECT username FROM app_user WHERE id = $1',
+        [id]
+      )
+      const currentUsername = currentUser.rows[0]?.username
+      
+      if (username !== currentUsername) {
+        const existingUsername = await pool.query(
+          'SELECT id FROM app_user WHERE facility_id = $1 AND username = $2 AND id != $3',
+          [facilityId, username, id]
+        )
+        
+        if (existingUsername.rows.length > 0) {
+          return res.status(409).json({
+            success: false,
+            message: 'Username already taken'
+          })
+        }
+      }
+    }
+    
+    // Check if email already exists (if provided and different from current)
+    if (email) {
+      const currentUser = await pool.query(
+        'SELECT email FROM app_user WHERE id = $1',
+        [id]
+      )
+      const currentEmail = currentUser.rows[0]?.email
+      
+      if (email !== currentEmail) {
+        const existingEmail = await pool.query(
+          'SELECT id FROM app_user WHERE facility_id = $1 AND email = $2 AND id != $3',
+          [facilityId, email, id]
+        )
+        
+        if (existingEmail.rows.length > 0) {
+          return res.status(409).json({
+            success: false,
+            message: 'Email already registered'
+          })
+        }
+      }
+    }
+    
+    // Build update query dynamically
+    const updates = []
+    const params = []
+    let paramCount = 0
+    
+    if (fullName !== undefined) {
+      paramCount++
+      updates.push(`full_name = $${paramCount}`)
+      params.push(fullName)
+    }
+    
+    if (email !== undefined) {
+      paramCount++
+      updates.push(`email = $${paramCount}`)
+      params.push(email)
+    }
+    
+    if (phone !== undefined) {
+      paramCount++
+      updates.push(`phone = $${paramCount}`)
+      params.push(phone)
+    }
+    
+    if (username !== undefined) {
+      paramCount++
+      updates.push(`username = $${paramCount}`)
+      params.push(username)
+    }
+    
+    if (password) {
+      paramCount++
+      const passwordHash = await bcrypt.hash(password, 10)
+      updates.push(`password_hash = $${paramCount}`)
+      params.push(passwordHash)
+    }
+    
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No fields to update'
+      })
+    }
+    
+    paramCount++
+    updates.push(`updated_at = CURRENT_TIMESTAMP`)
+    params.push(id)
+    
+    const updateQuery = `
+      UPDATE app_user 
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount} AND facility_id = $${paramCount + 1}
+      RETURNING id, email, full_name, phone, role, is_active, created_at, username
+    `
+    params.push(facilityId)
+    
+    const result = await pool.query(updateQuery, params)
+    
+    res.json({
+      success: true,
+      message: 'User updated successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Update user error:', error)
+    console.error('Error stack:', error.stack)
+    const origin = req.headers.origin
+    if (origin && isOriginAllowed(origin)) {
+      res.header('Access-Control-Allow-Origin', origin)
+      res.header('Access-Control-Allow-Credentials', 'true')
+    }
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
 // Get all families (admin endpoint)
 app.get('/api/admin/families', async (req, res) => {
   try {
