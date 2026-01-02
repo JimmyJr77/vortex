@@ -195,19 +195,6 @@ INSERT INTO program (facility_id, category, name, display_name, skill_level, age
 SELECT 
   (SELECT id FROM facility LIMIT 1),
   'ATHLETICISM_ACCELERATOR'::program_category,
-  'little_twisters_athleticism',
-  'Little Twisters — Early Stage',
-  'EARLY_STAGE'::skill_level,
-  4,
-  5,
-  'Foundational athletic development focusing on balance, coordination, running, jumping, and playful strength.',
-  'No Experience Required'
-WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'little_twisters_athleticism');
-
-INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
-SELECT 
-  (SELECT id FROM facility LIMIT 1),
-  'ATHLETICISM_ACCELERATOR'::program_category,
   'tornadoes_athleticism',
   'Tornadoes — Beginner',
   'BEGINNER'::skill_level,
