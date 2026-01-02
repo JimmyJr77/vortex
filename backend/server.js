@@ -765,7 +765,31 @@ const programUpdateSchema = Joi.object({
   ageMax: Joi.number().integer().min(0).max(100).optional().allow(null),
   description: Joi.string().optional().allow('', null),
   skillRequirements: Joi.string().optional().allow('', null),
-  isActive: Joi.boolean().optional()
+  isActive: Joi.boolean().optional(),
+  archived: Joi.boolean().optional()
+})
+
+const categorySchema = Joi.object({
+  name: Joi.string().min(1).max(100).required(),
+  displayName: Joi.string().min(1).max(255).required()
+})
+
+const categoryUpdateSchema = Joi.object({
+  name: Joi.string().min(1).max(100).optional(),
+  displayName: Joi.string().min(1).max(255).optional(),
+  archived: Joi.boolean().optional()
+})
+
+const levelSchema = Joi.object({
+  categoryId: Joi.number().integer().required(),
+  name: Joi.string().min(1).max(100).required(),
+  displayName: Joi.string().min(1).max(255).required()
+})
+
+const levelUpdateSchema = Joi.object({
+  name: Joi.string().min(1).max(100).optional(),
+  displayName: Joi.string().min(1).max(255).optional(),
+  archived: Joi.boolean().optional()
 })
 
 // Middleware to verify JWT token
@@ -2376,7 +2400,8 @@ app.post('/api/admin/admins', async (req, res) => {
 // Get all programs (admin endpoint)
 app.get('/api/admin/programs', async (req, res) => {
   try {
-    const result = await pool.query(`
+    const { archived } = req.query
+    let query = `
       SELECT 
         id,
         category,
@@ -2388,11 +2413,24 @@ app.get('/api/admin/programs', async (req, res) => {
         description,
         skill_requirements as "skillRequirements",
         is_active as "isActive",
+        archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
       FROM program
-      ORDER BY category, skill_level NULLS LAST, display_name
-    `)
+    `
+    const params = []
+    
+    if (archived === 'true') {
+      query += ' WHERE archived = $1'
+      params.push(true)
+    } else if (archived === 'false') {
+      query += ' WHERE archived = $1'
+      params.push(false)
+    }
+    
+    query += ' ORDER BY archived ASC, category, skill_level NULLS LAST, display_name'
+
+    const result = await pool.query(query, params)
 
     res.json({
       success: true,
@@ -2453,6 +2491,10 @@ app.put('/api/admin/programs/:id', async (req, res) => {
       updates.push(`is_active = $${paramCount++}`)
       values.push(value.isActive)
     }
+    if (value.archived !== undefined) {
+      updates.push(`archived = $${paramCount++}`)
+      values.push(value.archived)
+    }
 
     if (updates.length === 0) {
       return res.status(400).json({
@@ -2479,6 +2521,7 @@ app.put('/api/admin/programs/:id', async (req, res) => {
         description,
         skill_requirements as "skillRequirements",
         is_active as "isActive",
+        archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
     `, values)
@@ -2497,6 +2540,592 @@ app.put('/api/admin/programs/:id', async (req, res) => {
     })
   } catch (error) {
     console.error('Update program error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Archive/Unarchive program (admin endpoint)
+app.patch('/api/admin/programs/:id/archive', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { archived } = req.body
+
+    if (typeof archived !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'archived must be a boolean value'
+      })
+    }
+
+    const result = await pool.query(`
+      UPDATE program 
+      SET archived = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING 
+        id,
+        display_name as "displayName",
+        archived
+    `, [archived, id])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Program not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: archived ? 'Program archived successfully' : 'Program unarchived successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Archive program error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// ========== CATEGORY ENDPOINTS ==========
+
+// Get all categories (admin endpoint)
+app.get('/api/admin/categories', async (req, res) => {
+  try {
+    const { archived } = req.query
+    let query = `
+      SELECT 
+        id,
+        name,
+        display_name as "displayName",
+        archived,
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+      FROM program_categories
+    `
+    const params = []
+    
+    if (archived === 'true') {
+      query += ' WHERE archived = $1'
+      params.push(true)
+    } else if (archived === 'false') {
+      query += ' WHERE archived = $1'
+      params.push(false)
+    }
+    
+    query += ' ORDER BY archived ASC, display_name ASC'
+    
+    const result = await pool.query(query, params)
+
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get categories error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Create category (admin endpoint)
+app.post('/api/admin/categories', async (req, res) => {
+  try {
+    const { error, value } = categorySchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    const facilityId = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityId.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+
+    const result = await pool.query(`
+      INSERT INTO program_categories (facility_id, name, display_name)
+      VALUES ($1, $2, $3)
+      RETURNING 
+        id,
+        name,
+        display_name as "displayName",
+        archived,
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+    `, [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName])
+
+    res.json({
+      success: true,
+      message: 'Category created successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    if (error.code === '23505') { // Unique violation
+      return res.status(409).json({
+        success: false,
+        message: 'Category with this name already exists'
+      })
+    }
+    console.error('Create category error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Update category (admin endpoint)
+app.put('/api/admin/categories/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { error, value } = categoryUpdateSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    const updates = []
+    const values = []
+    let paramCount = 1
+
+    if (value.name !== undefined) {
+      updates.push(`name = $${paramCount++}`)
+      values.push(value.name.toUpperCase().replace(/\s+/g, '_'))
+    }
+    if (value.displayName !== undefined) {
+      updates.push(`display_name = $${paramCount++}`)
+      values.push(value.displayName)
+    }
+    if (value.archived !== undefined) {
+      updates.push(`archived = $${paramCount++}`)
+      values.push(value.archived)
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No fields to update'
+      })
+    }
+
+    updates.push(`updated_at = CURRENT_TIMESTAMP`)
+    values.push(id)
+
+    const result = await pool.query(`
+      UPDATE program_categories
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING 
+        id,
+        name,
+        display_name as "displayName",
+        archived,
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+    `, values)
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Category updated successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    if (error.code === '23505') {
+      return res.status(409).json({
+        success: false,
+        message: 'Category with this name already exists'
+      })
+    }
+    console.error('Update category error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Archive/Unarchive category (admin endpoint)
+app.patch('/api/admin/categories/:id/archive', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { archived } = req.body
+
+    if (typeof archived !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'archived must be a boolean value'
+      })
+    }
+
+    const result = await pool.query(`
+      UPDATE program_categories 
+      SET archived = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING 
+        id,
+        display_name as "displayName",
+        archived
+    `, [archived, id])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: archived ? 'Category archived successfully' : 'Category unarchived successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Archive category error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Delete category (admin endpoint)
+app.delete('/api/admin/categories/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+
+    // Check if category has programs
+    const programsCheck = await pool.query(
+      'SELECT COUNT(*) as count FROM program WHERE category_id = $1',
+      [id]
+    )
+
+    if (parseInt(programsCheck.rows[0].count) > 0) {
+      return res.status(409).json({
+        success: false,
+        message: 'Cannot delete category with existing programs. Archive it instead.'
+      })
+    }
+
+    const result = await pool.query(
+      'DELETE FROM program_category WHERE id = $1 RETURNING id',
+      [id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Category deleted successfully'
+    })
+  } catch (error) {
+    console.error('Delete category error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// ========== LEVEL ENDPOINTS ==========
+
+// Get all levels for a category (admin endpoint)
+app.get('/api/admin/levels', async (req, res) => {
+  try {
+    const { categoryId, archived } = req.query
+    let query = `
+      SELECT 
+        sl.id,
+        sl.category_id as "categoryId",
+        pc.name as "categoryName",
+        pc.display_name as "categoryDisplayName",
+        sl.name,
+        sl.display_name as "displayName",
+        sl.archived,
+        sl.created_at as "createdAt",
+        sl.updated_at as "updatedAt"
+      FROM skill_levels sl
+      JOIN program_categories pc ON sl.category_id = pc.id
+    `
+    const params = []
+    let paramCount = 1
+
+    if (categoryId) {
+      query += ` WHERE sl.category_id = $${paramCount++}`
+      params.push(categoryId)
+      
+      if (archived === 'true') {
+        query += ` AND sl.archived = $${paramCount++}`
+        params.push(true)
+      } else if (archived === 'false') {
+        query += ` AND sl.archived = $${paramCount++}`
+        params.push(false)
+      }
+    } else if (archived === 'true') {
+      query += ` WHERE sl.archived = $${paramCount++}`
+      params.push(true)
+    } else if (archived === 'false') {
+      query += ` WHERE sl.archived = $${paramCount++}`
+      params.push(false)
+    }
+    
+    query += ' ORDER BY sl.archived ASC, pc.display_name ASC, sl.display_name ASC'
+    
+    const result = await pool.query(query, params)
+
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get levels error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Create level (admin endpoint)
+app.post('/api/admin/levels', async (req, res) => {
+  try {
+    const { error, value } = levelSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    const facilityId = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityId.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+
+    const result = await pool.query(`
+      INSERT INTO skill_levels (facility_id, category_id, name, display_name)
+      VALUES ($1, $2, $3, $4)
+      RETURNING 
+        id,
+        category_id as "categoryId",
+        name,
+        display_name as "displayName",
+        archived,
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+    `, [facilityId.rows[0].id, value.categoryId, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName])
+
+    res.json({
+      success: true,
+      message: 'Level created successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    if (error.code === '23505') {
+      return res.status(409).json({
+        success: false,
+        message: 'Level with this name already exists for this category'
+      })
+    }
+    console.error('Create level error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Update level (admin endpoint)
+app.put('/api/admin/levels/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { error, value } = levelUpdateSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    const updates = []
+    const values = []
+    let paramCount = 1
+
+    if (value.name !== undefined) {
+      updates.push(`name = $${paramCount++}`)
+      values.push(value.name.toUpperCase().replace(/\s+/g, '_'))
+    }
+    if (value.displayName !== undefined) {
+      updates.push(`display_name = $${paramCount++}`)
+      values.push(value.displayName)
+    }
+    if (value.archived !== undefined) {
+      updates.push(`archived = $${paramCount++}`)
+      values.push(value.archived)
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No fields to update'
+      })
+    }
+
+    updates.push(`updated_at = CURRENT_TIMESTAMP`)
+    values.push(id)
+
+    const result = await pool.query(`
+      UPDATE skill_levels
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING 
+        id,
+        category_id as "categoryId",
+        name,
+        display_name as "displayName",
+        archived,
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+    `, values)
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Level not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Level updated successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    if (error.code === '23505') {
+      return res.status(409).json({
+        success: false,
+        message: 'Level with this name already exists for this category'
+      })
+    }
+    console.error('Update level error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Archive/Unarchive level (admin endpoint)
+app.patch('/api/admin/levels/:id/archive', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { archived } = req.body
+
+    if (typeof archived !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'archived must be a boolean value'
+      })
+    }
+
+    const result = await pool.query(`
+      UPDATE skill_levels 
+      SET archived = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING 
+        id,
+        display_name as "displayName",
+        archived
+    `, [archived, id])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Level not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: archived ? 'Level archived successfully' : 'Level unarchived successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Archive level error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Delete level (admin endpoint)
+app.delete('/api/admin/levels/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+
+    // Check if level has programs
+    const programsCheck = await pool.query(
+      'SELECT COUNT(*) as count FROM program WHERE level_id = $1',
+      [id]
+    )
+
+    if (parseInt(programsCheck.rows[0].count) > 0) {
+      return res.status(409).json({
+        success: false,
+        message: 'Cannot delete level with existing programs. Archive it instead.'
+      })
+    }
+
+    const result = await pool.query(
+      'DELETE FROM skill_level WHERE id = $1 RETURNING id',
+      [id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Level not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Level deleted successfully'
+    })
+  } catch (error) {
+    console.error('Delete level error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -2631,7 +3260,7 @@ const startServer = async () => {
 }
 
 // Only auto-start if not imported as a module
-if (import.meta.url === `file://${process.argv[1]}` || !process.env.RUN_MIGRATION_ONLY) {
+if (!process.env.RUN_MIGRATION_ONLY) {
   startServer().catch(console.error)
 }
 
