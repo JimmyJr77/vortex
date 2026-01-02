@@ -2915,15 +2915,21 @@ app.post('/api/members/login', async (req, res) => {
       familyResult = { rows: [] }
     }
 
-    // Get user's athletes if they're a guardian
+    // Get user's athletes if they're a guardian (optional - allow if athlete table doesn't exist)
     let athletes = []
     if (user.role === 'PARENT_GUARDIAN' && familyResult.rows.length > 0) {
-      const athletesResult = await pool.query(`
-        SELECT a.id, a.first_name, a.last_name, a.date_of_birth, a.user_id
-        FROM athlete a
-        WHERE a.family_id = $1
-      `, [familyResult.rows[0].id])
-      athletes = athletesResult.rows
+      try {
+        const athletesResult = await pool.query(`
+          SELECT a.id, a.first_name, a.last_name, a.date_of_birth, a.user_id
+          FROM athlete a
+          WHERE a.family_id = $1
+        `, [familyResult.rows[0].id])
+        athletes = athletesResult.rows
+      } catch (athleteError) {
+        console.log('Athlete query failed (non-critical):', athleteError.message)
+        // Continue without athlete data
+        athletes = []
+      }
     }
 
     // Generate JWT token
