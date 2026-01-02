@@ -2498,14 +2498,17 @@ app.get('/api/admin/programs', async (req, res) => {
 // Create program (admin endpoint)
 app.post('/api/admin/programs', async (req, res) => {
   try {
+    console.log('Create program request body:', JSON.stringify(req.body, null, 2))
     const { error, value } = programSchema.validate(req.body)
     if (error) {
+      console.error('Validation error:', error.details)
       return res.status(400).json({
         success: false,
         message: 'Validation error',
         errors: error.details.map(detail => detail.message)
       })
     }
+    console.log('Validated value:', JSON.stringify(value, null, 2))
 
     // Get facility_id
     const facilityId = await pool.query('SELECT id FROM facility LIMIT 1')
@@ -2604,11 +2607,17 @@ app.post('/api/admin/programs', async (req, res) => {
       updated_at as "updatedAt"
     `
 
-    const result = await pool.query(`
+    const insertQuery = `
       INSERT INTO program (${insertColumns.join(', ')})
       VALUES (${placeholders})
       RETURNING ${returningClause}
-    `, insertValues)
+    `
+    
+    console.log('Insert query:', insertQuery)
+    console.log('Insert values:', insertValues)
+    console.log('Insert columns:', insertColumns)
+
+    const result = await pool.query(insertQuery, insertValues)
 
     res.json({
       success: true,
@@ -2617,10 +2626,17 @@ app.post('/api/admin/programs', async (req, res) => {
     })
   } catch (error) {
     console.error('Create program error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      stack: error.stack
+    })
     res.status(500).json({
       success: false,
       message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      detail: process.env.NODE_ENV === 'development' ? error.detail : undefined
     })
   }
 })
