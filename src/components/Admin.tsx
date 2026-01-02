@@ -803,7 +803,6 @@ export default function Admin({ onLogout }: AdminProps) {
       loadAnalytics()
     } else if (activeTab === 'membership') {
       fetchFamilies()
-      fetchAthletes()
     } else if (activeTab === 'events') {
       fetchEvents()
     } else if (activeTab === 'classes') {
@@ -884,6 +883,7 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
+  // @ts-expect-error - fetchAthletes function is kept for potential future use but not called since athletes section was removed
   const fetchAthletes = async () => {
     try {
       setAthletesLoading(true)
@@ -1127,7 +1127,6 @@ export default function Admin({ onLogout }: AdminProps) {
       })
 
       if (response.ok) {
-        await fetchAthletes()
         await fetchFamilies()
         setShowAthleteForm(false)
         setAthleteFormData({
@@ -1159,7 +1158,6 @@ export default function Admin({ onLogout }: AdminProps) {
       })
       if (response.ok) {
         await fetchFamilies()
-        await fetchAthletes()
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to delete family')
@@ -1367,7 +1365,6 @@ export default function Admin({ onLogout }: AdminProps) {
 
       // Refresh data
       await fetchFamilies()
-      await fetchAthletes()
       
       // Reset form
       setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: 'Non-Participant' })
@@ -1558,7 +1555,6 @@ export default function Admin({ onLogout }: AdminProps) {
         }
       }
 
-      await fetchAthletes()
       await fetchFamilies()
       setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
       setUserSearchQuery('')
@@ -2517,7 +2513,7 @@ export default function Admin({ onLogout }: AdminProps) {
             )}
             {activeTab === 'membership' && (
               <motion.button
-                onClick={() => { fetchFamilies(); fetchAthletes(); }}
+                onClick={() => { fetchFamilies(); }}
                 className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
