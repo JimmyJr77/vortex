@@ -2531,6 +2531,11 @@ app.post('/api/admin/programs', async (req, res) => {
       )
       if (categoryResult.rows.length > 0) {
         categoryEnum = categoryResult.rows[0].name
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: `Category with id ${categoryId} not found`
+        })
       }
     } else if (!categoryId && value.category) {
       // Look up categoryId from the category enum value
@@ -2642,13 +2647,30 @@ app.post('/api/admin/programs', async (req, res) => {
       message: error.message,
       code: error.code,
       detail: error.detail,
+      constraint: error.constraint,
+      table: error.table,
+      column: error.column,
       stack: error.stack
     })
+    
+    // Return more detailed error information
+    let errorMessage = 'Internal server error'
+    if (error.code === '23505') { // Unique violation
+      errorMessage = 'A program with this name already exists'
+    } else if (error.code === '23503') { // Foreign key violation
+      errorMessage = `Invalid reference: ${error.detail || error.message}`
+    } else if (error.code === '23502') { // Not null violation
+      errorMessage = `Required field missing: ${error.column || 'unknown field'}`
+    } else if (error.message) {
+      errorMessage = error.message
+    }
+    
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: errorMessage,
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      detail: process.env.NODE_ENV === 'development' ? error.detail : undefined
+      detail: process.env.NODE_ENV === 'development' ? error.detail : undefined,
+      code: process.env.NODE_ENV === 'development' ? error.code : undefined
     })
   }
 })

@@ -1421,11 +1421,13 @@ export default function Admin({ onLogout }: AdminProps) {
         setSelectedCategoryForClass(null)
       } else {
         const data = await response.json()
-        alert(data.message || 'Failed to create class')
+        console.error('Create class error response:', data)
+        const errorMsg = data.errors ? data.errors.join(', ') : (data.message || 'Failed to create class')
+        alert(`Error creating class: ${errorMsg}`)
       }
     } catch (error) {
       console.error('Error creating class:', error)
-      alert('Failed to create class')
+      alert(`Failed to create class: ${error.message || 'Network error'}`)
     }
   }
 
