@@ -4057,7 +4057,7 @@ export default function Admin({ onLogout }: AdminProps) {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      Search for Existing Family (by adult name or email)
+                      Search for Existing Family (by name or email)
                     </label>
                     <div className="flex gap-2">
                       <input
@@ -4333,7 +4333,7 @@ export default function Admin({ onLogout }: AdminProps) {
                       onClick={handleCreateFamilyWithPrimaryAdult}
                       className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
-                      Create Family
+                      Create Member or Family
                     </button>
                     <button
                       onClick={() => {
