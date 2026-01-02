@@ -42,26 +42,45 @@ const allowedOrigins = [
   ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
 ].filter(Boolean) // Remove any undefined values
 
+// Helper function to check if origin is allowed
+function isOriginAllowed(origin) {
+  if (!origin) return true // Allow requests with no origin
+  
+  const normalizedOrigin = origin.toLowerCase().replace(/\/$/, '')
+  return allowedOrigins.some(allowed => {
+    const normalizedAllowed = allowed.toLowerCase().replace(/\/$/, '')
+    return normalizedOrigin === normalizedAllowed
+  })
+}
+
+// Handle preflight OPTIONS requests explicitly
+app.options('*', (req, res) => {
+  const origin = req.headers.origin
+  console.log('OPTIONS preflight request from origin:', origin)
+  
+  if (isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+    res.header('Access-Control-Allow-Credentials', 'true')
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    res.header('Access-Control-Max-Age', '86400') // 24 hours
+    res.sendStatus(204)
+  } else {
+    console.warn(`CORS blocked OPTIONS request from origin: ${origin}`)
+    res.sendStatus(403)
+  }
+})
+
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like Postman, curl, etc)
-    if (!origin) return callback(null, true)
-    
     // Log the origin for debugging
     console.log('CORS request from origin:', origin)
-    console.log('Allowed origins:', allowedOrigins)
     
-    // Check if origin matches any allowed origin (case-insensitive, handle trailing slashes)
-    const normalizedOrigin = origin.toLowerCase().replace(/\/$/, '')
-    const isAllowed = allowedOrigins.some(allowed => {
-      const normalizedAllowed = allowed.toLowerCase().replace(/\/$/, '')
-      return normalizedOrigin === normalizedAllowed || normalizedOrigin.startsWith(normalizedAllowed)
-    })
-    
-    if (isAllowed) {
+    if (isOriginAllowed(origin)) {
       callback(null, true)
     } else {
       console.warn(`CORS blocked origin: ${origin}`)
+      console.warn('Allowed origins:', allowedOrigins)
       callback(new Error('Not allowed by CORS'))
     }
   },
