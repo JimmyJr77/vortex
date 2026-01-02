@@ -746,6 +746,34 @@ export default function Admin({ onLogout }: AdminProps) {
   const [showFamilyViewModal, setShowFamilyViewModal] = useState(false)
   const [editingFamily, setEditingFamily] = useState<Family | null>(null)
   const [showFamilyEditModal, setShowFamilyEditModal] = useState(false)
+  // Member edit/view state
+  const [editingMember, setEditingMember] = useState<{guardian: Guardian, family: Family} | null>(null)
+  const [viewingMember, setViewingMember] = useState<{guardian: Guardian, family: Family} | null>(null)
+  const [showMemberEditModal, setShowMemberEditModal] = useState(false)
+  const [showMemberViewModal, setShowMemberViewModal] = useState(false)
+  const [editingMemberData, setEditingMemberData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    username: '',
+    password: ''
+  })
+  const [editingFamilyMembers, setEditingFamilyMembers] = useState<Array<{
+    id?: number,
+    firstName: string,
+    lastName: string,
+    dateOfBirth: string,
+    email: string,
+    username: string,
+    password: string,
+    medicalNotes: string,
+    internalFlags: string,
+    program: string,
+    userId: number | null
+  }>>([])
+  const [expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<number | null>(null)
+  const [expandedViewFamilyMemberId, setExpandedViewFamilyMemberId] = useState<number | null>(null)
   const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
   const [showEditLog, setShowEditLog] = useState(false)
   const [editLog, setEditLog] = useState<any[]>([])
@@ -1217,6 +1245,133 @@ export default function Admin({ onLogout }: AdminProps) {
   const handleEditFamily = (family: Family) => {
     setEditingFamily(family)
     setShowFamilyEditModal(true)
+  }
+
+  // Handle viewing/editing individual members (guardians)
+  const handleViewMember = (guardian: Guardian, family: Family) => {
+    setViewingMember({ guardian, family })
+    setShowMemberViewModal(true)
+  }
+
+  const handleEditMember = async (guardian: Guardian, family: Family) => {
+    setEditingMember({ guardian, family })
+    
+    // Fetch user details to get username
+    let username = ''
+    try {
+      const apiUrl = getApiUrl()
+      const userResponse = await fetch(`${apiUrl}/api/admin/users/${guardian.id}`)
+      if (userResponse.ok) {
+        const userData = await userResponse.json()
+        if (userData.success && userData.data) {
+          username = userData.data.username || ''
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user details:', error)
+    }
+    
+    // Parse fullName into firstName and lastName
+    const nameParts = guardian.fullName.split(' ')
+    const firstName = nameParts[0] || ''
+    const lastName = nameParts.slice(1).join(' ') || ''
+    
+    setEditingMemberData({
+      firstName,
+      lastName,
+      email: guardian.email || '',
+      phone: guardian.phone || '',
+      username,
+      password: '' // Don't pre-fill password
+    })
+    
+    // Load family members
+    const familyMembers: Array<{
+      id?: number,
+      firstName: string,
+      lastName: string,
+      dateOfBirth: string,
+      email: string,
+      username: string,
+      password: string,
+      medicalNotes: string,
+      internalFlags: string,
+      program: string,
+      userId: number | null
+    }> = []
+    
+    if (family.athletes) {
+      family.athletes.forEach(athlete => {
+        familyMembers.push({
+          id: athlete.id,
+          firstName: athlete.first_name,
+          lastName: athlete.last_name,
+          dateOfBirth: athlete.date_of_birth || '',
+          email: '',
+          username: '',
+          password: '',
+          medicalNotes: athlete.medical_notes || '',
+          internalFlags: athlete.internal_flags || '',
+          program: 'Non-Participant',
+          userId: athlete.user_id || null
+        })
+      })
+    }
+    
+    setEditingFamilyMembers(familyMembers)
+    setShowMemberEditModal(true)
+  }
+
+  const handleSaveMemberEdit = async () => {
+    if (!editingMember) return
+    
+    try {
+      const apiUrl = getApiUrl()
+      
+      // Update user account
+      const response = await fetch(`${apiUrl}/api/admin/users/${editingMember.guardian.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: `${editingMemberData.firstName} ${editingMemberData.lastName}`,
+          email: editingMemberData.email,
+          phone: editingMemberData.phone ? cleanPhoneNumber(editingMemberData.phone) : null,
+          username: editingMemberData.username,
+          ...(editingMemberData.password && { password: editingMemberData.password })
+        })
+      })
+      
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.message || 'Failed to update user')
+      }
+      
+      // Update family members (athletes)
+      for (const member of editingFamilyMembers) {
+        if (member.id) {
+          // Update existing athlete
+          await fetch(`${apiUrl}/api/admin/athletes/${member.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              firstName: member.firstName,
+              lastName: member.lastName,
+              dateOfBirth: member.dateOfBirth,
+              medicalNotes: member.medicalNotes || null,
+              internalFlags: member.internalFlags || null
+            })
+          })
+        }
+      }
+      
+      await fetchFamilies()
+      setShowMemberEditModal(false)
+      setEditingMember(null)
+      alert('Member updated successfully!')
+    } catch (error) {
+      console.error('Error updating member:', error)
+      alert(error instanceof Error ? error.message : 'Failed to update member')
+    }
   }
 
 
@@ -3942,24 +4097,65 @@ export default function Admin({ onLogout }: AdminProps) {
                                   </div>
                                 </div>
                                 <div className="flex gap-2">
-                                  <motion.button
-                                    onClick={() => handleViewFamily(family)}
-                                    className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 flex items-center gap-2"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                  >
-                                    <Eye className="w-4 h-4" />
-                                    View
-                                  </motion.button>
-                                  <motion.button
-                                    onClick={() => handleEditFamily(family)}
-                                    className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                  >
-                                    <Edit2 className="w-4 h-4" />
-                                    Edit
-                                  </motion.button>
+                                  {isGuardian ? (
+                                    <>
+                                      <motion.button
+                                        onClick={() => handleViewMember(member as Guardian, family)}
+                                        className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 flex items-center gap-2"
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                      >
+                                        <Eye className="w-4 h-4" />
+                                        View
+                                      </motion.button>
+                                      <motion.button
+                                        onClick={() => handleEditMember(member as Guardian, family)}
+                                        className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                      >
+                                        <Edit2 className="w-4 h-4" />
+                                        Edit
+                                      </motion.button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <motion.button
+                                        onClick={() => {
+                                          // For athletes, find their guardian and view that
+                                          const primaryGuardian = family.guardians?.find(g => g.id === family.primary_user_id) || family.guardians?.[0]
+                                          if (primaryGuardian) {
+                                            handleViewMember(primaryGuardian, family)
+                                          } else {
+                                            handleViewFamily(family)
+                                          }
+                                        }}
+                                        className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 flex items-center gap-2"
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                      >
+                                        <Eye className="w-4 h-4" />
+                                        View Family
+                                      </motion.button>
+                                      <motion.button
+                                        onClick={() => {
+                                          // For athletes, find their guardian and edit that
+                                          const primaryGuardian = family.guardians?.find(g => g.id === family.primary_user_id) || family.guardians?.[0]
+                                          if (primaryGuardian) {
+                                            handleEditMember(primaryGuardian, family)
+                                          } else {
+                                            handleEditFamily(family)
+                                          }
+                                        }}
+                                        className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                      >
+                                        <Edit2 className="w-4 h-4" />
+                                        Edit Family
+                                      </motion.button>
+                                    </>
+                                  )}
                                   {showArchivedFamilies ? (
                                     <>
                                       <motion.button
@@ -5033,6 +5229,411 @@ export default function Admin({ onLogout }: AdminProps) {
                     }
                   }}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Member View Modal */}
+      <AnimatePresence>
+        {showMemberViewModal && viewingMember && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowMemberViewModal(false)}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">Member Details</h3>
+                <button
+                  onClick={() => setShowMemberViewModal(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* User Information */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="font-semibold text-white mb-4 text-lg">User Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-400">First Name:</span>
+                      <div className="text-white font-medium">{viewingMember.guardian.fullName.split(' ')[0]}</div>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Last Name:</span>
+                      <div className="text-white font-medium">{viewingMember.guardian.fullName.split(' ').slice(1).join(' ')}</div>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Email:</span>
+                      <div className="text-white font-medium">{viewingMember.guardian.email || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Phone:</span>
+                      <div className="text-white font-medium">{viewingMember.guardian.phone || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">User ID:</span>
+                      <div className="text-white font-medium">{viewingMember.guardian.id}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Family Information */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="font-semibold text-white mb-4 text-lg">Family Information</h4>
+                  <div className="text-sm text-gray-300 space-y-2">
+                    <div>Family ID: {viewingMember.family.id}</div>
+                    {viewingMember.family.family_name && (
+                      <div>Family Name: {viewingMember.family.family_name}</div>
+                    )}
+                    <div>Created: {new Date(viewingMember.family.created_at).toLocaleDateString()}</div>
+                  </div>
+                </div>
+
+                {/* Family Members */}
+                {viewingMember.family.athletes && viewingMember.family.athletes.length > 0 && (
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="font-semibold text-white mb-4 text-lg">Family Members ({viewingMember.family.athletes.length})</h4>
+                    <div className="space-y-3">
+                      {viewingMember.family.athletes.map((athlete) => (
+                        <div key={athlete.id} className="bg-gray-600 p-4 rounded">
+                          <div 
+                            className="flex justify-between items-center cursor-pointer"
+                            onClick={() => setExpandedViewFamilyMemberId(expandedViewFamilyMemberId === athlete.id ? null : athlete.id)}
+                          >
+                            <div className="flex-1">
+                              <div className="text-white font-medium text-lg">
+                                {athlete.first_name} {athlete.last_name}
+                              </div>
+                              <div className="text-gray-300 text-sm mt-1">
+                                Date of Birth: {athlete.date_of_birth ? new Date(athlete.date_of_birth).toLocaleDateString() : 'N/A'}
+                                {athlete.age !== undefined && ` (Age ${athlete.age})`}
+                              </div>
+                            </div>
+                            <button className="text-gray-400 hover:text-white">
+                              {expandedViewFamilyMemberId === athlete.id ? (
+                                <ChevronUp className="w-5 h-5" />
+                              ) : (
+                                <ChevronDown className="w-5 h-5" />
+                              )}
+                            </button>
+                          </div>
+                          {expandedViewFamilyMemberId === athlete.id && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="mt-4 pt-4 border-t border-gray-500"
+                            >
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                {athlete.user_id && (
+                                  <div>
+                                    <span className="text-gray-400">User ID:</span>
+                                    <div className="text-white">{athlete.user_id}</div>
+                                  </div>
+                                )}
+                                {athlete.medical_notes && (
+                                  <div className="md:col-span-2">
+                                    <span className="text-gray-400">Medical Notes:</span>
+                                    <div className="text-white mt-1">{athlete.medical_notes}</div>
+                                  </div>
+                                )}
+                                {athlete.internal_flags && (
+                                  <div className="md:col-span-2">
+                                    <span className="text-gray-400">Internal Flags:</span>
+                                    <div className="text-white mt-1">{athlete.internal_flags}</div>
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Other Guardians */}
+                {viewingMember.family.guardians && viewingMember.family.guardians.length > 1 && (
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="font-semibold text-white mb-4 text-lg">Other Guardians ({viewingMember.family.guardians.length - 1})</h4>
+                    <div className="space-y-3">
+                      {viewingMember.family.guardians
+                        .filter(g => g.id !== viewingMember.guardian.id)
+                        .map((guardian) => (
+                          <div key={guardian.id} className="bg-gray-600 p-3 rounded">
+                            <div className="text-white font-medium">{guardian.fullName}</div>
+                            <div className="text-gray-300 text-sm mt-1">{guardian.email}</div>
+                            {guardian.phone && (
+                              <div className="text-gray-300 text-sm">{guardian.phone}</div>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={() => {
+                    setShowMemberViewModal(false)
+                    handleEditMember(viewingMember.guardian, viewingMember.family)
+                  }}
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                >
+                  Edit Member
+                </button>
+                <button
+                  onClick={() => setShowMemberViewModal(false)}
+                  className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Member Edit Modal */}
+      <AnimatePresence>
+        {showMemberEditModal && editingMember && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowMemberEditModal(false)}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">Edit Member</h3>
+                <button
+                  onClick={() => setShowMemberEditModal(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* User Information - Editable Form */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="font-semibold text-white mb-4 text-lg">User Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                      <input
+                        type="text"
+                        value={editingMemberData.firstName}
+                        onChange={(e) => setEditingMemberData({ ...editingMemberData, firstName: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                      <input
+                        type="text"
+                        value={editingMemberData.lastName}
+                        onChange={(e) => setEditingMemberData({ ...editingMemberData, lastName: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                      <input
+                        type="email"
+                        value={editingMemberData.email}
+                        onChange={(e) => setEditingMemberData({ ...editingMemberData, email: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Phone</label>
+                      <input
+                        type="tel"
+                        value={editingMemberData.phone}
+                        onChange={(e) => {
+                          const formatted = formatPhoneNumber(e.target.value)
+                          setEditingMemberData({ ...editingMemberData, phone: formatted })
+                        }}
+                        placeholder="###-###-####"
+                        maxLength={12}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
+                      <input
+                        type="text"
+                        value={editingMemberData.username}
+                        onChange={(e) => setEditingMemberData({ ...editingMemberData, username: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Password</label>
+                      <input
+                        type="password"
+                        value={editingMemberData.password}
+                        onChange={(e) => setEditingMemberData({ ...editingMemberData, password: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        placeholder="Leave blank to keep current password"
+                        minLength={6}
+                        autoComplete="new-password"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">Leave blank to keep current password</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Family Members - Editable */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="font-semibold text-white mb-4 text-lg">Family Members ({editingFamilyMembers.length})</h4>
+                  <div className="space-y-4">
+                    {editingFamilyMembers.map((member, index) => (
+                      <div key={member.id || index} className="bg-gray-600 p-4 rounded">
+                        <div className="flex justify-between items-center mb-3">
+                          <h5 className="text-white font-medium">
+                            {member.firstName} {member.lastName}
+                          </h5>
+                          <button
+                            onClick={() => setExpandedFamilyMemberId(expandedFamilyMemberId === member.id ? null : (member.id || index))}
+                            className="text-gray-400 hover:text-white"
+                          >
+                            {expandedFamilyMemberId === (member.id || index) ? (
+                              <ChevronUp className="w-5 h-5" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5" />
+                            )}
+                          </button>
+                        </div>
+                        {expandedFamilyMemberId === (member.id || index) && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-gray-500"
+                          >
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                              <input
+                                type="text"
+                                value={member.firstName}
+                                onChange={(e) => {
+                                  const updated = [...editingFamilyMembers]
+                                  updated[index].firstName = e.target.value
+                                  setEditingFamilyMembers(updated)
+                                }}
+                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                              <input
+                                type="text"
+                                value={member.lastName}
+                                onChange={(e) => {
+                                  const updated = [...editingFamilyMembers]
+                                  updated[index].lastName = e.target.value
+                                  setEditingFamilyMembers(updated)
+                                }}
+                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth *</label>
+                              <input
+                                type="date"
+                                value={member.dateOfBirth}
+                                onChange={(e) => {
+                                  const updated = [...editingFamilyMembers]
+                                  updated[index].dateOfBirth = e.target.value
+                                  setEditingFamilyMembers(updated)
+                                }}
+                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                required
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
+                              <textarea
+                                value={member.medicalNotes}
+                                onChange={(e) => {
+                                  const updated = [...editingFamilyMembers]
+                                  updated[index].medicalNotes = e.target.value
+                                  setEditingFamilyMembers(updated)
+                                }}
+                                rows={2}
+                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-semibold text-gray-300 mb-2">Internal Flags</label>
+                              <input
+                                type="text"
+                                value={member.internalFlags}
+                                onChange={(e) => {
+                                  const updated = [...editingFamilyMembers]
+                                  updated[index].internalFlags = e.target.value
+                                  setEditingFamilyMembers(updated)
+                                }}
+                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                              />
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={() => setShowMemberEditModal(false)}
+                  className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveMemberEdit}
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
                 >
                   Save Changes
                 </button>
