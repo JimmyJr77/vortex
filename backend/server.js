@@ -3482,12 +3482,26 @@ app.post('/api/members/family/:id/mark-for-removal', authenticateMember, async (
 app.post('/api/members/enroll', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
-    const { programId, familyMemberId, daysPerWeek } = req.body
+    const { programId, familyMemberId, daysPerWeek, selectedDays } = req.body
 
     if (!programId || !familyMemberId || !daysPerWeek) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields: programId, familyMemberId, daysPerWeek'
+      })
+    }
+
+    if (!selectedDays || !Array.isArray(selectedDays) || selectedDays.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select at least one day of the week'
+      })
+    }
+
+    if (selectedDays.length !== daysPerWeek) {
+      return res.status(400).json({
+        success: false,
+        message: `Number of selected days (${selectedDays.length}) must match days per week (${daysPerWeek})`
       })
     }
 
@@ -3632,12 +3646,48 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     // Check if enrollment table exists, if not, we'll just update the athlete's role
     // This is a placeholder - you should implement proper enrollment tracking
     try {
-      await pool.query(`
-        INSERT INTO athlete_program (athlete_id, program_id, days_per_week, created_at, updated_at)
-        VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-        ON CONFLICT (athlete_id, program_id) DO UPDATE
-        SET days_per_week = $3, updated_at = CURRENT_TIMESTAMP
-      `, [athlete.id, programId, daysPerWeek])
+      // Try to insert/update enrollment with selected_days
+      // First check if selected_days column exists
+      const columnCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'athlete_program' AND column_name = 'selected_days'
+      `)
+      
+      const hasSelectedDaysColumn = columnCheck.rows.length > 0
+      const selectedDaysJson = JSON.stringify(selectedDays)
+      
+      if (hasSelectedDaysColumn) {
+        await pool.query(`
+          INSERT INTO athlete_program (athlete_id, program_id, days_per_week, selected_days, created_at, updated_at)
+          VALUES ($1, $2, $3, $4::jsonb, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+          ON CONFLICT (athlete_id, program_id) DO UPDATE
+          SET days_per_week = $3, selected_days = $4::jsonb, updated_at = CURRENT_TIMESTAMP
+        `, [athlete.id, programId, daysPerWeek, selectedDaysJson])
+      } else {
+        // If selected_days column doesn't exist, try without it first, then add column
+        await pool.query(`
+          INSERT INTO athlete_program (athlete_id, program_id, days_per_week, created_at, updated_at)
+          VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+          ON CONFLICT (athlete_id, program_id) DO UPDATE
+          SET days_per_week = $3, updated_at = CURRENT_TIMESTAMP
+        `, [athlete.id, programId, daysPerWeek])
+        
+        // Try to add the column
+        try {
+          await pool.query(`
+            ALTER TABLE athlete_program ADD COLUMN IF NOT EXISTS selected_days JSONB
+          `)
+          // Update with selected_days
+          await pool.query(`
+            UPDATE athlete_program 
+            SET selected_days = $1::jsonb 
+            WHERE athlete_id = $2 AND program_id = $3
+          `, [selectedDaysJson, athlete.id, programId])
+        } catch (alterError) {
+          console.log('Could not add selected_days column:', alterError.message)
+        }
+      }
     } catch (error) {
       // If table doesn't exist, that's okay for now
       // You'll need to create the enrollment table in your migrations
@@ -3650,6 +3700,124 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     })
   } catch (error) {
     console.error('Enroll error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Get family enrollments
+app.get('/api/members/enrollments', authenticateMember, async (req, res) => {
+  try {
+    const userId = req.userId || req.memberId
+
+    // Get user's family
+    let familyResult = { rows: [] }
+    try {
+      familyResult = await pool.query(`
+        SELECT f.id, f.family_name, f.primary_user_id
+        FROM family f
+        WHERE f.primary_user_id = $1 OR EXISTS (
+          SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+        )
+        LIMIT 1
+      `, [userId])
+    } catch (familyError) {
+      console.log('Family query failed (non-critical):', familyError.message)
+      return res.json({
+        success: true,
+        enrollments: []
+      })
+    }
+
+    if (familyResult.rows.length === 0) {
+      return res.json({
+        success: true,
+        enrollments: []
+      })
+    }
+
+    const familyId = familyResult.rows[0].id
+
+    // Get all athletes in the family
+    let athletes = []
+    try {
+      const athletesResult = await pool.query(`
+        SELECT a.id, a.user_id, a.first_name, a.last_name
+        FROM athlete a
+        WHERE a.family_id = $1
+      `, [familyId])
+      athletes = athletesResult.rows
+    } catch (athleteError) {
+      console.log('Athlete query failed (non-critical):', athleteError.message)
+      return res.json({
+        success: true,
+        enrollments: []
+      })
+    }
+
+    if (athletes.length === 0) {
+      return res.json({
+        success: true,
+        enrollments: []
+      })
+    }
+
+    const athleteIds = athletes.map(a => a.id)
+
+    // Get enrollments for all family athletes
+    try {
+      const enrollmentsResult = await pool.query(`
+        SELECT 
+          ap.id,
+          ap.athlete_id,
+          ap.program_id,
+          ap.days_per_week,
+          ap.selected_days,
+          ap.created_at,
+          ap.updated_at,
+          a.user_id as athlete_user_id,
+          a.first_name as athlete_first_name,
+          a.last_name as athlete_last_name,
+          p.display_name as program_display_name,
+          p.name as program_name
+        FROM athlete_program ap
+        JOIN athlete a ON ap.athlete_id = a.id
+        LEFT JOIN program p ON ap.program_id = p.id
+        WHERE ap.athlete_id = ANY($1::int[])
+        ORDER BY ap.created_at DESC
+      `, [athleteIds])
+
+      const enrollments = enrollmentsResult.rows.map(row => ({
+        id: row.id,
+        athlete_id: row.athlete_id,
+        athlete_user_id: row.athlete_user_id,
+        athlete_first_name: row.athlete_first_name,
+        athlete_last_name: row.athlete_last_name,
+        program_id: row.program_id,
+        program_display_name: row.program_display_name,
+        program_name: row.program_name,
+        days_per_week: row.days_per_week,
+        selected_days: row.selected_days ? (typeof row.selected_days === 'string' ? JSON.parse(row.selected_days) : row.selected_days) : null,
+        created_at: row.created_at,
+        updated_at: row.updated_at
+      }))
+
+      res.json({
+        success: true,
+        enrollments
+      })
+    } catch (enrollmentError) {
+      console.log('Enrollment query failed (non-critical):', enrollmentError.message)
+      // If table doesn't exist, return empty array
+      res.json({
+        success: true,
+        enrollments: []
+      })
+    }
+  } catch (error) {
+    console.error('Get enrollments error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error'

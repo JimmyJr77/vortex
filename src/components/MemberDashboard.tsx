@@ -84,6 +84,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const [selectedClassForEnrollment, setSelectedClassForEnrollment] = useState<Program | null>(null)
   const [selectedFamilyMemberForEnrollment, setSelectedFamilyMemberForEnrollment] = useState<number | null>(null)
   const [daysPerWeek, setDaysPerWeek] = useState<number>(1)
+  const [selectedDays, setSelectedDays] = useState<string[]>([])
+  const [enrollments, setEnrollments] = useState<any[]>([])
+  const [enrollmentsLoading, setEnrollmentsLoading] = useState(false)
   const [classesLoading, setClassesLoading] = useState(false)
   
   // Events tab state
@@ -109,6 +112,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     if (activeTab === 'classes') {
       fetchClasses()
       fetchCategories()
+      fetchEnrollments()
     } else if (activeTab === 'events') {
       fetchEvents()
     }
@@ -329,9 +333,59 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
+  const fetchEnrollments = async () => {
+    try {
+      setEnrollmentsLoading(true)
+      const response = await fetch(`${apiUrl}/api/members/enrollments`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setEnrollments(data.enrollments || [])
+      }
+    } catch (error) {
+      console.error('Error fetching enrollments:', error)
+    } finally {
+      setEnrollmentsLoading(false)
+    }
+  }
+
+  const handleDayToggle = (day: string) => {
+    if (selectedDays.includes(day)) {
+      setSelectedDays(selectedDays.filter(d => d !== day))
+    } else {
+      if (selectedDays.length < daysPerWeek) {
+        setSelectedDays([...selectedDays, day])
+      } else {
+        alert(`You can only select ${daysPerWeek} day(s)`)
+      }
+    }
+  }
+
+  const handleDaysPerWeekChange = (newValue: number) => {
+    setDaysPerWeek(newValue)
+    // If current selected days exceed new days per week, remove excess
+    if (selectedDays.length > newValue) {
+      setSelectedDays(selectedDays.slice(0, newValue))
+    }
+  }
+
   const handleEnrollInClass = async () => {
     if (!selectedClassForEnrollment || !selectedFamilyMemberForEnrollment) {
       alert('Please select a class and family member')
+      return
+    }
+
+    if (selectedDays.length === 0) {
+      alert('Please select at least one day of the week')
+      return
+    }
+
+    if (selectedDays.length !== daysPerWeek) {
+      alert(`Please select exactly ${daysPerWeek} day(s) of the week`)
       return
     }
 
@@ -345,7 +399,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         body: JSON.stringify({
           programId: selectedClassForEnrollment.id,
           familyMemberId: selectedFamilyMemberForEnrollment,
-          daysPerWeek: daysPerWeek
+          daysPerWeek: daysPerWeek,
+          selectedDays: selectedDays
         })
       })
       
@@ -356,7 +411,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         setSelectedClassForEnrollment(null)
         setSelectedFamilyMemberForEnrollment(null)
         setDaysPerWeek(1)
-        // Refresh family members to show updated athlete status
+        setSelectedDays([])
+        // Refresh enrollments and family members
+        await fetchEnrollments()
         await fetchFamilyMembers()
       } else {
         const data = await response.json()
@@ -854,6 +911,58 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
+                {/* Current Enrollments */}
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
+                    Current Enrollments
+                  </h2>
+                  
+                  {enrollmentsLoading ? (
+                    <div className="text-center py-12 text-gray-600">Loading enrollments...</div>
+                  ) : enrollments.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">No enrollments yet. Browse classes below to enroll.</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {enrollments.map((enrollment) => {
+                        const program = classes.find(c => c.id === enrollment.program_id)
+                        const member = familyMembers.find(fm => 
+                          (fm.user_id || fm.id) === enrollment.athlete_user_id
+                        ) || (enrollment.athlete_user_id === profileData?.id ? profileData : null)
+                        const memberName = member 
+                          ? (member.first_name || member.firstName || '') + ' ' + (member.last_name || member.lastName || '')
+                          : 'Unknown Member'
+                        
+                        return (
+                          <div key={enrollment.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-black mb-2">
+                                  {program?.displayName || 'Unknown Class'}
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
+                                  <div>
+                                    <span className="font-medium">Member:</span> {memberName.trim() || 'Unknown'}
+                                  </div>
+                                  <div>
+                                    <span className="font-medium">Days Per Week:</span> {enrollment.days_per_week || 'N/A'}
+                                  </div>
+                                  {enrollment.selected_days && enrollment.selected_days.length > 0 && (
+                                    <div className="md:col-span-2">
+                                      <span className="font-medium">Days:</span> {Array.isArray(enrollment.selected_days) 
+                                        ? enrollment.selected_days.join(', ')
+                                        : enrollment.selected_days}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+
                 {/* Search and Filter */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <div className="space-y-4">
@@ -1085,6 +1194,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                   setSelectedClassForEnrollment(null)
                   setSelectedFamilyMemberForEnrollment(null)
                   setDaysPerWeek(1)
+                  setSelectedDays([])
                 }}
                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors"
               >
@@ -1149,7 +1259,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                   <div className="flex items-center gap-4">
                     <button
                       type="button"
-                      onClick={() => setDaysPerWeek(Math.max(1, daysPerWeek - 1))}
+                      onClick={() => handleDaysPerWeekChange(Math.max(1, daysPerWeek - 1))}
                       className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded"
                     >
                       <ChevronDown className="w-4 h-4" />
@@ -1157,19 +1267,48 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     <input
                       type="number"
                       min="1"
-                      max="7"
+                      max="5"
                       value={daysPerWeek}
-                      onChange={(e) => setDaysPerWeek(Math.max(1, Math.min(7, parseInt(e.target.value, 10) || 1)))}
+                      onChange={(e) => handleDaysPerWeekChange(Math.max(1, Math.min(5, parseInt(e.target.value, 10) || 1)))}
                       className="w-20 px-3 py-2 text-center border border-gray-300 rounded"
                     />
                     <button
                       type="button"
-                      onClick={() => setDaysPerWeek(Math.min(7, daysPerWeek + 1))}
+                      onClick={() => handleDaysPerWeekChange(Math.min(5, daysPerWeek + 1))}
                       className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded"
                     >
                       <ChevronUp className="w-4 h-4" />
                     </button>
                   </div>
+                  <p className="text-xs text-gray-500 mt-1">Select {daysPerWeek} day(s) below</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Select Days (Mon-Fri)
+                  </label>
+                  <div className="grid grid-cols-5 gap-2">
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => handleDayToggle(day)}
+                        className={`px-3 py-2 rounded border transition-colors ${
+                          selectedDays.includes(day)
+                            ? 'bg-vortex-red text-white border-vortex-red'
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        }`}
+                        disabled={!selectedDays.includes(day) && selectedDays.length >= daysPerWeek}
+                      >
+                        {day.slice(0, 3)}
+                      </button>
+                    ))}
+                  </div>
+                  {selectedDays.length > 0 && (
+                    <p className="text-xs text-gray-600 mt-2">
+                      Selected: {selectedDays.join(', ')}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex gap-2 pt-4">
@@ -1185,6 +1324,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                       setSelectedClassForEnrollment(null)
                       setSelectedFamilyMemberForEnrollment(null)
                       setDaysPerWeek(1)
+                      setSelectedDays([])
                     }}
                     className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
                   >
