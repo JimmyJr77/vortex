@@ -1570,9 +1570,10 @@ export default function Admin({ onLogout }: AdminProps) {
     
     try {
       const apiUrl = getApiUrl()
-      // Ensure we don't send categoryId in the update (it's not updatable via this endpoint)
+      // Ensure we don't send categoryId or archived in the update (these are managed separately)
       const updateData = { ...programFormData }
       delete updateData.categoryId
+      delete updateData.archived
       
       const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}`, {
         method: 'PUT',
