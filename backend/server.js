@@ -2793,25 +2793,53 @@ app.put('/api/admin/programs/:id', async (req, res) => {
     updates.push(`updated_at = CURRENT_TIMESTAMP`)
     values.push(id)
 
+    // Check if category_id column exists
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'program' 
+      AND column_name = 'category_id'
+    `)
+    const hasCategoryIdColumn = columnCheck.rows.length > 0
+
+    // Build RETURNING clause with category info
+    let returningClause = `
+      id,
+      category,
+      ${hasCategoryIdColumn ? 'category_id as "categoryId",' : 'NULL as "categoryId",'}
+      name,
+      display_name as "displayName",
+      skill_level as "skillLevel",
+      age_min as "ageMin",
+      age_max as "ageMax",
+      description,
+      skill_requirements as "skillRequirements",
+      is_active as "isActive",
+      archived,
+      created_at as "createdAt",
+      updated_at as "updatedAt"
+    `
+
     const result = await pool.query(`
       UPDATE program
       SET ${updates.join(', ')}
       WHERE id = $${paramCount}
-      RETURNING 
-        id,
-        category,
-        name,
-        display_name as "displayName",
-        skill_level as "skillLevel",
-        age_min as "ageMin",
-        age_max as "ageMax",
-        description,
-        skill_requirements as "skillRequirements",
-        is_active as "isActive",
-        archived,
-        created_at as "createdAt",
-        updated_at as "updatedAt"
+      RETURNING ${returningClause}
     `, values)
+
+    // If categoryId exists, fetch category display name separately
+    if (hasCategoryIdColumn && result.rows.length > 0 && result.rows[0].categoryId) {
+      const categoryInfo = await pool.query(`
+        SELECT name, display_name 
+        FROM program_categories 
+        WHERE id = $1
+      `, [result.rows[0].categoryId])
+      
+      if (categoryInfo.rows.length > 0) {
+        result.rows[0].categoryName = categoryInfo.rows[0].name
+        result.rows[0].categoryDisplayName = categoryInfo.rows[0].display_name
+      }
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -2847,14 +2875,34 @@ app.patch('/api/admin/programs/:id/archive', async (req, res) => {
       })
     }
 
+    // Check if category_id column exists
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'program' 
+      AND column_name = 'category_id'
+    `)
+    const hasCategoryIdColumn = columnCheck.rows.length > 0
+
     const result = await pool.query(`
       UPDATE program 
       SET archived = $1, updated_at = CURRENT_TIMESTAMP
       WHERE id = $2
       RETURNING 
         id,
+        category,
+        ${hasCategoryIdColumn ? 'category_id as "categoryId",' : 'NULL as "categoryId",'}
+        name,
         display_name as "displayName",
-        archived
+        skill_level as "skillLevel",
+        age_min as "ageMin",
+        age_max as "ageMax",
+        description,
+        skill_requirements as "skillRequirements",
+        is_active as "isActive",
+        archived,
+        created_at as "createdAt",
+        updated_at as "updatedAt"
     `, [archived, id])
 
     if (result.rows.length === 0) {
@@ -2864,10 +2912,25 @@ app.patch('/api/admin/programs/:id/archive', async (req, res) => {
       })
     }
 
+    // Fetch category display name if categoryId exists
+    const programData = result.rows[0]
+    if (hasCategoryIdColumn && programData.categoryId) {
+      const categoryInfo = await pool.query(`
+        SELECT name, display_name 
+        FROM program_categories 
+        WHERE id = $1
+      `, [programData.categoryId])
+      
+      if (categoryInfo.rows.length > 0) {
+        programData.categoryName = categoryInfo.rows[0].name
+        programData.categoryDisplayName = categoryInfo.rows[0].display_name
+      }
+    }
+
     res.json({
       success: true,
       message: archived ? 'Program archived successfully' : 'Program unarchived successfully',
-      data: result.rows[0]
+      data: programData
     })
   } catch (error) {
     console.error('Archive program error:', error)

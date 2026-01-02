@@ -1550,7 +1550,8 @@ export default function Admin({ onLogout }: AdminProps) {
       ageMax: program.ageMax,
       description: program.description || '',
       skillRequirements: program.skillRequirements || '',
-      isActive: program.isActive
+      isActive: program.isActive,
+      categoryId: program.categoryId || null
     })
   }
 
@@ -2350,40 +2351,172 @@ export default function Admin({ onLogout }: AdminProps) {
                             )
                             return (
                               <div key={program.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <h4 className="text-lg font-semibold text-black">{program.displayName}</h4>
-                                      {programCategory && (
-                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                          {programCategory.displayName}
-                                        </span>
-                                      )}
+                                {editingProgramId === program.id ? (
+                                  <div className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Display Name *</label>
+                                        <input
+                                          type="text"
+                                          value={programFormData.displayName || ''}
+                                          onChange={(e) => setProgramFormData({ ...programFormData, displayName: e.target.value })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                          required
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Skill Level</label>
+                                        <select
+                                          value={programFormData.skillLevel || ''}
+                                          onChange={(e) => setProgramFormData({ ...programFormData, skillLevel: e.target.value as Program['skillLevel'] || null })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                        >
+                                          <option value="">None (All Levels)</option>
+                                          <option value="EARLY_STAGE">Early Stage</option>
+                                          <option value="BEGINNER">Beginner</option>
+                                          <option value="INTERMEDIATE">Intermediate</option>
+                                          <option value="ADVANCED">Advanced</option>
+                                        </select>
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Minimum Age</label>
+                                        <input
+                                          type="number"
+                                          value={programFormData.ageMin ?? ''}
+                                          onChange={(e) => setProgramFormData({ ...programFormData, ageMin: e.target.value ? parseInt(e.target.value) : null })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                          min="0"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Maximum Age</label>
+                                        <input
+                                          type="number"
+                                          value={programFormData.ageMax ?? ''}
+                                          onChange={(e) => setProgramFormData({ ...programFormData, ageMax: e.target.value ? parseInt(e.target.value) : null })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                          min="0"
+                                        />
+                                      </div>
                                     </div>
-                                    <div className="text-sm text-gray-600">
-                                      {program.description && <p className="mb-1">{program.description}</p>}
-                                      {program.skillLevel && (
-                                        <p><span className="font-medium">Skill Level:</span> {program.skillLevel.replace('_', ' ')}</p>
-                                      )}
+                                    <div>
+                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                                      <textarea
+                                        value={programFormData.description || ''}
+                                        onChange={(e) => setProgramFormData({ ...programFormData, description: e.target.value })}
+                                        rows={4}
+                                        className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Skill Requirements</label>
+                                      <input
+                                        type="text"
+                                        value={programFormData.skillRequirements || ''}
+                                        onChange={(e) => setProgramFormData({ ...programFormData, skillRequirements: e.target.value })}
+                                        className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                        placeholder="e.g., No Experience Required, Skill Evaluation Required"
+                                      />
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <input
+                                        type="checkbox"
+                                        checked={programFormData.isActive ?? true}
+                                        onChange={(e) => setProgramFormData({ ...programFormData, isActive: e.target.checked })}
+                                        className="w-4 h-4 text-vortex-red bg-white border-gray-300 rounded focus:ring-vortex-red"
+                                      />
+                                      <label className="text-sm font-semibold text-gray-700">Active</label>
+                                    </div>
+                                    {programCategory && (
+                                      <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                                        <p className="text-sm text-gray-700">
+                                          <span className="font-semibold">Category:</span> {programCategory.displayName}
+                                          <span className="text-xs text-gray-500 ml-2">(Category is preserved when unarchiving)</span>
+                                        </p>
+                                      </div>
+                                    )}
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={handleUpdateProgram}
+                                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
+                                      >
+                                        <Save className="w-4 h-4" />
+                                        Save Changes
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setEditingProgramId(null)
+                                          setProgramFormData({})
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
+                                      >
+                                        <X className="w-4 h-4" />
+                                        Cancel
+                                      </button>
                                     </div>
                                   </div>
-                                  <div className="flex gap-2">
-                                    <button
-                                      onClick={() => handleArchiveProgram(program.id, false)}
-                                      className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                                    >
-                                      <Archive className="w-4 h-4" />
-                                      Unarchive
-                                    </button>
-                                    <button
-                                      onClick={() => handleDeleteProgram(program.id)}
-                                      className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
-                                    >
-                                      <X className="w-4 h-4" />
-                                      Delete
-                                    </button>
+                                ) : (
+                                  <div className="space-y-3">
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                          <h4 className="text-lg font-semibold text-black">{program.displayName}</h4>
+                                          {programCategory && (
+                                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                              {programCategory.displayName}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-700">
+                                          {program.skillLevel && (
+                                            <div>
+                                              <span className="font-medium text-gray-600">Skill Level:</span> {program.skillLevel.replace('_', ' ')}
+                                            </div>
+                                          )}
+                                          {(program.ageMin !== null || program.ageMax !== null) && (
+                                            <div>
+                                              <span className="font-medium text-gray-600">Age Range:</span>{' '}
+                                              {program.ageMin !== null ? program.ageMin : 'Any'} - {program.ageMax !== null ? program.ageMax : 'Any'}
+                                            </div>
+                                          )}
+                                          {program.skillRequirements && (
+                                            <div className="md:col-span-2">
+                                              <span className="font-medium text-gray-600">Requirements:</span> {program.skillRequirements}
+                                            </div>
+                                          )}
+                                          {program.description && (
+                                            <div className="md:col-span-2">
+                                              <span className="font-medium text-gray-600">Description:</span> {program.description}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => handleEditProgram(program)}
+                                          className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
+                                        >
+                                          <Edit2 className="w-4 h-4" />
+                                          Edit
+                                        </button>
+                                        <button
+                                          onClick={() => handleArchiveProgram(program.id, false)}
+                                          className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
+                                        >
+                                          <Archive className="w-4 h-4" />
+                                          Unarchive
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteProgram(program.id)}
+                                          className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
+                                        >
+                                          <X className="w-4 h-4" />
+                                          Delete
+                                        </button>
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
+                                )}
                               </div>
                             )
                           })}
