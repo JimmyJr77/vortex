@@ -188,6 +188,7 @@ const EventsView = ({
   onSearchChange, 
   onEdit, 
   onDelete,
+  onArchive,
   error
 }: { 
   events: Event[]
@@ -196,6 +197,7 @@ const EventsView = ({
   onSearchChange: (query: string) => void
   onEdit: (event: Event) => void
   onDelete: (id: string | number) => void
+  onArchive: (id: string | number, archived: boolean) => void
   error?: string | null
 }) => {
   const formatDate = (date: Date) => {
@@ -387,12 +389,29 @@ const EventsView = ({
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      {event.archived && (
+                        <span className="flex items-center gap-2 px-3 py-2 bg-gray-500 rounded text-white text-sm font-medium">
+                          <Archive className="w-4 h-4" />
+                          Archived
+                        </span>
+                      )}
                       <button
                         onClick={() => onEdit(event)}
                         className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
                       >
                         <Edit2 className="w-4 h-4" />
                         Edit
+                      </button>
+                      <button
+                        onClick={() => onArchive(event.id, !event.archived)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded text-white text-sm font-medium ${
+                          event.archived 
+                            ? 'bg-green-600 hover:bg-green-700' 
+                            : 'bg-yellow-600 hover:bg-yellow-700'
+                        }`}
+                      >
+                        <Archive className="w-4 h-4" />
+                        {event.archived ? 'Unarchive' : 'Archive'}
                       </button>
                       <button
                         onClick={() => onDelete(event.id)}
@@ -495,6 +514,7 @@ interface Event {
   datesAndTimes?: DateTimeEntry[]
   keyDetails?: string[]
   address?: string
+  archived?: boolean
 }
 
 interface MemberChild {
@@ -957,6 +977,7 @@ export default function Admin({ onLogout }: AdminProps) {
           try {
             const parsedEvent = {
               ...event,
+              archived: event.archived || false,
               startDate: event.startDate ? new Date(event.startDate) : new Date(),
               endDate: event.endDate ? new Date(event.endDate) : undefined,
               datesAndTimes: Array.isArray(event.datesAndTimes) 
@@ -1253,6 +1274,29 @@ export default function Admin({ onLogout }: AdminProps) {
     })
     setUseShortAsLong(shortMatchesLong)
     setShowEventForm(true)
+  }
+
+  const handleArchiveEvent = async (id: string | number, archived: boolean) => {
+    if (!confirm(archived ? 'Are you sure you want to archive this event?' : 'Are you sure you want to unarchive this event?')) return
+    
+    try {
+      const apiUrl = getApiUrl()
+      
+      const response = await fetch(`${apiUrl}/api/admin/events/${id}/archive`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ archived })
+      })
+
+      if (response.ok) {
+        await fetchEvents()
+      } else {
+        alert('Failed to archive/unarchive event')
+      }
+    } catch (error) {
+      console.error('Error archiving event:', error)
+      alert('Failed to archive/unarchive event')
+    }
   }
 
   const handleDeleteEvent = async (id: string | number) => {
@@ -1730,6 +1774,7 @@ export default function Admin({ onLogout }: AdminProps) {
                   onSearchChange={setEventSearchQuery}
                   onEdit={handleEditEvent}
                   onDelete={handleDeleteEvent}
+                  onArchive={handleArchiveEvent}
                   error={error}
                 />
               </motion.div>

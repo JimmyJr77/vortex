@@ -157,9 +157,20 @@ const initDatabase = async () => {
         address TEXT,
         dates_and_times JSONB DEFAULT '[]'::jsonb,
         key_details JSONB DEFAULT '[]'::jsonb,
+        archived BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `)
+    
+    // Add archived column if it doesn't exist (for existing databases)
+    await pool.query(`
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE
+    `)
+    
+    // Create index for archived column
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_events_archived ON events(archived)
     `)
 
     // Create indexes for better performance
@@ -920,6 +931,7 @@ app.get('/api/events', async (req, res) => {
         created_at as "createdAt",
         updated_at as "updatedAt"
       FROM events
+      WHERE archived = FALSE OR archived IS NULL
       ORDER BY start_date ASC, created_at DESC
     `)
 
@@ -967,6 +979,50 @@ app.get('/api/events', async (req, res) => {
   }
 })
 
+// Archive/Unarchive event (admin endpoint)
+app.patch('/api/admin/events/:id/archive', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { archived } = req.body
+
+    if (typeof archived !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'archived must be a boolean value'
+      })
+    }
+
+    const result = await pool.query(`
+      UPDATE events 
+      SET archived = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING 
+        id,
+        event_name as "eventName",
+        archived
+    `, [archived, id])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: archived ? 'Event archived successfully' : 'Event unarchived successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Archive event error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
 // Get all events (admin endpoint)
 app.get('/api/admin/events', async (req, res) => {
   try {
@@ -982,10 +1038,11 @@ app.get('/api/admin/events', async (req, res) => {
         address,
         dates_and_times as "datesAndTimes",
         key_details as "keyDetails",
+        archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
       FROM events
-      ORDER BY start_date ASC, created_at DESC
+      ORDER BY archived ASC, start_date ASC, created_at DESC
     `)
 
     // Convert date strings to Date objects and parse JSON fields
@@ -1007,6 +1064,7 @@ app.get('/api/admin/events', async (req, res) => {
       
       return {
         ...event,
+        archived: event.archived || false,
         startDate: new Date(event.startDate),
         endDate: event.endDate ? new Date(event.endDate) : undefined,
         datesAndTimes: Array.isArray(datesAndTimes) 
