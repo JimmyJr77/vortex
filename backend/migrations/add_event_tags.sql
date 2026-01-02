@@ -16,3 +16,4 @@ COMMENT ON COLUMN events.tag_all_parents IS 'True when event is tagged for all p
 COMMENT ON COLUMN events.tag_boosters IS 'True when event is tagged for boosters (not applicable yet)';
 COMMENT ON COLUMN events.tag_volunteers IS 'True when event is tagged for volunteers (not applicable yet)';
 
+

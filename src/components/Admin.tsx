@@ -682,9 +682,13 @@ export default function Admin({ onLogout }: AdminProps) {
     lastName: '',
     email: '',
     phone: '',
+    address: '',
     username: '',
     password: 'vortex',
-    program: 'Non-Participant'
+    program: 'Non-Participant',
+    programId: null as number | null,
+    daysPerWeek: 1,
+    selectedDays: [] as string[]
   })
   const [_newAdditionalAdult, _setNewAdditionalAdult] = useState({
     firstName: '',
@@ -699,6 +703,9 @@ export default function Admin({ onLogout }: AdminProps) {
     lastName: '',
     dateOfBirth: '',
     program: 'Non-Participant',
+    programId: null as number | null,
+    daysPerWeek: 1,
+    selectedDays: [] as string[],
     medicalNotes: '',
     username: '',
     password: 'vortex'
@@ -713,6 +720,9 @@ export default function Admin({ onLogout }: AdminProps) {
     medicalNotes: string
     internalFlags: string
     program: string
+    programId: number | null
+    daysPerWeek: number
+    selectedDays: string[]
     userId: number | null
   }>>([])
   const [currentChild, setCurrentChild] = useState({
@@ -725,6 +735,9 @@ export default function Admin({ onLogout }: AdminProps) {
     medicalNotes: '',
     internalFlags: '',
     program: 'Non-Participant',
+    programId: null as number | null,
+    daysPerWeek: 1,
+    selectedDays: [] as string[],
     userId: null as number | null // Optional: link to existing user if adult athlete
   })
   const [_availableUsers, setAvailableUsers] = useState<Array<{id: number, email: string, full_name: string, role: string}>>([])
@@ -768,6 +781,7 @@ export default function Admin({ onLogout }: AdminProps) {
     lastName: '',
     email: '',
     phone: '',
+    address: '',
     username: '',
     password: ''
   })
@@ -782,8 +796,26 @@ export default function Admin({ onLogout }: AdminProps) {
     medicalNotes: string,
     internalFlags: string,
     program: string,
+    programId: number | null,
+    daysPerWeek: number,
+    selectedDays: string[],
     userId: number | null
   }>>([])
+  const [newFamilyMemberInEdit, setNewFamilyMemberInEdit] = useState({
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    email: '',
+    username: '',
+    password: 'vortex',
+    medicalNotes: '',
+    internalFlags: '',
+    program: 'Non-Participant',
+    programId: null as number | null,
+    daysPerWeek: 1,
+    selectedDays: [] as string[],
+    address: ''
+  })
   const [expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<number | null>(null)
   const [expandedViewFamilyMemberId, setExpandedViewFamilyMemberId] = useState<number | null>(null)
   const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
@@ -1268,15 +1300,18 @@ export default function Admin({ onLogout }: AdminProps) {
   const handleEditMember = async (guardian: Guardian, family: Family) => {
     setEditingMember({ guardian, family })
     
-    // Fetch user details to get username
+    const apiUrl = getApiUrl()
+    
+    // Fetch user details to get username and address
     let username = ''
+    let address = ''
     try {
-      const apiUrl = getApiUrl()
       const userResponse = await fetch(`${apiUrl}/api/admin/users/${guardian.id}`)
       if (userResponse.ok) {
         const userData = await userResponse.json()
         if (userData.success && userData.data) {
           username = userData.data.username || ''
+          address = userData.data.address || ''
         }
       }
     } catch (error) {
@@ -1293,11 +1328,12 @@ export default function Admin({ onLogout }: AdminProps) {
       lastName,
       email: guardian.email || '',
       phone: guardian.phone || '',
+      address,
       username,
       password: '' // Don't pre-fill password
     })
     
-    // Load family members
+    // Load family members and their enrollments
     const familyMembers: Array<{
       id?: number,
       firstName: string,
@@ -1309,25 +1345,71 @@ export default function Admin({ onLogout }: AdminProps) {
       medicalNotes: string,
       internalFlags: string,
       program: string,
+      programId: number | null,
+      daysPerWeek: number,
+      selectedDays: string[],
       userId: number | null
     }> = []
     
     if (family.athletes) {
-      family.athletes.forEach(athlete => {
+      for (const athlete of family.athletes) {
+        // Fetch enrollments for this athlete
+        let programId = null
+        let daysPerWeek = 1
+        let selectedDays: string[] = []
+        let programName = 'Non-Participant'
+        
+        try {
+          const enrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${athlete.id}/enrollments`)
+          if (enrollmentsResponse.ok) {
+            const enrollmentsData = await enrollmentsResponse.json()
+            if (enrollmentsData.success && enrollmentsData.data && enrollmentsData.data.length > 0) {
+              const enrollment = enrollmentsData.data[0] // Get first enrollment
+              programId = enrollment.program_id || null
+              daysPerWeek = enrollment.days_per_week || 1
+              selectedDays = enrollment.selected_days || []
+              programName = enrollment.program_display_name || 'Non-Participant'
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching enrollments:', error)
+        }
+        
+        // Get email and username if athlete has user account
+        let email = ''
+        let username = ''
+        if (athlete.user_id) {
+          try {
+            const userResponse = await fetch(`${apiUrl}/api/admin/users/${athlete.user_id}`)
+            if (userResponse.ok) {
+              const userData = await userResponse.json()
+              if (userData.success && userData.data) {
+                email = userData.data.email || ''
+                username = userData.data.username || ''
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching athlete user details:', error)
+          }
+        }
+        
         familyMembers.push({
           id: athlete.id,
           firstName: athlete.first_name,
           lastName: athlete.last_name,
           dateOfBirth: athlete.date_of_birth || '',
-          email: '',
-          username: '',
+          email,
+          username,
           password: '',
           medicalNotes: athlete.medical_notes || '',
           internalFlags: athlete.internal_flags || '',
-          program: 'Non-Participant',
+          program: programName,
+          programId,
+          daysPerWeek,
+          selectedDays,
           userId: athlete.user_id || null
         })
-      })
+      }
     }
     
     setEditingFamilyMembers(familyMembers)
@@ -1348,6 +1430,7 @@ export default function Admin({ onLogout }: AdminProps) {
           fullName: `${editingMemberData.firstName} ${editingMemberData.lastName}`,
           email: editingMemberData.email,
           phone: editingMemberData.phone ? cleanPhoneNumber(editingMemberData.phone) : null,
+          address: editingMemberData.address || null,
           username: editingMemberData.username,
           ...(editingMemberData.password && { password: editingMemberData.password })
         })
@@ -1358,7 +1441,7 @@ export default function Admin({ onLogout }: AdminProps) {
         throw new Error(data.message || 'Failed to update user')
       }
       
-      // Update family members (athletes)
+      // Update or create family members (athletes)
       for (const member of editingFamilyMembers) {
         if (member.id) {
           // Update existing athlete
@@ -1373,6 +1456,117 @@ export default function Admin({ onLogout }: AdminProps) {
               internalFlags: member.internalFlags || null
             })
           })
+          
+          // Update user account if athlete has one (for adults)
+          const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+          const today = new Date()
+          const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
+          if (age !== null && age >= 18 && member.userId) {
+            await fetch(`${apiUrl}/api/admin/users/${member.userId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: member.email,
+                username: member.username,
+                ...(member.password && { password: member.password })
+              })
+            })
+          }
+          
+          // Update enrollment if program is selected
+          if (member.programId) {
+            // Delete existing enrollments first
+            const existingEnrollments = await fetch(`${apiUrl}/api/admin/athletes/${member.id}/enrollments`)
+            if (existingEnrollments.ok) {
+              const enrollmentsData = await existingEnrollments.json()
+              if (enrollmentsData.success && enrollmentsData.data) {
+                for (const enrollment of enrollmentsData.data) {
+                  await fetch(`${apiUrl}/api/admin/enrollments/${enrollment.id}`, {
+                    method: 'DELETE'
+                  })
+                }
+              }
+            }
+            
+            // Create new enrollment
+            await fetch(`${apiUrl}/api/members/enroll`, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+              },
+              body: JSON.stringify({
+                programId: member.programId,
+                familyMemberId: member.id,
+                daysPerWeek: member.daysPerWeek,
+                selectedDays: member.selectedDays
+              })
+            })
+          }
+        } else {
+          // Create new athlete
+          const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+          const today = new Date()
+          const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
+          const isAdult = age !== null && age >= 18
+          
+          // Create user account first if adult
+          let userId = null
+          if (isAdult) {
+            const userResponse = await fetch(`${apiUrl}/api/admin/users`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                fullName: `${member.firstName} ${member.lastName}`,
+                email: member.email,
+                username: member.username,
+                password: member.password || 'vortex',
+                role: 'ATHLETE',
+                address: editingMemberData.address || null
+              })
+            })
+            if (userResponse.ok) {
+              const userData = await userResponse.json()
+              if (userData.success && userData.data) {
+                userId = userData.data.id
+              }
+            }
+          }
+          
+          // Create athlete
+          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              familyId: editingMember.family.id,
+              firstName: member.firstName,
+              lastName: member.lastName,
+              dateOfBirth: member.dateOfBirth,
+              medicalNotes: member.medicalNotes || null,
+              internalFlags: member.internalFlags || null,
+              userId: userId
+            })
+          })
+          
+          if (athleteResponse.ok) {
+            const athleteData = await athleteResponse.json()
+            if (athleteData.success && athleteData.data && member.programId) {
+              // Create enrollment
+              await fetch(`${apiUrl}/api/members/enroll`, {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                },
+                body: JSON.stringify({
+                  programId: member.programId,
+                  familyMemberId: athleteData.data.id,
+                  daysPerWeek: member.daysPerWeek,
+                  selectedDays: member.selectedDays
+                })
+              })
+            }
+          }
         }
       }
       
@@ -1487,6 +1681,20 @@ export default function Admin({ onLogout }: AdminProps) {
         return
       }
       
+      // Validate days selection if program is selected
+      if (newPrimaryAdult.programId && newPrimaryAdult.selectedDays.length !== newPrimaryAdult.daysPerWeek) {
+        alert(`Please select exactly ${newPrimaryAdult.daysPerWeek} day(s) for the primary adult`)
+        return
+      }
+      
+      // Validate days selection for all children
+      for (const child of newChildren) {
+        if (child.programId && child.selectedDays.length !== child.daysPerWeek) {
+          alert(`Please select exactly ${child.daysPerWeek} day(s) for ${child.firstName} ${child.lastName}`)
+          return
+        }
+      }
+      
       // Ensure username is set
       if (!newPrimaryAdult.username) {
         newPrimaryAdult.username = await generateUsername(newPrimaryAdult.firstName)
@@ -1506,6 +1714,7 @@ export default function Admin({ onLogout }: AdminProps) {
           fullName: `${newPrimaryAdult.firstName} ${newPrimaryAdult.lastName}`,
           email: newPrimaryAdult.email,
           phone: newPrimaryAdult.phone ? cleanPhoneNumber(newPrimaryAdult.phone) : null,
+          address: newPrimaryAdult.address || null,
           password: newPrimaryAdult.password || 'vortex',
           role: 'PARENT_GUARDIAN',
           username: username
@@ -1628,9 +1837,9 @@ export default function Admin({ onLogout }: AdminProps) {
                         await fetchFamilies()
                         
                         // Reset form
-                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', username: '', password: 'vortex', program: 'Non-Participant' })
+                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', address: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
                         setNewChildren([])
-                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], userId: null })
                         setUserSearchQuery('')
                         setAvailableUsers([])
                         setMemberModalMode('search')
@@ -1663,6 +1872,26 @@ export default function Admin({ onLogout }: AdminProps) {
       } else {
         const userData = await userResponse.json()
         userId = userData.data.id
+      }
+
+      // Enroll primary adult in program if selected
+      if (newPrimaryAdult.programId) {
+        // First, we need to create an athlete record for the primary adult if they're participating
+        // Check if they already have an athlete record
+        const athleteCheckResponse = await fetch(`${apiUrl}/api/admin/athletes?userId=${userId}`)
+        let athleteId = null
+        if (athleteCheckResponse.ok) {
+          const athleteCheckData = await athleteCheckResponse.json()
+          if (athleteCheckData.success && athleteCheckData.data && athleteCheckData.data.length > 0) {
+            athleteId = athleteCheckData.data[0].id
+          }
+        }
+        
+        // If no athlete record exists, create one
+        if (!athleteId) {
+          // Get the family ID first (we'll create it next)
+          // For now, we'll create the athlete after the family is created
+        }
       }
 
       // Create family with this user as primary
@@ -1743,7 +1972,7 @@ export default function Admin({ onLogout }: AdminProps) {
             }
           
           // Create athlete record
-          await fetch(`${apiUrl}/api/admin/athletes`, {
+          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1756,6 +1985,84 @@ export default function Admin({ onLogout }: AdminProps) {
               userId: childUserId
             })
           })
+          
+          // Enroll in program if selected
+          if (athleteResponse.ok && child.programId) {
+            const athleteData = await athleteResponse.json()
+            if (athleteData.success && athleteData.data) {
+              await fetch(`${apiUrl}/api/members/enroll`, {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                },
+                body: JSON.stringify({
+                  programId: child.programId,
+                  familyMemberId: athleteData.data.id,
+                  daysPerWeek: child.daysPerWeek,
+                  selectedDays: child.selectedDays
+                })
+              })
+            }
+          }
+        }
+      }
+      
+      // Enroll primary adult in program if selected (after family is created)
+      if (newPrimaryAdult.programId) {
+        // Check if primary adult has an athlete record
+        const athleteCheckResponse = await fetch(`${apiUrl}/api/admin/athletes?userId=${userId}`)
+        if (athleteCheckResponse.ok) {
+          const athleteCheckData = await athleteCheckResponse.json()
+          if (athleteCheckData.success && athleteCheckData.data && athleteCheckData.data.length > 0) {
+            const athleteId = athleteCheckData.data[0].id
+            await fetch(`${apiUrl}/api/members/enroll`, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+              },
+              body: JSON.stringify({
+                programId: newPrimaryAdult.programId,
+                familyMemberId: athleteId,
+                daysPerWeek: newPrimaryAdult.daysPerWeek,
+                selectedDays: newPrimaryAdult.selectedDays
+              })
+            })
+          } else {
+            // Create athlete record for primary adult if they don't have one
+            const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                familyId: familyId,
+                firstName: newPrimaryAdult.firstName,
+                lastName: newPrimaryAdult.lastName,
+                dateOfBirth: null, // Adults may not have DOB
+                medicalNotes: null,
+                internalFlags: null,
+                userId: userId
+              })
+            })
+            if (athleteResponse.ok) {
+              const athleteData = await athleteResponse.json()
+              if (athleteData.success && athleteData.data) {
+                await fetch(`${apiUrl}/api/members/enroll`, {
+                  method: 'POST',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                  },
+                  body: JSON.stringify({
+                    programId: newPrimaryAdult.programId,
+                    familyMemberId: athleteData.data.id,
+                    daysPerWeek: newPrimaryAdult.daysPerWeek,
+                    selectedDays: newPrimaryAdult.selectedDays
+                  })
+                })
+              }
+            }
+          }
         }
       }
       
@@ -1776,9 +2083,9 @@ export default function Admin({ onLogout }: AdminProps) {
       await fetchFamilies()
       
       // Reset form
-      setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', username: '', password: 'vortex', program: 'Non-Participant' })
+      setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', address: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
       setNewChildren([])
-      setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+      setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], userId: null })
       setUserSearchQuery('')
       setAvailableUsers([])
       setMemberModalMode('search')
@@ -1797,6 +2104,12 @@ export default function Admin({ onLogout }: AdminProps) {
     try {
       if (!newFamilyMember.firstName || !newFamilyMember.lastName || !newFamilyMember.dateOfBirth || !newFamilyMember.username || !newFamilyMember.password) {
         alert('Please fill in first name, last name, date of birth, username, and password')
+        return
+      }
+      
+      // Validate days selection if program is selected
+      if (newFamilyMember.programId && newFamilyMember.selectedDays.length !== newFamilyMember.daysPerWeek) {
+        alert(`Please select exactly ${newFamilyMember.daysPerWeek} day(s)`)
         return
       }
 
@@ -1858,7 +2171,7 @@ export default function Admin({ onLogout }: AdminProps) {
           firstName: newFamilyMember.firstName,
           lastName: newFamilyMember.lastName,
           dateOfBirth: newFamilyMember.dateOfBirth,
-          medicalNotes: newFamilyMember.program !== 'Non-Participant' ? newFamilyMember.medicalNotes || null : null,
+          medicalNotes: newFamilyMember.programId ? newFamilyMember.medicalNotes || null : null,
           internalFlags: null,
           userId: userId
         })
@@ -1867,6 +2180,24 @@ export default function Admin({ onLogout }: AdminProps) {
       if (!athleteResponse.ok) {
         const data = await athleteResponse.json()
         throw new Error(data.message || 'Failed to add member to family')
+      }
+      
+      // Enroll in program if selected
+      const athleteData = await athleteResponse.json()
+      if (newFamilyMember.programId && athleteData.success && athleteData.data) {
+        await fetch(`${apiUrl}/api/members/enroll`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+          },
+          body: JSON.stringify({
+              programId: newFamilyMember.programId,
+              familyMemberId: athleteData.data.id,
+              daysPerWeek: newFamilyMember.daysPerWeek,
+              selectedDays: newFamilyMember.selectedDays
+            })
+        })
       }
 
       // If adult, add as guardian
@@ -1898,7 +2229,7 @@ export default function Admin({ onLogout }: AdminProps) {
       }
 
       await fetchFamilies()
-      setNewFamilyMember({ firstName: '', lastName: '', dateOfBirth: '', program: 'Non-Participant', medicalNotes: '', username: '', password: 'vortex' })
+      setNewFamilyMember({ firstName: '', lastName: '', dateOfBirth: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], medicalNotes: '', username: '', password: 'vortex' })
       alert('Member added to family successfully!')
     } catch (error) {
       console.error('Error adding member to family:', error)
@@ -1914,13 +2245,19 @@ export default function Admin({ onLogout }: AdminProps) {
       return
     }
     
+    // Validate days selection if program is selected
+    if (currentChild.programId && currentChild.selectedDays.length !== currentChild.daysPerWeek) {
+      alert(`Please select exactly ${currentChild.daysPerWeek} day(s)`)
+      return
+    }
+    
     // Generate username if not provided
     const username = currentChild.username || await generateUsername(currentChild.firstName)
     const password = currentChild.password || 'vortex'
     
     setNewChildren([...newChildren, { ...currentChild, username, password }])
     // Reset form
-    setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+    setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], userId: null })
     // Only clear user search if not in new-family mode
     if (memberModalMode !== 'new-family') {
       setUserSearchQuery('')
@@ -4051,7 +4388,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           setMemberSearchQuery('')
                           setMemberSearchResults([])
                           // Reset form fields
-                          setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', username: '', password: 'vortex', program: 'Non-Participant' })
+                          setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', address: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
                         }}
                         className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
                         whileHover={{ scale: 1.05 }}
@@ -4641,7 +4978,7 @@ export default function Admin({ onLogout }: AdminProps) {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Phone</label>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Phone *</label>
                         <input
                           type="tel"
                           value={newPrimaryAdult.phone}
@@ -4653,6 +4990,17 @@ export default function Admin({ onLogout }: AdminProps) {
                           maxLength={12}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                           autoComplete="off"
+                          required
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Mailing Address</label>
+                        <input
+                          type="text"
+                          value={newPrimaryAdult.address}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, address: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          placeholder="Street address, City, State ZIP"
                         />
                       </div>
                       <div>
@@ -4681,18 +5029,94 @@ export default function Admin({ onLogout }: AdminProps) {
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
                         <select
-                          value={newPrimaryAdult.program}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, program: e.target.value })}
+                          value={newPrimaryAdult.programId || ''}
+                          onChange={(e) => {
+                            const programId = e.target.value ? parseInt(e.target.value) : null
+                            const selectedProgram = programs.find(p => p.id === programId)
+                            setNewPrimaryAdult({
+                              ...newPrimaryAdult,
+                              programId,
+                              program: selectedProgram?.displayName || 'Non-Participant',
+                              daysPerWeek: 1,
+                              selectedDays: []
+                            })
+                          }}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
-                          <option value="Non-Participant">Non-Participant</option>
+                          <option value="">Non-Participant</option>
                           {programs.filter(p => p.isActive && !p.archived).map((program) => (
-                            <option key={program.id} value={program.displayName}>
+                            <option key={program.id} value={program.id}>
                               {program.displayName}
                             </option>
                           ))}
                         </select>
                       </div>
+                      {newPrimaryAdult.programId && (
+                        <>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
+                            <select
+                              value={newPrimaryAdult.daysPerWeek}
+                              onChange={(e) => {
+                                const daysPerWeek = parseInt(e.target.value)
+                                setNewPrimaryAdult({
+                                  ...newPrimaryAdult,
+                                  daysPerWeek,
+                                  selectedDays: newPrimaryAdult.selectedDays.length !== daysPerWeek ? [] : newPrimaryAdult.selectedDays
+                                })
+                              }}
+                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                              required
+                            >
+                              <option value={1}>1 day</option>
+                              <option value={2}>2 days</option>
+                              <option value={3}>3 days</option>
+                              <option value={4}>4 days</option>
+                              <option value={5}>5 days</option>
+                              <option value={6}>6 days</option>
+                              <option value={7}>7 days</option>
+                            </select>
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">
+                              Select Days * ({newPrimaryAdult.selectedDays.length} of {newPrimaryAdult.daysPerWeek} selected)
+                            </label>
+                            <div className="grid grid-cols-7 gap-2">
+                              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                                <button
+                                  key={day}
+                                  type="button"
+                                  onClick={() => {
+                                    const dayIndex = newPrimaryAdult.selectedDays.indexOf(day)
+                                    if (dayIndex > -1) {
+                                      setNewPrimaryAdult({
+                                        ...newPrimaryAdult,
+                                        selectedDays: newPrimaryAdult.selectedDays.filter(d => d !== day)
+                                      })
+                                    } else {
+                                      if (newPrimaryAdult.selectedDays.length < newPrimaryAdult.daysPerWeek) {
+                                        setNewPrimaryAdult({
+                                          ...newPrimaryAdult,
+                                          selectedDays: [...newPrimaryAdult.selectedDays, day]
+                                        })
+                                      } else {
+                                        alert(`Please select exactly ${newPrimaryAdult.daysPerWeek} day(s)`)
+                                      }
+                                    }
+                                  }}
+                                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                    newPrimaryAdult.selectedDays.includes(day)
+                                      ? 'bg-vortex-red text-white'
+                                      : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                                  }`}
+                                >
+                                  {day.substring(0, 3)}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -4774,18 +5198,94 @@ export default function Admin({ onLogout }: AdminProps) {
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
                         <select
-                          value={currentChild.program}
-                          onChange={(e) => setCurrentChild({ ...currentChild, program: e.target.value })}
+                          value={currentChild.programId || ''}
+                          onChange={(e) => {
+                            const programId = e.target.value ? parseInt(e.target.value) : null
+                            const selectedProgram = programs.find(p => p.id === programId)
+                            setCurrentChild({
+                              ...currentChild,
+                              programId,
+                              program: selectedProgram?.displayName || 'Non-Participant',
+                              daysPerWeek: 1,
+                              selectedDays: []
+                            })
+                          }}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
-                          <option value="Non-Participant">Non-Participant</option>
+                          <option value="">Non-Participant</option>
                           {programs.filter(p => p.isActive && !p.archived).map((program) => (
-                            <option key={program.id} value={program.displayName}>
+                            <option key={program.id} value={program.id}>
                               {program.displayName}
                             </option>
                           ))}
                         </select>
                       </div>
+                      {currentChild.programId && (
+                        <>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
+                            <select
+                              value={currentChild.daysPerWeek}
+                              onChange={(e) => {
+                                const daysPerWeek = parseInt(e.target.value)
+                                setCurrentChild({
+                                  ...currentChild,
+                                  daysPerWeek,
+                                  selectedDays: currentChild.selectedDays.length !== daysPerWeek ? [] : currentChild.selectedDays
+                                })
+                              }}
+                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                              required
+                            >
+                              <option value={1}>1 day</option>
+                              <option value={2}>2 days</option>
+                              <option value={3}>3 days</option>
+                              <option value={4}>4 days</option>
+                              <option value={5}>5 days</option>
+                              <option value={6}>6 days</option>
+                              <option value={7}>7 days</option>
+                            </select>
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">
+                              Select Days * ({currentChild.selectedDays.length} of {currentChild.daysPerWeek} selected)
+                            </label>
+                            <div className="grid grid-cols-7 gap-2">
+                              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                                <button
+                                  key={day}
+                                  type="button"
+                                  onClick={() => {
+                                    const dayIndex = currentChild.selectedDays.indexOf(day)
+                                    if (dayIndex > -1) {
+                                      setCurrentChild({
+                                        ...currentChild,
+                                        selectedDays: currentChild.selectedDays.filter(d => d !== day)
+                                      })
+                                    } else {
+                                      if (currentChild.selectedDays.length < currentChild.daysPerWeek) {
+                                        setCurrentChild({
+                                          ...currentChild,
+                                          selectedDays: [...currentChild.selectedDays, day]
+                                        })
+                                      } else {
+                                        alert(`Please select exactly ${currentChild.daysPerWeek} day(s)`)
+                                      }
+                                    }
+                                  }}
+                                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                    currentChild.selectedDays.includes(day)
+                                      ? 'bg-vortex-red text-white'
+                                      : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                                  }`}
+                                >
+                                  {day.substring(0, 3)}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">
                           Email {(() => {
@@ -4853,9 +5353,9 @@ export default function Admin({ onLogout }: AdminProps) {
                     <button
                       onClick={() => {
                         setMemberModalMode('search')
-                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', username: '', password: 'vortex', program: 'Non-Participant' })
+                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', address: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
                         setNewChildren([])
-                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], userId: null })
                         setUserSearchQuery('')
                         setAvailableUsers([])
                       }}
@@ -4919,18 +5419,94 @@ export default function Admin({ onLogout }: AdminProps) {
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
                         <select
-                          value={newFamilyMember.program}
-                          onChange={(e) => setNewFamilyMember({ ...newFamilyMember, program: e.target.value })}
+                          value={newFamilyMember.programId || ''}
+                          onChange={(e) => {
+                            const programId = e.target.value ? parseInt(e.target.value) : null
+                            const selectedProgram = programs.find(p => p.id === programId)
+                            setNewFamilyMember({
+                              ...newFamilyMember,
+                              programId,
+                              program: selectedProgram?.displayName || 'Non-Participant',
+                              daysPerWeek: 1,
+                              selectedDays: []
+                            })
+                          }}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
-                          <option value="Non-Participant">Non-Participant</option>
+                          <option value="">Non-Participant</option>
                           {programs.filter(p => p.isActive && !p.archived).map((program) => (
-                            <option key={program.id} value={program.displayName}>
+                            <option key={program.id} value={program.id}>
                               {program.displayName}
                             </option>
                           ))}
                         </select>
                       </div>
+                      {newFamilyMember.programId && (
+                        <>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
+                            <select
+                              value={newFamilyMember.daysPerWeek}
+                              onChange={(e) => {
+                                const daysPerWeek = parseInt(e.target.value)
+                                setNewFamilyMember({
+                                  ...newFamilyMember,
+                                  daysPerWeek,
+                                  selectedDays: newFamilyMember.selectedDays.length !== daysPerWeek ? [] : newFamilyMember.selectedDays
+                                })
+                              }}
+                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                              required
+                            >
+                              <option value={1}>1 day</option>
+                              <option value={2}>2 days</option>
+                              <option value={3}>3 days</option>
+                              <option value={4}>4 days</option>
+                              <option value={5}>5 days</option>
+                              <option value={6}>6 days</option>
+                              <option value={7}>7 days</option>
+                            </select>
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">
+                              Select Days * ({newFamilyMember.selectedDays.length} of {newFamilyMember.daysPerWeek} selected)
+                            </label>
+                            <div className="grid grid-cols-7 gap-2">
+                              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                                <button
+                                  key={day}
+                                  type="button"
+                                  onClick={() => {
+                                    const dayIndex = newFamilyMember.selectedDays.indexOf(day)
+                                    if (dayIndex > -1) {
+                                      setNewFamilyMember({
+                                        ...newFamilyMember,
+                                        selectedDays: newFamilyMember.selectedDays.filter(d => d !== day)
+                                      })
+                                    } else {
+                                      if (newFamilyMember.selectedDays.length < newFamilyMember.daysPerWeek) {
+                                        setNewFamilyMember({
+                                          ...newFamilyMember,
+                                          selectedDays: [...newFamilyMember.selectedDays, day]
+                                        })
+                                      } else {
+                                        alert(`Please select exactly ${newFamilyMember.daysPerWeek} day(s)`)
+                                      }
+                                    }
+                                  }}
+                                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                    newFamilyMember.selectedDays.includes(day)
+                                      ? 'bg-vortex-red text-white'
+                                      : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                                  }`}
+                                >
+                                  {day.substring(0, 3)}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
                         <input
@@ -5504,7 +6080,7 @@ export default function Admin({ onLogout }: AdminProps) {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">Phone</label>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Phone *</label>
                       <input
                         type="tel"
                         value={editingMemberData.phone}
@@ -5516,6 +6092,17 @@ export default function Admin({ onLogout }: AdminProps) {
                         maxLength={12}
                         className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         autoComplete="off"
+                        required
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Mailing Address</label>
+                      <input
+                        type="text"
+                        value={editingMemberData.address}
+                        onChange={(e) => setEditingMemberData({ ...editingMemberData, address: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        placeholder="Street address, City, State ZIP"
                       />
                     </div>
                     <div>
@@ -5614,36 +6201,456 @@ export default function Admin({ onLogout }: AdminProps) {
                                 required
                               />
                             </div>
-                            <div className="md:col-span-2">
-                              <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
-                              <textarea
-                                value={member.medicalNotes}
-                                onChange={(e) => {
-                                  const updated = [...editingFamilyMembers]
-                                  updated[index].medicalNotes = e.target.value
-                                  setEditingFamilyMembers(updated)
-                                }}
-                                rows={2}
-                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
-                              />
-                            </div>
-                            <div className="md:col-span-2">
-                              <label className="block text-sm font-semibold text-gray-300 mb-2">Internal Flags</label>
-                              <input
-                                type="text"
-                                value={member.internalFlags}
-                                onChange={(e) => {
-                                  const updated = [...editingFamilyMembers]
-                                  updated[index].internalFlags = e.target.value
-                                  setEditingFamilyMembers(updated)
-                                }}
-                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
-                              />
-                            </div>
+                            {(() => {
+                              const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+                              const today = new Date()
+                              const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
+                              const isAdult = age !== null && age >= 18
+                              
+                              return (
+                                <>
+                                  {isAdult && (
+                                    <>
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                                        <input
+                                          type="email"
+                                          value={member.email}
+                                          onChange={(e) => {
+                                            const updated = [...editingFamilyMembers]
+                                            updated[index].email = e.target.value
+                                            setEditingFamilyMembers(updated)
+                                          }}
+                                          className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                          required
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
+                                        <input
+                                          type="text"
+                                          value={member.username}
+                                          onChange={(e) => {
+                                            const updated = [...editingFamilyMembers]
+                                            updated[index].username = e.target.value
+                                            setEditingFamilyMembers(updated)
+                                          }}
+                                          className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                          required
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Password</label>
+                                        <input
+                                          type="password"
+                                          value={member.password}
+                                          onChange={(e) => {
+                                            const updated = [...editingFamilyMembers]
+                                            updated[index].password = e.target.value
+                                            setEditingFamilyMembers(updated)
+                                          }}
+                                          className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                          placeholder="Leave blank to keep current"
+                                          minLength={6}
+                                        />
+                                      </div>
+                                    </>
+                                  )}
+                                  <div>
+                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
+                                    <select
+                                      value={member.programId || ''}
+                                      onChange={(e) => {
+                                        const updated = [...editingFamilyMembers]
+                                        const programId = e.target.value ? parseInt(e.target.value) : null
+                                        const selectedProgram = programs.find(p => p.id === programId)
+                                        updated[index].programId = programId
+                                        updated[index].program = selectedProgram?.displayName || 'Non-Participant'
+                                        updated[index].daysPerWeek = 1
+                                        updated[index].selectedDays = []
+                                        setEditingFamilyMembers(updated)
+                                      }}
+                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                    >
+                                      <option value="">Non-Participant</option>
+                                      {programs.filter(p => p.isActive && !p.archived).map((program) => (
+                                        <option key={program.id} value={program.id}>
+                                          {program.displayName}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  {member.programId && (
+                                    <>
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
+                                        <select
+                                          value={member.daysPerWeek}
+                                          onChange={(e) => {
+                                            const updated = [...editingFamilyMembers]
+                                            const daysPerWeek = parseInt(e.target.value)
+                                            updated[index].daysPerWeek = daysPerWeek
+                                            // Reset selected days if days per week changed
+                                            if (updated[index].selectedDays.length !== daysPerWeek) {
+                                              updated[index].selectedDays = []
+                                            }
+                                            setEditingFamilyMembers(updated)
+                                          }}
+                                          className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                          required
+                                        >
+                                          <option value={1}>1 day</option>
+                                          <option value={2}>2 days</option>
+                                          <option value={3}>3 days</option>
+                                          <option value={4}>4 days</option>
+                                          <option value={5}>5 days</option>
+                                          <option value={6}>6 days</option>
+                                          <option value={7}>7 days</option>
+                                        </select>
+                                      </div>
+                                      <div className="md:col-span-2">
+                                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                                          Select Days * ({member.selectedDays.length} of {member.daysPerWeek} selected)
+                                        </label>
+                                        <div className="grid grid-cols-7 gap-2">
+                                          {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                                            <button
+                                              key={day}
+                                              type="button"
+                                              onClick={() => {
+                                                const updated = [...editingFamilyMembers]
+                                                const dayIndex = updated[index].selectedDays.indexOf(day)
+                                                if (dayIndex > -1) {
+                                                  updated[index].selectedDays.splice(dayIndex, 1)
+                                                } else {
+                                                  if (updated[index].selectedDays.length < updated[index].daysPerWeek) {
+                                                    updated[index].selectedDays.push(day)
+                                                  } else {
+                                                    alert(`Please select exactly ${updated[index].daysPerWeek} day(s)`)
+                                                    return
+                                                  }
+                                                }
+                                                setEditingFamilyMembers(updated)
+                                              }}
+                                              className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                                member.selectedDays.includes(day)
+                                                  ? 'bg-vortex-red text-white'
+                                                  : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                                              }`}
+                                            >
+                                              {day.substring(0, 3)}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </>
+                                  )}
+                                  <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
+                                    <textarea
+                                      value={member.medicalNotes}
+                                      onChange={(e) => {
+                                        const updated = [...editingFamilyMembers]
+                                        updated[index].medicalNotes = e.target.value
+                                        setEditingFamilyMembers(updated)
+                                      }}
+                                      rows={2}
+                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                    />
+                                  </div>
+                                  <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Internal Flags</label>
+                                    <input
+                                      type="text"
+                                      value={member.internalFlags}
+                                      onChange={(e) => {
+                                        const updated = [...editingFamilyMembers]
+                                        updated[index].internalFlags = e.target.value
+                                        setEditingFamilyMembers(updated)
+                                      }}
+                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                    />
+                                  </div>
+                                </>
+                              )
+                            })()}
                           </motion.div>
                         )}
                       </div>
                     ))}
+                    
+                    {/* Add New Family Member Section */}
+                    <div className="bg-gray-600 p-4 rounded border-2 border-dashed border-gray-500">
+                      <h5 className="text-white font-medium mb-4">Add New Family Member</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">First Name</label>
+                          <input
+                            type="text"
+                            value={newFamilyMemberInEdit.firstName}
+                            onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, firstName: e.target.value })}
+                            className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name</label>
+                          <input
+                            type="text"
+                            value={newFamilyMemberInEdit.lastName}
+                            onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, lastName: e.target.value })}
+                            className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth</label>
+                          <input
+                            type="date"
+                            value={newFamilyMemberInEdit.dateOfBirth}
+                            onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, dateOfBirth: e.target.value })}
+                            className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                          />
+                        </div>
+                        {(() => {
+                          const birthDate = newFamilyMemberInEdit.dateOfBirth ? new Date(newFamilyMemberInEdit.dateOfBirth) : null
+                          const today = new Date()
+                          const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
+                          const isAdult = age !== null && age >= 18
+                          const existingAddresses = Array.from(new Set([
+                            editingMemberData.address,
+                            // Get addresses from family members if available
+                            ...editingFamilyMembers.map(() => {
+                              // Address would come from user accounts if available
+                              return ''
+                            }).filter(Boolean)
+                          ])).filter(Boolean)
+                          
+                          return (
+                            <>
+                              {isAdult && (
+                                <>
+                                  <div>
+                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                                    <input
+                                      type="email"
+                                      value={newFamilyMemberInEdit.email}
+                                      onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, email: e.target.value })}
+                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                      required
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
+                                    <input
+                                      type="text"
+                                      value={newFamilyMemberInEdit.username}
+                                      onChange={async (e) => {
+                                        const username = e.target.value
+                                        if (!username) {
+                                          const generated = await generateUsername(newFamilyMemberInEdit.firstName)
+                                          setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, username: generated })
+                                        } else {
+                                          setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, username })
+                                        }
+                                      }}
+                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                      required
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
+                                    <input
+                                      type="password"
+                                      value={newFamilyMemberInEdit.password}
+                                      onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, password: e.target.value })}
+                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                      required
+                                      minLength={6}
+                                    />
+                                    <p className="text-xs text-gray-400 mt-1">Default: vortex</p>
+                                  </div>
+                                </>
+                              )}
+                              {existingAddresses.length > 0 && (
+                                <div className="md:col-span-2">
+                                  <label className="block text-sm font-semibold text-gray-300 mb-2">Mailing Address (Select from family or enter new)</label>
+                                  <select
+                                    value={newFamilyMemberInEdit.address}
+                                    onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, address: e.target.value })}
+                                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500 mb-2"
+                                  >
+                                    <option value="">Select existing address or enter new below</option>
+                                    {existingAddresses.map((addr, idx) => (
+                                      <option key={idx} value={addr}>{addr}</option>
+                                    ))}
+                                  </select>
+                                  <input
+                                    type="text"
+                                    value={newFamilyMemberInEdit.address}
+                                    onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, address: e.target.value })}
+                                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                    placeholder="Or enter new address"
+                                  />
+                                </div>
+                              )}
+                            </>
+                          )
+                        })()}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
+                          <select
+                            value={newFamilyMemberInEdit.programId || ''}
+                            onChange={(e) => {
+                              const programId = e.target.value ? parseInt(e.target.value) : null
+                              const selectedProgram = programs.find(p => p.id === programId)
+                              setNewFamilyMemberInEdit({
+                                ...newFamilyMemberInEdit,
+                                programId,
+                                program: selectedProgram?.displayName || 'Non-Participant',
+                                daysPerWeek: 1,
+                                selectedDays: []
+                              })
+                            }}
+                            className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                          >
+                            <option value="">Non-Participant</option>
+                            {programs.filter(p => p.isActive && !p.archived).map((program) => (
+                              <option key={program.id} value={program.id}>
+                                {program.displayName}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        {newFamilyMemberInEdit.programId && (
+                          <>
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
+                              <select
+                                value={newFamilyMemberInEdit.daysPerWeek}
+                                onChange={(e) => {
+                                  const daysPerWeek = parseInt(e.target.value)
+                                  setNewFamilyMemberInEdit({
+                                    ...newFamilyMemberInEdit,
+                                    daysPerWeek,
+                                    selectedDays: newFamilyMemberInEdit.selectedDays.length !== daysPerWeek ? [] : newFamilyMemberInEdit.selectedDays
+                                  })
+                                }}
+                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                required
+                              >
+                                <option value={1}>1 day</option>
+                                <option value={2}>2 days</option>
+                                <option value={3}>3 days</option>
+                                <option value={4}>4 days</option>
+                                <option value={5}>5 days</option>
+                                <option value={6}>6 days</option>
+                                <option value={7}>7 days</option>
+                              </select>
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                                Select Days * ({newFamilyMemberInEdit.selectedDays.length} of {newFamilyMemberInEdit.daysPerWeek} selected)
+                              </label>
+                              <div className="grid grid-cols-7 gap-2">
+                                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                                  <button
+                                    key={day}
+                                    type="button"
+                                    onClick={() => {
+                                      const dayIndex = newFamilyMemberInEdit.selectedDays.indexOf(day)
+                                      if (dayIndex > -1) {
+                                        setNewFamilyMemberInEdit({
+                                          ...newFamilyMemberInEdit,
+                                          selectedDays: newFamilyMemberInEdit.selectedDays.filter(d => d !== day)
+                                        })
+                                      } else {
+                                        if (newFamilyMemberInEdit.selectedDays.length < newFamilyMemberInEdit.daysPerWeek) {
+                                          setNewFamilyMemberInEdit({
+                                            ...newFamilyMemberInEdit,
+                                            selectedDays: [...newFamilyMemberInEdit.selectedDays, day]
+                                          })
+                                        } else {
+                                          alert(`Please select exactly ${newFamilyMemberInEdit.daysPerWeek} day(s)`)
+                                        }
+                                      }
+                                    }}
+                                    className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                      newFamilyMemberInEdit.selectedDays.includes(day)
+                                        ? 'bg-vortex-red text-white'
+                                        : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                                    }`}
+                                  >
+                                    {day.substring(0, 3)}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
+                          <textarea
+                            value={newFamilyMemberInEdit.medicalNotes}
+                            onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, medicalNotes: e.target.value })}
+                            rows={2}
+                            className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <button
+                            onClick={() => {
+                              if (!newFamilyMemberInEdit.firstName || !newFamilyMemberInEdit.lastName || !newFamilyMemberInEdit.dateOfBirth) {
+                                alert('Please fill in first name, last name, and date of birth')
+                                return
+                              }
+                              const birthDate = new Date(newFamilyMemberInEdit.dateOfBirth)
+                              const today = new Date()
+                              const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+                              if (age >= 18 && (!newFamilyMemberInEdit.email || !newFamilyMemberInEdit.username)) {
+                                alert('Adults must have email and username')
+                                return
+                              }
+                              if (newFamilyMemberInEdit.programId && newFamilyMemberInEdit.selectedDays.length !== newFamilyMemberInEdit.daysPerWeek) {
+                                alert(`Please select exactly ${newFamilyMemberInEdit.daysPerWeek} day(s)`)
+                                return
+                              }
+                              setEditingFamilyMembers([...editingFamilyMembers, {
+                                firstName: newFamilyMemberInEdit.firstName,
+                                lastName: newFamilyMemberInEdit.lastName,
+                                dateOfBirth: newFamilyMemberInEdit.dateOfBirth,
+                                email: newFamilyMemberInEdit.email,
+                                username: newFamilyMemberInEdit.username,
+                                password: newFamilyMemberInEdit.password,
+                                medicalNotes: newFamilyMemberInEdit.medicalNotes,
+                                internalFlags: newFamilyMemberInEdit.internalFlags,
+                                program: newFamilyMemberInEdit.program,
+                                programId: newFamilyMemberInEdit.programId,
+                                daysPerWeek: newFamilyMemberInEdit.daysPerWeek,
+                                selectedDays: newFamilyMemberInEdit.selectedDays,
+                                userId: null
+                              }])
+                              setNewFamilyMemberInEdit({
+                                firstName: '',
+                                lastName: '',
+                                dateOfBirth: '',
+                                email: '',
+                                username: '',
+                                password: 'vortex',
+                                medicalNotes: '',
+                                internalFlags: '',
+                                program: 'Non-Participant',
+                                programId: null,
+                                daysPerWeek: 1,
+                                selectedDays: [],
+                                address: ''
+                              })
+                            }}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                          >
+                            + Add Member to Family
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
