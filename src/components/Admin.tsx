@@ -565,6 +565,11 @@ interface Athlete {
   medical_notes?: string | null
   internal_flags?: string | null
   family_id: number
+  user_id?: number | null // If set, this athlete is also a user (e.g., parent/guardian who trains)
+  linked_user_id?: number | null
+  linked_user_email?: string | null
+  linked_user_name?: string | null
+  linked_user_role?: string | null
   created_at: string
   updated_at: string
   emergency_contacts?: EmergencyContact[]
@@ -686,8 +691,11 @@ export default function Admin({ onLogout }: AdminProps) {
     dateOfBirth: '',
     medicalNotes: '',
     internalFlags: '',
-    program: ''
+    program: '',
+    userId: null as number | null // Optional: link to existing user if adult athlete
   })
+  const [availableUsers, setAvailableUsers] = useState<Array<{id: number, email: string, full_name: string, role: string}>>([])
+  const [userSearchQuery, setUserSearchQuery] = useState('')
   const [events, setEvents] = useState<Event[]>([])
   const [eventsLoading, setEventsLoading] = useState(false)
   const [showEventForm, setShowEventForm] = useState(false)
@@ -1233,7 +1241,8 @@ export default function Admin({ onLogout }: AdminProps) {
             lastName: newChild.lastName,
             dateOfBirth: newChild.dateOfBirth,
             medicalNotes: newChild.medicalNotes || null,
-            internalFlags: newChild.internalFlags || null
+            internalFlags: newChild.internalFlags || null,
+            userId: newChild.userId || null // Link to user if adult athlete
           })
         })
       }
@@ -1244,7 +1253,7 @@ export default function Admin({ onLogout }: AdminProps) {
       
       // Reset form
       setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: '' })
-      setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '' })
+      setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '', userId: null })
       setMemberModalMode('search')
       setShowMemberModal(false)
       alert('Family created successfully!')
@@ -1323,6 +1332,27 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
+  // Fetch available users for linking to athletes
+  const fetchAvailableUsers = async (search: string = '') => {
+    try {
+      const apiUrl = getApiUrl()
+      const params = new URLSearchParams()
+      params.append('role', 'PARENT_GUARDIAN')
+      if (search) {
+        params.append('search', search)
+      }
+      const response = await fetch(`${apiUrl}/api/admin/users?${params.toString()}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setAvailableUsers(data.data)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+    }
+  }
+
   // Add child to existing family
   const handleAddChildToFamily = async () => {
     if (!selectedFamilyForMember) return
@@ -1343,7 +1373,8 @@ export default function Admin({ onLogout }: AdminProps) {
           lastName: newChild.lastName,
           dateOfBirth: newChild.dateOfBirth,
           medicalNotes: newChild.medicalNotes || null,
-          internalFlags: newChild.internalFlags || null
+          internalFlags: newChild.internalFlags || null,
+          userId: newChild.userId || null // Link to user if adult athlete
         })
       })
 
@@ -1363,7 +1394,7 @@ export default function Admin({ onLogout }: AdminProps) {
 
       await fetchAthletes()
       await fetchFamilies()
-      setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '' })
+      setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '', userId: null })
       alert('Child added to family successfully!')
     } catch (error) {
       console.error('Error adding child to family:', error)
@@ -3574,12 +3605,24 @@ export default function Admin({ onLogout }: AdminProps) {
                         <div key={athlete.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div className="flex-1">
-                              <div className="text-black font-semibold text-lg">
-                                {athlete.first_name} {athlete.last_name}
+                              <div className="flex items-center gap-2">
+                                <div className="text-black font-semibold text-lg">
+                                  {athlete.first_name} {athlete.last_name}
+                                </div>
+                                {athlete.user_id && (
+                                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                    Adult Athlete
+                                  </span>
+                                )}
                               </div>
                               <div className="text-gray-600 text-sm mt-1">
                                 Age: {athlete.age || 'N/A'} | DOB: {new Date(athlete.date_of_birth).toLocaleDateString()}
                               </div>
+                              {athlete.linked_user_email && (
+                                <div className="text-xs text-blue-600 mt-1">
+                                  Linked to: {athlete.linked_user_name} ({athlete.linked_user_email})
+                                </div>
+                              )}
                               {athlete.medical_notes && (
                                 <div className="text-gray-600 text-sm mt-1">
                                   Medical Notes: {athlete.medical_notes}
@@ -4106,6 +4149,49 @@ export default function Admin({ onLogout }: AdminProps) {
                         </select>
                       </div>
                       <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          Link to Existing User (Optional - for adult athletes)
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Search by name or email..."
+                            value={userSearchQuery}
+                            onChange={(e) => {
+                              setUserSearchQuery(e.target.value)
+                              if (e.target.value.length >= 2) {
+                                fetchAvailableUsers(e.target.value)
+                              } else {
+                                setAvailableUsers([])
+                              }
+                            }}
+                            className="flex-1 px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          />
+                        </div>
+                        {availableUsers.length > 0 && (
+                          <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
+                            {availableUsers.map((user) => (
+                              <div
+                                key={user.id}
+                                onClick={() => {
+                                  setNewChild({ ...newChild, userId: user.id, firstName: user.full_name.split(' ')[0] || '', lastName: user.full_name.split(' ').slice(1).join(' ') || '' })
+                                  setUserSearchQuery('')
+                                  setAvailableUsers([])
+                                }}
+                                className="p-2 bg-gray-600 rounded cursor-pointer hover:bg-gray-500 text-sm"
+                              >
+                                {user.full_name} ({user.email}) - {user.role}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {newChild.userId && (
+                          <div className="mt-2 text-xs text-green-400">
+                            ✓ Linked to user account
+                          </div>
+                        )}
+                      </div>
+                      <div className="md:col-span-2">
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
                         <textarea
                           value={newChild.medicalNotes}
@@ -4128,7 +4214,7 @@ export default function Admin({ onLogout }: AdminProps) {
                       onClick={() => {
                         setMemberModalMode('search')
                         setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: '' })
-                        setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '' })
+                        setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '', userId: null })
                       }}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
@@ -4273,6 +4359,49 @@ export default function Admin({ onLogout }: AdminProps) {
                         </select>
                       </div>
                       <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          Link to Existing User (Optional - for adult athletes)
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Search by name or email..."
+                            value={userSearchQuery}
+                            onChange={(e) => {
+                              setUserSearchQuery(e.target.value)
+                              if (e.target.value.length >= 2) {
+                                fetchAvailableUsers(e.target.value)
+                              } else {
+                                setAvailableUsers([])
+                              }
+                            }}
+                            className="flex-1 px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          />
+                        </div>
+                        {availableUsers.length > 0 && (
+                          <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
+                            {availableUsers.map((user) => (
+                              <div
+                                key={user.id}
+                                onClick={() => {
+                                  setNewChild({ ...newChild, userId: user.id, firstName: user.full_name.split(' ')[0] || '', lastName: user.full_name.split(' ').slice(1).join(' ') || '' })
+                                  setUserSearchQuery('')
+                                  setAvailableUsers([])
+                                }}
+                                className="p-2 bg-gray-600 rounded cursor-pointer hover:bg-gray-500 text-sm"
+                              >
+                                {user.full_name} ({user.email}) - {user.role}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {newChild.userId && (
+                          <div className="mt-2 text-xs text-green-400">
+                            ✓ Linked to user account
+                          </div>
+                        )}
+                      </div>
+                      <div className="md:col-span-2">
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
                         <textarea
                           value={newChild.medicalNotes}
@@ -4286,7 +4415,7 @@ export default function Admin({ onLogout }: AdminProps) {
                       onClick={handleAddChildToFamily}
                       className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
                     >
-                      Add Child to Family
+                      Add {newChild.userId ? 'Athlete' : 'Child'} to Family
                     </button>
                   </div>
 

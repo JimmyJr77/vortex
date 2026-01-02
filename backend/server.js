@@ -878,7 +878,8 @@ const athleteSchema = Joi.object({
   lastName: Joi.string().min(1).max(100).required(),
   dateOfBirth: Joi.date().required(),
   medicalNotes: Joi.string().max(2000).optional().allow('', null),
-  internalFlags: Joi.string().max(500).optional().allow('', null)
+  internalFlags: Joi.string().max(500).optional().allow('', null),
+  userId: Joi.number().integer().optional().allow(null) // If set, links athlete to an app_user (e.g., parent who trains)
 })
 
 const athleteUpdateSchema = Joi.object({
@@ -1597,6 +1598,56 @@ app.delete('/api/admin/members/:id', async (req, res) => {
 
 // ========== MODULE 2: FAMILY & ATHLETE ENDPOINTS ==========
 
+// Get all users (admin endpoint) - for selecting existing users when creating athletes
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    const { role, search } = req.query
+    let query = `
+      SELECT 
+        u.id,
+        u.email,
+        u.full_name,
+        u.phone,
+        u.role,
+        u.is_active,
+        f.id as family_id,
+        f.family_name
+      FROM app_user u
+      LEFT JOIN family f ON u.id = f.primary_user_id
+      WHERE u.facility_id = (SELECT id FROM facility LIMIT 1)
+    `
+    const params = []
+    let paramCount = 0
+    
+    if (role) {
+      paramCount++
+      query += ` AND u.role = $${paramCount}::user_role`
+      params.push(role)
+    }
+    
+    if (search) {
+      paramCount++
+      query += ` AND (u.full_name ILIKE $${paramCount} OR u.email ILIKE $${paramCount})`
+      params.push(`%${search}%`)
+    }
+    
+    query += ` ORDER BY u.full_name`
+    
+    const result = await pool.query(query, params)
+    
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get users error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
 // Create app_user (admin endpoint) - for creating parent/guardian accounts
 app.post('/api/admin/users', async (req, res) => {
   try {
@@ -1982,10 +2033,15 @@ app.get('/api/admin/athletes', async (req, res) => {
         f.family_name,
         f.id as family_id,
         u.email as primary_guardian_email,
-        u.full_name as primary_guardian_name
+        u.full_name as primary_guardian_name,
+        au.id as linked_user_id,
+        au.email as linked_user_email,
+        au.full_name as linked_user_name,
+        au.role as linked_user_role
       FROM athlete a
       LEFT JOIN family f ON a.family_id = f.id
       LEFT JOIN app_user u ON f.primary_user_id = u.id
+      LEFT JOIN app_user au ON a.user_id = au.id
       WHERE 1=1
     `
     const params = []
@@ -2032,10 +2088,15 @@ app.get('/api/admin/athletes/:id', async (req, res) => {
         f.family_name,
         f.id as family_id,
         u.email as primary_guardian_email,
-        u.full_name as primary_guardian_name
+        u.full_name as primary_guardian_name,
+        au.id as linked_user_id,
+        au.email as linked_user_email,
+        au.full_name as linked_user_name,
+        au.role as linked_user_role
       FROM athlete a
       LEFT JOIN family f ON a.family_id = f.id
       LEFT JOIN app_user u ON f.primary_user_id = u.id
+      LEFT JOIN app_user au ON a.user_id = au.id
       WHERE a.id = $1
     `, [id])
     
@@ -2099,13 +2160,34 @@ app.post('/api/admin/athletes', async (req, res) => {
       })
     }
     
+    // If userId is provided, verify the user exists and is in the same facility
+    if (value.userId) {
+      const userCheck = await pool.query(`
+        SELECT id, facility_id, role FROM app_user WHERE id = $1
+      `, [value.userId])
+      
+      if (userCheck.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        })
+      }
+      
+      if (userCheck.rows[0].facility_id !== facilityId) {
+        return res.status(400).json({
+          success: false,
+          message: 'User belongs to a different facility'
+        })
+      }
+    }
+    
     // Create athlete
     const athleteResult = await pool.query(`
       INSERT INTO athlete (
         facility_id, family_id, first_name, last_name, date_of_birth, 
-        medical_notes, internal_flags
+        medical_notes, internal_flags, user_id
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
     `, [
       facilityId,
@@ -2114,7 +2196,8 @@ app.post('/api/admin/athletes', async (req, res) => {
       value.lastName,
       value.dateOfBirth,
       value.medicalNotes || null,
-      value.internalFlags || null
+      value.internalFlags || null,
+      value.userId || null
     ])
     
     const athlete = athleteResult.rows[0]
