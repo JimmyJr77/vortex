@@ -1767,9 +1767,11 @@ app.get('/api/admin/families', async (req, res) => {
     })
   } catch (error) {
     console.error('Get families error:', error)
+    console.error('Error stack:', error.stack)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
@@ -2026,6 +2028,15 @@ app.delete('/api/admin/families/:id', async (req, res) => {
 app.get('/api/admin/athletes', async (req, res) => {
   try {
     const { search, familyId } = req.query
+    
+    // Check if user_id column exists in athlete table
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'athlete' AND column_name = 'user_id'
+    `)
+    const hasUserIdColumn = columnCheck.rows.length > 0
+    
     let query = `
       SELECT 
         a.*,
@@ -2033,7 +2044,11 @@ app.get('/api/admin/athletes', async (req, res) => {
         f.family_name,
         f.id as family_id,
         u.email as primary_guardian_email,
-        u.full_name as primary_guardian_name,
+        u.full_name as primary_guardian_name
+    `
+    
+    if (hasUserIdColumn) {
+      query += `,
         au.id as linked_user_id,
         au.email as linked_user_email,
         au.full_name as linked_user_name,
@@ -2044,6 +2059,14 @@ app.get('/api/admin/athletes', async (req, res) => {
       LEFT JOIN app_user au ON a.user_id = au.id
       WHERE 1=1
     `
+    } else {
+      query += `
+      FROM athlete a
+      LEFT JOIN family f ON a.family_id = f.id
+      LEFT JOIN app_user u ON f.primary_user_id = u.id
+      WHERE 1=1
+    `
+    }
     const params = []
     let paramCount = 0
     
@@ -2069,9 +2092,11 @@ app.get('/api/admin/athletes', async (req, res) => {
     })
   } catch (error) {
     console.error('Get athletes error:', error)
+    console.error('Error stack:', error.stack)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
@@ -2081,14 +2106,26 @@ app.get('/api/admin/athletes/:id', async (req, res) => {
   try {
     const { id } = req.params
     
-    const athleteResult = await pool.query(`
+    // Check if user_id column exists in athlete table
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'athlete' AND column_name = 'user_id'
+    `)
+    const hasUserIdColumn = columnCheck.rows.length > 0
+    
+    let query = `
       SELECT 
         a.*,
         EXTRACT(YEAR FROM AGE(a.date_of_birth)) as age,
         f.family_name,
         f.id as family_id,
         u.email as primary_guardian_email,
-        u.full_name as primary_guardian_name,
+        u.full_name as primary_guardian_name
+    `
+    
+    if (hasUserIdColumn) {
+      query += `,
         au.id as linked_user_id,
         au.email as linked_user_email,
         au.full_name as linked_user_name,
@@ -2098,7 +2135,17 @@ app.get('/api/admin/athletes/:id', async (req, res) => {
       LEFT JOIN app_user u ON f.primary_user_id = u.id
       LEFT JOIN app_user au ON a.user_id = au.id
       WHERE a.id = $1
-    `, [id])
+    `
+    } else {
+      query += `
+      FROM athlete a
+      LEFT JOIN family f ON a.family_id = f.id
+      LEFT JOIN app_user u ON f.primary_user_id = u.id
+      WHERE a.id = $1
+    `
+    }
+    
+    const athleteResult = await pool.query(query, [id])
     
     if (athleteResult.rows.length === 0) {
       return res.status(404).json({
@@ -2160,8 +2207,16 @@ app.post('/api/admin/athletes', async (req, res) => {
       })
     }
     
+    // Check if user_id column exists in athlete table
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'athlete' AND column_name = 'user_id'
+    `)
+    const hasUserIdColumn = columnCheck.rows.length > 0
+    
     // If userId is provided, verify the user exists and is in the same facility
-    if (value.userId) {
+    if (value.userId && hasUserIdColumn) {
       const userCheck = await pool.query(`
         SELECT id, facility_id, role FROM app_user WHERE id = $1
       `, [value.userId])
@@ -2182,23 +2237,47 @@ app.post('/api/admin/athletes', async (req, res) => {
     }
     
     // Create athlete
-    const athleteResult = await pool.query(`
-      INSERT INTO athlete (
-        facility_id, family_id, first_name, last_name, date_of_birth, 
-        medical_notes, internal_flags, user_id
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *
-    `, [
-      facilityId,
-      value.familyId,
-      value.firstName,
-      value.lastName,
-      value.dateOfBirth,
-      value.medicalNotes || null,
-      value.internalFlags || null,
-      value.userId || null
-    ])
+    let insertQuery, insertParams
+    if (hasUserIdColumn) {
+      insertQuery = `
+        INSERT INTO athlete (
+          facility_id, family_id, first_name, last_name, date_of_birth, 
+          medical_notes, internal_flags, user_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *
+      `
+      insertParams = [
+        facilityId,
+        value.familyId,
+        value.firstName,
+        value.lastName,
+        value.dateOfBirth,
+        value.medicalNotes || null,
+        value.internalFlags || null,
+        value.userId || null
+      ]
+    } else {
+      insertQuery = `
+        INSERT INTO athlete (
+          facility_id, family_id, first_name, last_name, date_of_birth, 
+          medical_notes, internal_flags
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING *
+      `
+      insertParams = [
+        facilityId,
+        value.familyId,
+        value.firstName,
+        value.lastName,
+        value.dateOfBirth,
+        value.medicalNotes || null,
+        value.internalFlags || null
+      ]
+    }
+    
+    const athleteResult = await pool.query(insertQuery, insertParams)
     
     const athlete = athleteResult.rows[0]
     
