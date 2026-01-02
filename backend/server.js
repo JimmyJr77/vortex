@@ -3004,25 +3004,38 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
 
     const user = userResult.rows[0]
 
-    // Get user's family information
-    const familyResult = await pool.query(`
-      SELECT f.id, f.family_name, f.primary_user_id
-      FROM family f
-      WHERE f.primary_user_id = $1 OR EXISTS (
-        SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
-      )
-      LIMIT 1
-    `, [userId])
+    // Get user's family information (optional - allow if family table doesn't exist)
+    let familyResult = { rows: [] }
+    try {
+      familyResult = await pool.query(`
+        SELECT f.id, f.family_name, f.primary_user_id
+        FROM family f
+        WHERE f.primary_user_id = $1 OR EXISTS (
+          SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+        )
+        LIMIT 1
+      `, [userId])
+    } catch (familyError) {
+      console.log('Family query failed (non-critical):', familyError.message)
+      // Continue without family data
+      familyResult = { rows: [] }
+    }
 
-    // Get user's athletes if they're a guardian
+    // Get user's athletes if they're a guardian (optional - allow if athlete table doesn't exist)
     let athletes = []
     if (user.role === 'PARENT_GUARDIAN' && familyResult.rows.length > 0) {
-      const athletesResult = await pool.query(`
-        SELECT a.id, a.first_name, a.last_name, a.date_of_birth, a.user_id
-        FROM athlete a
-        WHERE a.family_id = $1
-      `, [familyResult.rows[0].id])
-      athletes = athletesResult.rows
+      try {
+        const athletesResult = await pool.query(`
+          SELECT a.id, a.first_name, a.last_name, a.date_of_birth, a.user_id
+          FROM athlete a
+          WHERE a.family_id = $1
+        `, [familyResult.rows[0].id])
+        athletes = athletesResult.rows
+      } catch (athleteError) {
+        console.log('Athlete query failed (non-critical):', athleteError.message)
+        // Continue without athlete data
+        athletes = []
+      }
     }
 
     // Format member data for frontend
@@ -3049,13 +3062,21 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
 
     res.json({
       success: true,
+      member: memberData,
       data: memberData
     })
   } catch (error) {
     console.error('Get member error:', error)
+    console.error('Error stack:', error.stack)
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code
+    })
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
@@ -3129,15 +3150,25 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
 
-    // Get user's family
-    const familyResult = await pool.query(`
-      SELECT f.id, f.family_name, f.primary_user_id
-      FROM family f
-      WHERE f.primary_user_id = $1 OR EXISTS (
-        SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
-      )
-      LIMIT 1
-    `, [userId])
+    // Get user's family (optional - allow if family table doesn't exist)
+    let familyResult = { rows: [] }
+    try {
+      familyResult = await pool.query(`
+        SELECT f.id, f.family_name, f.primary_user_id
+        FROM family f
+        WHERE f.primary_user_id = $1 OR EXISTS (
+          SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+        )
+        LIMIT 1
+      `, [userId])
+    } catch (familyError) {
+      console.log('Family query failed (non-critical):', familyError.message)
+      // Return empty family members if family table doesn't exist
+      return res.json({
+        success: true,
+        familyMembers: []
+      })
+    }
 
     if (familyResult.rows.length === 0) {
       return res.json({
@@ -3148,42 +3179,52 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
 
     const familyId = familyResult.rows[0].id
 
-    // Get all family members (guardians and athletes)
-    const guardiansResult = await pool.query(`
-      SELECT 
-        u.id,
-        u.full_name,
-        u.email,
-        u.phone,
-        u.role,
-        CASE WHEN f.primary_user_id = u.id THEN TRUE ELSE FALSE END as is_primary,
-        FALSE as is_adult,
-        NULL::DATE as date_of_birth,
-        NULL::INTEGER as age,
-        u.id as user_id,
-        FALSE as marked_for_removal
-      FROM app_user u
-      LEFT JOIN family f ON f.primary_user_id = u.id
-      LEFT JOIN family_guardian fg ON fg.user_id = u.id
-      WHERE (f.id = $1 OR fg.family_id = $1)
-        AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER')
-      UNION ALL
-      SELECT 
-        a.id,
-        a.first_name || ' ' || a.last_name as full_name,
-        u.email,
-        u.phone,
-        COALESCE(u.role, 'ATHLETE') as role,
-        FALSE as is_primary,
-        CASE WHEN u.id IS NOT NULL THEN TRUE ELSE FALSE END as is_adult,
-        a.date_of_birth,
-        EXTRACT(YEAR FROM AGE(a.date_of_birth))::INTEGER as age,
-        a.user_id,
-        FALSE as marked_for_removal
-      FROM athlete a
-      LEFT JOIN app_user u ON a.user_id = u.id
-      WHERE a.family_id = $1
-    `, [familyId])
+    // Get all family members (guardians and athletes) - handle missing tables gracefully
+    let guardiansResult = { rows: [] }
+    try {
+      guardiansResult = await pool.query(`
+        SELECT 
+          u.id,
+          u.full_name,
+          u.email,
+          u.phone,
+          u.role,
+          CASE WHEN f.primary_user_id = u.id THEN TRUE ELSE FALSE END as is_primary,
+          FALSE as is_adult,
+          NULL::DATE as date_of_birth,
+          NULL::INTEGER as age,
+          u.id as user_id,
+          FALSE as marked_for_removal
+        FROM app_user u
+        LEFT JOIN family f ON f.primary_user_id = u.id
+        LEFT JOIN family_guardian fg ON fg.user_id = u.id
+        WHERE (f.id = $1 OR fg.family_id = $1)
+          AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER')
+        UNION ALL
+        SELECT 
+          a.id,
+          a.first_name || ' ' || a.last_name as full_name,
+          u.email,
+          u.phone,
+          COALESCE(u.role, 'ATHLETE') as role,
+          FALSE as is_primary,
+          CASE WHEN u.id IS NOT NULL THEN TRUE ELSE FALSE END as is_adult,
+          a.date_of_birth,
+          EXTRACT(YEAR FROM AGE(a.date_of_birth))::INTEGER as age,
+          a.user_id,
+          FALSE as marked_for_removal
+        FROM athlete a
+        LEFT JOIN app_user u ON a.user_id = u.id
+        WHERE a.family_id = $1
+      `, [familyId])
+    } catch (queryError) {
+      console.log('Family members query failed (non-critical):', queryError.message)
+      // Return empty family members if query fails
+      return res.json({
+        success: true,
+        familyMembers: []
+      })
+    }
 
     const familyMembers = guardiansResult.rows.map(row => ({
       id: row.id,
@@ -3204,9 +3245,16 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
     })
   } catch (error) {
     console.error('Get family members error:', error)
+    console.error('Error stack:', error.stack)
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code
+    })
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
