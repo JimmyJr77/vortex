@@ -675,7 +675,7 @@ export default function Admin({ onLogout }: AdminProps) {
     email: '',
     phone: '',
     password: '',
-    program: ''
+    program: 'Non-Participant'
   })
   const [newAdditionalAdult, setNewAdditionalAdult] = useState({
     firstName: '',
@@ -685,13 +685,22 @@ export default function Admin({ onLogout }: AdminProps) {
     password: '',
     program: ''
   })
-  const [newChild, setNewChild] = useState({
+  const [newChildren, setNewChildren] = useState<Array<{
+    firstName: string
+    lastName: string
+    dateOfBirth: string
+    medicalNotes: string
+    internalFlags: string
+    program: string
+    userId: number | null
+  }>>([])
+  const [currentChild, setCurrentChild] = useState({
     firstName: '',
     lastName: '',
     dateOfBirth: '',
     medicalNotes: '',
     internalFlags: '',
-    program: '',
+    program: 'Non-Participant',
     userId: null as number | null // Optional: link to existing user if adult athlete
   })
   const [availableUsers, setAvailableUsers] = useState<Array<{id: number, email: string, full_name: string, role: string}>>([])
@@ -807,6 +816,16 @@ export default function Admin({ onLogout }: AdminProps) {
       fetchAllPrograms()
     }
   }, [showMemberModal])
+
+  // Autofill user search query with primary adult email when in new-family mode
+  useEffect(() => {
+    if (memberModalMode === 'new-family' && newPrimaryAdult.email && !currentChild.userId) {
+      setUserSearchQuery(newPrimaryAdult.email)
+      if (newPrimaryAdult.email.length >= 2) {
+        fetchAvailableUsers(newPrimaryAdult.email)
+      }
+    }
+  }, [newPrimaryAdult.email, memberModalMode, currentChild.userId])
 
   // Debounce family search
   useEffect(() => {
@@ -1230,21 +1249,23 @@ export default function Admin({ onLogout }: AdminProps) {
       const familyData = await familyResponse.json()
       const familyId = familyData.data.id
 
-      // Add child if provided
-      if (newChild.firstName && newChild.lastName && newChild.dateOfBirth) {
-        await fetch(`${apiUrl}/api/admin/athletes`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            familyId: familyId,
-            firstName: newChild.firstName,
-            lastName: newChild.lastName,
-            dateOfBirth: newChild.dateOfBirth,
-            medicalNotes: newChild.medicalNotes || null,
-            internalFlags: newChild.internalFlags || null,
-            userId: newChild.userId || null // Link to user if adult athlete
+      // Add all children if provided
+      for (const child of newChildren) {
+        if (child.firstName && child.lastName && child.dateOfBirth) {
+          await fetch(`${apiUrl}/api/admin/athletes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              familyId: familyId,
+              firstName: child.firstName,
+              lastName: child.lastName,
+              dateOfBirth: child.dateOfBirth,
+              medicalNotes: child.medicalNotes || null,
+              internalFlags: child.internalFlags || null,
+              userId: child.userId || null // Link to user if adult athlete
+            })
           })
-        })
+        }
       }
 
       // Refresh data
@@ -1252,8 +1273,11 @@ export default function Admin({ onLogout }: AdminProps) {
       await fetchAthletes()
       
       // Reset form
-      setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: '' })
-      setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '', userId: null })
+      setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: 'Non-Participant' })
+      setNewChildren([])
+      setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+      setUserSearchQuery('')
+      setAvailableUsers([])
       setMemberModalMode('search')
       setShowMemberModal(false)
       alert('Family created successfully!')
@@ -1353,12 +1377,29 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
+  // Add current child to children array
+  const handleAddChildToArray = () => {
+    if (!currentChild.firstName || !currentChild.lastName || !currentChild.dateOfBirth) {
+      alert('Please fill in at least first name, last name, and date of birth')
+      return
+    }
+    setNewChildren([...newChildren, { ...currentChild }])
+    setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+    setUserSearchQuery('')
+    setAvailableUsers([])
+  }
+
+  // Remove child from children array
+  const handleRemoveChildFromArray = (index: number) => {
+    setNewChildren(newChildren.filter((_, i) => i !== index))
+  }
+
   // Add child to existing family
   const handleAddChildToFamily = async () => {
     if (!selectedFamilyForMember) return
     
     try {
-      if (!newChild.firstName || !newChild.lastName || !newChild.dateOfBirth) {
+      if (!currentChild.firstName || !currentChild.lastName || !currentChild.dateOfBirth) {
         alert('Please fill in all required fields for the child')
         return
       }
@@ -1369,12 +1410,12 @@ export default function Admin({ onLogout }: AdminProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           familyId: selectedFamilyForMember.id,
-          firstName: newChild.firstName,
-          lastName: newChild.lastName,
-          dateOfBirth: newChild.dateOfBirth,
-          medicalNotes: newChild.medicalNotes || null,
-          internalFlags: newChild.internalFlags || null,
-          userId: newChild.userId || null // Link to user if adult athlete
+          firstName: currentChild.firstName,
+          lastName: currentChild.lastName,
+          dateOfBirth: currentChild.dateOfBirth,
+          medicalNotes: currentChild.medicalNotes || null,
+          internalFlags: currentChild.internalFlags || null,
+          userId: currentChild.userId || null // Link to user if adult athlete
         })
       })
 
@@ -1394,7 +1435,9 @@ export default function Admin({ onLogout }: AdminProps) {
 
       await fetchAthletes()
       await fetchFamilies()
-      setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '', userId: null })
+      setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+      setUserSearchQuery('')
+      setAvailableUsers([])
       alert('Child added to family successfully!')
     } catch (error) {
       console.error('Error adding child to family:', error)
@@ -4092,7 +4135,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, program: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
-                          <option value="">Select Program</option>
+                          <option value="Non-Participant">Non-Participant</option>
                           {programs.filter(p => p.isActive && !p.archived).map((program) => (
                             <option key={program.id} value={program.displayName}>
                               {program.displayName}
@@ -4104,14 +4147,48 @@ export default function Admin({ onLogout }: AdminProps) {
                   </div>
 
                   <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4">Add Child (Optional)</h4>
+                    <h4 className="font-semibold text-white mb-4">Add Children (Optional)</h4>
+                    
+                    {/* List of added children */}
+                    {newChildren.length > 0 && (
+                      <div className="mb-4 space-y-2">
+                        <p className="text-sm text-gray-300 font-semibold">Children to be added ({newChildren.length}):</p>
+                        {newChildren.map((child, index) => (
+                          <div key={index} className="bg-gray-600 p-3 rounded flex justify-between items-center">
+                            <div>
+                              <span className="text-white font-medium">
+                                {child.firstName} {child.lastName}
+                              </span>
+                              {child.dateOfBirth && (
+                                <span className="text-gray-400 text-sm ml-2">
+                                  (DOB: {new Date(child.dateOfBirth).toLocaleDateString()})
+                                </span>
+                              )}
+                              {child.userId && (
+                                <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded ml-2">
+                                  Adult Athlete
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => handleRemoveChildFromArray(index)}
+                              className="text-red-400 hover:text-red-300 text-sm font-semibold"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Form to add a child */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">First Name</label>
                         <input
                           type="text"
-                          value={newChild.firstName}
-                          onChange={(e) => setNewChild({ ...newChild, firstName: e.target.value })}
+                          value={currentChild.firstName}
+                          onChange={(e) => setCurrentChild({ ...currentChild, firstName: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         />
                       </div>
@@ -4119,8 +4196,8 @@ export default function Admin({ onLogout }: AdminProps) {
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name</label>
                         <input
                           type="text"
-                          value={newChild.lastName}
-                          onChange={(e) => setNewChild({ ...newChild, lastName: e.target.value })}
+                          value={currentChild.lastName}
+                          onChange={(e) => setCurrentChild({ ...currentChild, lastName: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         />
                       </div>
@@ -4128,19 +4205,19 @@ export default function Admin({ onLogout }: AdminProps) {
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth</label>
                         <input
                           type="date"
-                          value={newChild.dateOfBirth}
-                          onChange={(e) => setNewChild({ ...newChild, dateOfBirth: e.target.value })}
+                          value={currentChild.dateOfBirth}
+                          onChange={(e) => setCurrentChild({ ...currentChild, dateOfBirth: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
                         <select
-                          value={newChild.program}
-                          onChange={(e) => setNewChild({ ...newChild, program: e.target.value })}
+                          value={currentChild.program}
+                          onChange={(e) => setCurrentChild({ ...currentChild, program: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
-                          <option value="">Select Program</option>
+                          <option value="Non-Participant">Non-Participant</option>
                           {programs.filter(p => p.isActive && !p.archived).map((program) => (
                             <option key={program.id} value={program.displayName}>
                               {program.displayName}
@@ -4174,7 +4251,7 @@ export default function Admin({ onLogout }: AdminProps) {
                               <div
                                 key={user.id}
                                 onClick={() => {
-                                  setNewChild({ ...newChild, userId: user.id, firstName: user.full_name.split(' ')[0] || '', lastName: user.full_name.split(' ').slice(1).join(' ') || '' })
+                                  setCurrentChild({ ...currentChild, userId: user.id, firstName: user.full_name.split(' ')[0] || '', lastName: user.full_name.split(' ').slice(1).join(' ') || '' })
                                   setUserSearchQuery('')
                                   setAvailableUsers([])
                                 }}
@@ -4185,7 +4262,7 @@ export default function Admin({ onLogout }: AdminProps) {
                             ))}
                           </div>
                         )}
-                        {newChild.userId && (
+                        {currentChild.userId && (
                           <div className="mt-2 text-xs text-green-400">
                             ✓ Linked to user account
                           </div>
@@ -4194,11 +4271,19 @@ export default function Admin({ onLogout }: AdminProps) {
                       <div className="md:col-span-2">
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
                         <textarea
-                          value={newChild.medicalNotes}
-                          onChange={(e) => setNewChild({ ...newChild, medicalNotes: e.target.value })}
+                          value={currentChild.medicalNotes}
+                          onChange={(e) => setCurrentChild({ ...currentChild, medicalNotes: e.target.value })}
                           rows={2}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         />
+                      </div>
+                      <div className="md:col-span-2">
+                        <button
+                          onClick={handleAddChildToArray}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                        >
+                          + Add This Child to List
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -4213,8 +4298,11 @@ export default function Admin({ onLogout }: AdminProps) {
                     <button
                       onClick={() => {
                         setMemberModalMode('search')
-                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: '' })
-                        setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '', userId: null })
+                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: 'Non-Participant' })
+                        setNewChildren([])
+                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+                        setUserSearchQuery('')
+                        setAvailableUsers([])
                       }}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
@@ -4320,8 +4408,8 @@ export default function Admin({ onLogout }: AdminProps) {
                         <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
                         <input
                           type="text"
-                          value={newChild.firstName}
-                          onChange={(e) => setNewChild({ ...newChild, firstName: e.target.value })}
+                          value={currentChild.firstName}
+                          onChange={(e) => setCurrentChild({ ...currentChild, firstName: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         />
                       </div>
@@ -4329,8 +4417,8 @@ export default function Admin({ onLogout }: AdminProps) {
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
                         <input
                           type="text"
-                          value={newChild.lastName}
-                          onChange={(e) => setNewChild({ ...newChild, lastName: e.target.value })}
+                          value={currentChild.lastName}
+                          onChange={(e) => setCurrentChild({ ...currentChild, lastName: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         />
                       </div>
@@ -4338,16 +4426,16 @@ export default function Admin({ onLogout }: AdminProps) {
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth *</label>
                         <input
                           type="date"
-                          value={newChild.dateOfBirth}
-                          onChange={(e) => setNewChild({ ...newChild, dateOfBirth: e.target.value })}
+                          value={currentChild.dateOfBirth}
+                          onChange={(e) => setCurrentChild({ ...currentChild, dateOfBirth: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
                         <select
-                          value={newChild.program}
-                          onChange={(e) => setNewChild({ ...newChild, program: e.target.value })}
+                          value={currentChild.program}
+                          onChange={(e) => setCurrentChild({ ...currentChild, program: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
                           <option value="">Select Program</option>
@@ -4384,7 +4472,7 @@ export default function Admin({ onLogout }: AdminProps) {
                               <div
                                 key={user.id}
                                 onClick={() => {
-                                  setNewChild({ ...newChild, userId: user.id, firstName: user.full_name.split(' ')[0] || '', lastName: user.full_name.split(' ').slice(1).join(' ') || '' })
+                                  setCurrentChild({ ...currentChild, userId: user.id, firstName: user.full_name.split(' ')[0] || '', lastName: user.full_name.split(' ').slice(1).join(' ') || '' })
                                   setUserSearchQuery('')
                                   setAvailableUsers([])
                                 }}
@@ -4395,7 +4483,7 @@ export default function Admin({ onLogout }: AdminProps) {
                             ))}
                           </div>
                         )}
-                        {newChild.userId && (
+                        {currentChild.userId && (
                           <div className="mt-2 text-xs text-green-400">
                             ✓ Linked to user account
                           </div>
@@ -4404,8 +4492,8 @@ export default function Admin({ onLogout }: AdminProps) {
                       <div className="md:col-span-2">
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
                         <textarea
-                          value={newChild.medicalNotes}
-                          onChange={(e) => setNewChild({ ...newChild, medicalNotes: e.target.value })}
+                          value={currentChild.medicalNotes}
+                          onChange={(e) => setCurrentChild({ ...currentChild, medicalNotes: e.target.value })}
                           rows={2}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         />
@@ -4415,7 +4503,7 @@ export default function Admin({ onLogout }: AdminProps) {
                       onClick={handleAddChildToFamily}
                       className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
                     >
-                      Add {newChild.userId ? 'Athlete' : 'Child'} to Family
+                      Add {currentChild.userId ? 'Athlete' : 'Child'} to Family
                     </button>
                   </div>
 
