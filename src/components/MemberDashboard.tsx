@@ -386,8 +386,27 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const filteredClasses = classes.filter(program => {
     // Category filter
     if (selectedCategoryFilter !== 'all') {
-      if (program.categoryId !== selectedCategoryFilter) {
-        return false
+      // Match by categoryId (handle both number and string comparisons)
+      if (program.categoryId != null) {
+        if (program.categoryId !== selectedCategoryFilter && String(program.categoryId) !== String(selectedCategoryFilter)) {
+          // Also check categoryDisplayName as fallback
+          const selectedCategory = categories.find(c => c.id === selectedCategoryFilter)
+          if (selectedCategory) {
+            if (program.categoryDisplayName !== selectedCategory.displayName) {
+              return false
+            }
+          } else {
+            return false
+          }
+        }
+      } else {
+        // If categoryId is null, try to match by categoryDisplayName
+        const selectedCategory = categories.find(c => c.id === selectedCategoryFilter)
+        if (selectedCategory && program.categoryDisplayName !== selectedCategory.displayName) {
+          return false
+        } else if (!selectedCategory) {
+          return false
+        }
       }
     }
     
