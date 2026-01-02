@@ -1562,7 +1562,9 @@ export default function Admin({ onLogout }: AdminProps) {
         setLevelFormData({})
       } else {
         const data = await response.json()
-        alert(data.message || 'Failed to update level')
+        const errorMessage = data.errors ? data.errors.join(', ') : (data.message || 'Failed to update level')
+        alert(errorMessage)
+        console.error('Level update error details:', data)
       }
     } catch (error) {
       console.error('Error updating level:', error)

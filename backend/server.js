@@ -3001,8 +3001,12 @@ app.post('/api/admin/levels', async (req, res) => {
 app.put('/api/admin/levels/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const { error, value } = levelUpdateSchema.validate(req.body)
+    const { error, value } = levelUpdateSchema.validate(req.body, { 
+      allowUnknown: true, // Allow unknown fields like categoryId (we'll ignore them)
+      stripUnknown: true  // Strip unknown fields
+    })
     if (error) {
+      console.error('Level update validation error:', error.details)
       return res.status(400).json({
         success: false,
         message: 'Validation error',
