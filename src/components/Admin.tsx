@@ -662,7 +662,6 @@ export default function Admin({ onLogout }: AdminProps) {
     internalFlags: ''
   })
   const [familySearchQuery, setFamilySearchQuery] = useState('')
-  const [athleteSearchQuery, setAthleteSearchQuery] = useState('')
   // Comprehensive Member Management Modal
   const [showMemberModal, setShowMemberModal] = useState(false)
   const [memberSearchQuery, setMemberSearchQuery] = useState('')
@@ -689,6 +688,8 @@ export default function Admin({ onLogout }: AdminProps) {
     firstName: string
     lastName: string
     dateOfBirth: string
+    email: string
+    password: string
     medicalNotes: string
     internalFlags: string
     program: string
@@ -698,6 +699,8 @@ export default function Admin({ onLogout }: AdminProps) {
     firstName: '',
     lastName: '',
     dateOfBirth: '',
+    email: '',
+    password: '',
     medicalNotes: '',
     internalFlags: '',
     program: 'Non-Participant',
@@ -817,30 +820,6 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }, [showMemberModal])
 
-  // Autofill user search query with primary adult email when in new-family mode
-  // and automatically link to the primary adult's user account
-  useEffect(() => {
-    if (memberModalMode === 'new-family' && newPrimaryAdult.email) {
-      setUserSearchQuery(newPrimaryAdult.email)
-      // Only fetch users when email looks complete (contains @) and debounce the call
-      if (newPrimaryAdult.email.includes('@') && newPrimaryAdult.email.length >= 5) {
-        const timeoutId = setTimeout(() => {
-          fetchAvailableUsers(newPrimaryAdult.email)
-        }, 500) // Debounce by 500ms
-        return () => clearTimeout(timeoutId)
-      }
-    }
-  }, [newPrimaryAdult.email, memberModalMode])
-
-  // Automatically link to primary adult user when available users are fetched or child form is reset
-  useEffect(() => {
-    if (memberModalMode === 'new-family' && newPrimaryAdult.email && availableUsers.length > 0 && !currentChild.userId) {
-      const primaryAdultUser = availableUsers.find(u => u.email.toLowerCase() === newPrimaryAdult.email.toLowerCase())
-      if (primaryAdultUser) {
-        setCurrentChild(prev => ({ ...prev, userId: primaryAdultUser.id }))
-      }
-    }
-  }, [availableUsers, memberModalMode, newPrimaryAdult.email, currentChild.userId])
 
   // Debounce family search
   useEffect(() => {
@@ -875,15 +854,29 @@ export default function Admin({ onLogout }: AdminProps) {
       }
       const response = await fetch(`${apiUrl}/api/admin/families?${params.toString()}`)
       if (!response.ok) {
-        throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
+        // Set empty array on error to prevent UI breakage
+        setFamilies([])
+        const errorText = await response.text().catch(() => response.statusText)
+        console.error('Error fetching families:', response.status, errorText)
+        // Only show error for non-500 errors to avoid alarming users for backend issues
+        if (response.status !== 500) {
+          setError(`Unable to fetch families: ${response.statusText}`)
+        }
+        return
       }
       const data = await response.json()
       if (data.success) {
         setFamilies(data.data)
+      } else {
+        setFamilies([])
       }
     } catch (error) {
       console.error('Error fetching families:', error)
-      setError(error instanceof Error ? error.message : 'Unable to fetch families')
+      setFamilies([]) // Set empty array to prevent UI breakage
+      // Only show error for non-network errors
+      if (error instanceof Error && !error.message.includes('fetch')) {
+        setError(error.message)
+      }
     } finally {
       setFamiliesLoading(false)
     }
@@ -895,23 +888,34 @@ export default function Admin({ onLogout }: AdminProps) {
       setError(null)
       const apiUrl = getApiUrl()
       const params = new URLSearchParams()
-      if (athleteSearchQuery) {
-        params.append('search', athleteSearchQuery)
-      }
       if (selectedFamilyId) {
         params.append('familyId', selectedFamilyId.toString())
       }
       const response = await fetch(`${apiUrl}/api/admin/athletes?${params.toString()}`)
       if (!response.ok) {
-        throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
+        // Set empty array on error to prevent UI breakage
+        setAthletes([])
+        const errorText = await response.text().catch(() => response.statusText)
+        console.error('Error fetching athletes:', response.status, errorText)
+        // Only show error for non-500 errors to avoid alarming users for backend issues
+        if (response.status !== 500) {
+          setError(`Unable to fetch athletes: ${response.statusText}`)
+        }
+        return
       }
       const data = await response.json()
       if (data.success) {
         setAthletes(data.data)
+      } else {
+        setAthletes([])
       }
     } catch (error) {
       console.error('Error fetching athletes:', error)
-      setError(error instanceof Error ? error.message : 'Unable to fetch athletes')
+      setAthletes([]) // Set empty array to prevent UI breakage
+      // Only show error for non-network errors
+      if (error instanceof Error && !error.message.includes('fetch')) {
+        setError(error.message)
+      }
     } finally {
       setAthletesLoading(false)
     }
@@ -1164,27 +1168,6 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
-  const handleDeleteAthlete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this athlete?')) {
-      return
-    }
-    try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/athletes/${id}`, {
-        method: 'DELETE'
-      })
-      if (response.ok) {
-        await fetchAthletes()
-        await fetchFamilies()
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to delete athlete')
-      }
-    } catch (error) {
-      console.error('Error deleting athlete:', error)
-      alert('Failed to delete athlete')
-    }
-  }
 
   // Search for existing families/adults
   const searchFamiliesForMember = async (query: string) => {
@@ -1224,7 +1207,8 @@ export default function Admin({ onLogout }: AdminProps) {
 
       const apiUrl = getApiUrl()
       
-      // First, create the app_user for the primary adult
+      // Try to create the user, or use existing if email already registered
+      let userId: number
       const userResponse = await fetch(`${apiUrl}/api/admin/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1239,11 +1223,38 @@ export default function Admin({ onLogout }: AdminProps) {
 
       if (!userResponse.ok) {
         const data = await userResponse.json()
-        throw new Error(data.message || 'Failed to create user account')
+        // If email already exists, search for and use the existing user
+        if (userResponse.status === 409 || data.message?.toLowerCase().includes('email') || data.message?.toLowerCase().includes('already')) {
+          try {
+            const searchResponse = await fetch(`${apiUrl}/api/admin/users?role=PARENT_GUARDIAN&search=${encodeURIComponent(newPrimaryAdult.email)}`)
+            if (searchResponse.ok) {
+              const searchData = await searchResponse.json()
+              if (searchData.success && searchData.data && searchData.data.length > 0) {
+                const existingUser = searchData.data.find((u: any) => u.email.toLowerCase() === newPrimaryAdult.email.toLowerCase())
+                if (existingUser) {
+                  userId = existingUser.id
+                  console.log('Using existing user:', existingUser.id)
+                } else {
+                  throw new Error('Email already registered, but user not found in search results')
+                }
+              } else {
+                throw new Error('Email already registered, but user not found in search results')
+              }
+            } else {
+              // If search fails, still throw the original error but with more context
+              throw new Error(data.message || 'Email already registered. Unable to find existing user account.')
+            }
+          } catch {
+            // If search fails (e.g., 500 error), throw the original error
+            throw new Error(data.message || 'Email already registered')
+          }
+        } else {
+          throw new Error(data.message || 'Failed to create user account')
+        }
+      } else {
+        const userData = await userResponse.json()
+        userId = userData.data.id
       }
-
-      const userData = await userResponse.json()
-      const userId = userData.data.id
 
       // Create family with this user as primary
       const familyResponse = await fetch(`${apiUrl}/api/admin/families`, {
@@ -1263,10 +1274,66 @@ export default function Admin({ onLogout }: AdminProps) {
 
       const familyData = await familyResponse.json()
       const familyId = familyData.data.id
+      const guardianIds = [userId] // Start with primary adult
 
-      // Add all children if provided
+      // Add all family members if provided
       for (const child of newChildren) {
         if (child.firstName && child.lastName && child.dateOfBirth) {
+          let childUserId: number | null = null
+          
+          // Calculate age to determine if they need an account
+          const birthDate = new Date(child.dateOfBirth)
+          const today = new Date()
+          const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+          
+          // Create user account if email is provided
+          if (child.email && child.password) {
+            try {
+              const childUserResponse = await fetch(`${apiUrl}/api/admin/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  fullName: `${child.firstName} ${child.lastName}`,
+                  email: child.email,
+                  phone: null,
+                  password: child.password,
+                  role: age >= 18 ? 'PARENT_GUARDIAN' : 'ATHLETE'
+                })
+              })
+
+              if (childUserResponse.ok) {
+                const childUserData = await childUserResponse.json()
+                childUserId = childUserData.data.id
+                // Add to guardians if 18+
+                if (age >= 18 && childUserId !== null) {
+                  guardianIds.push(childUserId)
+                }
+              } else {
+                // If user creation fails (e.g., email exists), try to find existing user
+                const childData = await childUserResponse.json()
+                if (childUserResponse.status === 409 || childData.message?.toLowerCase().includes('email')) {
+                  const searchResponse = await fetch(`${apiUrl}/api/admin/users?role=${age >= 18 ? 'PARENT_GUARDIAN' : 'ATHLETE'}&search=${encodeURIComponent(child.email)}`)
+                  if (searchResponse.ok) {
+                    const searchData = await searchResponse.json()
+                    if (searchData.success && searchData.data && searchData.data.length > 0) {
+                      const existingUser = searchData.data.find((u: any) => u.email.toLowerCase() === child.email.toLowerCase())
+                      if (existingUser) {
+                        childUserId = existingUser.id
+                        if (age >= 18 && childUserId !== null) {
+                          guardianIds.push(childUserId)
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Error creating user for family member:', error)
+              // Continue without user account
+            }
+          }
+          
+          // Create athlete record
           await fetch(`${apiUrl}/api/admin/athletes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1277,10 +1344,23 @@ export default function Admin({ onLogout }: AdminProps) {
               dateOfBirth: child.dateOfBirth,
               medicalNotes: child.medicalNotes || null,
               internalFlags: child.internalFlags || null,
-              userId: child.userId || null // Link to user if adult athlete
+              userId: childUserId
             })
           })
         }
+      }
+      
+      // Update family with all guardians
+      if (guardianIds.length > 1) {
+        await fetch(`${apiUrl}/api/admin/families/${familyId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            familyName: `${newPrimaryAdult.firstName} ${newPrimaryAdult.lastName} Family`,
+            primaryUserId: userId,
+            guardianIds: guardianIds
+          })
+        })
       }
 
       // Refresh data
@@ -1290,7 +1370,7 @@ export default function Admin({ onLogout }: AdminProps) {
       // Reset form
       setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: 'Non-Participant' })
       setNewChildren([])
-      setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+      setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
       setUserSearchQuery('')
       setAvailableUsers([])
       setMemberModalMode('search')
@@ -1404,9 +1484,27 @@ export default function Admin({ onLogout }: AdminProps) {
       alert('Please fill in at least first name, last name, and date of birth')
       return
     }
+    
+    // Check if email is required (18+)
+    if (currentChild.dateOfBirth) {
+      const birthDate = new Date(currentChild.dateOfBirth)
+      const today = new Date()
+      const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+      
+      if (age >= 18 && !currentChild.email) {
+        alert('Email is required for family members 18 years or older')
+        return
+      }
+      
+      if (currentChild.email && !currentChild.password) {
+        alert('Password is required when email is provided')
+        return
+      }
+    }
+    
     setNewChildren([...newChildren, { ...currentChild }])
-    // Reset form - userSearchQuery will be restored by useEffect in new-family mode
-    setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+    // Reset form
+    setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
     // Only clear user search if not in new-family mode
     if (memberModalMode !== 'new-family') {
       setUserSearchQuery('')
@@ -1460,7 +1558,7 @@ export default function Admin({ onLogout }: AdminProps) {
 
       await fetchAthletes()
       await fetchFamilies()
-      setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+      setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
       setUserSearchQuery('')
       setAvailableUsers([])
       alert('Child added to family successfully!')
@@ -3537,16 +3635,16 @@ export default function Admin({ onLogout }: AdminProps) {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {/* Families Section */}
+                {/* Members Section */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                     <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-                      Families ({families.length})
+                      Members ({families.length})
                     </h2>
                     <div className="flex gap-2">
                       <input
                         type="text"
-                        placeholder="Search families..."
+                        placeholder="Search Members"
                         value={familySearchQuery}
                         onChange={(e) => {
                           setFamilySearchQuery(e.target.value)
@@ -3579,7 +3677,14 @@ export default function Admin({ onLogout }: AdminProps) {
                   ) : (
                     <div className="space-y-4">
                       {families.map((family) => (
-                        <div key={family.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div 
+                          key={family.id} 
+                          className="bg-gray-50 rounded-lg p-4 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                          onClick={() => {
+                            // View entire family - can be expanded to show detailed modal if needed
+                            setSelectedFamilyId(family.id)
+                          }}
+                        >
                           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div className="flex-1">
                               <div className="text-black font-semibold text-lg">
@@ -3604,107 +3709,10 @@ export default function Admin({ onLogout }: AdminProps) {
                             </div>
                             <div className="flex gap-2">
                               <motion.button
-                                onClick={() => {
-                                  setSelectedFamilyId(family.id)
-                                  setAthleteFormData({ ...athleteFormData, familyId: family.id })
-                                  setShowAthleteForm(true)
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleDeleteFamily(family.id)
                                 }}
-                                className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                Add Athlete
-                              </motion.button>
-                              <motion.button
-                                onClick={() => handleDeleteFamily(family.id)}
-                                className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                Delete
-                              </motion.button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Athletes Section */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-                      Athletes ({athletes.length})
-                    </h2>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="Search athletes..."
-                        value={athleteSearchQuery}
-                        onChange={(e) => {
-                          setAthleteSearchQuery(e.target.value)
-                          fetchAthletes()
-                        }}
-                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                      <motion.button
-                        onClick={() => {
-                          setSelectedFamilyId(null)
-                          setShowAthleteForm(true)
-                        }}
-                        className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <UserPlus className="w-4 h-4" />
-                        <span>Create Athlete</span>
-                      </motion.button>
-                    </div>
-                  </div>
-
-                  {athletesLoading ? (
-                    <div className="text-center py-12 text-gray-600">Loading athletes...</div>
-                  ) : athletes.length === 0 ? (
-                    <div className="text-center py-12 text-gray-600">No athletes yet</div>
-                  ) : (
-                    <div className="space-y-4">
-                      {athletes.map((athlete) => (
-                        <div key={athlete.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <div className="text-black font-semibold text-lg">
-                                  {athlete.first_name} {athlete.last_name}
-                                </div>
-                                {athlete.user_id && (
-                                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                    Adult Athlete
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-gray-600 text-sm mt-1">
-                                Age: {athlete.age || 'N/A'} | DOB: {new Date(athlete.date_of_birth).toLocaleDateString()}
-                              </div>
-                              {athlete.linked_user_email && (
-                                <div className="text-xs text-blue-600 mt-1">
-                                  Linked to: {athlete.linked_user_name} ({athlete.linked_user_email})
-                                </div>
-                              )}
-                              {athlete.medical_notes && (
-                                <div className="text-gray-600 text-sm mt-1">
-                                  Medical Notes: {athlete.medical_notes}
-                                </div>
-                              )}
-                              {athlete.internal_flags && (
-                                <div className="text-gray-600 text-sm mt-1">
-                                  Flags: {athlete.internal_flags}
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex gap-2">
-                              <motion.button
-                                onClick={() => handleDeleteAthlete(athlete.id)}
                                 className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -4178,31 +4186,42 @@ export default function Admin({ onLogout }: AdminProps) {
                     {newChildren.length > 0 && (
                       <div className="mb-4 space-y-2">
                         <p className="text-sm text-gray-300 font-semibold">Family Members to be added ({newChildren.length}):</p>
-                        {newChildren.map((child, index) => (
-                          <div key={index} className="bg-gray-600 p-3 rounded flex justify-between items-center">
-                            <div>
-                              <span className="text-white font-medium">
-                                {child.firstName} {child.lastName}
-                              </span>
-                              {child.dateOfBirth && (
-                                <span className="text-gray-400 text-sm ml-2">
-                                  (DOB: {new Date(child.dateOfBirth).toLocaleDateString()})
+                        {newChildren.map((child, index) => {
+                          const birthDate = child.dateOfBirth ? new Date(child.dateOfBirth) : null
+                          const today = new Date()
+                          const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
+                          
+                          return (
+                            <div key={index} className="bg-gray-600 p-3 rounded flex justify-between items-center">
+                              <div>
+                                <span className="text-white font-medium">
+                                  {child.firstName} {child.lastName}
                                 </span>
-                              )}
-                              {child.userId && (
-                                <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded ml-2">
-                                  Adult Athlete
-                                </span>
-                              )}
+                                {child.dateOfBirth && (
+                                  <span className="text-gray-400 text-sm ml-2">
+                                    (DOB: {new Date(child.dateOfBirth).toLocaleDateString()})
+                                  </span>
+                                )}
+                                {child.email && (
+                                  <span className="text-gray-400 text-sm ml-2">
+                                    ({child.email})
+                                  </span>
+                                )}
+                                {age !== null && age >= 18 && (
+                                  <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded ml-2">
+                                    Adult
+                                  </span>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => handleRemoveChildFromArray(index)}
+                                className="text-red-400 hover:text-red-300 text-sm font-semibold"
+                              >
+                                Remove
+                              </button>
                             </div>
-                            <button
-                              onClick={() => handleRemoveChildFromArray(index)}
-                              className="text-red-400 hover:text-red-300 text-sm font-semibold"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                     )}
 
@@ -4250,56 +4269,43 @@ export default function Admin({ onLogout }: AdminProps) {
                           ))}
                         </select>
                       </div>
-                      <div className="md:col-span-2">
+                      <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">
-                          Link to Existing User (Optional - for adult athletes)
+                          Email {(() => {
+                            if (!currentChild.dateOfBirth) return '(Optional)'
+                            const birthDate = new Date(currentChild.dateOfBirth)
+                            const today = new Date()
+                            const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+                            return age >= 18 ? '*' : '(Optional)'
+                          })()}
                         </label>
-                        <div className="flex gap-2">
+                        <input
+                          type="email"
+                          value={currentChild.email}
+                          onChange={(e) => setCurrentChild({ ...currentChild, email: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          required={(() => {
+                            if (!currentChild.dateOfBirth) return false
+                            const birthDate = new Date(currentChild.dateOfBirth)
+                            const today = new Date()
+                            const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+                            return age >= 18
+                          })()}
+                        />
+                      </div>
+                      {currentChild.email && (
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
                           <input
-                            type="text"
-                            placeholder="Search by name or email..."
-                            value={userSearchQuery}
-                            onChange={(e) => {
-                              if (memberModalMode !== 'new-family') {
-                                setUserSearchQuery(e.target.value)
-                                if (e.target.value.length >= 2) {
-                                  fetchAvailableUsers(e.target.value)
-                                } else {
-                                  setAvailableUsers([])
-                                }
-                              }
-                            }}
-                            disabled={memberModalMode === 'new-family'}
-                            className={`flex-1 px-3 py-2 rounded border ${
-                              memberModalMode === 'new-family' 
-                                ? 'bg-gray-500 text-gray-400 border-gray-600 cursor-not-allowed' 
-                                : 'bg-gray-600 text-white border-gray-500'
-                            }`}
+                            type="password"
+                            value={currentChild.password}
+                            onChange={(e) => setCurrentChild({ ...currentChild, password: e.target.value })}
+                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            required={!!currentChild.email}
+                            minLength={6}
                           />
                         </div>
-                        {availableUsers.length > 0 && memberModalMode !== 'new-family' && (
-                          <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
-                            {availableUsers.map((user) => (
-                              <div
-                                key={user.id}
-                                onClick={() => {
-                                  setCurrentChild({ ...currentChild, userId: user.id, firstName: user.full_name.split(' ')[0] || '', lastName: user.full_name.split(' ').slice(1).join(' ') || '' })
-                                  setUserSearchQuery('')
-                                  setAvailableUsers([])
-                                }}
-                                className="p-2 bg-gray-600 rounded cursor-pointer hover:bg-gray-500 text-sm"
-                              >
-                                {user.full_name} ({user.email}) - {user.role}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {currentChild.userId && (
-                          <div className="mt-2 text-xs text-green-400">
-                            ✓ Linked to user account
-                          </div>
-                        )}
-                      </div>
+                      )}
                       <div className="md:col-span-2">
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
                         <textarea
@@ -4332,7 +4338,7 @@ export default function Admin({ onLogout }: AdminProps) {
                         setMemberModalMode('search')
                         setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: 'Non-Participant' })
                         setNewChildren([])
-                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
+                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
                         setUserSearchQuery('')
                         setAvailableUsers([])
                       }}
