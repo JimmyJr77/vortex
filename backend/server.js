@@ -2519,9 +2519,21 @@ app.post('/api/admin/programs', async (req, res) => {
       })
     }
 
-    // If categoryId is provided, use it; otherwise try to map from category enum
+    // If categoryId is provided, use it and look up the category enum value
     let categoryId = value.categoryId
-    if (!categoryId && value.category) {
+    let categoryEnum = value.category || null
+    
+    if (categoryId && !categoryEnum) {
+      // Look up the category enum value from the categoryId
+      const categoryResult = await pool.query(
+        'SELECT name FROM program_categories WHERE id = $1 LIMIT 1',
+        [categoryId]
+      )
+      if (categoryResult.rows.length > 0) {
+        categoryEnum = categoryResult.rows[0].name
+      }
+    } else if (!categoryId && value.category) {
+      // Look up categoryId from the category enum value
       const categoryResult = await pool.query(
         'SELECT id FROM program_categories WHERE name = $1 LIMIT 1',
         [value.category]
@@ -2555,7 +2567,7 @@ app.post('/api/admin/programs', async (req, res) => {
 
     // Build INSERT statement based on which columns exist
     let insertColumns = ['facility_id', 'category']
-    let insertValues = [facilityId.rows[0].id, value.category || null]
+    let insertValues = [facilityId.rows[0].id, categoryEnum]
 
     // Add category_id if column exists
     if (hasCategoryIdColumn) {
