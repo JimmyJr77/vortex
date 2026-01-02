@@ -2551,31 +2551,38 @@ app.post('/api/admin/programs', async (req, res) => {
     const hasLevelIdColumn = columnCheck.rows.some(row => row.column_name === 'level_id')
 
     // Build INSERT statement based on which columns exist
-    let insertColumns = ['facility_id', 'category', 'name', 'display_name', 'skill_level', 'age_min', 'age_max', 'description', 'skill_requirements', 'is_active']
-    let insertValues = []
-    let paramCount = 1
+    let insertColumns = ['facility_id', 'category']
+    let insertValues = [facilityId.rows[0].id, value.category || null]
 
-    insertValues.push(facilityId.rows[0].id) // $1
-    insertValues.push(value.category || null) // $2
+    // Add category_id if column exists
     if (hasCategoryIdColumn) {
-      insertColumns.splice(2, 0, 'category_id')
-      insertValues.splice(2, 0, categoryId || null)
-      paramCount++
+      insertColumns.push('category_id')
+      insertValues.push(categoryId || null)
     }
-    insertValues.push(value.name || value.displayName?.toUpperCase().replace(/\s+/g, '_') || 'CLASS') // name
-    insertValues.push(value.displayName) // display_name
-    insertValues.push(value.skillLevel || null) // skill_level
+
+    // Add standard columns
+    insertColumns.push('name', 'display_name', 'skill_level')
+    insertValues.push(
+      value.name || value.displayName?.toUpperCase().replace(/\s+/g, '_') || 'CLASS',
+      value.displayName,
+      value.skillLevel || null
+    )
+
+    // Add level_id if column exists (after skill_level)
     if (hasLevelIdColumn) {
-      const levelIdIndex = insertColumns.indexOf('skill_level') + 1
-      insertColumns.splice(levelIdIndex, 0, 'level_id')
-      insertValues.splice(insertValues.length - 1, 0, levelId || null)
-      paramCount++
+      insertColumns.push('level_id')
+      insertValues.push(levelId || null)
     }
-    insertValues.push(value.ageMin || null) // age_min
-    insertValues.push(value.ageMax || null) // age_max
-    insertValues.push(value.description || null) // description
-    insertValues.push(value.skillRequirements || null) // skill_requirements
-    insertValues.push(value.isActive !== undefined ? value.isActive : true) // is_active
+
+    // Add remaining columns
+    insertColumns.push('age_min', 'age_max', 'description', 'skill_requirements', 'is_active')
+    insertValues.push(
+      value.ageMin || null,
+      value.ageMax || null,
+      value.description || null,
+      value.skillRequirements || null,
+      value.isActive !== undefined ? value.isActive : true
+    )
 
     const placeholders = insertValues.map((_, i) => `$${i + 1}`).join(', ')
 
