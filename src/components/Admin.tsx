@@ -649,7 +649,9 @@ export default function Admin({ onLogout }: AdminProps) {
   // Module 2: Families and Athletes
   const [families, setFamilies] = useState<Family[]>([])
   const [familiesLoading, setFamiliesLoading] = useState(false)
+  // @ts-expect-error - athletes state is set by fetchAthletes but not displayed in UI
   const [athletes, setAthletes] = useState<Athlete[]>([])
+  // @ts-expect-error - athletesLoading state is set by fetchAthletes but not displayed in UI
   const [athletesLoading, setAthletesLoading] = useState(false)
   const [showAthleteForm, setShowAthleteForm] = useState(false)
   const [selectedFamilyId, setSelectedFamilyId] = useState<number | null>(null)
