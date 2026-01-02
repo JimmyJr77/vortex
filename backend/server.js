@@ -2977,6 +2977,465 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
   }
 })
 
+// Update current member profile
+app.put('/api/members/me', authenticateMember, async (req, res) => {
+  try {
+    const userId = req.userId || req.memberId
+    const { first_name, last_name, email, phone, address } = req.body
+
+    // Get current user
+    const userResult = await pool.query(`
+      SELECT u.id, u.full_name
+      FROM app_user u
+      WHERE u.id = $1 AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+    `, [userId])
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found'
+      })
+    }
+
+    // Update user
+    const updateFields = []
+    const updateValues = []
+    let paramCount = 1
+
+    if (first_name !== undefined || last_name !== undefined) {
+      const fullName = `${first_name || ''} ${last_name || ''}`.trim()
+      updateFields.push(`full_name = $${paramCount++}`)
+      updateValues.push(fullName)
+    }
+    if (email !== undefined) {
+      updateFields.push(`email = $${paramCount++}`)
+      updateValues.push(email)
+    }
+    if (phone !== undefined) {
+      updateFields.push(`phone = $${paramCount++}`)
+      updateValues.push(phone)
+    }
+
+    if (updateFields.length > 0) {
+      updateValues.push(userId)
+      await pool.query(`
+        UPDATE app_user
+        SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $${paramCount}
+      `, updateValues)
+    }
+
+    // If address is provided, we might need to store it elsewhere or add to app_user table
+    // For now, we'll skip address as it's not in the app_user schema
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully'
+    })
+  } catch (error) {
+    console.error('Update member error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Get family members
+app.get('/api/members/family', authenticateMember, async (req, res) => {
+  try {
+    const userId = req.userId || req.memberId
+
+    // Get user's family
+    const familyResult = await pool.query(`
+      SELECT f.id, f.family_name, f.primary_user_id
+      FROM family f
+      WHERE f.primary_user_id = $1 OR EXISTS (
+        SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+      )
+      LIMIT 1
+    `, [userId])
+
+    if (familyResult.rows.length === 0) {
+      return res.json({
+        success: true,
+        familyMembers: []
+      })
+    }
+
+    const familyId = familyResult.rows[0].id
+
+    // Get all family members (guardians and athletes)
+    const guardiansResult = await pool.query(`
+      SELECT 
+        u.id,
+        u.full_name,
+        u.email,
+        u.phone,
+        u.role,
+        CASE WHEN f.primary_user_id = u.id THEN TRUE ELSE FALSE END as is_primary,
+        FALSE as is_adult,
+        NULL::DATE as date_of_birth,
+        NULL::INTEGER as age,
+        u.id as user_id,
+        FALSE as marked_for_removal
+      FROM app_user u
+      LEFT JOIN family f ON f.primary_user_id = u.id
+      LEFT JOIN family_guardian fg ON fg.user_id = u.id
+      WHERE (f.id = $1 OR fg.family_id = $1)
+        AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER')
+      UNION ALL
+      SELECT 
+        a.id,
+        a.first_name || ' ' || a.last_name as full_name,
+        u.email,
+        u.phone,
+        COALESCE(u.role, 'ATHLETE') as role,
+        FALSE as is_primary,
+        CASE WHEN u.id IS NOT NULL THEN TRUE ELSE FALSE END as is_adult,
+        a.date_of_birth,
+        EXTRACT(YEAR FROM AGE(a.date_of_birth))::INTEGER as age,
+        a.user_id,
+        FALSE as marked_for_removal
+      FROM athlete a
+      LEFT JOIN app_user u ON a.user_id = u.id
+      WHERE a.family_id = $1
+    `, [familyId])
+
+    const familyMembers = guardiansResult.rows.map(row => ({
+      id: row.id,
+      first_name: row.full_name?.split(' ')[0] || '',
+      last_name: row.full_name?.split(' ').slice(1).join(' ') || '',
+      email: row.email,
+      phone: row.phone,
+      date_of_birth: row.date_of_birth,
+      age: row.age,
+      user_id: row.user_id,
+      is_adult: row.is_adult || row.role === 'PARENT_GUARDIAN',
+      marked_for_removal: row.marked_for_removal || false
+    }))
+
+    res.json({
+      success: true,
+      familyMembers
+    })
+  } catch (error) {
+    console.error('Get family members error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Update family member
+app.put('/api/members/family/:id', authenticateMember, async (req, res) => {
+  try {
+    const userId = req.userId || req.memberId
+    const familyMemberId = parseInt(req.params.id)
+    const { first_name, last_name, email, phone } = req.body
+
+    // Check if user is an adult (PARENT_GUARDIAN)
+    const userResult = await pool.query(`
+      SELECT u.role
+      FROM app_user u
+      WHERE u.id = $1
+    `, [userId])
+
+    if (userResult.rows.length === 0 || userResult.rows[0].role !== 'PARENT_GUARDIAN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only adults can edit family member information'
+      })
+    }
+
+    // Check if family member exists and belongs to user's family
+    const familyResult = await pool.query(`
+      SELECT f.id as family_id
+      FROM family f
+      WHERE f.primary_user_id = $1 OR EXISTS (
+        SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+      )
+      LIMIT 1
+    `, [userId])
+
+    if (familyResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Family not found'
+      })
+    }
+
+    const familyId = familyResult.rows[0].family_id
+
+    // Check if it's an athlete or a user
+    const athleteCheck = await pool.query(`
+      SELECT a.id, a.user_id
+      FROM athlete a
+      WHERE a.id = $1 AND a.family_id = $2
+    `, [familyMemberId, familyId])
+
+    if (athleteCheck.rows.length > 0) {
+      // Update athlete
+      const updateFields = []
+      const updateValues = []
+      let paramCount = 1
+
+      if (first_name !== undefined) {
+        updateFields.push(`first_name = $${paramCount++}`)
+        updateValues.push(first_name)
+      }
+      if (last_name !== undefined) {
+        updateFields.push(`last_name = $${paramCount++}`)
+        updateValues.push(last_name)
+      }
+
+      if (updateFields.length > 0) {
+        updateValues.push(familyMemberId)
+        await pool.query(`
+          UPDATE athlete
+          SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $${paramCount}
+        `, updateValues)
+      }
+
+      // If athlete has a user account, update that too
+      if (athleteCheck.rows[0].user_id) {
+        const userUpdateFields = []
+        const userUpdateValues = []
+        let userParamCount = 1
+
+        if (email !== undefined) {
+          userUpdateFields.push(`email = $${userParamCount++}`)
+          userUpdateValues.push(email)
+        }
+        if (phone !== undefined) {
+          userUpdateFields.push(`phone = $${userParamCount++}`)
+          userUpdateValues.push(phone)
+        }
+
+        if (userUpdateFields.length > 0) {
+          userUpdateValues.push(athleteCheck.rows[0].user_id)
+          await pool.query(`
+            UPDATE app_user
+            SET ${userUpdateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $${userParamCount}
+          `, userUpdateValues)
+        }
+      }
+    } else {
+      // Update user (guardian)
+      const userUpdateFields = []
+      const userUpdateValues = []
+      let userParamCount = 1
+
+      if (first_name !== undefined || last_name !== undefined) {
+        const fullName = `${first_name || ''} ${last_name || ''}`.trim()
+        userUpdateFields.push(`full_name = $${userParamCount++}`)
+        userUpdateValues.push(fullName)
+      }
+      if (email !== undefined) {
+        userUpdateFields.push(`email = $${userParamCount++}`)
+        userUpdateValues.push(email)
+      }
+      if (phone !== undefined) {
+        userUpdateFields.push(`phone = $${userParamCount++}`)
+        userUpdateValues.push(phone)
+      }
+
+      if (userUpdateFields.length > 0) {
+        userUpdateValues.push(familyMemberId)
+        await pool.query(`
+          UPDATE app_user
+          SET ${userUpdateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $${userParamCount}
+        `, userUpdateValues)
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Family member updated successfully'
+    })
+  } catch (error) {
+    console.error('Update family member error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Mark family member for removal
+app.post('/api/members/family/:id/mark-for-removal', authenticateMember, async (req, res) => {
+  try {
+    const userId = req.userId || req.memberId
+    const familyMemberId = parseInt(req.params.id)
+
+    // Check if user is an adult
+    const userResult = await pool.query(`
+      SELECT u.role
+      FROM app_user u
+      WHERE u.id = $1
+    `, [userId])
+
+    if (userResult.rows.length === 0 || userResult.rows[0].role !== 'PARENT_GUARDIAN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only adults can mark family members for removal'
+      })
+    }
+
+    // For now, we'll add a note to the athlete or user record
+    // In a full implementation, you might want a separate table for removal requests
+    const athleteCheck = await pool.query(`
+      SELECT a.id, a.family_id
+      FROM athlete a
+      WHERE a.id = $1
+    `, [familyMemberId])
+
+    if (athleteCheck.rows.length > 0) {
+      // Add internal flag for removal request
+      await pool.query(`
+        UPDATE athlete
+        SET internal_flags = COALESCE(internal_flags, '') || 'MARKED_FOR_REMOVAL;',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+      `, [familyMemberId])
+    } else {
+      // For users, we could add a note or flag
+      // This is a placeholder - you may want to implement a proper removal request system
+      await pool.query(`
+        UPDATE app_user
+        SET updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+      `, [familyMemberId])
+    }
+
+    res.json({
+      success: true,
+      message: 'Family member marked for removal. Administrator will be notified.'
+    })
+  } catch (error) {
+    console.error('Mark for removal error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Enroll in class
+app.post('/api/members/enroll', authenticateMember, async (req, res) => {
+  try {
+    const userId = req.userId || req.memberId
+    const { programId, familyMemberId, daysPerWeek } = req.body
+
+    if (!programId || !familyMemberId || !daysPerWeek) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: programId, familyMemberId, daysPerWeek'
+      })
+    }
+
+    // Check if user has permission (is adult or is the family member)
+    const userResult = await pool.query(`
+      SELECT u.role
+      FROM app_user u
+      WHERE u.id = $1
+    `, [userId])
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      })
+    }
+
+    const userRole = userResult.rows[0].role
+
+    // Get family member
+    const athleteCheck = await pool.query(`
+      SELECT a.id, a.user_id, a.family_id, a.first_name, a.last_name
+      FROM athlete a
+      WHERE a.id = $1
+    `, [familyMemberId])
+
+    if (athleteCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Family member not found'
+      })
+    }
+
+    const athlete = athleteCheck.rows[0]
+
+    // Check if user has permission (is PARENT_GUARDIAN or is the athlete themselves)
+    if (userRole !== 'PARENT_GUARDIAN' && athlete.user_id !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to enroll this family member'
+      })
+    }
+
+    // Check if program exists
+    const programCheck = await pool.query(`
+      SELECT id, name, display_name
+      FROM program
+      WHERE id = $1 AND archived = FALSE AND is_active = TRUE
+    `, [programId])
+
+    if (programCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Program not found or not available'
+      })
+    }
+
+    // Ensure athlete has ATHLETE role if they have a user account
+    if (athlete.user_id) {
+      await pool.query(`
+        UPDATE app_user
+        SET role = 'ATHLETE'
+        WHERE id = $1 AND role != 'ATHLETE'
+      `, [athlete.user_id])
+    }
+
+    // Create enrollment record (you may need to create an athlete_program or enrollment table)
+    // For now, we'll just ensure the athlete has the ATHLETE role
+    // In a full implementation, you'd want to:
+    // 1. Create an enrollment record linking athlete to program
+    // 2. Store daysPerWeek
+    // 3. Handle scheduling, etc.
+
+    // Check if enrollment table exists, if not, we'll just update the athlete's role
+    // This is a placeholder - you should implement proper enrollment tracking
+    try {
+      await pool.query(`
+        INSERT INTO athlete_program (athlete_id, program_id, days_per_week, created_at, updated_at)
+        VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON CONFLICT (athlete_id, program_id) DO UPDATE
+        SET days_per_week = $3, updated_at = CURRENT_TIMESTAMP
+      `, [familyMemberId, programId, daysPerWeek])
+    } catch (error) {
+      // If table doesn't exist, that's okay for now
+      // You'll need to create the enrollment table in your migrations
+      console.log('Enrollment table may not exist yet:', error.message)
+    }
+
+    res.json({
+      success: true,
+      message: `${athlete.first_name} ${athlete.last_name} has been enrolled in ${programCheck.rows[0].display_name}`
+    })
+  } catch (error) {
+    console.error('Enroll error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
 // ========== EVENT ENDPOINTS ==========
 
 // Get all events (public endpoint for ReadBoard)

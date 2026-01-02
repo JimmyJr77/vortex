@@ -87,6 +87,7 @@ function App() {
     localStorage.setItem('vortex_member', JSON.stringify(memberData))
     setMemberToken(token)
     setMember(memberData)
+    // Automatically redirect to member portal after login
     setShowMemberDashboard(true)
   }
 
