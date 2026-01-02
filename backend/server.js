@@ -2804,7 +2804,7 @@ app.post('/api/members/login', async (req, res) => {
         query = `
           SELECT u.* 
           FROM app_user u
-          WHERE u.facility_id = $1 
+          WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.email = $2 
             AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
             AND u.is_active = TRUE
@@ -2821,13 +2821,14 @@ app.post('/api/members/login', async (req, res) => {
         params = [emailOrUsername]
       }
     } else {
-      // Username comparison - case insensitive
+      // Username comparison - case insensitive, handle NULL usernames
       const usernameLower = emailOrUsername.toLowerCase()
       if (facilityId !== null) {
         query = `
           SELECT u.* 
           FROM app_user u
-          WHERE u.facility_id = $1 
+          WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
+            AND u.username IS NOT NULL
             AND LOWER(u.username) = $2 
             AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
             AND u.is_active = TRUE
@@ -2837,7 +2838,8 @@ app.post('/api/members/login', async (req, res) => {
         query = `
           SELECT u.* 
           FROM app_user u
-          WHERE LOWER(u.username) = $1 
+          WHERE u.username IS NOT NULL
+            AND LOWER(u.username) = $1 
             AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
             AND u.is_active = TRUE
         `
@@ -2845,7 +2847,19 @@ app.post('/api/members/login', async (req, res) => {
       }
     }
     
-    const result = await pool.query(query, params)
+    let result
+    try {
+      result = await pool.query(query, params)
+    } catch (queryError) {
+      console.error('Database query error:', queryError)
+      console.error('Query:', query)
+      console.error('Params:', params)
+      return res.status(500).json({
+        success: false,
+        message: 'Database error',
+        error: process.env.NODE_ENV === 'development' ? queryError.message : undefined
+      })
+    }
     
     if (result.rows.length === 0) {
       return res.status(401).json({
@@ -2856,8 +2870,26 @@ app.post('/api/members/login', async (req, res) => {
 
     const user = result.rows[0]
 
+    // Check if password_hash exists
+    if (!user.password_hash) {
+      console.error('User found but password_hash is missing:', user.id)
+      return res.status(500).json({
+        success: false,
+        message: 'User account configuration error'
+      })
+    }
+
     // Verify password
-    const isValidPassword = await bcrypt.compare(value.password, user.password_hash)
+    let isValidPassword = false
+    try {
+      isValidPassword = await bcrypt.compare(value.password, user.password_hash)
+    } catch (bcryptError) {
+      console.error('Password comparison error:', bcryptError)
+      return res.status(500).json({
+        success: false,
+        message: 'Authentication error'
+      })
+    }
     
     if (!isValidPassword) {
       return res.status(401).json({
@@ -2866,15 +2898,22 @@ app.post('/api/members/login', async (req, res) => {
       })
     }
 
-    // Get user's family information
-    const familyResult = await pool.query(`
-      SELECT f.id, f.family_name, f.primary_user_id
-      FROM family f
-      WHERE f.primary_user_id = $1 OR EXISTS (
-        SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
-      )
-      LIMIT 1
-    `, [user.id])
+    // Get user's family information (optional - allow if family table doesn't exist)
+    let familyResult = { rows: [] }
+    try {
+      familyResult = await pool.query(`
+        SELECT f.id, f.family_name, f.primary_user_id
+        FROM family f
+        WHERE f.primary_user_id = $1 OR EXISTS (
+          SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+        )
+        LIMIT 1
+      `, [user.id])
+    } catch (familyError) {
+      console.log('Family query failed (non-critical):', familyError.message)
+      // Continue without family data
+      familyResult = { rows: [] }
+    }
 
     // Get user's athletes if they're a guardian
     let athletes = []
@@ -2925,6 +2964,11 @@ app.post('/api/members/login', async (req, res) => {
   } catch (error) {
     console.error('Member login error:', error)
     console.error('Error stack:', error.stack)
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code
+    })
     res.status(500).json({
       success: false,
       message: 'Internal server error',
