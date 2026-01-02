@@ -226,8 +226,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       
       if (response.ok) {
         const data = await response.json()
-        // Filter out archived events
-        const activeEvents = (data.events || data || []).filter((e: Event) => !e.archived)
+        // Filter out archived events - handle both response formats
+        const eventsList = data.events || data.data || data || []
+        const activeEvents = eventsList.filter((e: Event) => !e.archived)
         // Convert date strings to Date objects
         const eventsWithDates = activeEvents.map((e: Event) => ({
           ...e,

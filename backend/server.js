@@ -3122,11 +3122,25 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
 
     if (updateFields.length > 0) {
       updateValues.push(userId)
-      await pool.query(`
-        UPDATE app_user
-        SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $${paramCount}
-      `, updateValues)
+      // Check if updated_at column exists
+      try {
+        await pool.query(`
+          UPDATE app_user
+          SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $${paramCount}
+        `, updateValues)
+      } catch (updateError) {
+        // If updated_at doesn't exist, try without it
+        if (updateError.message && updateError.message.includes('updated_at')) {
+          await pool.query(`
+            UPDATE app_user
+            SET ${updateFields.join(', ')}
+            WHERE id = $${paramCount}
+          `, updateValues)
+        } else {
+          throw updateError
+        }
+      }
     }
 
     // If address is provided, we might need to store it elsewhere or add to app_user table
@@ -4398,6 +4412,7 @@ app.get('/api/admin/programs', async (req, res) => {
 
     res.json({
       success: true,
+      programs: result.rows,
       data: result.rows
     })
   } catch (error) {
@@ -4910,6 +4925,7 @@ app.get('/api/admin/categories', async (req, res) => {
 
     res.json({
       success: true,
+      categories: result.rows,
       data: result.rows
     })
   } catch (error) {
