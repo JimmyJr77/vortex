@@ -818,14 +818,29 @@ export default function Admin({ onLogout }: AdminProps) {
   }, [showMemberModal])
 
   // Autofill user search query with primary adult email when in new-family mode
+  // and automatically link to the primary adult's user account
   useEffect(() => {
-    if (memberModalMode === 'new-family' && newPrimaryAdult.email && !currentChild.userId) {
+    if (memberModalMode === 'new-family' && newPrimaryAdult.email) {
       setUserSearchQuery(newPrimaryAdult.email)
-      if (newPrimaryAdult.email.length >= 2) {
-        fetchAvailableUsers(newPrimaryAdult.email)
+      // Only fetch users when email looks complete (contains @) and debounce the call
+      if (newPrimaryAdult.email.includes('@') && newPrimaryAdult.email.length >= 5) {
+        const timeoutId = setTimeout(() => {
+          fetchAvailableUsers(newPrimaryAdult.email)
+        }, 500) // Debounce by 500ms
+        return () => clearTimeout(timeoutId)
       }
     }
-  }, [newPrimaryAdult.email, memberModalMode, currentChild.userId])
+  }, [newPrimaryAdult.email, memberModalMode])
+
+  // Automatically link to primary adult user when available users are fetched or child form is reset
+  useEffect(() => {
+    if (memberModalMode === 'new-family' && newPrimaryAdult.email && availableUsers.length > 0 && !currentChild.userId) {
+      const primaryAdultUser = availableUsers.find(u => u.email.toLowerCase() === newPrimaryAdult.email.toLowerCase())
+      if (primaryAdultUser) {
+        setCurrentChild(prev => ({ ...prev, userId: primaryAdultUser.id }))
+      }
+    }
+  }, [availableUsers, memberModalMode, newPrimaryAdult.email, currentChild.userId])
 
   // Debounce family search
   useEffect(() => {
@@ -1370,10 +1385,16 @@ export default function Admin({ onLogout }: AdminProps) {
         const data = await response.json()
         if (data.success) {
           setAvailableUsers(data.data)
+        } else {
+          setAvailableUsers([])
         }
+      } else {
+        // If there's an error, just set empty array to avoid breaking the flow
+        setAvailableUsers([])
       }
     } catch (error) {
       console.error('Error fetching users:', error)
+      setAvailableUsers([])
     }
   }
 
@@ -1384,9 +1405,13 @@ export default function Admin({ onLogout }: AdminProps) {
       return
     }
     setNewChildren([...newChildren, { ...currentChild }])
+    // Reset form - userSearchQuery will be restored by useEffect in new-family mode
     setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', userId: null })
-    setUserSearchQuery('')
-    setAvailableUsers([])
+    // Only clear user search if not in new-family mode
+    if (memberModalMode !== 'new-family') {
+      setUserSearchQuery('')
+      setAvailableUsers([])
+    }
   }
 
   // Remove child from children array
@@ -4147,12 +4172,12 @@ export default function Admin({ onLogout }: AdminProps) {
                   </div>
 
                   <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4">Add Children (Optional)</h4>
+                    <h4 className="font-semibold text-white mb-4">Add Family Members (Optional)</h4>
                     
                     {/* List of added children */}
                     {newChildren.length > 0 && (
                       <div className="mb-4 space-y-2">
-                        <p className="text-sm text-gray-300 font-semibold">Children to be added ({newChildren.length}):</p>
+                        <p className="text-sm text-gray-300 font-semibold">Family Members to be added ({newChildren.length}):</p>
                         {newChildren.map((child, index) => (
                           <div key={index} className="bg-gray-600 p-3 rounded flex justify-between items-center">
                             <div>
@@ -4235,17 +4260,24 @@ export default function Admin({ onLogout }: AdminProps) {
                             placeholder="Search by name or email..."
                             value={userSearchQuery}
                             onChange={(e) => {
-                              setUserSearchQuery(e.target.value)
-                              if (e.target.value.length >= 2) {
-                                fetchAvailableUsers(e.target.value)
-                              } else {
-                                setAvailableUsers([])
+                              if (memberModalMode !== 'new-family') {
+                                setUserSearchQuery(e.target.value)
+                                if (e.target.value.length >= 2) {
+                                  fetchAvailableUsers(e.target.value)
+                                } else {
+                                  setAvailableUsers([])
+                                }
                               }
                             }}
-                            className="flex-1 px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            disabled={memberModalMode === 'new-family'}
+                            className={`flex-1 px-3 py-2 rounded border ${
+                              memberModalMode === 'new-family' 
+                                ? 'bg-gray-500 text-gray-400 border-gray-600 cursor-not-allowed' 
+                                : 'bg-gray-600 text-white border-gray-500'
+                            }`}
                           />
                         </div>
-                        {availableUsers.length > 0 && (
+                        {availableUsers.length > 0 && memberModalMode !== 'new-family' && (
                           <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
                             {availableUsers.map((user) => (
                               <div
@@ -4282,7 +4314,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           onClick={handleAddChildToArray}
                           className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
                         >
-                          + Add This Child to List
+                          + Add Member to Family
                         </button>
                       </div>
                     </div>
