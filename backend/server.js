@@ -239,6 +239,26 @@ export const initDatabase = async () => {
       ALTER TABLE events ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE
     `)
     
+    // Add tag columns if they don't exist (for existing databases)
+    await pool.query(`
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS tag_type VARCHAR(50) DEFAULT 'all_classes_and_parents'
+    `)
+    await pool.query(`
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS tag_class_ids INTEGER[] DEFAULT NULL
+    `)
+    await pool.query(`
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS tag_category_ids INTEGER[] DEFAULT NULL
+    `)
+    await pool.query(`
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS tag_all_parents BOOLEAN DEFAULT FALSE
+    `)
+    await pool.query(`
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS tag_boosters BOOLEAN DEFAULT FALSE
+    `)
+    await pool.query(`
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS tag_volunteers BOOLEAN DEFAULT FALSE
+    `)
+    
     // Create index for archived column
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_events_archived ON events(archived)
@@ -3649,11 +3669,42 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     // 2. Store daysPerWeek
     // 3. Handle scheduling, etc.
 
-    // Check if enrollment table exists, if not, we'll just update the athlete's role
-    // This is a placeholder - you should implement proper enrollment tracking
+    // Create enrollment record in athlete_program table
     try {
-      // Try to insert/update enrollment with selected_days
-      // First check if selected_days column exists
+      // First check if table exists
+      const tableCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'athlete_program'
+        )
+      `)
+      
+      if (!tableCheck.rows[0].exists) {
+        // Table doesn't exist - create it
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS athlete_program (
+            id                  BIGSERIAL PRIMARY KEY,
+            athlete_id          BIGINT NOT NULL REFERENCES athlete(id) ON DELETE CASCADE,
+            program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+            days_per_week       INTEGER NOT NULL,
+            selected_days       JSONB,
+            created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+            updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+            UNIQUE (athlete_id, program_id)
+          )
+        `)
+        
+        // Create indexes
+        await pool.query(`
+          CREATE INDEX IF NOT EXISTS idx_athlete_program_athlete ON athlete_program(athlete_id)
+        `)
+        await pool.query(`
+          CREATE INDEX IF NOT EXISTS idx_athlete_program_program ON athlete_program(program_id)
+        `)
+      }
+      
+      // Check if selected_days column exists
       const columnCheck = await pool.query(`
         SELECT column_name 
         FROM information_schema.columns 
@@ -3695,9 +3746,11 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
         }
       }
     } catch (error) {
-      // If table doesn't exist, that's okay for now
-      // You'll need to create the enrollment table in your migrations
-      console.log('Enrollment table may not exist yet:', error.message)
+      console.error('Error creating enrollment record:', error)
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to create enrollment record: ' + error.message
+      })
     }
 
     res.json({
