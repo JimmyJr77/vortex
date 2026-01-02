@@ -329,7 +329,13 @@ export const initDatabase = async () => {
     // Create user_role enum
     await pool.query(`
       DO $$ BEGIN
-        CREATE TYPE user_role AS ENUM ('OWNER_ADMIN', 'COACH', 'PARENT_GUARDIAN', 'ATHLETE_VIEWER');
+        CREATE TYPE user_role AS ENUM ('OWNER_ADMIN', 'COACH', 'PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE');
+      EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    `)
+    // Add ATHLETE to enum if it doesn't exist
+    await pool.query(`
+      DO $$ BEGIN
+        ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'ATHLETE';
       EXCEPTION WHEN duplicate_object THEN NULL; END $$;
     `)
 
@@ -768,7 +774,7 @@ const memberSchema = Joi.object({
 })
 
 const memberLoginSchema = Joi.object({
-  email: Joi.string().email().required(),
+  emailOrUsername: Joi.string().required(),
   password: Joi.string().required()
 })
 
@@ -908,7 +914,9 @@ const authenticateMember = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET)
-    req.memberId = decoded.memberId
+    // Support both old (memberId) and new (userId) token formats
+    req.userId = decoded.userId || decoded.memberId
+    req.memberId = decoded.userId || decoded.memberId // For backward compatibility
     next()
   } catch (error) {
     return res.status(401).json({ success: false, message: 'Invalid token' })
@@ -2761,7 +2769,7 @@ app.delete('/api/admin/emergency-contacts/:id', async (req, res) => {
   }
 })
 
-// Member login
+// Member login - supports email or username
 app.post('/api/members/login', async (req, res) => {
   try {
     const { error, value } = memberLoginSchema.validate(req.body)
@@ -2773,69 +2781,117 @@ app.post('/api/members/login', async (req, res) => {
       })
     }
 
-    // Find member by email
-    const result = await pool.query('SELECT * FROM members WHERE email = $1', [value.email])
+    // Get facility
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+    const facilityId = facilityResult.rows[0].id
+
+    // Find user by email OR username (for PARENT_GUARDIAN or ATHLETE roles)
+    const emailOrUsername = value.emailOrUsername.trim()
+    const isEmail = emailOrUsername.includes('@')
+    
+    let query, params
+    if (isEmail) {
+      query = `
+        SELECT u.* 
+        FROM app_user u
+        WHERE u.facility_id = $1 
+          AND u.email = $2 
+          AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+          AND u.is_active = TRUE
+      `
+      params = [facilityId, emailOrUsername]
+    } else {
+      query = `
+        SELECT u.* 
+        FROM app_user u
+        WHERE u.facility_id = $1 
+          AND u.username = $2 
+          AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+          AND u.is_active = TRUE
+      `
+      params = [facilityId, emailOrUsername]
+    }
+    
+    const result = await pool.query(query, params)
     
     if (result.rows.length === 0) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password'
+        message: 'Invalid email/username or password'
       })
     }
 
-    const member = result.rows[0]
-
-    // Check account status
-    if (member.account_status !== 'active') {
-      return res.status(403).json({
-        success: false,
-        message: `Account is ${member.account_status}. Please contact support.`
-      })
-    }
+    const user = result.rows[0]
 
     // Verify password
-    const isValidPassword = await bcrypt.compare(value.password, member.password_hash)
+    const isValidPassword = await bcrypt.compare(value.password, user.password_hash)
     
     if (!isValidPassword) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password'
+        message: 'Invalid email/username or password'
       })
+    }
+
+    // Get user's family information
+    const familyResult = await pool.query(`
+      SELECT f.id, f.family_name, f.primary_user_id
+      FROM family f
+      WHERE f.primary_user_id = $1 OR EXISTS (
+        SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+      )
+      LIMIT 1
+    `, [user.id])
+
+    // Get user's athletes if they're a guardian
+    let athletes = []
+    if (user.role === 'PARENT_GUARDIAN' && familyResult.rows.length > 0) {
+      const athletesResult = await pool.query(`
+        SELECT a.id, a.first_name, a.last_name, a.date_of_birth, a.user_id
+        FROM athlete a
+        WHERE a.family_id = $1
+      `, [familyResult.rows[0].id])
+      athletes = athletesResult.rows
     }
 
     // Generate JWT token
     const token = jwt.sign(
-      { memberId: member.id, email: member.email },
+      { userId: user.id, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: '30d' }
     )
 
-    // Get member with children
-    const memberWithChildren = await pool.query(`
-      SELECT m.id, m.first_name, m.last_name, m.email, m.phone, m.address, 
-             m.account_status, m.program, m.notes, m.created_at,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', c.id,
-              'firstName', c.first_name,
-              'lastName', c.last_name,
-              'dateOfBirth', c.date_of_birth
-            )
-          ) FILTER (WHERE c.id IS NOT NULL),
-          '[]'
-        ) as children
-      FROM members m
-      LEFT JOIN member_children c ON m.id = c.member_id
-      WHERE m.id = $1
-      GROUP BY m.id
-    `, [member.id])
+    // Format member data for frontend
+    const memberData = {
+      id: user.id,
+      firstName: user.full_name.split(' ')[0] || '',
+      lastName: user.full_name.split(' ').slice(1).join(' ') || '',
+      email: user.email,
+      phone: user.phone,
+      username: user.username,
+      role: user.role,
+      familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
+      familyName: familyResult.rows.length > 0 ? familyResult.rows[0].family_name : null,
+      athletes: athletes.map(a => ({
+        id: a.id,
+        firstName: a.first_name,
+        lastName: a.last_name,
+        dateOfBirth: a.date_of_birth,
+        userId: a.user_id
+      }))
+    }
 
     res.json({
       success: true,
       message: 'Login successful',
       token,
-      member: memberWithChildren.rows[0]
+      member: memberData
     })
   } catch (error) {
     console.error('Member login error:', error)
@@ -2849,36 +2905,68 @@ app.post('/api/members/login', async (req, res) => {
 // Get current member (protected endpoint)
 app.get('/api/members/me', authenticateMember, async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT m.id, m.first_name, m.last_name, m.email, m.phone, m.address, 
-             m.account_status, m.program, m.notes, m.created_at,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', c.id,
-              'firstName', c.first_name,
-              'lastName', c.last_name,
-              'dateOfBirth', c.date_of_birth
-            )
-          ) FILTER (WHERE c.id IS NOT NULL),
-          '[]'
-        ) as children
-      FROM members m
-      LEFT JOIN member_children c ON m.id = c.member_id
-      WHERE m.id = $1
-      GROUP BY m.id
-    `, [req.memberId])
+    const userId = req.userId || req.memberId
+    
+    // Get user from app_user table
+    const userResult = await pool.query(`
+      SELECT u.id, u.email, u.full_name, u.phone, u.role, u.username, u.is_active, u.created_at
+      FROM app_user u
+      WHERE u.id = $1 AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+    `, [userId])
 
-    if (result.rows.length === 0) {
+    if (userResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Member not found'
       })
     }
 
+    const user = userResult.rows[0]
+
+    // Get user's family information
+    const familyResult = await pool.query(`
+      SELECT f.id, f.family_name, f.primary_user_id
+      FROM family f
+      WHERE f.primary_user_id = $1 OR EXISTS (
+        SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+      )
+      LIMIT 1
+    `, [userId])
+
+    // Get user's athletes if they're a guardian
+    let athletes = []
+    if (user.role === 'PARENT_GUARDIAN' && familyResult.rows.length > 0) {
+      const athletesResult = await pool.query(`
+        SELECT a.id, a.first_name, a.last_name, a.date_of_birth, a.user_id
+        FROM athlete a
+        WHERE a.family_id = $1
+      `, [familyResult.rows[0].id])
+      athletes = athletesResult.rows
+    }
+
+    // Format member data for frontend
+    const memberData = {
+      id: user.id,
+      firstName: user.full_name.split(' ')[0] || '',
+      lastName: user.full_name.split(' ').slice(1).join(' ') || '',
+      email: user.email,
+      phone: user.phone,
+      username: user.username,
+      role: user.role,
+      familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
+      familyName: familyResult.rows.length > 0 ? familyResult.rows[0].family_name : null,
+      athletes: athletes.map(a => ({
+        id: a.id,
+        firstName: a.first_name,
+        lastName: a.last_name,
+        dateOfBirth: a.date_of_birth,
+        userId: a.user_id
+      }))
+    }
+
     res.json({
       success: true,
-      data: result.rows[0]
+      data: memberData
     })
   } catch (error) {
     console.error('Get member error:', error)

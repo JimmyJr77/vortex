@@ -10,7 +10,7 @@ interface MemberLoginProps {
 }
 
 export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginProps) {
-  const [email, setEmail] = useState('')
+  const [emailOrUsername, setEmailOrUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -26,7 +26,7 @@ export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginP
       const response = await fetch(`${apiUrl}/api/members/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ emailOrUsername, password })
       })
 
       const data = await response.json()
@@ -34,10 +34,10 @@ export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginP
       if (response.ok && data.success) {
         onSuccess(data.token, data.member)
         onClose()
-        setEmail('')
+        setEmailOrUsername('')
         setPassword('')
       } else {
-        setError(data.message || 'Invalid email or password')
+        setError(data.message || 'Invalid email/username or password')
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -76,7 +76,7 @@ export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginP
               <h2 className="text-3xl font-display font-bold text-black mb-2">
                 Login
               </h2>
-              <p className="text-gray-600">Enter your credentials to access your member portal</p>
+              <p className="text-gray-600">Enter your email or username to access your member portal</p>
             </div>
 
             {error && (
@@ -88,17 +88,18 @@ export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginP
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
-                  Email
+                <label htmlFor="emailOrUsername" className="block text-gray-700 text-sm font-bold mb-2">
+                  Email or Username
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type="text"
+                    id="emailOrUsername"
+                    name="emailOrUsername"
+                    value={emailOrUsername}
+                    onChange={(e) => setEmailOrUsername(e.target.value)}
+                    placeholder="Enter your email or username"
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
                     required
                     autoFocus
