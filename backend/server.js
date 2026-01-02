@@ -2781,15 +2781,18 @@ app.post('/api/members/login', async (req, res) => {
       })
     }
 
-    // Get facility
-    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
-    if (facilityResult.rows.length === 0) {
-      return res.status(500).json({
-        success: false,
-        message: 'No facility found'
-      })
+    // Get facility (optional - allow null if not found)
+    let facilityId = null
+    try {
+      const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+      if (facilityResult.rows.length > 0) {
+        facilityId = facilityResult.rows[0].id
+      }
+    } catch (facilityError) {
+      // If facility table doesn't exist or query fails, allow null facility_id
+      console.log('Facility query failed, allowing null facility_id:', facilityError.message)
+      facilityId = null
     }
-    const facilityId = facilityResult.rows[0].id
 
     // Find user by email OR username (for PARENT_GUARDIAN or ATHLETE roles)
     const emailOrUsername = value.emailOrUsername.trim()
