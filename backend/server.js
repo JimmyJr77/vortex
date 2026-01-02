@@ -2534,12 +2534,14 @@ app.post('/api/admin/programs', async (req, res) => {
       )
       if (categoryResult.rows.length > 0) {
         const categoryName = categoryResult.rows[0].name
-        // Only use as enum if it's a valid enum value, otherwise set to null
+        // Only use as enum if it's a valid enum value, otherwise use a default
         if (validEnumValues.includes(categoryName)) {
           categoryEnum = categoryName
         } else {
-          // New category that doesn't match enum - set to null
-          categoryEnum = null
+          // New category that doesn't match enum - use GYMNASTICS as default
+          // (category column is NOT NULL, so we need a valid enum value)
+          categoryEnum = 'GYMNASTICS'
+          console.warn(`Category "${categoryName}" doesn't match enum, using GYMNASTICS as default`)
         }
       } else {
         return res.status(400).json({
@@ -2558,7 +2560,10 @@ app.post('/api/admin/programs', async (req, res) => {
       }
       // Ensure category is a valid enum value
       if (!validEnumValues.includes(value.category)) {
-        categoryEnum = null
+        // Use default enum value since category column is NOT NULL
+        categoryEnum = 'GYMNASTICS'
+        console.warn(`Category "${value.category}" doesn't match enum, using GYMNASTICS as default`)
+      }
     }
 
     // If levelId is provided, use it; otherwise try to map from skillLevel enum
