@@ -12,7 +12,21 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const { Pool } = pkg
-dotenv.config()
+
+// Load environment variables - try .env.local first, then .env
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Try to load .env.local first (for local development)
+const envLocalPath = path.join(__dirname, '.env.local')
+if (fs.existsSync(envLocalPath)) {
+  dotenv.config({ path: envLocalPath })
+  console.log('📝 Loaded .env.local')
+} else {
+  // Fall back to .env
+  dotenv.config()
+  console.log('📝 Loaded .env')
+}
 
 const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
 
@@ -598,7 +612,6 @@ app.get('/api/verify/module0', async (req, res) => {
             ? ['Core migration completed. Check if you have existing admins/members to migrate.']
             : ['Please restart your server to run the migration.', 'Check server logs for errors.']
       }
-    }
     })
   } catch (error) {
     console.error('Verification error:', error)
