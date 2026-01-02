@@ -579,6 +579,9 @@ interface Member {
 interface Program {
   id: number
   category: 'EARLY_DEVELOPMENT' | 'GYMNASTICS' | 'VORTEX_NINJA' | 'ATHLETICISM_ACCELERATOR' | 'ADULT_FITNESS' | 'HOMESCHOOL'
+  categoryId?: number | null
+  categoryName?: string | null
+  categoryDisplayName?: string | null
   name: string
   displayName: string
   skillLevel: 'EARLY_STAGE' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null
@@ -596,6 +599,7 @@ interface Category {
   id: number
   name: string
   displayName: string
+  description?: string | null
   archived: boolean
   createdAt: string
   updatedAt: string
@@ -697,6 +701,9 @@ export default function Admin({ onLogout }: AdminProps) {
   const [levelFormData, setLevelFormData] = useState<Partial<Level>>({})
   const [showArchivedLevels, setShowArchivedLevels] = useState(false)
   const [selectedCategoryForLevels, setSelectedCategoryForLevels] = useState<number | null>(null)
+  const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [showClassModal, setShowClassModal] = useState(false)
+  const [selectedCategoryForClass, setSelectedCategoryForClass] = useState<number | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -737,7 +744,6 @@ export default function Admin({ onLogout }: AdminProps) {
     } else if (activeTab === 'classes') {
       fetchPrograms()
       fetchCategories()
-      fetchLevels(selectedCategoryForLevels || undefined)
     } else if (activeTab === 'admins') {
       fetchAdmins()
       fetchMyAccount()
@@ -1420,7 +1426,10 @@ export default function Admin({ onLogout }: AdminProps) {
       
       if (response.ok) {
         await fetchCategories()
-        setCategoryFormData({})
+        await fetchPrograms()
+        setCategoryFormData({ name: '', displayName: '', description: '' })
+        setShowCategoryModal(false)
+        setEditingCategoryId(null)
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to create category')
@@ -1428,6 +1437,43 @@ export default function Admin({ onLogout }: AdminProps) {
     } catch (error) {
       console.error('Error creating category:', error)
       alert('Failed to create category')
+    }
+  }
+
+  const handleCreateClass = async () => {
+    if (!selectedCategoryForClass) {
+      alert('Please select a category')
+      return
+    }
+    
+    try {
+      const apiUrl = getApiUrl()
+      // Create program with category_id
+      const classData = {
+        ...programFormData,
+        categoryId: selectedCategoryForClass
+      }
+      
+      // We need to create a program endpoint that accepts categoryId
+      // For now, we'll use the existing structure but need to update backend
+      const response = await fetch(`${apiUrl}/api/admin/programs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(classData)
+      })
+      
+      if (response.ok) {
+        await fetchPrograms()
+        setProgramFormData({})
+        setShowClassModal(false)
+        setSelectedCategoryForClass(null)
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to create class')
+      }
+    } catch (error) {
+      console.error('Error creating class:', error)
+      alert('Failed to create class')
     }
   }
 
@@ -1452,8 +1498,10 @@ export default function Admin({ onLogout }: AdminProps) {
       
       if (response.ok) {
         await fetchCategories()
+        await fetchPrograms()
         setEditingCategoryId(null)
         setCategoryFormData({})
+        setShowCategoryModal(false)
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to update category')
@@ -2272,20 +2320,21 @@ export default function Admin({ onLogout }: AdminProps) {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {/* Categories Management */}
+                {/* Classes Management */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-                      Categories Management
+                      Classes Management
                     </h2>
                     <div className="flex gap-2">
                       <motion.button
                         onClick={() => {
-                          setShowArchivedCategories(!showArchivedCategories)
+                          setShowArchivedPrograms(!showArchivedPrograms)
+                          fetchPrograms()
                           fetchCategories()
                         }}
                         className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                          showArchivedCategories
+                          showArchivedPrograms
                             ? 'bg-gray-600 text-white hover:bg-gray-700'
                             : 'bg-gray-500 text-white hover:bg-gray-600'
                         }`}
@@ -2293,12 +2342,13 @@ export default function Admin({ onLogout }: AdminProps) {
                         whileTap={{ scale: 0.95 }}
                       >
                         <Archive className="w-4 h-4" />
-                        <span>{showArchivedCategories ? 'Show Active' : 'Show Archives'}</span>
+                        <span>{showArchivedPrograms ? 'Show Active' : 'Show Archives'}</span>
                       </motion.button>
                       <motion.button
                         onClick={() => {
                           setEditingCategoryId(null)
-                          setCategoryFormData({ name: '', displayName: '' })
+                          setCategoryFormData({ name: '', displayName: '', description: '' })
+                          setShowCategoryModal(true)
                         }}
                         className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
                         whileHover={{ scale: 1.05 }}
@@ -2310,96 +2360,80 @@ export default function Admin({ onLogout }: AdminProps) {
                     </div>
                   </div>
 
-                  {categoriesLoading ? (
-                    <div className="text-center py-12 text-gray-600">Loading categories...</div>
+                  {programsLoading || categoriesLoading ? (
+                    <div className="text-center py-12 text-gray-600">Loading...</div>
+                  ) : error ? (
+                    <div className="text-center py-12">
+                      <div className="text-red-600 mb-4 font-semibold">Error Loading Data</div>
+                      <div className="text-gray-600 mb-4">{error}</div>
+                      <button
+                        onClick={() => {
+                          fetchPrograms()
+                          fetchCategories()
+                        }}
+                        className="bg-vortex-red hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                      >
+                        Retry
+                      </button>
+                    </div>
                   ) : (
-                    <div className="space-y-4">
-                      {categories.length === 0 ? (
-                        <div className="text-center py-12 text-gray-600">No categories found</div>
-                      ) : (
-                        categories.map((category) => (
-                          <div key={category.id} className="bg-gray-50 rounded-lg p-4 border border-gray-300">
-                            {editingCategoryId === category.id ? (
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Name (Internal) *</label>
-                                    <input
-                                      type="text"
-                                      value={categoryFormData.name || ''}
-                                      onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
-                                      className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                      placeholder="e.g., GYMNASTICS"
-                                      required
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Display Name *</label>
-                                    <input
-                                      type="text"
-                                      value={categoryFormData.displayName || ''}
-                                      onChange={(e) => setCategoryFormData({ ...categoryFormData, displayName: e.target.value })}
-                                      className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                      placeholder="e.g., Gymnastics"
-                                      required
-                                    />
-                                  </div>
-                                </div>
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={handleUpdateCategory}
-                                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                                  >
-                                    <Save className="w-4 h-4" />
-                                    Save
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setEditingCategoryId(null)
-                                      setCategoryFormData({})
-                                    }}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
-                                  >
-                                    <X className="w-4 h-4" />
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="flex items-start justify-between">
+                    <div className="space-y-6">
+                      {categories
+                        .filter(cat => showArchivedPrograms ? cat.archived : !cat.archived)
+                        .map((category) => {
+                          const categoryPrograms = programs.filter(p => 
+                            (p.categoryId === category.id || p.categoryDisplayName === category.displayName) &&
+                            (showArchivedPrograms ? p.archived : !p.archived)
+                          )
+
+                          return (
+                            <div key={category.id} className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                              <div className="flex items-center justify-between mb-4">
                                 <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <h4 className="text-lg font-semibold text-black">{category.displayName}</h4>
+                                  <div className="flex items-center gap-2">
+                                    <h3 className="text-xl md:text-2xl font-display font-bold text-black">
+                                      {category.displayName}
+                                    </h3>
                                     {category.archived && (
                                       <span className="text-xs bg-gray-500 text-white px-2 py-1 rounded">Archived</span>
                                     )}
                                   </div>
-                                  <p className="text-sm text-gray-600">Internal: {category.name}</p>
+                                  {category.description && (
+                                    <p className="text-sm text-gray-600 mt-1">{category.description}</p>
+                                  )}
                                 </div>
                                 <div className="flex gap-2">
                                   <button
-                                    onClick={() => handleEditCategory(category)}
+                                    onClick={() => {
+                                      setEditingCategoryId(category.id)
+                                      setCategoryFormData({
+                                        name: category.name,
+                                        displayName: category.displayName,
+                                        description: category.description || ''
+                                      })
+                                      setShowCategoryModal(true)
+                                    }}
                                     className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
                                   >
                                     <Edit2 className="w-4 h-4" />
                                     Edit
                                   </button>
-                                  {showArchivedCategories ? (
+                                  {showArchivedPrograms ? (
                                     <>
                                       <button
-                                        onClick={() => handleArchiveCategory(category.id, false)}
-                                        className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                                      >
-                                        <Archive className="w-4 h-4" />
-                                        Unarchive
-                                      </button>
-                                      <button
-                                        onClick={() => handleDeleteCategory(category.id)}
-                                        className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
-                                      >
-                                        <X className="w-4 h-4" />
-                                        Delete
-                                      </button>
+                                      onClick={() => handleArchiveCategory(category.id, false)}
+                                      className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
+                                    >
+                                      <Archive className="w-4 h-4" />
+                                      Unarchive
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteCategory(category.id)}
+                                      className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
+                                    >
+                                      <X className="w-4 h-4" />
+                                      Delete
+                                    </button>
                                     </>
                                   ) : (
                                     <button
@@ -2412,314 +2446,24 @@ export default function Admin({ onLogout }: AdminProps) {
                                   )}
                                 </div>
                               </div>
-                            )}
-                          </div>
-                        ))
-                      )}
-                      {!editingCategoryId && (
-                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-300 border-dashed">
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Name (Internal) *</label>
-                                <input
-                                  type="text"
-                                  value={categoryFormData.name || ''}
-                                  onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                  placeholder="e.g., GYMNASTICS"
-                                />
+                              <div className="mb-4">
+                                <button
+                                  onClick={() => {
+                                    setSelectedCategoryForClass(category.id)
+                                    setProgramFormData({})
+                                    setShowClassModal(true)
+                                  }}
+                                  className="flex items-center gap-2 px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                  Add Class
+                                </button>
                               </div>
-                              <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Display Name *</label>
-                                <input
-                                  type="text"
-                                  value={categoryFormData.displayName || ''}
-                                  onChange={(e) => setCategoryFormData({ ...categoryFormData, displayName: e.target.value })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                  placeholder="e.g., Gymnastics"
-                                />
-                              </div>
-                            </div>
-                            <button
-                              onClick={handleCreateCategory}
-                              className="flex items-center gap-2 px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Add Category
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Levels Management */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-                      Levels Management
-                    </h2>
-                    <div className="flex gap-2">
-                      <motion.button
-                        onClick={() => {
-                          setShowArchivedLevels(!showArchivedLevels)
-                          fetchLevels(selectedCategoryForLevels || undefined)
-                        }}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                          showArchivedLevels
-                            ? 'bg-gray-600 text-white hover:bg-gray-700'
-                            : 'bg-gray-500 text-white hover:bg-gray-600'
-                        }`}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Archive className="w-4 h-4" />
-                        <span>{showArchivedLevels ? 'Show Active' : 'Show Archives'}</span>
-                      </motion.button>
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Category</label>
-                    <select
-                      value={selectedCategoryForLevels || ''}
-                      onChange={(e) => {
-                        const catId = e.target.value ? parseInt(e.target.value) : null
-                        setSelectedCategoryForLevels(catId)
-                        fetchLevels(catId || undefined)
-                      }}
-                      className="w-full md:w-auto px-3 py-2 bg-white text-black rounded border border-gray-300"
-                    >
-                      <option value="">All Categories</option>
-                      {categories.filter(c => !c.archived).map((cat) => (
-                        <option key={cat.id} value={cat.id}>{cat.displayName}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {levelsLoading ? (
-                    <div className="text-center py-12 text-gray-600">Loading levels...</div>
-                  ) : (
-                    <div className="space-y-4">
-                      {levels.length === 0 ? (
-                        <div className="text-center py-12 text-gray-600">No levels found</div>
-                      ) : (
-                        levels.map((level) => (
-                          <div key={level.id} className="bg-gray-50 rounded-lg p-4 border border-gray-300">
-                            {editingLevelId === level.id ? (
                               <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Name (Internal) *</label>
-                                    <input
-                                      type="text"
-                                      value={levelFormData.name || ''}
-                                      onChange={(e) => setLevelFormData({ ...levelFormData, name: e.target.value })}
-                                      className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                      placeholder="e.g., BEGINNER"
-                                      required
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Display Name *</label>
-                                    <input
-                                      type="text"
-                                      value={levelFormData.displayName || ''}
-                                      onChange={(e) => setLevelFormData({ ...levelFormData, displayName: e.target.value })}
-                                      className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                      placeholder="e.g., Beginner"
-                                      required
-                                    />
-                                  </div>
-                                </div>
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={handleUpdateLevel}
-                                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                                  >
-                                    <Save className="w-4 h-4" />
-                                    Save
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setEditingLevelId(null)
-                                      setLevelFormData({})
-                                    }}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
-                                  >
-                                    <X className="w-4 h-4" />
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <h4 className="text-lg font-semibold text-black">{level.displayName}</h4>
-                                    {level.archived && (
-                                      <span className="text-xs bg-gray-500 text-white px-2 py-1 rounded">Archived</span>
-                                    )}
-                                  </div>
-                                  <p className="text-sm text-gray-600">
-                                    Category: {level.categoryDisplayName || level.categoryName} | Internal: {level.name}
-                                  </p>
-                                </div>
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => handleEditLevel(level)}
-                                    className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
-                                  >
-                                    <Edit2 className="w-4 h-4" />
-                                    Edit
-                                  </button>
-                                  {showArchivedLevels ? (
-                                    <>
-                                      <button
-                                        onClick={() => handleArchiveLevel(level.id, false)}
-                                        className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                                      >
-                                        <Archive className="w-4 h-4" />
-                                        Unarchive
-                                      </button>
-                                      <button
-                                        onClick={() => handleDeleteLevel(level.id)}
-                                        className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
-                                      >
-                                        <X className="w-4 h-4" />
-                                        Delete
-                                      </button>
-                                    </>
-                                  ) : (
-                                    <button
-                                      onClick={() => handleArchiveLevel(level.id, true)}
-                                      className="flex items-center gap-2 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white text-sm font-medium"
-                                    >
-                                      <Archive className="w-4 h-4" />
-                                      Archive
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ))
-                      )}
-                      {!editingLevelId && (
-                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-300 border-dashed">
-                          <div className="space-y-4">
-                            <div>
-                              <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
-                              <select
-                                value={levelFormData.categoryId || ''}
-                                onChange={(e) => setLevelFormData({ ...levelFormData, categoryId: e.target.value ? parseInt(e.target.value) : undefined })}
-                                className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                              >
-                                <option value="">Select Category</option>
-                                {categories.filter(c => !c.archived).map((cat) => (
-                                  <option key={cat.id} value={cat.id}>{cat.displayName}</option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Name (Internal) *</label>
-                                <input
-                                  type="text"
-                                  value={levelFormData.name || ''}
-                                  onChange={(e) => setLevelFormData({ ...levelFormData, name: e.target.value })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                  placeholder="e.g., BEGINNER"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Display Name *</label>
-                                <input
-                                  type="text"
-                                  value={levelFormData.displayName || ''}
-                                  onChange={(e) => setLevelFormData({ ...levelFormData, displayName: e.target.value })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                  placeholder="e.g., Beginner"
-                                />
-                              </div>
-                            </div>
-                            <button
-                              onClick={handleCreateLevel}
-                              className="flex items-center gap-2 px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Add Level
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Programs/Classes Management */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-                      Classes Management
-                    </h2>
-                    <motion.button
-                      onClick={() => {
-                        setShowArchivedPrograms(!showArchivedPrograms)
-                        fetchPrograms()
-                      }}
-                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                        showArchivedPrograms
-                          ? 'bg-gray-600 text-white hover:bg-gray-700'
-                          : 'bg-gray-500 text-white hover:bg-gray-600'
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Archive className="w-4 h-4" />
-                      <span>{showArchivedPrograms ? 'Show Active' : 'Show Archives'}</span>
-                    </motion.button>
-                  </div>
-
-                  {programsLoading ? (
-                    <div className="text-center py-12 text-gray-600">Loading programs...</div>
-                  ) : error ? (
-                    <div className="text-center py-12">
-                      <div className="text-red-600 mb-4 font-semibold">Error Loading Programs</div>
-                      <div className="text-gray-600 mb-4">{error}</div>
-                      <button
-                        onClick={fetchPrograms}
-                        className="bg-vortex-red hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
-                      >
-                        Retry
-                      </button>
-                    </div>
-                  ) : programs.length === 0 ? (
-                    <div className="text-center py-12 text-gray-600">No programs found</div>
-                  ) : (
-                    <div className="space-y-6">
-                      {['EARLY_DEVELOPMENT', 'GYMNASTICS', 'VORTEX_NINJA', 'ATHLETICISM_ACCELERATOR', 'ADULT_FITNESS', 'HOMESCHOOL'].map((category) => {
-                        const categoryPrograms = programs.filter(p => p.category === category)
-                        if (categoryPrograms.length === 0) return null
-
-                        const categoryLabels: Record<string, string> = {
-                          'EARLY_DEVELOPMENT': 'Early Development Gymnastics & Athleticism',
-                          'GYMNASTICS': 'Gymnastics',
-                          'VORTEX_NINJA': 'Vortex Ninja Classes',
-                          'ATHLETICISM_ACCELERATOR': 'Athleticism Accelerator',
-                          'ADULT_FITNESS': 'Adult Training Track – Fitness & Acrobatics',
-                          'HOMESCHOOL': 'Hurricane Academy (Homeschool Program)'
-                        }
-
-                        return (
-                          <div key={category} className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                            <h3 className="text-xl md:text-2xl font-display font-bold text-black mb-4">
-                              {categoryLabels[category]}
-                            </h3>
-                            <div className="space-y-4">
-                              {categoryPrograms.map((program) => (
+                                {categoryPrograms.length === 0 ? (
+                                  <div className="text-center py-8 text-gray-500 text-sm">No classes in this category</div>
+                                ) : (
+                                  categoryPrograms.map((program) => (
                                 <div key={program.id} className="bg-white rounded-lg p-4 border border-gray-300">
                                   {editingProgramId === program.id ? (
                                     <div className="space-y-4">
@@ -2893,11 +2637,12 @@ export default function Admin({ onLogout }: AdminProps) {
                                     </div>
                                   )}
                                 </div>
-                              ))}
+                                  ))}
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )
-                      })}
+                          )
+                        })}
                     </div>
                   )}
                 </div>
@@ -4374,6 +4119,251 @@ export default function Admin({ onLogout }: AdminProps) {
                     className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
                   >
                     Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Add Category Modal */}
+      <AnimatePresence>
+        {showCategoryModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                setShowCategoryModal(false)
+                setEditingCategoryId(null)
+                setCategoryFormData({})
+              }}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">
+                  {editingCategoryId ? 'Edit Category' : 'Add New Category'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCategoryModal(false)
+                    setEditingCategoryId(null)
+                    setCategoryFormData({})
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Name (Internal) *</label>
+                    <input
+                      type="text"
+                      value={categoryFormData.name || ''}
+                      onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      placeholder="e.g., GYMNASTICS"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Display Name *</label>
+                    <input
+                      type="text"
+                      value={categoryFormData.displayName || ''}
+                      onChange={(e) => setCategoryFormData({ ...categoryFormData, displayName: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      placeholder="e.g., Gymnastics"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Description</label>
+                  <textarea
+                    value={categoryFormData.description || ''}
+                    onChange={(e) => setCategoryFormData({ ...categoryFormData, description: e.target.value })}
+                    rows={4}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    placeholder="Optional description for this category"
+                  />
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={() => {
+                      setShowCategoryModal(false)
+                      setEditingCategoryId(null)
+                      setCategoryFormData({})
+                    }}
+                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (editingCategoryId) {
+                        await handleUpdateCategory()
+                        setShowCategoryModal(false)
+                      } else {
+                        await handleCreateCategory()
+                      }
+                    }}
+                    className="px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
+                  >
+                    {editingCategoryId ? 'Save Changes' : 'Create Category'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Add Class Modal */}
+      <AnimatePresence>
+        {showClassModal && selectedCategoryForClass && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                setShowClassModal(false)
+                setSelectedCategoryForClass(null)
+                setProgramFormData({})
+              }}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">
+                  Add New Class
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowClassModal(false)
+                    setSelectedCategoryForClass(null)
+                    setProgramFormData({})
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Display Name *</label>
+                    <input
+                      type="text"
+                      value={programFormData.displayName || ''}
+                      onChange={(e) => setProgramFormData({ ...programFormData, displayName: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Skill Level</label>
+                    <select
+                      value={programFormData.skillLevel || ''}
+                      onChange={(e) => setProgramFormData({ ...programFormData, skillLevel: e.target.value as Program['skillLevel'] || null })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    >
+                      <option value="">None (All Levels)</option>
+                      <option value="EARLY_STAGE">Early Stage</option>
+                      <option value="BEGINNER">Beginner</option>
+                      <option value="INTERMEDIATE">Intermediate</option>
+                      <option value="ADVANCED">Advanced</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Minimum Age</label>
+                    <input
+                      type="number"
+                      value={programFormData.ageMin ?? ''}
+                      onChange={(e) => setProgramFormData({ ...programFormData, ageMin: e.target.value ? parseInt(e.target.value) : null })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Maximum Age</label>
+                    <input
+                      type="number"
+                      value={programFormData.ageMax ?? ''}
+                      onChange={(e) => setProgramFormData({ ...programFormData, ageMax: e.target.value ? parseInt(e.target.value) : null })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      min="0"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Description</label>
+                  <textarea
+                    value={programFormData.description || ''}
+                    onChange={(e) => setProgramFormData({ ...programFormData, description: e.target.value })}
+                    rows={4}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Skill Requirements</label>
+                  <input
+                    type="text"
+                    value={programFormData.skillRequirements || ''}
+                    onChange={(e) => setProgramFormData({ ...programFormData, skillRequirements: e.target.value })}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    placeholder="e.g., No Experience Required, Skill Evaluation Required"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={programFormData.isActive ?? true}
+                    onChange={(e) => setProgramFormData({ ...programFormData, isActive: e.target.checked })}
+                    className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                  />
+                  <label className="text-sm font-semibold text-gray-300">Active</label>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={() => {
+                      setShowClassModal(false)
+                      setSelectedCategoryForClass(null)
+                      setProgramFormData({})
+                    }}
+                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleCreateClass}
+                    className="px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
+                  >
+                    Create Class
                   </button>
                 </div>
               </div>

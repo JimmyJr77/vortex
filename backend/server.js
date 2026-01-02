@@ -800,12 +800,14 @@ const programUpdateSchema = Joi.object({
 
 const categorySchema = Joi.object({
   name: Joi.string().min(1).max(100).required(),
-  displayName: Joi.string().min(1).max(255).required()
+  displayName: Joi.string().min(1).max(255).required(),
+  description: Joi.string().max(1000).optional().allow('', null)
 })
 
 const categoryUpdateSchema = Joi.object({
   name: Joi.string().min(1).max(100).optional(),
   displayName: Joi.string().min(1).max(255).optional(),
+  description: Joi.string().max(1000).optional().allow('', null),
   archived: Joi.boolean().optional()
 })
 
@@ -819,6 +821,20 @@ const levelUpdateSchema = Joi.object({
   name: Joi.string().min(1).max(100).optional(),
   displayName: Joi.string().min(1).max(255).optional(),
   archived: Joi.boolean().optional()
+})
+
+const programSchema = Joi.object({
+  categoryId: Joi.number().integer().optional(),
+  category: Joi.string().optional(),
+  name: Joi.string().min(1).max(255).optional(),
+  displayName: Joi.string().min(1).max(255).required(),
+  skillLevel: Joi.string().valid('EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED').optional().allow(null),
+  levelId: Joi.number().integer().optional().allow(null),
+  ageMin: Joi.number().integer().min(0).optional().allow(null),
+  ageMax: Joi.number().integer().min(0).optional().allow(null),
+  description: Joi.string().optional().allow('', null),
+  skillRequirements: Joi.string().optional().allow('', null),
+  isActive: Joi.boolean().optional()
 })
 
 // Middleware to verify JWT token
@@ -2432,8 +2448,118 @@ app.get('/api/admin/programs', async (req, res) => {
     const { archived } = req.query
     let query = `
       SELECT 
+        p.id,
+        p.category,
+        p.category_id as "categoryId",
+        pc.name as "categoryName",
+        pc.display_name as "categoryDisplayName",
+        p.name,
+        p.display_name as "displayName",
+        p.skill_level as "skillLevel",
+        p.age_min as "ageMin",
+        p.age_max as "ageMax",
+        p.description,
+        p.skill_requirements as "skillRequirements",
+        p.is_active as "isActive",
+        p.archived,
+        p.created_at as "createdAt",
+        p.updated_at as "updatedAt"
+      FROM program p
+      LEFT JOIN program_categories pc ON p.category_id = pc.id
+    `
+    const params = []
+    
+    if (archived === 'true') {
+      query += ' WHERE p.archived = $1'
+      params.push(true)
+    } else if (archived === 'false') {
+      query += ' WHERE p.archived = $1'
+      params.push(false)
+    }
+    
+    query += ' ORDER BY p.archived ASC, pc.display_name ASC, p.skill_level NULLS LAST, p.display_name'
+
+    const result = await pool.query(query, params)
+
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get programs error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Create program (admin endpoint)
+app.post('/api/admin/programs', async (req, res) => {
+  try {
+    const { error, value } = programSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    // Get facility_id
+    const facilityId = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityId.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+
+    // If categoryId is provided, use it; otherwise try to map from category enum
+    let categoryId = value.categoryId
+    if (!categoryId && value.category) {
+      const categoryResult = await pool.query(
+        'SELECT id FROM program_categories WHERE name = $1 LIMIT 1',
+        [value.category]
+      )
+      if (categoryResult.rows.length > 0) {
+        categoryId = categoryResult.rows[0].id
+      }
+    }
+
+    // If levelId is provided, use it; otherwise try to map from skillLevel enum
+    let levelId = value.levelId
+    if (!levelId && value.skillLevel) {
+      const levelResult = await pool.query(
+        'SELECT id FROM skill_levels WHERE name = $1 AND category_id = $2 LIMIT 1',
+        [value.skillLevel, categoryId]
+      )
+      if (levelResult.rows.length > 0) {
+        levelId = levelResult.rows[0].id
+      }
+    }
+
+    const result = await pool.query(`
+      INSERT INTO program (
+        facility_id,
+        category,
+        category_id,
+        name,
+        display_name,
+        skill_level,
+        level_id,
+        age_min,
+        age_max,
+        description,
+        skill_requirements,
+        is_active
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      RETURNING 
         id,
         category,
+        category_id as "categoryId",
         name,
         display_name as "displayName",
         skill_level as "skillLevel",
@@ -2445,28 +2571,28 @@ app.get('/api/admin/programs', async (req, res) => {
         archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
-      FROM program
-    `
-    const params = []
-    
-    if (archived === 'true') {
-      query += ' WHERE archived = $1'
-      params.push(true)
-    } else if (archived === 'false') {
-      query += ' WHERE archived = $1'
-      params.push(false)
-    }
-    
-    query += ' ORDER BY archived ASC, category, skill_level NULLS LAST, display_name'
-
-    const result = await pool.query(query, params)
+    `, [
+      facilityId.rows[0].id,
+      value.category || null,
+      categoryId || null,
+      value.name || value.displayName?.toUpperCase().replace(/\s+/g, '_') || 'CLASS',
+      value.displayName,
+      value.skillLevel || null,
+      levelId || null,
+      value.ageMin || null,
+      value.ageMax || null,
+      value.description || null,
+      value.skillRequirements || null,
+      value.isActive !== undefined ? value.isActive : true
+    ])
 
     res.json({
       success: true,
-      data: result.rows
+      message: 'Program created successfully',
+      data: result.rows[0]
     })
   } catch (error) {
-    console.error('Get programs error:', error)
+    console.error('Create program error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -2632,6 +2758,7 @@ app.get('/api/admin/categories', async (req, res) => {
         id,
         name,
         display_name as "displayName",
+        description,
         archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
@@ -2686,16 +2813,17 @@ app.post('/api/admin/categories', async (req, res) => {
     }
 
     const result = await pool.query(`
-      INSERT INTO program_categories (facility_id, name, display_name)
-      VALUES ($1, $2, $3)
+      INSERT INTO program_categories (facility_id, name, display_name, description)
+      VALUES ($1, $2, $3, $4)
       RETURNING 
         id,
         name,
         display_name as "displayName",
+        description,
         archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
-    `, [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName])
+    `, [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName, value.description || null])
 
     res.json({
       success: true,
@@ -2765,6 +2893,7 @@ app.put('/api/admin/categories/:id', async (req, res) => {
         id,
         name,
         display_name as "displayName",
+        description,
         archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
