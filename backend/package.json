@@ -10,6 +10,7 @@
     "seed-events": "node seed-events.js",
     "migrate": "node run-migration.js",
     "migrate:module0": "node run-module0-migration.js",
+    "verify:module0": "node verify-module0.js",
     "postinstall": "echo 'Backend dependencies installed'"
   },
   "dependencies": {
