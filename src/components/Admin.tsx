@@ -2316,13 +2316,13 @@ export default function Admin({ onLogout }: AdminProps) {
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Category</label>
                         <select
-                          value={classArchiveCategoryFilter}
-                          onChange={(e) => setClassArchiveCategoryFilter(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+                          value={classArchiveCategoryFilter === 'all' ? 'all' : String(classArchiveCategoryFilter)}
+                          onChange={(e) => setClassArchiveCategoryFilter(e.target.value === 'all' ? 'all' : parseInt(e.target.value, 10))}
                           className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
                         >
                           <option value="all">All Categories</option>
                           {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.displayName}</option>
+                            <option key={cat.id} value={String(cat.id)}>{cat.displayName}</option>
                           ))}
                         </select>
                       </div>
@@ -2333,11 +2333,23 @@ export default function Admin({ onLogout }: AdminProps) {
                       <div className="space-y-4">
                         {programs
                           .filter(p => p.archived)
-                          .filter(p => 
-                            classArchiveCategoryFilter === 'all' || 
-                            p.categoryId === classArchiveCategoryFilter ||
-                            (p.categoryDisplayName && categories.find(c => c.id === classArchiveCategoryFilter)?.displayName === p.categoryDisplayName)
-                          )
+                          .filter(p => {
+                            if (classArchiveCategoryFilter === 'all') {
+                              return true
+                            }
+                            // Match by categoryId (handle both number and string comparisons)
+                            if (p.categoryId != null && (p.categoryId === classArchiveCategoryFilter || String(p.categoryId) === String(classArchiveCategoryFilter))) {
+                              return true
+                            }
+                            // Match by categoryDisplayName as fallback
+                            if (p.categoryDisplayName) {
+                              const selectedCategory = categories.find(c => c.id === classArchiveCategoryFilter)
+                              if (selectedCategory && selectedCategory.displayName === p.categoryDisplayName) {
+                                return true
+                              }
+                            }
+                            return false
+                          })
                           .filter(p => 
                             !classArchiveSearch.trim() || 
                             p.displayName.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
@@ -2520,19 +2532,37 @@ export default function Admin({ onLogout }: AdminProps) {
                               </div>
                             )
                           })}
-                        {programs.filter(p => p.archived && 
-                          (classArchiveCategoryFilter === 'all' || 
-                            p.categoryId === classArchiveCategoryFilter ||
-                            (p.categoryDisplayName && categories.find(c => c.id === classArchiveCategoryFilter)?.displayName === p.categoryDisplayName)
-                          ) &&
-                          (!classArchiveSearch.trim() || 
-                            p.displayName.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
-                            p.name.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
-                            (p.description && p.description.toLowerCase().includes(classArchiveSearch.toLowerCase()))
-                          )
-                        ).length === 0 && (
-                          <div className="text-center py-8 text-gray-500">No archived classes found</div>
-                        )}
+                        {(() => {
+                          const filteredPrograms = programs
+                            .filter(p => p.archived)
+                            .filter(p => {
+                              if (classArchiveCategoryFilter === 'all') {
+                                return true
+                              }
+                              // Match by categoryId (handle both number and string comparisons)
+                              if (p.categoryId != null && (p.categoryId === classArchiveCategoryFilter || String(p.categoryId) === String(classArchiveCategoryFilter))) {
+                                return true
+                              }
+                              // Match by categoryDisplayName as fallback
+                              if (p.categoryDisplayName) {
+                                const selectedCategory = categories.find(c => c.id === classArchiveCategoryFilter)
+                                if (selectedCategory && selectedCategory.displayName === p.categoryDisplayName) {
+                                  return true
+                                }
+                              }
+                              return false
+                            })
+                            .filter(p => 
+                              !classArchiveSearch.trim() || 
+                              p.displayName?.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
+                              p.name?.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
+                              (p.description && p.description.toLowerCase().includes(classArchiveSearch.toLowerCase()))
+                            )
+                          
+                          return filteredPrograms.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500">No archived classes found</div>
+                          ) : null
+                        })()}
                       </div>
                     )}
                   </div>
