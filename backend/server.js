@@ -2588,6 +2588,17 @@ app.post('/api/admin/programs', async (req, res) => {
     const hasCategoryIdColumn = columnCheck.rows.some(row => row.column_name === 'category_id')
     const hasLevelIdColumn = columnCheck.rows.some(row => row.column_name === 'level_id')
 
+    // Ensure categoryEnum is a valid enum value before inserting
+    if (categoryEnum && !validEnumValues.includes(categoryEnum)) {
+      console.warn(`Invalid category enum value "${categoryEnum}", using GYMNASTICS as default`)
+      categoryEnum = 'GYMNASTICS'
+    }
+    // If categoryEnum is still null, use a default
+    if (!categoryEnum) {
+      categoryEnum = 'GYMNASTICS'
+      console.warn('No category enum value provided, using GYMNASTICS as default')
+    }
+
     // Build INSERT statement based on which columns exist
     let insertColumns = ['facility_id', 'category']
     let insertValues = [facilityId.rows[0].id, categoryEnum]
