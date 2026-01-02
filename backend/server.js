@@ -2797,25 +2797,47 @@ app.post('/api/members/login', async (req, res) => {
     
     let query, params
     if (isEmail) {
-      query = `
-        SELECT u.* 
-        FROM app_user u
-        WHERE u.facility_id = $1 
-          AND u.email = $2 
-          AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
-          AND u.is_active = TRUE
-      `
-      params = [facilityId, emailOrUsername]
+      if (facilityId !== null) {
+        query = `
+          SELECT u.* 
+          FROM app_user u
+          WHERE u.facility_id = $1 
+            AND u.email = $2 
+            AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+            AND u.is_active = TRUE
+        `
+        params = [facilityId, emailOrUsername]
+      } else {
+        query = `
+          SELECT u.* 
+          FROM app_user u
+          WHERE u.email = $1 
+            AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+            AND u.is_active = TRUE
+        `
+        params = [emailOrUsername]
+      }
     } else {
-      query = `
-        SELECT u.* 
-        FROM app_user u
-        WHERE u.facility_id = $1 
-          AND u.username = $2 
-          AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
-          AND u.is_active = TRUE
-      `
-      params = [facilityId, emailOrUsername]
+      if (facilityId !== null) {
+        query = `
+          SELECT u.* 
+          FROM app_user u
+          WHERE u.facility_id = $1 
+            AND u.username = $2 
+            AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+            AND u.is_active = TRUE
+        `
+        params = [facilityId, emailOrUsername]
+      } else {
+        query = `
+          SELECT u.* 
+          FROM app_user u
+          WHERE u.username = $1 
+            AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+            AND u.is_active = TRUE
+        `
+        params = [emailOrUsername]
+      }
     }
     
     const result = await pool.query(query, params)
@@ -2868,22 +2890,24 @@ app.post('/api/members/login', async (req, res) => {
     )
 
     // Format member data for frontend
+    const fullName = user.full_name || ''
+    const nameParts = fullName.split(' ')
     const memberData = {
       id: user.id,
-      firstName: user.full_name.split(' ')[0] || '',
-      lastName: user.full_name.split(' ').slice(1).join(' ') || '',
-      email: user.email,
-      phone: user.phone,
-      username: user.username,
-      role: user.role,
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' ') || '',
+      email: user.email || '',
+      phone: user.phone || null,
+      username: user.username || '',
+      role: user.role || '',
       familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
       familyName: familyResult.rows.length > 0 ? familyResult.rows[0].family_name : null,
       athletes: athletes.map(a => ({
         id: a.id,
-        firstName: a.first_name,
-        lastName: a.last_name,
-        dateOfBirth: a.date_of_birth,
-        userId: a.user_id
+        firstName: a.first_name || '',
+        lastName: a.last_name || '',
+        dateOfBirth: a.date_of_birth || null,
+        userId: a.user_id || null
       }))
     }
 
@@ -2895,9 +2919,11 @@ app.post('/api/members/login', async (req, res) => {
     })
   } catch (error) {
     console.error('Member login error:', error)
+    console.error('Error stack:', error.stack)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
@@ -2945,22 +2971,24 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
     }
 
     // Format member data for frontend
+    const fullName = user.full_name || ''
+    const nameParts = fullName.split(' ')
     const memberData = {
       id: user.id,
-      firstName: user.full_name.split(' ')[0] || '',
-      lastName: user.full_name.split(' ').slice(1).join(' ') || '',
-      email: user.email,
-      phone: user.phone,
-      username: user.username,
-      role: user.role,
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' ') || '',
+      email: user.email || '',
+      phone: user.phone || null,
+      username: user.username || '',
+      role: user.role || '',
       familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
       familyName: familyResult.rows.length > 0 ? familyResult.rows[0].family_name : null,
       athletes: athletes.map(a => ({
         id: a.id,
-        firstName: a.first_name,
-        lastName: a.last_name,
-        dateOfBirth: a.date_of_birth,
-        userId: a.user_id
+        firstName: a.first_name || '',
+        lastName: a.last_name || '',
+        dateOfBirth: a.date_of_birth || null,
+        userId: a.user_id || null
       }))
     }
 
