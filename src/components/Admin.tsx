@@ -678,7 +678,11 @@ export default function Admin({ onLogout }: AdminProps) {
   const [programsLoading, setProgramsLoading] = useState(false)
   const [editingProgramId, setEditingProgramId] = useState<number | null>(null)
   const [programFormData, setProgramFormData] = useState<Partial<Program>>({})
-  const [showArchivedPrograms, setShowArchivedPrograms] = useState(false)
+  const [showArchivedCategories, setShowArchivedCategories] = useState(false)
+  const [showArchivedClasses, setShowArchivedClasses] = useState(false)
+  const [categoryArchiveSearch, setCategoryArchiveSearch] = useState('')
+  const [classArchiveSearch, setClassArchiveSearch] = useState('')
+  const [classArchiveCategoryFilter, setClassArchiveCategoryFilter] = useState<number | 'all'>('all')
   const [categories, setCategories] = useState<Category[]>([])
   const [categoriesLoading, setCategoriesLoading] = useState(false)
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null)
@@ -724,8 +728,8 @@ export default function Admin({ onLogout }: AdminProps) {
     } else if (activeTab === 'events') {
       fetchEvents()
     } else if (activeTab === 'classes') {
-      fetchPrograms()
-      fetchCategories()
+      fetchAllPrograms()
+      fetchAllCategories()
     } else if (activeTab === 'admins') {
       fetchAdmins()
       fetchMyAccount()
@@ -734,15 +738,11 @@ export default function Admin({ onLogout }: AdminProps) {
 
   useEffect(() => {
     if (activeTab === 'classes') {
-      fetchPrograms()
+      fetchAllPrograms()
+      fetchAllCategories()
     }
-  }, [showArchivedPrograms])
-
-  useEffect(() => {
-    if (activeTab === 'classes') {
-      fetchCategories()
-    }
-  }, [showArchivedPrograms])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showArchivedClasses, showArchivedCategories])
 
 
   const fetchMembers = async () => {
@@ -1278,20 +1278,29 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
-  const fetchPrograms = async () => {
+  const fetchAllPrograms = async () => {
     try {
       setProgramsLoading(true)
       setError(null)
       const apiUrl = getApiUrl()
       
-      const response = await fetch(`${apiUrl}/api/admin/programs?archived=${showArchivedPrograms}`)
-      if (!response.ok) {
-        throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
-      }
-      const data = await response.json()
+      // Fetch both archived and active programs
+      const [activeResponse, archivedResponse] = await Promise.all([
+        fetch(`${apiUrl}/api/admin/programs?archived=false`),
+        fetch(`${apiUrl}/api/admin/programs?archived=true`)
+      ])
       
-      if (data.success) {
-        setPrograms(data.data)
+      if (!activeResponse.ok || !archivedResponse.ok) {
+        throw new Error(`Backend returned error`)
+      }
+      
+      const [activeData, archivedData] = await Promise.all([
+        activeResponse.json(),
+        archivedResponse.json()
+      ])
+      
+      if (activeData.success && archivedData.success) {
+        setPrograms([...activeData.data, ...archivedData.data])
       }
     } catch (error) {
       console.error('Error fetching programs:', error)
@@ -1301,19 +1310,28 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
-  const fetchCategories = async () => {
+  const fetchAllCategories = async () => {
     try {
       setCategoriesLoading(true)
       const apiUrl = getApiUrl()
       
-      const response = await fetch(`${apiUrl}/api/admin/categories?archived=${showArchivedPrograms}`)
-      if (!response.ok) {
-        throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
-      }
-      const data = await response.json()
+      // Fetch both archived and active categories
+      const [activeResponse, archivedResponse] = await Promise.all([
+        fetch(`${apiUrl}/api/admin/categories?archived=false`),
+        fetch(`${apiUrl}/api/admin/categories?archived=true`)
+      ])
       
-      if (data.success) {
-        setCategories(data.data)
+      if (!activeResponse.ok || !archivedResponse.ok) {
+        throw new Error(`Backend returned error`)
+      }
+      
+      const [activeData, archivedData] = await Promise.all([
+        activeResponse.json(),
+        archivedResponse.json()
+      ])
+      
+      if (activeData.success && archivedData.success) {
+        setCategories([...activeData.data, ...archivedData.data])
       }
     } catch (error) {
       console.error('Error fetching categories:', error)
@@ -1321,6 +1339,7 @@ export default function Admin({ onLogout }: AdminProps) {
       setCategoriesLoading(false)
     }
   }
+
 
 
   const handleArchiveProgram = async (id: number, archived: boolean) => {
@@ -1333,7 +1352,23 @@ export default function Admin({ onLogout }: AdminProps) {
       })
       
       if (response.ok) {
-        await fetchPrograms()
+        // If unarchiving a class, check if its category is archived and unarchive it too
+        if (!archived) {
+          const program = programs.find(p => p.id === id)
+          if (program && program.categoryId) {
+            const category = categories.find(c => c.id === program.categoryId)
+            if (category && category.archived) {
+              // Unarchive the category as well
+              await fetch(`${apiUrl}/api/admin/categories/${category.id}/archive`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ archived: false })
+              })
+            }
+          }
+        }
+        await fetchAllPrograms()
+        await fetchAllCategories()
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to archive program')
@@ -1356,7 +1391,7 @@ export default function Admin({ onLogout }: AdminProps) {
       })
       
       if (response.ok) {
-        await fetchPrograms()
+        await fetchAllPrograms()
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to delete program')
@@ -1377,8 +1412,8 @@ export default function Admin({ onLogout }: AdminProps) {
       })
       
       if (response.ok) {
-        await fetchCategories()
-        await fetchPrograms()
+        await fetchAllCategories()
+        await fetchAllPrograms()
         setCategoryFormData({ name: '', displayName: '', description: '' })
         setShowCategoryModal(false)
         setEditingCategoryId(null)
@@ -1415,7 +1450,7 @@ export default function Admin({ onLogout }: AdminProps) {
       })
       
       if (response.ok) {
-        await fetchPrograms()
+        await fetchAllPrograms()
         setProgramFormData({})
         setShowClassModal(false)
         setSelectedCategoryForClass(null)
@@ -1445,8 +1480,8 @@ export default function Admin({ onLogout }: AdminProps) {
       })
       
       if (response.ok) {
-        await fetchCategories()
-        await fetchPrograms()
+        await fetchAllCategories()
+        await fetchAllPrograms()
         setEditingCategoryId(null)
         setCategoryFormData({})
         setShowCategoryModal(false)
@@ -1470,8 +1505,8 @@ export default function Admin({ onLogout }: AdminProps) {
       })
       
       if (response.ok) {
-        await fetchCategories()
-        await fetchPrograms()
+        await fetchAllCategories()
+        await fetchAllPrograms()
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to archive category')
@@ -1494,7 +1529,7 @@ export default function Admin({ onLogout }: AdminProps) {
       })
       
       if (response.ok) {
-        await fetchCategories()
+        await fetchAllCategories()
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to delete category')
@@ -1531,7 +1566,7 @@ export default function Admin({ onLogout }: AdminProps) {
       })
       
       if (response.ok) {
-        await fetchPrograms()
+        await fetchAllPrograms()
         setEditingProgramId(null)
         setProgramFormData({})
       } else {
@@ -1948,7 +1983,10 @@ export default function Admin({ onLogout }: AdminProps) {
             )}
             {activeTab === 'classes' && (
               <motion.button
-                onClick={fetchPrograms}
+                onClick={() => {
+                  fetchAllPrograms()
+                  fetchAllCategories()
+                }}
                 className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -2150,30 +2188,231 @@ export default function Admin({ onLogout }: AdminProps) {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {/* Classes Management */}
+                {/* Archive Toggle Buttons */}
+                <div className="flex gap-2 mb-4">
+                  <motion.button
+                    onClick={() => {
+                      setShowArchivedCategories(!showArchivedCategories)
+                      setShowArchivedClasses(false)
+                    }}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                      showArchivedCategories
+                        ? 'bg-gray-600 text-white hover:bg-gray-700'
+                        : 'bg-gray-500 text-white hover:bg-gray-600'
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Archive className="w-4 h-4" />
+                    <span>{showArchivedCategories ? 'Show Active Categories' : 'Show Category Archives'}</span>
+                  </motion.button>
+                  <motion.button
+                    onClick={() => {
+                      setShowArchivedClasses(!showArchivedClasses)
+                      setShowArchivedCategories(false)
+                    }}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                      showArchivedClasses
+                        ? 'bg-gray-600 text-white hover:bg-gray-700'
+                        : 'bg-gray-500 text-white hover:bg-gray-600'
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Archive className="w-4 h-4" />
+                    <span>{showArchivedClasses ? 'Show Active Classes' : 'Show Class Archives'}</span>
+                  </motion.button>
+                </div>
+
+                {/* Category Archives View */}
+                {showArchivedCategories && (
+                  <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-4">
+                      Category Archives
+                    </h2>
+                    <div className="mb-4">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="text"
+                          placeholder="Search archived categories..."
+                          value={categoryArchiveSearch}
+                          onChange={(e) => setCategoryArchiveSearch(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                    {categoriesLoading ? (
+                      <div className="text-center py-12 text-gray-600">Loading...</div>
+                    ) : (
+                      <div className="space-y-4">
+                        {categories
+                          .filter(cat => cat.archived)
+                          .filter(cat => 
+                            !categoryArchiveSearch.trim() || 
+                            cat.displayName.toLowerCase().includes(categoryArchiveSearch.toLowerCase()) ||
+                            cat.name.toLowerCase().includes(categoryArchiveSearch.toLowerCase()) ||
+                            (cat.description && cat.description.toLowerCase().includes(categoryArchiveSearch.toLowerCase()))
+                          )
+                          .map((category) => (
+                            <div key={category.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <h3 className="text-lg font-semibold text-black">{category.displayName}</h3>
+                                  {category.description && (
+                                    <p className="text-sm text-gray-600 mt-1">{category.description}</p>
+                                  )}
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleArchiveCategory(category.id, false)}
+                                    className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
+                                  >
+                                    <Archive className="w-4 h-4" />
+                                    Unarchive
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteCategory(category.id)}
+                                    className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
+                                  >
+                                    <X className="w-4 h-4" />
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        {categories.filter(cat => cat.archived && 
+                          (!categoryArchiveSearch.trim() || 
+                            cat.displayName.toLowerCase().includes(categoryArchiveSearch.toLowerCase()) ||
+                            cat.name.toLowerCase().includes(categoryArchiveSearch.toLowerCase()) ||
+                            (cat.description && cat.description.toLowerCase().includes(categoryArchiveSearch.toLowerCase()))
+                          )).length === 0 && (
+                          <div className="text-center py-8 text-gray-500">No archived categories found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Class Archives View */}
+                {showArchivedClasses && (
+                  <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-4">
+                      Class Archives
+                    </h2>
+                    <div className="mb-4 space-y-3">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="text"
+                          placeholder="Search archived classes..."
+                          value={classArchiveSearch}
+                          onChange={(e) => setClassArchiveSearch(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Category</label>
+                        <select
+                          value={classArchiveCategoryFilter}
+                          onChange={(e) => setClassArchiveCategoryFilter(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+                          className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                        >
+                          <option value="all">All Categories</option>
+                          {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.displayName}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    {programsLoading ? (
+                      <div className="text-center py-12 text-gray-600">Loading...</div>
+                    ) : (
+                      <div className="space-y-4">
+                        {programs
+                          .filter(p => p.archived)
+                          .filter(p => 
+                            classArchiveCategoryFilter === 'all' || 
+                            p.categoryId === classArchiveCategoryFilter ||
+                            (p.categoryDisplayName && categories.find(c => c.id === classArchiveCategoryFilter)?.displayName === p.categoryDisplayName)
+                          )
+                          .filter(p => 
+                            !classArchiveSearch.trim() || 
+                            p.displayName.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
+                            p.name.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
+                            (p.description && p.description.toLowerCase().includes(classArchiveSearch.toLowerCase()))
+                          )
+                          .map((program) => {
+                            const programCategory = categories.find(c => 
+                              c.id === program.categoryId || 
+                              c.displayName === program.categoryDisplayName
+                            )
+                            return (
+                              <div key={program.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <h4 className="text-lg font-semibold text-black">{program.displayName}</h4>
+                                      {programCategory && (
+                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                          {programCategory.displayName}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="text-sm text-gray-600">
+                                      {program.description && <p className="mb-1">{program.description}</p>}
+                                      {program.skillLevel && (
+                                        <p><span className="font-medium">Skill Level:</span> {program.skillLevel.replace('_', ' ')}</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => handleArchiveProgram(program.id, false)}
+                                      className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
+                                    >
+                                      <Archive className="w-4 h-4" />
+                                      Unarchive
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteProgram(program.id)}
+                                      className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
+                                    >
+                                      <X className="w-4 h-4" />
+                                      Delete
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        {programs.filter(p => p.archived && 
+                          (classArchiveCategoryFilter === 'all' || 
+                            p.categoryId === classArchiveCategoryFilter ||
+                            (p.categoryDisplayName && categories.find(c => c.id === classArchiveCategoryFilter)?.displayName === p.categoryDisplayName)
+                          ) &&
+                          (!classArchiveSearch.trim() || 
+                            p.displayName.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
+                            p.name.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
+                            (p.description && p.description.toLowerCase().includes(classArchiveSearch.toLowerCase()))
+                          )
+                        ).length === 0 && (
+                          <div className="text-center py-8 text-gray-500">No archived classes found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Category & Class Management */}
+                {!showArchivedCategories && !showArchivedClasses && (
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-                      Classes Management
+                      Category & Class Management
                     </h2>
                     <div className="flex gap-2">
-                      <motion.button
-                        onClick={() => {
-                          setShowArchivedPrograms(!showArchivedPrograms)
-                          fetchPrograms()
-                          fetchCategories()
-                        }}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                          showArchivedPrograms
-                            ? 'bg-gray-600 text-white hover:bg-gray-700'
-                            : 'bg-gray-500 text-white hover:bg-gray-600'
-                        }`}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Archive className="w-4 h-4" />
-                        <span>{showArchivedPrograms ? 'Show Active' : 'Show Archives'}</span>
-                      </motion.button>
                       <motion.button
                         onClick={() => {
                           setEditingCategoryId(null)
@@ -2198,8 +2437,8 @@ export default function Admin({ onLogout }: AdminProps) {
                       <div className="text-gray-600 mb-4">{error}</div>
                       <button
                         onClick={() => {
-                          fetchPrograms()
-                          fetchCategories()
+                          fetchAllPrograms()
+                          fetchAllCategories()
                         }}
                         className="bg-vortex-red hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
                       >
@@ -2209,11 +2448,11 @@ export default function Admin({ onLogout }: AdminProps) {
                   ) : (
                     <div className="space-y-6">
                       {categories
-                        .filter(cat => showArchivedPrograms ? cat.archived : !cat.archived)
+                        .filter(cat => !cat.archived)
                         .map((category) => {
                           const categoryPrograms = programs.filter(p => 
                             (p.categoryId === category.id || p.categoryDisplayName === category.displayName) &&
-                            (showArchivedPrograms ? p.archived : !p.archived)
+                            !p.archived
                           )
 
                           return (
@@ -2224,15 +2463,23 @@ export default function Admin({ onLogout }: AdminProps) {
                                     <h3 className="text-xl md:text-2xl font-display font-bold text-black">
                                       {category.displayName}
                                     </h3>
-                                    {category.archived && (
-                                      <span className="text-xs bg-gray-500 text-white px-2 py-1 rounded">Archived</span>
-                                    )}
                                   </div>
                                   {category.description && (
                                     <p className="text-sm text-gray-600 mt-1">{category.description}</p>
                                   )}
                                 </div>
                                 <div className="flex gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedCategoryForClass(category.id)
+                                      setProgramFormData({})
+                                      setShowClassModal(true)
+                                    }}
+                                    className="flex items-center gap-2 px-3 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    Add Class
+                                  </button>
                                   <button
                                     onClick={() => {
                                       setEditingCategoryId(category.id)
@@ -2248,46 +2495,14 @@ export default function Admin({ onLogout }: AdminProps) {
                                     <Edit2 className="w-4 h-4" />
                                     Edit
                                   </button>
-                                  {showArchivedPrograms ? (
-                                    <>
-                                      <button
-                                      onClick={() => handleArchiveCategory(category.id, false)}
-                                      className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                                    >
-                                      <Archive className="w-4 h-4" />
-                                      Unarchive
-                                    </button>
-                                    <button
-                                      onClick={() => handleDeleteCategory(category.id)}
-                                      className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
-                                    >
-                                      <X className="w-4 h-4" />
-                                      Delete
-                                    </button>
-                                    </>
-                                  ) : (
-                                    <button
-                                      onClick={() => handleArchiveCategory(category.id, true)}
-                                      className="flex items-center gap-2 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white text-sm font-medium"
-                                    >
-                                      <Archive className="w-4 h-4" />
-                                      Archive
-                                    </button>
-                                  )}
+                                  <button
+                                    onClick={() => handleArchiveCategory(category.id, true)}
+                                    className="flex items-center gap-2 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white text-sm font-medium"
+                                  >
+                                    <Archive className="w-4 h-4" />
+                                    Archive
+                                  </button>
                                 </div>
-                              </div>
-                              <div className="mb-4">
-                                <button
-                                  onClick={() => {
-                                    setSelectedCategoryForClass(category.id)
-                                    setProgramFormData({})
-                                    setShowClassModal(true)
-                                  }}
-                                  className="flex items-center gap-2 px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
-                                >
-                                  <Plus className="w-4 h-4" />
-                                  Add Class
-                                </button>
                               </div>
                               <div className="space-y-4">
                                 {categoryPrograms.length === 0 ? (
@@ -2436,32 +2651,13 @@ export default function Admin({ onLogout }: AdminProps) {
                                             <Edit2 className="w-4 h-4" />
                                             Edit
                                           </button>
-                                          {showArchivedPrograms ? (
-                                            <>
-                                              <button
-                                                onClick={() => handleArchiveProgram(program.id, false)}
-                                                className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                                              >
-                                                <Archive className="w-4 h-4" />
-                                                Unarchive
-                                              </button>
-                                              <button
-                                                onClick={() => handleDeleteProgram(program.id)}
-                                                className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
-                                              >
-                                                <X className="w-4 h-4" />
-                                                Delete
-                                              </button>
-                                            </>
-                                          ) : (
-                                            <button
-                                              onClick={() => handleArchiveProgram(program.id, true)}
-                                              className="flex items-center gap-2 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white text-sm font-medium"
-                                            >
-                                              <Archive className="w-4 h-4" />
-                                              Archive
-                                            </button>
-                                          )}
+                                          <button
+                                            onClick={() => handleArchiveProgram(program.id, true)}
+                                            className="flex items-center gap-2 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white text-sm font-medium"
+                                          >
+                                            <Archive className="w-4 h-4" />
+                                            Archive
+                                          </button>
                                         </div>
                                       </div>
                                     </div>
@@ -2476,6 +2672,7 @@ export default function Admin({ onLogout }: AdminProps) {
                     </div>
                   )}
                 </div>
+                )}
               </motion.div>
             ) : activeTab === 'events' ? (
               <motion.div
