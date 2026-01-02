@@ -667,21 +667,6 @@ export const initDatabase = async () => {
       SELECT 
         (SELECT id FROM facility LIMIT 1),
         'ATHLETICISM_ACCELERATOR'::program_category,
-        'little_twisters_athleticism',
-        'Little Twisters — Early Stage',
-        'EARLY_STAGE'::skill_level,
-        4,
-        5,
-        'Foundational athletic development focusing on balance, coordination, running, jumping, and playful strength.',
-        'No Experience Required'
-      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'little_twisters_athleticism')
-    `)
-
-    await pool.query(`
-      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
-      SELECT 
-        (SELECT id FROM facility LIMIT 1),
-        'ATHLETICISM_ACCELERATOR'::program_category,
         'tornadoes_athleticism',
         'Tornadoes — Beginner',
         'BEGINNER'::skill_level,
@@ -3558,8 +3543,8 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     
     // If not found as athlete, check if it's a user_id (current user enrolling themselves)
     if (athleteCheck.rows.length === 0) {
-      // Check if familyMemberId matches the current user's ID
-      if (familyMemberId === userId) {
+      // Check if familyMemberId matches the current user's ID (handle string/number comparison)
+      if (String(familyMemberId) === String(userId)) {
         // User is enrolling themselves - check if they have an athlete record
         const userAthleteCheck = await pool.query(`
           SELECT a.id, a.user_id, a.family_id, a.first_name, a.last_name
@@ -3632,7 +3617,8 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     }
 
     // Check if user has permission (is PARENT_GUARDIAN or is the athlete themselves)
-    if (userRole !== 'PARENT_GUARDIAN' && athlete.user_id !== userId) {
+    const isAthleteSelf = athlete.user_id && String(athlete.user_id) === String(userId)
+    if (userRole !== 'PARENT_GUARDIAN' && !isAthleteSelf) {
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to enroll this family member'
@@ -3640,11 +3626,33 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     }
 
     // Check if program exists
-    const programCheck = await pool.query(`
-      SELECT id, name, display_name
-      FROM program
-      WHERE id = $1 AND archived = FALSE AND is_active = TRUE
-    `, [programId])
+    // First check if archived column exists
+    let programCheck
+    try {
+      const columnCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'program' AND column_name = 'archived'
+      `)
+      const hasArchivedColumn = columnCheck.rows.length > 0
+      
+      if (hasArchivedColumn) {
+        programCheck = await pool.query(`
+          SELECT id, name, display_name
+          FROM program
+          WHERE id = $1 AND archived = FALSE AND is_active = TRUE
+        `, [programId])
+      } else {
+        programCheck = await pool.query(`
+          SELECT id, name, display_name
+          FROM program
+          WHERE id = $1 AND is_active = TRUE
+        `, [programId])
+      }
+    } catch (queryError) {
+      console.error('Error checking program:', queryError)
+      throw queryError
+    }
 
     if (programCheck.rows.length === 0) {
       return res.status(404).json({
@@ -3747,9 +3755,11 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       }
     } catch (error) {
       console.error('Error creating enrollment record:', error)
+      console.error('Error stack:', error.stack)
       return res.status(500).json({
         success: false,
-        message: 'Failed to create enrollment record: ' + error.message
+        message: 'Failed to create enrollment record: ' + (error.message || 'Unknown error'),
+        error: process.env.NODE_ENV !== 'production' ? error.message : undefined
       })
     }
 
@@ -3759,9 +3769,11 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     })
   } catch (error) {
     console.error('Enroll error:', error)
+    console.error('Error stack:', error.stack)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error: ' + (error.message || 'Unknown error'),
+      error: process.env.NODE_ENV !== 'production' ? error.message : undefined
     })
   }
 })
