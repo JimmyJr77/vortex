@@ -19,10 +19,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-produc
 const app = express()
 const PORT = process.env.PORT || 3001
 
-// Middleware
-app.use(helmet())
-
-// CORS configuration
+// CORS configuration - must be before helmet
 const allowedOrigins = [
   'http://localhost:5173',
   'https://vortexathletics.com',
@@ -46,7 +43,15 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}))
+
+// Middleware - helmet after CORS to avoid interfering with CORS headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false
 }))
 
 app.use(express.json({ limit: '10mb' }))
