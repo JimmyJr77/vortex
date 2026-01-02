@@ -531,7 +531,7 @@ interface User {
 }
 
 type FilterType = 'all' | 'newsletter' | 'interests'
-type TabType = 'users' | 'analytics' | 'membership' | 'events' | 'admins'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins'
 
 interface DateTimeEntry {
   date: Date
@@ -574,6 +574,21 @@ interface Member {
   notes: string | null
   created_at: string
   children?: MemberChild[]
+}
+
+interface Program {
+  id: number
+  category: 'EARLY_DEVELOPMENT' | 'GYMNASTICS' | 'VORTEX_NINJA' | 'ATHLETICISM_ACCELERATOR' | 'ADULT_FITNESS' | 'HOMESCHOOL'
+  name: string
+  displayName: string
+  skillLevel: 'EARLY_STAGE' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null
+  ageMin: number | null
+  ageMax: number | null
+  description: string | null
+  skillRequirements: string | null
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export default function Admin({ onLogout }: AdminProps) {
@@ -644,6 +659,10 @@ export default function Admin({ onLogout }: AdminProps) {
     username: '',
     password: ''
   })
+  const [programs, setPrograms] = useState<Program[]>([])
+  const [programsLoading, setProgramsLoading] = useState(false)
+  const [editingProgramId, setEditingProgramId] = useState<number | null>(null)
+  const [programFormData, setProgramFormData] = useState<Partial<Program>>({})
 
   useEffect(() => {
     fetchData()
@@ -681,6 +700,8 @@ export default function Admin({ onLogout }: AdminProps) {
       fetchMembers()
     } else if (activeTab === 'events') {
       fetchEvents()
+    } else if (activeTab === 'classes') {
+      fetchPrograms()
     } else if (activeTab === 'admins') {
       fetchAdmins()
       fetchMyAccount()
@@ -1220,6 +1241,67 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
+  const fetchPrograms = async () => {
+    try {
+      setProgramsLoading(true)
+      setError(null)
+      const apiUrl = getApiUrl()
+      
+      const response = await fetch(`${apiUrl}/api/admin/programs`)
+      if (!response.ok) {
+        throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
+      }
+      const data = await response.json()
+      
+      if (data.success) {
+        setPrograms(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching programs:', error)
+      setError(error instanceof Error ? error.message : 'Unable to fetch programs')
+    } finally {
+      setProgramsLoading(false)
+    }
+  }
+
+  const handleEditProgram = (program: Program) => {
+    setEditingProgramId(program.id)
+    setProgramFormData({
+      displayName: program.displayName,
+      skillLevel: program.skillLevel,
+      ageMin: program.ageMin,
+      ageMax: program.ageMax,
+      description: program.description || '',
+      skillRequirements: program.skillRequirements || '',
+      isActive: program.isActive
+    })
+  }
+
+  const handleUpdateProgram = async () => {
+    if (!editingProgramId) return
+    
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(programFormData)
+      })
+      
+      if (response.ok) {
+        await fetchPrograms()
+        setEditingProgramId(null)
+        setProgramFormData({})
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to update program')
+      }
+    } catch (error) {
+      console.error('Error updating program:', error)
+      alert('Failed to update program')
+    }
+  }
+
   const fetchEditLog = async (eventId: string | number) => {
     try {
       setEditLogLoading(true)
@@ -1622,6 +1704,17 @@ export default function Admin({ onLogout }: AdminProps) {
                 <span className="hidden md:inline">Refresh</span>
               </motion.button>
             )}
+            {activeTab === 'classes' && (
+              <motion.button
+                onClick={fetchPrograms}
+                className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span className="hidden md:inline">Refresh</span>
+              </motion.button>
+            )}
             {activeTab === 'events' && (
               <motion.button
                 onClick={fetchEvents}
@@ -1736,6 +1829,23 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
+                onClick={() => setActiveTab('classes')}
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'classes'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Classes
+                {activeTab === 'classes' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab('events')}
                 className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'events'
@@ -1788,6 +1898,208 @@ export default function Admin({ onLogout }: AdminProps) {
                 transition={{ duration: 0.3 }}
               >
                 <AnalyticsView data={analyticsData} />
+              </motion.div>
+            ) : activeTab === 'classes' ? (
+              <motion.div
+                key="classes"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200"
+              >
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
+                    Classes Management
+                  </h2>
+                </div>
+
+                {programsLoading ? (
+                  <div className="text-center py-12 text-gray-600">Loading programs...</div>
+                ) : error ? (
+                  <div className="text-center py-12">
+                    <div className="text-red-600 mb-4 font-semibold">Error Loading Programs</div>
+                    <div className="text-gray-600 mb-4">{error}</div>
+                    <button
+                      onClick={fetchPrograms}
+                      className="bg-vortex-red hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : programs.length === 0 ? (
+                  <div className="text-center py-12 text-gray-600">No programs found</div>
+                ) : (
+                  <div className="space-y-6">
+                    {['EARLY_DEVELOPMENT', 'GYMNASTICS', 'VORTEX_NINJA', 'ATHLETICISM_ACCELERATOR', 'ADULT_FITNESS', 'HOMESCHOOL'].map((category) => {
+                      const categoryPrograms = programs.filter(p => p.category === category)
+                      if (categoryPrograms.length === 0) return null
+
+                      const categoryLabels: Record<string, string> = {
+                        'EARLY_DEVELOPMENT': 'Early Development Gymnastics & Athleticism',
+                        'GYMNASTICS': 'Gymnastics',
+                        'VORTEX_NINJA': 'Vortex Ninja Classes',
+                        'ATHLETICISM_ACCELERATOR': 'Athleticism Accelerator',
+                        'ADULT_FITNESS': 'Adult Training Track – Fitness & Acrobatics',
+                        'HOMESCHOOL': 'Hurricane Academy (Homeschool Program)'
+                      }
+
+                      return (
+                        <div key={category} className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                          <h3 className="text-xl md:text-2xl font-display font-bold text-black mb-4">
+                            {categoryLabels[category]}
+                          </h3>
+                          <div className="space-y-4">
+                            {categoryPrograms.map((program) => (
+                              <div key={program.id} className="bg-white rounded-lg p-4 border border-gray-300">
+                                {editingProgramId === program.id ? (
+                                  <div className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Display Name *</label>
+                                        <input
+                                          type="text"
+                                          value={programFormData.displayName || ''}
+                                          onChange={(e) => setProgramFormData({ ...programFormData, displayName: e.target.value })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                          required
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Skill Level</label>
+                                        <select
+                                          value={programFormData.skillLevel || ''}
+                                          onChange={(e) => setProgramFormData({ ...programFormData, skillLevel: e.target.value as Program['skillLevel'] || null })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                        >
+                                          <option value="">None (All Levels)</option>
+                                          <option value="EARLY_STAGE">Early Stage</option>
+                                          <option value="BEGINNER">Beginner</option>
+                                          <option value="INTERMEDIATE">Intermediate</option>
+                                          <option value="ADVANCED">Advanced</option>
+                                        </select>
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Minimum Age</label>
+                                        <input
+                                          type="number"
+                                          value={programFormData.ageMin ?? ''}
+                                          onChange={(e) => setProgramFormData({ ...programFormData, ageMin: e.target.value ? parseInt(e.target.value) : null })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                          min="0"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Maximum Age</label>
+                                        <input
+                                          type="number"
+                                          value={programFormData.ageMax ?? ''}
+                                          onChange={(e) => setProgramFormData({ ...programFormData, ageMax: e.target.value ? parseInt(e.target.value) : null })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                          min="0"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                                      <textarea
+                                        value={programFormData.description || ''}
+                                        onChange={(e) => setProgramFormData({ ...programFormData, description: e.target.value })}
+                                        rows={4}
+                                        className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Skill Requirements</label>
+                                      <input
+                                        type="text"
+                                        value={programFormData.skillRequirements || ''}
+                                        onChange={(e) => setProgramFormData({ ...programFormData, skillRequirements: e.target.value })}
+                                        className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                        placeholder="e.g., No Experience Required, Skill Evaluation Required"
+                                      />
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <input
+                                        type="checkbox"
+                                        checked={programFormData.isActive ?? true}
+                                        onChange={(e) => setProgramFormData({ ...programFormData, isActive: e.target.checked })}
+                                        className="w-4 h-4 text-vortex-red bg-white border-gray-300 rounded focus:ring-vortex-red"
+                                      />
+                                      <label className="text-sm font-semibold text-gray-700">Active</label>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={handleUpdateProgram}
+                                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
+                                      >
+                                        <Save className="w-4 h-4" />
+                                        Save Changes
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setEditingProgramId(null)
+                                          setProgramFormData({})
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
+                                      >
+                                        <X className="w-4 h-4" />
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-3">
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                          <h4 className="text-lg font-semibold text-black">{program.displayName}</h4>
+                                          {!program.isActive && (
+                                            <span className="text-xs bg-gray-500 text-white px-2 py-1 rounded">Inactive</span>
+                                          )}
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-700">
+                                          {program.skillLevel && (
+                                            <div>
+                                              <span className="font-medium text-gray-600">Skill Level:</span> {program.skillLevel.replace('_', ' ')}
+                                            </div>
+                                          )}
+                                          {(program.ageMin !== null || program.ageMax !== null) && (
+                                            <div>
+                                              <span className="font-medium text-gray-600">Age Range:</span>{' '}
+                                              {program.ageMin !== null ? program.ageMin : 'Any'} - {program.ageMax !== null ? program.ageMax : 'Any'}
+                                            </div>
+                                          )}
+                                          {program.skillRequirements && (
+                                            <div className="md:col-span-2">
+                                              <span className="font-medium text-gray-600">Requirements:</span> {program.skillRequirements}
+                                            </div>
+                                          )}
+                                          {program.description && (
+                                            <div className="md:col-span-2">
+                                              <span className="font-medium text-gray-600">Description:</span> {program.description}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <button
+                                        onClick={() => handleEditProgram(program)}
+                                        className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium ml-4"
+                                      >
+                                        <Edit2 className="w-4 h-4" />
+                                        Edit
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </motion.div>
             ) : activeTab === 'events' ? (
               <motion.div

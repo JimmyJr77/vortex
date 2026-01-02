@@ -758,6 +758,16 @@ const adminUpdateSchema = Joi.object({
   password: Joi.string().min(6).optional()
 })
 
+const programUpdateSchema = Joi.object({
+  displayName: Joi.string().min(1).max(255).optional(),
+  skillLevel: Joi.string().valid('EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED').optional().allow(null),
+  ageMin: Joi.number().integer().min(0).max(100).optional().allow(null),
+  ageMax: Joi.number().integer().min(0).max(100).optional().allow(null),
+  description: Joi.string().optional().allow('', null),
+  skillRequirements: Joi.string().optional().allow('', null),
+  isActive: Joi.boolean().optional()
+})
+
 // Middleware to verify JWT token
 const authenticateMember = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1]
@@ -2354,6 +2364,139 @@ app.post('/api/admin/admins', async (req, res) => {
     })
   } catch (error) {
     console.error('Create admin error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// ========== PROGRAM ENDPOINTS ==========
+
+// Get all programs (admin endpoint)
+app.get('/api/admin/programs', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        id,
+        category,
+        name,
+        display_name as "displayName",
+        skill_level as "skillLevel",
+        age_min as "ageMin",
+        age_max as "ageMax",
+        description,
+        skill_requirements as "skillRequirements",
+        is_active as "isActive",
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+      FROM program
+      ORDER BY category, skill_level NULLS LAST, display_name
+    `)
+
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get programs error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Update program (admin endpoint)
+app.put('/api/admin/programs/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { error, value } = programUpdateSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+
+    // Build update query dynamically
+    const updates = []
+    const values = []
+    let paramCount = 1
+
+    if (value.displayName !== undefined) {
+      updates.push(`display_name = $${paramCount++}`)
+      values.push(value.displayName)
+    }
+    if (value.skillLevel !== undefined) {
+      updates.push(`skill_level = $${paramCount++}`)
+      values.push(value.skillLevel ? value.skillLevel : null)
+    }
+    if (value.ageMin !== undefined) {
+      updates.push(`age_min = $${paramCount++}`)
+      values.push(value.ageMin)
+    }
+    if (value.ageMax !== undefined) {
+      updates.push(`age_max = $${paramCount++}`)
+      values.push(value.ageMax)
+    }
+    if (value.description !== undefined) {
+      updates.push(`description = $${paramCount++}`)
+      values.push(value.description || null)
+    }
+    if (value.skillRequirements !== undefined) {
+      updates.push(`skill_requirements = $${paramCount++}`)
+      values.push(value.skillRequirements || null)
+    }
+    if (value.isActive !== undefined) {
+      updates.push(`is_active = $${paramCount++}`)
+      values.push(value.isActive)
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No fields to update'
+      })
+    }
+
+    updates.push(`updated_at = CURRENT_TIMESTAMP`)
+    values.push(id)
+
+    const result = await pool.query(`
+      UPDATE program
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING 
+        id,
+        category,
+        name,
+        display_name as "displayName",
+        skill_level as "skillLevel",
+        age_min as "ageMin",
+        age_max as "ageMax",
+        description,
+        skill_requirements as "skillRequirements",
+        is_active as "isActive",
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+    `, values)
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Program not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Program updated successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Update program error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error'
