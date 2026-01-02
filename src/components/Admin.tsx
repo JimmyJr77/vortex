@@ -1427,7 +1427,8 @@ export default function Admin({ onLogout }: AdminProps) {
       }
     } catch (error) {
       console.error('Error creating class:', error)
-      alert(`Failed to create class: ${error.message || 'Network error'}`)
+      const errorMessage = error instanceof Error ? error.message : 'Network error'
+      alert(`Failed to create class: ${errorMessage}`)
     }
   }
 
