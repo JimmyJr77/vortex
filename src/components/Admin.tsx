@@ -844,6 +844,95 @@ export default function Admin({ onLogout }: AdminProps) {
   })
   const [programs, setPrograms] = useState<Program[]>([])
   const [programsLoading, setProgramsLoading] = useState(false)
+  
+  // Helper function to organize programs by category and skill level
+  const organizeProgramsByCategoryAndLevel = (programsList: Program[]) => {
+    // Define category order (using keywords that should match database category names)
+    // These will match categories containing these terms (case-insensitive)
+    const categoryKeywords = [
+      { keywords: ['early', 'development', 'developmental'], name: 'Early Development' },
+      { keywords: ['gymnastics'], name: 'Gymnastics' },
+      { keywords: ['ninja', 'vortex ninja'], name: 'Vortex Ninja' },
+      { keywords: ['athleticism', 'accelerator'], name: 'Athleticism Accelerator' },
+      { keywords: ['homeschool', 'home school', 'homeschool'], name: 'Homeschool' },
+      { keywords: ['adult', 'adult fitness'], name: 'Adult Fitness' }
+    ]
+    
+    // Define skill level order
+    const skillLevelOrder: (string | null)[] = ['EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED', null]
+    
+    // Filter active, non-archived programs
+    const activePrograms = programsList.filter(p => p.isActive && !p.archived)
+    
+    // Group by category
+    const byCategory = activePrograms.reduce((acc, program) => {
+      const categoryName = program.categoryDisplayName || program.categoryName || 'Other'
+      if (!acc[categoryName]) {
+        acc[categoryName] = []
+      }
+      acc[categoryName].push(program)
+      return acc
+    }, {} as Record<string, Program[]>)
+    
+    // Helper to find category order index
+    const getCategoryOrderIndex = (categoryName: string): number => {
+      const lowerName = categoryName.toLowerCase()
+      for (let i = 0; i < categoryKeywords.length; i++) {
+        if (categoryKeywords[i].keywords.some(keyword => lowerName.includes(keyword))) {
+          return i
+        }
+      }
+      return categoryKeywords.length // Put unmatched categories at the end
+    }
+    
+    // Sort categories by defined order, then alphabetically for any not in the list
+    const sortedCategories = Object.keys(byCategory).sort((a, b) => {
+      const aIndex = getCategoryOrderIndex(a)
+      const bIndex = getCategoryOrderIndex(b)
+      
+      if (aIndex !== bIndex) return aIndex - bIndex
+      return a.localeCompare(b)
+    })
+    
+    // For each category, group by skill level and sort
+    const organized: Array<{ category: string; programs: Program[]; skillLevel: string | null }> = []
+    
+    sortedCategories.forEach(categoryName => {
+      const categoryPrograms = byCategory[categoryName]
+      
+      // Group by skill level
+      const bySkillLevel = categoryPrograms.reduce((acc, program) => {
+        const level = program.skillLevel || null
+        const key = level || 'null'
+        if (!acc[key]) {
+          acc[key] = []
+        }
+        acc[key].push(program)
+        return acc
+      }, {} as Record<string, Program[]>)
+      
+      // Sort skill levels
+      const sortedLevels = Object.keys(bySkillLevel).sort((a, b) => {
+        const aLevel = a === 'null' ? null : a
+        const bLevel = b === 'null' ? null : b
+        const aIndex = skillLevelOrder.indexOf(aLevel)
+        const bIndex = skillLevelOrder.indexOf(bLevel)
+        return aIndex - bIndex
+      })
+      
+      // Add programs organized by level
+      sortedLevels.forEach(level => {
+        const levelPrograms = bySkillLevel[level].sort((a, b) => a.displayName.localeCompare(b.displayName))
+        organized.push({
+          category: categoryName,
+          programs: levelPrograms,
+          skillLevel: level === 'null' ? null : level
+        })
+      })
+    })
+    
+    return organized
+  }
   const [editingProgramId, setEditingProgramId] = useState<number | null>(null)
   const [programFormData, setProgramFormData] = useState<Partial<Program>>({})
   const [showArchivedCategories, setShowArchivedCategories] = useState(false)
@@ -5044,10 +5133,14 @@ export default function Admin({ onLogout }: AdminProps) {
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
                           <option value="">Non-Participant</option>
-                          {programs.filter(p => p.isActive && !p.archived).map((program) => (
-                            <option key={program.id} value={program.id}>
-                              {program.displayName}
-                            </option>
+                          {organizeProgramsByCategoryAndLevel(programs).map((group, groupIndex) => (
+                            <optgroup key={`${group.category}-${group.skillLevel}-${groupIndex}`} label={`${group.category}${group.skillLevel ? ` - ${group.skillLevel.replace('_', ' ')}` : ''}`}>
+                              {group.programs.map((program) => (
+                                <option key={program.id} value={program.id}>
+                                  {program.displayName}
+                                </option>
+                              ))}
+                            </optgroup>
                           ))}
                         </select>
                       </div>
@@ -5213,10 +5306,14 @@ export default function Admin({ onLogout }: AdminProps) {
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
                           <option value="">Non-Participant</option>
-                          {programs.filter(p => p.isActive && !p.archived).map((program) => (
-                            <option key={program.id} value={program.id}>
-                              {program.displayName}
-                            </option>
+                          {organizeProgramsByCategoryAndLevel(programs).map((group, groupIndex) => (
+                            <optgroup key={`${group.category}-${group.skillLevel}-${groupIndex}`} label={`${group.category}${group.skillLevel ? ` - ${group.skillLevel.replace('_', ' ')}` : ''}`}>
+                              {group.programs.map((program) => (
+                                <option key={program.id} value={program.id}>
+                                  {program.displayName}
+                                </option>
+                              ))}
+                            </optgroup>
                           ))}
                         </select>
                       </div>
@@ -5434,10 +5531,14 @@ export default function Admin({ onLogout }: AdminProps) {
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
                           <option value="">Non-Participant</option>
-                          {programs.filter(p => p.isActive && !p.archived).map((program) => (
-                            <option key={program.id} value={program.id}>
-                              {program.displayName}
-                            </option>
+                          {organizeProgramsByCategoryAndLevel(programs).map((group, groupIndex) => (
+                            <optgroup key={`${group.category}-${group.skillLevel}-${groupIndex}`} label={`${group.category}${group.skillLevel ? ` - ${group.skillLevel.replace('_', ' ')}` : ''}`}>
+                              {group.programs.map((program) => (
+                                <option key={program.id} value={program.id}>
+                                  {program.displayName}
+                                </option>
+                              ))}
+                            </optgroup>
                           ))}
                         </select>
                       </div>
@@ -6273,10 +6374,14 @@ export default function Admin({ onLogout }: AdminProps) {
                                       className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
                                     >
                                       <option value="">Non-Participant</option>
-                                      {programs.filter(p => p.isActive && !p.archived).map((program) => (
-                                        <option key={program.id} value={program.id}>
-                                          {program.displayName}
-                                        </option>
+                                      {organizeProgramsByCategoryAndLevel(programs).map((group, groupIndex) => (
+                                        <optgroup key={`${group.category}-${group.skillLevel}-${groupIndex}`} label={`${group.category}${group.skillLevel ? ` - ${group.skillLevel.replace('_', ' ')}` : ''}`}>
+                                          {group.programs.map((program) => (
+                                            <option key={program.id} value={program.id}>
+                                              {program.displayName}
+                                            </option>
+                                          ))}
+                                        </optgroup>
                                       ))}
                                     </select>
                                   </div>
@@ -6513,10 +6618,14 @@ export default function Admin({ onLogout }: AdminProps) {
                             className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
                           >
                             <option value="">Non-Participant</option>
-                            {programs.filter(p => p.isActive && !p.archived).map((program) => (
-                              <option key={program.id} value={program.id}>
-                                {program.displayName}
-                              </option>
+                            {organizeProgramsByCategoryAndLevel(programs).map((group, groupIndex) => (
+                              <optgroup key={`${group.category}-${group.skillLevel}-${groupIndex}`} label={`${group.category}${group.skillLevel ? ` - ${group.skillLevel.replace('_', ' ')}` : ''}`}>
+                                {group.programs.map((program) => (
+                                  <option key={program.id} value={program.id}>
+                                    {program.displayName}
+                                  </option>
+                                ))}
+                              </optgroup>
                             ))}
                           </select>
                         </div>
