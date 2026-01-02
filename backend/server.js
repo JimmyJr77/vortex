@@ -2540,51 +2540,68 @@ app.post('/api/admin/programs', async (req, res) => {
       }
     }
 
+    // Check if category_id and level_id columns exist
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'program' 
+      AND column_name IN ('category_id', 'level_id')
+    `)
+    const hasCategoryIdColumn = columnCheck.rows.some(row => row.column_name === 'category_id')
+    const hasLevelIdColumn = columnCheck.rows.some(row => row.column_name === 'level_id')
+
+    // Build INSERT statement based on which columns exist
+    let insertColumns = ['facility_id', 'category', 'name', 'display_name', 'skill_level', 'age_min', 'age_max', 'description', 'skill_requirements', 'is_active']
+    let insertValues = []
+    let paramCount = 1
+
+    insertValues.push(facilityId.rows[0].id) // $1
+    insertValues.push(value.category || null) // $2
+    if (hasCategoryIdColumn) {
+      insertColumns.splice(2, 0, 'category_id')
+      insertValues.splice(2, 0, categoryId || null)
+      paramCount++
+    }
+    insertValues.push(value.name || value.displayName?.toUpperCase().replace(/\s+/g, '_') || 'CLASS') // name
+    insertValues.push(value.displayName) // display_name
+    insertValues.push(value.skillLevel || null) // skill_level
+    if (hasLevelIdColumn) {
+      const levelIdIndex = insertColumns.indexOf('skill_level') + 1
+      insertColumns.splice(levelIdIndex, 0, 'level_id')
+      insertValues.splice(insertValues.length - 1, 0, levelId || null)
+      paramCount++
+    }
+    insertValues.push(value.ageMin || null) // age_min
+    insertValues.push(value.ageMax || null) // age_max
+    insertValues.push(value.description || null) // description
+    insertValues.push(value.skillRequirements || null) // skill_requirements
+    insertValues.push(value.isActive !== undefined ? value.isActive : true) // is_active
+
+    const placeholders = insertValues.map((_, i) => `$${i + 1}`).join(', ')
+
+    // Build RETURNING clause
+    let returningClause = `
+      id,
+      category,
+      ${hasCategoryIdColumn ? 'category_id as "categoryId",' : 'NULL as "categoryId",'}
+      name,
+      display_name as "displayName",
+      skill_level as "skillLevel",
+      age_min as "ageMin",
+      age_max as "ageMax",
+      description,
+      skill_requirements as "skillRequirements",
+      is_active as "isActive",
+      archived,
+      created_at as "createdAt",
+      updated_at as "updatedAt"
+    `
+
     const result = await pool.query(`
-      INSERT INTO program (
-        facility_id,
-        category,
-        category_id,
-        name,
-        display_name,
-        skill_level,
-        level_id,
-        age_min,
-        age_max,
-        description,
-        skill_requirements,
-        is_active
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING 
-        id,
-        category,
-        category_id as "categoryId",
-        name,
-        display_name as "displayName",
-        skill_level as "skillLevel",
-        age_min as "ageMin",
-        age_max as "ageMax",
-        description,
-        skill_requirements as "skillRequirements",
-        is_active as "isActive",
-        archived,
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-    `, [
-      facilityId.rows[0].id,
-      value.category || null,
-      categoryId || null,
-      value.name || value.displayName?.toUpperCase().replace(/\s+/g, '_') || 'CLASS',
-      value.displayName,
-      value.skillLevel || null,
-      levelId || null,
-      value.ageMin || null,
-      value.ageMax || null,
-      value.description || null,
-      value.skillRequirements || null,
-      value.isActive !== undefined ? value.isActive : true
-    ])
+      INSERT INTO program (${insertColumns.join(', ')})
+      VALUES (${placeholders})
+      RETURNING ${returningClause}
+    `, insertValues)
 
     res.json({
       success: true,
