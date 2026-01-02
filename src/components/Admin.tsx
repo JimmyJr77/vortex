@@ -2565,7 +2565,15 @@ export default function Admin({ onLogout }: AdminProps) {
                   <input
                     type="date"
                     value={eventFormData.startDate ? new Date(eventFormData.startDate).toISOString().split('T')[0] : ''}
-                    onChange={(e) => setEventFormData({ ...eventFormData, startDate: new Date(e.target.value) })}
+                    onChange={(e) => {
+                      // Create date in local timezone to avoid timezone shift
+                      const dateValue = e.target.value
+                      if (dateValue) {
+                        const [year, month, day] = dateValue.split('-').map(Number)
+                        const localDate = new Date(year, month - 1, day)
+                        setEventFormData({ ...eventFormData, startDate: localDate })
+                      }
+                    }}
                     className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
                     required
                   />
@@ -2575,10 +2583,17 @@ export default function Admin({ onLogout }: AdminProps) {
                   <input
                     type="date"
                     value={eventFormData.endDate ? new Date(eventFormData.endDate).toISOString().split('T')[0] : ''}
-                    onChange={(e) => setEventFormData({ 
-                      ...eventFormData, 
-                      endDate: e.target.value ? new Date(e.target.value) : undefined 
-                    })}
+                    onChange={(e) => {
+                      // Create date in local timezone to avoid timezone shift
+                      const dateValue = e.target.value
+                      if (dateValue) {
+                        const [year, month, day] = dateValue.split('-').map(Number)
+                        const localDate = new Date(year, month - 1, day)
+                        setEventFormData({ ...eventFormData, endDate: localDate })
+                      } else {
+                        setEventFormData({ ...eventFormData, endDate: undefined })
+                      }
+                    }}
                     className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
                   />
                 </div>
@@ -2668,8 +2683,16 @@ export default function Admin({ onLogout }: AdminProps) {
                             type="date"
                             value={entry.date ? new Date(entry.date).toISOString().split('T')[0] : ''}
                             onChange={(e) => {
+                              // Create date in local timezone to avoid timezone shift
+                              const dateValue = e.target.value
                               const updated = [...(eventFormData.datesAndTimes || [])]
-                              updated[index] = { ...updated[index], date: new Date(e.target.value) }
+                              if (dateValue) {
+                                const [year, month, day] = dateValue.split('-').map(Number)
+                                const localDate = new Date(year, month - 1, day)
+                                updated[index] = { ...updated[index], date: localDate }
+                              } else {
+                                updated[index] = { ...updated[index], date: new Date() }
+                              }
                               setEventFormData({ ...eventFormData, datesAndTimes: updated })
                             }}
                             className="px-3 py-2 bg-gray-600 text-white rounded-lg border border-gray-500 h-[42px]"
