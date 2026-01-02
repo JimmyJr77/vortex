@@ -266,7 +266,7 @@ const EventsView = ({
       const aTime = a.startDate instanceof Date ? a.startDate.getTime() : new Date(a.startDate).getTime()
       const bTime = b.startDate instanceof Date ? b.startDate.getTime() : new Date(b.startDate).getTime()
       return aTime - bTime
-    } catch (e) {
+    } catch {
       return 0
     }
   })
@@ -653,7 +653,7 @@ export default function Admin({ onLogout }: AdminProps) {
     if (storedAdmin) {
       try {
         setAdminInfo(JSON.parse(storedAdmin))
-      } catch (e) {
+      } catch {
         // If parsing fails, use default admin info
         const defaultAdmin = { email: 'admin@vortexathletics.com', name: 'Admin' }
         setAdminInfo(defaultAdmin)
@@ -713,10 +713,7 @@ export default function Admin({ onLogout }: AdminProps) {
     try {
       setLoading(true)
       setError(null)
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'  // Production backend URL
-          : 'http://localhost:3001')  // Local development
+      const apiUrl = getApiUrl()
       
       const regResponse = await fetch(`${apiUrl}/api/admin/registrations`)
       if (!regResponse.ok) {
@@ -807,10 +804,7 @@ export default function Admin({ onLogout }: AdminProps) {
     if (!editingId) return
     
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'  // Production backend URL
-          : 'http://localhost:3001')  // Local development
+      const apiUrl = getApiUrl()
       const response = await fetch(`${apiUrl}/api/admin/registrations/${editingId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -833,10 +827,7 @@ export default function Admin({ onLogout }: AdminProps) {
     if (!confirm('Archive this user?')) return
     
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 
-        (import.meta.env.PROD 
-          ? 'https://vortex-backend-qybl.onrender.com'  // Production backend URL
-          : 'http://localhost:3001')  // Local development
+      const apiUrl = getApiUrl()
       const response = await fetch(`${apiUrl}/api/admin/registrations/${id}`, {
         method: 'DELETE'
       })
@@ -1001,14 +992,11 @@ export default function Admin({ onLogout }: AdminProps) {
       setError(null)
       const apiUrl = getApiUrl()
       
-      console.log('Fetching events from:', `${apiUrl}/api/admin/events`)
       const response = await fetch(`${apiUrl}/api/admin/events`)
       if (!response.ok) {
         throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
       }
       const data = await response.json()
-      
-      console.log('Events response:', data)
       
       if (data.success && data.data && Array.isArray(data.data)) {
         // Helper function to parse date strings in local timezone
@@ -1073,8 +1061,6 @@ export default function Admin({ onLogout }: AdminProps) {
             }
           }
         })
-        console.log('Setting events:', eventsWithDates.length, 'events')
-        console.log('First event sample:', eventsWithDates[0])
         setEvents(eventsWithDates)
         setError(null) // Clear any previous errors
       } else {
@@ -1235,21 +1221,14 @@ export default function Admin({ onLogout }: AdminProps) {
     try {
       setEditLogLoading(true)
       const apiUrl = getApiUrl()
-      console.log('Fetching edit log for event:', eventId, 'from:', `${apiUrl}/api/admin/events/${eventId}/log`)
       const response = await fetch(`${apiUrl}/api/admin/events/${eventId}/log`)
-      console.log('Edit log response status:', response.status)
       if (!response.ok) {
-        const errorText = await response.text()
-        console.error('Edit log error response:', errorText)
         throw new Error(`Failed to fetch edit log: ${response.status}`)
       }
       const data = await response.json()
-      console.log('Edit log data:', data)
       if (data.success) {
         setEditLog(data.data)
-        console.log('Set edit log with', data.data.length, 'entries')
       } else {
-        console.warn('Edit log response not successful:', data)
         setEditLog([])
       }
     } catch (error) {
@@ -3040,11 +3019,10 @@ export default function Admin({ onLogout }: AdminProps) {
                   <div className="pt-4 mt-4 border-t border-gray-700">
                     <button
                       type="button"
-                      onClick={() => {
-                        console.log('View Edit Log clicked for event:', editingEventId)
-                        setShowEditLog(true)
-                        fetchEditLog(editingEventId)
-                      }}
+                        onClick={() => {
+                          setShowEditLog(true)
+                          fetchEditLog(editingEventId)
+                        }}
                       className="text-gray-400 hover:text-white text-sm underline transition-colors"
                     >
                       View Edit Log
