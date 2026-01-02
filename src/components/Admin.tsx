@@ -1197,6 +1197,27 @@ export default function Admin({ onLogout }: AdminProps) {
     setMemberSearchResults([])
   }
 
+  // Format phone number as ###-###-####
+  const formatPhoneNumber = (value: string): string => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '')
+    // Limit to 10 digits
+    const limited = digits.slice(0, 10)
+    // Format as ###-###-####
+    if (limited.length <= 3) {
+      return limited
+    } else if (limited.length <= 6) {
+      return `${limited.slice(0, 3)}-${limited.slice(3)}`
+    } else {
+      return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`
+    }
+  }
+
+  // Clean phone number (remove formatting) for storage/API
+  const cleanPhoneNumber = (phone: string): string => {
+    return phone.replace(/\D/g, '')
+  }
+
   // Create new family with primary adult
   const handleCreateFamilyWithPrimaryAdult = async () => {
     try {
@@ -1215,7 +1236,7 @@ export default function Admin({ onLogout }: AdminProps) {
         body: JSON.stringify({
           fullName: `${newPrimaryAdult.firstName} ${newPrimaryAdult.lastName}`,
           email: newPrimaryAdult.email,
-          phone: newPrimaryAdult.phone || null,
+          phone: newPrimaryAdult.phone ? cleanPhoneNumber(newPrimaryAdult.phone) : null,
           password: newPrimaryAdult.password,
           role: 'PARENT_GUARDIAN'
         })
@@ -1400,7 +1421,7 @@ export default function Admin({ onLogout }: AdminProps) {
         body: JSON.stringify({
           fullName: `${newAdditionalAdult.firstName} ${newAdditionalAdult.lastName}`,
           email: newAdditionalAdult.email,
-          phone: newAdditionalAdult.phone || null,
+          phone: newAdditionalAdult.phone ? cleanPhoneNumber(newAdditionalAdult.phone) : null,
           password: newAdditionalAdult.password,
           role: 'PARENT_GUARDIAN'
         })
@@ -3657,6 +3678,8 @@ export default function Admin({ onLogout }: AdminProps) {
                           setSelectedFamilyForMember(null)
                           setMemberSearchQuery('')
                           setMemberSearchResults([])
+                          // Reset form fields
+                          setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: 'Non-Participant' })
                         }}
                         className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
                         whileHover={{ scale: 1.05 }}
@@ -4144,8 +4167,14 @@ export default function Admin({ onLogout }: AdminProps) {
                         <input
                           type="tel"
                           value={newPrimaryAdult.phone}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, phone: e.target.value })}
+                          onChange={(e) => {
+                            const formatted = formatPhoneNumber(e.target.value)
+                            setNewPrimaryAdult({ ...newPrimaryAdult, phone: formatted })
+                          }}
+                          placeholder="###-###-####"
+                          maxLength={12}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          autoComplete="off"
                         />
                       </div>
                       <div>
@@ -4157,6 +4186,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                           required
                           minLength={6}
+                          autoComplete="new-password"
                         />
                       </div>
                       <div>
@@ -4399,8 +4429,14 @@ export default function Admin({ onLogout }: AdminProps) {
                         <input
                           type="tel"
                           value={newAdditionalAdult.phone}
-                          onChange={(e) => setNewAdditionalAdult({ ...newAdditionalAdult, phone: e.target.value })}
+                          onChange={(e) => {
+                            const formatted = formatPhoneNumber(e.target.value)
+                            setNewAdditionalAdult({ ...newAdditionalAdult, phone: formatted })
+                          }}
+                          placeholder="###-###-####"
+                          maxLength={12}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          autoComplete="off"
                         />
                       </div>
                       <div>
@@ -4411,6 +4447,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           onChange={(e) => setNewAdditionalAdult({ ...newAdditionalAdult, password: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                           minLength={6}
+                          autoComplete="new-password"
                         />
                       </div>
                       <div>

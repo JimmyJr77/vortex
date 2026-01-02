@@ -1700,9 +1700,17 @@ app.post('/api/admin/users', async (req, res) => {
     })
   } catch (error) {
     console.error('Create user error:', error)
+    console.error('Error stack:', error.stack)
+    // Ensure CORS headers are set even on error
+    const origin = req.headers.origin
+    if (origin && isOriginAllowed(origin)) {
+      res.header('Access-Control-Allow-Origin', origin)
+      res.header('Access-Control-Allow-Credentials', 'true')
+    }
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
@@ -4578,17 +4586,52 @@ app.put('/api/admin/admins/:id', async (req, res) => {
   }
 })
 
-// Error handling middleware
+// Global error handler middleware - must be last, before 404 handler
 app.use((err, req, res, next) => {
-  console.error(err.stack)
-  res.status(500).json({
+  console.error('Global error handler:', err)
+  console.error('Error stack:', err.stack)
+  
+  // Ensure CORS headers are always set, even on errors
+  const origin = req.headers.origin
+  if (origin && isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+    res.header('Access-Control-Allow-Credentials', 'true')
+  }
+  
+  // Don't send response if headers were already sent
+  if (res.headersSent) {
+    return next(err)
+  }
+  
+  res.status(err.status || 500).json({
     success: false,
-    message: 'Something went wrong!'
+    message: err.message || 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  })
+})
+
+// 404 handler - must be after error handler
+app.use('*', (req, res) => {
+  // Ensure CORS headers are set for 404 responses
+  const origin = req.headers.origin
+  if (origin && isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+    res.header('Access-Control-Allow-Credentials', 'true')
+  }
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
   })
 })
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
+  // Ensure CORS headers are set for 404 responses
+  const origin = req.headers.origin
+  if (origin && isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+    res.header('Access-Control-Allow-Credentials', 'true')
+  }
   res.status(404).json({
     success: false,
     message: 'Route not found'
