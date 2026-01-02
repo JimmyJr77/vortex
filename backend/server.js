@@ -1610,6 +1610,7 @@ app.get('/api/admin/users', async (req, res) => {
         u.phone,
         u.role,
         u.is_active,
+        u.username,
         f.id as family_id,
         f.family_name
       FROM app_user u
@@ -1627,7 +1628,7 @@ app.get('/api/admin/users', async (req, res) => {
     
     if (search) {
       paramCount++
-      query += ` AND (u.full_name ILIKE $${paramCount} OR u.email ILIKE $${paramCount})`
+      query += ` AND (u.full_name ILIKE $${paramCount} OR u.email ILIKE $${paramCount} OR u.username ILIKE $${paramCount})`
       params.push(`%${search}%`)
     }
     
@@ -1651,12 +1652,12 @@ app.get('/api/admin/users', async (req, res) => {
 // Create app_user (admin endpoint) - for creating parent/guardian accounts
 app.post('/api/admin/users', async (req, res) => {
   try {
-    const { fullName, email, phone, password, role } = req.body
+    const { fullName, email, phone, password, role, username } = req.body
     
-    if (!fullName || !email || !password) {
+    if (!fullName || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Full name, email, and password are required'
+        message: 'Full name and password are required'
       })
     }
 
@@ -1670,17 +1671,46 @@ app.post('/api/admin/users', async (req, res) => {
     }
     const facilityId = facilityResult.rows[0].id
 
-    // Check if email already exists
-    const existingUser = await pool.query(
-      'SELECT id FROM app_user WHERE facility_id = $1 AND email = $2',
-      [facilityId, email]
-    )
+    // Check if username column exists, if not add it
+    const usernameColumnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'app_user' AND column_name = 'username'
+    `)
+    
+    if (usernameColumnCheck.rows.length === 0) {
+      await pool.query('ALTER TABLE app_user ADD COLUMN username VARCHAR(50)')
+      await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_app_user_username ON app_user(facility_id, username)')
+    }
 
-    if (existingUser.rows.length > 0) {
-      return res.status(409).json({
-        success: false,
-        message: 'Email already registered'
-      })
+    // Check if username already exists (if provided)
+    if (username) {
+      const existingUsername = await pool.query(
+        'SELECT id FROM app_user WHERE facility_id = $1 AND username = $2',
+        [facilityId, username]
+      )
+
+      if (existingUsername.rows.length > 0) {
+        return res.status(409).json({
+          success: false,
+          message: 'Username already taken'
+        })
+      }
+    }
+
+    // Check if email already exists (if provided)
+    if (email) {
+      const existingUser = await pool.query(
+        'SELECT id FROM app_user WHERE facility_id = $1 AND email = $2',
+        [facilityId, email]
+      )
+
+      if (existingUser.rows.length > 0) {
+        return res.status(409).json({
+          success: false,
+          message: 'Email already registered'
+        })
+      }
     }
 
     // Hash password
@@ -1688,10 +1718,10 @@ app.post('/api/admin/users', async (req, res) => {
 
     // Create user
     const result = await pool.query(`
-      INSERT INTO app_user (facility_id, role, email, phone, full_name, password_hash, is_active)
-      VALUES ($1, $2::user_role, $3, $4, $5, $6, TRUE)
-      RETURNING id, email, full_name, phone, role, is_active, created_at
-    `, [facilityId, role || 'PARENT_GUARDIAN', email, phone || null, fullName, passwordHash])
+      INSERT INTO app_user (facility_id, role, email, phone, full_name, password_hash, is_active, username)
+      VALUES ($1, $2::user_role, $3, $4, $5, $6, TRUE, $7)
+      RETURNING id, email, full_name, phone, role, is_active, created_at, username
+    `, [facilityId, role || 'PARENT_GUARDIAN', email || null, phone || null, fullName, passwordHash, username || null])
 
     res.json({
       success: true,
@@ -1718,10 +1748,23 @@ app.post('/api/admin/users', async (req, res) => {
 // Get all families (admin endpoint)
 app.get('/api/admin/families', async (req, res) => {
   try {
-    const { search } = req.query
+    const { search, primaryUserId } = req.query
+    // Check if archived column exists
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'family' AND column_name = 'archived'
+    `)
+    const hasArchivedColumn = columnCheck.rows.length > 0
+    
+    if (!hasArchivedColumn) {
+      await pool.query('ALTER TABLE family ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE')
+    }
+    
     let query = `
       SELECT 
         f.*,
+        COALESCE(f.archived, FALSE) as archived,
         u.id as primary_user_id,
         u.email as primary_email,
         u.full_name as primary_name,
@@ -1759,10 +1802,20 @@ app.get('/api/admin/families', async (req, res) => {
       LEFT JOIN athlete a ON f.id = a.family_id
     `
     const params = []
+    const conditions = []
+    
+    if (primaryUserId) {
+      conditions.push(`f.primary_user_id = $${params.length + 1}`)
+      params.push(primaryUserId)
+    }
     
     if (search) {
-      query += ` WHERE f.family_name ILIKE $1 OR u.email ILIKE $1 OR u.full_name ILIKE $1`
+      conditions.push(`(f.family_name ILIKE $${params.length + 1} OR u.email ILIKE $${params.length + 1} OR u.full_name ILIKE $${params.length + 1})`)
       params.push(`%${search}%`)
+    }
+    
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(' AND ')}`
     }
     
     query += ` GROUP BY f.id, u.id ORDER BY f.created_at DESC`
@@ -2006,6 +2059,38 @@ app.put('/api/admin/families/:id', async (req, res) => {
     })
   } catch (error) {
     console.error('Update family error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Archive/unarchive family (admin endpoint)
+app.patch('/api/admin/families/:id/archive', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { archived } = req.body
+    
+    // Check if archived column exists, if not add it
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'family' AND column_name = 'archived'
+    `)
+    
+    if (columnCheck.rows.length === 0) {
+      await pool.query('ALTER TABLE family ADD COLUMN archived BOOLEAN DEFAULT FALSE')
+    }
+    
+    await pool.query('UPDATE family SET archived = $1, updated_at = now() WHERE id = $2', [archived, id])
+    
+    res.json({
+      success: true,
+      message: archived ? 'Family archived successfully' : 'Family unarchived successfully'
+    })
+  } catch (error) {
+    console.error('Archive family error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error'
