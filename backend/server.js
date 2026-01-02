@@ -37,8 +37,10 @@ const PORT = process.env.PORT || 3001
 const allowedOrigins = [
   'http://localhost:5173',
   'https://vortexathletics.com',
-  'https://www.vortexathletics.com'
-]
+  'https://www.vortexathletics.com',
+  // Allow from environment variable if set
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
+].filter(Boolean) // Remove any undefined values
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -47,8 +49,16 @@ app.use(cors({
     
     // Log the origin for debugging
     console.log('CORS request from origin:', origin)
+    console.log('Allowed origins:', allowedOrigins)
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Check if origin matches any allowed origin (case-insensitive, handle trailing slashes)
+    const normalizedOrigin = origin.toLowerCase().replace(/\/$/, '')
+    const isAllowed = allowedOrigins.some(allowed => {
+      const normalizedAllowed = allowed.toLowerCase().replace(/\/$/, '')
+      return normalizedOrigin === normalizedAllowed || normalizedOrigin.startsWith(normalizedAllowed)
+    })
+    
+    if (isAllowed) {
       callback(null, true)
     } else {
       console.warn(`CORS blocked origin: ${origin}`)
