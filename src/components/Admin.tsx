@@ -555,25 +555,48 @@ interface Event {
   archived?: boolean
 }
 
-interface MemberChild {
-  id?: number
-  firstName: string
-  lastName: string
-  dateOfBirth: string
-}
-
-interface Member {
+// Module 2: Family and Athlete interfaces
+interface Athlete {
   id: number
   first_name: string
   last_name: string
-  email: string
-  phone: string | null
-  address: string | null
-  account_status: 'active' | 'hold' | 'canceled' | 'past_due'
-  program: string | null
-  notes: string | null
+  date_of_birth: string
+  age?: number
+  medical_notes?: string | null
+  internal_flags?: string | null
+  family_id: number
   created_at: string
-  children?: MemberChild[]
+  updated_at: string
+  emergency_contacts?: EmergencyContact[]
+}
+
+interface EmergencyContact {
+  id: number
+  name: string
+  relationship?: string | null
+  phone: string
+  email?: string | null
+}
+
+interface Guardian {
+  id: number
+  email: string
+  fullName: string
+  phone?: string | null
+  isPrimary: boolean
+}
+
+interface Family {
+  id: number
+  family_name?: string | null
+  primary_user_id?: number | null
+  primary_email?: string | null
+  primary_name?: string | null
+  primary_phone?: string | null
+  guardians?: Guardian[]
+  athletes?: Athlete[]
+  created_at: string
+  updated_at: string
 }
 
 interface Program {
@@ -618,19 +641,58 @@ export default function Admin({ onLogout }: AdminProps) {
   const [sortConfig, setSortConfig] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'created_at', direction: 'desc' })
   const [activeTab, setActiveTab] = useState<TabType>('users')
   const [analyticsData, setAnalyticsData] = useState<any>(null)
-  const [members, setMembers] = useState<Member[]>([])
-  const [membersLoading, setMembersLoading] = useState(false)
-  const [showMemberForm, setShowMemberForm] = useState(false)
-  const [memberFormData, setMemberFormData] = useState({
+  // Module 2: Families and Athletes
+  const [families, setFamilies] = useState<Family[]>([])
+  const [familiesLoading, setFamiliesLoading] = useState(false)
+  const [athletes, setAthletes] = useState<Athlete[]>([])
+  const [athletesLoading, setAthletesLoading] = useState(false)
+  const [showFamilyForm, setShowFamilyForm] = useState(false)
+  const [showAthleteForm, setShowAthleteForm] = useState(false)
+  const [selectedFamilyId, setSelectedFamilyId] = useState<number | null>(null)
+  const [familyFormData, setFamilyFormData] = useState({
+    familyName: '',
+    primaryUserId: null as number | null,
+    guardianIds: [] as number[]
+  })
+  const [athleteFormData, setAthleteFormData] = useState({
+    familyId: null as number | null,
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    medicalNotes: '',
+    internalFlags: ''
+  })
+  const [familySearchQuery, setFamilySearchQuery] = useState('')
+  const [athleteSearchQuery, setAthleteSearchQuery] = useState('')
+  // Comprehensive Member Management Modal
+  const [showMemberModal, setShowMemberModal] = useState(false)
+  const [memberSearchQuery, setMemberSearchQuery] = useState('')
+  const [memberSearchResults, setMemberSearchResults] = useState<Family[]>([])
+  const [selectedFamilyForMember, setSelectedFamilyForMember] = useState<Family | null>(null)
+  const [memberModalMode, setMemberModalMode] = useState<'search' | 'new-family' | 'existing-family'>('search')
+  const [newPrimaryAdult, setNewPrimaryAdult] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
-    address: '',
     password: '',
-    program: '',
-    notes: '',
-    children: [] as MemberChild[]
+    program: ''
+  })
+  const [newAdditionalAdult, setNewAdditionalAdult] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+    program: ''
+  })
+  const [newChild, setNewChild] = useState({
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    medicalNotes: '',
+    internalFlags: '',
+    program: ''
   })
   const [events, setEvents] = useState<Event[]>([])
   const [eventsLoading, setEventsLoading] = useState(false)
@@ -724,7 +786,8 @@ export default function Admin({ onLogout }: AdminProps) {
     if (activeTab === 'analytics') {
       loadAnalytics()
     } else if (activeTab === 'membership') {
-      fetchMembers()
+      fetchFamilies()
+      fetchAthletes()
     } else if (activeTab === 'events') {
       fetchEvents()
     } else if (activeTab === 'classes') {
@@ -736,6 +799,25 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }, [activeTab])
 
+  // Fetch programs when member modal opens
+  useEffect(() => {
+    if (showMemberModal && programs.length === 0) {
+      fetchAllPrograms()
+    }
+  }, [showMemberModal])
+
+  // Debounce family search
+  useEffect(() => {
+    if (memberSearchQuery.length >= 2) {
+      const timeoutId = setTimeout(() => {
+        searchFamiliesForMember(memberSearchQuery)
+      }, 300)
+      return () => clearTimeout(timeoutId)
+    } else {
+      setMemberSearchResults([])
+    }
+  }, [memberSearchQuery])
+
   useEffect(() => {
     if (activeTab === 'classes') {
       fetchAllPrograms()
@@ -745,26 +827,57 @@ export default function Admin({ onLogout }: AdminProps) {
   }, [showArchivedClasses, showArchivedCategories])
 
 
-  const fetchMembers = async () => {
+  // Module 2: Fetch families and athletes
+  const fetchFamilies = async () => {
     try {
-      setMembersLoading(true)
+      setFamiliesLoading(true)
       setError(null)
       const apiUrl = getApiUrl()
-      
-      const response = await fetch(`${apiUrl}/api/admin/members`)
+      const params = new URLSearchParams()
+      if (familySearchQuery) {
+        params.append('search', familySearchQuery)
+      }
+      const response = await fetch(`${apiUrl}/api/admin/families?${params.toString()}`)
       if (!response.ok) {
         throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
       }
       const data = await response.json()
-      
       if (data.success) {
-        setMembers(data.data)
+        setFamilies(data.data)
       }
     } catch (error) {
-      console.error('Error fetching members:', error)
-      setError(error instanceof Error ? error.message : 'Unable to fetch members')
+      console.error('Error fetching families:', error)
+      setError(error instanceof Error ? error.message : 'Unable to fetch families')
     } finally {
-      setMembersLoading(false)
+      setFamiliesLoading(false)
+    }
+  }
+
+  const fetchAthletes = async () => {
+    try {
+      setAthletesLoading(true)
+      setError(null)
+      const apiUrl = getApiUrl()
+      const params = new URLSearchParams()
+      if (athleteSearchQuery) {
+        params.append('search', athleteSearchQuery)
+      }
+      if (selectedFamilyId) {
+        params.append('familyId', selectedFamilyId.toString())
+      }
+      const response = await fetch(`${apiUrl}/api/admin/athletes?${params.toString()}`)
+      if (!response.ok) {
+        throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
+      }
+      const data = await response.json()
+      if (data.success) {
+        setAthletes(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching athletes:', error)
+      setError(error instanceof Error ? error.message : 'Unable to fetch athletes')
+    } finally {
+      setAthletesLoading(false)
     }
   }
 
@@ -949,100 +1062,345 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
-  const handleCreateMember = async () => {
+  // Module 2: Family and Athlete handlers
+  const handleCreateFamily = async () => {
     try {
       const apiUrl = getApiUrl()
-      
-      const response = await fetch(`${apiUrl}/api/admin/members`, {
+      const response = await fetch(`${apiUrl}/api/admin/families`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: memberFormData.firstName,
-          lastName: memberFormData.lastName,
-          email: memberFormData.email,
-          phone: memberFormData.phone || null,
-          address: memberFormData.address || null,
-          password: memberFormData.password,
-          program: memberFormData.program || null,
-          notes: memberFormData.notes || null,
-          children: memberFormData.children
-        })
+        body: JSON.stringify(familyFormData)
       })
 
       if (response.ok) {
-        await fetchMembers()
-        setShowMemberForm(false)
-        setMemberFormData({
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          address: '',
-          password: '',
-          program: '',
-          notes: '',
-          children: []
+        await fetchFamilies()
+        setShowFamilyForm(false)
+        setFamilyFormData({
+          familyName: '',
+          primaryUserId: null,
+          guardianIds: []
         })
       } else {
         const data = await response.json()
-        alert(data.message || 'Failed to create member')
+        alert(data.message || 'Failed to create family')
       }
     } catch (error) {
-      console.error('Error creating member:', error)
-      alert('Failed to create member')
+      console.error('Error creating family:', error)
+      alert('Failed to create family')
     }
   }
 
-  const handleUpdateMemberStatus = async (id: number, status: string) => {
+  const handleCreateAthlete = async () => {
     try {
+      if (!athleteFormData.familyId) {
+        alert('Please select a family')
+        return
+      }
       const apiUrl = getApiUrl()
-      
-      const member = members.find(m => m.id === id)
-      if (!member) return
-
-      const response = await fetch(`${apiUrl}/api/admin/members/${id}`, {
-        method: 'PUT',
+      const response = await fetch(`${apiUrl}/api/admin/athletes`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName: member.first_name,
-          lastName: member.last_name,
-          email: member.email,
-          phone: member.phone,
-          address: member.address,
-          accountStatus: status,
-          program: member.program,
-          notes: member.notes,
-          children: member.children || []
+          familyId: athleteFormData.familyId,
+          firstName: athleteFormData.firstName,
+          lastName: athleteFormData.lastName,
+          dateOfBirth: athleteFormData.dateOfBirth,
+          medicalNotes: athleteFormData.medicalNotes || null,
+          internalFlags: athleteFormData.internalFlags || null
         })
       })
 
       if (response.ok) {
-        await fetchMembers()
+        await fetchAthletes()
+        await fetchFamilies()
+        setShowAthleteForm(false)
+        setAthleteFormData({
+          familyId: null,
+          firstName: '',
+          lastName: '',
+          dateOfBirth: '',
+          medicalNotes: '',
+          internalFlags: ''
+        })
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to create athlete')
       }
     } catch (error) {
-      console.error('Error updating member status:', error)
-      alert('Failed to update member status')
+      console.error('Error creating athlete:', error)
+      alert('Failed to create athlete')
     }
   }
 
-  const addChild = () => {
-    setMemberFormData({
-      ...memberFormData,
-      children: [...memberFormData.children, { firstName: '', lastName: '', dateOfBirth: '' }]
-    })
+  const handleDeleteFamily = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this family? This will also delete all associated athletes.')) {
+      return
+    }
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/families/${id}`, {
+        method: 'DELETE'
+      })
+      if (response.ok) {
+        await fetchFamilies()
+        await fetchAthletes()
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to delete family')
+      }
+    } catch (error) {
+      console.error('Error deleting family:', error)
+      alert('Failed to delete family')
+    }
   }
 
-  const removeChild = (index: number) => {
-    setMemberFormData({
-      ...memberFormData,
-      children: memberFormData.children.filter((_, i) => i !== index)
-    })
+  const handleDeleteAthlete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this athlete?')) {
+      return
+    }
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/athletes/${id}`, {
+        method: 'DELETE'
+      })
+      if (response.ok) {
+        await fetchAthletes()
+        await fetchFamilies()
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to delete athlete')
+      }
+    } catch (error) {
+      console.error('Error deleting athlete:', error)
+      alert('Failed to delete athlete')
+    }
   }
 
-  const updateChild = (index: number, field: keyof MemberChild, value: string) => {
-    const updatedChildren = [...memberFormData.children]
-    updatedChildren[index] = { ...updatedChildren[index], [field]: value }
-    setMemberFormData({ ...memberFormData, children: updatedChildren })
+  // Search for existing families/adults
+  const searchFamiliesForMember = async (query: string) => {
+    if (!query || query.length < 2) {
+      setMemberSearchResults([])
+      return
+    }
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/families?search=${encodeURIComponent(query)}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setMemberSearchResults(data.data)
+        }
+      }
+    } catch (error) {
+      console.error('Error searching families:', error)
+    }
+  }
+
+  // Handle selecting an existing family
+  const handleSelectFamilyForMember = (family: Family) => {
+    setSelectedFamilyForMember(family)
+    setMemberModalMode('existing-family')
+    setMemberSearchQuery('')
+    setMemberSearchResults([])
+  }
+
+  // Create new family with primary adult
+  const handleCreateFamilyWithPrimaryAdult = async () => {
+    try {
+      if (!newPrimaryAdult.firstName || !newPrimaryAdult.lastName || !newPrimaryAdult.email || !newPrimaryAdult.password) {
+        alert('Please fill in all required fields for the primary adult')
+        return
+      }
+
+      const apiUrl = getApiUrl()
+      
+      // First, create the app_user for the primary adult
+      const userResponse = await fetch(`${apiUrl}/api/admin/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: `${newPrimaryAdult.firstName} ${newPrimaryAdult.lastName}`,
+          email: newPrimaryAdult.email,
+          phone: newPrimaryAdult.phone || null,
+          password: newPrimaryAdult.password,
+          role: 'PARENT_GUARDIAN'
+        })
+      })
+
+      if (!userResponse.ok) {
+        const data = await userResponse.json()
+        throw new Error(data.message || 'Failed to create user account')
+      }
+
+      const userData = await userResponse.json()
+      const userId = userData.data.id
+
+      // Create family with this user as primary
+      const familyResponse = await fetch(`${apiUrl}/api/admin/families`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          familyName: `${newPrimaryAdult.firstName} ${newPrimaryAdult.lastName} Family`,
+          primaryUserId: userId,
+          guardianIds: [userId]
+        })
+      })
+
+      if (!familyResponse.ok) {
+        const data = await familyResponse.json()
+        throw new Error(data.message || 'Failed to create family')
+      }
+
+      const familyData = await familyResponse.json()
+      const familyId = familyData.data.id
+
+      // Add child if provided
+      if (newChild.firstName && newChild.lastName && newChild.dateOfBirth) {
+        await fetch(`${apiUrl}/api/admin/athletes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            familyId: familyId,
+            firstName: newChild.firstName,
+            lastName: newChild.lastName,
+            dateOfBirth: newChild.dateOfBirth,
+            medicalNotes: newChild.medicalNotes || null,
+            internalFlags: newChild.internalFlags || null
+          })
+        })
+      }
+
+      // Refresh data
+      await fetchFamilies()
+      await fetchAthletes()
+      
+      // Reset form
+      setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: '' })
+      setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '' })
+      setMemberModalMode('search')
+      setShowMemberModal(false)
+      alert('Family created successfully!')
+    } catch (error) {
+      console.error('Error creating family with primary adult:', error)
+      alert(error instanceof Error ? error.message : 'Failed to create family')
+    }
+  }
+
+  // Add additional adult to existing family
+  const handleAddAdultToFamily = async () => {
+    if (!selectedFamilyForMember) return
+    
+    try {
+      if (!newAdditionalAdult.firstName || !newAdditionalAdult.lastName || !newAdditionalAdult.email || !newAdditionalAdult.password) {
+        alert('Please fill in all required fields')
+        return
+      }
+
+      const apiUrl = getApiUrl()
+      
+      // Create app_user for additional adult
+      const userResponse = await fetch(`${apiUrl}/api/admin/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: `${newAdditionalAdult.firstName} ${newAdditionalAdult.lastName}`,
+          email: newAdditionalAdult.email,
+          phone: newAdditionalAdult.phone || null,
+          password: newAdditionalAdult.password,
+          role: 'PARENT_GUARDIAN'
+        })
+      })
+
+      if (!userResponse.ok) {
+        const data = await userResponse.json()
+        throw new Error(data.message || 'Failed to create user account')
+      }
+
+      const userData = await userResponse.json()
+      const userId = userData.data.id
+
+      // Add to family as guardian
+      const updateResponse = await fetch(`${apiUrl}/api/admin/families/${selectedFamilyForMember.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          familyName: selectedFamilyForMember.family_name,
+          primaryUserId: selectedFamilyForMember.primary_user_id,
+          guardianIds: [
+            ...(selectedFamilyForMember.guardians?.map(g => g.id) || []),
+            userId
+          ]
+        })
+      })
+
+      if (!updateResponse.ok) {
+        throw new Error('Failed to add adult to family')
+      }
+
+      // Refresh family data
+      const familyResponse = await fetch(`${apiUrl}/api/admin/families/${selectedFamilyForMember.id}`)
+      if (familyResponse.ok) {
+        const familyData = await familyResponse.json()
+        if (familyData.success) {
+          setSelectedFamilyForMember(familyData.data)
+        }
+      }
+
+      await fetchFamilies()
+      setNewAdditionalAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: '' })
+      alert('Adult added to family successfully!')
+    } catch (error) {
+      console.error('Error adding adult to family:', error)
+      alert(error instanceof Error ? error.message : 'Failed to add adult')
+    }
+  }
+
+  // Add child to existing family
+  const handleAddChildToFamily = async () => {
+    if (!selectedFamilyForMember) return
+    
+    try {
+      if (!newChild.firstName || !newChild.lastName || !newChild.dateOfBirth) {
+        alert('Please fill in all required fields for the child')
+        return
+      }
+
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/athletes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          familyId: selectedFamilyForMember.id,
+          firstName: newChild.firstName,
+          lastName: newChild.lastName,
+          dateOfBirth: newChild.dateOfBirth,
+          medicalNotes: newChild.medicalNotes || null,
+          internalFlags: newChild.internalFlags || null
+        })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.message || 'Failed to create athlete')
+      }
+
+      // Refresh family data
+      const familyResponse = await fetch(`${apiUrl}/api/admin/families/${selectedFamilyForMember.id}`)
+      if (familyResponse.ok) {
+        const familyData = await familyResponse.json()
+        if (familyData.success) {
+          setSelectedFamilyForMember(familyData.data)
+        }
+      }
+
+      await fetchAthletes()
+      await fetchFamilies()
+      setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '' })
+      alert('Child added to family successfully!')
+    } catch (error) {
+      console.error('Error adding child to family:', error)
+      alert(error instanceof Error ? error.message : 'Failed to add child')
+    }
   }
 
   const fetchEvents = async () => {
@@ -1992,7 +2350,7 @@ export default function Admin({ onLogout }: AdminProps) {
             )}
             {activeTab === 'membership' && (
               <motion.button
-                onClick={fetchMembers}
+                onClick={() => { fetchFamilies(); fetchAthletes(); }}
                 className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -3110,68 +3468,178 @@ export default function Admin({ onLogout }: AdminProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200"
+                className="space-y-6"
               >
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-                    Members ({members.length})
-                  </h2>
-                <motion.button
-                  onClick={() => setShowMemberForm(true)}
-                  className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <UserPlus className="w-4 h-4" />
-                  <span>Create Member</span>
-                </motion.button>
-              </div>
-
-                {membersLoading ? (
-                  <div className="text-center py-12 text-gray-600">Loading members...</div>
-                ) : members.length === 0 ? (
-                  <div className="text-center py-12 text-gray-600">No members yet</div>
-                ) : (
-                  <div className="space-y-4">
-                    {members.map((member) => (
-                      <div key={member.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="text-black font-semibold text-lg">
-                              {member.first_name} {member.last_name}
-                            </div>
-                            <div className="text-gray-600 text-sm mt-1">{member.email}</div>
-                            {member.phone && <div className="text-gray-600 text-sm">{member.phone}</div>}
-                            {member.program && <div className="text-gray-600 text-sm">Program: {member.program}</div>}
-                            {member.children && member.children.length > 0 && (
-                              <div className="text-gray-600 text-sm mt-2">
-                                Children: {member.children.map(c => `${c.firstName} ${c.lastName}`).join(', ')}
-                              </div>
-                            )}
-                          </div>
-                        <div className="flex flex-col gap-2">
-                          <select
-                            value={member.account_status}
-                            onChange={(e) => handleUpdateMemberStatus(member.id, e.target.value)}
-                            className={`px-3 py-2 rounded-lg font-semibold text-sm ${
-                              member.account_status === 'active' ? 'bg-green-600 text-white' :
-                              member.account_status === 'hold' ? 'bg-yellow-600 text-white' :
-                              member.account_status === 'canceled' ? 'bg-gray-600 text-white' :
-                              'bg-red-600 text-white'
-                            }`}
-                          >
-                            <option value="active">Active</option>
-                            <option value="hold">Hold</option>
-                            <option value="canceled">Canceled</option>
-                            <option value="past_due">Past Due</option>
-                          </select>
-                        </div>
-                      </div>
+                {/* Families Section */}
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
+                      Families ({families.length})
+                    </h2>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Search families..."
+                        value={familySearchQuery}
+                        onChange={(e) => {
+                          setFamilySearchQuery(e.target.value)
+                          fetchFamilies()
+                        }}
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                      <motion.button
+                        onClick={() => {
+                          setShowMemberModal(true)
+                          setMemberModalMode('search')
+                          setSelectedFamilyForMember(null)
+                          setMemberSearchQuery('')
+                          setMemberSearchResults([])
+                        }}
+                        className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        <span>Create Member</span>
+                      </motion.button>
                     </div>
-                  ))}
+                  </div>
+
+                  {familiesLoading ? (
+                    <div className="text-center py-12 text-gray-600">Loading families...</div>
+                  ) : families.length === 0 ? (
+                    <div className="text-center py-12 text-gray-600">No families yet</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {families.map((family) => (
+                        <div key={family.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="text-black font-semibold text-lg">
+                                {family.family_name || `${family.primary_name || 'Unnamed'} Family`}
+                              </div>
+                              {family.primary_email && (
+                                <div className="text-gray-600 text-sm mt-1">{family.primary_email}</div>
+                              )}
+                              {family.primary_phone && (
+                                <div className="text-gray-600 text-sm">{family.primary_phone}</div>
+                              )}
+                              {family.guardians && family.guardians.length > 0 && (
+                                <div className="text-gray-600 text-sm mt-2">
+                                  Guardians: {family.guardians.map(g => g.fullName).join(', ')}
+                                </div>
+                              )}
+                              {family.athletes && family.athletes.length > 0 && (
+                                <div className="text-gray-600 text-sm mt-2">
+                                  Athletes: {family.athletes.map(a => `${a.first_name} ${a.last_name} (Age ${a.age || 'N/A'})`).join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <motion.button
+                                onClick={() => {
+                                  setSelectedFamilyId(family.id)
+                                  setAthleteFormData({ ...athleteFormData, familyId: family.id })
+                                  setShowAthleteForm(true)
+                                }}
+                                className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                Add Athlete
+                              </motion.button>
+                              <motion.button
+                                onClick={() => handleDeleteFamily(family.id)}
+                                className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                Delete
+                              </motion.button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </motion.div>
+
+                {/* Athletes Section */}
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
+                      Athletes ({athletes.length})
+                    </h2>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Search athletes..."
+                        value={athleteSearchQuery}
+                        onChange={(e) => {
+                          setAthleteSearchQuery(e.target.value)
+                          fetchAthletes()
+                        }}
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                      <motion.button
+                        onClick={() => {
+                          setSelectedFamilyId(null)
+                          setShowAthleteForm(true)
+                        }}
+                        className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        <span>Create Athlete</span>
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  {athletesLoading ? (
+                    <div className="text-center py-12 text-gray-600">Loading athletes...</div>
+                  ) : athletes.length === 0 ? (
+                    <div className="text-center py-12 text-gray-600">No athletes yet</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {athletes.map((athlete) => (
+                        <div key={athlete.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="text-black font-semibold text-lg">
+                                {athlete.first_name} {athlete.last_name}
+                              </div>
+                              <div className="text-gray-600 text-sm mt-1">
+                                Age: {athlete.age || 'N/A'} | DOB: {new Date(athlete.date_of_birth).toLocaleDateString()}
+                              </div>
+                              {athlete.medical_notes && (
+                                <div className="text-gray-600 text-sm mt-1">
+                                  Medical Notes: {athlete.medical_notes}
+                                </div>
+                              )}
+                              {athlete.internal_flags && (
+                                <div className="text-gray-600 text-sm mt-1">
+                                  Flags: {athlete.internal_flags}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <motion.button
+                                onClick={() => handleDeleteAthlete(athlete.id)}
+                                className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                Delete
+                              </motion.button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
           ) : (
               <motion.div
                 key="users"
@@ -3453,9 +3921,9 @@ export default function Admin({ onLogout }: AdminProps) {
           </div>
         </div>
 
-      {/* Member Creation Form */}
+      {/* Comprehensive Create Member Modal */}
       <AnimatePresence>
-        {showMemberForm && (
+        {showMemberModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -3464,7 +3932,436 @@ export default function Admin({ onLogout }: AdminProps) {
           >
             <motion.div
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => setShowMemberForm(false)}
+              onClick={() => {
+                setShowMemberModal(false)
+                setMemberModalMode('search')
+                setSelectedFamilyForMember(null)
+              }}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">
+                  {memberModalMode === 'search' && 'Create Member - Search or New'}
+                  {memberModalMode === 'new-family' && 'Create New Family'}
+                  {memberModalMode === 'existing-family' && 'Add to Existing Family'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowMemberModal(false)
+                    setMemberModalMode('search')
+                    setSelectedFamilyForMember(null)
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Search Mode */}
+              {memberModalMode === 'search' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      Search for Existing Family (by adult name or email)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={memberSearchQuery}
+                        onChange={(e) => {
+                          setMemberSearchQuery(e.target.value)
+                          searchFamiliesForMember(e.target.value)
+                        }}
+                        placeholder="Type to search..."
+                        className="flex-1 px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      />
+                    </div>
+                    {memberSearchResults.length > 0 && (
+                      <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
+                        {memberSearchResults.map((family) => (
+                          <div
+                            key={family.id}
+                            onClick={() => handleSelectFamilyForMember(family)}
+                            className="p-3 bg-gray-700 rounded cursor-pointer hover:bg-gray-600 transition-colors"
+                          >
+                            <div className="font-semibold text-white">
+                              {family.family_name || `${family.primary_name || 'Unnamed'} Family`}
+                            </div>
+                            {family.primary_email && (
+                              <div className="text-sm text-gray-300">{family.primary_email}</div>
+                            )}
+                            {family.guardians && family.guardians.length > 0 && (
+                              <div className="text-xs text-gray-400 mt-1">
+                                {family.guardians.length} guardian(s), {family.athletes?.length || 0} athlete(s)
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t border-gray-600 pt-4">
+                    <button
+                      onClick={() => setMemberModalMode('new-family')}
+                      className="w-full bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    >
+                      Create New Family Instead
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* New Family Mode */}
+              {memberModalMode === 'new-family' && (
+                <div className="space-y-6">
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="font-semibold text-white mb-4">Primary Adult (Account Owner) *</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                        <input
+                          type="text"
+                          value={newPrimaryAdult.firstName}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, firstName: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                        <input
+                          type="text"
+                          value={newPrimaryAdult.lastName}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, lastName: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                        <input
+                          type="email"
+                          value={newPrimaryAdult.email}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, email: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Phone</label>
+                        <input
+                          type="tel"
+                          value={newPrimaryAdult.phone}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, phone: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
+                        <input
+                          type="password"
+                          value={newPrimaryAdult.password}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, password: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          required
+                          minLength={6}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
+                        <select
+                          value={newPrimaryAdult.program}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, program: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        >
+                          <option value="">Select Program</option>
+                          {programs.filter(p => p.isActive && !p.archived).map((program) => (
+                            <option key={program.id} value={program.displayName}>
+                              {program.displayName}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="font-semibold text-white mb-4">Add Child (Optional)</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">First Name</label>
+                        <input
+                          type="text"
+                          value={newChild.firstName}
+                          onChange={(e) => setNewChild({ ...newChild, firstName: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name</label>
+                        <input
+                          type="text"
+                          value={newChild.lastName}
+                          onChange={(e) => setNewChild({ ...newChild, lastName: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth</label>
+                        <input
+                          type="date"
+                          value={newChild.dateOfBirth}
+                          onChange={(e) => setNewChild({ ...newChild, dateOfBirth: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
+                        <select
+                          value={newChild.program}
+                          onChange={(e) => setNewChild({ ...newChild, program: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        >
+                          <option value="">Select Program</option>
+                          {programs.filter(p => p.isActive && !p.archived).map((program) => (
+                            <option key={program.id} value={program.displayName}>
+                              {program.displayName}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
+                        <textarea
+                          value={newChild.medicalNotes}
+                          onChange={(e) => setNewChild({ ...newChild, medicalNotes: e.target.value })}
+                          rows={2}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleCreateFamilyWithPrimaryAdult}
+                      className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    >
+                      Create Family
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMemberModalMode('search')
+                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', password: '', program: '' })
+                        setNewChild({ firstName: '', lastName: '', dateOfBirth: '', medicalNotes: '', internalFlags: '', program: '' })
+                      }}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Existing Family Mode */}
+              {memberModalMode === 'existing-family' && selectedFamilyForMember && (
+                <div className="space-y-6">
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="font-semibold text-white mb-2">Family: {selectedFamilyForMember.family_name || `${selectedFamilyForMember.primary_name || 'Unnamed'} Family`}</h4>
+                    <div className="text-sm text-gray-300">
+                      <div>Primary: {selectedFamilyForMember.primary_name} ({selectedFamilyForMember.primary_email})</div>
+                      {selectedFamilyForMember.guardians && selectedFamilyForMember.guardians.length > 1 && (
+                        <div>Additional Guardians: {selectedFamilyForMember.guardians.filter(g => !g.isPrimary).map(g => g.fullName).join(', ')}</div>
+                      )}
+                      {selectedFamilyForMember.athletes && selectedFamilyForMember.athletes.length > 0 && (
+                        <div>Athletes: {selectedFamilyForMember.athletes.map(a => `${a.first_name} ${a.last_name}`).join(', ')}</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="font-semibold text-white mb-4">Add Additional Adult</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                        <input
+                          type="text"
+                          value={newAdditionalAdult.firstName}
+                          onChange={(e) => setNewAdditionalAdult({ ...newAdditionalAdult, firstName: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                        <input
+                          type="text"
+                          value={newAdditionalAdult.lastName}
+                          onChange={(e) => setNewAdditionalAdult({ ...newAdditionalAdult, lastName: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                        <input
+                          type="email"
+                          value={newAdditionalAdult.email}
+                          onChange={(e) => setNewAdditionalAdult({ ...newAdditionalAdult, email: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Phone</label>
+                        <input
+                          type="tel"
+                          value={newAdditionalAdult.phone}
+                          onChange={(e) => setNewAdditionalAdult({ ...newAdditionalAdult, phone: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
+                        <input
+                          type="password"
+                          value={newAdditionalAdult.password}
+                          onChange={(e) => setNewAdditionalAdult({ ...newAdditionalAdult, password: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          minLength={6}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
+                        <select
+                          value={newAdditionalAdult.program}
+                          onChange={(e) => setNewAdditionalAdult({ ...newAdditionalAdult, program: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        >
+                          <option value="">Select Program</option>
+                          {programs.filter(p => p.isActive && !p.archived).map((program) => (
+                            <option key={program.id} value={program.displayName}>
+                              {program.displayName}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleAddAdultToFamily}
+                      className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                    >
+                      Add Adult to Family
+                    </button>
+                  </div>
+
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="font-semibold text-white mb-4">Add Child</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                        <input
+                          type="text"
+                          value={newChild.firstName}
+                          onChange={(e) => setNewChild({ ...newChild, firstName: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                        <input
+                          type="text"
+                          value={newChild.lastName}
+                          onChange={(e) => setNewChild({ ...newChild, lastName: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth *</label>
+                        <input
+                          type="date"
+                          value={newChild.dateOfBirth}
+                          onChange={(e) => setNewChild({ ...newChild, dateOfBirth: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
+                        <select
+                          value={newChild.program}
+                          onChange={(e) => setNewChild({ ...newChild, program: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        >
+                          <option value="">Select Program</option>
+                          {programs.filter(p => p.isActive && !p.archived).map((program) => (
+                            <option key={program.id} value={program.displayName}>
+                              {program.displayName}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
+                        <textarea
+                          value={newChild.medicalNotes}
+                          onChange={(e) => setNewChild({ ...newChild, medicalNotes: e.target.value })}
+                          rows={2}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleAddChildToFamily}
+                      className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                    >
+                      Add Child to Family
+                    </button>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setShowMemberModal(false)
+                        setMemberModalMode('search')
+                        setSelectedFamilyForMember(null)
+                      }}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    >
+                      Done
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMemberModalMode('search')
+                        setSelectedFamilyForMember(null)
+                      }}
+                      className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    >
+                      Search Another Family
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Export Dialog */}
+      <AnimatePresence>
+        {showExportDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowFamilyForm(false)}
             />
             <motion.div
               className="relative bg-gray-800 rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
@@ -3473,9 +4370,9 @@ export default function Admin({ onLogout }: AdminProps) {
               exit={{ scale: 0.9, opacity: 0 }}
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">Create New Member</h3>
+                <h3 className="text-2xl font-display font-bold text-white">Create New Family</h3>
                 <button
-                  onClick={() => setShowMemberForm(false)}
+                  onClick={() => setShowFamilyForm(false)}
                   className="text-gray-400 hover:text-white"
                 >
                   <X className="w-6 h-6" />
@@ -3483,13 +4380,91 @@ export default function Admin({ onLogout }: AdminProps) {
               </div>
 
               <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Family Name</label>
+                  <input
+                    type="text"
+                    value={familyFormData.familyName}
+                    onChange={(e) => setFamilyFormData({ ...familyFormData, familyName: e.target.value })}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    placeholder="e.g., Smith Family"
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <button
+                    onClick={handleCreateFamily}
+                    className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Create Family
+                  </button>
+                  <button
+                    onClick={() => setShowFamilyForm(false)}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Athlete Creation Form */}
+      <AnimatePresence>
+        {showAthleteForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowAthleteForm(false)}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">Create New Athlete</h3>
+                <button
+                  onClick={() => setShowAthleteForm(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Family *</label>
+                  <select
+                    value={athleteFormData.familyId || ''}
+                    onChange={(e) => setAthleteFormData({ ...athleteFormData, familyId: parseInt(e.target.value) || null })}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    required
+                  >
+                    <option value="">Select a Family</option>
+                    {families.map((family) => (
+                      <option key={family.id} value={family.id}>
+                        {family.family_name || `${family.primary_name || 'Unnamed'} Family`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
                     <input
                       type="text"
-                      value={memberFormData.firstName}
-                      onChange={(e) => setMemberFormData({ ...memberFormData, firstName: e.target.value })}
+                      value={athleteFormData.firstName}
+                      onChange={(e) => setAthleteFormData({ ...athleteFormData, firstName: e.target.value })}
                       className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
                       required
                     />
@@ -3498,139 +4473,55 @@ export default function Admin({ onLogout }: AdminProps) {
                     <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
                     <input
                       type="text"
-                      value={memberFormData.lastName}
-                      onChange={(e) => setMemberFormData({ ...memberFormData, lastName: e.target.value })}
+                      value={athleteFormData.lastName}
+                      onChange={(e) => setAthleteFormData({ ...athleteFormData, lastName: e.target.value })}
                       className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth *</label>
                     <input
-                      type="email"
-                      value={memberFormData.email}
-                      onChange={(e) => setMemberFormData({ ...memberFormData, email: e.target.value })}
+                      type="date"
+                      value={athleteFormData.dateOfBirth}
+                      onChange={(e) => setAthleteFormData({ ...athleteFormData, dateOfBirth: e.target.value })}
                       className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
                       required
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      value={memberFormData.phone}
-                      onChange={(e) => setMemberFormData({ ...memberFormData, phone: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Address</label>
-                    <input
-                      type="text"
-                      value={memberFormData.address}
-                      onChange={(e) => setMemberFormData({ ...memberFormData, address: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
-                    <input
-                      type="password"
-                      value={memberFormData.password}
-                      onChange={(e) => setMemberFormData({ ...memberFormData, password: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                      required
-                      minLength={6}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Program</label>
-                    <select
-                      value={memberFormData.program}
-                      onChange={(e) => setMemberFormData({ ...memberFormData, program: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                    >
-                      <option value="">Select Program</option>
-                      <option value="Athleticism Accelerator">Athleticism Accelerator</option>
-                      <option value="Trampoline & Tumbling">Trampoline & Tumbling</option>
-                      <option value="Artistic Gymnastics">Artistic Gymnastics</option>
-                      <option value="Rhythmic Gymnastics">Rhythmic Gymnastics</option>
-                      <option value="Ninja and Fitness">Ninja and Fitness</option>
-                      <option value="Competition Programs">Competition Programs</option>
-                      <option value="Daytime Programs">Daytime Programs</option>
-                      <option value="Private Coaching">Private Coaching</option>
-                    </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Notes</label>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
                   <textarea
-                    value={memberFormData.notes}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, notes: e.target.value })}
+                    value={athleteFormData.medicalNotes}
+                    onChange={(e) => setAthleteFormData({ ...athleteFormData, medicalNotes: e.target.value })}
                     rows={3}
                     className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    placeholder="Any medical conditions, allergies, or special needs..."
                   />
                 </div>
 
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-semibold text-gray-300">Children</label>
-                    <button
-                      type="button"
-                      onClick={addChild}
-                      className="flex items-center space-x-1 text-vortex-red hover:text-red-400 text-sm"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Add Child</span>
-                    </button>
-                  </div>
-                  {memberFormData.children.map((child, index) => (
-                    <div key={index} className="bg-gray-700 p-3 rounded mb-2">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                        <input
-                          type="text"
-                          placeholder="First Name"
-                          value={child.firstName}
-                          onChange={(e) => updateChild(index, 'firstName', e.target.value)}
-                          className="px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Last Name"
-                          value={child.lastName}
-                          onChange={(e) => updateChild(index, 'lastName', e.target.value)}
-                          className="px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                        />
-                        <div className="flex gap-2">
-                          <input
-                            type="date"
-                            value={child.dateOfBirth}
-                            onChange={(e) => updateChild(index, 'dateOfBirth', e.target.value)}
-                            className="flex-1 px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeChild(index)}
-                            className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Internal Flags</label>
+                  <input
+                    type="text"
+                    value={athleteFormData.internalFlags}
+                    onChange={(e) => setAthleteFormData({ ...athleteFormData, internalFlags: e.target.value })}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    placeholder="Internal notes or flags (admin only)"
+                  />
                 </div>
 
                 <div className="flex gap-2 pt-4">
                   <button
-                    onClick={handleCreateMember}
+                    onClick={handleCreateAthlete}
                     className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
                   >
-                    Create Member
+                    Create Athlete
                   </button>
                   <button
-                    onClick={() => setShowMemberForm(false)}
+                    onClick={() => setShowAthleteForm(false)}
                     className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
                   >
                     Cancel
@@ -3649,7 +4540,7 @@ export default function Admin({ onLogout }: AdminProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           >
             <motion.div
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"

@@ -865,6 +865,38 @@ const programSchema = Joi.object({
   isActive: Joi.boolean().optional()
 })
 
+// Module 2: Family and Athlete Schemas
+const familySchema = Joi.object({
+  familyName: Joi.string().max(255).optional().allow('', null),
+  primaryUserId: Joi.number().integer().optional().allow(null),
+  guardianIds: Joi.array().items(Joi.number().integer()).optional().default([])
+})
+
+const athleteSchema = Joi.object({
+  familyId: Joi.number().integer().required(),
+  firstName: Joi.string().min(1).max(100).required(),
+  lastName: Joi.string().min(1).max(100).required(),
+  dateOfBirth: Joi.date().required(),
+  medicalNotes: Joi.string().max(2000).optional().allow('', null),
+  internalFlags: Joi.string().max(500).optional().allow('', null)
+})
+
+const athleteUpdateSchema = Joi.object({
+  firstName: Joi.string().min(1).max(100).optional(),
+  lastName: Joi.string().min(1).max(100).optional(),
+  dateOfBirth: Joi.date().optional(),
+  medicalNotes: Joi.string().max(2000).optional().allow('', null),
+  internalFlags: Joi.string().max(500).optional().allow('', null)
+})
+
+const emergencyContactSchema = Joi.object({
+  athleteId: Joi.number().integer().required(),
+  name: Joi.string().min(1).max(200).required(),
+  relationship: Joi.string().max(100).optional().allow('', null),
+  phone: Joi.string().max(20).required(),
+  email: Joi.string().email().optional().allow('', null)
+})
+
 // Middleware to verify JWT token
 const authenticateMember = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1]
@@ -1556,6 +1588,710 @@ app.delete('/api/admin/members/:id', async (req, res) => {
     })
   } catch (error) {
     console.error('Delete member error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// ========== MODULE 2: FAMILY & ATHLETE ENDPOINTS ==========
+
+// Create app_user (admin endpoint) - for creating parent/guardian accounts
+app.post('/api/admin/users', async (req, res) => {
+  try {
+    const { fullName, email, phone, password, role } = req.body
+    
+    if (!fullName || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Full name, email, and password are required'
+      })
+    }
+
+    // Get facility
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+    const facilityId = facilityResult.rows[0].id
+
+    // Check if email already exists
+    const existingUser = await pool.query(
+      'SELECT id FROM app_user WHERE facility_id = $1 AND email = $2',
+      [facilityId, email]
+    )
+
+    if (existingUser.rows.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: 'Email already registered'
+      })
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10)
+
+    // Create user
+    const result = await pool.query(`
+      INSERT INTO app_user (facility_id, role, email, phone, full_name, password_hash, is_active)
+      VALUES ($1, $2::user_role, $3, $4, $5, $6, TRUE)
+      RETURNING id, email, full_name, phone, role, is_active, created_at
+    `, [facilityId, role || 'PARENT_GUARDIAN', email, phone || null, fullName, passwordHash])
+
+    res.json({
+      success: true,
+      message: 'User created successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Create user error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Get all families (admin endpoint)
+app.get('/api/admin/families', async (req, res) => {
+  try {
+    const { search } = req.query
+    let query = `
+      SELECT 
+        f.*,
+        u.id as primary_user_id,
+        u.email as primary_email,
+        u.full_name as primary_name,
+        u.phone as primary_phone,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', g.user_id,
+              'email', gu.email,
+              'fullName', gu.full_name,
+              'phone', gu.phone,
+              'isPrimary', g.is_primary
+            )
+          ) FILTER (WHERE g.user_id IS NOT NULL),
+          '[]'
+        ) as guardians,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', a.id,
+              'firstName', a.first_name,
+              'lastName', a.last_name,
+              'dateOfBirth', a.date_of_birth,
+              'age', EXTRACT(YEAR FROM AGE(a.date_of_birth)),
+              'medicalNotes', a.medical_notes,
+              'internalFlags', a.internal_flags
+            )
+          ) FILTER (WHERE a.id IS NOT NULL),
+          '[]'
+        ) as athletes
+      FROM family f
+      LEFT JOIN app_user u ON f.primary_user_id = u.id
+      LEFT JOIN family_guardian g ON f.id = g.family_id
+      LEFT JOIN app_user gu ON g.user_id = gu.id
+      LEFT JOIN athlete a ON f.id = a.family_id
+    `
+    const params = []
+    
+    if (search) {
+      query += ` WHERE f.family_name ILIKE $1 OR u.email ILIKE $1 OR u.full_name ILIKE $1`
+      params.push(`%${search}%`)
+    }
+    
+    query += ` GROUP BY f.id, u.id ORDER BY f.created_at DESC`
+    
+    const result = await pool.query(query, params)
+    
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get families error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Get single family (admin endpoint)
+app.get('/api/admin/families/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    
+    const familyResult = await pool.query(`
+      SELECT 
+        f.*,
+        u.id as primary_user_id,
+        u.email as primary_email,
+        u.full_name as primary_name,
+        u.phone as primary_phone,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', g.user_id,
+              'email', gu.email,
+              'fullName', gu.full_name,
+              'phone', gu.phone,
+              'isPrimary', g.is_primary
+            )
+          ) FILTER (WHERE g.user_id IS NOT NULL),
+          '[]'
+        ) as guardians
+      FROM family f
+      LEFT JOIN app_user u ON f.primary_user_id = u.id
+      LEFT JOIN family_guardian g ON f.id = g.family_id
+      LEFT JOIN app_user gu ON g.user_id = gu.id
+      WHERE f.id = $1
+      GROUP BY f.id, u.id
+    `, [id])
+    
+    if (familyResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Family not found'
+      })
+    }
+    
+    const family = familyResult.rows[0]
+    
+    // Get athletes for this family
+    const athletesResult = await pool.query(`
+      SELECT 
+        a.*,
+        EXTRACT(YEAR FROM AGE(a.date_of_birth)) as age,
+        COALESCE(
+          json_agg(
+            jsonb_build_object(
+              'id', ec.id,
+              'name', ec.name,
+              'relationship', ec.relationship,
+              'phone', ec.phone,
+              'email', ec.email
+            )
+          ) FILTER (WHERE ec.id IS NOT NULL),
+          '[]'
+        ) as emergency_contacts
+      FROM athlete a
+      LEFT JOIN emergency_contact ec ON a.id = ec.athlete_id
+      WHERE a.family_id = $1
+      GROUP BY a.id
+      ORDER BY a.date_of_birth
+    `, [id])
+    
+    family.athletes = athletesResult.rows
+    
+    res.json({
+      success: true,
+      data: family
+    })
+  } catch (error) {
+    console.error('Get family error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Create family (admin endpoint)
+app.post('/api/admin/families', async (req, res) => {
+  try {
+    const { error, value } = familySchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+    
+    // Get facility
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+    const facilityId = facilityResult.rows[0].id
+    
+    // Create family
+    const familyResult = await pool.query(`
+      INSERT INTO family (facility_id, primary_user_id, family_name)
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `, [facilityId, value.primaryUserId || null, value.familyName || null])
+    
+    const familyId = familyResult.rows[0].id
+    
+    // Link guardians if provided
+    if (value.guardianIds && value.guardianIds.length > 0) {
+      for (let i = 0; i < value.guardianIds.length; i++) {
+        const userId = value.guardianIds[i]
+        const isPrimary = i === 0 && !value.primaryUserId
+        await pool.query(`
+          INSERT INTO family_guardian (family_id, user_id, is_primary)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (family_id, user_id) DO NOTHING
+        `, [familyId, userId, isPrimary])
+      }
+      
+      // Update primary_user_id if not set
+      if (!value.primaryUserId && value.guardianIds.length > 0) {
+        await pool.query(`
+          UPDATE family SET primary_user_id = $1 WHERE id = $2
+        `, [value.guardianIds[0], familyId])
+      }
+    }
+    
+    // Fetch complete family data
+    const completeFamily = await pool.query(`
+      SELECT 
+        f.*,
+        u.id as primary_user_id,
+        u.email as primary_email,
+        u.full_name as primary_name,
+        u.phone as primary_phone,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', g.user_id,
+              'email', gu.email,
+              'fullName', gu.full_name,
+              'phone', gu.phone,
+              'isPrimary', g.is_primary
+            )
+          ) FILTER (WHERE g.user_id IS NOT NULL),
+          '[]'
+        ) as guardians
+      FROM family f
+      LEFT JOIN app_user u ON f.primary_user_id = u.id
+      LEFT JOIN family_guardian g ON f.id = g.family_id
+      LEFT JOIN app_user gu ON g.user_id = gu.id
+      WHERE f.id = $1
+      GROUP BY f.id, u.id
+    `, [familyId])
+    
+    res.json({
+      success: true,
+      message: 'Family created successfully',
+      data: completeFamily.rows[0]
+    })
+  } catch (error) {
+    console.error('Create family error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Update family (admin endpoint)
+app.put('/api/admin/families/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { error, value } = familySchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+    
+    // Update family
+    await pool.query(`
+      UPDATE family 
+      SET family_name = $1, primary_user_id = $2, updated_at = now()
+      WHERE id = $3
+    `, [value.familyName || null, value.primaryUserId || null, id])
+    
+    // Update guardians if provided
+    if (value.guardianIds !== undefined) {
+      // Remove all existing guardians
+      await pool.query('DELETE FROM family_guardian WHERE family_id = $1', [id])
+      
+      // Add new guardians
+      if (value.guardianIds.length > 0) {
+        for (let i = 0; i < value.guardianIds.length; i++) {
+          const userId = value.guardianIds[i]
+          const isPrimary = i === 0
+          await pool.query(`
+            INSERT INTO family_guardian (family_id, user_id, is_primary)
+            VALUES ($1, $2, $3)
+          `, [id, userId, isPrimary])
+        }
+        
+        // Update primary_user_id
+        await pool.query(`
+          UPDATE family SET primary_user_id = $1 WHERE id = $2
+        `, [value.guardianIds[0], id])
+      }
+    }
+    
+    res.json({
+      success: true,
+      message: 'Family updated successfully'
+    })
+  } catch (error) {
+    console.error('Update family error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Delete family (admin endpoint)
+app.delete('/api/admin/families/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    await pool.query('DELETE FROM family WHERE id = $1', [id])
+    
+    res.json({
+      success: true,
+      message: 'Family deleted successfully'
+    })
+  } catch (error) {
+    console.error('Delete family error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Get all athletes (admin endpoint)
+app.get('/api/admin/athletes', async (req, res) => {
+  try {
+    const { search, familyId } = req.query
+    let query = `
+      SELECT 
+        a.*,
+        EXTRACT(YEAR FROM AGE(a.date_of_birth)) as age,
+        f.family_name,
+        f.id as family_id,
+        u.email as primary_guardian_email,
+        u.full_name as primary_guardian_name
+      FROM athlete a
+      LEFT JOIN family f ON a.family_id = f.id
+      LEFT JOIN app_user u ON f.primary_user_id = u.id
+      WHERE 1=1
+    `
+    const params = []
+    let paramCount = 0
+    
+    if (search) {
+      paramCount++
+      query += ` AND (a.first_name ILIKE $${paramCount} OR a.last_name ILIKE $${paramCount} OR f.family_name ILIKE $${paramCount})`
+      params.push(`%${search}%`)
+    }
+    
+    if (familyId) {
+      paramCount++
+      query += ` AND a.family_id = $${paramCount}`
+      params.push(familyId)
+    }
+    
+    query += ` ORDER BY a.last_name, a.first_name`
+    
+    const result = await pool.query(query, params)
+    
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get athletes error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Get single athlete (admin endpoint)
+app.get('/api/admin/athletes/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    
+    const athleteResult = await pool.query(`
+      SELECT 
+        a.*,
+        EXTRACT(YEAR FROM AGE(a.date_of_birth)) as age,
+        f.family_name,
+        f.id as family_id,
+        u.email as primary_guardian_email,
+        u.full_name as primary_guardian_name
+      FROM athlete a
+      LEFT JOIN family f ON a.family_id = f.id
+      LEFT JOIN app_user u ON f.primary_user_id = u.id
+      WHERE a.id = $1
+    `, [id])
+    
+    if (athleteResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Athlete not found'
+      })
+    }
+    
+    const athlete = athleteResult.rows[0]
+    
+    // Get emergency contacts
+    const contactsResult = await pool.query(`
+      SELECT * FROM emergency_contact WHERE athlete_id = $1 ORDER BY created_at
+    `, [id])
+    
+    athlete.emergency_contacts = contactsResult.rows
+    
+    res.json({
+      success: true,
+      data: athlete
+    })
+  } catch (error) {
+    console.error('Get athlete error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Create athlete (admin endpoint)
+app.post('/api/admin/athletes', async (req, res) => {
+  try {
+    const { error, value } = athleteSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+    
+    // Get facility
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+    const facilityId = facilityResult.rows[0].id
+    
+    // Verify family exists
+    const familyCheck = await pool.query('SELECT id FROM family WHERE id = $1', [value.familyId])
+    if (familyCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Family not found'
+      })
+    }
+    
+    // Create athlete
+    const athleteResult = await pool.query(`
+      INSERT INTO athlete (
+        facility_id, family_id, first_name, last_name, date_of_birth, 
+        medical_notes, internal_flags
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+    `, [
+      facilityId,
+      value.familyId,
+      value.firstName,
+      value.lastName,
+      value.dateOfBirth,
+      value.medicalNotes || null,
+      value.internalFlags || null
+    ])
+    
+    const athlete = athleteResult.rows[0]
+    
+    // Add computed age
+    const ageResult = await pool.query(`
+      SELECT EXTRACT(YEAR FROM AGE(date_of_birth)) as age 
+      FROM athlete WHERE id = $1
+    `, [athlete.id])
+    athlete.age = parseInt(ageResult.rows[0].age)
+    
+    res.json({
+      success: true,
+      message: 'Athlete created successfully',
+      data: athlete
+    })
+  } catch (error) {
+    console.error('Create athlete error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Update athlete (admin endpoint)
+app.put('/api/admin/athletes/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { error, value } = athleteUpdateSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+    
+    // Build update query dynamically
+    const updates = []
+    const params = []
+    let paramCount = 0
+    
+    if (value.firstName !== undefined) {
+      paramCount++
+      updates.push(`first_name = $${paramCount}`)
+      params.push(value.firstName)
+    }
+    if (value.lastName !== undefined) {
+      paramCount++
+      updates.push(`last_name = $${paramCount}`)
+      params.push(value.lastName)
+    }
+    if (value.dateOfBirth !== undefined) {
+      paramCount++
+      updates.push(`date_of_birth = $${paramCount}`)
+      params.push(value.dateOfBirth)
+    }
+    if (value.medicalNotes !== undefined) {
+      paramCount++
+      updates.push(`medical_notes = $${paramCount}`)
+      params.push(value.medicalNotes || null)
+    }
+    if (value.internalFlags !== undefined) {
+      paramCount++
+      updates.push(`internal_flags = $${paramCount}`)
+      params.push(value.internalFlags || null)
+    }
+    
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No fields to update'
+      })
+    }
+    
+    updates.push(`updated_at = now()`)
+    paramCount++
+    params.push(id)
+    
+    await pool.query(`
+      UPDATE athlete 
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+    `, params)
+    
+    res.json({
+      success: true,
+      message: 'Athlete updated successfully'
+    })
+  } catch (error) {
+    console.error('Update athlete error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Delete athlete (admin endpoint)
+app.delete('/api/admin/athletes/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    await pool.query('DELETE FROM athlete WHERE id = $1', [id])
+    
+    res.json({
+      success: true,
+      message: 'Athlete deleted successfully'
+    })
+  } catch (error) {
+    console.error('Delete athlete error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Create emergency contact (admin endpoint)
+app.post('/api/admin/emergency-contacts', async (req, res) => {
+  try {
+    const { error, value } = emergencyContactSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.details.map(detail => detail.message)
+      })
+    }
+    
+    // Verify athlete exists
+    const athleteCheck = await pool.query('SELECT id FROM athlete WHERE id = $1', [value.athleteId])
+    if (athleteCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Athlete not found'
+      })
+    }
+    
+    const result = await pool.query(`
+      INSERT INTO emergency_contact (athlete_id, name, relationship, phone, email)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `, [
+      value.athleteId,
+      value.name,
+      value.relationship || null,
+      value.phone,
+      value.email || null
+    ])
+    
+    res.json({
+      success: true,
+      message: 'Emergency contact created successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Create emergency contact error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Delete emergency contact (admin endpoint)
+app.delete('/api/admin/emergency-contacts/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    await pool.query('DELETE FROM emergency_contact WHERE id = $1', [id])
+    
+    res.json({
+      success: true,
+      message: 'Emergency contact deleted successfully'
+    })
+  } catch (error) {
+    console.error('Delete emergency contact error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error'
