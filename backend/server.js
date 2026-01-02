@@ -3507,21 +3507,89 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
 
     const userRole = userResult.rows[0].role
 
-    // Get family member
-    const athleteCheck = await pool.query(`
+    // Get family member - check if familyMemberId is an athlete ID or user ID
+    let athleteCheck = await pool.query(`
       SELECT a.id, a.user_id, a.family_id, a.first_name, a.last_name
       FROM athlete a
       WHERE a.id = $1
     `, [familyMemberId])
 
+    let athlete
+    
+    // If not found as athlete, check if it's a user_id (current user enrolling themselves)
     if (athleteCheck.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Family member not found'
-      })
+      // Check if familyMemberId matches the current user's ID
+      if (familyMemberId === userId) {
+        // User is enrolling themselves - check if they have an athlete record
+        const userAthleteCheck = await pool.query(`
+          SELECT a.id, a.user_id, a.family_id, a.first_name, a.last_name
+          FROM athlete a
+          WHERE a.user_id = $1
+        `, [userId])
+        
+        if (userAthleteCheck.rows.length > 0) {
+          athlete = userAthleteCheck.rows[0]
+        } else {
+          // User doesn't have an athlete record - need to create one or get their family
+          // First, get user's family
+          const userFamilyResult = await pool.query(`
+            SELECT f.id, f.family_name, f.primary_user_id
+            FROM family f
+            WHERE f.primary_user_id = $1 OR EXISTS (
+              SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+            )
+            LIMIT 1
+          `, [userId])
+          
+          if (userFamilyResult.rows.length === 0) {
+            return res.status(404).json({
+              success: false,
+              message: 'No family found. Please contact administrator to set up your family account.'
+            })
+          }
+          
+          const familyId = userFamilyResult.rows[0].id
+          
+          // Get user's name
+          const userNameResult = await pool.query(`
+            SELECT full_name, email
+            FROM app_user
+            WHERE id = $1
+          `, [userId])
+          
+          if (userNameResult.rows.length === 0) {
+            return res.status(404).json({
+              success: false,
+              message: 'User not found'
+            })
+          }
+          
+          const userName = userNameResult.rows[0].full_name || userNameResult.rows[0].email || 'User'
+          const nameParts = userName.split(' ')
+          
+          // Create athlete record for the user
+          const createAthleteResult = await pool.query(`
+            INSERT INTO athlete (family_id, first_name, last_name, user_id, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            RETURNING id, user_id, family_id, first_name, last_name
+          `, [
+            familyId,
+            nameParts[0] || '',
+            nameParts.slice(1).join(' ') || '',
+            userId
+          ])
+          
+          athlete = createAthleteResult.rows[0]
+        }
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: 'Family member not found'
+        })
+      }
+    } else {
+      athlete = athleteCheck.rows[0]
     }
-
-    const athlete = athleteCheck.rows[0]
 
     // Check if user has permission (is PARENT_GUARDIAN or is the athlete themselves)
     if (userRole !== 'PARENT_GUARDIAN' && athlete.user_id !== userId) {
@@ -3569,7 +3637,7 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
         VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         ON CONFLICT (athlete_id, program_id) DO UPDATE
         SET days_per_week = $3, updated_at = CURRENT_TIMESTAMP
-      `, [familyMemberId, programId, daysPerWeek])
+      `, [athlete.id, programId, daysPerWeek])
     } catch (error) {
       // If table doesn't exist, that's okay for now
       // You'll need to create the enrollment table in your migrations

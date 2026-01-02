@@ -1106,11 +1106,39 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
                   >
                     <option value="">Select a family member...</option>
-                    {familyMembers.map((member) => (
-                      <option key={member.id} value={member.id}>
-                        {member.first_name} {member.last_name}
-                      </option>
-                    ))}
+                    {(() => {
+                      // Combine current member with family members for enrollment
+                      const allMembers: Array<{id: number, name: string, isCurrentUser: boolean}> = []
+                      
+                      // Add current member if they're not already in familyMembers
+                      if (profileData) {
+                        const currentMemberInList = familyMembers.some(fm => 
+                          fm.user_id === profileData.id || fm.id === profileData.id
+                        )
+                        if (!currentMemberInList) {
+                          allMembers.push({
+                            id: profileData.id,
+                            name: `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || profileData.email || 'You',
+                            isCurrentUser: true
+                          })
+                        }
+                      }
+                      
+                      // Add all family members
+                      familyMembers.forEach(member => {
+                        allMembers.push({
+                          id: member.user_id || member.id,
+                          name: `${member.first_name} ${member.last_name}`.trim(),
+                          isCurrentUser: false
+                        })
+                      })
+                      
+                      return allMembers.map((member) => (
+                        <option key={member.id} value={member.id}>
+                          {member.name} {member.isCurrentUser ? '(You)' : ''}
+                        </option>
+                      ))
+                    })()}
                   </select>
                 </div>
 
