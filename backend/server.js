@@ -86,7 +86,7 @@ pool.on('error', (err) => {
 })
 
 // Initialize database tables
-const initDatabase = async () => {
+export const initDatabase = async () => {
   try {
     // Registrations table
     await pool.query(`
@@ -250,6 +250,122 @@ const initDatabase = async () => {
       `, [masterPasswordHash])
       console.log('✅ Master admin created')
     }
+
+    // ============================================================
+    // MODULE 0: Identity, Roles, Facility Settings
+    // ============================================================
+    
+    // Create user_role enum
+    await pool.query(`
+      DO $$ BEGIN
+        CREATE TYPE user_role AS ENUM ('OWNER_ADMIN', 'COACH', 'PARENT_GUARDIAN', 'ATHLETE_VIEWER');
+      EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    `)
+
+    // Create facility table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS facility (
+        id                  BIGSERIAL PRIMARY KEY,
+        name                TEXT NOT NULL,
+        timezone            TEXT NOT NULL DEFAULT 'America/New_York',
+        logo_url            TEXT,
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_facility_id ON facility(id)`)
+
+    // Seed default facility if none exists
+    await pool.query(`
+      INSERT INTO facility (name, timezone)
+      SELECT 'Vortex Athletics', 'America/New_York'
+      WHERE NOT EXISTS (SELECT 1 FROM facility)
+    `)
+
+    // Create app_user table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS app_user (
+        id                  BIGSERIAL PRIMARY KEY,
+        facility_id         BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
+        role                user_role NOT NULL,
+        email               TEXT NOT NULL,
+        phone               TEXT,
+        full_name           TEXT NOT NULL,
+        password_hash       TEXT,
+        is_active           BOOLEAN NOT NULL DEFAULT TRUE,
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        UNIQUE (facility_id, email)
+      )
+    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_facility_role ON app_user(facility_id, role)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_email ON app_user(email)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_active ON app_user(is_active)`)
+
+    // Migrate existing admins to app_user as OWNER_ADMIN
+    await pool.query(`
+      INSERT INTO app_user (
+        facility_id,
+        role,
+        email,
+        phone,
+        full_name,
+        password_hash,
+        is_active,
+        created_at,
+        updated_at
+      )
+      SELECT 
+        (SELECT id FROM facility LIMIT 1) as facility_id,
+        'OWNER_ADMIN'::user_role as role,
+        email,
+        phone,
+        COALESCE(first_name || ' ' || last_name, 'Admin User') as full_name,
+        password_hash,
+        TRUE as is_active,
+        created_at,
+        updated_at
+      FROM admins
+      WHERE NOT EXISTS (
+        SELECT 1 FROM app_user 
+        WHERE app_user.email = admins.email
+      )
+    `)
+
+    // Migrate existing members to app_user as PARENT_GUARDIAN
+    await pool.query(`
+      INSERT INTO app_user (
+        facility_id,
+        role,
+        email,
+        phone,
+        full_name,
+        password_hash,
+        is_active,
+        created_at,
+        updated_at
+      )
+      SELECT 
+        (SELECT id FROM facility LIMIT 1) as facility_id,
+        'PARENT_GUARDIAN'::user_role as role,
+        email,
+        phone,
+        COALESCE(first_name || ' ' || last_name, 'Member') as full_name,
+        password_hash,
+        CASE 
+          WHEN account_status = 'active' THEN TRUE 
+          ELSE FALSE 
+        END as is_active,
+        created_at,
+        updated_at
+      FROM members
+      WHERE NOT EXISTS (
+        SELECT 1 FROM app_user 
+        WHERE app_user.email = members.email
+      )
+    `)
+
+    console.log('✅ Module 0 (Identity, Roles, Facility) initialized')
 
     console.log('✅ Database tables initialized successfully')
   } catch (error) {
@@ -1804,15 +1920,21 @@ app.use('*', (req, res) => {
 const startServer = async () => {
   await initDatabase()
   
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`)
-    console.log(`📊 Health check: http://localhost:${PORT}/api/health`)
-    console.log(`📝 Registrations: http://localhost:${PORT}/api/registrations`)
-    console.log(`📧 Newsletter: http://localhost:${PORT}/api/newsletter`)
-  })
+  // Only start the HTTP server if not running as a migration script
+  if (process.env.RUN_MIGRATION_ONLY !== 'true') {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`)
+      console.log(`📊 Health check: http://localhost:${PORT}/api/health`)
+      console.log(`📝 Registrations: http://localhost:${PORT}/api/registrations`)
+      console.log(`📧 Newsletter: http://localhost:${PORT}/api/newsletter`)
+    })
+  }
 }
 
-startServer().catch(console.error)
+// Only auto-start if not imported as a module
+if (import.meta.url === `file://${process.argv[1]}` || !process.env.RUN_MIGRATION_ONLY) {
+  startServer().catch(console.error)
+}
 
 // Graceful shutdown
 process.on('SIGINT', async () => {

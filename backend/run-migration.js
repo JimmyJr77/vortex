@@ -4,12 +4,17 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
 
-dotenv.config()
+// Load .env files from multiple locations
+dotenv.config({ path: path.join(process.cwd(), '.env') })
+dotenv.config({ path: path.join(process.cwd(), '.env.local') })
+dotenv.config({ path: path.join(process.cwd(), 'backend', '.env') })
+dotenv.config({ path: path.join(process.cwd(), 'backend', '.env.local') })
 
 const { Pool } = pg
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+// Use same connection logic as server.js
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || process.env.DB_URL,
   user: process.env.DB_USER || 'postgres',
@@ -34,9 +39,16 @@ async function runMigration(migrationFile) {
     
     console.log(`✅ Migration completed: ${migrationFile}`)
   } catch (error) {
-    await client.query('ROLLBACK')
+    try {
+      await client.query('ROLLBACK')
+    } catch (rollbackError) {
+      // Ignore rollback errors
+    }
     console.error(`❌ Migration failed: ${migrationFile}`)
-    console.error(error)
+    console.error('Error details:', error.message)
+    if (error.stack) {
+      console.error('Stack trace:', error.stack)
+    }
     throw error
   } finally {
     client.release()
@@ -58,6 +70,10 @@ async function main() {
     process.exit(0)
   } catch (error) {
     console.error('\n❌ Migration process failed')
+    console.error('Error:', error.message)
+    if (error.stack) {
+      console.error('Stack:', error.stack)
+    }
     process.exit(1)
   } finally {
     await pool.end()
