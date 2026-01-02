@@ -3267,6 +3267,71 @@ if (!process.env.RUN_MIGRATION_ONLY) {
   startServer().catch(console.error)
 }
 
+// ========== TEMPORARY MIGRATION ENDPOINT ==========
+// ⚠️ REMOVE THIS ENDPOINT AFTER RUNNING THE MIGRATION ON PRODUCTION!
+// This is a one-time endpoint to run the migration on production
+app.post('/api/admin/run-migration', async (req, res) => {
+  try {
+    const { migrationFile, secretKey } = req.body
+    
+    // Require a secret key for security (set this as an environment variable)
+    const requiredSecret = process.env.MIGRATION_SECRET_KEY || 'temporary-migration-key-change-me'
+    if (secretKey !== requiredSecret) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Unauthorized - invalid secret key' 
+      })
+    }
+    
+    if (migrationFile !== 'add_categories_levels_tables.sql') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid migration file. Only add_categories_levels_tables.sql is allowed.' 
+      })
+    }
+    
+    console.log('🔄 Running migration via API endpoint:', migrationFile)
+    
+    const migrationPath = path.join(__dirname, 'migrations', migrationFile)
+    
+    if (!fs.existsSync(migrationPath)) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Migration file not found' 
+      })
+    }
+    
+    const sql = fs.readFileSync(migrationPath, 'utf8')
+    const client = await pool.connect()
+    
+    try {
+      await client.query('BEGIN')
+      await client.query(sql)
+      await client.query('COMMIT')
+      
+      console.log('✅ Migration completed successfully via API')
+      
+      res.json({ 
+        success: true, 
+        message: 'Migration completed successfully',
+        note: '⚠️ Please remove this endpoint after migration is complete!'
+      })
+    } catch (error) {
+      await client.query('ROLLBACK')
+      throw error
+    } finally {
+      client.release()
+    }
+  } catch (error) {
+    console.error('❌ Migration error:', error)
+    res.status(500).json({ 
+      success: false, 
+      message: 'Migration failed',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Check server logs for details'
+    })
+  }
+})
+
 // Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down server...')
