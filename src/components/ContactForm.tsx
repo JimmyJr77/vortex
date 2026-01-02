@@ -101,7 +101,6 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
       } catch (fetchError: any) {
         // Handle network errors or connection refused
         if (fetchError.name === 'AbortError' || fetchError.name === 'TypeError') {
-          console.warn('Backend server unavailable. Storing submission locally for later processing.')
           // Store submission locally as fallback
           const pendingSubmissions = JSON.parse(localStorage.getItem('vortex_pending_submissions') || '[]')
           pendingSubmissions.push({
@@ -131,9 +130,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
         throw fetchError
       }
 
-      console.log('Response status:', response.status)
       const result = await response.json()
-      console.log('Response data:', result)
 
       if (result.success) {
         // If newsletter checkbox is checked, also subscribe to newsletter
