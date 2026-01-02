@@ -3108,21 +3108,23 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
 
     if (first_name !== undefined || last_name !== undefined) {
       const fullName = `${first_name || ''} ${last_name || ''}`.trim()
-      updateFields.push(`full_name = $${paramCount++}`)
-      updateValues.push(fullName)
+      if (fullName) {
+        updateFields.push(`full_name = $${paramCount++}`)
+        updateValues.push(fullName)
+      }
     }
-    if (email !== undefined) {
+    if (email !== undefined && email !== null) {
       updateFields.push(`email = $${paramCount++}`)
       updateValues.push(email)
     }
-    if (phone !== undefined) {
+    if (phone !== undefined && phone !== null) {
       updateFields.push(`phone = $${paramCount++}`)
       updateValues.push(phone)
     }
 
     if (updateFields.length > 0) {
       updateValues.push(userId)
-      // Check if updated_at column exists
+      // Try to update with updated_at, fallback if column doesn't exist
       try {
         await pool.query(`
           UPDATE app_user
@@ -3138,9 +3140,15 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
             WHERE id = $${paramCount}
           `, updateValues)
         } else {
+          console.error('Update error:', updateError)
           throw updateError
         }
       }
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'No fields to update'
+      })
     }
 
     // If address is provided, we might need to store it elsewhere or add to app_user table
