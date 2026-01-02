@@ -381,6 +381,298 @@ export const initDatabase = async () => {
 
     console.log('✅ Module 0 (Identity, Roles, Facility) initialized')
 
+    // ============================================================
+    // MODULE 1: Programs & Classes
+    // ============================================================
+    
+    // Create program_category enum
+    await pool.query(`
+      DO $$ BEGIN
+        CREATE TYPE program_category AS ENUM (
+          'EARLY_DEVELOPMENT',
+          'GYMNASTICS',
+          'VORTEX_NINJA',
+          'ATHLETICISM_ACCELERATOR',
+          'ADULT_FITNESS',
+          'HOMESCHOOL'
+        );
+      EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    `)
+
+    // Create skill_level enum
+    await pool.query(`
+      DO $$ BEGIN
+        CREATE TYPE skill_level AS ENUM (
+          'EARLY_STAGE',
+          'BEGINNER',
+          'INTERMEDIATE',
+          'ADVANCED'
+        );
+      EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    `)
+
+    // Create program table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS program (
+        id                  BIGSERIAL PRIMARY KEY,
+        facility_id         BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
+        category            program_category NOT NULL,
+        name                TEXT NOT NULL,
+        display_name        TEXT NOT NULL,
+        skill_level         skill_level,
+        age_min             INTEGER,
+        age_max             INTEGER,
+        description         TEXT,
+        skill_requirements  TEXT,
+        is_active           BOOLEAN NOT NULL DEFAULT TRUE,
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        UNIQUE (facility_id, category, name)
+      )
+    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_program_facility_category ON program(facility_id, category)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_program_skill_level ON program(skill_level)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_program_active ON program(is_active)`)
+
+    // Create class table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS class (
+        id                  BIGSERIAL PRIMARY KEY,
+        facility_id         BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
+        program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+        name                TEXT NOT NULL,
+        start_time          TIME NOT NULL,
+        end_time            TIME NOT NULL,
+        day_of_week         INTEGER NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
+        max_capacity        INTEGER,
+        current_enrollment  INTEGER NOT NULL DEFAULT 0,
+        is_active           BOOLEAN NOT NULL DEFAULT TRUE,
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_program ON class(program_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_day_time ON class(day_of_week, start_time)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_active ON class(is_active)`)
+
+    // Seed programs - Early Development
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'EARLY_DEVELOPMENT'::program_category,
+        'dust_devils',
+        'Dust Devils — Mommy & Me',
+        'EARLY_STAGE'::skill_level,
+        2,
+        3,
+        'Parent-assisted class focused on balance, coordination, rolling, jumping, and obstacle exploration in a safe, playful environment.',
+        'No Experience Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'dust_devils')
+    `)
+
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'EARLY_DEVELOPMENT'::program_category,
+        'little_twisters_preschool',
+        'Little Twisters — Preschool',
+        'EARLY_STAGE'::skill_level,
+        4,
+        5,
+        'Introductory gymnastics and athletic movement. Athletes build coordination, body awareness, and confidence using basic skills and equipment stations.',
+        'Potty Trained'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'little_twisters_preschool')
+    `)
+
+    // Seed programs - Gymnastics
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'GYMNASTICS'::program_category,
+        'tornadoes_gymnastics',
+        'Tornadoes — Beginner',
+        'BEGINNER'::skill_level,
+        6,
+        NULL,
+        'Focus on foundational gymnastics skills including forward/backward rolls, cartwheels, handstands, bridges, round-offs, splits, and flexibility.',
+        'No Experience Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'tornadoes_gymnastics')
+    `)
+
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'GYMNASTICS'::program_category,
+        'cyclones_gymnastics',
+        'Cyclones — Intermediate',
+        'INTERMEDIATE'::skill_level,
+        6,
+        NULL,
+        'Athletes refine fundamentals and progress to front/back walkovers, handsprings, strength development, and controlled power.',
+        'Skill Evaluation Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'cyclones_gymnastics')
+    `)
+
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'GYMNASTICS'::program_category,
+        'vortex_a4_elite',
+        'Vortex A4 Elite — Advanced',
+        'ADVANCED'::skill_level,
+        6,
+        NULL,
+        'Advanced training in multiple handsprings, flips, layouts, twisting, strength, flexibility, and elite-level execution.',
+        'Skill Evaluation Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'vortex_a4_elite')
+    `)
+
+    // Seed programs - Vortex Ninja
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'VORTEX_NINJA'::program_category,
+        'tornadoes_ninja',
+        'Tornadoes — Beginner Ninja',
+        'BEGINNER'::skill_level,
+        6,
+        NULL,
+        'Intro to ninja and parkour-style movement. Focus on agility, grip strength, coordination, and obstacle navigation.',
+        'No Experience Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'tornadoes_ninja')
+    `)
+
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'VORTEX_NINJA'::program_category,
+        'cyclones_ninja',
+        'Cyclones — Intermediate Ninja',
+        'INTERMEDIATE'::skill_level,
+        6,
+        NULL,
+        'Develop speed, strength, endurance, and technique across more complex ninja obstacles and movement challenges.',
+        'Skill Evaluation Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'cyclones_ninja')
+    `)
+
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'VORTEX_NINJA'::program_category,
+        'vortex_elite_ninja',
+        'Vortex Elite — Advanced Ninja',
+        'ADVANCED'::skill_level,
+        6,
+        NULL,
+        'High-level ninja training emphasizing advanced obstacle combinations, explosive power, precision, and competitive readiness.',
+        'Skill Evaluation Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'vortex_elite_ninja')
+    `)
+
+    // Seed programs - Athleticism Accelerator
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'ATHLETICISM_ACCELERATOR'::program_category,
+        'little_twisters_athleticism',
+        'Little Twisters — Early Stage',
+        'EARLY_STAGE'::skill_level,
+        4,
+        5,
+        'Foundational athletic development focusing on balance, coordination, running, jumping, and playful strength.',
+        'No Experience Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'little_twisters_athleticism')
+    `)
+
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'ATHLETICISM_ACCELERATOR'::program_category,
+        'tornadoes_athleticism',
+        'Tornadoes — Beginner',
+        'BEGINNER'::skill_level,
+        6,
+        NULL,
+        'Athletic fundamentals including speed mechanics, jumping/landing, core strength, mobility, and coordination.',
+        'No Experience Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'tornadoes_athleticism')
+    `)
+
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'ATHLETICISM_ACCELERATOR'::program_category,
+        'cyclones_athleticism',
+        'Cyclones — Intermediate',
+        'INTERMEDIATE'::skill_level,
+        6,
+        NULL,
+        'Strength, agility, power, and body control training to accelerate athletic performance across all sports.',
+        'Skill Evaluation Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'cyclones_athleticism')
+    `)
+
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'ATHLETICISM_ACCELERATOR'::program_category,
+        'vortex_elite_athleticism',
+        'Vortex Elite — Advanced',
+        'ADVANCED'::skill_level,
+        6,
+        NULL,
+        'High-performance training combining strength, speed, explosiveness, and movement efficiency for competitive athletes.',
+        'Skill Evaluation Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'vortex_elite_athleticism')
+    `)
+
+    // Seed programs - Adult Fitness
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'ADULT_FITNESS'::program_category,
+        'typhoons',
+        'Typhoons — Adult Fitness',
+        'BEGINNER'::skill_level,
+        18,
+        NULL,
+        'Strength, conditioning, mobility, and introductory acrobatics in a progressive, supportive environment.',
+        'No Experience Required'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'typhoons')
+    `)
+
+    // Seed programs - Homeschool
+    await pool.query(`
+      INSERT INTO program (facility_id, category, name, display_name, skill_level, age_min, age_max, description, skill_requirements)
+      SELECT 
+        (SELECT id FROM facility LIMIT 1),
+        'HOMESCHOOL'::program_category,
+        'hurricane_academy',
+        'Hurricane Academy — All Levels',
+        NULL,
+        6,
+        NULL,
+        'Development-based gymnastics and athletic training. Athletes progress by skill mastery rather than age or grade level.',
+        'Daytime Program'
+      WHERE NOT EXISTS (SELECT 1 FROM program WHERE name = 'hurricane_academy')
+    `)
+
+    console.log('✅ Module 1 (Programs & Classes) initialized')
+
     console.log('✅ Database tables initialized successfully')
   } catch (error) {
     console.error('❌ Database initialization error:', error)
@@ -610,6 +902,123 @@ app.get('/api/verify/module0', async (req, res) => {
           ? ['Migration successful! You can proceed with Module 1.']
           : criticalPassed
             ? ['Core migration completed. Check if you have existing admins/members to migrate.']
+            : ['Please restart your server to run the migration.', 'Check server logs for errors.']
+      }
+    })
+  } catch (error) {
+    console.error('Verification error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Verification failed',
+      error: error.message
+    })
+  }
+})
+
+// Module 1 verification endpoint
+app.get('/api/verify/module1', async (req, res) => {
+  try {
+    const results = {
+      programCategoryEnum: false,
+      skillLevelEnum: false,
+      programTable: false,
+      classTable: false,
+      programCount: 0,
+      programsByCategory: {},
+      samplePrograms: []
+    }
+
+    // Check program_category enum
+    try {
+      const enumCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT 1 FROM pg_type WHERE typname = 'program_category'
+        )
+      `)
+      results.programCategoryEnum = enumCheck.rows[0].exists
+    } catch (error) {
+      console.error('Error checking program_category enum:', error.message)
+    }
+
+    // Check skill_level enum
+    try {
+      const enumCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT 1 FROM pg_type WHERE typname = 'skill_level'
+        )
+      `)
+      results.skillLevelEnum = enumCheck.rows[0].exists
+    } catch (error) {
+      console.error('Error checking skill_level enum:', error.message)
+    }
+
+    // Check program table
+    try {
+      const tableCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT 1 FROM information_schema.tables 
+          WHERE table_name = 'program'
+        )
+      `)
+      results.programTable = tableCheck.rows[0].exists
+      
+      if (results.programTable) {
+        const countResult = await pool.query('SELECT COUNT(*) as count FROM program')
+        results.programCount = parseInt(countResult.rows[0].count)
+        
+        const categoryResult = await pool.query(`
+          SELECT category, COUNT(*) as count 
+          FROM program 
+          GROUP BY category 
+          ORDER BY category
+        `)
+        categoryResult.rows.forEach(row => {
+          results.programsByCategory[row.category] = parseInt(row.count)
+        })
+        
+        const sampleResult = await pool.query(`
+          SELECT category, display_name, skill_level, age_min, age_max 
+          FROM program 
+          ORDER BY category, display_name 
+          LIMIT 10
+        `)
+        results.samplePrograms = sampleResult.rows
+      }
+    } catch (error) {
+      console.error('Error checking program table:', error.message)
+    }
+
+    // Check class table
+    try {
+      const tableCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT 1 FROM information_schema.tables 
+          WHERE table_name = 'class'
+        )
+      `)
+      results.classTable = tableCheck.rows[0].exists
+    } catch (error) {
+      console.error('Error checking class table:', error.message)
+    }
+
+    // Determine overall status
+    const criticalPassed = results.programCategoryEnum && results.skillLevelEnum && results.programTable && results.classTable
+    const allPassed = criticalPassed && results.programCount >= 14
+
+    res.json({
+      success: true,
+      status: allPassed ? 'complete' : (criticalPassed ? 'partial' : 'incomplete'),
+      results,
+      summary: {
+        message: allPassed 
+          ? '✅ Module 1 migration is complete!' 
+          : criticalPassed 
+            ? '⚠️ Core tables created, but some programs may be missing'
+            : '❌ Module 1 migration appears incomplete',
+        recommendations: allPassed 
+          ? ['Migration successful! All 14 programs have been created.']
+          : criticalPassed
+            ? ['Core migration completed. Check if all programs were seeded correctly.']
             : ['Please restart your server to run the migration.', 'Check server logs for errors.']
       }
     })
