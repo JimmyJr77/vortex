@@ -3673,9 +3673,9 @@ export default function Admin({ onLogout }: AdminProps) {
                   </div>
 
                   {familiesLoading ? (
-                    <div className="text-center py-12 text-gray-600">Loading families...</div>
+                    <div className="text-center py-12 text-gray-600">Loading members...</div>
                   ) : families.length === 0 ? (
-                    <div className="text-center py-12 text-gray-600">No families yet</div>
+                    <div className="text-center py-12 text-gray-600">No members yet</div>
                   ) : (
                     <div className="space-y-4">
                       {families.map((family) => (
