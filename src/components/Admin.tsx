@@ -605,17 +605,6 @@ interface Category {
   updatedAt: string
 }
 
-interface Level {
-  id: number
-  categoryId: number
-  categoryName?: string
-  categoryDisplayName?: string
-  name: string
-  displayName: string
-  archived: boolean
-  createdAt: string
-  updatedAt: string
-}
 
 export default function Admin({ onLogout }: AdminProps) {
   const [users, setUsers] = useState<User[]>([])
@@ -694,13 +683,6 @@ export default function Admin({ onLogout }: AdminProps) {
   const [categoriesLoading, setCategoriesLoading] = useState(false)
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null)
   const [categoryFormData, setCategoryFormData] = useState<Partial<Category>>({})
-  const [showArchivedCategories, setShowArchivedCategories] = useState(false)
-  const [levels, setLevels] = useState<Level[]>([])
-  const [levelsLoading, setLevelsLoading] = useState(false)
-  const [editingLevelId, setEditingLevelId] = useState<number | null>(null)
-  const [levelFormData, setLevelFormData] = useState<Partial<Level>>({})
-  const [showArchivedLevels, setShowArchivedLevels] = useState(false)
-  const [selectedCategoryForLevels, setSelectedCategoryForLevels] = useState<number | null>(null)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showClassModal, setShowClassModal] = useState(false)
   const [selectedCategoryForClass, setSelectedCategoryForClass] = useState<number | null>(null)
@@ -760,13 +742,8 @@ export default function Admin({ onLogout }: AdminProps) {
     if (activeTab === 'classes') {
       fetchCategories()
     }
-  }, [showArchivedCategories])
+  }, [showArchivedPrograms])
 
-  useEffect(() => {
-    if (activeTab === 'classes') {
-      fetchLevels(selectedCategoryForLevels || undefined)
-    }
-  }, [showArchivedLevels, selectedCategoryForLevels])
 
   const fetchMembers = async () => {
     try {
@@ -1329,7 +1306,7 @@ export default function Admin({ onLogout }: AdminProps) {
       setCategoriesLoading(true)
       const apiUrl = getApiUrl()
       
-      const response = await fetch(`${apiUrl}/api/admin/categories?archived=${showArchivedCategories}`)
+      const response = await fetch(`${apiUrl}/api/admin/categories?archived=${showArchivedPrograms}`)
       if (!response.ok) {
         throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
       }
@@ -1345,31 +1322,6 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
-  const fetchLevels = async (categoryId?: number) => {
-    try {
-      setLevelsLoading(true)
-      const apiUrl = getApiUrl()
-      
-      let url = `${apiUrl}/api/admin/levels?archived=${showArchivedLevels}`
-      if (categoryId) {
-        url += `&categoryId=${categoryId}`
-      }
-      
-      const response = await fetch(url)
-      if (!response.ok) {
-        throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
-      }
-      const data = await response.json()
-      
-      if (data.success) {
-        setLevels(data.data)
-      }
-    } catch (error) {
-      console.error('Error fetching levels:', error)
-    } finally {
-      setLevelsLoading(false)
-    }
-  }
 
   const handleArchiveProgram = async (id: number, archived: boolean) => {
     try {
@@ -1477,13 +1429,6 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
-  const handleEditCategory = (category: Category) => {
-    setEditingCategoryId(category.id)
-    setCategoryFormData({
-      name: category.name,
-      displayName: category.displayName
-    })
-  }
 
   const handleUpdateCategory = async () => {
     if (!editingCategoryId) return
@@ -1523,7 +1468,7 @@ export default function Admin({ onLogout }: AdminProps) {
       
       if (response.ok) {
         await fetchCategories()
-        await fetchLevels()
+        await fetchPrograms()
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to archive category')
@@ -1557,124 +1502,6 @@ export default function Admin({ onLogout }: AdminProps) {
     }
   }
 
-  const handleCreateLevel = async () => {
-    if (!levelFormData.categoryId) {
-      alert('Please select a category')
-      return
-    }
-    
-    try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/levels`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(levelFormData)
-      })
-      
-      if (response.ok) {
-        await fetchLevels(levelFormData.categoryId)
-        setLevelFormData({})
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to create level')
-      }
-    } catch (error) {
-      console.error('Error creating level:', error)
-      alert('Failed to create level')
-    }
-  }
-
-  const handleEditLevel = (level: Level) => {
-    setEditingLevelId(level.id)
-    setLevelFormData({
-      categoryId: level.categoryId,
-      name: level.name,
-      displayName: level.displayName
-    })
-  }
-
-  const handleUpdateLevel = async () => {
-    if (!editingLevelId) return
-    
-    try {
-      const apiUrl = getApiUrl()
-      // Only send fields that are being updated (exclude categoryId and empty values)
-      const updateData: any = {}
-      if (levelFormData.name !== undefined && levelFormData.name !== '') {
-        updateData.name = levelFormData.name
-      }
-      if (levelFormData.displayName !== undefined && levelFormData.displayName !== '') {
-        updateData.displayName = levelFormData.displayName
-      }
-      if (levelFormData.archived !== undefined) {
-        updateData.archived = levelFormData.archived
-      }
-      
-      const response = await fetch(`${apiUrl}/api/admin/levels/${editingLevelId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData)
-      })
-      
-      if (response.ok) {
-        await fetchLevels(levelFormData.categoryId)
-        setEditingLevelId(null)
-        setLevelFormData({})
-      } else {
-        const data = await response.json()
-        const errorMessage = data.errors ? data.errors.join(', ') : (data.message || 'Failed to update level')
-        alert(errorMessage)
-        console.error('Level update error details:', data)
-      }
-    } catch (error) {
-      console.error('Error updating level:', error)
-      alert('Failed to update level')
-    }
-  }
-
-  const handleArchiveLevel = async (id: number, archived: boolean) => {
-    try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/levels/${id}/archive`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ archived })
-      })
-      
-      if (response.ok) {
-        await fetchLevels(selectedCategoryForLevels || undefined)
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to archive level')
-      }
-    } catch (error) {
-      console.error('Error archiving level:', error)
-      alert('Failed to archive level')
-    }
-  }
-
-  const handleDeleteLevel = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this level? This action cannot be undone.')) {
-      return
-    }
-    
-    try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/levels/${id}`, {
-        method: 'DELETE'
-      })
-      
-      if (response.ok) {
-        await fetchLevels(selectedCategoryForLevels || undefined)
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to delete level')
-      }
-    } catch (error) {
-      console.error('Error deleting level:', error)
-      alert('Failed to delete level')
-    }
-  }
 
   const handleEditProgram = (program: Program) => {
     setEditingProgramId(program.id)
@@ -2637,7 +2464,7 @@ export default function Admin({ onLogout }: AdminProps) {
                                     </div>
                                   )}
                                 </div>
-                                  ))}
+                                  ))
                                 )}
                               </div>
                             </div>
