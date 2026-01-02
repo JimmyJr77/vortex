@@ -646,14 +646,8 @@ export default function Admin({ onLogout }: AdminProps) {
   const [familiesLoading, setFamiliesLoading] = useState(false)
   const [athletes, setAthletes] = useState<Athlete[]>([])
   const [athletesLoading, setAthletesLoading] = useState(false)
-  const [showFamilyForm, setShowFamilyForm] = useState(false)
   const [showAthleteForm, setShowAthleteForm] = useState(false)
   const [selectedFamilyId, setSelectedFamilyId] = useState<number | null>(null)
-  const [familyFormData, setFamilyFormData] = useState({
-    familyName: '',
-    primaryUserId: null as number | null,
-    guardianIds: [] as number[]
-  })
   const [athleteFormData, setAthleteFormData] = useState({
     familyId: null as number | null,
     firstName: '',
@@ -1063,32 +1057,6 @@ export default function Admin({ onLogout }: AdminProps) {
   }
 
   // Module 2: Family and Athlete handlers
-  const handleCreateFamily = async () => {
-    try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/families`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(familyFormData)
-      })
-
-      if (response.ok) {
-        await fetchFamilies()
-        setShowFamilyForm(false)
-        setFamilyFormData({
-          familyName: '',
-          primaryUserId: null,
-          guardianIds: []
-        })
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to create family')
-      }
-    } catch (error) {
-      console.error('Error creating family:', error)
-      alert('Failed to create family')
-    }
-  }
 
   const handleCreateAthlete = async () => {
     try {
@@ -4361,51 +4329,42 @@ export default function Admin({ onLogout }: AdminProps) {
           >
             <motion.div
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => setShowFamilyForm(false)}
+              onClick={() => setShowExportDialog(false)}
             />
             <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-xl"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
             >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">Create New Family</h3>
+              <h3 className="text-2xl font-display font-bold text-white mb-4">Export Data</h3>
+              <p className="text-gray-400 mb-6">Select which data to export:</p>
+              <div className="space-y-3 mb-6">
                 <button
-                  onClick={() => setShowFamilyForm(false)}
-                  className="text-gray-400 hover:text-white"
+                  onClick={() => exportToCSV(true, true)}
+                  className="w-full bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
                 >
-                  <X className="w-6 h-6" />
+                  Export All
+                </button>
+                <button
+                  onClick={() => exportToCSV(true, false)}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Newsletter Only ({users.filter(u => u.newsletter).length})
+                </button>
+                <button
+                  onClick={() => exportToCSV(false, true)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Interested Only ({users.filter(u => u.interests).length})
                 </button>
               </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Family Name</label>
-                  <input
-                    type="text"
-                    value={familyFormData.familyName}
-                    onChange={(e) => setFamilyFormData({ ...familyFormData, familyName: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                    placeholder="e.g., Smith Family"
-                  />
-                </div>
-
-                <div className="flex gap-2 pt-4">
-                  <button
-                    onClick={handleCreateFamily}
-                    className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                  >
-                    Create Family
-                  </button>
-                  <button
-                    onClick={() => setShowFamilyForm(false)}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
+              <button
+                onClick={() => setShowExportDialog(false)}
+                className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+              >
+                Cancel
+              </button>
             </motion.div>
           </motion.div>
         )}
