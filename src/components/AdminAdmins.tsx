@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, X, Save, UserPlus } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
@@ -14,13 +14,34 @@ interface AdminInfo {
   isMaster?: boolean
 }
 
+interface AdminData {
+  id: number
+  firstName: string
+  lastName: string
+  email: string
+  phone?: string | null
+  username: string
+  isMaster: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+interface AdminUpdateData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string | null
+  username: string
+  password?: string
+}
+
 interface AdminAdminsProps {
   adminInfo: AdminInfo | null
   setAdminInfo: (info: AdminInfo | null) => void
 }
 
 export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProps) {
-  const [admins, setAdmins] = useState<any[]>([])
+  const [admins, setAdmins] = useState<AdminData[]>([])
   const [adminsLoading, setAdminsLoading] = useState(false)
   const [showAdminForm, setShowAdminForm] = useState(false)
   const [adminFormData, setAdminFormData] = useState({
@@ -41,7 +62,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     password: ''
   })
 
-  const fetchAdmins = async () => {
+  const fetchAdmins = useCallback(async () => {
     try {
       setAdminsLoading(true)
       const apiUrl = getApiUrl()
@@ -58,9 +79,9 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     } finally {
       setAdminsLoading(false)
     }
-  }
+  }, [])
 
-  const fetchMyAccount = async () => {
+  const fetchMyAccount = useCallback(async () => {
     try {
       const adminId = localStorage.getItem('vortex-admin-id')
       if (!adminId) return
@@ -79,7 +100,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
             password: ''
           })
           // Update adminInfo with the latest data including isMaster
-          const updatedAdminInfo = {
+          const updatedAdminInfo: AdminInfo = {
             email: data.data.email,
             name: `${data.data.firstName} ${data.data.lastName}`,
             id: data.data.id,
@@ -96,7 +117,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     } catch (error) {
       console.error('Error fetching my account:', error)
     }
-  }
+  }, [setAdminInfo])
 
   const handleCreateAdmin = async () => {
     try {
@@ -134,7 +155,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
       if (!adminId) return
 
       const apiUrl = getApiUrl()
-      const updateData: any = {
+      const updateData: AdminUpdateData = {
         firstName: myAccountData.firstName,
         lastName: myAccountData.lastName,
         email: myAccountData.email,
@@ -156,7 +177,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
         const data = await response.json()
         if (data.success) {
           // Update localStorage with new info
-          const updatedAdmin = {
+          const updatedAdmin: AdminInfo = {
             email: data.data.email,
             name: `${data.data.firstName} ${data.data.lastName}`,
             id: data.data.id,
@@ -186,7 +207,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
   useEffect(() => {
     fetchAdmins()
     fetchMyAccount()
-  }, [])
+  }, [fetchAdmins, fetchMyAccount])
 
   return (
     <>
@@ -330,7 +351,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
           <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
             Admins ({admins.length})
           </h2>
-          {(adminInfo?.isMaster || admins.find(a => a.id === adminInfo?.id)?.isMaster) && (
+          {adminInfo?.isMaster && (
             <motion.button
               onClick={() => setShowAdminForm(true)}
               className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
