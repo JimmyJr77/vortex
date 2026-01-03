@@ -938,6 +938,28 @@ const emergencyContactSchema = Joi.object({
   email: Joi.string().email().optional().allow('', null)
 })
 
+// ============================================================
+// ROLE MANAGEMENT SYSTEM
+// ============================================================
+// Role System Overview:
+// - OWNER_ADMIN: System administrators with full access
+// - COACH: Staff members who can manage classes and athletes
+// - PARENT_GUARDIAN: Adults who can manage family accounts, enroll members, 
+//                   sign documents, add family members, and edit family information.
+//                   All adults in a family should have this role.
+// - ATHLETE_VIEWER: Read-only access for viewing athlete information
+// - ATHLETE: Anyone enrolled in a class (adults or children). This role is 
+//            automatically assigned when someone enrolls in a class.
+//
+// Key Rules:
+// 1. All adults in a family must have PARENT_GUARDIAN role
+// 2. When a person enrolls in a class, they get ATHLETE role (in addition to any existing roles)
+// 3. Adults can have both PARENT_GUARDIAN and ATHLETE roles simultaneously
+// 4. A child cannot be a sole member - at least one adult guardian must exist
+// 5. Creating a "New Family" = creating a new member with no linked family
+// 6. Non-participants are simply adults without ATHLETE role (they can enroll later)
+// ============================================================
+
 // Helper functions for role management
 const getUserRoles = async (userId) => {
   try {
@@ -2329,6 +2351,10 @@ app.post('/api/admin/families', async (req, res) => {
       for (let i = 0; i < value.guardianIds.length; i++) {
         const userId = value.guardianIds[i]
         const isPrimary = i === 0 && !value.primaryUserId
+        
+        // Ensure all guardians have PARENT_GUARDIAN role
+        await addUserRole(userId, 'PARENT_GUARDIAN')
+        
         await pool.query(`
           INSERT INTO family_guardian (family_id, user_id, is_primary)
           VALUES ($1, $2, $3)
@@ -2416,6 +2442,10 @@ app.put('/api/admin/families/:id', async (req, res) => {
         for (let i = 0; i < value.guardianIds.length; i++) {
           const userId = value.guardianIds[i]
           const isPrimary = i === 0
+          
+          // Ensure all guardians have PARENT_GUARDIAN role
+          await addUserRole(userId, 'PARENT_GUARDIAN')
+          
           await pool.query(`
             INSERT INTO family_guardian (family_id, user_id, is_primary)
             VALUES ($1, $2, $3)
@@ -2673,6 +2703,42 @@ app.post('/api/admin/athletes', async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'Family not found'
+      })
+    }
+    
+    // Validate that family has at least one adult guardian
+    // A child cannot be a sole member - a parent must exist
+    const guardianCheck = await pool.query(`
+      SELECT COUNT(*) as guardian_count
+      FROM family_guardian fg
+      JOIN app_user u ON fg.user_id = u.id
+      WHERE fg.family_id = $1
+    `, [value.familyId])
+    
+    const guardianCount = parseInt(guardianCheck.rows[0].guardian_count || '0')
+    
+    // Check if primary_user_id is set and is a guardian
+    const primaryUserCheck = await pool.query(`
+      SELECT COUNT(*) as count
+      FROM family f
+      JOIN app_user u ON f.primary_user_id = u.id
+      WHERE f.id = $1 AND f.primary_user_id IS NOT NULL
+    `, [value.familyId])
+    
+    const hasPrimaryGuardian = parseInt(primaryUserCheck.rows[0].count || '0') > 0
+    
+    // Calculate age from date of birth to determine if this is a child
+    const birthDate = new Date(value.dateOfBirth)
+    const today = new Date()
+    const age = today.getFullYear() - birthDate.getFullYear() - 
+      (today.getMonth() < birthDate.getMonth() || 
+       (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+    
+    // If this is a child (under 18) and there are no guardians, reject
+    if (age < 18 && guardianCount === 0 && !hasPrimaryGuardian) {
+      return res.status(400).json({
+        success: false,
+        message: 'A child cannot be a sole member. At least one adult guardian must exist in the family.'
       })
     }
     
