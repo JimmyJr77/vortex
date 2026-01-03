@@ -814,6 +814,32 @@ export default function AdminMembers() {
     setMemberModalMode('existing-family')
     setMemberSearchQuery('')
     setMemberSearchResults([])
+    // Initialize familyMembers for adding to existing family
+    setFamilyMembers([{
+      id: 'member-1',
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      addressStreet: '',
+      addressCity: '',
+      addressState: '',
+      addressZip: '',
+      username: '',
+      password: 'vortex',
+      enrollments: [],
+      dateOfBirth: '',
+      medicalNotes: '',
+      isFinished: false,
+      sections: {
+        contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+        loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+        enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+      }
+    }])
+    setExpandedFamilyMemberId('member-1')
+    setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
+    setIsBillingExpanded(true)
   }
   
   const handleCreateFamilyWithPrimaryAdult = async () => {
@@ -1031,6 +1057,174 @@ export default function AdminMembers() {
     } catch (error) {
       console.error('Error creating family:', error)
       alert(error instanceof Error ? error.message : 'Failed to create family')
+    }
+  }
+  
+  // Handler for adding members to existing family
+  const handleAddMembersToExistingFamily = async () => {
+    if (!selectedFamilyForMember) return
+    
+    try {
+      // Validate all family members have required fields
+      for (const member of familyMembers) {
+        if (!member.sections.contactInfo.tempData.firstName || 
+            !member.sections.contactInfo.tempData.lastName) {
+          alert(`Please complete contact information for all family members`)
+          return
+        }
+      }
+      
+      // Validate days selection for all enrollments
+      for (const member of familyMembers) {
+        for (const enrollment of member.enrollments) {
+          if (enrollment.programId && enrollment.selectedDays.length !== enrollment.daysPerWeek) {
+            alert(`Please select exactly ${enrollment.daysPerWeek} day(s) for ${member.firstName} ${member.lastName}'s enrollment in ${enrollment.program}`)
+            return
+          }
+        }
+      }
+      
+      const apiUrl = getApiUrl()
+      const familyId = selectedFamilyForMember.id
+      
+      // Create user accounts and athletes for all family members
+      for (const member of familyMembers) {
+        const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+        const today = new Date()
+        const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
+        const isAdult = age !== null && age >= 18
+        
+        let userId = null
+        if (isAdult) {
+          // Check if email and username are provided for adults
+          if (!member.sections.contactInfo.tempData.email || !member.sections.loginSecurity.tempData.username) {
+            alert(`Adults must have email and username. Please complete login information for ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`)
+            return
+          }
+          
+          // Create user account for adults
+          const userResponse = await fetch(`${apiUrl}/api/admin/users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fullName: `${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`,
+              email: member.sections.contactInfo.tempData.email,
+              phone: cleanPhoneNumber(member.sections.contactInfo.tempData.phone),
+              username: member.sections.loginSecurity.tempData.username,
+              password: member.sections.loginSecurity.tempData.password || 'vortex',
+              role: 'PARENT_GUARDIAN',
+              address: combineAddress(
+                member.sections.contactInfo.tempData.addressStreet,
+                member.sections.contactInfo.tempData.addressCity,
+                member.sections.contactInfo.tempData.addressState,
+                member.sections.contactInfo.tempData.addressZip
+              ) || null
+            })
+          })
+          
+          if (userResponse.ok) {
+            const userData = await userResponse.json()
+            if (userData.success && userData.data) {
+              userId = userData.data.id
+              
+              // Add as guardian
+              const updateResponse = await fetch(`${apiUrl}/api/admin/families/${familyId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  familyName: selectedFamilyForMember.family_name,
+                  primaryUserId: selectedFamilyForMember.primary_user_id || userId,
+                  guardianIds: [
+                    ...(selectedFamilyForMember.guardians?.map((g: Guardian) => g.id) || []),
+                    userId
+                  ]
+                })
+              })
+              
+              if (!updateResponse.ok) {
+                console.warn('Failed to add guardian to family')
+              }
+            }
+          } else {
+            const errorData = await userResponse.json()
+            throw new Error(errorData.message || 'Failed to create user account')
+          }
+        }
+        
+        // Create athlete record for all members
+        const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            familyId: familyId,
+            firstName: member.sections.contactInfo.tempData.firstName,
+            lastName: member.sections.contactInfo.tempData.lastName,
+            dateOfBirth: member.dateOfBirth || null,
+            medicalNotes: member.medicalNotes || null,
+            internalFlags: null,
+            userId: userId
+          })
+        })
+        
+        if (athleteResponse.ok) {
+          const athleteData = await athleteResponse.json()
+          if (athleteData.success && athleteData.data) {
+            // Create enrollments
+            for (const enrollment of member.enrollments) {
+              if (enrollment.programId) {
+                await fetch(`${apiUrl}/api/members/enroll`, {
+                  method: 'POST',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                  },
+                  body: JSON.stringify({
+                    programId: enrollment.programId,
+                    familyMemberId: athleteData.data.id,
+                    daysPerWeek: enrollment.daysPerWeek,
+                    selectedDays: enrollment.selectedDays
+                  })
+                })
+              }
+            }
+          }
+        } else {
+          const errorData = await athleteResponse.json()
+          throw new Error(errorData.message || 'Failed to create athlete record')
+        }
+      }
+      
+      await fetchFamilies()
+      setShowMemberModal(false)
+      setMemberModalMode('search')
+      setSelectedFamilyForMember(null)
+      setFamilyMembers([{
+        id: 'member-1',
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        addressStreet: '',
+        addressCity: '',
+        addressState: '',
+        addressZip: '',
+        username: '',
+        password: 'vortex',
+        enrollments: [],
+        dateOfBirth: '',
+        medicalNotes: '',
+        isFinished: false,
+        sections: {
+          contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+          loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+          enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+        }
+      }])
+      setExpandedFamilyMemberId(null)
+      alert('Member(s) added to family successfully!')
+    } catch (error) {
+      console.error('Error adding members to family:', error)
+      alert(error instanceof Error ? error.message : 'Failed to add members to family')
     }
   }
   
@@ -2598,476 +2792,806 @@ export default function AdminMembers() {
                     </div>
                   </div>
 
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4">Add Additional Family Member(s)</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
-                        <input
-                          type="text"
-                          value={newPrimaryAdult.firstName}
-                          onChange={async (e) => {
-                            const firstName = e.target.value
-                            const username = await generateUsername(firstName, newPrimaryAdult.lastName)
-                            setNewPrimaryAdult({ ...newPrimaryAdult, firstName, username })
-                          }}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
-                        <input
-                          type="text"
-                          value={newPrimaryAdult.lastName}
-                          onChange={async (e) => {
-                            const lastName = e.target.value
-                            const username = await generateUsername(newPrimaryAdult.firstName, lastName)
-                            setNewPrimaryAdult({ ...newPrimaryAdult, lastName, username })
-                          }}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
-                        <input
-                          type="email"
-                          value={newPrimaryAdult.email}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, email: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Phone *</label>
-                        <input
-                          type="tel"
-                          value={newPrimaryAdult.phone}
-                          onChange={(e) => {
-                            const formatted = formatPhoneNumber(e.target.value)
-                            setNewPrimaryAdult({ ...newPrimaryAdult, phone: formatted })
-                          }}
-                          placeholder="###-###-####"
-                          maxLength={12}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          autoComplete="off"
-                          required
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Street</label>
-                        <input
-                          type="text"
-                          value={newPrimaryAdult.addressStreet}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, addressStreet: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          placeholder="Street address"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">City</label>
-                        <input
-                          type="text"
-                          value={newPrimaryAdult.addressCity}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, addressCity: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          placeholder="City"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">State</label>
-                        <input
-                          type="text"
-                          value={newPrimaryAdult.addressState}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, addressState: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          placeholder="State"
-                          maxLength={2}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Zip</label>
-                        <input
-                          type="text"
-                          value={newPrimaryAdult.addressZip}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, addressZip: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          placeholder="ZIP code"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
-                        <input
-                          type="text"
-                          value={newPrimaryAdult.username}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, username: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
-                        <input
-                          type="password"
-                          value={newPrimaryAdult.password}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, password: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          required
-                          minLength={6}
-                          autoComplete="new-password"
-                        />
-                        <p className="text-xs text-gray-400 mt-1">Default: vortex</p>
+                  {familyMembers.map((member, memberIndex) => (
+                    <div key={member.id} className="bg-gray-700 p-4 rounded">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-semibold text-white">
+                          Family Member {memberIndex + 1}
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={() => setExpandedFamilyMemberId(expandedFamilyMemberId === member.id ? null : member.id)}
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
+                          {expandedFamilyMemberId === member.id ? (
+                            <ChevronUp className="w-5 h-5" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5" />
+                          )}
+                        </button>
                       </div>
                       
-                      {/* Enrollment Section */}
-                      <div className="md:col-span-2 border-t border-gray-500 pt-4 mt-4">
-                        <h5 className="text-sm font-semibold text-white mb-4">Enrollment</h5>
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
-                          <select
-                            value={newPrimaryAdult.programId || ''}
-                            onChange={(e) => {
-                              const programId = e.target.value ? parseInt(e.target.value) : null
-                              const selectedProgram = programs.find(p => p.id === programId)
-                              setNewPrimaryAdult({
-                                ...newPrimaryAdult,
-                                programId,
-                                program: selectedProgram?.displayName || 'Non-Participant',
-                                daysPerWeek: 1,
-                                selectedDays: []
-                              })
-                            }}
-                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          >
-                            <option value="">Non-Participant</option>
-                            {(() => {
-                              const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
-                              return sortedCategories.map(categoryName => (
-                                <optgroup key={categoryName} label={categoryName}>
-                                  {groupedByCategory[categoryName].map((program) => (
-                                    <option key={program.id} value={program.id}>
-                                      {program.displayName}
-                                    </option>
-                                  ))}
-                                </optgroup>
-                              ))
-                            })()}
-                          </select>
-                        </div>
-                      </div>
-                      {newPrimaryAdult.programId && (
+                      {expandedFamilyMemberId === member.id && (
                         <>
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
-                            <select
-                              value={newPrimaryAdult.daysPerWeek}
-                              onChange={(e) => {
-                                const daysPerWeek = parseInt(e.target.value)
-                                setNewPrimaryAdult({
-                                  ...newPrimaryAdult,
-                                  daysPerWeek,
-                                  selectedDays: newPrimaryAdult.selectedDays.length !== daysPerWeek ? [] : newPrimaryAdult.selectedDays
-                                })
-                              }}
-                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                              required
-                            >
-                              <option value={1}>1 day</option>
-                              <option value={2}>2 days</option>
-                              <option value={3}>3 days</option>
-                              <option value={4}>4 days</option>
-                              <option value={5}>5 days</option>
-                              <option value={6}>6 days</option>
-                              <option value={7}>7 days</option>
-                            </select>
-                          </div>
-                          <div className="md:col-span-2">
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">
-                              Select Days * ({newPrimaryAdult.selectedDays.length} of {newPrimaryAdult.daysPerWeek} selected)
-                            </label>
-                            <div className="grid grid-cols-7 gap-2">
-                              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-                                <button
-                                  key={day}
-                                  type="button"
-                                  onClick={() => {
-                                    const dayIndex = newPrimaryAdult.selectedDays.indexOf(day)
-                                    if (dayIndex > -1) {
-                                      setNewPrimaryAdult({
-                                        ...newPrimaryAdult,
-                                        selectedDays: newPrimaryAdult.selectedDays.filter(d => d !== day)
-                                      })
-                                    } else {
-                                      if (newPrimaryAdult.selectedDays.length < newPrimaryAdult.daysPerWeek) {
-                                        setNewPrimaryAdult({
-                                          ...newPrimaryAdult,
-                                          selectedDays: [...newPrimaryAdult.selectedDays, day]
-                                        })
-                                      } else {
-                                        alert(`Please select exactly ${newPrimaryAdult.daysPerWeek} day(s)`)
-                                      }
-                                    }
+                      {/* 1. Contact Information Section */}
+                      <div className="mb-4 border border-gray-600 rounded">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSection(member.id, 'contactInfo')}
+                          className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+                        >
+                          <span>1. Contact Information</span>
+                          <span>{member.sections.contactInfo.isExpanded ? '−' : '+'}</span>
+                        </button>
+                        {member.sections.contactInfo.isExpanded && (
+                          <div className="p-4 bg-gray-800">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.firstName}
+                                  onChange={async (e) => {
+                                    const firstName = e.target.value
+                                    const username = await generateUsername(firstName, member.sections.contactInfo.tempData.lastName)
+                                    setFamilyMembers(prev => prev.map(m => 
+                                      m.id === member.id 
+                                        ? {
+                                            ...m,
+                                            sections: {
+                                              ...m.sections,
+                                              contactInfo: {
+                                                ...m.sections.contactInfo,
+                                                tempData: { ...m.sections.contactInfo.tempData, firstName }
+                                              },
+                                              loginSecurity: {
+                                                ...m.sections.loginSecurity,
+                                                tempData: { ...m.sections.loginSecurity.tempData, username }
+                                              }
+                                            }
+                                          }
+                                        : m
+                                    ))
                                   }}
-                                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                                    newPrimaryAdult.selectedDays.includes(day)
-                                      ? 'bg-vortex-red text-white'
-                                      : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                                  }`}
-                                >
-                                  {day.substring(0, 3)}
-                                </button>
-                              ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.lastName}
+                                  onChange={async (e) => {
+                                    const lastName = e.target.value
+                                    const username = await generateUsername(member.sections.contactInfo.tempData.firstName, lastName)
+                                    setFamilyMembers(prev => prev.map(m => 
+                                      m.id === member.id 
+                                        ? {
+                                            ...m,
+                                            sections: {
+                                              ...m.sections,
+                                              contactInfo: {
+                                                ...m.sections.contactInfo,
+                                                tempData: { ...m.sections.contactInfo.tempData, lastName }
+                                              },
+                                              loginSecurity: {
+                                                ...m.sections.loginSecurity,
+                                                tempData: { ...m.sections.loginSecurity.tempData, username }
+                                              }
+                                            }
+                                          }
+                                        : m
+                                    ))
+                                  }}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                                <input
+                                  type="email"
+                                  value={member.sections.contactInfo.tempData.email}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            contactInfo: {
+                                              ...m.sections.contactInfo,
+                                              tempData: { ...m.sections.contactInfo.tempData, email: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Phone *</label>
+                                <input
+                                  type="tel"
+                                  value={member.sections.contactInfo.tempData.phone}
+                                  onChange={(e) => {
+                                    const formatted = formatPhoneNumber(e.target.value)
+                                    setFamilyMembers(prev => prev.map(m => 
+                                      m.id === member.id 
+                                        ? {
+                                            ...m,
+                                            sections: {
+                                              ...m.sections,
+                                              contactInfo: {
+                                                ...m.sections.contactInfo,
+                                                tempData: { ...m.sections.contactInfo.tempData, phone: formatted }
+                                              }
+                                            }
+                                          }
+                                        : m
+                                    ))
+                                  }}
+                                  placeholder="###-###-####"
+                                  maxLength={12}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  autoComplete="off"
+                                  required
+                                />
+                              </div>
+                              <div className="md:col-span-2">
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Street</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.addressStreet}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            contactInfo: {
+                                              ...m.sections.contactInfo,
+                                              tempData: { ...m.sections.contactInfo.tempData, addressStreet: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="Street address"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">City</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.addressCity}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            contactInfo: {
+                                              ...m.sections.contactInfo,
+                                              tempData: { ...m.sections.contactInfo.tempData, addressCity: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="City"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">State</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.addressState}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            contactInfo: {
+                                              ...m.sections.contactInfo,
+                                              tempData: { ...m.sections.contactInfo.tempData, addressState: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="State"
+                                  maxLength={2}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Zip</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.addressZip}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            contactInfo: {
+                                              ...m.sections.contactInfo,
+                                              tempData: { ...m.sections.contactInfo.tempData, addressZip: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="ZIP code"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                type="button"
+                                onClick={() => handleSectionContinue(member.id, 'contactInfo')}
+                                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Continue
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionMinimize(member.id, 'contactInfo')}
+                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Minimize
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionCancel(member.id, 'contactInfo')}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Cancel
+                              </button>
                             </div>
                           </div>
+                        )}
+                      </div>
+
+                      {/* 2. Login & Security Section */}
+                      <div className="mb-4 border border-gray-600 rounded">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSection(member.id, 'loginSecurity')}
+                          className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+                        >
+                          <span>2. Login & Security</span>
+                          <span>{member.sections.loginSecurity.isExpanded ? '−' : '+'}</span>
+                        </button>
+                        {member.sections.loginSecurity.isExpanded && (
+                          <div className="p-4 bg-gray-800">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.loginSecurity.tempData.username}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            loginSecurity: {
+                                              ...m.sections.loginSecurity,
+                                              tempData: { ...m.sections.loginSecurity.tempData, username: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
+                                <input
+                                  type="password"
+                                  value={member.sections.loginSecurity.tempData.password}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            loginSecurity: {
+                                              ...m.sections.loginSecurity,
+                                              tempData: { ...m.sections.loginSecurity.tempData, password: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                  minLength={6}
+                                  autoComplete="new-password"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">Default: vortex</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                type="button"
+                                onClick={() => handleSectionContinue(member.id, 'loginSecurity')}
+                                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Continue
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionMinimize(member.id, 'loginSecurity')}
+                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Minimize
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionCancel(member.id, 'loginSecurity')}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 3. Class Enrollments Section */}
+                      <div className="mb-4 border border-gray-600 rounded">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSection(member.id, 'enrollment')}
+                          className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+                        >
+                          <span>3. Class Enrollments {member.enrollments.length > 0 && `(${member.enrollments.length})`}</span>
+                          <span>{member.sections.enrollment.isExpanded ? '−' : '+'}</span>
+                        </button>
+                        {!member.sections.enrollment.isExpanded && member.enrollments.length > 0 && (
+                          <div className="p-4 bg-gray-800 space-y-2">
+                            {member.enrollments.map((enrollment) => (
+                              <div key={enrollment.id} className="bg-gray-700 p-3 rounded">
+                                <div className="text-white font-medium">
+                                  {enrollment.programId ? enrollment.program : 'Non-Participant'}
+                                </div>
+                                {enrollment.programId && (
+                                  <>
+                                    <div className="text-gray-400 text-sm mt-1">
+                                      {enrollment.daysPerWeek} day{enrollment.daysPerWeek !== 1 ? 's' : ''}/week
+                                    </div>
+                                    {enrollment.selectedDays && enrollment.selectedDays.length > 0 && (
+                                      <div className="text-gray-400 text-sm mt-1">
+                                        Days: {enrollment.selectedDays.join(', ')}
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {member.sections.enrollment.isExpanded && (
+                          <div className="p-4 bg-gray-800">
+                            {/* List of completed enrollments */}
+                            {member.enrollments.length > 0 && (
+                              <div className="mb-4 space-y-2">
+                                <p className="text-sm text-gray-300 font-semibold mb-2">Enrolled Classes ({member.enrollments.length}):</p>
+                                {member.enrollments.map((enrollment) => (
+                                  <div key={enrollment.id} className="border border-gray-600 rounded">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleToggleEnrollment(member.id, enrollment.id)}
+                                      className="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold flex justify-between items-center rounded-t"
+                                    >
+                                      <div className="text-left">
+                                        <span className="text-white font-medium">
+                                          {enrollment.programId ? enrollment.program : 'Non-Participant'}
+                                        </span>
+                                        {enrollment.programId && (
+                                          <span className="text-gray-400 text-sm ml-2">
+                                            ({enrollment.daysPerWeek} day{enrollment.daysPerWeek !== 1 ? 's' : ''}/week)
+                                          </span>
+                                        )}
+                                      </div>
+                                      <span>{(enrollment.isExpanded ?? false) ? '−' : '+'}</span>
+                                    </button>
+                                    {(enrollment.isExpanded ?? false) && (
+                                      <div className="p-4 bg-gray-800">
+                                        <div className="space-y-3">
+                                          <div>
+                                            <label className="block text-sm font-semibold text-gray-300 mb-1">Program/Class</label>
+                                            <div className="text-white">{enrollment.programId ? enrollment.program : 'Non-Participant'}</div>
+                                          </div>
+                                          {enrollment.programId && (
+                                            <>
+                                              <div>
+                                                <label className="block text-sm font-semibold text-gray-300 mb-1">Days Per Week</label>
+                                                <div className="text-white">{enrollment.daysPerWeek} day{enrollment.daysPerWeek !== 1 ? 's' : ''}/week</div>
+                                              </div>
+                                              {enrollment.selectedDays.length > 0 && (
+                                                <div>
+                                                  <label className="block text-sm font-semibold text-gray-300 mb-1">Selected Days</label>
+                                                  <div className="text-white">{enrollment.selectedDays.join(', ')}</div>
+                                                </div>
+                                              )}
+                                            </>
+                                          )}
+                                          <button
+                                            type="button"
+                                            onClick={handleRemoveEnrollmentClick}
+                                            className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                                          >
+                                            Remove Enrollment
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Current enrollment form */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
+                                <select
+                                  value={member.sections.enrollment.tempData.programId || ''}
+                                  onChange={(e) => {
+                                    const programId = e.target.value ? parseInt(e.target.value) : null
+                                    const selectedProgram = programs.find(p => p.id === programId)
+                                    setFamilyMembers(prev => prev.map(m => 
+                                      m.id === member.id 
+                                        ? {
+                                            ...m,
+                                            sections: {
+                                              ...m.sections,
+                                              enrollment: {
+                                                ...m.sections.enrollment,
+                                                tempData: {
+                                                  programId,
+                                                  program: selectedProgram?.displayName || 'Non-Participant',
+                                                  daysPerWeek: 1,
+                                                  selectedDays: []
+                                                }
+                                              }
+                                            }
+                                          }
+                                        : m
+                                    ))
+                                  }}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                >
+                                  <option value="">Non-Participant</option>
+                                  {(() => {
+                                    const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
+                                    return sortedCategories.map(categoryName => (
+                                      <optgroup key={categoryName} label={categoryName}>
+                                        {groupedByCategory[categoryName].map((program) => (
+                                          <option key={program.id} value={program.id}>
+                                            {program.displayName}
+                                          </option>
+                                        ))}
+                                      </optgroup>
+                                    ))
+                                  })()}
+                                </select>
+                              </div>
+                              {member.sections.enrollment.tempData.programId && (
+                                <>
+                                  <div>
+                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
+                                    <select
+                                      value={member.sections.enrollment.tempData.daysPerWeek}
+                                      onChange={(e) => {
+                                        const daysPerWeek = parseInt(e.target.value)
+                                        setFamilyMembers(prev => prev.map(m => 
+                                          m.id === member.id 
+                                            ? {
+                                                ...m,
+                                                sections: {
+                                                  ...m.sections,
+                                                  enrollment: {
+                                                    ...m.sections.enrollment,
+                                                    tempData: {
+                                                      ...m.sections.enrollment.tempData,
+                                                      daysPerWeek,
+                                                      selectedDays: m.sections.enrollment.tempData.selectedDays.length !== daysPerWeek ? [] : m.sections.enrollment.tempData.selectedDays
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            : m
+                                        ))
+                                      }}
+                                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                      required
+                                    >
+                                      <option value={1}>1 day</option>
+                                      <option value={2}>2 days</option>
+                                      <option value={3}>3 days</option>
+                                      <option value={4}>4 days</option>
+                                      <option value={5}>5 days</option>
+                                      <option value={6}>6 days</option>
+                                      <option value={7}>7 days</option>
+                                    </select>
+                                  </div>
+                                  <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                                      Select Days * ({member.sections.enrollment.tempData.selectedDays.length} of {member.sections.enrollment.tempData.daysPerWeek} selected)
+                                    </label>
+                                    <div className="grid grid-cols-7 gap-2">
+                                      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                                        <button
+                                          key={day}
+                                          type="button"
+                                          onClick={() => {
+                                            const dayIndex = member.sections.enrollment.tempData.selectedDays.indexOf(day)
+                                            if (dayIndex > -1) {
+                                              setFamilyMembers(prev => prev.map(m => 
+                                                m.id === member.id 
+                                                  ? {
+                                                      ...m,
+                                                      sections: {
+                                                        ...m.sections,
+                                                        enrollment: {
+                                                          ...m.sections.enrollment,
+                                                          tempData: {
+                                                            ...m.sections.enrollment.tempData,
+                                                            selectedDays: m.sections.enrollment.tempData.selectedDays.filter(d => d !== day)
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  : m
+                                              ))
+                                            } else {
+                                              if (member.sections.enrollment.tempData.selectedDays.length < member.sections.enrollment.tempData.daysPerWeek) {
+                                                setFamilyMembers(prev => prev.map(m => 
+                                                  m.id === member.id 
+                                                    ? {
+                                                        ...m,
+                                                        sections: {
+                                                          ...m.sections,
+                                                          enrollment: {
+                                                            ...m.sections.enrollment,
+                                                            tempData: {
+                                                              ...m.sections.enrollment.tempData,
+                                                              selectedDays: [...m.sections.enrollment.tempData.selectedDays, day]
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    : m
+                                                ))
+                                              } else {
+                                                alert(`Please select exactly ${member.sections.enrollment.tempData.daysPerWeek} day(s)`)
+                                              }
+                                            }
+                                          }}
+                                          className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                            member.sections.enrollment.tempData.selectedDays.includes(day)
+                                              ? 'bg-vortex-red text-white'
+                                              : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                                          }`}
+                                        >
+                                          {day.substring(0, 3)}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                            
+                            {/* Add Another Program / Class Option */}
+                            <div className="mt-4 border-2 border-dashed border-gray-500 rounded p-4">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFamilyMembers(prev => prev.map(m => {
+                                    if (m.id !== member.id) return m
+                                    
+                                    const sectionData = m.sections.enrollment
+                                    let newEnrollments = [...m.enrollments]
+                                    
+                                    // If there's a valid enrollment in tempData, save it first
+                                    if (sectionData.tempData.programId) {
+                                      // Validate days selection if program is selected
+                                      if (sectionData.tempData.selectedDays.length !== sectionData.tempData.daysPerWeek) {
+                                        alert(`Please select exactly ${sectionData.tempData.daysPerWeek} day(s) before adding another enrollment`)
+                                        return m
+                                      }
+                                      
+                                      // Add current enrollment to enrollments array
+                                      const newEnrollment: EnrollmentData = {
+                                        id: `enrollment-${Date.now()}`,
+                                        programId: sectionData.tempData.programId,
+                                        program: sectionData.tempData.program,
+                                        daysPerWeek: sectionData.tempData.daysPerWeek,
+                                        selectedDays: sectionData.tempData.selectedDays,
+                                        isCompleted: true,
+                                        isExpanded: false
+                                      }
+                                      newEnrollments = [...newEnrollments, newEnrollment]
+                                    }
+                                    
+                                    // Reset form for new enrollment
+                                    return {
+                                      ...m,
+                                      enrollments: newEnrollments,
+                                      sections: {
+                                        ...m.sections,
+                                        enrollment: {
+                                          isExpanded: true,
+                                          tempData: {
+                                            programId: null,
+                                            program: 'Non-Participant',
+                                            daysPerWeek: 1,
+                                            selectedDays: []
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }))
+                                }}
+                                className="w-full text-white font-semibold py-2 hover:bg-gray-700 rounded transition-colors"
+                              >
+                                Add Another Program / Class
+                              </button>
+                            </div>
+                            
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                type="button"
+                                onClick={() => handleSectionContinue(member.id, 'enrollment')}
+                                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Continue
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionMinimize(member.id, 'enrollment')}
+                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Minimize
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionCancel(member.id, 'enrollment')}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Finished with Member Button */}
+                      {!member.isFinished && (
+                        <div className="mt-4">
+                          <button
+                            type="button"
+                            onClick={() => handleFinishedWithMember(member.id)}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                          >
+                            Finished with Member
+                          </button>
+                        </div>
+                      )}
                         </>
                       )}
                     </div>
+                  ))}
+
+                  <div className="border-2 border-dashed border-gray-600 rounded p-4">
+                    <button
+                      type="button"
+                      onClick={handleAddFamilyMember}
+                      className="w-full text-white font-semibold py-3 hover:bg-gray-600 rounded transition-colors"
+                    >
+                      Add a Family Member
+                    </button>
                   </div>
 
                   <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4">Add Family Member 2 (Optional)</h4>
-                    
-                    {/* List of added children */}
-                    {newChildren.length > 0 && (
-                      <div className="mb-4 space-y-2">
-                        <p className="text-sm text-gray-300 font-semibold">Family Members to be added ({newChildren.length}):</p>
-                        {newChildren.map((child, index) => {
-                          const birthDate = child.dateOfBirth ? new Date(child.dateOfBirth) : null
-                          const today = new Date()
-                          const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
-                          
-                          return (
-                            <div key={index} className="bg-gray-600 p-3 rounded flex justify-between items-center">
-                              <div>
-                                <span className="text-white font-medium">
-                                  {child.firstName} {child.lastName}
-                                </span>
-                                {child.dateOfBirth && (
-                                  <span className="text-gray-400 text-sm ml-2">
-                                    (DOB: {new Date(child.dateOfBirth).toLocaleDateString()})
-                                  </span>
-                                )}
-                                {child.email && (
-                                  <span className="text-gray-400 text-sm ml-2">
-                                    ({child.email})
-                                  </span>
-                                )}
-                                {age !== null && age >= 18 && (
-                                  <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded ml-2">
-                                    Adult
-                                  </span>
-                                )}
-                              </div>
-                              <button
-                                onClick={() => handleRemoveChildFromArray(index)}
-                                className="text-red-400 hover:text-red-300 text-sm font-semibold"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-
-                    {/* Form to add a child */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">First Name</label>
-                        <input
-                          type="text"
-                          value={currentChild.firstName}
-                          onChange={(e) => setCurrentChild({ ...currentChild, firstName: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name</label>
-                        <input
-                          type="text"
-                          value={currentChild.lastName}
-                          onChange={(e) => setCurrentChild({ ...currentChild, lastName: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth</label>
-                        <input
-                          type="date"
-                          value={currentChild.dateOfBirth}
-                          onChange={(e) => setCurrentChild({ ...currentChild, dateOfBirth: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
-                        <select
-                          value={currentChild.programId || ''}
-                          onChange={(e) => {
-                            const programId = e.target.value ? parseInt(e.target.value) : null
-                            const selectedProgram = programs.find(p => p.id === programId)
-                            setCurrentChild({
-                              ...currentChild,
-                              programId,
-                              program: selectedProgram?.displayName || 'Non-Participant',
-                              daysPerWeek: 1,
-                              selectedDays: []
-                            })
-                          }}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                        >
-                          <option value="">Non-Participant</option>
-                          {(() => {
-                            const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
-                            return sortedCategories.map(categoryName => (
-                              <optgroup key={categoryName} label={categoryName}>
-                                {groupedByCategory[categoryName].map((program) => (
-                                  <option key={program.id} value={program.id}>
-                                    {program.displayName}
-                                  </option>
-                                ))}
-                              </optgroup>
-                            ))
-                          })()}
-                        </select>
-                      </div>
-                      {currentChild.programId && (
-                        <>
+                    <button
+                      type="button"
+                      onClick={() => setIsBillingExpanded(!isBillingExpanded)}
+                      className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded"
+                    >
+                      <span>Billing</span>
+                      <span>{isBillingExpanded ? '−' : '+'}</span>
+                    </button>
+                    {isBillingExpanded && (
+                      <div className="p-4 bg-gray-800 mt-4 rounded">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
-                            <select
-                              value={currentChild.daysPerWeek}
-                              onChange={(e) => {
-                                const daysPerWeek = parseInt(e.target.value)
-                                setCurrentChild({
-                                  ...currentChild,
-                                  daysPerWeek,
-                                  selectedDays: currentChild.selectedDays.length !== daysPerWeek ? [] : currentChild.selectedDays
-                                })
-                              }}
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                            <input
+                              type="text"
+                              value={billingInfo.firstName}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, firstName: e.target.value }))}
                               className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                               required
-                            >
-                              <option value={1}>1 day</option>
-                              <option value={2}>2 days</option>
-                              <option value={3}>3 days</option>
-                              <option value={4}>4 days</option>
-                              <option value={5}>5 days</option>
-                              <option value={6}>6 days</option>
-                              <option value={7}>7 days</option>
-                            </select>
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                            <input
+                              type="text"
+                              value={billingInfo.lastName}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, lastName: e.target.value }))}
+                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                              required
+                            />
                           </div>
                           <div className="md:col-span-2">
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">
-                              Select Days * ({currentChild.selectedDays.length} of {currentChild.daysPerWeek} selected)
-                            </label>
-                            <div className="grid grid-cols-7 gap-2">
-                              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-                                <button
-                                  key={day}
-                                  type="button"
-                                  onClick={() => {
-                                    const dayIndex = currentChild.selectedDays.indexOf(day)
-                                    if (dayIndex > -1) {
-                                      setCurrentChild({
-                                        ...currentChild,
-                                        selectedDays: currentChild.selectedDays.filter(d => d !== day)
-                                      })
-                                    } else {
-                                      if (currentChild.selectedDays.length < currentChild.daysPerWeek) {
-                                        setCurrentChild({
-                                          ...currentChild,
-                                          selectedDays: [...currentChild.selectedDays, day]
-                                        })
-                                      } else {
-                                        alert(`Please select exactly ${currentChild.daysPerWeek} day(s)`)
-                                      }
-                                    }
-                                  }}
-                                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                                    currentChild.selectedDays.includes(day)
-                                      ? 'bg-vortex-red text-white'
-                                      : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                                  }`}
-                                >
-                                  {day.substring(0, 3)}
-                                </button>
-                              ))}
-                            </div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Billing Address *</label>
+                            <textarea
+                              value={billingInfo.billingAddress}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, billingAddress: e.target.value }))}
+                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                              rows={3}
+                              required
+                            />
                           </div>
-                        </>
-                      )}
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">
-                          Email {(() => {
-                            if (!currentChild.dateOfBirth) return '(Optional)'
-                            const birthDate = new Date(currentChild.dateOfBirth)
-                            const today = new Date()
-                            const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
-                            return age >= 18 ? '*' : '(Optional)'
-                          })()}
-                        </label>
-                        <input
-                          type="email"
-                          value={currentChild.email}
-                          onChange={(e) => setCurrentChild({ ...currentChild, email: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          required={(() => {
-                            if (!currentChild.dateOfBirth) return false
-                            const birthDate = new Date(currentChild.dateOfBirth)
-                            const today = new Date()
-                            const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
-                            return age >= 18
-                          })()}
-                        />
-                      </div>
-                      {currentChild.email && (
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
-                          <input
-                            type="password"
-                            value={currentChild.password}
-                            onChange={(e) => setCurrentChild({ ...currentChild, password: e.target.value })}
-                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                            required={!!currentChild.email}
-                            minLength={6}
-                          />
                         </div>
-                      )}
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
-                        <textarea
-                          value={currentChild.medicalNotes}
-                          onChange={(e) => setCurrentChild({ ...currentChild, medicalNotes: e.target.value })}
-                          rows={2}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                        />
                       </div>
-                      <div className="md:col-span-2">
-                        <button
-                          onClick={handleAddChildToArray}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
-                        >
-                          Finished with Member
-                        </button>
-                      </div>
-                    </div>
+                    )}
                   </div>
 
                   <div className="flex gap-2">
                     <button
-                      onClick={handleCreateFamilyWithPrimaryAdult}
+                      onClick={handleAddMembersToExistingFamily}
                       className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
-                      Create Member or Family
+                      Add Member(s) to Family
                     </button>
                     <button
                       onClick={() => {
                         setMemberModalMode('search')
-                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
-                        setNewChildren([])
-                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], userId: null })
+                        setFamilyMembers([{
+                          id: 'member-1',
+                          firstName: '',
+                          lastName: '',
+                          email: '',
+                          phone: '',
+                          addressStreet: '',
+                          addressCity: '',
+                          addressState: '',
+                          addressZip: '',
+                          username: '',
+                          password: 'vortex',
+                          enrollments: [],
+                          dateOfBirth: '',
+                          medicalNotes: '',
+                          isFinished: false,
+                          sections: {
+                            contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+                            loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+                            enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+                          }
+                        }])
+                        setExpandedFamilyMemberId('member-1')
+                        setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
+                        setIsBillingExpanded(true)
+                        setSelectedFamilyForMember(null)
                       }}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
