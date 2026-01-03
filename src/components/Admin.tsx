@@ -926,8 +926,13 @@ export default function Admin({ onLogout }: AdminProps) {
   
   // Get all active classes grouped by category
   const getActiveClassesByCategory = (programsList: Program[]) => {
-    // Filter for active, non-archived classes
-    const activeClasses = programsList.filter(p => p.isActive && !p.archived)
+    // Filter for active, non-archived classes with valid categories
+    const activeClasses = programsList.filter(p => {
+      if (!p.isActive || p.archived) return false
+      // Exclude programs without a valid category (no categoryDisplayName or categoryName)
+      const hasCategory = (p.categoryDisplayName && p.categoryDisplayName.trim()) || (p.categoryName && p.categoryName.trim())
+      return hasCategory
+    })
     
     // Group by category
     const groupedByCategory = activeClasses.reduce((acc, program) => {
