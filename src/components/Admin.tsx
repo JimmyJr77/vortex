@@ -863,7 +863,7 @@ export default function Admin({ onLogout }: AdminProps) {
     enrollments: Array<{
       id?: number,
       programId: number | null,
-      programName: string,
+      program: string,
       daysPerWeek: number,
       selectedDays: string[]
     }>,
@@ -881,7 +881,7 @@ export default function Admin({ onLogout }: AdminProps) {
     enrollments: [] as Array<{
       id?: number,
       programId: number | null,
-      programName: string,
+      program: string,
       daysPerWeek: number,
       selectedDays: string[]
     }>,
@@ -950,6 +950,32 @@ export default function Admin({ onLogout }: AdminProps) {
       // Then sort alphabetically by display name
       return a.displayName.localeCompare(b.displayName)
     })
+  }
+
+  // Get all active classes grouped by category
+  const getActiveClassesByCategory = (programsList: Program[]) => {
+    // Filter for active, non-archived classes
+    const activeClasses = programsList.filter(p => p.isActive && !p.archived)
+    
+    // Group by category
+    const groupedByCategory = activeClasses.reduce((acc, program) => {
+      const categoryName = program.categoryDisplayName || program.categoryName || 'Uncategorized'
+      if (!acc[categoryName]) {
+        acc[categoryName] = []
+      }
+      acc[categoryName].push(program)
+      return acc
+    }, {} as Record<string, Program[]>)
+    
+    // Sort programs within each category by display name
+    Object.keys(groupedByCategory).forEach(category => {
+      groupedByCategory[category].sort((a, b) => a.displayName.localeCompare(b.displayName))
+    })
+    
+    // Sort categories alphabetically
+    const sortedCategories = Object.keys(groupedByCategory).sort()
+    
+    return { groupedByCategory, sortedCategories }
   }
   
   const [editingProgramId, setEditingProgramId] = useState<number | null>(null)
@@ -1490,7 +1516,7 @@ export default function Admin({ onLogout }: AdminProps) {
       enrollments: Array<{
         id?: number,
         programId: number | null,
-        programName: string,
+        program: string,
         daysPerWeek: number,
         selectedDays: string[]
       }>,
@@ -1503,7 +1529,7 @@ export default function Admin({ onLogout }: AdminProps) {
         const enrollments: Array<{
           id?: number,
           programId: number | null,
-          programName: string,
+          program: string,
           daysPerWeek: number,
           selectedDays: string[]
         }> = []
@@ -1517,7 +1543,7 @@ export default function Admin({ onLogout }: AdminProps) {
                 enrollments.push({
                   id: enrollment.id,
                   programId: enrollment.program_id || null,
-                  programName: enrollment.program_display_name || 'Unknown Program',
+                  program: enrollment.program_display_name || 'Unknown Program',
                   daysPerWeek: enrollment.days_per_week || 1,
                   selectedDays: enrollment.selected_days || []
                 })
@@ -6003,11 +6029,18 @@ export default function Admin({ onLogout }: AdminProps) {
                                   className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                                 >
                                   <option value="">Non-Participant</option>
-                                  {getSimplifiedGymnasticsPrograms(programs).map((program) => (
-                                    <option key={program.id} value={program.id}>
-                                      {program.displayName}
-                                    </option>
-                                  ))}
+                                  {(() => {
+                                    const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
+                                    return sortedCategories.map(categoryName => (
+                                      <optgroup key={categoryName} label={categoryName}>
+                                        {groupedByCategory[categoryName].map((program) => (
+                                          <option key={program.id} value={program.id}>
+                                            {program.displayName}
+                                          </option>
+                                        ))}
+                                      </optgroup>
+                                    ))
+                                  })()}
                                 </select>
                               </div>
                               {member.sections.enrollment.tempData.programId && (
@@ -6122,26 +6155,51 @@ export default function Admin({ onLogout }: AdminProps) {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  setFamilyMembers(prev => prev.map(m => 
-                                    m.id === member.id 
-                                      ? {
-                                          ...m,
-                                          sections: {
-                                            ...m.sections,
-                                            enrollment: {
-                                              ...m.sections.enrollment,
-                                              isExpanded: true,
-                                              tempData: {
-                                                programId: null,
-                                                program: 'Non-Participant',
-                                                daysPerWeek: 1,
-                                                selectedDays: []
-                                              }
-                                            }
+                                  setFamilyMembers(prev => prev.map(m => {
+                                    if (m.id !== member.id) return m
+                                    
+                                    const sectionData = m.sections.enrollment
+                                    let newEnrollments = [...m.enrollments]
+                                    
+                                    // If there's a valid enrollment in tempData, save it first
+                                    if (sectionData.tempData.programId) {
+                                      // Validate days selection if program is selected
+                                      if (sectionData.tempData.selectedDays.length !== sectionData.tempData.daysPerWeek) {
+                                        alert(`Please select exactly ${sectionData.tempData.daysPerWeek} day(s) before adding another enrollment`)
+                                        return m
+                                      }
+                                      
+                                      // Add current enrollment to enrollments array
+                                      const newEnrollment: EnrollmentData = {
+                                        id: `enrollment-${Date.now()}`,
+                                        programId: sectionData.tempData.programId,
+                                        program: sectionData.tempData.program,
+                                        daysPerWeek: sectionData.tempData.daysPerWeek,
+                                        selectedDays: sectionData.tempData.selectedDays,
+                                        isCompleted: true,
+                                        isExpanded: false
+                                      }
+                                      newEnrollments = [...newEnrollments, newEnrollment]
+                                    }
+                                    
+                                    // Reset form for new enrollment
+                                    return {
+                                      ...m,
+                                      enrollments: newEnrollments,
+                                      sections: {
+                                        ...m.sections,
+                                        enrollment: {
+                                          isExpanded: true,
+                                          tempData: {
+                                            programId: null,
+                                            program: 'Non-Participant',
+                                            daysPerWeek: 1,
+                                            selectedDays: []
                                           }
                                         }
-                                      : m
-                                  ))
+                                      }
+                                    }
+                                  }))
                                 }}
                                 className="w-full text-white font-semibold py-2 hover:bg-gray-700 rounded transition-colors"
                               >
@@ -6456,11 +6514,18 @@ export default function Admin({ onLogout }: AdminProps) {
                             className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                           >
                             <option value="">Non-Participant</option>
-                            {getSimplifiedGymnasticsPrograms(programs).map((program) => (
-                              <option key={program.id} value={program.id}>
-                                {program.displayName}
-                              </option>
-                            ))}
+                            {(() => {
+                              const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
+                              return sortedCategories.map(categoryName => (
+                                <optgroup key={categoryName} label={categoryName}>
+                                  {groupedByCategory[categoryName].map((program) => (
+                                    <option key={program.id} value={program.id}>
+                                      {program.displayName}
+                                    </option>
+                                  ))}
+                                </optgroup>
+                              ))
+                            })()}
                           </select>
                         </div>
                       </div>
@@ -6626,11 +6691,18 @@ export default function Admin({ onLogout }: AdminProps) {
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
                           <option value="">Non-Participant</option>
-                          {getSimplifiedGymnasticsPrograms(programs).map((program) => (
-                            <option key={program.id} value={program.id}>
-                              {program.displayName}
-                            </option>
-                          ))}
+                          {(() => {
+                            const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
+                            return sortedCategories.map(categoryName => (
+                              <optgroup key={categoryName} label={categoryName}>
+                                {groupedByCategory[categoryName].map((program) => (
+                                  <option key={program.id} value={program.id}>
+                                    {program.displayName}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            ))
+                          })()}
                         </select>
                       </div>
                       {currentChild.programId && (
@@ -6851,11 +6923,18 @@ export default function Admin({ onLogout }: AdminProps) {
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
                           <option value="">Non-Participant</option>
-                          {getSimplifiedGymnasticsPrograms(programs).map((program) => (
-                            <option key={program.id} value={program.id}>
-                              {program.displayName}
-                            </option>
-                          ))}
+                          {(() => {
+                            const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
+                            return sortedCategories.map(categoryName => (
+                              <optgroup key={categoryName} label={categoryName}>
+                                {groupedByCategory[categoryName].map((program) => (
+                                  <option key={program.id} value={program.id}>
+                                    {program.displayName}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            ))
+                          })()}
                         </select>
                       </div>
                       {newFamilyMember.programId && (
@@ -7741,25 +7820,32 @@ export default function Admin({ onLogout }: AdminProps) {
                                                     const programId = e.target.value ? parseInt(e.target.value) : null
                                                     const selectedProgram = programs.find(p => p.id === programId)
                                                     updated[index].enrollments[enrollmentIndex].programId = programId
-                                                    updated[index].enrollments[enrollmentIndex].programName = selectedProgram?.displayName || ''
+                                                    updated[index].enrollments[enrollmentIndex].program = selectedProgram?.displayName || ''
                                                     setEditingFamilyMembers(updated)
                                                   }}
                                                   className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
                                                   required
                                                 >
                                                   <option value="">Select a class</option>
-                                                  {getSimplifiedGymnasticsPrograms(programs).map((program) => {
-                                                    const isSelected = selectedProgramIds.includes(program.id) && (member.enrollments || [])[enrollmentIndex].programId !== program.id
-                                                    return (
-                                                      <option 
-                                                        key={program.id} 
-                                                        value={program.id}
-                                                        disabled={isSelected}
-                                                      >
-                                                        {program.displayName}
-                                                      </option>
-                                                    )
-                                                  })}
+                                                  {(() => {
+                                                    const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
+                                                    return sortedCategories.map(categoryName => (
+                                                      <optgroup key={categoryName} label={categoryName}>
+                                                        {groupedByCategory[categoryName].map((program) => {
+                                                          const isSelected = selectedProgramIds.includes(program.id) && (member.enrollments || [])[enrollmentIndex].programId !== program.id
+                                                          return (
+                                                            <option 
+                                                              key={program.id} 
+                                                              value={program.id}
+                                                              disabled={isSelected}
+                                                            >
+                                                              {program.displayName}
+                                                            </option>
+                                                          )
+                                                        })}
+                                                      </optgroup>
+                                                    ))
+                                                  })()}
                                                 </select>
                                               </div>
                                               {enrollment.programId && (
@@ -7846,7 +7932,7 @@ export default function Admin({ onLogout }: AdminProps) {
                                           }
                                           updated[index].enrollments = [...(updated[index].enrollments || []), {
                                             programId: null,
-                                            programName: '',
+                                            program: '',
                                             daysPerWeek: 1,
                                             selectedDays: []
                                           }]
@@ -8041,7 +8127,7 @@ export default function Admin({ onLogout }: AdminProps) {
                                           const selectedProgram = programs.find(p => p.id === programId)
                                           const updatedEnrollments = [...newFamilyMemberInEdit.enrollments]
                                           updatedEnrollments[enrollmentIndex].programId = programId
-                                          updatedEnrollments[enrollmentIndex].programName = selectedProgram?.displayName || ''
+                                          updatedEnrollments[enrollmentIndex].program = selectedProgram?.displayName || ''
                                           setNewFamilyMemberInEdit({
                                             ...newFamilyMemberInEdit,
                                             enrollments: updatedEnrollments
@@ -8051,18 +8137,25 @@ export default function Admin({ onLogout }: AdminProps) {
                                         required
                                       >
                                         <option value="">Select a class</option>
-                                        {getSimplifiedGymnasticsPrograms(programs).map((program) => {
-                                          const isSelected = selectedProgramIds.includes(program.id) && (newFamilyMemberInEdit.enrollments || [])[enrollmentIndex].programId !== program.id
-                                          return (
-                                            <option 
-                                              key={program.id} 
-                                              value={program.id}
-                                              disabled={isSelected}
-                                            >
-                                              {program.displayName}
-                                            </option>
-                                          )
-                                        })}
+                                        {(() => {
+                                          const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
+                                          return sortedCategories.map(categoryName => (
+                                            <optgroup key={categoryName} label={categoryName}>
+                                              {groupedByCategory[categoryName].map((program) => {
+                                                const isSelected = selectedProgramIds.includes(program.id) && (newFamilyMemberInEdit.enrollments || [])[enrollmentIndex].programId !== program.id
+                                                return (
+                                                  <option 
+                                                    key={program.id} 
+                                                    value={program.id}
+                                                    disabled={isSelected}
+                                                  >
+                                                    {program.displayName}
+                                                  </option>
+                                                )
+                                              })}
+                                            </optgroup>
+                                          ))
+                                        })()}
                                       </select>
                                     </div>
                                     {enrollment.programId && (
@@ -8155,7 +8248,7 @@ export default function Admin({ onLogout }: AdminProps) {
                                     ...(newFamilyMemberInEdit.enrollments || []),
                                     {
                                       programId: null,
-                                      programName: '',
+                                      program: '',
                                       daysPerWeek: 1,
                                       selectedDays: []
                                     }
@@ -8200,7 +8293,7 @@ export default function Admin({ onLogout }: AdminProps) {
                                     return
                                   }
                                   if (enrollment.selectedDays.length !== enrollment.daysPerWeek) {
-                                    alert(`Please select exactly ${enrollment.daysPerWeek} day(s) for ${enrollment.programName || 'enrollment'}`)
+                                    alert(`Please select exactly ${enrollment.daysPerWeek} day(s) for ${enrollment.program || 'enrollment'}`)
                                     return
                                   }
                                 }
