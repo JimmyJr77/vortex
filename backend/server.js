@@ -346,18 +346,27 @@ export const initDatabase = async () => {
     // MODULE 0: Identity, Roles, Facility Settings
     // ============================================================
     
-    // Create user_role enum
-    await pool.query(`
-      DO $$ BEGIN
-        CREATE TYPE user_role AS ENUM ('OWNER_ADMIN', 'COACH', 'PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE');
-      EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    // Create user_role enum if it doesn't exist
+    const typeExists = await pool.query(`
+      SELECT 1 FROM pg_type WHERE typname = 'user_role'
     `)
-    // Add ATHLETE to enum if it doesn't exist
-    await pool.query(`
-      DO $$ BEGIN
-        ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'ATHLETE';
-      EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-    `)
+    if (typeExists.rows.length === 0) {
+      await pool.query(`
+        CREATE TYPE user_role AS ENUM ('OWNER_ADMIN', 'COACH', 'PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+      `)
+    } else {
+      // Add ATHLETE to enum if it doesn't exist
+      const athleteExists = await pool.query(`
+        SELECT 1 FROM pg_enum 
+        WHERE enumlabel = 'ATHLETE' 
+        AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'user_role')
+      `)
+      if (athleteExists.rows.length === 0) {
+        await pool.query(`
+          ALTER TYPE user_role ADD VALUE 'ATHLETE'
+        `)
+      }
+    }
 
     // Create facility table
     await pool.query(`
