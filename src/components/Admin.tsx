@@ -747,6 +747,15 @@ export default function Admin({ onLogout }: AdminProps) {
   const [_userSearchQuery, setUserSearchQuery] = useState('')
   
   // New family member structure with sub-sections
+  type EnrollmentData = {
+    id: string // unique ID for each enrollment
+    programId: number | null
+    program: string
+    daysPerWeek: number
+    selectedDays: string[]
+    isCompleted: boolean // whether this enrollment is finished
+  }
+  
   type FamilyMemberData = {
     id: string // unique ID for each member
     firstName: string
@@ -759,10 +768,7 @@ export default function Admin({ onLogout }: AdminProps) {
     addressZip: string
     username: string
     password: string
-    programId: number | null
-    program: string
-    daysPerWeek: number
-    selectedDays: string[]
+    enrollments: EnrollmentData[] // array of enrollments
     dateOfBirth: string
     medicalNotes: string
     isFinished: boolean // whether member is completed
@@ -785,10 +791,7 @@ export default function Admin({ onLogout }: AdminProps) {
       addressZip: '',
       username: '',
       password: 'vortex',
-      programId: null,
-      program: 'Non-Participant',
-      daysPerWeek: 1,
-      selectedDays: [],
+      enrollments: [],
       dateOfBirth: '',
       medicalNotes: '',
       isFinished: false,
@@ -2462,15 +2465,26 @@ export default function Admin({ onLogout }: AdminProps) {
           }
         } else {
           const sectionData = member.sections.enrollment
-          return {
-            ...member,
+          // Validate days selection if program is selected
+          if (sectionData.tempData.programId && sectionData.tempData.selectedDays.length !== sectionData.tempData.daysPerWeek) {
+            alert(`Please select exactly ${sectionData.tempData.daysPerWeek} day(s)`)
+            return member
+          }
+          // Add enrollment to enrollments array
+          const newEnrollment: EnrollmentData = {
+            id: `enrollment-${Date.now()}`,
             programId: sectionData.tempData.programId,
             program: sectionData.tempData.program,
             daysPerWeek: sectionData.tempData.daysPerWeek,
             selectedDays: sectionData.tempData.selectedDays,
+            isCompleted: true
+          }
+          return {
+            ...member,
+            enrollments: [...member.enrollments, newEnrollment],
             sections: {
               ...member.sections,
-              enrollment: { ...sectionData, isExpanded: false }
+              enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
             }
           }
         }
@@ -2513,15 +2527,26 @@ export default function Admin({ onLogout }: AdminProps) {
           }
         } else {
           const sectionData = member.sections.enrollment
-          return {
-            ...member,
+          // Validate days selection if program is selected
+          if (sectionData.tempData.programId && sectionData.tempData.selectedDays.length !== sectionData.tempData.daysPerWeek) {
+            alert(`Please select exactly ${sectionData.tempData.daysPerWeek} day(s)`)
+            return member
+          }
+          // Add enrollment to enrollments array
+          const newEnrollment: EnrollmentData = {
+            id: `enrollment-${Date.now()}`,
             programId: sectionData.tempData.programId,
             program: sectionData.tempData.program,
             daysPerWeek: sectionData.tempData.daysPerWeek,
             selectedDays: sectionData.tempData.selectedDays,
+            isCompleted: true
+          }
+          return {
+            ...member,
+            enrollments: [...member.enrollments, newEnrollment],
             sections: {
               ...member.sections,
-              enrollment: { ...sectionData, isExpanded: false }
+              enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
             }
           }
         }
@@ -2576,10 +2601,10 @@ export default function Admin({ onLogout }: AdminProps) {
               enrollment: {
                 isExpanded: false,
                 tempData: {
-                  programId: member.programId,
-                  program: member.program,
-                  daysPerWeek: member.daysPerWeek,
-                  selectedDays: member.selectedDays
+                  programId: null,
+                  program: 'Non-Participant',
+                  daysPerWeek: 1,
+                  selectedDays: []
                 }
               }
             }
@@ -2660,10 +2685,10 @@ export default function Admin({ onLogout }: AdminProps) {
                 enrollment: {
                   isExpanded: true,
                   tempData: {
-                    programId: member.programId,
-                    program: member.program,
-                    daysPerWeek: member.daysPerWeek,
-                    selectedDays: member.selectedDays
+                    programId: null,
+                    program: 'Non-Participant',
+                    daysPerWeek: 1,
+                    selectedDays: []
                   }
                 }
               }
@@ -2706,10 +2731,7 @@ export default function Admin({ onLogout }: AdminProps) {
       addressZip: '',
       username: '',
       password: 'vortex',
-      programId: null,
-      program: 'Non-Participant',
-      daysPerWeek: 1,
-      selectedDays: [],
+      enrollments: [],
       dateOfBirth: '',
       medicalNotes: '',
       isFinished: false,
@@ -2719,6 +2741,18 @@ export default function Admin({ onLogout }: AdminProps) {
         enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
       }
     }])
+  }
+
+  const handleRemoveEnrollment = (memberId: string, enrollmentId: string) => {
+    setFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        return {
+          ...member,
+          enrollments: member.enrollments.filter(e => e.id !== enrollmentId)
+        }
+      }
+      return member
+    }))
   }
 
 
@@ -5742,11 +5776,46 @@ export default function Admin({ onLogout }: AdminProps) {
                           onClick={() => handleToggleSection(member.id, 'enrollment')}
                           className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
                         >
-                          <span>3. Class Enrollments</span>
+                          <span>3. Class Enrollments {member.enrollments.length > 0 && `(${member.enrollments.length})`}</span>
                           <span>{member.sections.enrollment.isExpanded ? '−' : '+'}</span>
                         </button>
                         {member.sections.enrollment.isExpanded && (
                           <div className="p-4 bg-gray-800">
+                            {/* List of completed enrollments */}
+                            {member.enrollments.length > 0 && (
+                              <div className="mb-4 space-y-2">
+                                <p className="text-sm text-gray-300 font-semibold mb-2">Enrolled Classes ({member.enrollments.length}):</p>
+                                {member.enrollments.map((enrollment) => (
+                                  <div key={enrollment.id} className="bg-gray-700 p-3 rounded flex justify-between items-center">
+                                    <div>
+                                      <span className="text-white font-medium">
+                                        {enrollment.program}
+                                      </span>
+                                      {enrollment.programId && (
+                                        <>
+                                          <span className="text-gray-400 text-sm ml-2">
+                                            ({enrollment.daysPerWeek} day{enrollment.daysPerWeek !== 1 ? 's' : ''}/week)
+                                          </span>
+                                          {enrollment.selectedDays.length > 0 && (
+                                            <span className="text-gray-400 text-sm ml-2">
+                                              - {enrollment.selectedDays.join(', ')}
+                                            </span>
+                                          )}
+                                        </>
+                                      )}
+                                    </div>
+                                    <button
+                                      onClick={() => handleRemoveEnrollment(member.id, enrollment.id)}
+                                      className="text-red-400 hover:text-red-300 text-sm font-semibold"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Current enrollment form */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
                                 <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
@@ -5897,7 +5966,7 @@ export default function Admin({ onLogout }: AdminProps) {
                                 onClick={() => handleSectionContinue(member.id, 'enrollment')}
                                 className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
                               >
-                                Continue
+                                Add Class
                               </button>
                               <button
                                 type="button"
@@ -5966,10 +6035,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           addressZip: '',
                           username: '',
                           password: 'vortex',
-                          programId: null,
-                          program: 'Non-Participant',
-                          daysPerWeek: 1,
-                          selectedDays: [],
+                          enrollments: [],
                           dateOfBirth: '',
                           medicalNotes: '',
                           isFinished: false,
