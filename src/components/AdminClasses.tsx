@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { RefreshCw, Edit2, Archive, X, Save, Plus, Search } from 'lucide-react'
+import { Edit2, Archive, X, Save, Plus, Search } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 
 interface Program {
@@ -50,37 +50,6 @@ export default function AdminClasses() {
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showClassModal, setShowClassModal] = useState(false)
   const [selectedCategoryForClass, setSelectedCategoryForClass] = useState<number | null>(null)
-
-  // Get all active classes grouped by category
-  const getActiveClassesByCategory = (programsList: Program[]) => {
-    // Filter for active, non-archived classes with valid categories
-    const activeClasses = programsList.filter(p => {
-      if (!p.isActive || p.archived) return false
-      // Exclude programs without a valid category (no categoryDisplayName or categoryName)
-      const hasCategory = (p.categoryDisplayName && p.categoryDisplayName.trim()) || (p.categoryName && p.categoryName.trim())
-      return hasCategory
-    })
-    
-    // Group by category
-    const groupedByCategory = activeClasses.reduce((acc, program) => {
-      const categoryName = program.categoryDisplayName || program.categoryName || 'Uncategorized'
-      if (!acc[categoryName]) {
-        acc[categoryName] = []
-      }
-      acc[categoryName].push(program)
-      return acc
-    }, {} as Record<string, Program[]>)
-    
-    // Sort programs within each category by display name
-    Object.keys(groupedByCategory).forEach(category => {
-      groupedByCategory[category].sort((a, b) => a.displayName.localeCompare(b.displayName))
-    })
-    
-    // Sort categories alphabetically
-    const sortedCategories = Object.keys(groupedByCategory).sort()
-    
-    return { groupedByCategory, sortedCategories }
-  }
 
   const fetchAllPrograms = async () => {
     try {

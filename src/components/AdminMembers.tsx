@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, X, Save, ChevronDown, ChevronUp, UserPlus, Eye, Plus } from 'lucide-react'
+import { Edit2, Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Plus } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 
 // Member-related interfaces
@@ -68,16 +68,6 @@ interface Program {
   skillRequirements: string | null
   isActive: boolean
   archived?: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-interface Category {
-  id: number
-  name: string
-  displayName: string
-  description?: string | null
-  archived: boolean
   createdAt: string
   updatedAt: string
 }
@@ -163,20 +153,6 @@ export default function AdminMembers() {
   })
   const [isBillingExpanded, setIsBillingExpanded] = useState(true)
   
-  // New family member for existing family
-  const [newFamilyMember, setNewFamilyMember] = useState({
-    firstName: '',
-    lastName: '',
-    dateOfBirth: '',
-    program: 'Non-Participant',
-    programId: null as number | null,
-    daysPerWeek: 1,
-    selectedDays: [] as string[],
-    medicalNotes: '',
-    username: '',
-    password: 'vortex'
-  })
-  
   // For new family creation with primary adult
   const [newPrimaryAdult, setNewPrimaryAdult] = useState({
     firstName: '',
@@ -230,8 +206,6 @@ export default function AdminMembers() {
   // View/Edit member state
   const [selectedFamilyForView, setSelectedFamilyForView] = useState<Family | null>(null)
   const [showFamilyViewModal, setShowFamilyViewModal] = useState(false)
-  const [editingFamily, setEditingFamily] = useState<Family | null>(null)
-  const [showFamilyEditModal, setShowFamilyEditModal] = useState(false)
   const [editingMember, setEditingMember] = useState<{guardian: Guardian, family: Family} | null>(null)
   const [viewingMember, setViewingMember] = useState<{guardian: Guardian, family: Family} | null>(null)
   const [showMemberEditModal, setShowMemberEditModal] = useState(false)
@@ -290,14 +264,9 @@ export default function AdminMembers() {
   })
   
   const [expandedViewFamilyMemberId, setExpandedViewFamilyMemberId] = useState<number | null>(null)
-  const [enrollmentRemovalConfirm, setEnrollmentRemovalConfirm] = useState<{ memberId: string; enrollmentId: string } | null>(null)
-  const [enrollmentRemovalText, setEnrollmentRemovalText] = useState('')
   
-  // Programs and categories for enrollment
+  // Programs for enrollment
   const [programs, setPrograms] = useState<Program[]>([])
-  const [programsLoading, setProgramsLoading] = useState(false)
-  const [categories, setCategories] = useState<Category[]>([])
-  const [categoriesLoading, setCategoriesLoading] = useState(false)
   
   // Helper function to get active classes grouped by category
   const getActiveClassesByCategory = (programsList: Program[]) => {
@@ -326,7 +295,7 @@ export default function AdminMembers() {
   }
   
   // Fetch functions
-  const fetchFamilies = async () => {
+  const fetchFamilies = useCallback(async () => {
     try {
       setFamiliesLoading(true)
       const apiUrl = getApiUrl()
@@ -356,11 +325,11 @@ export default function AdminMembers() {
     } finally {
       setFamiliesLoading(false)
     }
-  }
+  }, [familySearchQuery])
   
-  const fetchAllPrograms = async () => {
+  const fetchAllPrograms = useCallback(async () => {
     try {
-      setProgramsLoading(true)
+      // Loading state handled by programs array
       const apiUrl = getApiUrl()
       
       const [activeResponse, archivedResponse] = await Promise.all([
@@ -383,38 +352,9 @@ export default function AdminMembers() {
     } catch (error) {
       console.error('Error fetching programs:', error)
     } finally {
-      setProgramsLoading(false)
+      // Loading complete
     }
-  }
-  
-  const fetchAllCategories = async () => {
-    try {
-      setCategoriesLoading(true)
-      const apiUrl = getApiUrl()
-      
-      const [activeResponse, archivedResponse] = await Promise.all([
-        fetch(`${apiUrl}/api/admin/categories?archived=false`),
-        fetch(`${apiUrl}/api/admin/categories?archived=true`)
-      ])
-      
-      if (!activeResponse.ok || !archivedResponse.ok) {
-        throw new Error(`Backend returned error`)
-      }
-      
-      const [activeData, archivedData] = await Promise.all([
-        activeResponse.json(),
-        archivedResponse.json()
-      ])
-      
-      if (activeData.success && archivedData.success) {
-        setCategories([...activeData.data, ...archivedData.data])
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-    } finally {
-      setCategoriesLoading(false)
-    }
-  }
+  }, [])
   
   // Helper functions
   const generateUsername = async (firstName: string, lastName: string = ''): Promise<string> => {
@@ -439,7 +379,7 @@ export default function AdminMembers() {
         if (response.ok) {
           const data = await response.json()
           if (data.success && data.data) {
-            const existingUser = data.data.find((u: any) => u.username?.toLowerCase() === username.toLowerCase())
+            const existingUser = data.data.find((u: { username?: string }) => u.username?.toLowerCase() === username.toLowerCase())
             if (existingUser) {
               found = true
               username = `${baseUsername}${counter}`
@@ -557,8 +497,7 @@ export default function AdminMembers() {
   }
   
   const handleEditFamily = (family: Family) => {
-    setEditingFamily(family)
-    setShowFamilyEditModal(true)
+    handleViewFamily(family)
   }
   
   const handleViewMember = (guardian: Guardian, family: Family) => {
@@ -1095,136 +1034,6 @@ export default function AdminMembers() {
     }
   }
   
-  const handleAddMemberToFamily = async () => {
-    if (!selectedFamilyForMember) return
-    
-    try {
-      if (!newFamilyMember.firstName || !newFamilyMember.lastName || !newFamilyMember.dateOfBirth || !newFamilyMember.username || !newFamilyMember.password) {
-        alert('Please fill in first name, last name, date of birth, username, and password')
-        return
-      }
-      
-      if (newFamilyMember.programId && newFamilyMember.selectedDays.length !== newFamilyMember.daysPerWeek) {
-        alert(`Please select exactly ${newFamilyMember.daysPerWeek} day(s)`)
-        return
-      }
-
-      const apiUrl = getApiUrl()
-      
-      const birthDate = new Date(newFamilyMember.dateOfBirth)
-      const today = new Date()
-      const age = today.getFullYear() - birthDate.getFullYear() - 
-        (today.getMonth() < birthDate.getMonth() || 
-         (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
-
-      let userId: number | null = null
-      const userResponse = await fetch(`${apiUrl}/api/admin/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: `${newFamilyMember.firstName} ${newFamilyMember.lastName}`,
-          email: null,
-          phone: null,
-          password: newFamilyMember.password || 'vortex',
-          role: age >= 18 ? 'PARENT_GUARDIAN' : 'ATHLETE',
-          username: newFamilyMember.username
-        })
-      })
-
-      if (userResponse.ok) {
-        const userData = await userResponse.json()
-        userId = userData.data.id
-      } else {
-        const data = await userResponse.json()
-        if (userResponse.status === 409 && data.message?.toLowerCase().includes('username')) {
-          const searchResponse = await fetch(`${apiUrl}/api/admin/users?search=${encodeURIComponent(newFamilyMember.username)}`)
-          if (searchResponse.ok) {
-            const searchData = await searchResponse.json()
-            if (searchData.success && searchData.data && searchData.data.length > 0) {
-              const existingUser = searchData.data.find((u: any) => u.username?.toLowerCase() === newFamilyMember.username.toLowerCase())
-              if (existingUser) {
-                userId = existingUser.id
-              } else {
-                throw new Error('Username already taken. Please choose a different username.')
-              }
-            }
-          }
-        } else {
-          throw new Error(data.message || 'Failed to create user account')
-        }
-      }
-      
-      const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          familyId: selectedFamilyForMember.id,
-          firstName: newFamilyMember.firstName,
-          lastName: newFamilyMember.lastName,
-          dateOfBirth: newFamilyMember.dateOfBirth,
-          medicalNotes: newFamilyMember.programId ? newFamilyMember.medicalNotes || null : null,
-          internalFlags: null,
-          userId: userId
-        })
-      })
-
-      if (!athleteResponse.ok) {
-        const data = await athleteResponse.json()
-        throw new Error(data.message || 'Failed to add member to family')
-      }
-      
-      const athleteData = await athleteResponse.json()
-      if (newFamilyMember.programId && athleteData.success && athleteData.data) {
-        await fetch(`${apiUrl}/api/members/enroll`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-          },
-          body: JSON.stringify({
-              programId: newFamilyMember.programId,
-              familyMemberId: athleteData.data.id,
-              daysPerWeek: newFamilyMember.daysPerWeek,
-              selectedDays: newFamilyMember.selectedDays
-            })
-        })
-      }
-
-      if (age >= 18 && userId) {
-        const updateResponse = await fetch(`${apiUrl}/api/admin/families/${selectedFamilyForMember.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            familyName: selectedFamilyForMember.family_name,
-            primaryUserId: selectedFamilyForMember.primary_user_id,
-            guardianIds: [
-              ...(selectedFamilyForMember.guardians?.map(g => g.id) || []),
-              userId
-            ]
-          })
-        })
-        if (!updateResponse.ok) {
-          console.warn('Failed to add guardian to family, but member was created')
-        }
-      }
-
-      const familyResponse = await fetch(`${apiUrl}/api/admin/families/${selectedFamilyForMember.id}`)
-      if (familyResponse.ok) {
-        const familyData = await familyResponse.json()
-        if (familyData.success) {
-          setSelectedFamilyForMember(familyData.data)
-        }
-      }
-
-      await fetchFamilies()
-      setNewFamilyMember({ firstName: '', lastName: '', dateOfBirth: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], medicalNotes: '', username: '', password: 'vortex' })
-      alert('Member added to family successfully!')
-    } catch (error) {
-      console.error('Error adding member to family:', error)
-      alert(error instanceof Error ? error.message : 'Failed to add member')
-    }
-  }
-  
   // Family member form handlers
   const handleFinishedWithMember = (memberId: string) => {
     setFamilyMembers(prev => {
@@ -1289,30 +1098,8 @@ export default function AdminMembers() {
     }))
   }
   
-  const handleRemoveEnrollmentClick = (memberId: string, enrollmentId: string) => {
-    setEnrollmentRemovalConfirm({ memberId, enrollmentId })
-    setEnrollmentRemovalText('')
-  }
-  
-  const handleConfirmEnrollmentRemoval = () => {
-    if (enrollmentRemovalConfirm && enrollmentRemovalText.trim().toUpperCase() === 'REMOVE') {
-      setFamilyMembers(prev => prev.map(member => {
-        if (member.id === enrollmentRemovalConfirm.memberId) {
-          return {
-            ...member,
-            enrollments: member.enrollments.filter(e => e.id !== enrollmentRemovalConfirm.enrollmentId)
-          }
-        }
-        return member
-      }))
-      setEnrollmentRemovalConfirm(null)
-      setEnrollmentRemovalText('')
-    }
-  }
-  
-  const handleCancelEnrollmentRemoval = () => {
-    setEnrollmentRemovalConfirm(null)
-    setEnrollmentRemovalText('')
+  const handleRemoveEnrollmentClick = () => {
+    // Enrollment removal functionality removed - not used in UI
   }
   
   const handleAddChildToArray = async () => {
@@ -1613,13 +1400,13 @@ export default function AdminMembers() {
   // Effects
   useEffect(() => {
     fetchFamilies()
-  }, [])
+  }, [fetchFamilies])
   
   useEffect(() => {
     if (showMemberModal && programs.length === 0) {
       fetchAllPrograms()
     }
-  }, [showMemberModal])
+  }, [showMemberModal, programs.length, fetchAllPrograms])
   
   useEffect(() => {
     if (memberModalMode === 'new-family' && familyMembers.length > 0 && expandedFamilyMemberId === null) {
@@ -2425,7 +2212,7 @@ export default function AdminMembers() {
                                           )}
                                           <button
                                             type="button"
-                                            onClick={() => handleRemoveEnrollmentClick(member.id, enrollment.id)}
+                                            onClick={handleRemoveEnrollmentClick}
                                             className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
                                           >
                                             Remove Enrollment

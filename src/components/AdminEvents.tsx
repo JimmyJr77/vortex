@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { RefreshCw, Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users } from 'lucide-react'
+import { Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 
 interface DateTimeEntry {
@@ -419,7 +419,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
   const [useShortAsLong, setUseShortAsLong] = useState(true)
   const [showArchivedEvents, setShowArchivedEvents] = useState(false)
   const [showEditLog, setShowEditLog] = useState(false)
-  const [editLog, setEditLog] = useState<any[]>([])
+  const [editLog, setEditLog] = useState<Array<{ id: number; eventId: string | number; field: string; oldValue: string; newValue: string; changedBy: string; changedAt: string; adminName?: string; adminEmail?: string; createdAt?: string; changes?: Record<string, { oldValue: unknown; newValue: unknown }> }>>([])
   const [editLogLoading, setEditLogLoading] = useState(false)
 
   const fetchEvents = async () => {
@@ -436,13 +436,13 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       
       if (data.success && data.data && Array.isArray(data.data)) {
         // Helper function to parse date strings in local timezone
-        const parseLocalDate = (dateValue: any): Date => {
+        const parseLocalDate = (dateValue: string | Date | number | null | undefined): Date => {
           if (!dateValue) return new Date()
           if (dateValue instanceof Date) return dateValue
           
           // If it's already a Date object (from backend), use it
-          if (typeof dateValue === 'object' && dateValue.getTime) {
-            return new Date(dateValue)
+          if (typeof dateValue === 'object' && dateValue !== null && 'getTime' in dateValue) {
+            return new Date(dateValue as Date)
           }
           
           // If it's a string, parse it in local timezone
@@ -457,7 +457,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
         }
         
         // Convert date strings to Date objects
-        const eventsWithDates = data.data.map((event: any) => {
+        const eventsWithDates = data.data.map((event: Event & { startDate?: string | Date; endDate?: string | Date; datesAndTimes?: Array<{ date?: string | Date; [key: string]: unknown }> }) => {
           try {
             const parsedEvent = {
               ...event,
@@ -465,7 +465,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
               startDate: parseLocalDate(event.startDate),
               endDate: event.endDate ? parseLocalDate(event.endDate) : undefined,
               datesAndTimes: Array.isArray(event.datesAndTimes) 
-                ? event.datesAndTimes.map((dt: any) => {
+                ? event.datesAndTimes.map((dt: { date?: string | Date; [key: string]: unknown }) => {
                     try {
                       return {
                         ...dt,
@@ -1576,11 +1576,11 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                           <p className="text-gray-400 text-sm">{log.adminEmail}</p>
                         </div>
                         <p className="text-gray-400 text-sm">
-                          {new Date(log.createdAt).toLocaleString()}
+                          {log.createdAt ? new Date(log.createdAt).toLocaleString() : new Date(log.changedAt).toLocaleString()}
                         </p>
                       </div>
                       <div className="space-y-2">
-                        {Object.entries(log.changes).map(([field, change]: [string, any]) => {
+                        {log.changes && Object.entries(log.changes).map(([field, change]) => {
                           const formatFieldName = (fieldName: string) => {
                             return fieldName
                               .replace(/([A-Z])/g, ' $1')
@@ -1588,7 +1588,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                               .trim()
                           }
                           
-                          const formatChangeValue = (val: any) => {
+                          const formatChangeValue = (val: unknown) => {
                             if (val === null || val === undefined) return '(empty)'
                             if (Array.isArray(val)) {
                               if (val.length === 0) return '(empty array)'
@@ -1614,13 +1614,13 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                 <div>
                                   <p className="text-gray-400 text-xs mb-1 font-semibold">Previous:</p>
                                   <p className="text-gray-300 line-through whitespace-pre-wrap break-words">
-                                    {formatChangeValue(change.old)}
+                                    {formatChangeValue(change.oldValue)}
                                   </p>
                                 </div>
                                 <div>
                                   <p className="text-gray-400 text-xs mb-1 font-semibold">Updated:</p>
                                   <p className="text-white whitespace-pre-wrap break-words">
-                                    {formatChangeValue(change.new)}
+                                    {formatChangeValue(change.newValue)}
                                   </p>
                                 </div>
                               </div>
