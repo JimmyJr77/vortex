@@ -682,7 +682,10 @@ export default function Admin({ onLogout }: AdminProps) {
     lastName: '',
     email: '',
     phone: '',
-    address: '',
+    addressStreet: '',
+    addressCity: '',
+    addressState: '',
+    addressZip: '',
     username: '',
     password: 'vortex',
     program: 'Non-Participant',
@@ -781,7 +784,10 @@ export default function Admin({ onLogout }: AdminProps) {
     lastName: '',
     email: '',
     phone: '',
-    address: '',
+    addressStreet: '',
+    addressCity: '',
+    addressState: '',
+    addressZip: '',
     username: '',
     password: ''
   })
@@ -1358,12 +1364,18 @@ export default function Admin({ onLogout }: AdminProps) {
     const firstName = nameParts[0] || ''
     const lastName = nameParts.slice(1).join(' ') || ''
     
+    // Parse address into separate fields
+    const parsedAddress = parseAddress(address)
+    
     setEditingMemberData({
       firstName,
       lastName,
       email: guardian.email || '',
       phone: guardian.phone || '',
-      address,
+      addressStreet: parsedAddress.street,
+      addressCity: parsedAddress.city,
+      addressState: parsedAddress.state,
+      addressZip: parsedAddress.zip,
       username,
       password: '' // Don't pre-fill password
     })
@@ -1472,7 +1484,7 @@ export default function Admin({ onLogout }: AdminProps) {
           fullName: `${editingMemberData.firstName} ${editingMemberData.lastName}`,
           email: editingMemberData.email,
           phone: editingMemberData.phone ? cleanPhoneNumber(editingMemberData.phone) : null,
-          address: editingMemberData.address || null,
+          address: combineAddress(editingMemberData.addressStreet, editingMemberData.addressCity, editingMemberData.addressState, editingMemberData.addressZip) || null,
           username: editingMemberData.username,
           ...(editingMemberData.password && { password: editingMemberData.password })
         })
@@ -1566,7 +1578,7 @@ export default function Admin({ onLogout }: AdminProps) {
                 username: member.username,
                 password: member.password || 'vortex',
                 role: 'ATHLETE',
-                address: editingMemberData.address || null
+                address: combineAddress(editingMemberData.addressStreet, editingMemberData.addressCity, editingMemberData.addressState, editingMemberData.addressZip) || null
               })
             })
             if (userResponse.ok) {
@@ -1657,11 +1669,18 @@ export default function Admin({ onLogout }: AdminProps) {
     setMemberSearchResults([])
   }
 
-  // Generate unique username from first name
-  const generateUsername = async (firstName: string): Promise<string> => {
+  // Generate unique username from first name and last name (firstname + first 2 letters of lastname)
+  const generateUsername = async (firstName: string, lastName: string = ''): Promise<string> => {
     if (!firstName) return ''
     
-    const baseUsername = firstName.toLowerCase().trim().replace(/[^a-z0-9]/g, '')
+    // Clean first name
+    const cleanFirstName = firstName.toLowerCase().trim().replace(/[^a-z0-9]/g, '')
+    if (!cleanFirstName) return ''
+    
+    // Get first 2 letters of last name (lowercase, no special chars)
+    const cleanLastName = lastName.toLowerCase().trim().replace(/[^a-z0-9]/g, '').substring(0, 2)
+    
+    const baseUsername = cleanFirstName + cleanLastName
     if (!baseUsername) return ''
     
     let username = baseUsername
@@ -1698,6 +1717,39 @@ export default function Admin({ onLogout }: AdminProps) {
     }
     
     return username
+  }
+
+  // Helper function to combine address fields into a single string for API
+  const combineAddress = (street: string, city: string, state: string, zip: string): string => {
+    const parts = [street, city, state, zip].filter(part => part && part.trim())
+    return parts.join(', ') || ''
+  }
+
+  // Helper function to parse address string into separate fields
+  const parseAddress = (address: string): { street: string; city: string; state: string; zip: string } => {
+    if (!address) return { street: '', city: '', state: '', zip: '' }
+    
+    // Try to parse common formats: "Street, City, State ZIP" or "Street, City, State, ZIP"
+    const parts = address.split(',').map(p => p.trim())
+    
+    if (parts.length >= 3) {
+      const street = parts[0]
+      const city = parts[1]
+      const stateZip = parts[2] || ''
+      // Try to separate state and zip (format: "ST 12345" or "ST, 12345")
+      const stateZipParts = stateZip.split(/\s+/)
+      if (stateZipParts.length >= 2) {
+        const state = stateZipParts[0]
+        const zip = stateZipParts.slice(1).join(' ')
+        return { street, city, state, zip }
+      } else {
+        return { street, city, state: stateZip, zip: '' }
+      }
+    } else if (parts.length === 2) {
+      return { street: parts[0], city: parts[1], state: '', zip: '' }
+    } else {
+      return { street: address, city: '', state: '', zip: '' }
+    }
   }
 
   // Format phone number as ###-###-####
@@ -1745,13 +1797,13 @@ export default function Admin({ onLogout }: AdminProps) {
       
       // Ensure username is set
       if (!newPrimaryAdult.username) {
-        newPrimaryAdult.username = await generateUsername(newPrimaryAdult.firstName)
+        newPrimaryAdult.username = await generateUsername(newPrimaryAdult.firstName, newPrimaryAdult.lastName)
       }
 
       const apiUrl = getApiUrl()
       
       // Generate username if not provided
-      const username = newPrimaryAdult.username || await generateUsername(newPrimaryAdult.firstName)
+      const username = newPrimaryAdult.username || await generateUsername(newPrimaryAdult.firstName, newPrimaryAdult.lastName)
       
       // Try to create the user, or use existing if email already registered
       let userId: number
@@ -1762,7 +1814,7 @@ export default function Admin({ onLogout }: AdminProps) {
           fullName: `${newPrimaryAdult.firstName} ${newPrimaryAdult.lastName}`,
           email: newPrimaryAdult.email,
           phone: newPrimaryAdult.phone ? cleanPhoneNumber(newPrimaryAdult.phone) : null,
-          address: newPrimaryAdult.address || null,
+          address: combineAddress(newPrimaryAdult.addressStreet, newPrimaryAdult.addressCity, newPrimaryAdult.addressState, newPrimaryAdult.addressZip) || null,
           password: newPrimaryAdult.password || 'vortex',
           role: 'PARENT_GUARDIAN',
           username: username
@@ -1805,7 +1857,7 @@ export default function Admin({ onLogout }: AdminProps) {
                             const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
                             
                             // Create user account for all children (with username and password)
-                            const childUsername = child.username || await generateUsername(child.firstName)
+                            const childUsername = child.username || await generateUsername(child.firstName, child.lastName)
                             try {
                               const childUserResponse = await fetch(`${apiUrl}/api/admin/users`, {
                                 method: 'POST',
@@ -1885,7 +1937,7 @@ export default function Admin({ onLogout }: AdminProps) {
                         await fetchFamilies()
                         
                         // Reset form
-                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', address: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
+                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
                         setNewChildren([])
                         setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], userId: null })
                         setUserSearchQuery('')
@@ -1973,7 +2025,7 @@ export default function Admin({ onLogout }: AdminProps) {
           const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
           
           // Create user account for all children (with username and password)
-          const childUsername = child.username || await generateUsername(child.firstName)
+          const childUsername = child.username || await generateUsername(child.firstName, child.lastName)
           try {
             const childUserResponse = await fetch(`${apiUrl}/api/admin/users`, {
               method: 'POST',
@@ -2131,7 +2183,7 @@ export default function Admin({ onLogout }: AdminProps) {
       await fetchFamilies()
       
       // Reset form
-      setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', address: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
+      setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
       setNewChildren([])
       setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], userId: null })
       setUserSearchQuery('')
@@ -2300,7 +2352,7 @@ export default function Admin({ onLogout }: AdminProps) {
     }
     
     // Generate username if not provided
-    const username = currentChild.username || await generateUsername(currentChild.firstName)
+    const username = currentChild.username || await generateUsername(currentChild.firstName, currentChild.lastName)
     const password = currentChild.password || 'vortex'
     
     setNewChildren([...newChildren, { ...currentChild, username, password }])
@@ -4436,7 +4488,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           setMemberSearchQuery('')
                           setMemberSearchResults([])
                           // Reset form fields
-                          setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', address: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
+                          setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
                         }}
                         className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
                         whileHover={{ scale: 1.05 }}
@@ -4989,7 +5041,7 @@ export default function Admin({ onLogout }: AdminProps) {
               {memberModalMode === 'new-family' && (
                 <div className="space-y-6">
                   <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4">Primary Adult (Account Owner) *</h4>
+                    <h4 className="font-semibold text-white mb-4">Family Member 1 (Must be an Adult) *</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
@@ -4998,7 +5050,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           value={newPrimaryAdult.firstName}
                           onChange={async (e) => {
                             const firstName = e.target.value
-                            const username = await generateUsername(firstName)
+                            const username = await generateUsername(firstName, newPrimaryAdult.lastName)
                             setNewPrimaryAdult({ ...newPrimaryAdult, firstName, username })
                           }}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
@@ -5010,7 +5062,11 @@ export default function Admin({ onLogout }: AdminProps) {
                         <input
                           type="text"
                           value={newPrimaryAdult.lastName}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, lastName: e.target.value })}
+                          onChange={async (e) => {
+                            const lastName = e.target.value
+                            const username = await generateUsername(newPrimaryAdult.firstName, lastName)
+                            setNewPrimaryAdult({ ...newPrimaryAdult, lastName, username })
+                          }}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                           required
                         />
@@ -5042,13 +5098,44 @@ export default function Admin({ onLogout }: AdminProps) {
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Mailing Address</label>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Street</label>
                         <input
                           type="text"
-                          value={newPrimaryAdult.address}
-                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, address: e.target.value })}
+                          value={newPrimaryAdult.addressStreet}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, addressStreet: e.target.value })}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                          placeholder="Street address, City, State ZIP"
+                          placeholder="Street address"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">City</label>
+                        <input
+                          type="text"
+                          value={newPrimaryAdult.addressCity}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, addressCity: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          placeholder="City"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">State</label>
+                        <input
+                          type="text"
+                          value={newPrimaryAdult.addressState}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, addressState: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          placeholder="State"
+                          maxLength={2}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Zip</label>
+                        <input
+                          type="text"
+                          value={newPrimaryAdult.addressZip}
+                          onChange={(e) => setNewPrimaryAdult({ ...newPrimaryAdult, addressZip: e.target.value })}
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          placeholder="ZIP code"
                         />
                       </div>
                       <div>
@@ -5074,30 +5161,35 @@ export default function Admin({ onLogout }: AdminProps) {
                         />
                         <p className="text-xs text-gray-400 mt-1">Default: vortex</p>
                       </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
-                        <select
-                          value={newPrimaryAdult.programId || ''}
-                          onChange={(e) => {
-                            const programId = e.target.value ? parseInt(e.target.value) : null
-                            const selectedProgram = programs.find(p => p.id === programId)
-                            setNewPrimaryAdult({
-                              ...newPrimaryAdult,
-                              programId,
-                              program: selectedProgram?.displayName || 'Non-Participant',
-                              daysPerWeek: 1,
-                              selectedDays: []
-                            })
-                          }}
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                        >
-                          <option value="">Non-Participant</option>
-                          {getSimplifiedGymnasticsPrograms(programs).map((program) => (
-                            <option key={program.id} value={program.id}>
-                              {program.displayName}
-                            </option>
-                          ))}
-                        </select>
+                      
+                      {/* Enrollment Section */}
+                      <div className="md:col-span-2 border-t border-gray-500 pt-4 mt-4">
+                        <h5 className="text-sm font-semibold text-white mb-4">Enrollment</h5>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
+                          <select
+                            value={newPrimaryAdult.programId || ''}
+                            onChange={(e) => {
+                              const programId = e.target.value ? parseInt(e.target.value) : null
+                              const selectedProgram = programs.find(p => p.id === programId)
+                              setNewPrimaryAdult({
+                                ...newPrimaryAdult,
+                                programId,
+                                program: selectedProgram?.displayName || 'Non-Participant',
+                                daysPerWeek: 1,
+                                selectedDays: []
+                              })
+                            }}
+                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          >
+                            <option value="">Non-Participant</option>
+                            {getSimplifiedGymnasticsPrograms(programs).map((program) => (
+                              <option key={program.id} value={program.id}>
+                                {program.displayName}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                       {newPrimaryAdult.programId && (
                         <>
@@ -5169,7 +5261,7 @@ export default function Admin({ onLogout }: AdminProps) {
                   </div>
 
                   <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4">Add Family Members (Optional)</h4>
+                    <h4 className="font-semibold text-white mb-4">Add Family Member 2 (Optional)</h4>
                     
                     {/* List of added children */}
                     {newChildren.length > 0 && (
@@ -5385,7 +5477,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           onClick={handleAddChildToArray}
                           className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
                         >
-                          + Add Member to Family
+                          Finished with Member
                         </button>
                       </div>
                     </div>
@@ -5401,7 +5493,7 @@ export default function Admin({ onLogout }: AdminProps) {
                     <button
                       onClick={() => {
                         setMemberModalMode('search')
-                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', address: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
+                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
                         setNewChildren([])
                         setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], userId: null })
                         setUserSearchQuery('')
@@ -5440,7 +5532,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           value={newFamilyMember.firstName}
                           onChange={async (e) => {
                             const firstName = e.target.value
-                            const username = await generateUsername(firstName)
+                            const username = await generateUsername(firstName, newFamilyMember.lastName)
                             setNewFamilyMember({ ...newFamilyMember, firstName, username })
                           }}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
@@ -5451,7 +5543,11 @@ export default function Admin({ onLogout }: AdminProps) {
                         <input
                           type="text"
                           value={newFamilyMember.lastName}
-                          onChange={(e) => setNewFamilyMember({ ...newFamilyMember, lastName: e.target.value })}
+                          onChange={async (e) => {
+                            const lastName = e.target.value
+                            const username = await generateUsername(newFamilyMember.firstName, lastName)
+                            setNewFamilyMember({ ...newFamilyMember, lastName, username })
+                          }}
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         />
                       </div>
@@ -5593,7 +5689,7 @@ export default function Admin({ onLogout }: AdminProps) {
                       onClick={handleAddMemberToFamily}
                       className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition-colors"
                     >
-                      Add Member to Family
+                      Finished with Member
                     </button>
                   </div>
 
@@ -6144,13 +6240,44 @@ export default function Admin({ onLogout }: AdminProps) {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">Mailing Address</label>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Street</label>
                       <input
                         type="text"
-                        value={editingMemberData.address}
-                        onChange={(e) => setEditingMemberData({ ...editingMemberData, address: e.target.value })}
+                        value={editingMemberData.addressStreet}
+                        onChange={(e) => setEditingMemberData({ ...editingMemberData, addressStreet: e.target.value })}
                         className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                        placeholder="Street address, City, State ZIP"
+                        placeholder="Street address"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">City</label>
+                      <input
+                        type="text"
+                        value={editingMemberData.addressCity}
+                        onChange={(e) => setEditingMemberData({ ...editingMemberData, addressCity: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        placeholder="City"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">State</label>
+                      <input
+                        type="text"
+                        value={editingMemberData.addressState}
+                        onChange={(e) => setEditingMemberData({ ...editingMemberData, addressState: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        placeholder="State"
+                        maxLength={2}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Zip</label>
+                      <input
+                        type="text"
+                        value={editingMemberData.addressZip}
+                        onChange={(e) => setEditingMemberData({ ...editingMemberData, addressZip: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        placeholder="ZIP code"
                       />
                     </div>
                     <div>
@@ -6530,7 +6657,7 @@ export default function Admin({ onLogout }: AdminProps) {
                           const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
                           const isAdult = age !== null && age >= 18
                           const existingAddresses = Array.from(new Set([
-                            editingMemberData.address,
+                            combineAddress(editingMemberData.addressStreet, editingMemberData.addressCity, editingMemberData.addressState, editingMemberData.addressZip),
                             // Get addresses from family members if available
                             ...editingFamilyMembers.map(() => {
                               // Address would come from user accounts if available
@@ -6560,7 +6687,7 @@ export default function Admin({ onLogout }: AdminProps) {
                                       onChange={async (e) => {
                                         const username = e.target.value
                                         if (!username) {
-                                          const generated = await generateUsername(newFamilyMemberInEdit.firstName)
+                                          const generated = await generateUsername(newFamilyMemberInEdit.firstName, newFamilyMemberInEdit.lastName)
                                           setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, username: generated })
                                         } else {
                                           setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, username })
@@ -6832,7 +6959,7 @@ export default function Admin({ onLogout }: AdminProps) {
                             }}
                             className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
                           >
-                            + Add Member to Family
+                            Finished with Member
                           </button>
                         </div>
                       </div>
