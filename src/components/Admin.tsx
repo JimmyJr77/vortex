@@ -745,6 +745,61 @@ export default function Admin({ onLogout }: AdminProps) {
   })
   const [_availableUsers, setAvailableUsers] = useState<Array<{id: number, email: string, full_name: string, role: string}>>([])
   const [_userSearchQuery, setUserSearchQuery] = useState('')
+  
+  // New family member structure with sub-sections
+  type FamilyMemberData = {
+    id: string // unique ID for each member
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    addressStreet: string
+    addressCity: string
+    addressState: string
+    addressZip: string
+    username: string
+    password: string
+    programId: number | null
+    program: string
+    daysPerWeek: number
+    selectedDays: string[]
+    dateOfBirth: string
+    medicalNotes: string
+    isFinished: boolean // whether member is completed
+    sections: {
+      contactInfo: { isExpanded: boolean; tempData: { firstName: string; lastName: string; email: string; phone: string; addressStreet: string; addressCity: string; addressState: string; addressZip: string } }
+      loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
+      enrollment: { isExpanded: boolean; tempData: { programId: number | null; program: string; daysPerWeek: number; selectedDays: string[] } }
+    }
+  }
+  const [familyMembers, setFamilyMembers] = useState<FamilyMemberData[]>([
+    {
+      id: 'member-1',
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      addressStreet: '',
+      addressCity: '',
+      addressState: '',
+      addressZip: '',
+      username: '',
+      password: 'vortex',
+      programId: null,
+      program: 'Non-Participant',
+      daysPerWeek: 1,
+      selectedDays: [],
+      dateOfBirth: '',
+      medicalNotes: '',
+      isFinished: false,
+      sections: {
+        contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+        loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+        enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+      }
+    }
+  ])
+  
   const [events, setEvents] = useState<Event[]>([])
   const [eventsLoading, setEventsLoading] = useState(false)
   const [showEventForm, setShowEventForm] = useState(false)
@@ -2368,6 +2423,302 @@ export default function Admin({ onLogout }: AdminProps) {
   // Remove child from children array
   const handleRemoveChildFromArray = (index: number) => {
     setNewChildren(newChildren.filter((_, i) => i !== index))
+  }
+
+  // Helper functions for new family member structure
+  const handleSectionContinue = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'enrollment') => {
+    setFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        // Save temp data to actual data
+        if (section === 'contactInfo') {
+          const sectionData = member.sections.contactInfo
+          return {
+            ...member,
+            firstName: sectionData.tempData.firstName,
+            lastName: sectionData.tempData.lastName,
+            email: sectionData.tempData.email,
+            phone: sectionData.tempData.phone,
+            addressStreet: sectionData.tempData.addressStreet,
+            addressCity: sectionData.tempData.addressCity,
+            addressState: sectionData.tempData.addressState,
+            addressZip: sectionData.tempData.addressZip,
+            sections: {
+              ...member.sections,
+              contactInfo: { ...sectionData, isExpanded: false },
+              loginSecurity: { ...member.sections.loginSecurity, isExpanded: true }
+            }
+          }
+        } else if (section === 'loginSecurity') {
+          const sectionData = member.sections.loginSecurity
+          return {
+            ...member,
+            username: sectionData.tempData.username,
+            password: sectionData.tempData.password,
+            sections: {
+              ...member.sections,
+              loginSecurity: { ...sectionData, isExpanded: false },
+              enrollment: { ...member.sections.enrollment, isExpanded: true }
+            }
+          }
+        } else {
+          const sectionData = member.sections.enrollment
+          return {
+            ...member,
+            programId: sectionData.tempData.programId,
+            program: sectionData.tempData.program,
+            daysPerWeek: sectionData.tempData.daysPerWeek,
+            selectedDays: sectionData.tempData.selectedDays,
+            sections: {
+              ...member.sections,
+              enrollment: { ...sectionData, isExpanded: false }
+            }
+          }
+        }
+      }
+      return member
+    }))
+  }
+
+  const handleSectionMinimize = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'enrollment') => {
+    setFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        // Save temp data to actual data
+        if (section === 'contactInfo') {
+          const sectionData = member.sections.contactInfo
+          return {
+            ...member,
+            firstName: sectionData.tempData.firstName,
+            lastName: sectionData.tempData.lastName,
+            email: sectionData.tempData.email,
+            phone: sectionData.tempData.phone,
+            addressStreet: sectionData.tempData.addressStreet,
+            addressCity: sectionData.tempData.addressCity,
+            addressState: sectionData.tempData.addressState,
+            addressZip: sectionData.tempData.addressZip,
+            sections: {
+              ...member.sections,
+              contactInfo: { ...sectionData, isExpanded: false }
+            }
+          }
+        } else if (section === 'loginSecurity') {
+          const sectionData = member.sections.loginSecurity
+          return {
+            ...member,
+            username: sectionData.tempData.username,
+            password: sectionData.tempData.password,
+            sections: {
+              ...member.sections,
+              loginSecurity: { ...sectionData, isExpanded: false }
+            }
+          }
+        } else {
+          const sectionData = member.sections.enrollment
+          return {
+            ...member,
+            programId: sectionData.tempData.programId,
+            program: sectionData.tempData.program,
+            daysPerWeek: sectionData.tempData.daysPerWeek,
+            selectedDays: sectionData.tempData.selectedDays,
+            sections: {
+              ...member.sections,
+              enrollment: { ...sectionData, isExpanded: false }
+            }
+          }
+        }
+      }
+      return member
+    }))
+  }
+
+  const handleSectionCancel = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'enrollment') => {
+    setFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        // Reset temp data from actual data
+        if (section === 'contactInfo') {
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              contactInfo: {
+                isExpanded: false,
+                tempData: {
+                  firstName: member.firstName,
+                  lastName: member.lastName,
+                  email: member.email,
+                  phone: member.phone,
+                  addressStreet: member.addressStreet,
+                  addressCity: member.addressCity,
+                  addressState: member.addressState,
+                  addressZip: member.addressZip
+                }
+              }
+            }
+          }
+        } else if (section === 'loginSecurity') {
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              loginSecurity: {
+                isExpanded: false,
+                tempData: {
+                  username: member.username,
+                  password: member.password
+                }
+              }
+            }
+          }
+        } else {
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              enrollment: {
+                isExpanded: false,
+                tempData: {
+                  programId: member.programId,
+                  program: member.program,
+                  daysPerWeek: member.daysPerWeek,
+                  selectedDays: member.selectedDays
+                }
+              }
+            }
+          }
+        }
+      }
+      return member
+    }))
+  }
+
+  const handleToggleSection = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'enrollment') => {
+    setFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        // When expanding, sync temp data with actual data
+        if (section === 'contactInfo') {
+          const sectionData = member.sections.contactInfo
+          if (!sectionData.isExpanded) {
+            return {
+              ...member,
+              sections: {
+                ...member.sections,
+                contactInfo: {
+                  isExpanded: true,
+                  tempData: {
+                    firstName: member.firstName,
+                    lastName: member.lastName,
+                    email: member.email,
+                    phone: member.phone,
+                    addressStreet: member.addressStreet,
+                    addressCity: member.addressCity,
+                    addressState: member.addressState,
+                    addressZip: member.addressZip
+                  }
+                }
+              }
+            }
+          } else {
+            return {
+              ...member,
+              sections: {
+                ...member.sections,
+                contactInfo: { ...sectionData, isExpanded: false }
+              }
+            }
+          }
+        } else if (section === 'loginSecurity') {
+          const sectionData = member.sections.loginSecurity
+          if (!sectionData.isExpanded) {
+            return {
+              ...member,
+              sections: {
+                ...member.sections,
+                loginSecurity: {
+                  isExpanded: true,
+                  tempData: {
+                    username: member.username,
+                    password: member.password
+                  }
+                }
+              }
+            }
+          } else {
+            return {
+              ...member,
+              sections: {
+                ...member.sections,
+                loginSecurity: { ...sectionData, isExpanded: false }
+              }
+            }
+          }
+        } else {
+          const sectionData = member.sections.enrollment
+          if (!sectionData.isExpanded) {
+            return {
+              ...member,
+              sections: {
+                ...member.sections,
+                enrollment: {
+                  isExpanded: true,
+                  tempData: {
+                    programId: member.programId,
+                    program: member.program,
+                    daysPerWeek: member.daysPerWeek,
+                    selectedDays: member.selectedDays
+                  }
+                }
+              }
+            }
+          } else {
+            return {
+              ...member,
+              sections: {
+                ...member.sections,
+                enrollment: { ...sectionData, isExpanded: false }
+              }
+            }
+          }
+        }
+      }
+      return member
+    }))
+  }
+
+  const handleFinishedWithMember = (memberId: string) => {
+    setFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        return { ...member, isFinished: true }
+      }
+      return member
+    }))
+  }
+
+  const handleAddFamilyMember = () => {
+    const newMemberId = `member-${Date.now()}`
+    setFamilyMembers(prev => [...prev, {
+      id: newMemberId,
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      addressStreet: '',
+      addressCity: '',
+      addressState: '',
+      addressZip: '',
+      username: '',
+      password: 'vortex',
+      programId: null,
+      program: 'Non-Participant',
+      daysPerWeek: 1,
+      selectedDays: [],
+      dateOfBirth: '',
+      medicalNotes: '',
+      isFinished: false,
+      sections: {
+        contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+        loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+        enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+      }
+    }])
   }
 
 
@@ -5040,8 +5391,622 @@ export default function Admin({ onLogout }: AdminProps) {
               {/* New Family Mode */}
               {memberModalMode === 'new-family' && (
                 <div className="space-y-6">
+                  {familyMembers.map((member, memberIndex) => (
+                    <div key={member.id} className="bg-gray-700 p-4 rounded">
+                      <h4 className="font-semibold text-white mb-4">
+                        Family Member {memberIndex + 1}{memberIndex === 0 ? ' (Must be an Adult) *' : ''}
+                      </h4>
+                      
+                      {/* 1. Contact Information Section */}
+                      <div className="mb-4 border border-gray-600 rounded">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSection(member.id, 'contactInfo')}
+                          className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+                        >
+                          <span>1. Contact Information</span>
+                          <span>{member.sections.contactInfo.isExpanded ? '−' : '+'}</span>
+                        </button>
+                        {member.sections.contactInfo.isExpanded && (
+                          <div className="p-4 bg-gray-800">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.firstName}
+                                  onChange={async (e) => {
+                                    const firstName = e.target.value
+                                    const username = await generateUsername(firstName, member.sections.contactInfo.tempData.lastName)
+                                    setFamilyMembers(prev => prev.map(m => 
+                                      m.id === member.id 
+                                        ? {
+                                            ...m,
+                                            sections: {
+                                              ...m.sections,
+                                              contactInfo: {
+                                                ...m.sections.contactInfo,
+                                                tempData: { ...m.sections.contactInfo.tempData, firstName }
+                                              },
+                                              loginSecurity: {
+                                                ...m.sections.loginSecurity,
+                                                tempData: { ...m.sections.loginSecurity.tempData, username }
+                                              }
+                                            }
+                                          }
+                                        : m
+                                    ))
+                                  }}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.lastName}
+                                  onChange={async (e) => {
+                                    const lastName = e.target.value
+                                    const username = await generateUsername(member.sections.contactInfo.tempData.firstName, lastName)
+                                    setFamilyMembers(prev => prev.map(m => 
+                                      m.id === member.id 
+                                        ? {
+                                            ...m,
+                                            sections: {
+                                              ...m.sections,
+                                              contactInfo: {
+                                                ...m.sections.contactInfo,
+                                                tempData: { ...m.sections.contactInfo.tempData, lastName }
+                                              },
+                                              loginSecurity: {
+                                                ...m.sections.loginSecurity,
+                                                tempData: { ...m.sections.loginSecurity.tempData, username }
+                                              }
+                                            }
+                                          }
+                                        : m
+                                    ))
+                                  }}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                                <input
+                                  type="email"
+                                  value={member.sections.contactInfo.tempData.email}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            contactInfo: {
+                                              ...m.sections.contactInfo,
+                                              tempData: { ...m.sections.contactInfo.tempData, email: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Phone *</label>
+                                <input
+                                  type="tel"
+                                  value={member.sections.contactInfo.tempData.phone}
+                                  onChange={(e) => {
+                                    const formatted = formatPhoneNumber(e.target.value)
+                                    setFamilyMembers(prev => prev.map(m => 
+                                      m.id === member.id 
+                                        ? {
+                                            ...m,
+                                            sections: {
+                                              ...m.sections,
+                                              contactInfo: {
+                                                ...m.sections.contactInfo,
+                                                tempData: { ...m.sections.contactInfo.tempData, phone: formatted }
+                                              }
+                                            }
+                                          }
+                                        : m
+                                    ))
+                                  }}
+                                  placeholder="###-###-####"
+                                  maxLength={12}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  autoComplete="off"
+                                  required
+                                />
+                              </div>
+                              <div className="md:col-span-2">
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Street</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.addressStreet}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            contactInfo: {
+                                              ...m.sections.contactInfo,
+                                              tempData: { ...m.sections.contactInfo.tempData, addressStreet: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="Street address"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">City</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.addressCity}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            contactInfo: {
+                                              ...m.sections.contactInfo,
+                                              tempData: { ...m.sections.contactInfo.tempData, addressCity: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="City"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">State</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.addressState}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            contactInfo: {
+                                              ...m.sections.contactInfo,
+                                              tempData: { ...m.sections.contactInfo.tempData, addressState: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="State"
+                                  maxLength={2}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Zip</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.contactInfo.tempData.addressZip}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            contactInfo: {
+                                              ...m.sections.contactInfo,
+                                              tempData: { ...m.sections.contactInfo.tempData, addressZip: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="ZIP code"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                type="button"
+                                onClick={() => handleSectionContinue(member.id, 'contactInfo')}
+                                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Continue
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionMinimize(member.id, 'contactInfo')}
+                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Minimize
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionCancel(member.id, 'contactInfo')}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 2. Login & Security Section */}
+                      <div className="mb-4 border border-gray-600 rounded">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSection(member.id, 'loginSecurity')}
+                          className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+                        >
+                          <span>2. Login & Security</span>
+                          <span>{member.sections.loginSecurity.isExpanded ? '−' : '+'}</span>
+                        </button>
+                        {member.sections.loginSecurity.isExpanded && (
+                          <div className="p-4 bg-gray-800">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
+                                <input
+                                  type="text"
+                                  value={member.sections.loginSecurity.tempData.username}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            loginSecurity: {
+                                              ...m.sections.loginSecurity,
+                                              tempData: { ...m.sections.loginSecurity.tempData, username: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
+                                <input
+                                  type="password"
+                                  value={member.sections.loginSecurity.tempData.password}
+                                  onChange={(e) => setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            loginSecurity: {
+                                              ...m.sections.loginSecurity,
+                                              tempData: { ...m.sections.loginSecurity.tempData, password: e.target.value }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                  minLength={6}
+                                  autoComplete="new-password"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">Default: vortex</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                type="button"
+                                onClick={() => handleSectionContinue(member.id, 'loginSecurity')}
+                                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Continue
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionMinimize(member.id, 'loginSecurity')}
+                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Minimize
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionCancel(member.id, 'loginSecurity')}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 3. Class Enrollments Section */}
+                      <div className="mb-4 border border-gray-600 rounded">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSection(member.id, 'enrollment')}
+                          className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+                        >
+                          <span>3. Class Enrollments</span>
+                          <span>{member.sections.enrollment.isExpanded ? '−' : '+'}</span>
+                        </button>
+                        {member.sections.enrollment.isExpanded && (
+                          <div className="p-4 bg-gray-800">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Program/Class</label>
+                                <select
+                                  value={member.sections.enrollment.tempData.programId || ''}
+                                  onChange={(e) => {
+                                    const programId = e.target.value ? parseInt(e.target.value) : null
+                                    const selectedProgram = programs.find(p => p.id === programId)
+                                    setFamilyMembers(prev => prev.map(m => 
+                                      m.id === member.id 
+                                        ? {
+                                            ...m,
+                                            sections: {
+                                              ...m.sections,
+                                              enrollment: {
+                                                ...m.sections.enrollment,
+                                                tempData: {
+                                                  programId,
+                                                  program: selectedProgram?.displayName || 'Non-Participant',
+                                                  daysPerWeek: 1,
+                                                  selectedDays: []
+                                                }
+                                              }
+                                            }
+                                          }
+                                        : m
+                                    ))
+                                  }}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                >
+                                  <option value="">Non-Participant</option>
+                                  {getSimplifiedGymnasticsPrograms(programs).map((program) => (
+                                    <option key={program.id} value={program.id}>
+                                      {program.displayName}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                              {member.sections.enrollment.tempData.programId && (
+                                <>
+                                  <div>
+                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
+                                    <select
+                                      value={member.sections.enrollment.tempData.daysPerWeek}
+                                      onChange={(e) => {
+                                        const daysPerWeek = parseInt(e.target.value)
+                                        setFamilyMembers(prev => prev.map(m => 
+                                          m.id === member.id 
+                                            ? {
+                                                ...m,
+                                                sections: {
+                                                  ...m.sections,
+                                                  enrollment: {
+                                                    ...m.sections.enrollment,
+                                                    tempData: {
+                                                      ...m.sections.enrollment.tempData,
+                                                      daysPerWeek,
+                                                      selectedDays: m.sections.enrollment.tempData.selectedDays.length !== daysPerWeek ? [] : m.sections.enrollment.tempData.selectedDays
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            : m
+                                        ))
+                                      }}
+                                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                      required
+                                    >
+                                      <option value={1}>1 day</option>
+                                      <option value={2}>2 days</option>
+                                      <option value={3}>3 days</option>
+                                      <option value={4}>4 days</option>
+                                      <option value={5}>5 days</option>
+                                      <option value={6}>6 days</option>
+                                      <option value={7}>7 days</option>
+                                    </select>
+                                  </div>
+                                  <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                                      Select Days * ({member.sections.enrollment.tempData.selectedDays.length} of {member.sections.enrollment.tempData.daysPerWeek} selected)
+                                    </label>
+                                    <div className="grid grid-cols-7 gap-2">
+                                      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                                        <button
+                                          key={day}
+                                          type="button"
+                                          onClick={() => {
+                                            const dayIndex = member.sections.enrollment.tempData.selectedDays.indexOf(day)
+                                            if (dayIndex > -1) {
+                                              setFamilyMembers(prev => prev.map(m => 
+                                                m.id === member.id 
+                                                  ? {
+                                                      ...m,
+                                                      sections: {
+                                                        ...m.sections,
+                                                        enrollment: {
+                                                          ...m.sections.enrollment,
+                                                          tempData: {
+                                                            ...m.sections.enrollment.tempData,
+                                                            selectedDays: m.sections.enrollment.tempData.selectedDays.filter(d => d !== day)
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  : m
+                                              ))
+                                            } else {
+                                              if (member.sections.enrollment.tempData.selectedDays.length < member.sections.enrollment.tempData.daysPerWeek) {
+                                                setFamilyMembers(prev => prev.map(m => 
+                                                  m.id === member.id 
+                                                    ? {
+                                                        ...m,
+                                                        sections: {
+                                                          ...m.sections,
+                                                          enrollment: {
+                                                            ...m.sections.enrollment,
+                                                            tempData: {
+                                                              ...m.sections.enrollment.tempData,
+                                                              selectedDays: [...m.sections.enrollment.tempData.selectedDays, day]
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    : m
+                                                ))
+                                              } else {
+                                                alert(`Please select exactly ${member.sections.enrollment.tempData.daysPerWeek} day(s)`)
+                                              }
+                                            }
+                                          }}
+                                          className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                            member.sections.enrollment.tempData.selectedDays.includes(day)
+                                              ? 'bg-vortex-red text-white'
+                                              : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                                          }`}
+                                        >
+                                          {day.substring(0, 3)}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                type="button"
+                                onClick={() => handleSectionContinue(member.id, 'enrollment')}
+                                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Continue
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionMinimize(member.id, 'enrollment')}
+                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Minimize
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionCancel(member.id, 'enrollment')}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Finished with Member Button */}
+                      {!member.isFinished && (
+                        <div className="mt-4">
+                          <button
+                            type="button"
+                            onClick={() => handleFinishedWithMember(member.id)}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                          >
+                            Finished with Member
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Add a Family Member Box */}
+                  <div className="border-2 border-dashed border-gray-600 rounded p-4">
+                    <button
+                      type="button"
+                      onClick={handleAddFamilyMember}
+                      className="w-full text-white font-semibold py-3 hover:bg-gray-600 rounded transition-colors"
+                    >
+                      Add a Family Member
+                    </button>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleCreateFamilyWithPrimaryAdult}
+                      className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    >
+                      Create Member or Family
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMemberModalMode('search')
+                        setFamilyMembers([{
+                          id: 'member-1',
+                          firstName: '',
+                          lastName: '',
+                          email: '',
+                          phone: '',
+                          addressStreet: '',
+                          addressCity: '',
+                          addressState: '',
+                          addressZip: '',
+                          username: '',
+                          password: 'vortex',
+                          programId: null,
+                          program: 'Non-Participant',
+                          daysPerWeek: 1,
+                          selectedDays: [],
+                          dateOfBirth: '',
+                          medicalNotes: '',
+                          isFinished: false,
+                          sections: {
+                            contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+                            loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+                            enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+                          }
+                        }])
+                        setUserSearchQuery('')
+                        setAvailableUsers([])
+                      }}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Existing Family Mode */}
+              {memberModalMode === 'existing-family' && selectedFamilyForMember && (
+                <div className="space-y-6">
                   <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4">Family Member 1 (Must be an Adult) *</h4>
+                    <h4 className="font-semibold text-white mb-2">Family: {selectedFamilyForMember.family_name || 'Unnamed Family'}</h4>
+                    <div className="text-sm text-gray-300">
+                      {selectedFamilyForMember.guardians && selectedFamilyForMember.guardians.length > 0 && (
+                        <div>Guardians: {selectedFamilyForMember.guardians.map(g => g.fullName).join(', ')}</div>
+                      )}
+                      {selectedFamilyForMember.athletes && selectedFamilyForMember.athletes.length > 0 && (
+                        <div>Athletes: {selectedFamilyForMember.athletes.map(a => `${a.first_name} ${a.last_name}`).join(', ')}</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="font-semibold text-white mb-4">Add Additional Family Member(s)</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
