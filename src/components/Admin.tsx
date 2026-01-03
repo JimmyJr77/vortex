@@ -924,34 +924,6 @@ export default function Admin({ onLogout }: AdminProps) {
   const [enrollmentRemovalConfirm, setEnrollmentRemovalConfirm] = useState<{ memberId: string; enrollmentId: string } | null>(null)
   const [enrollmentRemovalText, setEnrollmentRemovalText] = useState('')
   
-  // Simplified function to get all Gymnastics programs sorted from easiest to hardest
-  const getSimplifiedGymnasticsPrograms = (programsList: Program[]) => {
-    const skillLevelOrder: (string | null)[] = ['EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED', null]
-    
-    // Filter active, non-archived programs that match "Gymnastics" category
-    const gymnasticsPrograms = programsList.filter(p => {
-      if (!p.isActive || p.archived) return false
-      const categoryName = (p.categoryDisplayName || p.categoryName || '').toLowerCase()
-      return categoryName.includes('gymnastics')
-    })
-    
-    // Sort by skill level (easiest to hardest), then alphabetically by display name
-    return gymnasticsPrograms.sort((a, b) => {
-      const aLevel = a.skillLevel || null
-      const bLevel = b.skillLevel || null
-      const aIndex = skillLevelOrder.indexOf(aLevel)
-      const bIndex = skillLevelOrder.indexOf(bLevel)
-      
-      // First sort by skill level
-      if (aIndex !== bIndex) {
-        return aIndex - bIndex
-      }
-      
-      // Then sort alphabetically by display name
-      return a.displayName.localeCompare(b.displayName)
-    })
-  }
-
   // Get all active classes grouped by category
   const getActiveClassesByCategory = (programsList: Program[]) => {
     // Filter for active, non-archived classes
