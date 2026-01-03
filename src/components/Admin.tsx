@@ -939,6 +939,35 @@ export default function Admin({ onLogout }: AdminProps) {
     
     return organized
   }
+  
+  // Simplified function to get all Gymnastics programs sorted from easiest to hardest
+  const getSimplifiedGymnasticsPrograms = (programsList: Program[]) => {
+    const skillLevelOrder: (string | null)[] = ['EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED', null]
+    
+    // Filter active, non-archived programs that match "Gymnastics" category
+    const gymnasticsPrograms = programsList.filter(p => {
+      if (!p.isActive || p.archived) return false
+      const categoryName = (p.categoryDisplayName || p.categoryName || '').toLowerCase()
+      return categoryName.includes('gymnastics')
+    })
+    
+    // Sort by skill level (easiest to hardest), then alphabetically by display name
+    return gymnasticsPrograms.sort((a, b) => {
+      const aLevel = a.skillLevel || null
+      const bLevel = b.skillLevel || null
+      const aIndex = skillLevelOrder.indexOf(aLevel)
+      const bIndex = skillLevelOrder.indexOf(bLevel)
+      
+      // First sort by skill level
+      if (aIndex !== bIndex) {
+        return aIndex - bIndex
+      }
+      
+      // Then sort alphabetically by display name
+      return a.displayName.localeCompare(b.displayName)
+    })
+  }
+  
   const [editingProgramId, setEditingProgramId] = useState<number | null>(null)
   const [programFormData, setProgramFormData] = useState<Partial<Program>>({})
   const [showArchivedCategories, setShowArchivedCategories] = useState(false)
@@ -5152,14 +5181,10 @@ export default function Admin({ onLogout }: AdminProps) {
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
                           <option value="">Non-Participant</option>
-                          {organizeProgramsByCategoryAndLevel(programs).map((group, groupIndex) => (
-                            <optgroup key={`${group.category}-${group.skillLevel}-${groupIndex}`} label={`${group.category}${group.skillLevel ? ` - ${group.skillLevel.replace('_', ' ')}` : ''}`}>
-                              {group.programs.map((program) => (
-                                <option key={program.id} value={program.id}>
-                                  {program.displayName}
-                                </option>
-                              ))}
-                            </optgroup>
+                          {getSimplifiedGymnasticsPrograms(programs).map((program) => (
+                            <option key={program.id} value={program.id}>
+                              {program.displayName}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -5325,14 +5350,10 @@ export default function Admin({ onLogout }: AdminProps) {
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
                           <option value="">Non-Participant</option>
-                          {organizeProgramsByCategoryAndLevel(programs).map((group, groupIndex) => (
-                            <optgroup key={`${group.category}-${group.skillLevel}-${groupIndex}`} label={`${group.category}${group.skillLevel ? ` - ${group.skillLevel.replace('_', ' ')}` : ''}`}>
-                              {group.programs.map((program) => (
-                                <option key={program.id} value={program.id}>
-                                  {program.displayName}
-                                </option>
-                              ))}
-                            </optgroup>
+                          {getSimplifiedGymnasticsPrograms(programs).map((program) => (
+                            <option key={program.id} value={program.id}>
+                              {program.displayName}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -5550,14 +5571,10 @@ export default function Admin({ onLogout }: AdminProps) {
                           className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                         >
                           <option value="">Non-Participant</option>
-                          {organizeProgramsByCategoryAndLevel(programs).map((group, groupIndex) => (
-                            <optgroup key={`${group.category}-${group.skillLevel}-${groupIndex}`} label={`${group.category}${group.skillLevel ? ` - ${group.skillLevel.replace('_', ' ')}` : ''}`}>
-                              {group.programs.map((program) => (
-                                <option key={program.id} value={program.id}>
-                                  {program.displayName}
-                                </option>
-                              ))}
-                            </optgroup>
+                          {getSimplifiedGymnasticsPrograms(programs).map((program) => (
+                            <option key={program.id} value={program.id}>
+                              {program.displayName}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -6379,7 +6396,7 @@ export default function Admin({ onLogout }: AdminProps) {
                                   <div className="md:col-span-2">
                                     <label className="block text-sm font-semibold text-gray-300 mb-2">Enrollment</label>
                                     <div className="space-y-3">
-                                      {(member.enrollments || []).length > 0 && (member.enrollments || []).map((enrollment, enrollmentIndex) => {
+                                      {(member.enrollments || []).map((enrollment, enrollmentIndex) => {
                                         const selectedProgramIds = (member.enrollments || []).map(e => e.programId).filter(Boolean)
                                         return (
                                           <div key={enrollmentIndex} className="bg-gray-600 p-4 rounded border border-gray-500">
@@ -6420,22 +6437,18 @@ export default function Admin({ onLogout }: AdminProps) {
                                                   required
                                                 >
                                                   <option value="">Select a class</option>
-                                                  {organizeProgramsByCategoryAndLevel(programs).map((group, groupIndex) => (
-                                                    <optgroup key={`${group.category}-${group.skillLevel}-${groupIndex}`} label={`${group.category}${group.skillLevel ? ` - ${group.skillLevel.replace('_', ' ')}` : ''}`}>
-                                                      {group.programs.map((program) => {
-                                                        const isSelected = selectedProgramIds.includes(program.id) && member.enrollments[enrollmentIndex].programId !== program.id
-                                                        return (
-                                                          <option 
-                                                            key={program.id} 
-                                                            value={program.id}
-                                                            disabled={isSelected}
-                                                          >
-                                                            {program.displayName}
-                                                          </option>
-                                                        )
-                                                      })}
-                                                    </optgroup>
-                                                  ))}
+                                                  {getSimplifiedGymnasticsPrograms(programs).map((program) => {
+                                                    const isSelected = selectedProgramIds.includes(program.id) && (member.enrollments || [])[enrollmentIndex].programId !== program.id
+                                                    return (
+                                                      <option 
+                                                        key={program.id} 
+                                                        value={program.id}
+                                                        disabled={isSelected}
+                                                      >
+                                                        {program.displayName}
+                                                      </option>
+                                                    )
+                                                  })}
                                                 </select>
                                               </div>
                                               {enrollment.programId && (
@@ -6727,22 +6740,18 @@ export default function Admin({ onLogout }: AdminProps) {
                                         required
                                       >
                                         <option value="">Select a class</option>
-                                        {organizeProgramsByCategoryAndLevel(programs).map((group, groupIndex) => (
-                                          <optgroup key={`${group.category}-${group.skillLevel}-${groupIndex}`} label={`${group.category}${group.skillLevel ? ` - ${group.skillLevel.replace('_', ' ')}` : ''}`}>
-                                            {group.programs.map((program) => {
-                                              const isSelected = selectedProgramIds.includes(program.id) && newFamilyMemberInEdit.enrollments[enrollmentIndex].programId !== program.id
-                                              return (
-                                                <option 
-                                                  key={program.id} 
-                                                  value={program.id}
-                                                  disabled={isSelected}
-                                                >
-                                                  {program.displayName}
-                                                </option>
-                                              )
-                                            })}
-                                          </optgroup>
-                                        ))}
+                                        {getSimplifiedGymnasticsPrograms(programs).map((program) => {
+                                          const isSelected = selectedProgramIds.includes(program.id) && (newFamilyMemberInEdit.enrollments || [])[enrollmentIndex].programId !== program.id
+                                          return (
+                                            <option 
+                                              key={program.id} 
+                                              value={program.id}
+                                              disabled={isSelected}
+                                            >
+                                              {program.displayName}
+                                            </option>
+                                          )
+                                        })}
                                       </select>
                                     </div>
                                     {enrollment.programId && (
