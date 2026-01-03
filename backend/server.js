@@ -399,6 +399,29 @@ export const initDatabase = async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_email ON app_user(email)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_active ON app_user(is_active)`)
 
+    // Create user_role junction table for multiple roles per user
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_role (
+        id                  BIGSERIAL PRIMARY KEY,
+        user_id             BIGINT NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+        role                user_role NOT NULL,
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        UNIQUE (user_id, role)
+      )
+    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_role_user_id ON user_role(user_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_role_role ON user_role(role)`)
+    
+    // Migrate existing single roles to user_role table
+    await pool.query(`
+      INSERT INTO user_role (user_id, role, created_at)
+      SELECT id, role, created_at
+      FROM app_user
+      WHERE NOT EXISTS (
+        SELECT 1 FROM user_role ur WHERE ur.user_id = app_user.id AND ur.role = app_user.role
+      )
+    `)
+
     // Migrate existing admins to app_user as OWNER_ADMIN
     await pool.query(`
       INSERT INTO app_user (
@@ -914,6 +937,84 @@ const emergencyContactSchema = Joi.object({
   phone: Joi.string().max(20).required(),
   email: Joi.string().email().optional().allow('', null)
 })
+
+// Helper functions for role management
+const getUserRoles = async (userId) => {
+  try {
+    const result = await pool.query(`
+      SELECT role FROM user_role WHERE user_id = $1
+      UNION
+      SELECT role FROM app_user WHERE id = $1
+    `, [userId])
+    return result.rows.map(row => row.role)
+  } catch (error) {
+    console.error('Error getting user roles:', error)
+    // Fallback to single role from app_user
+    try {
+      const result = await pool.query('SELECT role FROM app_user WHERE id = $1', [userId])
+      return result.rows.length > 0 ? [result.rows[0].role] : []
+    } catch (fallbackError) {
+      return []
+    }
+  }
+}
+
+const userHasRole = async (userId, role) => {
+  const roles = await getUserRoles(userId)
+  return roles.includes(role)
+}
+
+const userHasAnyRole = async (userId, roles) => {
+  const userRoles = await getUserRoles(userId)
+  return roles.some(role => userRoles.includes(role))
+}
+
+const addUserRole = async (userId, role) => {
+  try {
+    await pool.query(`
+      INSERT INTO user_role (user_id, role)
+      VALUES ($1, $2::user_role)
+      ON CONFLICT (user_id, role) DO NOTHING
+    `, [userId, role])
+    return true
+  } catch (error) {
+    console.error('Error adding user role:', error)
+    return false
+  }
+}
+
+const removeUserRole = async (userId, role) => {
+  try {
+    await pool.query('DELETE FROM user_role WHERE user_id = $1 AND role = $2::user_role', [userId, role])
+    return true
+  } catch (error) {
+    console.error('Error removing user role:', error)
+    return false
+  }
+}
+
+const setUserRoles = async (userId, roles) => {
+  try {
+    // Remove all existing roles from junction table
+    await pool.query('DELETE FROM user_role WHERE user_id = $1', [userId])
+    // Add new roles
+    for (const role of roles) {
+      await pool.query(`
+        INSERT INTO user_role (user_id, role)
+        VALUES ($1, $2::user_role)
+        ON CONFLICT (user_id, role) DO NOTHING
+      `, [userId, role])
+    }
+    // Update primary role in app_user table (use first role or keep existing)
+    if (roles.length > 0) {
+      await pool.query('UPDATE app_user SET role = $1::user_role WHERE id = $2', [roles[0], userId])
+    }
+    return true
+  } catch (error) {
+    console.error('Error setting user roles:', error)
+    return false
+  }
+}
 
 // Middleware to verify JWT token
 const authenticateMember = (req, res, next) => {
@@ -1655,9 +1756,18 @@ app.get('/api/admin/users', async (req, res) => {
     
     const result = await pool.query(query, params)
     
+    // Get all roles for each user
+    const usersWithRoles = await Promise.all(result.rows.map(async (user) => {
+      const roles = await getUserRoles(user.id)
+      return {
+        ...user,
+        roles: roles
+      }
+    }))
+    
     res.json({
       success: true,
-      data: result.rows
+      data: usersWithRoles
     })
   } catch (error) {
     console.error('Get users error:', error)
@@ -1671,7 +1781,9 @@ app.get('/api/admin/users', async (req, res) => {
 // Create app_user (admin endpoint) - for creating parent/guardian accounts
 app.post('/api/admin/users', async (req, res) => {
   try {
-    const { fullName, email, phone, password, role, username } = req.body
+    const { fullName, email, phone, password, role, roles, username } = req.body
+    // Support both single role (backward compatibility) and multiple roles
+    const userRoles = roles && Array.isArray(roles) ? roles : (role ? [role] : ['PARENT_GUARDIAN'])
     
     if (!fullName || !password) {
       return res.status(400).json({
@@ -1735,17 +1847,30 @@ app.post('/api/admin/users', async (req, res) => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10)
 
-    // Create user
+    // Create user with primary role (first role in array or single role)
+    const primaryRole = userRoles[0] || 'PARENT_GUARDIAN'
     const result = await pool.query(`
       INSERT INTO app_user (facility_id, role, email, phone, full_name, password_hash, is_active, username)
       VALUES ($1, $2::user_role, $3, $4, $5, $6, TRUE, $7)
       RETURNING id, email, full_name, phone, role, is_active, created_at, username
-    `, [facilityId, role || 'PARENT_GUARDIAN', email || null, phone || null, fullName, passwordHash, username || null])
+    `, [facilityId, primaryRole, email || null, phone || null, fullName, passwordHash, username || null])
+
+    const userId = result.rows[0].id
+
+    // Add all roles to user_role table
+    await setUserRoles(userId, userRoles)
+
+    // Fetch user with all roles
+    const allRoles = await getUserRoles(userId)
+    const userData = {
+      ...result.rows[0],
+      roles: allRoles
+    }
 
     res.json({
       success: true,
       message: 'User created successfully',
-      data: result.rows[0]
+      data: userData
     })
   } catch (error) {
     console.error('Create user error:', error)
@@ -1793,9 +1918,16 @@ app.get('/api/admin/users/:id', async (req, res) => {
       })
     }
     
+    // Get all roles for the user
+    const roles = await getUserRoles(parseInt(id))
+    const userData = {
+      ...result.rows[0],
+      roles: roles
+    }
+    
     res.json({
       success: true,
-      data: result.rows[0]
+      data: userData
     })
   } catch (error) {
     console.error('Get user error:', error)
@@ -1810,7 +1942,9 @@ app.get('/api/admin/users/:id', async (req, res) => {
 app.put('/api/admin/users/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const { fullName, email, phone, password, username } = req.body
+    const { fullName, email, phone, password, username, roles, role } = req.body
+    // Support both single role (backward compatibility) and multiple roles
+    const userRoles = roles && Array.isArray(roles) ? roles : (role ? [role] : null)
     
     // Get facility
     const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
@@ -1950,10 +2084,26 @@ app.put('/api/admin/users/:id', async (req, res) => {
     
     const result = await pool.query(updateQuery, params)
     
+    // Update roles if provided
+    if (userRoles) {
+      await setUserRoles(parseInt(id), userRoles)
+      // Update primary role in app_user if roles were provided
+      if (userRoles.length > 0) {
+        await pool.query('UPDATE app_user SET role = $1::user_role WHERE id = $2', [userRoles[0], id])
+      }
+    }
+    
+    // Get all roles for the user
+    const allRoles = await getUserRoles(parseInt(id))
+    const userData = {
+      ...result.rows[0],
+      roles: allRoles
+    }
+    
     res.json({
       success: true,
       message: 'User updated successfully',
-      data: result.rows[0]
+      data: userData
     })
   } catch (error) {
     console.error('Update user error:', error)
@@ -2806,6 +2956,7 @@ app.post('/api/members/login', async (req, res) => {
     }
 
     // Find user by email OR username (for PARENT_GUARDIAN or ATHLETE roles)
+    // Check both app_user.role and user_role table for role matching
     const emailOrUsername = value.emailOrUsername.trim()
     const isEmail = emailOrUsername.includes('@')
     
@@ -2813,20 +2964,24 @@ app.post('/api/members/login', async (req, res) => {
     if (isEmail) {
       if (facilityId !== null) {
         query = `
-          SELECT u.* 
+          SELECT DISTINCT u.* 
           FROM app_user u
+          LEFT JOIN user_role ur ON ur.user_id = u.id
           WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.email = $2 
-            AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE'))
             AND u.is_active = TRUE
         `
         params = [facilityId, emailOrUsername]
       } else {
         query = `
-          SELECT u.* 
+          SELECT DISTINCT u.* 
           FROM app_user u
+          LEFT JOIN user_role ur ON ur.user_id = u.id
           WHERE u.email = $1 
-            AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE'))
             AND u.is_active = TRUE
         `
         params = [emailOrUsername]
@@ -2836,22 +2991,26 @@ app.post('/api/members/login', async (req, res) => {
       const usernameLower = emailOrUsername.toLowerCase()
       if (facilityId !== null) {
         query = `
-          SELECT u.* 
+          SELECT DISTINCT u.* 
           FROM app_user u
+          LEFT JOIN user_role ur ON ur.user_id = u.id
           WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.username IS NOT NULL
             AND LOWER(u.username) = $2 
-            AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE'))
             AND u.is_active = TRUE
         `
         params = [facilityId, usernameLower]
       } else {
         query = `
-          SELECT u.* 
+          SELECT DISTINCT u.* 
           FROM app_user u
+          LEFT JOIN user_role ur ON ur.user_id = u.id
           WHERE u.username IS NOT NULL
             AND LOWER(u.username) = $1 
-            AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE'))
             AND u.is_active = TRUE
         `
         params = [usernameLower]
@@ -2960,9 +3119,9 @@ app.post('/api/members/login', async (req, res) => {
       }
     }
 
-    // Generate JWT token
+    // Generate JWT token with all roles
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
+      { userId: user.id, email: user.email, role: user.role, roles: allUserRoles },
       JWT_SECRET,
       { expiresIn: '30d' }
     )
@@ -2977,7 +3136,8 @@ app.post('/api/members/login', async (req, res) => {
       email: user.email || '',
       phone: user.phone || null,
       username: user.username || '',
-      role: user.role || '',
+      role: user.role || '', // Primary role for backward compatibility
+      roles: allUserRoles, // All roles
       familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
       familyName: familyResult.rows.length > 0 ? familyResult.rows[0].family_name : null,
       athletes: athletes.map(a => ({
@@ -3016,11 +3176,14 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
     
-    // Get user from app_user table
+    // Get user from app_user table (check both app_user.role and user_role table)
     const userResult = await pool.query(`
-      SELECT u.id, u.email, u.full_name, u.phone, u.role, u.username, u.is_active, u.created_at
+      SELECT DISTINCT u.id, u.email, u.full_name, u.phone, u.role, u.username, u.is_active, u.created_at
       FROM app_user u
-      WHERE u.id = $1 AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+      LEFT JOIN user_role ur ON ur.user_id = u.id
+      WHERE u.id = $1 
+        AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+             OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE'))
     `, [userId])
 
     if (userResult.rows.length === 0) {
@@ -3093,7 +3256,8 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       email: user.email || '',
       phone: user.phone || null,
       username: user.username || '',
-      role: user.role || '',
+      role: user.role || '', // Primary role for backward compatibility
+      roles: allUserRoles, // All roles
       familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
       familyName: familyResult.rows.length > 0 ? familyResult.rows[0].family_name : null,
       athletes: athletes.map(a => ({
@@ -3378,14 +3542,10 @@ app.put('/api/members/family/:id', authenticateMember, async (req, res) => {
     const familyMemberId = parseInt(req.params.id)
     const { first_name, last_name, email, phone } = req.body
 
-    // Check if user is an adult (PARENT_GUARDIAN)
-    const userResult = await pool.query(`
-      SELECT u.role
-      FROM app_user u
-      WHERE u.id = $1
-    `, [userId])
-
-    if (userResult.rows.length === 0 || userResult.rows[0].role !== 'PARENT_GUARDIAN') {
+    // Check if user is an adult (has PARENT_GUARDIAN role)
+    const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
+    
+    if (!hasParentRole) {
       return res.status(403).json({
         success: false,
         message: 'Only adults can edit family member information'
@@ -3743,7 +3903,8 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
 
     // Check if user has permission (is PARENT_GUARDIAN or is the athlete themselves)
     const isAthleteSelf = hasUserIdColumn && athlete.user_id && String(athlete.user_id) === String(userId)
-    if (userRole !== 'PARENT_GUARDIAN' && !isAthleteSelf) {
+    const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
+    if (!hasParentRole && !isAthleteSelf) {
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to enroll this family member'
@@ -3786,14 +3947,8 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       })
     }
 
-    // Ensure athlete has ATHLETE role if they have a user account
-    if (hasUserIdColumn && athlete.user_id) {
-      await pool.query(`
-        UPDATE app_user
-        SET role = 'ATHLETE'
-        WHERE id = $1 AND role != 'ATHLETE'
-      `, [athlete.user_id])
-    }
+    // Note: ATHLETE role will be assigned after successful enrollment
+    // This ensures the role is only assigned when enrollment actually succeeds
 
     // Create enrollment record (you may need to create an athlete_program or enrollment table)
     // For now, we'll just ensure the athlete has the ATHLETE role
@@ -3886,6 +4041,28 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
         message: 'Failed to create enrollment record: ' + (error.message || 'Unknown error'),
         error: process.env.NODE_ENV !== 'production' ? error.message : undefined
       })
+    }
+
+    // Assign ATHLETE role to anyone who enrolls in a class
+    // This happens after successful enrollment to ensure role is only assigned when enrollment succeeds
+    
+    // Collect all user IDs that should get the ATHLETE role
+    const userIdsToAssignRole = new Set()
+    
+    // 1. If athlete has a user account, assign ATHLETE role to them
+    if (hasUserIdColumn && athlete.user_id) {
+      userIdsToAssignRole.add(athlete.user_id)
+    }
+    
+    // 2. If current user is enrolling themselves (parent/guardian enrolling themselves),
+    // assign ATHLETE role to them as well
+    if (String(familyMemberId) === String(userId)) {
+      userIdsToAssignRole.add(userId)
+    }
+    
+    // Assign ATHLETE role to all collected user IDs
+    for (const uid of userIdsToAssignRole) {
+      await addUserRole(uid, 'ATHLETE')
     }
 
     res.json({

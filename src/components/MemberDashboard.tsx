@@ -107,8 +107,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
 
   // Check if current member is an adult (can edit family members)
   const isAdult = () => {
-    // Check if user role is PARENT_GUARDIAN
-    return profileData?.role === 'PARENT_GUARDIAN'
+    // Check if user has PARENT_GUARDIAN role (support both single role and multiple roles)
+    const roles = profileData?.roles || (profileData?.role ? [profileData.role] : [])
+    return roles.includes('PARENT_GUARDIAN')
   }
 
   useEffect(() => {
@@ -517,7 +518,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       .filter((id): id is number => id !== null && id !== undefined)
 
     // Check if current user is a parent
-    const isParent = profileData?.role === 'PARENT_GUARDIAN'
+    // Check if user has PARENT_GUARDIAN role (support both single role and multiple roles)
+    const roles = profileData?.roles || (profileData?.role ? [profileData.role] : [])
+    const isParent = roles.includes('PARENT_GUARDIAN')
 
     // Check event tags
     switch (event.tagType) {
