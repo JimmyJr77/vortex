@@ -754,6 +754,7 @@ export default function Admin({ onLogout }: AdminProps) {
     daysPerWeek: number
     selectedDays: string[]
     isCompleted: boolean // whether this enrollment is finished
+    isExpanded?: boolean // whether this enrollment is expanded for editing
   }
   
   type FamilyMemberData = {
@@ -888,6 +889,12 @@ export default function Admin({ onLogout }: AdminProps) {
   })
   const [expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<string | number | null>(null)
   const [expandedViewFamilyMemberId, setExpandedViewFamilyMemberId] = useState<number | null>(null)
+  const [billingInfo, setBillingInfo] = useState({
+    firstName: '',
+    lastName: '',
+    billingAddress: ''
+  })
+  const [isBillingExpanded, setIsBillingExpanded] = useState(true)
   const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
   const [showEditLog, setShowEditLog] = useState(false)
   const [editLog, setEditLog] = useState<any[]>([])
@@ -914,6 +921,8 @@ export default function Admin({ onLogout }: AdminProps) {
   })
   const [programs, setPrograms] = useState<Program[]>([])
   const [programsLoading, setProgramsLoading] = useState(false)
+  const [enrollmentRemovalConfirm, setEnrollmentRemovalConfirm] = useState<{ memberId: string; enrollmentId: string } | null>(null)
+  const [enrollmentRemovalText, setEnrollmentRemovalText] = useState('')
   
   // Simplified function to get all Gymnastics programs sorted from easiest to hardest
   const getSimplifiedGymnasticsPrograms = (programsList: Program[]) => {
@@ -1019,6 +1028,25 @@ export default function Admin({ onLogout }: AdminProps) {
       }
     }
   }, [memberModalMode, familyMembers, expandedFamilyMemberId])
+
+  // Sync billing info with Family Member 1
+  useEffect(() => {
+    if (memberModalMode === 'new-family' && familyMembers.length > 0) {
+      const member1 = familyMembers[0]
+      const addressParts = [
+        member1.sections.contactInfo.tempData.addressStreet,
+        member1.sections.contactInfo.tempData.addressCity,
+        member1.sections.contactInfo.tempData.addressState,
+        member1.sections.contactInfo.tempData.addressZip
+      ].filter(part => part && part.trim())
+      const address = addressParts.join(', ') || ''
+      setBillingInfo({
+        firstName: member1.sections.contactInfo.tempData.firstName,
+        lastName: member1.sections.contactInfo.tempData.lastName,
+        billingAddress: address
+      })
+    }
+  }, [memberModalMode, familyMembers])
 
 
   // Debounce family search
@@ -2487,7 +2515,8 @@ export default function Admin({ onLogout }: AdminProps) {
             program: sectionData.tempData.program,
             daysPerWeek: sectionData.tempData.daysPerWeek,
             selectedDays: sectionData.tempData.selectedDays,
-            isCompleted: true
+            isCompleted: true,
+            isExpanded: false
           }
           return {
             ...member,
@@ -2549,7 +2578,8 @@ export default function Admin({ onLogout }: AdminProps) {
             program: sectionData.tempData.program,
             daysPerWeek: sectionData.tempData.daysPerWeek,
             selectedDays: sectionData.tempData.selectedDays,
-            isCompleted: true
+            isCompleted: true,
+            isExpanded: false
           }
           return {
             ...member,
@@ -2767,16 +2797,46 @@ export default function Admin({ onLogout }: AdminProps) {
     setExpandedFamilyMemberId(newMemberId)
   }
 
-  const handleRemoveEnrollment = (memberId: string, enrollmentId: string) => {
+  const handleToggleEnrollment = (memberId: string, enrollmentId: string) => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         return {
           ...member,
-          enrollments: member.enrollments.filter(e => e.id !== enrollmentId)
+          enrollments: member.enrollments.map(enrollment => 
+            enrollment.id === enrollmentId
+              ? { ...enrollment, isExpanded: !(enrollment.isExpanded ?? false) }
+              : enrollment
+          )
         }
       }
       return member
     }))
+  }
+
+  const handleRemoveEnrollmentClick = (memberId: string, enrollmentId: string) => {
+    setEnrollmentRemovalConfirm({ memberId, enrollmentId })
+    setEnrollmentRemovalText('')
+  }
+
+  const handleConfirmEnrollmentRemoval = () => {
+    if (enrollmentRemovalConfirm && enrollmentRemovalText.trim().toUpperCase() === 'REMOVE') {
+      setFamilyMembers(prev => prev.map(member => {
+        if (member.id === enrollmentRemovalConfirm.memberId) {
+          return {
+            ...member,
+            enrollments: member.enrollments.filter(e => e.id !== enrollmentRemovalConfirm.enrollmentId)
+          }
+        }
+        return member
+      }))
+      setEnrollmentRemovalConfirm(null)
+      setEnrollmentRemovalText('')
+    }
+  }
+
+  const handleCancelEnrollmentRemoval = () => {
+    setEnrollmentRemovalConfirm(null)
+    setEnrollmentRemovalText('')
   }
 
 
@@ -5443,6 +5503,9 @@ export default function Admin({ onLogout }: AdminProps) {
                         if (familyMembers.length > 0) {
                           setExpandedFamilyMemberId(familyMembers[0].id)
                         }
+                        // Reset billing info - will be synced by useEffect
+                        setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
+                        setIsBillingExpanded(true)
                       }}
                       className="w-full bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
@@ -5824,6 +5887,22 @@ export default function Admin({ onLogout }: AdminProps) {
                           <span>3. Class Enrollments {member.enrollments.length > 0 && `(${member.enrollments.length})`}</span>
                           <span>{member.sections.enrollment.isExpanded ? '−' : '+'}</span>
                         </button>
+                        {!member.sections.enrollment.isExpanded && member.enrollments.length > 0 && (
+                          <div className="p-4 bg-gray-800 space-y-2">
+                            {member.enrollments.map((enrollment) => (
+                              <div key={enrollment.id} className="bg-gray-700 p-3 rounded">
+                                <div className="text-white font-medium">
+                                  {enrollment.programId ? enrollment.program : 'Non-Participant'}
+                                </div>
+                                {enrollment.programId && (
+                                  <div className="text-gray-400 text-sm mt-1">
+                                    ({enrollment.daysPerWeek} day{enrollment.daysPerWeek !== 1 ? 's' : ''}/week)
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                         {member.sections.enrollment.isExpanded && (
                           <div className="p-4 bg-gray-800">
                             {/* List of completed enrollments */}
@@ -5831,30 +5910,55 @@ export default function Admin({ onLogout }: AdminProps) {
                               <div className="mb-4 space-y-2">
                                 <p className="text-sm text-gray-300 font-semibold mb-2">Enrolled Classes ({member.enrollments.length}):</p>
                                 {member.enrollments.map((enrollment) => (
-                                  <div key={enrollment.id} className="bg-gray-700 p-3 rounded flex justify-between items-center">
-                                    <div>
-                                      <span className="text-white font-medium">
-                                        {enrollment.program}
-                                      </span>
-                                      {enrollment.programId && (
-                                        <>
+                                  <div key={enrollment.id} className="border border-gray-600 rounded">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleToggleEnrollment(member.id, enrollment.id)}
+                                      className="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold flex justify-between items-center rounded-t"
+                                    >
+                                      <div className="text-left">
+                                        <span className="text-white font-medium">
+                                          {enrollment.programId ? enrollment.program : 'Non-Participant'}
+                                        </span>
+                                        {enrollment.programId && (
                                           <span className="text-gray-400 text-sm ml-2">
                                             ({enrollment.daysPerWeek} day{enrollment.daysPerWeek !== 1 ? 's' : ''}/week)
                                           </span>
-                                          {enrollment.selectedDays.length > 0 && (
-                                            <span className="text-gray-400 text-sm ml-2">
-                                              - {enrollment.selectedDays.join(', ')}
-                                            </span>
-                                          )}
-                                        </>
-                                      )}
-                                    </div>
-                                    <button
-                                      onClick={() => handleRemoveEnrollment(member.id, enrollment.id)}
-                                      className="text-red-400 hover:text-red-300 text-sm font-semibold"
-                                    >
-                                      Remove
+                                        )}
+                                      </div>
+                                      <span>{(enrollment.isExpanded ?? false) ? '−' : '+'}</span>
                                     </button>
+                                    {(enrollment.isExpanded ?? false) && (
+                                      <div className="p-4 bg-gray-800">
+                                        <div className="space-y-3">
+                                          <div>
+                                            <label className="block text-sm font-semibold text-gray-300 mb-1">Program/Class</label>
+                                            <div className="text-white">{enrollment.programId ? enrollment.program : 'Non-Participant'}</div>
+                                          </div>
+                                          {enrollment.programId && (
+                                            <>
+                                              <div>
+                                                <label className="block text-sm font-semibold text-gray-300 mb-1">Days Per Week</label>
+                                                <div className="text-white">{enrollment.daysPerWeek} day{enrollment.daysPerWeek !== 1 ? 's' : ''}/week</div>
+                                              </div>
+                                              {enrollment.selectedDays.length > 0 && (
+                                                <div>
+                                                  <label className="block text-sm font-semibold text-gray-300 mb-1">Selected Days</label>
+                                                  <div className="text-white">{enrollment.selectedDays.join(', ')}</div>
+                                                </div>
+                                              )}
+                                            </>
+                                          )}
+                                          <button
+                                            type="button"
+                                            onClick={() => handleRemoveEnrollmentClick(member.id, enrollment.id)}
+                                            className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                                          >
+                                            Remove Enrollment
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 ))}
                               </div>
@@ -6011,7 +6115,7 @@ export default function Admin({ onLogout }: AdminProps) {
                                 onClick={() => handleSectionContinue(member.id, 'enrollment')}
                                 className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
                               >
-                                Add Class
+                                Continue
                               </button>
                               <button
                                 type="button"
@@ -6026,6 +6130,38 @@ export default function Admin({ onLogout }: AdminProps) {
                                 className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
                               >
                                 Cancel
+                              </button>
+                            </div>
+                            
+                            {/* Add Another Program / Class Option */}
+                            <div className="mt-4 border-2 border-dashed border-gray-500 rounded p-4">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFamilyMembers(prev => prev.map(m => 
+                                    m.id === member.id 
+                                      ? {
+                                          ...m,
+                                          sections: {
+                                            ...m.sections,
+                                            enrollment: {
+                                              ...m.sections.enrollment,
+                                              isExpanded: true,
+                                              tempData: {
+                                                programId: null,
+                                                program: 'Non-Participant',
+                                                daysPerWeek: 1,
+                                                selectedDays: []
+                                              }
+                                            }
+                                          }
+                                        }
+                                      : m
+                                  ))
+                                }}
+                                className="w-full text-white font-semibold py-2 hover:bg-gray-700 rounded transition-colors"
+                              >
+                                Add Another Program / Class
                               </button>
                             </div>
                           </div>
@@ -6058,6 +6194,54 @@ export default function Admin({ onLogout }: AdminProps) {
                     >
                       Add a Family Member
                     </button>
+                  </div>
+
+                  {/* Billing Section */}
+                  <div className="bg-gray-700 p-4 rounded">
+                    <button
+                      type="button"
+                      onClick={() => setIsBillingExpanded(!isBillingExpanded)}
+                      className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded"
+                    >
+                      <span>Billing</span>
+                      <span>{isBillingExpanded ? '−' : '+'}</span>
+                    </button>
+                    {isBillingExpanded && (
+                      <div className="p-4 bg-gray-800 mt-4 rounded">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                            <input
+                              type="text"
+                              value={billingInfo.firstName}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, firstName: e.target.value }))}
+                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                            <input
+                              type="text"
+                              value={billingInfo.lastName}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, lastName: e.target.value }))}
+                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                              required
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Billing Address *</label>
+                            <textarea
+                              value={billingInfo.billingAddress}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, billingAddress: e.target.value }))}
+                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                              rows={3}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex gap-2">
@@ -6095,6 +6279,8 @@ export default function Admin({ onLogout }: AdminProps) {
                         setUserSearchQuery('')
                         setAvailableUsers([])
                         setExpandedFamilyMemberId('member-1')
+                        setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
+                        setIsBillingExpanded(true)
                       }}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
@@ -9130,6 +9316,55 @@ export default function Admin({ onLogout }: AdminProps) {
                     {editingCategoryId ? 'Save Changes' : 'Create Category'}
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Enrollment Removal Confirmation Modal */}
+      <AnimatePresence>
+        {enrollmentRemovalConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={handleCancelEnrollmentRemoval}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-white mb-4">Confirm Enrollment Removal</h3>
+              <p className="text-gray-300 mb-4">
+                If you are sure you want to delete this enrollment, type "REMOVE" in the text block below.
+              </p>
+              <input
+                type="text"
+                value={enrollmentRemovalText}
+                onChange={(e) => setEnrollmentRemovalText(e.target.value)}
+                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 mb-4"
+                placeholder="Type REMOVE to confirm"
+                autoFocus
+              />
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={handleCancelEnrollmentRemoval}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmEnrollmentRemoval}
+                  disabled={enrollmentRemovalText.trim().toUpperCase() !== 'REMOVE'}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded text-white text-sm font-medium"
+                >
+                  Remove Enrollment
+                </button>
               </div>
             </motion.div>
           </motion.div>
