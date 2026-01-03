@@ -5895,9 +5895,16 @@ export default function Admin({ onLogout }: AdminProps) {
                                   {enrollment.programId ? enrollment.program : 'Non-Participant'}
                                 </div>
                                 {enrollment.programId && (
-                                  <div className="text-gray-400 text-sm mt-1">
-                                    ({enrollment.daysPerWeek} day{enrollment.daysPerWeek !== 1 ? 's' : ''}/week)
-                                  </div>
+                                  <>
+                                    <div className="text-gray-400 text-sm mt-1">
+                                      {enrollment.daysPerWeek} day{enrollment.daysPerWeek !== 1 ? 's' : ''}/week
+                                    </div>
+                                    {enrollment.selectedDays && enrollment.selectedDays.length > 0 && (
+                                      <div className="text-gray-400 text-sm mt-1">
+                                        Days: {enrollment.selectedDays.join(', ')}
+                                      </div>
+                                    )}
+                                  </>
                                 )}
                               </div>
                             ))}
@@ -6109,29 +6116,6 @@ export default function Admin({ onLogout }: AdminProps) {
                                 </>
                               )}
                             </div>
-                            <div className="flex gap-2 mt-4">
-                              <button
-                                type="button"
-                                onClick={() => handleSectionContinue(member.id, 'enrollment')}
-                                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
-                              >
-                                Continue
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleSectionMinimize(member.id, 'enrollment')}
-                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
-                              >
-                                Minimize
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleSectionCancel(member.id, 'enrollment')}
-                                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
-                              >
-                                Cancel
-                              </button>
-                            </div>
                             
                             {/* Add Another Program / Class Option */}
                             <div className="mt-4 border-2 border-dashed border-gray-500 rounded p-4">
@@ -6162,6 +6146,30 @@ export default function Admin({ onLogout }: AdminProps) {
                                 className="w-full text-white font-semibold py-2 hover:bg-gray-700 rounded transition-colors"
                               >
                                 Add Another Program / Class
+                              </button>
+                            </div>
+                            
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                type="button"
+                                onClick={() => handleSectionContinue(member.id, 'enrollment')}
+                                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Continue
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionMinimize(member.id, 'enrollment')}
+                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Minimize
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionCancel(member.id, 'enrollment')}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                              >
+                                Cancel
                               </button>
                             </div>
                           </div>
