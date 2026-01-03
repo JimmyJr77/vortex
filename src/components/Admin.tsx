@@ -886,7 +886,7 @@ export default function Admin({ onLogout }: AdminProps) {
     }>,
     address: ''
   })
-  const [expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<number | null>(null)
+  const [expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<string | number | null>(null)
   const [expandedViewFamilyMemberId, setExpandedViewFamilyMemberId] = useState<number | null>(null)
   const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
   const [showEditLog, setShowEditLog] = useState(false)
@@ -1009,6 +1009,16 @@ export default function Admin({ onLogout }: AdminProps) {
       fetchAllPrograms()
     }
   }, [showMemberModal])
+
+  // Expand first unfinished member when switching to new-family mode
+  useEffect(() => {
+    if (memberModalMode === 'new-family' && familyMembers.length > 0 && expandedFamilyMemberId === null) {
+      const firstUnfinished = familyMembers.find(m => !m.isFinished)
+      if (firstUnfinished) {
+        setExpandedFamilyMemberId(firstUnfinished.id)
+      }
+    }
+  }, [memberModalMode, familyMembers, expandedFamilyMemberId])
 
 
   // Debounce family search
@@ -2709,12 +2719,24 @@ export default function Admin({ onLogout }: AdminProps) {
   }
 
   const handleFinishedWithMember = (memberId: string) => {
-    setFamilyMembers(prev => prev.map(member => {
-      if (member.id === memberId) {
-        return { ...member, isFinished: true }
+    setFamilyMembers(prev => {
+      const updated = prev.map(member => {
+        if (member.id === memberId) {
+          return { ...member, isFinished: true }
+        }
+        return member
+      })
+      // If the finished member was expanded, collapse it and expand the first unfinished member
+      if (expandedFamilyMemberId === memberId) {
+        const firstUnfinished = updated.find(m => !m.isFinished)
+        if (firstUnfinished) {
+          setExpandedFamilyMemberId(firstUnfinished.id)
+        } else {
+          setExpandedFamilyMemberId(null)
+        }
       }
-      return member
-    }))
+      return updated
+    })
   }
 
   const handleAddFamilyMember = () => {
@@ -2741,6 +2763,8 @@ export default function Admin({ onLogout }: AdminProps) {
         enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
       }
     }])
+    // Expand the new member form
+    setExpandedFamilyMemberId(newMemberId)
   }
 
   const handleRemoveEnrollment = (memberId: string, enrollmentId: string) => {
@@ -5413,7 +5437,13 @@ export default function Admin({ onLogout }: AdminProps) {
 
                   <div className="border-t border-gray-600 pt-4">
                     <button
-                      onClick={() => setMemberModalMode('new-family')}
+                      onClick={() => {
+                        setMemberModalMode('new-family')
+                        // Expand the first member by default
+                        if (familyMembers.length > 0) {
+                          setExpandedFamilyMemberId(familyMembers[0].id)
+                        }
+                      }}
                       className="w-full bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
                       Create New Family Instead
@@ -5427,10 +5457,25 @@ export default function Admin({ onLogout }: AdminProps) {
                 <div className="space-y-6">
                   {familyMembers.map((member, memberIndex) => (
                     <div key={member.id} className="bg-gray-700 p-4 rounded">
-                      <h4 className="font-semibold text-white mb-4">
-                        Family Member {memberIndex + 1}{memberIndex === 0 ? ' (Must be an Adult) *' : ''}
-                      </h4>
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-semibold text-white">
+                          Family Member {memberIndex + 1}{memberIndex === 0 ? ' (Must be an Adult) *' : ''}
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={() => setExpandedFamilyMemberId(expandedFamilyMemberId === member.id ? null : member.id)}
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
+                          {expandedFamilyMemberId === member.id ? (
+                            <ChevronUp className="w-5 h-5" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
                       
+                      {expandedFamilyMemberId === member.id && (
+                        <>
                       {/* 1. Contact Information Section */}
                       <div className="mb-4 border border-gray-600 rounded">
                         <button
@@ -5999,6 +6044,8 @@ export default function Admin({ onLogout }: AdminProps) {
                           </button>
                         </div>
                       )}
+                        </>
+                      )}
                     </div>
                   ))}
 
@@ -6047,6 +6094,7 @@ export default function Admin({ onLogout }: AdminProps) {
                         }])
                         setUserSearchQuery('')
                         setAvailableUsers([])
+                        setExpandedFamilyMemberId('member-1')
                       }}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
