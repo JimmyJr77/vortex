@@ -810,7 +810,7 @@ export const initDatabase = async () => {
       CREATE TABLE IF NOT EXISTS athlete (
         id                  BIGSERIAL PRIMARY KEY,
         facility_id         BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
-        family_id           BIGINT NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+        family_id           BIGINT REFERENCES family(id) ON DELETE SET NULL,
         first_name          TEXT NOT NULL,
         last_name           TEXT NOT NULL,
         date_of_birth       DATE NOT NULL,
@@ -822,6 +822,13 @@ export const initDatabase = async () => {
         updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `)
+    
+    // Make family_id nullable if it's currently NOT NULL (for existing databases)
+    await pool.query(`
+      ALTER TABLE athlete ALTER COLUMN family_id DROP NOT NULL
+    `).catch(() => {
+      // Column might already be nullable or not exist yet, ignore error
+    })
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_athlete_facility ON athlete(facility_id)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_athlete_family ON athlete(family_id)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_athlete_user ON athlete(user_id)`)
@@ -1023,7 +1030,7 @@ const familySchema = Joi.object({
 })
 
 const athleteSchema = Joi.object({
-  familyId: Joi.number().integer().required(),
+  familyId: Joi.number().integer().optional().allow(null), // Optional for adults, required for children (validated in endpoint)
   firstName: Joi.string().min(1).max(100).required(),
   lastName: Joi.string().min(1).max(100).required(),
   dateOfBirth: Joi.date().required(),
@@ -3089,12 +3096,56 @@ app.post('/api/admin/athletes', async (req, res) => {
       (today.getMonth() < birthDate.getMonth() || 
        (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
     
-    // If this is a child (under 18) and there are no guardians, reject
-    if (age < 18 && guardianCount === 0 && !hasPrimaryGuardian) {
+    // Children (under 18) MUST have a family_id
+    if (age < 18 && !value.familyId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Children must be attached to a family. A family_id is required for members under 18.'
+      })
+    }
+    
+    // If this is a child (under 18) and there are no guardians in the family, reject
+    if (age < 18 && value.familyId && guardianCount === 0 && !hasPrimaryGuardian) {
       return res.status(400).json({
         success: false,
         message: 'A child cannot be a sole member. At least one adult guardian must exist in the family.'
       })
+    }
+    
+    // Adults (18+) can exist without a family (they can create their own account independently)
+    // If an adult has a userId but no familyId, they should get their own family
+    if (age >= 18 && value.userId && !value.familyId) {
+      // Check if user already has a family
+      const existingFamilyCheck = await pool.query(`
+        SELECT f.id FROM family f
+        WHERE f.primary_user_id = $1 OR EXISTS (
+          SELECT 1 FROM family_guardian fg WHERE fg.user_id = $1 AND fg.family_id = f.id
+        )
+        LIMIT 1
+      `, [value.userId])
+      
+      if (existingFamilyCheck.rows.length === 0) {
+        // Create a family for this adult
+        const newFamilyResult = await pool.query(`
+          INSERT INTO family (facility_id, primary_user_id, family_name)
+          VALUES ($1, $2, $3)
+          RETURNING id
+        `, [facilityId, value.userId, `${value.firstName} ${value.lastName} Family`])
+        
+        const newFamilyId = newFamilyResult.rows[0].id
+        
+        // Add as guardian to new family
+        await pool.query(`
+          INSERT INTO family_guardian (family_id, user_id, is_primary)
+          VALUES ($1, $2, TRUE)
+        `, [newFamilyId, value.userId])
+        
+        // Update familyId for the athlete
+        value.familyId = newFamilyId
+      } else {
+        // Use existing family
+        value.familyId = existingFamilyCheck.rows[0].id
+      }
     }
     
     // Check if user_id column exists in athlete table
@@ -3127,6 +3178,7 @@ app.post('/api/admin/athletes', async (req, res) => {
     }
     
     // Create athlete with status (default to 'stand-bye', will be updated if enrollments exist)
+    // Note: family_id can be NULL for adults who create their own account independently
     let insertQuery, insertParams
     if (hasUserIdColumn) {
       insertQuery = `
@@ -3139,7 +3191,7 @@ app.post('/api/admin/athletes', async (req, res) => {
       `
       insertParams = [
         facilityId,
-        value.familyId,
+        value.familyId || null, // Can be NULL for adults
         value.firstName,
         value.lastName,
         value.dateOfBirth,
@@ -3158,7 +3210,7 @@ app.post('/api/admin/athletes', async (req, res) => {
       `
       insertParams = [
         facilityId,
-        value.familyId,
+        value.familyId || null, // Can be NULL for adults
         value.firstName,
         value.lastName,
         value.dateOfBirth,
