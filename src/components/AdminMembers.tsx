@@ -781,10 +781,140 @@ export default function AdminMembers() {
   }
   
   const handleSaveMemberEdit = async () => {
-    if (!editingMember) return
+    // Check if we're in unified modal edit mode
+    const isUnifiedModalEdit = unifiedModalMode === 'edit' && selectedFamilyForMember && !editingMember
+    
+    if (!editingMember && !isUnifiedModalEdit) {
+      console.error('handleSaveMemberEdit: No editingMember and not in unified modal edit mode')
+      return
+    }
     
     try {
       const apiUrl = getApiUrl()
+      
+      // Handle unified modal edit mode
+      if (isUnifiedModalEdit) {
+        if (!selectedFamilyForMember) {
+          alert('No family selected')
+          return
+        }
+        
+        // Process all family members
+        for (const member of familyMembers) {
+          // Get data from sections.tempData (form-edited values) first, fallback to top-level fields
+          // Use nullish coalescing to preserve empty strings (only use fallback if value is null/undefined)
+          const firstName = member.sections.contactInfo.tempData.firstName ?? member.firstName
+          const lastName = member.sections.contactInfo.tempData.lastName ?? member.lastName
+          const email = member.sections.contactInfo.tempData.email ?? member.email
+          const phone = member.sections.contactInfo.tempData.phone ?? member.phone
+          const addressStreet = member.sections.contactInfo.tempData.addressStreet ?? member.addressStreet ?? ''
+          const addressCity = member.sections.contactInfo.tempData.addressCity ?? member.addressCity ?? ''
+          const addressState = member.sections.contactInfo.tempData.addressState ?? member.addressState ?? ''
+          const addressZip = member.sections.contactInfo.tempData.addressZip ?? member.addressZip ?? ''
+          const username = member.sections.loginSecurity.tempData.username ?? member.username
+          const password = member.sections.loginSecurity.tempData.password ?? member.password
+          
+          // Update user if this member has a userId (guardian or adult athlete)
+          if (member.userId) {
+            const userResponse = await fetch(`${apiUrl}/api/admin/users/${member.userId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                fullName: `${firstName} ${lastName}`,
+                email: email,
+                phone: phone ? cleanPhoneNumber(phone) : null,
+                address: combineAddress(addressStreet, addressCity, addressState, addressZip) || null,
+                username: username,
+                ...(password && password !== 'vortex' && { password: password })
+              })
+            })
+            
+            if (!userResponse.ok) {
+              const data = await userResponse.json()
+              throw new Error(data.message || `Failed to update user for ${firstName} ${lastName}`)
+            }
+          }
+          
+          // Update athlete if this member has an athleteId
+          if (member.athleteId) {
+            const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                firstName: firstName,
+                lastName: lastName,
+                dateOfBirth: member.dateOfBirth,
+                medicalNotes: member.medicalNotes || null,
+                internalFlags: null
+              })
+            })
+            
+            if (!athleteResponse.ok) {
+              const data = await athleteResponse.json()
+              throw new Error(data.message || `Failed to update athlete for ${firstName} ${lastName}`)
+            }
+            
+            // Handle enrollments
+            const existingEnrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}/enrollments`)
+            let existingEnrollments: any[] = []
+            if (existingEnrollmentsResponse.ok) {
+              const enrollmentsData = await existingEnrollmentsResponse.json()
+              if (enrollmentsData.success && enrollmentsData.data) {
+                existingEnrollments = enrollmentsData.data
+              }
+            }
+            
+            // Delete enrollments that are no longer in the member's enrollment list
+            for (const existing of existingEnrollments) {
+              const stillExists = member.enrollments.some(e => 
+                e.programId === existing.program_id
+              )
+              if (!stillExists && existing.id) {
+                try {
+                  await fetch(`${apiUrl}/api/members/enroll/${existing.id}`, {
+                    method: 'DELETE',
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    }
+                  })
+                } catch (error) {
+                  console.error('Error removing enrollment:', error)
+                }
+              }
+            }
+            
+            // Create or update enrollments
+            for (const enrollment of member.enrollments) {
+              if (enrollment.programId) {
+                await fetch(`${apiUrl}/api/members/enroll`, {
+                  method: 'POST',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                  },
+                  body: JSON.stringify({
+                    programId: enrollment.programId,
+                    familyMemberId: member.athleteId,
+                    daysPerWeek: enrollment.daysPerWeek,
+                    selectedDays: enrollment.selectedDays
+                  })
+                })
+              }
+            }
+          }
+        }
+        
+        await fetchFamilies()
+        setShowMemberModal(false)
+        setUnifiedModalMode(null)
+        setSelectedFamilyForMember(null)
+        alert('Family updated successfully!')
+        return
+      }
+      
+      // Original logic for member edit modal
+      if (!editingMember) return
       
       const response = await fetch(`${apiUrl}/api/admin/users/${editingMember.guardian.id}`, {
         method: 'PUT',
