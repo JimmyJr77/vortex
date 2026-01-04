@@ -441,7 +441,10 @@ export default function AdminMembers() {
       const data = await response.json()
       
       // Check if this is an archived user
-      if (response.status === 409 && data.archived) {
+      // Log for debugging
+      console.log('User creation response:', { status: response.status, data, archived: data.archived })
+      
+      if (response.status === 409 && data.archived === true) {
         // Store pending data and show dialog
         setPendingUserData({
           fullName,
@@ -456,6 +459,9 @@ export default function AdminMembers() {
         setShowArchivedUserDialog(true)
         throw new Error('ARCHIVED_USER_PENDING_CHOICE')
       }
+      
+      // Log for debugging
+      console.log('User creation error:', { status: response.status, data })
       
       throw new Error(data.message || 'Failed to create user account')
     }

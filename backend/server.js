@@ -1870,12 +1870,19 @@ app.post('/api/admin/users', async (req, res) => {
       if (existingUser.rows.length > 0) {
         const user = existingUser.rows[0]
         
-        // If user exists and is archived (is_active = false), check for action parameter
-        if (!user.is_active) {
+        // If user exists and is archived (is_active = false or null), check for action parameter
+        // Explicitly check for false or null to handle archived users
+        const isArchived = user.is_active === false || user.is_active === null
+        
+        if (isArchived) {
           const { action } = req.body
           
           // If no action specified, return special response to prompt user choice
           if (!action || (action !== 'create_new' && action !== 'revive')) {
+            // Log for debugging
+            if (process.env.NODE_ENV !== 'production') {
+              console.log('Archived user detected:', { userId: user.id, email, is_active: user.is_active })
+            }
             return res.status(409).json({
               success: false,
               message: 'Email already registered (archived account)',
@@ -1942,9 +1949,14 @@ app.post('/api/admin/users', async (req, res) => {
           })
         } else {
           // User exists and is active
+          // Log for debugging
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('Active user detected (not archived):', { userId: user.id, email, is_active: user.is_active })
+          }
           return res.status(409).json({
             success: false,
-            message: 'Email already registered'
+            message: 'Email already registered',
+            archived: false
           })
         }
       }
