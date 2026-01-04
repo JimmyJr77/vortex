@@ -184,36 +184,8 @@ export const initDatabase = async () => {
       )
     `)
 
-    // Members table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS members (
-        id SERIAL PRIMARY KEY,
-        first_name VARCHAR(50) NOT NULL,
-        last_name VARCHAR(50) NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        phone VARCHAR(20),
-        address TEXT,
-        password_hash VARCHAR(255) NOT NULL,
-        account_status VARCHAR(20) DEFAULT 'active' CHECK (account_status IN ('active', 'hold', 'canceled', 'past_due')),
-        program VARCHAR(100),
-        notes TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
-
-    // Member children table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS member_children (
-        id SERIAL PRIMARY KEY,
-        member_id INTEGER NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-        first_name VARCHAR(50) NOT NULL,
-        last_name VARCHAR(50) NOT NULL,
-        date_of_birth DATE NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
+    // Legacy members and member_children tables removed
+    // Members are now managed through app_user, family, and athlete tables
 
     // Events table
     await pool.query(`
@@ -461,38 +433,8 @@ export const initDatabase = async () => {
       )
     `)
 
-    // Migrate existing members to app_user as PARENT_GUARDIAN
-    await pool.query(`
-      INSERT INTO app_user (
-        facility_id,
-        role,
-        email,
-        phone,
-        full_name,
-        password_hash,
-        is_active,
-        created_at,
-        updated_at
-      )
-      SELECT 
-        (SELECT id FROM facility LIMIT 1) as facility_id,
-        'PARENT_GUARDIAN'::user_role as role,
-        email,
-        phone,
-        COALESCE(first_name || ' ' || last_name, 'Member') as full_name,
-        password_hash,
-        CASE 
-          WHEN account_status = 'active' THEN TRUE 
-          ELSE FALSE 
-        END as is_active,
-        created_at,
-        updated_at
-      FROM members
-      WHERE NOT EXISTS (
-        SELECT 1 FROM app_user 
-        WHERE app_user.email = members.email
-      )
-    `)
+    // Legacy members table migration removed - members table is deprecated
+    // Members are now managed through app_user, family, and athlete tables
 
     console.log('✅ Module 0 (Identity, Roles, Facility) initialized')
 
@@ -902,21 +844,8 @@ const newsletterSchema = Joi.object({
   email: Joi.string().email().required()
 })
 
-const memberSchema = Joi.object({
-  firstName: Joi.string().min(2).max(50).required(),
-  lastName: Joi.string().min(2).max(50).required(),
-  email: Joi.string().email().required(),
-  phone: Joi.string().max(20).optional().allow('', null),
-  address: Joi.string().max(500).optional().allow('', null),
-  password: Joi.string().min(6).required(),
-  program: Joi.string().max(100).optional().allow('', null),
-  notes: Joi.string().max(2000).optional().allow('', null),
-  children: Joi.array().items(Joi.object({
-    firstName: Joi.string().min(2).max(50).required(),
-    lastName: Joi.string().min(2).max(50).required(),
-    dateOfBirth: Joi.date().required()
-  })).optional().default([])
-})
+// Legacy memberSchema removed - old /api/admin/members endpoints removed
+// Members are now managed through /api/admin/families which uses app_user, family, and athlete tables
 
 const memberLoginSchema = Joi.object({
   emailOrUsername: Joi.string().required(),
@@ -1276,12 +1205,7 @@ app.get('/api/verify/module0', async (req, res) => {
       // admins table might not exist, that's OK
     }
 
-    try {
-      const memberCount = await pool.query('SELECT COUNT(*) as count FROM members')
-      results.memberTableCount = parseInt(memberCount.rows[0].count)
-    } catch (error) {
-      // members table might not exist, that's OK
-    }
+    // Legacy members table check removed - table is deprecated
 
     // Determine overall status
     const criticalPassed = results.userRoleEnum && results.facilityTable && results.appUserTable
@@ -1628,232 +1552,8 @@ app.delete('/api/admin/registrations/:id', async (req, res) => {
 // ========== MEMBER ENDPOINTS ==========
 
 // Create member (admin endpoint)
-app.post('/api/admin/members', async (req, res) => {
-  try {
-    const { error, value } = memberSchema.validate(req.body)
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        errors: error.details.map(detail => detail.message)
-      })
-    }
-
-    // Check if email already exists
-    const existingMember = await pool.query(
-      'SELECT id FROM members WHERE email = $1',
-      [value.email]
-    )
-
-    if (existingMember.rows.length > 0) {
-      return res.status(409).json({
-        success: false,
-        message: 'Email already registered'
-      })
-    }
-
-    // Hash password
-    const passwordHash = await bcrypt.hash(value.password, 10)
-
-    // Insert member
-    const result = await pool.query(`
-      INSERT INTO members 
-      (first_name, last_name, email, phone, address, password_hash, program, notes, account_status)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active')
-      RETURNING id, first_name, last_name, email, phone, address, account_status, program, notes, created_at
-    `, [
-      value.firstName,
-      value.lastName,
-      value.email,
-      value.phone || null,
-      value.address || null,
-      passwordHash,
-      value.program || null,
-      value.notes || null
-    ])
-
-    const memberId = result.rows[0].id
-
-    // Insert children if provided
-    if (value.children && value.children.length > 0) {
-      for (const child of value.children) {
-        await pool.query(`
-          INSERT INTO member_children (member_id, first_name, last_name, date_of_birth)
-          VALUES ($1, $2, $3, $4)
-        `, [memberId, child.firstName, child.lastName, child.dateOfBirth])
-      }
-    }
-
-    // Fetch member with children
-    const memberResult = await pool.query(`
-      SELECT m.*, 
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', c.id,
-              'firstName', c.first_name,
-              'lastName', c.last_name,
-              'dateOfBirth', c.date_of_birth
-            )
-          ) FILTER (WHERE c.id IS NOT NULL),
-          '[]'
-        ) as children
-      FROM members m
-      LEFT JOIN member_children c ON m.id = c.member_id
-      WHERE m.id = $1
-      GROUP BY m.id
-    `, [memberId])
-
-    res.json({
-      success: true,
-      message: 'Member created successfully',
-      data: memberResult.rows[0]
-    })
-  } catch (error) {
-    console.error('Create member error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    })
-  }
-})
-
-// Get all members (admin endpoint)
-app.get('/api/admin/members', async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT m.*, 
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', c.id,
-              'firstName', c.first_name,
-              'lastName', c.last_name,
-              'dateOfBirth', c.date_of_birth
-            )
-          ) FILTER (WHERE c.id IS NOT NULL),
-          '[]'
-        ) as children
-      FROM members m
-      LEFT JOIN member_children c ON m.id = c.member_id
-      GROUP BY m.id
-      ORDER BY m.created_at DESC
-    `)
-
-    res.json({
-      success: true,
-      data: result.rows
-    })
-  } catch (error) {
-    console.error('Get members error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    })
-  }
-})
-
-// Get single member (admin endpoint)
-app.get('/api/admin/members/:id', async (req, res) => {
-  try {
-    const { id } = req.params
-    const result = await pool.query(`
-      SELECT m.*, 
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', c.id,
-              'firstName', c.first_name,
-              'lastName', c.last_name,
-              'dateOfBirth', c.date_of_birth
-            )
-          ) FILTER (WHERE c.id IS NOT NULL),
-          '[]'
-        ) as children
-      FROM members m
-      LEFT JOIN member_children c ON m.id = c.member_id
-      WHERE m.id = $1
-      GROUP BY m.id
-    `, [id])
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Member not found'
-      })
-    }
-
-    res.json({
-      success: true,
-      data: result.rows[0]
-    })
-  } catch (error) {
-    console.error('Get member error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    })
-  }
-})
-
-// Update member (admin endpoint)
-app.put('/api/admin/members/:id', async (req, res) => {
-  try {
-    const { id } = req.params
-    const { firstName, lastName, email, phone, address, accountStatus, program, notes, children } = req.body
-
-    // Update member
-    await pool.query(`
-      UPDATE members 
-      SET first_name = $1, last_name = $2, email = $3, phone = $4, address = $5, 
-          account_status = $6, program = $7, notes = $8, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $9
-    `, [firstName, lastName, email, phone || null, address || null, accountStatus || 'active', program || null, notes || null, id])
-
-    // Delete existing children
-    await pool.query('DELETE FROM member_children WHERE member_id = $1', [id])
-
-    // Insert new children
-    if (children && children.length > 0) {
-      for (const child of children) {
-        await pool.query(`
-          INSERT INTO member_children (member_id, first_name, last_name, date_of_birth)
-          VALUES ($1, $2, $3, $4)
-        `, [id, child.firstName, child.lastName, child.dateOfBirth])
-      }
-    }
-
-    res.json({
-      success: true,
-      message: 'Member updated successfully'
-    })
-  } catch (error) {
-    console.error('Update member error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    })
-  }
-})
-
-// Delete member (admin endpoint)
-app.delete('/api/admin/members/:id', async (req, res) => {
-  try {
-    const { id } = req.params
-    await pool.query('DELETE FROM members WHERE id = $1', [id])
-
-    res.json({
-      success: true,
-      message: 'Member deleted successfully'
-    })
-  } catch (error) {
-    console.error('Delete member error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    })
-  }
-})
+// Legacy /api/admin/members endpoints removed - use /api/admin/families instead
+// The old members table has been replaced by app_user, family, and athlete tables
 
 // ========== MODULE 2: FAMILY & ATHLETE ENDPOINTS ==========
 
@@ -3031,19 +2731,7 @@ app.delete('/api/admin/families/:id', async (req, res) => {
         }
       }
       
-      // Also delete from old members table if it exists (legacy)
-      if (deletedUserEmails.length > 0) {
-        try {
-          for (const email of deletedUserEmails) {
-            await client.query('DELETE FROM members WHERE email = $1', [email])
-          }
-        } catch (error) {
-          // Old members table might not exist, ignore error
-          if (process.env.NODE_ENV === 'development') {
-            console.log('Note: Could not delete from old members table (might not exist)')
-          }
-        }
-      }
+      // Legacy members table cleanup removed - table is deprecated
       
       await client.query('COMMIT')
       
@@ -3137,15 +2825,7 @@ app.delete('/api/admin/users/by-email/:email', async (req, res) => {
       // Delete the user
       await client.query('DELETE FROM app_user WHERE id = $1', [userId])
       
-      // Also delete from old members table if it exists (legacy)
-      try {
-        await client.query('DELETE FROM members WHERE email = $1', [decodedEmail])
-      } catch (error) {
-        // Old members table might not exist, ignore error
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Note: Could not delete from old members table (might not exist)')
-        }
-      }
+      // Legacy members table cleanup removed - table is deprecated
       
       await client.query('COMMIT')
       

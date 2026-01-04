@@ -113,20 +113,7 @@ async function deleteUserByEmail() {
       console.log('User deleted successfully')
     }
     
-    // Also check and delete from old members table (legacy)
-    try {
-      const oldMembersResult = await client.query(
-        'SELECT id, email, first_name, last_name FROM members WHERE email = $1',
-        [emailToDelete]
-      )
-      if (oldMembersResult.rows.length > 0) {
-        await client.query('DELETE FROM members WHERE email = $1', [emailToDelete])
-        console.log(`Deleted ${oldMembersResult.rows.length} entry/entries from old members table`)
-      }
-    } catch (error) {
-      // Old members table might not exist, ignore error
-      console.log('Note: Could not check/delete from old members table (might not exist)')
-    }
+    // Legacy members table cleanup removed - table is deprecated
     
     await client.query('COMMIT')
     console.log('✅ Deletion completed successfully')
