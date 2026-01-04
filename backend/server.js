@@ -2508,17 +2508,9 @@ app.put('/api/admin/users/:id', async (req, res) => {
 app.get('/api/admin/families', async (req, res) => {
   try {
     const { search, primaryUserId } = req.query
-    // Check if archived column exists
-    const columnCheck = await pool.query(`
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'family' AND column_name = 'archived'
-    `)
-    const hasArchivedColumn = columnCheck.rows.length > 0
-    
-    if (!hasArchivedColumn) {
-      await pool.query('ALTER TABLE family ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE')
-    }
+    // Ensure required columns exist before querying
+    await pool.query('ALTER TABLE family ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE')
+    await pool.query('ALTER TABLE athlete ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT \'stand-bye\'')
     
     let query = `
       SELECT 
