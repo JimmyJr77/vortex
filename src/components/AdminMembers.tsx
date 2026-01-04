@@ -156,7 +156,10 @@ export default function AdminMembers() {
   const [billingInfo, setBillingInfo] = useState({
     firstName: '',
     lastName: '',
-    billingAddress: ''
+    addressStreet: '',
+    addressCity: '',
+    addressState: '',
+    addressZip: ''
   })
   const [isBillingExpanded, setIsBillingExpanded] = useState(true)
   
@@ -573,11 +576,17 @@ export default function AdminMembers() {
       }
     }
     
+    // Parse billing address into separate fields
+    const parsedBillingAddress = parseAddress(billingAddress)
+    
     setFamilyMembers(populatedMembers)
     setBillingInfo({
       firstName: billingFirstName,
       lastName: billingLastName,
-      billingAddress
+      addressStreet: parsedBillingAddress.street,
+      addressCity: parsedBillingAddress.city,
+      addressState: parsedBillingAddress.state,
+      addressZip: parsedBillingAddress.zip
     })
     
     // Expand the member being edited, or first member if no specific member
@@ -1177,7 +1186,7 @@ export default function AdminMembers() {
           enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
         }
       }])
-      setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
+      setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
       alert('Family created successfully!')
     } catch (error) {
       console.error('Error creating family:', error)
@@ -1790,18 +1799,14 @@ export default function AdminMembers() {
   useEffect(() => {
     if (memberModalMode === 'new-family' && familyMembers.length > 0) {
       const member1 = familyMembers[0]
-      const addressParts = [
-        member1.sections.contactInfo.tempData.addressStreet,
-        member1.sections.contactInfo.tempData.addressCity,
-        member1.sections.contactInfo.tempData.addressState,
-        member1.sections.contactInfo.tempData.addressZip
-      ].filter(part => part && part.trim())
-      const address = addressParts.join(', ') || ''
-      setBillingInfo({
-        firstName: member1.sections.contactInfo.tempData.firstName,
-        lastName: member1.sections.contactInfo.tempData.lastName,
-        billingAddress: address
-      })
+      setBillingInfo(prev => ({
+        firstName: member1.sections.contactInfo.tempData.firstName || prev.firstName,
+        lastName: member1.sections.contactInfo.tempData.lastName || prev.lastName,
+        addressStreet: member1.sections.contactInfo.tempData.addressStreet || prev.addressStreet,
+        addressCity: member1.sections.contactInfo.tempData.addressCity || prev.addressCity,
+        addressState: member1.sections.contactInfo.tempData.addressState || prev.addressState,
+        addressZip: member1.sections.contactInfo.tempData.addressZip || prev.addressZip
+      }))
     }
   }, [memberModalMode, familyMembers])
   
@@ -2159,7 +2164,7 @@ export default function AdminMembers() {
                         } else {
                           setExpandedFamilyMemberId('member-1')
                         }
-                        setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
+                        setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
                         setIsBillingExpanded(true)
                       }}
                       className="w-full bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
@@ -2195,70 +2200,101 @@ export default function AdminMembers() {
                   ))}
 
                   <div className="border-2 border-dashed border-gray-600 rounded p-4">
-                    <button
-                      type="button"
+                        <button
+                          type="button"
                       onClick={handleAddFamilyMember}
                       className="w-full text-white font-semibold py-3 hover:bg-gray-600 rounded transition-colors"
                     >
                       Add a Family Member
-                    </button>
-                  </div>
-
+                        </button>
+                      </div>
+                      
                   <div className="bg-gray-700 p-4 rounded">
-                    <button
-                      type="button"
+                        <button
+                          type="button"
                       onClick={() => setIsBillingExpanded(!isBillingExpanded)}
                       className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded"
-                    >
+                        >
                       <span>Billing</span>
                       <span>{isBillingExpanded ? '−' : '+'}</span>
-                    </button>
+                        </button>
                     {isBillingExpanded && (
                       <div className="p-4 bg-gray-800 mt-4 rounded">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
-                            <input
-                              type="text"
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                                <input
+                                  type="text"
                               value={billingInfo.firstName}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, firstName: e.target.value }))}
-                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                              required
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
-                            <input
-                              type="text"
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                                <input
+                                  type="text"
                               value={billingInfo.lastName}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, lastName: e.target.value }))}
-                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                              required
-                            />
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div className="md:col-span-2">
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Street</label>
+                                <input
+                                  type="text"
+                              value={billingInfo.addressStreet}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, addressStreet: e.target.value }))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="Street address"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">City</label>
+                                <input
+                                  type="text"
+                              value={billingInfo.addressCity}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, addressCity: e.target.value }))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="City"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">State</label>
+                                <input
+                                  type="text"
+                              value={billingInfo.addressState}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, addressState: e.target.value }))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="State"
+                                  maxLength={2}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Zip</label>
+                                <input
+                                  type="text"
+                              value={billingInfo.addressZip}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, addressZip: e.target.value }))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="ZIP code"
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <div className="md:col-span-2">
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">Billing Address *</label>
-                            <textarea
-                              value={billingInfo.billingAddress}
-                              onChange={(e) => setBillingInfo(prev => ({ ...prev, billingAddress: e.target.value }))}
-                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                              rows={3}
-                              required
-                            />
-                          </div>
-                        </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => {
+                        <button
+                                          onClick={() => {
                         if (unifiedModalMode === 'edit') {
                           handleSaveMemberEdit()
                         } else if (unifiedModalMode === 'add-to-existing') {
                           handleAddMembersToExistingFamily()
-                        } else {
+                                            } else {
                           handleCreateFamilyWithPrimaryAdult()
                         }
                       }}
@@ -2292,7 +2328,7 @@ export default function AdminMembers() {
                           }
                         }])
                         setExpandedFamilyMemberId('member-1')
-                        setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
+                        setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
                         setIsBillingExpanded(true)
                       }}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
@@ -2340,55 +2376,86 @@ export default function AdminMembers() {
                   ))}
 
                   <div className="border-2 border-dashed border-gray-600 rounded p-4">
-                    <button
-                      type="button"
+                        <button
+                          type="button"
                       onClick={handleAddFamilyMember}
                       className="w-full text-white font-semibold py-3 hover:bg-gray-600 rounded transition-colors"
                     >
                       Add a Family Member
-                    </button>
-                  </div>
-
+                        </button>
+                      </div>
+                      
                   <div className="bg-gray-700 p-4 rounded">
-                    <button
-                      type="button"
+                        <button
+                          type="button"
                       onClick={() => setIsBillingExpanded(!isBillingExpanded)}
                       className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded"
-                    >
+                        >
                       <span>Billing</span>
                       <span>{isBillingExpanded ? '−' : '+'}</span>
-                    </button>
+                        </button>
                     {isBillingExpanded && (
                       <div className="p-4 bg-gray-800 mt-4 rounded">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
-                            <input
-                              type="text"
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                                <input
+                                  type="text"
                               value={billingInfo.firstName}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, firstName: e.target.value }))}
-                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                              required
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
-                            <input
-                              type="text"
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                                <input
+                                  type="text"
                               value={billingInfo.lastName}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, lastName: e.target.value }))}
-                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                              required
-                            />
-                          </div>
-                          <div className="md:col-span-2">
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">Billing Address *</label>
-                            <textarea
-                              value={billingInfo.billingAddress}
-                              onChange={(e) => setBillingInfo(prev => ({ ...prev, billingAddress: e.target.value }))}
-                              className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                              rows={3}
-                              required
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  required
+                                />
+                              </div>
+                              <div className="md:col-span-2">
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Street</label>
+                                <input
+                                  type="text"
+                              value={billingInfo.addressStreet}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, addressStreet: e.target.value }))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="Street address"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">City</label>
+                                <input
+                                  type="text"
+                              value={billingInfo.addressCity}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, addressCity: e.target.value }))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="City"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">State</label>
+                                <input
+                                  type="text"
+                              value={billingInfo.addressState}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, addressState: e.target.value }))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="State"
+                                  maxLength={2}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">Zip</label>
+                                <input
+                                  type="text"
+                              value={billingInfo.addressZip}
+                              onChange={(e) => setBillingInfo(prev => ({ ...prev, addressZip: e.target.value }))}
+                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  placeholder="ZIP code"
                             />
                           </div>
                         </div>
@@ -2429,7 +2496,7 @@ export default function AdminMembers() {
                           }
                         }])
                         setExpandedFamilyMemberId('member-1')
-                        setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
+                        setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
                         setIsBillingExpanded(true)
                         setSelectedFamilyForMember(null)
                       }}
