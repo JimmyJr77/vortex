@@ -1863,15 +1863,90 @@ app.post('/api/admin/users', async (req, res) => {
     // Check if email already exists (if provided)
     if (email) {
       const existingUser = await pool.query(
-        'SELECT id FROM app_user WHERE facility_id = $1 AND email = $2',
+        'SELECT id, is_active FROM app_user WHERE facility_id = $1 AND email = $2',
         [facilityId, email]
       )
 
       if (existingUser.rows.length > 0) {
-        return res.status(409).json({
-          success: false,
-          message: 'Email already registered'
-        })
+        const user = existingUser.rows[0]
+        
+        // If user exists and is archived (is_active = false), check for action parameter
+        if (!user.is_active) {
+          const { action } = req.body
+          
+          // If no action specified, return special response to prompt user choice
+          if (!action || (action !== 'create_new' && action !== 'revive')) {
+            return res.status(409).json({
+              success: false,
+              message: 'Email already registered (archived account)',
+              archived: true,
+              userId: user.id
+            })
+          }
+          
+          // Handle archived user based on action
+          const userId = user.id
+          
+          // Hash password
+          const passwordHash = await bcrypt.hash(password, 10)
+          
+          if (action === 'create_new') {
+            // Remove user from their previous family
+            await pool.query(`
+              UPDATE family SET primary_user_id = NULL WHERE primary_user_id = $1
+            `, [userId])
+            
+            // Remove user from all family_guardian relationships
+            await pool.query(`
+              DELETE FROM family_guardian WHERE user_id = $1
+            `, [userId])
+          }
+          // For 'revive', we keep the existing family associations (do nothing)
+          
+          // Update user info and reactivate
+          const primaryRole = userRoles[0] || 'PARENT_GUARDIAN'
+          await pool.query(`
+            UPDATE app_user 
+            SET full_name = $1, 
+                phone = $2, 
+                password_hash = $3, 
+                is_active = TRUE,
+                role = $4::user_role,
+                username = $5,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $6
+          `, [fullName, phone || null, passwordHash, primaryRole, username || null, userId])
+          
+          // Update user roles
+          await setUserRoles(userId, userRoles)
+          
+          // Fetch user with all roles
+          const allRoles = await getUserRoles(userId)
+          const updatedUser = await pool.query(`
+            SELECT id, email, full_name, phone, role, is_active, created_at, username
+            FROM app_user
+            WHERE id = $1
+          `, [userId])
+          
+          const userData = {
+            ...updatedUser.rows[0],
+            roles: allRoles
+          }
+          
+          return res.json({
+            success: true,
+            message: action === 'create_new' 
+              ? 'User account updated and removed from previous family' 
+              : 'User account revived successfully',
+            data: userData
+          })
+        } else {
+          // User exists and is active
+          return res.status(409).json({
+            success: false,
+            message: 'Email already registered'
+          })
+        }
       }
     }
 

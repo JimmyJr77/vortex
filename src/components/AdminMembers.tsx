@@ -161,6 +161,20 @@ export default function AdminMembers() {
   const [showMemberEditModal, setShowMemberEditModal] = useState(false)
   const [showMemberViewModal, setShowMemberViewModal] = useState(false)
   
+  // Archived user dialog state
+  const [showArchivedUserDialog, setShowArchivedUserDialog] = useState(false)
+  const [archivedUserEmail, setArchivedUserEmail] = useState<string>('')
+  const [pendingUserData, setPendingUserData] = useState<{
+    fullName: string
+    email: string
+    phone: string
+    username: string
+    password: string
+    address: string | null
+    isPrimary: boolean
+    memberIndex?: number
+  } | null>(null)
+  
   const [editingMemberData, setEditingMemberData] = useState({
     firstName: '',
     lastName: '',
@@ -394,6 +408,64 @@ export default function AdminMembers() {
   
   const cleanPhoneNumber = (phone: string): string => {
     return phone.replace(/\D/g, '')
+  }
+  
+  // Helper function to create user account, handling archived users
+  const createUserAccount = async (
+    fullName: string,
+    email: string,
+    phone: string,
+    username: string,
+    password: string,
+    address: string | null
+  ): Promise<number> => {
+    const apiUrl = getApiUrl()
+    
+    const userData = {
+      fullName,
+      email,
+      phone: cleanPhoneNumber(phone),
+      username,
+      password: password || 'vortex',
+      role: 'PARENT_GUARDIAN',
+      address
+    }
+    
+    const response = await fetch(`${apiUrl}/api/admin/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    })
+    
+    if (!response.ok) {
+      const data = await response.json()
+      
+      // Check if this is an archived user
+      if (response.status === 409 && data.archived) {
+        // Store pending data and show dialog
+        setPendingUserData({
+          fullName,
+          email,
+          phone: cleanPhoneNumber(phone),
+          username,
+          password: password || 'vortex',
+          address,
+          isPrimary: false
+        })
+        setArchivedUserEmail(email)
+        setShowArchivedUserDialog(true)
+        throw new Error('ARCHIVED_USER_PENDING_CHOICE')
+      }
+      
+      throw new Error(data.message || 'Failed to create user account')
+    }
+    
+    const result = await response.json()
+    if (!result.success || !result.data?.id) {
+      throw new Error('Failed to get user ID')
+    }
+    
+    return result.data.id
   }
   
   // Handler functions
@@ -823,35 +895,42 @@ export default function AdminMembers() {
       
       // Create primary user account
       const primaryMember = familyMembers[0]
-      const primaryUserResponse = await fetch(`${apiUrl}/api/admin/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: `${primaryMember.sections.contactInfo.tempData.firstName} ${primaryMember.sections.contactInfo.tempData.lastName}`,
-          email: primaryMember.sections.contactInfo.tempData.email,
-          phone: cleanPhoneNumber(primaryMember.sections.contactInfo.tempData.phone),
-          username: primaryMember.sections.loginSecurity.tempData.username,
-          password: primaryMember.sections.loginSecurity.tempData.password || 'vortex',
-          role: 'PARENT_GUARDIAN',
-          address: combineAddress(
+      let primaryUserId: number
+      
+      try {
+        primaryUserId = await createUserAccount(
+          `${primaryMember.sections.contactInfo.tempData.firstName} ${primaryMember.sections.contactInfo.tempData.lastName}`,
+          primaryMember.sections.contactInfo.tempData.email,
+          primaryMember.sections.contactInfo.tempData.phone,
+          primaryMember.sections.loginSecurity.tempData.username,
+          primaryMember.sections.loginSecurity.tempData.password || 'vortex',
+          combineAddress(
             primaryMember.sections.contactInfo.tempData.addressStreet,
             primaryMember.sections.contactInfo.tempData.addressCity,
             primaryMember.sections.contactInfo.tempData.addressState,
             primaryMember.sections.contactInfo.tempData.addressZip
           ) || null
-        })
-      })
-      
-      if (!primaryUserResponse.ok) {
-        const data = await primaryUserResponse.json()
-        throw new Error(data.message || 'Failed to create primary user account')
-      }
-      
-      const primaryUserData = await primaryUserResponse.json()
-      const primaryUserId = primaryUserData.success ? primaryUserData.data.id : null
-      
-      if (!primaryUserId) {
-        throw new Error('Failed to get primary user ID')
+        )
+      } catch (error) {
+        if (error instanceof Error && error.message === 'ARCHIVED_USER_PENDING_CHOICE') {
+          // Store pending data as primary and return (dialog will handle continuation)
+          setPendingUserData({
+            fullName: `${primaryMember.sections.contactInfo.tempData.firstName} ${primaryMember.sections.contactInfo.tempData.lastName}`,
+            email: primaryMember.sections.contactInfo.tempData.email,
+            phone: cleanPhoneNumber(primaryMember.sections.contactInfo.tempData.phone),
+            username: primaryMember.sections.loginSecurity.tempData.username,
+            password: primaryMember.sections.loginSecurity.tempData.password || 'vortex',
+            address: combineAddress(
+              primaryMember.sections.contactInfo.tempData.addressStreet,
+              primaryMember.sections.contactInfo.tempData.addressCity,
+              primaryMember.sections.contactInfo.tempData.addressState,
+              primaryMember.sections.contactInfo.tempData.addressZip
+            ) || null,
+            isPrimary: true
+          })
+          return // Exit early, dialog will handle continuation
+        }
+        throw error // Re-throw other errors
       }
       
       // Create family
@@ -889,48 +968,60 @@ export default function AdminMembers() {
         let userId = null
         if (isAdult && member.id !== familyMembers[0].id) {
           // Create user account for additional adults
-          const userResponse = await fetch(`${apiUrl}/api/admin/users`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              fullName: `${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`,
-              email: member.sections.contactInfo.tempData.email,
-              phone: cleanPhoneNumber(member.sections.contactInfo.tempData.phone),
-              username: member.sections.loginSecurity.tempData.username,
-              password: member.sections.loginSecurity.tempData.password || 'vortex',
-              role: 'PARENT_GUARDIAN',
-              address: combineAddress(
+          try {
+            userId = await createUserAccount(
+              `${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`,
+              member.sections.contactInfo.tempData.email,
+              member.sections.contactInfo.tempData.phone,
+              member.sections.loginSecurity.tempData.username,
+              member.sections.loginSecurity.tempData.password || 'vortex',
+              combineAddress(
                 member.sections.contactInfo.tempData.addressStreet,
                 member.sections.contactInfo.tempData.addressCity,
                 member.sections.contactInfo.tempData.addressState,
                 member.sections.contactInfo.tempData.addressZip
               ) || null
-            })
-          })
-          
-          if (userResponse.ok) {
-            const userData = await userResponse.json()
-            if (userData.success && userData.data) {
-              userId = userData.data.id
-              
-              // Add as guardian
-              const updateResponse = await fetch(`${apiUrl}/api/admin/families/${familyId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  familyName: familyData.data.family_name,
-                  primaryUserId: primaryUserId,
-                  guardianIds: [
-                    ...(familyData.data.guardians?.map((g: Guardian) => g.id) || []),
-                    userId
-                  ]
-                })
+            )
+            
+            // Add as guardian
+            const updateResponse = await fetch(`${apiUrl}/api/admin/families/${familyId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                familyName: familyData.data.family_name,
+                primaryUserId: primaryUserId,
+                guardianIds: [
+                  ...(familyData.data.guardians?.map((g: Guardian) => g.id) || []),
+                  userId
+                ]
               })
-              
-              if (!updateResponse.ok) {
-                console.warn('Failed to add guardian to family')
-              }
+            })
+            
+            if (!updateResponse.ok) {
+              console.warn('Failed to add guardian to family')
             }
+          } catch (error) {
+            if (error instanceof Error && error.message === 'ARCHIVED_USER_PENDING_CHOICE') {
+              // Store pending data and show dialog
+              setPendingUserData({
+                fullName: `${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`,
+                email: member.sections.contactInfo.tempData.email,
+                phone: cleanPhoneNumber(member.sections.contactInfo.tempData.phone),
+                username: member.sections.loginSecurity.tempData.username,
+                password: member.sections.loginSecurity.tempData.password || 'vortex',
+                address: combineAddress(
+                  member.sections.contactInfo.tempData.addressStreet,
+                  member.sections.contactInfo.tempData.addressCity,
+                  member.sections.contactInfo.tempData.addressState,
+                  member.sections.contactInfo.tempData.addressZip
+                ) || null,
+                isPrimary: false,
+                memberIndex: familyMembers.indexOf(member)
+              })
+              return // Exit early, dialog will handle continuation
+            }
+            // For other errors, continue without creating user account
+            console.error('Failed to create user account for additional adult:', error)
           }
         } else if (member.id === familyMembers[0].id) {
           userId = primaryUserId
@@ -1007,6 +1098,62 @@ export default function AdminMembers() {
     } catch (error) {
       console.error('Error creating family:', error)
       alert(error instanceof Error ? error.message : 'Failed to create family')
+    }
+  }
+  
+  // Handler for archived user dialog action
+  const handleArchivedUserAction = async (action: 'create_new' | 'revive') => {
+    if (!pendingUserData) return
+    
+    try {
+      const apiUrl = getApiUrl()
+      
+      // Create/update user with the chosen action
+      const response = await fetch(`${apiUrl}/api/admin/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: pendingUserData.fullName,
+          email: pendingUserData.email,
+          phone: pendingUserData.phone,
+          username: pendingUserData.username,
+          password: pendingUserData.password,
+          role: 'PARENT_GUARDIAN',
+          address: pendingUserData.address,
+          action: action
+        })
+      })
+      
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.message || 'Failed to process archived user')
+      }
+      
+      const result = await response.json()
+      if (!result.success || !result.data?.id) {
+        throw new Error('Failed to get user ID')
+      }
+      
+      const wasPrimary = pendingUserData.isPrimary
+      
+      // Close dialog
+      setShowArchivedUserDialog(false)
+      setPendingUserData(null)
+      setArchivedUserEmail('')
+      
+      // If this was the primary user, show message (family creation would need to be restarted)
+      if (wasPrimary) {
+        await fetchFamilies()
+        alert(`User account ${action === 'create_new' ? 'created and removed from previous family' : 'revived'} successfully. Please create the family again.`)
+        setShowMemberModal(false)
+      } else {
+        // For additional users, show message
+        alert(`User account ${action === 'create_new' ? 'created and removed from previous family' : 'revived'} successfully.`)
+        await fetchFamilies()
+      }
+    } catch (error) {
+      console.error('Error handling archived user action:', error)
+      alert(error instanceof Error ? error.message : 'Failed to process archived user')
     }
   }
   
@@ -4561,6 +4708,65 @@ export default function AdminMembers() {
                   Save Changes
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Archived User Dialog */}
+      <AnimatePresence>
+        {showArchivedUserDialog && pendingUserData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[200] p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Account Already Exists
+              </h2>
+              <p className="text-gray-600 mb-6">
+                An account with email <strong>{archivedUserEmail}</strong> already exists but is archived.
+                Would you like to:
+              </p>
+              
+              <div className="space-y-3 mb-6">
+                <button
+                  onClick={() => handleArchivedUserAction('create_new')}
+                  className="w-full px-4 py-3 bg-vortex-red hover:bg-red-700 text-white rounded-lg font-semibold transition-colors text-left"
+                >
+                  <div className="font-bold">Create New Account</div>
+                  <div className="text-sm opacity-90 mt-1">
+                    Remove from previous family and create new account
+                  </div>
+                </button>
+                <button
+                  onClick={() => handleArchivedUserAction('revive')}
+                  className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-left"
+                >
+                  <div className="font-bold">Revive Existing Account</div>
+                  <div className="text-sm opacity-90 mt-1">
+                    Reactivate account and keep in existing family
+                  </div>
+                </button>
+              </div>
+              
+              <button
+                onClick={() => {
+                  setShowArchivedUserDialog(false)
+                  setPendingUserData(null)
+                  setArchivedUserEmail('')
+                }}
+                className="w-full px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-semibold transition-colors"
+              >
+                Cancel
+              </button>
             </motion.div>
           </motion.div>
         )}
