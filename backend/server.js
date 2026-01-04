@@ -2522,9 +2522,13 @@ app.get('/api/admin/families', async (req, res) => {
     
     let query = `
       SELECT 
-        f.*,
+        f.id,
+        f.facility_id,
+        f.primary_user_id,
+        f.family_name,
         COALESCE(f.archived, FALSE) as archived,
-        u.id as primary_user_id,
+        f.created_at,
+        f.updated_at,
         u.email as primary_email,
         u.full_name as primary_name,
         u.phone as primary_phone,
@@ -2580,7 +2584,8 @@ app.get('/api/admin/families', async (req, res) => {
       query += ` WHERE ${conditions.join(' AND ')}`
     }
     
-    query += ` GROUP BY f.id, u.id ORDER BY f.created_at DESC`
+    // Group by all non-aggregated columns. PostgreSQL handles NULLs in GROUP BY naturally
+    query += ` GROUP BY f.id, f.facility_id, f.primary_user_id, f.family_name, f.archived, f.created_at, f.updated_at, u.email, u.full_name, u.phone ORDER BY f.created_at DESC`
     
     const result = await pool.query(query, params)
     
