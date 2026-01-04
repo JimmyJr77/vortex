@@ -2143,7 +2143,11 @@ export default function AdminMembers() {
                             <div className="text-gray-600 text-sm">Age: {memberAge}</div>
                           )}
                           <div className="text-gray-500 text-xs mt-1">
-                            {isGuardian ? 'Guardian' : 'Athlete'} • {athlete.family_display === 'Orphan' || athlete.family_id === null ? 'Orphan' : `Family ID: ${family.id}`}
+                            {isGuardian ? 'Guardian' : 'Athlete'} • {
+                              !isGuardian && ((member as Athlete).family_display === 'Orphan' || (member as Athlete).family_id === null)
+                                ? 'Orphan'
+                                : `Family ID: ${family.id}`
+                            }
                           </div>
                         </div>
                         <div className="flex gap-2">
@@ -2895,7 +2899,7 @@ export default function AdminMembers() {
                 <div className="bg-gray-700 p-4 rounded">
                   <h4 className="font-semibold text-white mb-4 text-lg">Family Information</h4>
                   <div className="text-sm text-gray-300 space-y-2">
-                    <div>Family ID: {viewingMember.family.id}</div>
+                    <div>{viewingMember.family.id ? `Family ID: ${viewingMember.family.id}` : 'Orphan'}</div>
                     {viewingMember.family.family_name && (
                       <div>Family Name: {viewingMember.family.family_name}</div>
                     )}
@@ -2940,7 +2944,7 @@ export default function AdminMembers() {
                                 onClick={async (e) => {
                                   e.stopPropagation()
                                   if (confirm(`Remove ${athlete.first_name} ${athlete.last_name} from this family?`)) {
-                                    await handleRemoveMemberFromFamily(viewingMember.family.id, athlete.id)
+                                    await handleRemoveMemberFromFamily(viewingMember.family.id || 0, athlete.id)
                                   }
                                 }}
                                 className="text-red-400 hover:text-red-300"
