@@ -440,12 +440,12 @@ export default function AdminMembers() {
     if (!response.ok) {
       const data = await response.json()
       
-      // Check if this is an archived user
+      // Check if this is an existing user (archived or active)
       // Log for debugging
       console.log('User creation response:', { status: response.status, data, archived: data.archived })
       
-      if (response.status === 409 && data.archived === true) {
-        // Store pending data and show dialog
+      if (response.status === 409 && (data.archived === true || data.archived === false)) {
+        // Store pending data and show dialog for both archived and active users
         setPendingUserData({
           fullName,
           email,
@@ -4738,7 +4738,7 @@ export default function AdminMembers() {
                 Account Already Exists
               </h2>
               <p className="text-gray-600 mb-6">
-                An account with email <strong>{archivedUserEmail}</strong> already exists but is archived.
+                An account with email <strong>{archivedUserEmail}</strong> already exists.
                 Would you like to:
               </p>
               
@@ -4756,9 +4756,9 @@ export default function AdminMembers() {
                   onClick={() => handleArchivedUserAction('revive')}
                   className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-left"
                 >
-                  <div className="font-bold">Revive Existing Account</div>
+                  <div className="font-bold">Use Existing Account</div>
                   <div className="text-sm opacity-90 mt-1">
-                    Reactivate account and keep in existing family
+                    Update account information and keep in existing family
                   </div>
                 </button>
               </div>

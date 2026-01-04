@@ -1948,15 +1948,77 @@ app.post('/api/admin/users', async (req, res) => {
             data: userData
           })
         } else {
-          // User exists and is active
-          // Log for debugging
-          if (process.env.NODE_ENV !== 'production') {
-            console.log('Active user detected (not archived):', { userId: user.id, email, is_active: user.is_active })
+          // User exists and is active - also show dialog to let them choose
+          const { action } = req.body
+          
+          // If no action specified, return special response to prompt user choice
+          if (!action || (action !== 'create_new' && action !== 'revive')) {
+            // Log for debugging
+            if (process.env.NODE_ENV !== 'production') {
+              console.log('Active user detected (not archived):', { userId: user.id, email, is_active: user.is_active })
+            }
+            return res.status(409).json({
+              success: false,
+              message: 'Email already registered',
+              archived: false,
+              userId: user.id
+            })
           }
-          return res.status(409).json({
-            success: false,
-            message: 'Email already registered',
-            archived: false
+          
+          // Handle active user based on action
+          const userId = user.id
+          
+          // Hash password
+          const passwordHash = await bcrypt.hash(password, 10)
+          
+          if (action === 'create_new') {
+            // Remove user from their previous family
+            await pool.query(`
+              UPDATE family SET primary_user_id = NULL WHERE primary_user_id = $1
+            `, [userId])
+            
+            // Remove user from all family_guardian relationships
+            await pool.query(`
+              DELETE FROM family_guardian WHERE user_id = $1
+            `, [userId])
+          }
+          // For 'revive', we keep the existing family associations (do nothing)
+          
+          // Update user info (keep is_active = true for active users)
+          const primaryRole = userRoles[0] || 'PARENT_GUARDIAN'
+          await pool.query(`
+            UPDATE app_user 
+            SET full_name = $1, 
+                phone = $2, 
+                password_hash = $3, 
+                role = $4::user_role,
+                username = $5,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $6
+          `, [fullName, phone || null, passwordHash, primaryRole, username || null, userId])
+          
+          // Update user roles
+          await setUserRoles(userId, userRoles)
+          
+          // Fetch user with all roles
+          const allRoles = await getUserRoles(userId)
+          const updatedUser = await pool.query(`
+            SELECT id, email, full_name, phone, role, is_active, created_at, username
+            FROM app_user
+            WHERE id = $1
+          `, [userId])
+          
+          const userData = {
+            ...updatedUser.rows[0],
+            roles: allRoles
+          }
+          
+          return res.json({
+            success: true,
+            message: action === 'create_new' 
+              ? 'User account updated and removed from previous family' 
+              : 'User account updated successfully',
+            data: userData
           })
         }
       }
@@ -2003,6 +2065,73 @@ app.post('/api/admin/users', async (req, res) => {
       success: false,
       message: 'Internal server error',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Archive/Unarchive user (admin endpoint) - sets is_active = false/true
+app.patch('/api/admin/users/:id/archive', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { archived } = req.body
+
+    if (typeof archived !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'archived must be a boolean value'
+      })
+    }
+
+    // Get facility
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+    const facilityId = facilityResult.rows[0].id
+
+    // Check if user exists
+    const userCheck = await pool.query(
+      'SELECT id FROM app_user WHERE id = $1 AND facility_id = $2',
+      [id, facilityId]
+    )
+
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      })
+    }
+
+    // Update is_active (when archived = true, set is_active = false, and vice versa)
+    await pool.query(
+      'UPDATE app_user SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      [!archived, id]
+    )
+
+    // Fetch updated user
+    const result = await pool.query(`
+      SELECT u.id, u.email, u.full_name, u.phone, u.role, u.is_active, u.created_at, u.username
+      FROM app_user u
+      WHERE u.id = $1
+    `, [id])
+
+    const userData = result.rows[0]
+    const allRoles = await getUserRoles(parseInt(id))
+    userData.roles = allRoles
+
+    res.json({
+      success: true,
+      message: archived ? 'User archived successfully' : 'User unarchived successfully',
+      data: userData
+    })
+  } catch (error) {
+    console.error('Archive user error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
     })
   }
 })
@@ -2585,6 +2714,7 @@ app.patch('/api/admin/families/:id/archive', async (req, res) => {
       await pool.query('ALTER TABLE family ADD COLUMN archived BOOLEAN DEFAULT FALSE')
     }
     
+    // Update family archived status (users are independent entities, so we don't archive them)
     await pool.query('UPDATE family SET archived = $1, updated_at = now() WHERE id = $2', [archived, id])
     
     res.json({
@@ -5640,8 +5770,10 @@ app.patch('/api/admin/programs/:id/archive', async (req, res) => {
 
     const result = await pool.query(`
       UPDATE program 
-      SET archived = $1, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $2
+      SET archived = $1, 
+          is_active = $2,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $3
       RETURNING 
         id,
         category,
@@ -5657,7 +5789,7 @@ app.patch('/api/admin/programs/:id/archive', async (req, res) => {
         archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
-    `, [archived, id])
+    `, [archived, !archived, id]) // When archived = true, set is_active = false (inactive), and vice versa
 
     if (result.rows.length === 0) {
       return res.status(404).json({
