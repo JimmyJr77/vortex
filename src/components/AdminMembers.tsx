@@ -890,6 +890,12 @@ export default function AdminMembers() {
             }
           }
           
+          // Validate dateOfBirth is not empty before sending
+          if (!member.dateOfBirth || member.dateOfBirth.trim() === '') {
+            alert(`Please enter a date of birth for ${member.firstName} ${member.lastName}`)
+            return
+          }
+          
           const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1165,6 +1171,13 @@ export default function AdminMembers() {
         
         // Update or create athlete record
         let athleteId: number | null = null
+        
+        // Validate dateOfBirth is not empty before creating/updating athlete
+        if (!member.dateOfBirth || member.dateOfBirth.trim() === '') {
+          alert(`Please enter a date of birth for ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`)
+          return
+        }
+        
         if (member.athleteId) {
           // Update existing athlete
           const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}`, {
@@ -1184,9 +1197,15 @@ export default function AdminMembers() {
             if (athleteData.success && athleteData.data) {
               athleteId = athleteData.data.id
             }
+          } else {
+            const errorData = await athleteResponse.json()
+            console.error('Failed to update athlete:', errorData)
+            alert(`Failed to update athlete: ${errorData.message || 'Unknown error'}. ${errorData.errors ? errorData.errors.join(', ') : ''}`)
+            return
           }
         } else {
           // Create new athlete
+          
           const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1206,6 +1225,11 @@ export default function AdminMembers() {
             if (athleteData.success && athleteData.data) {
               athleteId = athleteData.data.id
             }
+          } else {
+            const errorData = await athleteResponse.json()
+            console.error('Failed to create athlete:', errorData)
+            alert(`Failed to create athlete: ${errorData.message || 'Unknown error'}. ${errorData.errors ? errorData.errors.join(', ') : ''}`)
+            return
           }
         }
         
@@ -1490,6 +1514,12 @@ export default function AdminMembers() {
           }
         } else {
           // Create new athlete
+          // Validate dateOfBirth is not empty before sending
+          if (!member.dateOfBirth || member.dateOfBirth.trim() === '') {
+            alert(`Please enter a date of birth for ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`)
+            return
+          }
+          
           const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1497,7 +1527,7 @@ export default function AdminMembers() {
               familyId: familyId,
               firstName: member.sections.contactInfo.tempData.firstName,
               lastName: member.sections.contactInfo.tempData.lastName,
-              dateOfBirth: member.dateOfBirth || null,
+              dateOfBirth: member.dateOfBirth,
               medicalNotes: member.medicalNotes || null,
               internalFlags: null,
               userId: userId

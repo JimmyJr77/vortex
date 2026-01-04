@@ -370,12 +370,15 @@ export const initDatabase = async () => {
         phone               TEXT,
         full_name           TEXT NOT NULL,
         password_hash       TEXT,
+        address             TEXT,
         is_active           BOOLEAN NOT NULL DEFAULT TRUE,
         created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
         updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
         UNIQUE (facility_id, email)
       )
     `)
+    // Ensure address column exists (for existing databases)
+    await pool.query('ALTER TABLE app_user ADD COLUMN IF NOT EXISTS address TEXT')
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_facility_role ON app_user(facility_id, role)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_email ON app_user(email)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_active ON app_user(is_active)`)
@@ -962,7 +965,22 @@ const athleteSchema = Joi.object({
   familyId: Joi.number().integer().optional().allow(null), // Will be auto-created if not provided for adults
   firstName: Joi.string().min(1).max(100).required(),
   lastName: Joi.string().min(1).max(100).required(),
-  dateOfBirth: Joi.date().required(),
+  dateOfBirth: Joi.alternatives().try(
+    Joi.date(),
+    Joi.string().custom((value, helpers) => {
+      if (!value || value.trim() === '') {
+        return helpers.error('any.invalid', { message: 'dateOfBirth is required' })
+      }
+      const date = new Date(value)
+      if (isNaN(date.getTime())) {
+        return helpers.error('any.invalid', { message: 'dateOfBirth must be a valid date' })
+      }
+      return date
+    })
+  ).required().messages({
+    'any.required': 'dateOfBirth is required',
+    'any.invalid': 'dateOfBirth must be a valid date'
+  }),
   medicalNotes: Joi.string().max(2000).optional().allow('', null),
   internalFlags: Joi.string().max(500).optional().allow('', null),
   userId: Joi.number().integer().optional().allow(null) // If set, links athlete to an app_user (e.g., parent who trains)
@@ -1620,7 +1638,7 @@ app.get('/api/admin/users', async (req, res) => {
 // Create app_user (admin endpoint) - for creating parent/guardian accounts
 app.post('/api/admin/users', async (req, res) => {
   try {
-    const { fullName, email, phone, password, role, roles, username } = req.body
+    const { fullName, email, phone, password, role, roles, username, address } = req.body
     // Support both single role (backward compatibility) and multiple roles
     const userRoles = roles && Array.isArray(roles) ? roles : (role ? [role] : ['PARENT_GUARDIAN'])
     
@@ -1728,9 +1746,10 @@ app.post('/api/admin/users', async (req, res) => {
                 is_active = TRUE,
                 role = $4::user_role,
                 username = $5,
+                address = $6,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE id = $6
-          `, [fullName, phone || null, passwordHash, primaryRole, username || null, userId])
+            WHERE id = $7
+          `, [fullName, phone || null, passwordHash, primaryRole, username || null, req.body.address || null, userId])
           
           // Update user roles
           await setUserRoles(userId, userRoles)
@@ -1738,7 +1757,7 @@ app.post('/api/admin/users', async (req, res) => {
           // Fetch user with all roles
           const allRoles = await getUserRoles(userId)
           const updatedUser = await pool.query(`
-            SELECT id, email, full_name, phone, role, is_active, created_at, username
+            SELECT id, email, full_name, phone, role, is_active, created_at, username, address
             FROM app_user
             WHERE id = $1
           `, [userId])
@@ -1801,9 +1820,10 @@ app.post('/api/admin/users', async (req, res) => {
                 password_hash = $3, 
                 role = $4::user_role,
                 username = $5,
+                address = $6,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE id = $6
-          `, [fullName, phone || null, passwordHash, primaryRole, username || null, userId])
+            WHERE id = $7
+          `, [fullName, phone || null, passwordHash, primaryRole, username || null, req.body.address || null, userId])
           
           // Update user roles
           await setUserRoles(userId, userRoles)
@@ -1838,10 +1858,10 @@ app.post('/api/admin/users', async (req, res) => {
     // Create user with primary role (first role in array or single role)
     const primaryRole = userRoles[0] || 'PARENT_GUARDIAN'
     const result = await pool.query(`
-      INSERT INTO app_user (facility_id, role, email, phone, full_name, password_hash, is_active, username)
-      VALUES ($1, $2::user_role, $3, $4, $5, $6, TRUE, $7)
-      RETURNING id, email, full_name, phone, role, is_active, created_at, username
-    `, [facilityId, primaryRole, email || null, phone || null, fullName, passwordHash, username || null])
+      INSERT INTO app_user (facility_id, role, email, phone, full_name, password_hash, is_active, username, address)
+      VALUES ($1, $2::user_role, $3, $4, $5, $6, TRUE, $7, $8)
+      RETURNING id, email, full_name, phone, role, is_active, created_at, username, address
+    `, [facilityId, primaryRole, email || null, phone || null, fullName, passwordHash, username || null, address || null])
 
     const userId = result.rows[0].id
 
@@ -1949,7 +1969,7 @@ app.patch('/api/admin/users/:id/archive', async (req, res) => {
 
     // Fetch updated user
     const result = await pool.query(`
-      SELECT u.id, u.email, u.full_name, u.phone, u.role, u.is_active, u.created_at, u.username
+      SELECT u.id, u.email, u.full_name, u.phone, u.role, u.is_active, u.created_at, u.username, u.address
       FROM app_user u
       WHERE u.id = $1
     `, [id])
@@ -1987,6 +2007,7 @@ app.get('/api/admin/users/:id', async (req, res) => {
         u.is_active,
         u.username,
         u.created_at,
+        u.address,
         f.id as family_id,
         f.family_name
       FROM app_user u
@@ -2025,7 +2046,7 @@ app.get('/api/admin/users/:id', async (req, res) => {
 app.put('/api/admin/users/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const { fullName, email, phone, password, username, roles, role } = req.body
+    const { fullName, email, phone, password, username, roles, role, address } = req.body
     // Support both single role (backward compatibility) and multiple roles
     const userRoles = roles && Array.isArray(roles) ? roles : (role ? [role] : null)
     
@@ -2146,6 +2167,12 @@ app.put('/api/admin/users/:id', async (req, res) => {
       params.push(passwordHash)
     }
     
+    if (address !== undefined) {
+      paramCount++
+      updates.push(`address = $${paramCount}`)
+      params.push(address || null)
+    }
+    
     if (updates.length === 0) {
       return res.status(400).json({
         success: false,
@@ -2161,7 +2188,7 @@ app.put('/api/admin/users/:id', async (req, res) => {
       UPDATE app_user 
       SET ${updates.join(', ')}
       WHERE id = $${paramCount} AND facility_id = $${paramCount + 1}
-      RETURNING id, email, full_name, phone, role, is_active, created_at, username
+      RETURNING id, email, full_name, phone, role, is_active, created_at, username, address
     `
     params.push(facilityId)
     
@@ -3858,7 +3885,7 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
     
     // Get user from app_user table (check both app_user.role and user_role table)
     const userResult = await pool.query(`
-      SELECT DISTINCT u.id, u.email, u.full_name, u.phone, u.role, u.username, u.is_active, u.created_at
+      SELECT DISTINCT u.id, u.email, u.full_name, u.phone, u.role, u.username, u.is_active, u.created_at, u.address
       FROM app_user u
       LEFT JOIN user_role ur ON ur.user_id = u.id
       WHERE u.id = $1 
