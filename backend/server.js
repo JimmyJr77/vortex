@@ -773,6 +773,107 @@ export const initDatabase = async () => {
 
     console.log('✅ Module 1 (Programs & Classes) initialized')
 
+    // ============================================================
+    // MODULE 2: Family & Athlete Tables
+    // ============================================================
+    
+    // Create family table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS family (
+        id                  BIGSERIAL PRIMARY KEY,
+        facility_id         BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
+        primary_user_id     BIGINT REFERENCES app_user(id) ON DELETE SET NULL,
+        family_name         TEXT,
+        archived            BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_facility ON family(facility_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_primary_user ON family(primary_user_id)`)
+    
+    // Create family_guardian junction table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS family_guardian (
+        family_id           BIGINT NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+        user_id             BIGINT NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+        is_primary          BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        PRIMARY KEY (family_id, user_id)
+      )
+    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_family ON family_guardian(family_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_user ON family_guardian(user_id)`)
+    
+    // Create athlete table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS athlete (
+        id                  BIGSERIAL PRIMARY KEY,
+        facility_id         BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
+        family_id           BIGINT NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+        first_name          TEXT NOT NULL,
+        last_name           TEXT NOT NULL,
+        date_of_birth       DATE NOT NULL,
+        medical_notes       TEXT,
+        internal_flags      TEXT,
+        user_id             BIGINT REFERENCES app_user(id) ON DELETE SET NULL,
+        status              VARCHAR(20) DEFAULT 'stand-bye' CHECK (status IN ('enrolled', 'stand-bye', 'archived')),
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_athlete_facility ON athlete(facility_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_athlete_family ON athlete(family_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_athlete_user ON athlete(user_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_athlete_status ON athlete(status)`)
+    
+    // Add status column to existing athlete tables if it doesn't exist
+    await pool.query(`
+      ALTER TABLE athlete ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'stand-bye'
+    `)
+    // Add check constraint if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint 
+          WHERE conname = 'athlete_status_check'
+        ) THEN
+          ALTER TABLE athlete ADD CONSTRAINT athlete_status_check 
+          CHECK (status IN ('enrolled', 'stand-bye', 'archived'));
+        END IF;
+      END $$;
+    `)
+    // Update existing athletes: set status based on enrollments
+    await pool.query(`
+      UPDATE athlete a
+      SET status = CASE
+        WHEN EXISTS (
+          SELECT 1 FROM athlete_program ap 
+          WHERE ap.athlete_id = a.id
+        ) THEN 'enrolled'
+        ELSE 'stand-bye'
+      END
+      WHERE status IS NULL OR status = ''
+    `)
+    
+    // Create emergency_contact table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS emergency_contact (
+        id                  BIGSERIAL PRIMARY KEY,
+        athlete_id          BIGINT NOT NULL REFERENCES athlete(id) ON DELETE CASCADE,
+        name                TEXT NOT NULL,
+        relationship        TEXT,
+        phone               TEXT NOT NULL,
+        email               TEXT,
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_emergency_contact_athlete ON emergency_contact(athlete_id)`)
+    
+    console.log('✅ Module 2 (Family & Athlete) initialized')
+
     console.log('✅ Database tables initialized successfully')
   } catch (error) {
     console.error('❌ Database initialization error:', error)
@@ -2110,6 +2211,34 @@ app.patch('/api/admin/users/:id/archive', async (req, res) => {
       'UPDATE app_user SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
       [!archived, id]
     )
+    
+    // Update athlete status for all athletes linked to this user
+    // If archiving: set status to 'archived'
+    // If unarchiving: set status based on enrollments ('enrolled' if has enrollments, else 'stand-bye')
+    const athleteStatusUpdate = archived 
+      ? "UPDATE athlete SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE user_id = $1"
+      : `UPDATE athlete SET 
+          status = CASE
+            WHEN EXISTS (SELECT 1 FROM athlete_program WHERE athlete_id = athlete.id) 
+            THEN 'enrolled'
+            ELSE 'stand-bye'
+          END,
+          updated_at = CURRENT_TIMESTAMP
+          WHERE user_id = $1`
+    
+    await pool.query(athleteStatusUpdate, [id])
+    
+    // Also update athletes that are in families where this user is a guardian
+    // (for cases where athlete doesn't have user_id but is in the same family)
+    if (archived) {
+      await pool.query(`
+        UPDATE athlete a
+        SET status = 'archived', updated_at = CURRENT_TIMESTAMP
+        FROM family f
+        JOIN family_guardian fg ON f.id = fg.family_id
+        WHERE a.family_id = f.id AND fg.user_id = $1
+      `, [id])
+    }
 
     // Fetch updated user
     const result = await pool.query(`
@@ -2997,15 +3126,15 @@ app.post('/api/admin/athletes', async (req, res) => {
       }
     }
     
-    // Create athlete
+    // Create athlete with status (default to 'stand-bye', will be updated if enrollments exist)
     let insertQuery, insertParams
     if (hasUserIdColumn) {
       insertQuery = `
         INSERT INTO athlete (
           facility_id, family_id, first_name, last_name, date_of_birth, 
-          medical_notes, internal_flags, user_id
+          medical_notes, internal_flags, user_id, status
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'stand-bye')
         RETURNING *
       `
       insertParams = [
@@ -3022,9 +3151,9 @@ app.post('/api/admin/athletes', async (req, res) => {
       insertQuery = `
         INSERT INTO athlete (
           facility_id, family_id, first_name, last_name, date_of_birth, 
-          medical_notes, internal_flags
+          medical_notes, internal_flags, status
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 'stand-bye')
         RETURNING *
       `
       insertParams = [
@@ -3062,6 +3191,51 @@ app.post('/api/admin/athletes', async (req, res) => {
     })
   }
 })
+
+// Helper function to update athlete status based on enrollments
+const updateAthleteStatus = async (athleteId) => {
+  try {
+    // Check if athlete has any enrollments
+    const enrollmentCheck = await pool.query(`
+      SELECT COUNT(*) as count FROM athlete_program WHERE athlete_id = $1
+    `, [athleteId])
+    
+    const hasEnrollments = parseInt(enrollmentCheck.rows[0].count) > 0
+    
+    // Get athlete's current status and user_id
+    const athleteCheck = await pool.query(`
+      SELECT status, user_id FROM athlete WHERE id = $1
+    `, [athleteId])
+    
+    if (athleteCheck.rows.length === 0) return
+    
+    const currentStatus = athleteCheck.rows[0].status
+    const userId = athleteCheck.rows[0].user_id
+    
+    // Only update if not archived
+    if (currentStatus === 'archived') return
+    
+    // Check if user is active (if athlete has a user_id)
+    let isUserActive = true
+    if (userId) {
+      const userCheck = await pool.query(`
+        SELECT is_active FROM app_user WHERE id = $1
+      `, [userId])
+      isUserActive = userCheck.rows.length > 0 && userCheck.rows[0].is_active === true
+    }
+    
+    // Update status: 'enrolled' if has enrollments and user is active, else 'stand-bye'
+    const newStatus = (hasEnrollments && isUserActive) ? 'enrolled' : 'stand-bye'
+    
+    await pool.query(`
+      UPDATE athlete 
+      SET status = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+    `, [newStatus, athleteId])
+  } catch (error) {
+    console.error('Error updating athlete status:', error)
+  }
+}
 
 // Update athlete (admin endpoint)
 app.put('/api/admin/athletes/:id', async (req, res) => {
@@ -3124,12 +3298,128 @@ app.put('/api/admin/athletes/:id', async (req, res) => {
       WHERE id = $${paramCount}
     `, params)
     
+    // Update athlete status based on enrollments
+    await updateAthleteStatus(parseInt(id))
+    
+    // Re-fetch athlete with updated status
+    const updatedAthleteResult = await pool.query(`
+      SELECT a.*, EXTRACT(YEAR FROM AGE(a.date_of_birth)) as age
+      FROM athlete a
+      WHERE a.id = $1
+    `, [id])
+    
+    const updatedAthlete = updatedAthleteResult.rows[0]
+    updatedAthlete.age = parseInt(updatedAthlete.age)
+    
     res.json({
       success: true,
-      message: 'Athlete updated successfully'
+      message: 'Athlete updated successfully',
+      data: updatedAthlete
     })
   } catch (error) {
     console.error('Update athlete error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+})
+
+// Remove member from family (admin endpoint)
+// If adult: creates their own family
+// If minor: sets family_id to NULL (orphan status - to be handled later)
+app.delete('/api/admin/families/:familyId/members/:memberId', async (req, res) => {
+  try {
+    const { familyId, memberId } = req.params
+    
+    // Get facility
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+    const facilityId = facilityResult.rows[0].id
+    
+    // Get athlete info
+    const athleteCheck = await pool.query(`
+      SELECT a.*, EXTRACT(YEAR FROM AGE(a.date_of_birth)) as age
+      FROM athlete a
+      WHERE a.id = $1 AND a.facility_id = $2
+    `, [memberId, facilityId])
+    
+    if (athleteCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found'
+      })
+    }
+    
+    const athlete = athleteCheck.rows[0]
+    const age = parseInt(athlete.age)
+    const isAdult = age >= 18
+    
+    // Verify family exists
+    const familyCheck = await pool.query(`
+      SELECT id FROM family WHERE id = $1 AND facility_id = $2
+    `, [familyId, facilityId])
+    
+    if (familyCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Family not found'
+      })
+    }
+    
+    // If adult: create their own family
+    if (isAdult && athlete.user_id) {
+      // Create new family for the adult
+      const newFamilyResult = await pool.query(`
+        INSERT INTO family (facility_id, primary_user_id, family_name)
+        VALUES ($1, $2, $3)
+        RETURNING *
+      `, [facilityId, athlete.user_id, `${athlete.first_name} ${athlete.last_name} Family`])
+      
+      const newFamilyId = newFamilyResult.rows[0].id
+      
+      // Add as guardian to new family
+      await pool.query(`
+        INSERT INTO family_guardian (family_id, user_id, is_primary)
+        VALUES ($1, $2, TRUE)
+      `, [newFamilyId, athlete.user_id])
+      
+      // Update athlete to new family
+      await pool.query(`
+        UPDATE athlete SET family_id = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2
+      `, [newFamilyId, memberId])
+      
+      res.json({
+        success: true,
+        message: 'Member removed from family and placed in their own family',
+        data: {
+          newFamilyId,
+          athleteId: memberId
+        }
+      })
+    } else {
+      // If minor: set family_id to NULL (orphan status)
+      // Note: This will require special handling in queries to identify orphan members
+      await pool.query(`
+        UPDATE athlete SET family_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1
+      `, [memberId])
+      
+      res.json({
+        success: true,
+        message: 'Member removed from family (orphan status)',
+        data: {
+          athleteId: memberId,
+          isOrphan: true
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Remove member from family error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -4356,6 +4646,10 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     for (const uid of userIdsToAssignRole) {
       await addUserRole(uid, 'ATHLETE')
     }
+    
+    // Update athlete status to 'enrolled' if they have any enrollments
+    // Use the helper function which checks enrollments and user active status
+    await updateAthleteStatus(athlete.id)
 
     res.json({
       success: true,
@@ -4368,6 +4662,60 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       success: false,
       message: 'Internal server error: ' + (error.message || 'Unknown error'),
       error: process.env.NODE_ENV !== 'production' ? error.message : undefined
+    })
+  }
+})
+
+// Unenroll from program (member endpoint)
+app.delete('/api/members/enroll/:enrollmentId', authenticateMember, async (req, res) => {
+  try {
+    const { enrollmentId } = req.params
+    const userId = req.userId || req.memberId
+    
+    // Get enrollment info
+    const enrollmentCheck = await pool.query(`
+      SELECT ap.*, a.id as athlete_id, a.user_id, a.first_name, a.last_name
+      FROM athlete_program ap
+      JOIN athlete a ON ap.athlete_id = a.id
+      WHERE ap.id = $1
+    `, [enrollmentId])
+    
+    if (enrollmentCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Enrollment not found'
+      })
+    }
+    
+    const enrollment = enrollmentCheck.rows[0]
+    const athleteId = enrollment.athlete_id
+    
+    // Check permission (must be parent/guardian or the athlete themselves)
+    const isAthleteSelf = enrollment.user_id && String(enrollment.user_id) === String(userId)
+    const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
+    
+    if (!hasParentRole && !isAthleteSelf) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to unenroll this member'
+      })
+    }
+    
+    // Delete enrollment
+    await pool.query('DELETE FROM athlete_program WHERE id = $1', [enrollmentId])
+    
+    // Update athlete status based on remaining enrollments
+    await updateAthleteStatus(athleteId)
+    
+    res.json({
+      success: true,
+      message: `${enrollment.first_name} ${enrollment.last_name} has been unenrolled`
+    })
+  } catch (error) {
+    console.error('Unenroll error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
     })
   }
 })

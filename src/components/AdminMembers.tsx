@@ -27,6 +27,7 @@ interface Athlete {
   linked_user_email?: string | null
   linked_user_name?: string | null
   linked_user_role?: string | null
+  status?: 'enrolled' | 'stand-bye' | 'archived'
   created_at: string
   updated_at: string
   emergency_contacts?: EmergencyContact[]
@@ -725,6 +726,39 @@ export default function AdminMembers() {
   const handleViewMember = (guardian: Guardian, family: Family) => {
     setViewingMember({ guardian, family })
     setShowMemberViewModal(true)
+  }
+  
+  // Remove member from family
+  const handleRemoveMemberFromFamily = async (familyId: number, memberId: number) => {
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/families/${familyId}/members/${memberId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.message || 'Failed to remove member from family')
+      }
+      
+      const result = await response.json()
+      alert(result.message || 'Member removed from family successfully')
+      await fetchFamilies()
+      
+      // Close modals if open
+      if (showFamilyViewModal) {
+        setShowFamilyViewModal(false)
+        setSelectedFamilyForView(null)
+      }
+      if (showMemberViewModal) {
+        setShowMemberViewModal(false)
+        setViewingMember(null)
+      }
+    } catch (error) {
+      console.error('Error removing member from family:', error)
+      alert(error instanceof Error ? error.message : 'Failed to remove member from family')
+    }
   }
   
   const handleEditMember = async (guardian: Guardian, family: Family) => {
@@ -2577,7 +2611,33 @@ export default function AdminMembers() {
                     <div className="space-y-3">
                       {selectedFamilyForView.athletes.map((athlete) => (
                         <div key={athlete.id} className="bg-gray-600 p-3 rounded">
-                          <div className="text-white font-medium">{athlete.first_name} {athlete.last_name}</div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="text-white font-medium">{athlete.first_name} {athlete.last_name}</div>
+                              {athlete.status && (
+                                <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                  athlete.status === 'enrolled' ? 'bg-green-600 text-white' :
+                                  athlete.status === 'stand-bye' ? 'bg-yellow-600 text-white' :
+                                  'bg-gray-600 text-white'
+                                }`}>
+                                  {athlete.status === 'enrolled' ? 'Enrolled' :
+                                   athlete.status === 'stand-bye' ? 'Stand-Bye' :
+                                   'Archived'}
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              onClick={async () => {
+                                if (confirm(`Remove ${athlete.first_name} ${athlete.last_name} from this family?`)) {
+                                  await handleRemoveMemberFromFamily(selectedFamilyForView.id, athlete.id)
+                                }
+                              }}
+                              className="text-red-400 hover:text-red-300 text-sm"
+                              title="Remove from family"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
                           <div className="text-gray-300 text-sm mt-1">
                             Date of Birth: {new Date(athlete.date_of_birth).toLocaleDateString()}
                             {athlete.age !== undefined && ` (Age ${athlete.age})`}
@@ -2684,21 +2744,48 @@ export default function AdminMembers() {
                             onClick={() => setExpandedViewFamilyMemberId(expandedViewFamilyMemberId === athlete.id ? null : athlete.id)}
                           >
                             <div className="flex-1">
-                              <div className="text-white font-medium text-lg">
-                                {athlete.first_name} {athlete.last_name}
+                              <div className="flex items-center gap-2">
+                                <div className="text-white font-medium text-lg">
+                                  {athlete.first_name} {athlete.last_name}
+                                </div>
+                                {athlete.status && (
+                                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                    athlete.status === 'enrolled' ? 'bg-green-600 text-white' :
+                                    athlete.status === 'stand-bye' ? 'bg-yellow-600 text-white' :
+                                    'bg-gray-600 text-white'
+                                  }`}>
+                                    {athlete.status === 'enrolled' ? 'Enrolled' :
+                                     athlete.status === 'stand-bye' ? 'Stand-Bye' :
+                                     'Archived'}
+                                  </span>
+                                )}
                               </div>
                               <div className="text-gray-300 text-sm mt-1">
                                 Date of Birth: {athlete.date_of_birth ? new Date(athlete.date_of_birth).toLocaleDateString() : 'N/A'}
                                 {athlete.age !== undefined && ` (Age ${athlete.age})`}
                               </div>
                             </div>
-                            <button className="text-gray-400 hover:text-white">
-                              {expandedViewFamilyMemberId === athlete.id ? (
-                                <ChevronUp className="w-5 h-5" />
-                              ) : (
-                                <ChevronDown className="w-5 h-5" />
-                              )}
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation()
+                                  if (confirm(`Remove ${athlete.first_name} ${athlete.last_name} from this family?`)) {
+                                    await handleRemoveMemberFromFamily(viewingMember.family.id, athlete.id)
+                                  }
+                                }}
+                                className="text-red-400 hover:text-red-300"
+                                title="Remove from family"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                              <button className="text-gray-400 hover:text-white">
+                                {expandedViewFamilyMemberId === athlete.id ? (
+                                  <ChevronUp className="w-5 h-5" />
+                                ) : (
+                                  <ChevronDown className="w-5 h-5" />
+                                )}
+                              </button>
+                            </div>
                           </div>
                           {expandedViewFamilyMemberId === athlete.id && (
                             <motion.div
