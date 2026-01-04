@@ -86,6 +86,8 @@ type EnrollmentData = {
 
 type FamilyMemberData = {
   id: string
+  athleteId?: number // ID of existing athlete record (if editing)
+  userId?: number // ID of existing user record (if editing)
   firstName: string
   lastName: string
   email: string
@@ -510,6 +512,8 @@ export default function AdminMembers() {
       
       populatedMembers.push({
         id: `member-${i + 1}`,
+        athleteId: member.type === 'athlete' ? (member.data as Athlete).id : undefined,
+        userId: member.userId || undefined,
         firstName,
         lastName,
         email: email || (member.type === 'guardian' ? (member.data as Guardian).email || '' : ''),
@@ -1152,29 +1156,96 @@ export default function AdminMembers() {
           }
         } else if (member.id === familyMembers[0].id) {
           userId = primaryUserId
+        } else if (member.userId) {
+          // Use existing userId if member already has one
+          userId = member.userId
         }
         
-        // Create athlete record for all members
-        const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            familyId: familyId,
-            firstName: member.sections.contactInfo.tempData.firstName,
-            lastName: member.sections.contactInfo.tempData.lastName,
-            dateOfBirth: member.dateOfBirth,
-            medicalNotes: member.medicalNotes || null,
-            internalFlags: null,
-            userId: userId
+        // Update or create athlete record
+        let athleteId: number | null = null
+        if (member.athleteId) {
+          // Update existing athlete
+          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              firstName: member.sections.contactInfo.tempData.firstName,
+              lastName: member.sections.contactInfo.tempData.lastName,
+              dateOfBirth: member.dateOfBirth,
+              medicalNotes: member.medicalNotes || null,
+              internalFlags: null
+            })
           })
-        })
+          
+          if (athleteResponse.ok) {
+            const athleteData = await athleteResponse.json()
+            if (athleteData.success && athleteData.data) {
+              athleteId = athleteData.data.id
+            }
+          }
+        } else {
+          // Create new athlete
+          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              familyId: familyId,
+              firstName: member.sections.contactInfo.tempData.firstName,
+              lastName: member.sections.contactInfo.tempData.lastName,
+              dateOfBirth: member.dateOfBirth,
+              medicalNotes: member.medicalNotes || null,
+              internalFlags: null,
+              userId: userId
+            })
+          })
+          
+          if (athleteResponse.ok) {
+            const athleteData = await athleteResponse.json()
+            if (athleteData.success && athleteData.data) {
+              athleteId = athleteData.data.id
+            }
+          }
+        }
         
-        if (athleteResponse.ok) {
-          const athleteData = await athleteResponse.json()
-          if (athleteData.success && athleteData.data) {
-            // Create enrollments
-            for (const enrollment of member.enrollments) {
-              if (enrollment.programId) {
+        // Update enrollments if athlete was created/updated
+        if (athleteId) {
+          // Get existing enrollments
+          const existingEnrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${athleteId}/enrollments`)
+          let existingEnrollments: any[] = []
+          if (existingEnrollmentsResponse.ok) {
+            const enrollmentsData = await existingEnrollmentsResponse.json()
+            if (enrollmentsData.success && enrollmentsData.data) {
+              existingEnrollments = enrollmentsData.data
+            }
+          }
+          
+          // Delete enrollments that are no longer in the member's enrollment list
+          for (const existing of existingEnrollments) {
+            const stillExists = member.enrollments.some(e => 
+              e.programId === existing.program_id
+            )
+            if (!stillExists && existing.id) {
+              // Try to delete via unenrollment endpoint
+              try {
+                await fetch(`${apiUrl}/api/members/enroll/${existing.id}`, {
+                  method: 'DELETE',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                  }
+                })
+              } catch (error) {
+                console.error('Error removing enrollment:', error)
+              }
+            }
+          }
+          
+          // Create or update enrollments
+          for (const enrollment of member.enrollments) {
+            if (enrollment.programId) {
+              const existingEnrollment = existingEnrollments.find(e => e.program_id === enrollment.programId)
+              if (existingEnrollment) {
+                // Update existing enrollment (enroll endpoint handles updates via ON CONFLICT)
                 await fetch(`${apiUrl}/api/members/enroll`, {
                   method: 'POST',
                   headers: { 
@@ -1183,7 +1254,22 @@ export default function AdminMembers() {
                   },
                   body: JSON.stringify({
                     programId: enrollment.programId,
-                    familyMemberId: athleteData.data.id,
+                    familyMemberId: athleteId,
+                    daysPerWeek: enrollment.daysPerWeek,
+                    selectedDays: enrollment.selectedDays
+                  })
+                })
+              } else {
+                // Create new enrollment
+                await fetch(`${apiUrl}/api/members/enroll`, {
+                  method: 'POST',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                  },
+                  body: JSON.stringify({
+                    programId: enrollment.programId,
+                    familyMemberId: athleteId,
                     daysPerWeek: enrollment.daysPerWeek,
                     selectedDays: enrollment.selectedDays
                   })
@@ -1375,27 +1461,97 @@ export default function AdminMembers() {
           }
         }
         
-        // Create athlete record for all members
-        const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            familyId: familyId,
-            firstName: member.sections.contactInfo.tempData.firstName,
-            lastName: member.sections.contactInfo.tempData.lastName,
-            dateOfBirth: member.dateOfBirth || null,
-            medicalNotes: member.medicalNotes || null,
-            internalFlags: null,
-            userId: userId
+        // Update or create athlete record
+        let athleteId: number | null = null
+        if (member.athleteId) {
+          // Update existing athlete
+          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              firstName: member.sections.contactInfo.tempData.firstName,
+              lastName: member.sections.contactInfo.tempData.lastName,
+              dateOfBirth: member.dateOfBirth || null,
+              medicalNotes: member.medicalNotes || null,
+              internalFlags: null
+            })
           })
-        })
+          
+          if (athleteResponse.ok) {
+            const athleteData = await athleteResponse.json()
+            if (athleteData.success && athleteData.data) {
+              athleteId = athleteData.data.id
+            }
+          } else {
+            const errorData = await athleteResponse.json()
+            throw new Error(errorData.message || 'Failed to update athlete record')
+          }
+        } else {
+          // Create new athlete
+          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              familyId: familyId,
+              firstName: member.sections.contactInfo.tempData.firstName,
+              lastName: member.sections.contactInfo.tempData.lastName,
+              dateOfBirth: member.dateOfBirth || null,
+              medicalNotes: member.medicalNotes || null,
+              internalFlags: null,
+              userId: userId
+            })
+          })
+          
+          if (athleteResponse.ok) {
+            const athleteData = await athleteResponse.json()
+            if (athleteData.success && athleteData.data) {
+              athleteId = athleteData.data.id
+            }
+          } else {
+            const errorData = await athleteResponse.json()
+            throw new Error(errorData.message || 'Failed to create athlete record')
+          }
+        }
         
-        if (athleteResponse.ok) {
-          const athleteData = await athleteResponse.json()
-          if (athleteData.success && athleteData.data) {
-            // Create enrollments
-            for (const enrollment of member.enrollments) {
-              if (enrollment.programId) {
+        // Update enrollments if athlete was created/updated
+        if (athleteId) {
+          // Get existing enrollments
+          const existingEnrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${athleteId}/enrollments`)
+          let existingEnrollments: any[] = []
+          if (existingEnrollmentsResponse.ok) {
+            const enrollmentsData = await existingEnrollmentsResponse.json()
+            if (enrollmentsData.success && enrollmentsData.data) {
+              existingEnrollments = enrollmentsData.data
+            }
+          }
+          
+          // Delete enrollments that are no longer in the member's enrollment list
+          for (const existing of existingEnrollments) {
+            const stillExists = member.enrollments.some(e => 
+              e.programId === existing.program_id
+            )
+            if (!stillExists && existing.id) {
+              // Try to delete via unenrollment endpoint
+              try {
+                await fetch(`${apiUrl}/api/members/enroll/${existing.id}`, {
+                  method: 'DELETE',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                  }
+                })
+              } catch (error) {
+                console.error('Error removing enrollment:', error)
+              }
+            }
+          }
+          
+          // Create or update enrollments
+          for (const enrollment of member.enrollments) {
+            if (enrollment.programId) {
+              const existingEnrollment = existingEnrollments.find(e => e.program_id === enrollment.programId)
+              if (existingEnrollment) {
+                // Update existing enrollment (enroll endpoint handles updates via ON CONFLICT)
                 await fetch(`${apiUrl}/api/members/enroll`, {
                   method: 'POST',
                   headers: { 
@@ -1404,7 +1560,22 @@ export default function AdminMembers() {
                   },
                   body: JSON.stringify({
                     programId: enrollment.programId,
-                    familyMemberId: athleteData.data.id,
+                    familyMemberId: athleteId,
+                    daysPerWeek: enrollment.daysPerWeek,
+                    selectedDays: enrollment.selectedDays
+                  })
+                })
+              } else {
+                // Create new enrollment
+                await fetch(`${apiUrl}/api/members/enroll`, {
+                  method: 'POST',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                  },
+                  body: JSON.stringify({
+                    programId: enrollment.programId,
+                    familyMemberId: athleteId,
                     daysPerWeek: enrollment.daysPerWeek,
                     selectedDays: enrollment.selectedDays
                   })
@@ -1412,9 +1583,6 @@ export default function AdminMembers() {
               }
             }
           }
-        } else {
-          const errorData = await athleteResponse.json()
-          throw new Error(errorData.message || 'Failed to create athlete record')
         }
       }
       
