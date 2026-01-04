@@ -170,23 +170,6 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
-                onClick={() => setActiveTab('users')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'users'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Inquiries
-                {activeTab === 'users' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
                 onClick={() => setActiveTab('membership')}
                 className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'membership'
@@ -196,6 +179,23 @@ export default function Admin({ onLogout }: AdminProps) {
               >
                 Members
                 {activeTab === 'membership' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'users'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Inquiries
+                {activeTab === 'users' && (
                   <motion.div
                     className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
                     layoutId="activeTab"

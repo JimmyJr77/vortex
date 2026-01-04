@@ -153,56 +153,6 @@ export default function AdminMembers() {
   })
   const [isBillingExpanded, setIsBillingExpanded] = useState(true)
   
-  // For new family creation with primary adult
-  const [newPrimaryAdult, setNewPrimaryAdult] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    addressStreet: '',
-    addressCity: '',
-    addressState: '',
-    addressZip: '',
-    username: '',
-    password: 'vortex',
-    program: 'Non-Participant',
-    programId: null as number | null,
-    daysPerWeek: 1,
-    selectedDays: [] as string[]
-  })
-  
-  const [newChildren, setNewChildren] = useState<Array<{
-    firstName: string
-    lastName: string
-    dateOfBirth: string
-    email: string
-    password: string
-    username: string
-    medicalNotes: string
-    internalFlags: string
-    program: string
-    programId: number | null
-    daysPerWeek: number
-    selectedDays: string[]
-    userId: number | null
-  }>>([])
-  
-  const [currentChild, setCurrentChild] = useState({
-    firstName: '',
-    lastName: '',
-    dateOfBirth: '',
-    email: '',
-    password: '',
-    username: '',
-    medicalNotes: '',
-    internalFlags: '',
-    program: 'Non-Participant',
-    programId: null as number | null,
-    daysPerWeek: 1,
-    selectedDays: [] as string[],
-    userId: null as number | null
-  })
-  
   // View/Edit member state
   const [selectedFamilyForView, setSelectedFamilyForView] = useState<Family | null>(null)
   const [showFamilyViewModal, setShowFamilyViewModal] = useState(false)
@@ -1294,28 +1244,6 @@ export default function AdminMembers() {
   
   const handleRemoveEnrollmentClick = () => {
     // Enrollment removal functionality removed - not used in UI
-  }
-  
-  const handleAddChildToArray = async () => {
-    if (!currentChild.firstName || !currentChild.lastName || !currentChild.dateOfBirth) {
-      alert('Please fill in at least first name, last name, and date of birth')
-      return
-    }
-    
-    if (currentChild.programId && currentChild.selectedDays.length !== currentChild.daysPerWeek) {
-      alert(`Please select exactly ${currentChild.daysPerWeek} day(s)`)
-      return
-    }
-    
-    const username = currentChild.username || await generateUsername(currentChild.firstName, currentChild.lastName)
-    const password = currentChild.password || 'vortex'
-    
-    setNewChildren([...newChildren, { ...currentChild, username, password }])
-    setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], userId: null })
-  }
-  
-  const handleRemoveChildFromArray = (index: number) => {
-    setNewChildren(newChildren.filter((_, i) => i !== index))
   }
   
   const handleSectionContinue = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'enrollment') => {
@@ -2765,9 +2693,6 @@ export default function AdminMembers() {
                         setExpandedFamilyMemberId('member-1')
                         setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
                         setIsBillingExpanded(true)
-                        setNewPrimaryAdult({ firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '', username: '', password: 'vortex', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [] })
-                        setNewChildren([])
-                        setCurrentChild({ firstName: '', lastName: '', dateOfBirth: '', email: '', password: 'vortex', username: '', medicalNotes: '', internalFlags: '', program: 'Non-Participant', programId: null, daysPerWeek: 1, selectedDays: [], userId: null })
                       }}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
