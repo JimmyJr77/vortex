@@ -21,7 +21,9 @@ interface Athlete {
   age?: number
   medical_notes?: string | null
   internal_flags?: string | null
-  family_id: number
+  family_id?: number | null // Can be null for orphans
+  family_name?: string | null // Can be 'Orphan' for orphans
+  family_display?: string | null // Shows 'Orphan' or family_id as string
   user_id?: number | null
   linked_user_id?: number | null
   linked_user_email?: string | null
@@ -2141,7 +2143,7 @@ export default function AdminMembers() {
                             <div className="text-gray-600 text-sm">Age: {memberAge}</div>
                           )}
                           <div className="text-gray-500 text-xs mt-1">
-                            {isGuardian ? 'Guardian' : 'Athlete'} • Family ID: {family.id}
+                            {isGuardian ? 'Guardian' : 'Athlete'} • {athlete.family_display === 'Orphan' || athlete.family_id === null ? 'Orphan' : `Family ID: ${family.id}`}
                           </div>
                         </div>
                         <div className="flex gap-2">
@@ -2748,7 +2750,7 @@ export default function AdminMembers() {
                 <div className="bg-gray-700 p-4 rounded">
                   <h4 className="font-semibold text-white mb-4">Family Information</h4>
                   <div className="text-sm text-gray-300 space-y-2">
-                    <div>Family ID: {selectedFamilyForView.id}</div>
+                    <div>{selectedFamilyForView.id ? `Family ID: ${selectedFamilyForView.id}` : 'Orphan'}</div>
                     {selectedFamilyForView.family_name && (
                       <div>Family Name: {selectedFamilyForView.family_name}</div>
                     )}

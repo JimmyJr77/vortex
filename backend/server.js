@@ -810,7 +810,7 @@ export const initDatabase = async () => {
       CREATE TABLE IF NOT EXISTS athlete (
         id                  BIGSERIAL PRIMARY KEY,
         facility_id         BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
-        family_id           BIGINT NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+        family_id           BIGINT REFERENCES family(id) ON DELETE SET NULL,
         first_name          TEXT NOT NULL,
         last_name           TEXT NOT NULL,
         date_of_birth       DATE NOT NULL,
@@ -823,11 +823,11 @@ export const initDatabase = async () => {
       )
     `)
     
-    // Ensure family_id is NOT NULL (for existing databases)
+    // Make family_id nullable (for orphans - children without a family)
     await pool.query(`
-      ALTER TABLE athlete ALTER COLUMN family_id SET NOT NULL
+      ALTER TABLE athlete ALTER COLUMN family_id DROP NOT NULL
     `).catch(() => {
-      // Column might already be NOT NULL, ignore error
+      // Column might already be nullable, ignore error
     })
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_athlete_facility ON athlete(facility_id)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_athlete_family ON athlete(family_id)`)
@@ -2549,7 +2549,10 @@ app.get('/api/admin/families', async (req, res) => {
               'dateOfBirth', a.date_of_birth,
               'age', EXTRACT(YEAR FROM AGE(a.date_of_birth)),
               'medicalNotes', a.medical_notes,
-              'internalFlags', a.internal_flags
+              'internalFlags', a.internal_flags,
+              'status', a.status,
+              'familyId', a.family_id,
+              'familyDisplay', CASE WHEN a.family_id IS NULL THEN 'Orphan' ELSE CAST(a.family_id AS TEXT) END
             )
           ) FILTER (WHERE a.id IS NOT NULL),
           '[]'
@@ -2902,8 +2905,18 @@ app.get('/api/admin/athletes', async (req, res) => {
       SELECT 
         a.*,
         EXTRACT(YEAR FROM AGE(a.date_of_birth)) as age,
-        f.family_name,
-        f.id as family_id,
+        CASE 
+          WHEN a.family_id IS NULL THEN 'Orphan'
+          ELSE f.family_name
+        END as family_name,
+        CASE 
+          WHEN a.family_id IS NULL THEN NULL
+          ELSE f.id
+        END as family_id,
+        CASE 
+          WHEN a.family_id IS NULL THEN 'Orphan'
+          ELSE CAST(f.id AS TEXT)
+        END as family_display,
         u.email as primary_guardian_email,
         u.full_name as primary_guardian_name
     `
@@ -2979,8 +2992,18 @@ app.get('/api/admin/athletes/:id', async (req, res) => {
       SELECT 
         a.*,
         EXTRACT(YEAR FROM AGE(a.date_of_birth)) as age,
-        f.family_name,
-        f.id as family_id,
+        CASE 
+          WHEN a.family_id IS NULL THEN 'Orphan'
+          ELSE f.family_name
+        END as family_name,
+        CASE 
+          WHEN a.family_id IS NULL THEN NULL
+          ELSE f.id
+        END as family_id,
+        CASE 
+          WHEN a.family_id IS NULL THEN 'Orphan'
+          ELSE CAST(f.id AS TEXT)
+        END as family_display,
         u.email as primary_guardian_email,
         u.full_name as primary_guardian_name
     `
@@ -3096,17 +3119,15 @@ app.post('/api/admin/athletes', async (req, res) => {
       (today.getMonth() < birthDate.getMonth() || 
        (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
     
-    // Everyone must have a family_id (family of 1 is allowed)
-    // If no familyId provided, create one (for adults) or require one (for children)
+    // Adults must have a family_id (family of 1 is allowed)
+    // Children can be orphaned (family_id = NULL) or have a family
     if (!value.familyId) {
       if (age < 18) {
-        // Children must be explicitly attached to an existing family
-        return res.status(400).json({
-          success: false,
-          message: 'Children must be attached to a family. A family_id is required for members under 18.'
-        })
+        // Children without family_id are orphans - this is allowed
+        // They can be created as orphans or assigned to a family later
+        value.familyId = null
       } else if (age >= 18 && value.userId) {
-        // Adults can create their own account - auto-create a family for them (family of 1)
+        // Adults must have a family - auto-create one for them (family of 1)
         // Check if user already has a family
         const existingFamilyCheck = await pool.query(`
           SELECT f.id FROM family f
@@ -3142,17 +3163,16 @@ app.post('/api/admin/athletes', async (req, res) => {
         // Adult without userId - still need a family (shouldn't happen in normal flow, but handle it)
         return res.status(400).json({
           success: false,
-          message: 'A family_id is required. Please provide a family_id or create a user account first.'
+          message: 'Adults must have a family. Please provide a family_id or create a user account first.'
         })
       }
     }
     
-    // If this is a child (under 18) and there are no guardians in the family, reject
-    // (Children can be in a family of 1 if they're the only member, but validation happens elsewhere)
+    // If this is a child (under 18) with a family_id, ensure there are guardians in the family
     if (age < 18 && value.familyId && guardianCount === 0 && !hasPrimaryGuardian) {
       return res.status(400).json({
         success: false,
-        message: 'A child cannot be a sole member. At least one adult guardian must exist in the family.'
+        message: 'A child cannot be in a family without guardians. At least one adult guardian must exist in the family, or create the child as an orphan.'
       })
     }
     
@@ -3199,7 +3219,7 @@ app.post('/api/admin/athletes', async (req, res) => {
       `
       insertParams = [
         facilityId,
-        value.familyId, // Always required (family of 1 is allowed)
+        value.familyId || null, // Can be NULL for orphaned children
         value.firstName,
         value.lastName,
         value.dateOfBirth,
@@ -3218,7 +3238,7 @@ app.post('/api/admin/athletes', async (req, res) => {
       `
       insertParams = [
         facilityId,
-        value.familyId, // Always required (family of 1 is allowed)
+        value.familyId || null, // Can be NULL for orphaned children
         value.firstName,
         value.lastName,
         value.dateOfBirth,
@@ -3432,8 +3452,50 @@ app.delete('/api/admin/families/:familyId/members/:memberId', async (req, res) =
       })
     }
     
+    // Check if removing this member will leave children without guardians
+    // Get all children in the family
+    const childrenInFamily = await pool.query(`
+      SELECT a.id, a.first_name, a.last_name, EXTRACT(YEAR FROM AGE(a.date_of_birth)) as age
+      FROM athlete a
+      WHERE a.family_id = $1 AND a.id != $2
+    `, [familyId, memberId])
+    
+    // Check remaining guardians after removal
+    const remainingGuardians = await pool.query(`
+      SELECT COUNT(*) as count
+      FROM family_guardian fg
+      JOIN app_user u ON fg.user_id = u.id
+      WHERE fg.family_id = $1 AND fg.user_id != $2
+    `, [familyId, athlete.user_id || 0])
+    
+    const guardianCount = parseInt(remainingGuardians.rows[0].count || '0')
+    const primaryUserCheck = await pool.query(`
+      SELECT primary_user_id FROM family WHERE id = $1
+    `, [familyId])
+    const currentPrimaryUserId = primaryUserCheck.rows.length > 0 ? primaryUserCheck.rows[0].primary_user_id : null
+    const willBecomePrimary = currentPrimaryUserId === athlete.user_id
+    const hasOtherPrimaryGuardian = currentPrimaryUserId !== null && currentPrimaryUserId !== athlete.user_id
+    
+    // Check if any remaining children will be left without guardians
+    const willLeaveChildrenOrphaned = childrenInFamily.rows.some(child => {
+      const childAge = parseInt(child.age)
+      return childAge < 18 && guardianCount === 0 && !hasOtherPrimaryGuardian
+    })
+    
     // If adult: create their own family
     if (isAdult && athlete.user_id) {
+      // Remove from current family guardians
+      await pool.query(`
+        DELETE FROM family_guardian WHERE family_id = $1 AND user_id = $2
+      `, [familyId, athlete.user_id])
+      
+      // Update family primary_user_id if this was the primary
+      if (willBecomePrimary) {
+        await pool.query(`
+          UPDATE family SET primary_user_id = NULL WHERE id = $1
+        `, [familyId])
+      }
+      
       // Create new family for the adult
       const newFamilyResult = await pool.query(`
         INSERT INTO family (facility_id, primary_user_id, family_name)
@@ -3454,36 +3516,41 @@ app.delete('/api/admin/families/:familyId/members/:memberId', async (req, res) =
         UPDATE athlete SET family_id = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2
       `, [newFamilyId, memberId])
       
+      // If removing this adult leaves children without guardians, orphan those children
+      if (willLeaveChildrenOrphaned) {
+        for (const child of childrenInFamily.rows) {
+          const childAge = parseInt(child.age)
+          if (childAge < 18) {
+            await pool.query(`
+              UPDATE athlete SET family_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1
+            `, [child.id])
+          }
+        }
+      }
+      
       res.json({
         success: true,
-        message: 'Member removed from family and placed in their own family',
+        message: willLeaveChildrenOrphaned 
+          ? 'Member removed from family and placed in their own family. Children in the family have been orphaned.'
+          : 'Member removed from family and placed in their own family',
         data: {
           newFamilyId,
-          athleteId: memberId
+          athleteId: memberId,
+          orphanedChildren: willLeaveChildrenOrphaned ? childrenInFamily.rows.filter(c => parseInt(c.age) < 18).map(c => c.id) : []
         }
       })
     } else {
-      // If minor: create their own family (family of 1 - orphan status)
-      // Orphans are children with their own family (not NULL family_id)
-      const orphanFamilyResult = await pool.query(`
-        INSERT INTO family (facility_id, primary_user_id, family_name)
-        VALUES ($1, NULL, $2)
-        RETURNING id
-      `, [facilityId, `${athlete.first_name} ${athlete.last_name} Family (Orphan)`])
-      
-      const orphanFamilyId = orphanFamilyResult.rows[0].id
-      
-      // Update athlete to orphan family
+      // If minor: set family_id to NULL (orphan status)
+      // Only children without an assigned family are designated as orphaned
       await pool.query(`
-        UPDATE athlete SET family_id = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2
-      `, [orphanFamilyId, memberId])
+        UPDATE athlete SET family_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1
+      `, [memberId])
       
       res.json({
         success: true,
-        message: 'Member removed from family and placed in orphan family (family of 1)',
+        message: 'Child removed from family (orphan status)',
         data: {
           athleteId: memberId,
-          orphanFamilyId,
           isOrphan: true
         }
       })
