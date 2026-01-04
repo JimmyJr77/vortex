@@ -120,10 +120,11 @@ export default function AdminMembers() {
   const [selectedFamilyForMember, setSelectedFamilyForMember] = useState<Family | null>(null)
   const [memberModalMode, setMemberModalMode] = useState<'search' | 'new-family' | 'existing-family'>('search')
   const [unifiedModalMode, setUnifiedModalMode] = useState<'create-new' | 'add-to-existing' | 'edit' | null>(null)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [editingFamilyId, setEditingFamilyId] = useState<number | null>(null)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [editingMemberUserId, setEditingMemberUserId] = useState<number | null>(null) // User ID of the member being edited
+  // These are set but not currently read - reserved for future edit functionality
+  // @ts-ignore - intentionally unused, setters are used
+  const [_editingFamilyId, setEditingFamilyId] = useState<number | null>(null)
+  // @ts-ignore - intentionally unused, setters are used
+  const [_editingMemberUserId, setEditingMemberUserId] = useState<number | null>(null) // User ID of the member being edited
   
   // Family member creation state
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberData[]>([
@@ -583,7 +584,7 @@ export default function AdminMembers() {
     if (editingUserId !== null && editingUserId !== undefined) {
       const editingMemberIndex = populatedMembers.findIndex(m => {
         // Find by matching userId - we need to check if this member's user matches
-        const memberData = allMembers.find((am, idx) => idx === populatedMembers.indexOf(m))
+        const memberData = allMembers.find((_am, idx) => idx === populatedMembers.indexOf(m))
         return memberData?.userId === editingUserId
       })
       if (editingMemberIndex >= 0) {
@@ -998,16 +999,16 @@ export default function AdminMembers() {
         if (error instanceof Error && error.message === 'ARCHIVED_USER_PENDING_CHOICE') {
           // Store pending data as primary and return (dialog will handle continuation)
           setPendingUserData({
-            fullName: `${primaryMember.sections.contactInfo.tempData.firstName} ${primaryMember.sections.contactInfo.tempData.lastName}`,
-            email: primaryMember.sections.contactInfo.tempData.email,
-            phone: cleanPhoneNumber(primaryMember.sections.contactInfo.tempData.phone),
-            username: primaryMember.sections.loginSecurity.tempData.username,
-            password: primaryMember.sections.loginSecurity.tempData.password || 'vortex',
-            address: combineAddress(
-              primaryMember.sections.contactInfo.tempData.addressStreet,
-              primaryMember.sections.contactInfo.tempData.addressCity,
-              primaryMember.sections.contactInfo.tempData.addressState,
-              primaryMember.sections.contactInfo.tempData.addressZip
+          fullName: `${primaryMember.sections.contactInfo.tempData.firstName} ${primaryMember.sections.contactInfo.tempData.lastName}`,
+          email: primaryMember.sections.contactInfo.tempData.email,
+          phone: cleanPhoneNumber(primaryMember.sections.contactInfo.tempData.phone),
+          username: primaryMember.sections.loginSecurity.tempData.username,
+          password: primaryMember.sections.loginSecurity.tempData.password || 'vortex',
+          address: combineAddress(
+            primaryMember.sections.contactInfo.tempData.addressStreet,
+            primaryMember.sections.contactInfo.tempData.addressCity,
+            primaryMember.sections.contactInfo.tempData.addressState,
+            primaryMember.sections.contactInfo.tempData.addressZip
             ) || null,
             isPrimary: true
           })
@@ -1065,24 +1066,24 @@ export default function AdminMembers() {
                 member.sections.contactInfo.tempData.addressZip
               ) || null
             )
-            
-            // Add as guardian
-            const updateResponse = await fetch(`${apiUrl}/api/admin/families/${familyId}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                familyName: familyData.data.family_name,
-                primaryUserId: primaryUserId,
-                guardianIds: [
-                  ...(familyData.data.guardians?.map((g: Guardian) => g.id) || []),
-                  userId
-                ]
+              
+              // Add as guardian
+              const updateResponse = await fetch(`${apiUrl}/api/admin/families/${familyId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  familyName: familyData.data.family_name,
+                  primaryUserId: primaryUserId,
+                  guardianIds: [
+                    ...(familyData.data.guardians?.map((g: Guardian) => g.id) || []),
+                    userId
+                  ]
+                })
               })
-            })
-            
-            if (!updateResponse.ok) {
-              console.warn('Failed to add guardian to family')
-            }
+              
+              if (!updateResponse.ok) {
+                console.warn('Failed to add guardian to family')
+              }
           } catch (error) {
             if (error instanceof Error && error.message === 'ARCHIVED_USER_PENDING_CHOICE') {
               // Store pending data and show dialog

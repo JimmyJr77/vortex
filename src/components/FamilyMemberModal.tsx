@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronDown, ChevronUp } from 'lucide-react'
+import { X } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 
 // Import types from AdminMembers (we'll need to export these or duplicate them)
@@ -128,18 +128,18 @@ export default function FamilyMemberModal({
   editingFamily,
   editingMemberUserId,
   existingFamily,
-  programs,
-  generateUsername = async (f, l) => `${f.toLowerCase()}${l.toLowerCase()}`,
-  formatPhoneNumber = (p) => p,
+  programs: _programs,
+  generateUsername: _generateUsername = async (f, l) => `${f.toLowerCase()}${l.toLowerCase()}`,
+  formatPhoneNumber: _formatPhoneNumber = (p) => p,
   parseAddress = () => ({ street: '', city: '', state: '', zip: '' }),
-  combineAddress = (s, c, st, z) => [s, c, st, z].filter(Boolean).join(', '),
-  cleanPhoneNumber = (p) => p.replace(/\D/g, ''),
-  getActiveClassesByCategory = () => ({ groupedByCategory: {}, sortedCategories: [] })
+  combineAddress: _combineAddress = (s, c, st, z) => [s, c, st, z].filter(Boolean).join(', '),
+  cleanPhoneNumber: _cleanPhoneNumber = (p) => p.replace(/\D/g, ''),
+  getActiveClassesByCategory: _getActiveClassesByCategory = () => ({ groupedByCategory: {}, sortedCategories: [] })
 }: FamilyMemberModalProps) {
   // Internal state
   const [memberModalMode, setMemberModalMode] = useState<'search' | 'new-family'>('search')
-  const [memberSearchQuery, setMemberSearchQuery] = useState('')
-  const [memberSearchResults, setMemberSearchResults] = useState<Family[]>([])
+  const [_memberSearchQuery, _setMemberSearchQuery] = useState('')
+  const [_memberSearchResults, _setMemberSearchResults] = useState<Family[]>([])
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberData[]>([
     {
       id: 'member-1',
@@ -164,13 +164,13 @@ export default function FamilyMemberModal({
       }
     }
   ])
-  const [expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<string | number | null>(null)
+  const [_expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<string | number | null>(null)
   const [billingInfo, setBillingInfo] = useState({
     firstName: '',
     lastName: '',
     billingAddress: ''
   })
-  const [isBillingExpanded, setIsBillingExpanded] = useState(true)
+  const [_isBillingExpanded, setIsBillingExpanded] = useState(true)
 
   // Initialize based on mode
   useEffect(() => {
@@ -408,7 +408,7 @@ export default function FamilyMemberModal({
     // Expand the member being edited, or first member if no specific member
     if (editingUserId !== null && editingUserId !== undefined) {
       const editingMemberIndex = populatedMembers.findIndex(m => {
-        const memberData = allMembers.find((am, idx) => idx === populatedMembers.indexOf(m))
+        const memberData = allMembers.find((_am, idx) => idx === populatedMembers.indexOf(m))
         return memberData?.userId === editingUserId
       })
       if (editingMemberIndex >= 0) {
