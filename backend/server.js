@@ -2842,6 +2842,16 @@ app.patch('/api/admin/families/:id/archive', async (req, res) => {
     const { id } = req.params
     const { archived } = req.body
     
+    // Get facility ID
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+    const facilityId = facilityResult.rows[0].id
+    
     // Check if archived column exists, if not add it
     const columnCheck = await pool.query(`
       SELECT column_name 
@@ -2853,18 +2863,98 @@ app.patch('/api/admin/families/:id/archive', async (req, res) => {
       await pool.query('ALTER TABLE family ADD COLUMN archived BOOLEAN DEFAULT FALSE')
     }
     
-    // Update family archived status (users are independent entities, so we don't archive them)
-    await pool.query('UPDATE family SET archived = $1, updated_at = now() WHERE id = $2', [archived, id])
+    // Get all user IDs associated with this family
+    const familyUsersResult = await pool.query(`
+      SELECT DISTINCT user_id 
+      FROM family_guardian 
+      WHERE family_id = $1
+      UNION
+      SELECT primary_user_id 
+      FROM family 
+      WHERE id = $1 AND primary_user_id IS NOT NULL
+    `, [id])
     
-    res.json({
-      success: true,
-      message: archived ? 'Family archived successfully' : 'Family unarchived successfully'
-    })
+    const userIds = familyUsersResult.rows.map(row => row.user_id).filter(userId => userId !== null)
+    
+    // Start a transaction
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      
+      // Update family archived status
+      await client.query('UPDATE family SET archived = $1, updated_at = now() WHERE id = $2', [archived, id])
+      
+      // Archive/unarchive associated users
+      if (userIds.length > 0) {
+        // Update is_active (when archived = true, set is_active = false, and vice versa)
+        await client.query(
+          'UPDATE app_user SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = ANY($2::bigint[])',
+          [!archived, userIds]
+        )
+      }
+      
+      // Update athlete status for all athletes in this family
+      if (archived) {
+        // Set status to 'archived'
+        await client.query(`
+          UPDATE athlete 
+          SET status = 'archived', updated_at = CURRENT_TIMESTAMP 
+          WHERE family_id = $1 AND facility_id = $2
+        `, [id, facilityId])
+      } else {
+        // Set status based on enrollments ('enrolled' if has enrollments, else 'stand-bye')
+        await client.query(`
+          UPDATE athlete 
+          SET status = CASE
+            WHEN EXISTS (SELECT 1 FROM athlete_program WHERE athlete_id = athlete.id) 
+            THEN 'enrolled'
+            ELSE 'stand-bye'
+          END,
+          updated_at = CURRENT_TIMESTAMP
+          WHERE family_id = $1 AND facility_id = $2
+        `, [id, facilityId])
+      }
+      
+      // Also update athletes linked to users in this family (via user_id)
+      if (userIds.length > 0) {
+        if (archived) {
+          await client.query(`
+            UPDATE athlete 
+            SET status = 'archived', updated_at = CURRENT_TIMESTAMP 
+            WHERE user_id = ANY($1::bigint[]) AND facility_id = $2
+          `, [userIds, facilityId])
+        } else {
+          await client.query(`
+            UPDATE athlete 
+            SET status = CASE
+              WHEN EXISTS (SELECT 1 FROM athlete_program WHERE athlete_id = athlete.id) 
+              THEN 'enrolled'
+              ELSE 'stand-bye'
+            END,
+            updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ANY($1::bigint[]) AND facility_id = $2
+          `, [userIds, facilityId])
+        }
+      }
+      
+      await client.query('COMMIT')
+      
+      res.json({
+        success: true,
+        message: archived ? 'Family archived successfully' : 'Family unarchived successfully'
+      })
+    } catch (error) {
+      await client.query('ROLLBACK')
+      throw error
+    } finally {
+      client.release()
+    }
   } catch (error) {
     console.error('Archive family error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
@@ -2873,17 +2963,181 @@ app.patch('/api/admin/families/:id/archive', async (req, res) => {
 app.delete('/api/admin/families/:id', async (req, res) => {
   try {
     const { id } = req.params
-    await pool.query('DELETE FROM family WHERE id = $1', [id])
     
-    res.json({
-      success: true,
-      message: 'Family deleted successfully'
-    })
+    // Get facility ID
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+    const facilityId = facilityResult.rows[0].id
+    
+    // Get all user IDs associated with this family
+    const familyUsersResult = await pool.query(`
+      SELECT DISTINCT user_id 
+      FROM family_guardian 
+      WHERE family_id = $1
+      UNION
+      SELECT primary_user_id 
+      FROM family 
+      WHERE id = $1 AND primary_user_id IS NOT NULL
+    `, [id])
+    
+    const userIds = familyUsersResult.rows.map(row => row.user_id).filter(id => id !== null)
+    
+    // Get all athlete IDs associated with this family
+    const athletesResult = await pool.query(`
+      SELECT id FROM athlete WHERE family_id = $1 AND facility_id = $2
+    `, [id, facilityId])
+    const athleteIds = athletesResult.rows.map(row => row.id)
+    
+    // Start a transaction to ensure all deletions succeed or fail together
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      
+      // Delete athletes first (they have foreign key references)
+      if (athleteIds.length > 0) {
+        await client.query(`
+          DELETE FROM athlete WHERE id = ANY($1::bigint[])
+        `, [athleteIds])
+      }
+      
+      // Delete the family (this will cascade delete family_guardian records)
+      await client.query('DELETE FROM family WHERE id = $1', [id])
+      
+      // Delete associated users, but only if they're not associated with other families
+      for (const userId of userIds) {
+        // Check if this user is associated with any other families
+        const otherFamiliesResult = await client.query(`
+          SELECT COUNT(*) as count
+          FROM (
+            SELECT family_id FROM family_guardian WHERE user_id = $1
+            UNION
+            SELECT id FROM family WHERE primary_user_id = $1
+          ) as other_families
+        `, [userId])
+        
+        const otherFamiliesCount = parseInt(otherFamiliesResult.rows[0].count)
+        
+        // Only delete the user if they're not associated with any other families
+        if (otherFamiliesCount === 0) {
+          await client.query('DELETE FROM app_user WHERE id = $1', [userId])
+        }
+      }
+      
+      await client.query('COMMIT')
+      
+      res.json({
+        success: true,
+        message: 'Family and associated members deleted successfully'
+      })
+    } catch (error) {
+      await client.query('ROLLBACK')
+      throw error
+    } finally {
+      client.release()
+    }
   } catch (error) {
     console.error('Delete family error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Temporary cleanup endpoint: Delete user by email (admin only - remove after cleanup)
+app.delete('/api/admin/users/by-email/:email', async (req, res) => {
+  try {
+    const { email } = req.params
+    const decodedEmail = decodeURIComponent(email)
+    
+    // Get facility ID
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No facility found'
+      })
+    }
+    const facilityId = facilityResult.rows[0].id
+    
+    // Find the user
+    const userResult = await pool.query(
+      'SELECT id, email, full_name FROM app_user WHERE email = $1 AND facility_id = $2',
+      [decodedEmail, facilityId]
+    )
+    
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      })
+    }
+    
+    const user = userResult.rows[0]
+    const userId = user.id
+    
+    // Get all family IDs associated with this user
+    const familiesResult = await pool.query(`
+      SELECT DISTINCT family_id as id FROM family_guardian WHERE user_id = $1
+      UNION
+      SELECT id FROM family WHERE primary_user_id = $1
+    `, [userId])
+    
+    const familyIds = familiesResult.rows.map(row => row.id)
+    
+    // Start a transaction
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      
+      // Delete athletes in associated families
+      if (familyIds.length > 0) {
+        for (const familyId of familyIds) {
+          const athletesResult = await client.query(
+            'SELECT id FROM athlete WHERE family_id = $1 AND facility_id = $2',
+            [familyId, facilityId]
+          )
+          const athleteIds = athletesResult.rows.map(row => row.id)
+          
+          if (athleteIds.length > 0) {
+            await client.query(
+              'DELETE FROM athlete WHERE id = ANY($1::bigint[])',
+              [athleteIds]
+            )
+          }
+        }
+        
+        // Delete families
+        await client.query('DELETE FROM family WHERE id = ANY($1::bigint[])', [familyIds])
+      }
+      
+      // Delete the user
+      await client.query('DELETE FROM app_user WHERE id = $1', [userId])
+      
+      await client.query('COMMIT')
+      
+      res.json({
+        success: true,
+        message: `User ${decodedEmail} and associated data deleted successfully`
+      })
+    } catch (error) {
+      await client.query('ROLLBACK')
+      throw error
+    } finally {
+      client.release()
+    }
+  } catch (error) {
+    console.error('Delete user by email error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
