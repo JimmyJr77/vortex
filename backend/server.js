@@ -3006,6 +3006,7 @@ app.delete('/api/admin/families/:id', async (req, res) => {
       await client.query('DELETE FROM family WHERE id = $1', [id])
       
       // Delete associated users, but only if they're not associated with other families
+      const deletedUserEmails = []
       for (const userId of userIds) {
         // Check if this user is associated with any other families
         const otherFamiliesResult = await client.query(`
@@ -3021,7 +3022,26 @@ app.delete('/api/admin/families/:id', async (req, res) => {
         
         // Only delete the user if they're not associated with any other families
         if (otherFamiliesCount === 0) {
+          // Get user email before deleting
+          const userEmailResult = await client.query('SELECT email FROM app_user WHERE id = $1', [userId])
+          if (userEmailResult.rows.length > 0) {
+            deletedUserEmails.push(userEmailResult.rows[0].email)
+          }
           await client.query('DELETE FROM app_user WHERE id = $1', [userId])
+        }
+      }
+      
+      // Also delete from old members table if it exists (legacy)
+      if (deletedUserEmails.length > 0) {
+        try {
+          for (const email of deletedUserEmails) {
+            await client.query('DELETE FROM members WHERE email = $1', [email])
+          }
+        } catch (error) {
+          // Old members table might not exist, ignore error
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Note: Could not delete from old members table (might not exist)')
+          }
         }
       }
       
@@ -3116,6 +3136,16 @@ app.delete('/api/admin/users/by-email/:email', async (req, res) => {
       
       // Delete the user
       await client.query('DELETE FROM app_user WHERE id = $1', [userId])
+      
+      // Also delete from old members table if it exists (legacy)
+      try {
+        await client.query('DELETE FROM members WHERE email = $1', [decodedEmail])
+      } catch (error) {
+        // Old members table might not exist, ignore error
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Note: Could not delete from old members table (might not exist)')
+        }
+      }
       
       await client.query('COMMIT')
       
