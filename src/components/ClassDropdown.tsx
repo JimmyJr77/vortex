@@ -2,22 +2,22 @@ import { useState, useEffect } from 'react'
 import { getApiUrl } from '../utils/api'
 
 export interface Program {
-  id: number
-  category: 'EARLY_DEVELOPMENT' | 'GYMNASTICS' | 'VORTEX_NINJA' | 'ATHLETICISM_ACCELERATOR' | 'ADULT_FITNESS' | 'HOMESCHOOL'
-  categoryId?: number | null
-  categoryName?: string | null
-  categoryDisplayName?: string | null
-  name: string
-  displayName: string
-  skillLevel: 'EARLY_STAGE' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null
-  ageMin: number | null
-  ageMax: number | null
-  description: string | null
-  skillRequirements: string | null
-  isActive: boolean
-  archived?: boolean
-  createdAt: string
-  updatedAt: string
+  id: number // Database column: id
+  category?: string // Legacy enum value - kept for backward compatibility, use categoryId instead
+  categoryId?: number | null // Foreign key to program_categories table - SINGLE SOURCE OF TRUTH
+  categoryName?: string | null // From database join with program_categories.name
+  categoryDisplayName?: string | null // From database join with program_categories.display_name - SINGLE SOURCE OF TRUTH
+  name: string // Database column: name
+  displayName: string // Database column: display_name
+  skillLevel: string | null // Database column: skill_level (enum value from database)
+  ageMin: number | null // Database column: age_min
+  ageMax: number | null // Database column: age_max
+  description: string | null // Database column: description
+  skillRequirements: string | null // Database column: skill_requirements
+  isActive: boolean // Database column: is_active
+  archived?: boolean // Database column: archived
+  createdAt: string // Database column: created_at
+  updatedAt: string // Database column: updated_at
 }
 
 interface ClassDropdownProps {
@@ -111,8 +111,21 @@ export default function ClassDropdown({
   })
 
   // Group programs by category
+  // Prefer categoryDisplayName from database join, fall back to categoryName, then enum value as last resort
   const groupedByCategory = processedPrograms.reduce((acc, program) => {
-    const categoryName = program.categoryDisplayName || program.categoryName || program.category || 'Uncategorized'
+    let categoryName = 'Uncategorized'
+    
+    if (program.categoryDisplayName) {
+      // Use proper category display name from database
+      categoryName = program.categoryDisplayName
+    } else if (program.categoryName) {
+      // Fall back to category name if display name not available
+      categoryName = program.categoryName
+    } else if (program.category) {
+      // Last resort: use enum value but warn (this shouldn't happen for properly configured programs)
+      console.warn(`Program "${program.displayName}" (ID: ${program.id}) missing categoryDisplayName. Using enum value: ${program.category}`)
+      categoryName = program.category
+    }
     
     if (!acc[categoryName]) {
       acc[categoryName] = []

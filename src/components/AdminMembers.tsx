@@ -66,20 +66,20 @@ interface Family {
 }
 
 interface Program {
-  id: number
-  category: 'EARLY_DEVELOPMENT' | 'GYMNASTICS' | 'VORTEX_NINJA' | 'ATHLETICISM_ACCELERATOR' | 'ADULT_FITNESS' | 'HOMESCHOOL'
-  categoryId?: number | null
-  categoryName?: string | null
-  categoryDisplayName?: string | null
-  name: string
-  displayName: string
-  skillLevel: 'EARLY_STAGE' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null
-  ageMin: number | null
-  ageMax: number | null
-  description: string | null
-  skillRequirements: string | null
-  isActive: boolean
-  archived?: boolean
+  id: number // Database column: id
+  category?: string // Legacy enum value - kept for backward compatibility, use categoryId instead
+  categoryId?: number | null // Foreign key to program_categories table - SINGLE SOURCE OF TRUTH
+  categoryName?: string | null // From database join with program_categories.name
+  categoryDisplayName?: string | null // From database join with program_categories.display_name - SINGLE SOURCE OF TRUTH
+  name: string // Database column: name
+  displayName: string // Database column: display_name
+  skillLevel: string | null // Database column: skill_level (enum value from database)
+  ageMin: number | null // Database column: age_min
+  ageMax: number | null // Database column: age_max
+  description: string | null // Database column: description
+  skillRequirements: string | null // Database column: skill_requirements
+  isActive: boolean // Database column: is_active
+  archived?: boolean // Database column: archived
   createdAt: string
   updatedAt: string
 }

@@ -917,6 +917,7 @@ const adminUpdateSchema = Joi.object({
 
 const programUpdateSchema = Joi.object({
   displayName: Joi.string().min(1).max(255).optional(),
+  categoryId: Joi.number().integer().optional().allow(null),
   skillLevel: Joi.string().valid('EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED').optional().allow(null),
   ageMin: Joi.number().integer().min(0).max(100).optional().allow(null),
   ageMax: Joi.number().integer().min(0).max(100).optional().allow(null),
@@ -5922,46 +5923,55 @@ app.post('/api/admin/programs', async (req, res) => {
     let categoryId = value.categoryId
     let categoryEnum = value.category || null
     
-    // Valid enum values for program_category
-    const validEnumValues = ['EARLY_DEVELOPMENT', 'GYMNASTICS', 'VORTEX_NINJA', 'ATHLETICISM_ACCELERATOR', 'ADULT_FITNESS', 'HOMESCHOOL']
+    // Get valid category enum values from database - SINGLE SOURCE OF TRUTH
+    const validCategoriesResult = await pool.query(
+      'SELECT DISTINCT name FROM program_categories WHERE archived = FALSE'
+    )
+    const validEnumValues = validCategoriesResult.rows.map(row => row.name)
     
     if (categoryId && !categoryEnum) {
-      // Look up the category enum value from the categoryId
+      // Look up the category from the database using categoryId - SINGLE SOURCE OF TRUTH
       const categoryResult = await pool.query(
-        'SELECT name FROM program_categories WHERE id = $1 LIMIT 1',
+        'SELECT name FROM program_categories WHERE id = $1 AND archived = FALSE LIMIT 1',
         [categoryId]
       )
       if (categoryResult.rows.length > 0) {
         const categoryName = categoryResult.rows[0].name
-        // Only use as enum if it's a valid enum value, otherwise use a default
-        if (validEnumValues.includes(categoryName)) {
+        // Use category name from database (it may or may not match legacy enum)
+        // Try to use as enum if it matches legacy enum values, otherwise use first available enum
+        const categoryEnumResult = await pool.query(`
+          SELECT unnest(enum_range(NULL::program_category))::text as enum_value
+        `)
+        const availableEnumValues = categoryEnumResult.rows.map(row => row.enum_value)
+        
+        if (availableEnumValues.includes(categoryName)) {
           categoryEnum = categoryName
-        } else {
-          // New category that doesn't match enum - use GYMNASTICS as default
-          // (category column is NOT NULL, so we need a valid enum value)
-          categoryEnum = 'GYMNASTICS'
-          console.warn(`Category "${categoryName}" doesn't match enum, using GYMNASTICS as default`)
+        } else if (availableEnumValues.length > 0) {
+          // Use first available enum value as fallback (legacy enum column requires a value)
+          categoryEnum = availableEnumValues[0]
+          console.warn(`Category "${categoryName}" from database doesn't match legacy enum, using ${categoryEnum} as fallback`)
         }
       } else {
         return res.status(400).json({
           success: false,
-          message: `Category with id ${categoryId} not found`
+          message: `Category with id ${categoryId} not found or is archived`
         })
       }
     } else if (!categoryId && value.category) {
-      // Look up categoryId from the category enum value
+      // Look up categoryId from the database using category name - SINGLE SOURCE OF TRUTH
       const categoryResult = await pool.query(
-        'SELECT id FROM program_categories WHERE name = $1 LIMIT 1',
+        'SELECT id FROM program_categories WHERE name = $1 AND archived = FALSE LIMIT 1',
         [value.category]
       )
       if (categoryResult.rows.length > 0) {
         categoryId = categoryResult.rows[0].id
-      }
-      // Ensure category is a valid enum value
-      if (!validEnumValues.includes(value.category)) {
-        // Use default enum value since category column is NOT NULL
-        categoryEnum = 'GYMNASTICS'
-        console.warn(`Category "${value.category}" doesn't match enum, using GYMNASTICS as default`)
+        categoryEnum = value.category
+      } else {
+        // Category not found in database, return error
+        return res.status(400).json({
+          success: false,
+          message: `Category "${value.category}" not found in database. Please create it first in the Categories tab.`
+        })
       }
     }
 
@@ -5987,15 +5997,26 @@ app.post('/api/admin/programs', async (req, res) => {
     const hasCategoryIdColumn = columnCheck.rows.some(row => row.column_name === 'category_id')
     const hasLevelIdColumn = columnCheck.rows.some(row => row.column_name === 'level_id')
 
-    // Ensure categoryEnum is a valid enum value before inserting
-    if (categoryEnum && !validEnumValues.includes(categoryEnum)) {
-      console.warn(`Invalid category enum value "${categoryEnum}", using GYMNASTICS as default`)
-      categoryEnum = 'GYMNASTICS'
+    // Ensure categoryEnum is a valid enum value before inserting (check against database enum type)
+    if (categoryEnum) {
+      const enumCheckResult = await pool.query(`
+        SELECT unnest(enum_range(NULL::program_category))::text as enum_value
+      `)
+      const availableEnumValues = enumCheckResult.rows.map(row => row.enum_value)
+      
+      if (!availableEnumValues.includes(categoryEnum)) {
+        // Use first available enum value as fallback (legacy enum column requires a value)
+        categoryEnum = availableEnumValues.length > 0 ? availableEnumValues[0] : 'GYMNASTICS'
+        console.warn(`Category enum "${categoryEnum}" not in database enum type, using ${categoryEnum} as fallback`)
+      }
     }
-    // If categoryEnum is still null, use a default
+    // If categoryEnum is still null, query database enum type for default
     if (!categoryEnum) {
-      categoryEnum = 'GYMNASTICS'
-      console.warn('No category enum value provided, using GYMNASTICS as default')
+      const enumCheckResult = await pool.query(`
+        SELECT unnest(enum_range(NULL::program_category))::text as enum_value LIMIT 1
+      `)
+      categoryEnum = enumCheckResult.rows.length > 0 ? enumCheckResult.rows[0].enum_value : 'GYMNASTICS'
+      console.warn(`No category enum value provided, using ${categoryEnum} as default from database`)
     }
 
     // Build INSERT statement based on which columns exist
@@ -6116,10 +6137,54 @@ app.put('/api/admin/programs/:id', async (req, res) => {
       })
     }
 
+    // Check if category_id column exists
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'program' 
+      AND column_name = 'category_id'
+    `)
+    const hasCategoryIdColumn = columnCheck.rows.length > 0
+
     // Build update query dynamically
     const updates = []
     const values = []
     let paramCount = 1
+
+    // Handle categoryId update if provided and column exists
+    if (hasCategoryIdColumn && value.categoryId !== undefined) {
+      updates.push(`category_id = $${paramCount++}`)
+      values.push(value.categoryId)
+      
+      // If categoryId is being set, update the category enum to match
+      if (value.categoryId !== null) {
+        const categoryResult = await pool.query(
+          'SELECT name FROM program_categories WHERE id = $1 AND archived = FALSE LIMIT 1',
+          [value.categoryId]
+        )
+        if (categoryResult.rows.length > 0) {
+          const categoryName = categoryResult.rows[0].name
+          // Check if category name matches database enum type (legacy column requirement)
+          const enumCheckResult = await pool.query(`
+            SELECT unnest(enum_range(NULL::program_category))::text as enum_value
+          `)
+          const availableEnumValues = enumCheckResult.rows.map(row => row.enum_value)
+          
+          if (availableEnumValues.includes(categoryName)) {
+            updates.push(`category = $${paramCount++}`)
+            values.push(categoryName)
+          } else if (availableEnumValues.length > 0) {
+            // Use first available enum value as fallback (legacy enum column requires a value)
+            updates.push(`category = $${paramCount++}`)
+            values.push(availableEnumValues[0])
+            console.warn(`Category "${categoryName}" from database doesn't match legacy enum, using ${availableEnumValues[0]} as fallback`)
+          }
+        }
+      } else {
+        // If categoryId is being set to null, don't change category enum (keep existing)
+        // But we could set it to null if needed - for now, keep existing enum value
+      }
+    }
 
     if (value.displayName !== undefined) {
       updates.push(`display_name = $${paramCount++}`)
@@ -6163,15 +6228,6 @@ app.put('/api/admin/programs/:id', async (req, res) => {
 
     updates.push(`updated_at = CURRENT_TIMESTAMP`)
     values.push(id)
-
-    // Check if category_id column exists
-    const columnCheck = await pool.query(`
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'program' 
-      AND column_name = 'category_id'
-    `)
-    const hasCategoryIdColumn = columnCheck.rows.length > 0
 
     // Build RETURNING clause with category info
     let returningClause = `

@@ -5,21 +5,21 @@ import { getApiUrl } from '../utils/api'
 
 interface Program {
   id: number
-  category: 'EARLY_DEVELOPMENT' | 'GYMNASTICS' | 'VORTEX_NINJA' | 'ATHLETICISM_ACCELERATOR' | 'ADULT_FITNESS' | 'HOMESCHOOL'
-  categoryId?: number | null
-  categoryName?: string | null
-  categoryDisplayName?: string | null
-  name: string
-  displayName: string
-  skillLevel: 'EARLY_STAGE' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null
-  ageMin: number | null
-  ageMax: number | null
-  description: string | null
-  skillRequirements: string | null
-  isActive: boolean
-  archived?: boolean
-  createdAt: string
-  updatedAt: string
+  category?: string // Legacy enum value - kept for backward compatibility, use categoryId instead
+  categoryId?: number | null // Foreign key to program_categories table - SINGLE SOURCE OF TRUTH
+  categoryName?: string | null // From database join with program_categories.name
+  categoryDisplayName?: string | null // From database join with program_categories.display_name - SINGLE SOURCE OF TRUTH
+  name: string // Database column: name
+  displayName: string // Database column: display_name
+  skillLevel: string | null // Database column: skill_level (enum value from database)
+  ageMin: number | null // Database column: age_min
+  ageMax: number | null // Database column: age_max
+  description: string | null // Database column: description
+  skillRequirements: string | null // Database column: skill_requirements
+  isActive: boolean // Database column: is_active
+  archived?: boolean // Database column: archived
+  createdAt: string // Database column: created_at
+  updatedAt: string // Database column: updated_at
 }
 
 interface Category {
@@ -330,7 +330,8 @@ export default function AdminClasses() {
       skillRequirements: program.skillRequirements || '',
       isActive: program.isActive,
       archived: program.archived, // Preserve archived status
-      categoryId: program.categoryId || null // Store for reference, but don't send in update
+      categoryId: program.categoryId || null, // Allow updating category
+      categoryDisplayName: program.categoryDisplayName || program.categoryName || program.category || null // For display only
     })
   }
 
@@ -339,10 +340,10 @@ export default function AdminClasses() {
     
     try {
       const apiUrl = getApiUrl()
-      // Ensure we don't send categoryId or archived in the update (these are managed separately)
+      // Allow categoryId to be updated, but don't send archived (managed separately)
       const updateData = { ...programFormData }
-      delete updateData.categoryId
       delete updateData.archived
+      // Keep categoryId if it's set, otherwise don't send it (won't update if not provided)
       
       const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}`, {
         method: 'PUT',
@@ -579,7 +580,7 @@ export default function AdminClasses() {
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Skill Level</label>
                                 <select
                                   value={programFormData.skillLevel || ''}
-                                  onChange={(e) => setProgramFormData({ ...programFormData, skillLevel: e.target.value as Program['skillLevel'] || null })}
+                                  onChange={(e) => setProgramFormData({ ...programFormData, skillLevel: e.target.value || null })}
                                   className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
                                 >
                                   <option value="">None (All Levels)</option>
@@ -889,10 +890,12 @@ export default function AdminClasses() {
                                   <label className="block text-sm font-semibold text-gray-700 mb-2">Skill Level</label>
                                   <select
                                     value={programFormData.skillLevel || ''}
-                                    onChange={(e) => setProgramFormData({ ...programFormData, skillLevel: e.target.value as Program['skillLevel'] || null })}
+                                    onChange={(e) => setProgramFormData({ ...programFormData, skillLevel: e.target.value || null })}
                                     className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
                                   >
                                     <option value="">None (All Levels)</option>
+                                    {/* TODO: Fetch skill levels from database (skill_levels table) based on selected category */}
+                                    {/* For now, using enum values as fallback - Database column: skill_level */}
                                     <option value="EARLY_STAGE">Early Stage</option>
                                     <option value="BEGINNER">Beginner</option>
                                     <option value="INTERMEDIATE">Intermediate</option>
@@ -928,6 +931,31 @@ export default function AdminClasses() {
                                   rows={4}
                                   className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
                                 />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                                <select
+                                  value={programFormData.categoryId ?? ''}
+                                  onChange={(e) => setProgramFormData({ ...programFormData, categoryId: e.target.value ? parseInt(e.target.value, 10) : null })}
+                                  className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                                >
+                                  <option value="">No Category (Uncategorized)</option>
+                                  {categories
+                                    .filter(cat => !cat.archived)
+                                    .map(cat => (
+                                      <option key={cat.id} value={cat.id}>
+                                        {cat.displayName}
+                                      </option>
+                                    ))}
+                                </select>
+                                {program.categoryDisplayName || program.categoryName || program.category ? (
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Current: {program.categoryDisplayName || program.categoryName || program.category || 'Uncategorized'}
+                                    {program.category && !program.categoryDisplayName && (
+                                      <span className="text-yellow-600 ml-2">(Using enum value - please assign to category above)</span>
+                                    )}
+                                  </p>
+                                ) : null}
                               </div>
                               <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Skill Requirements</label>
@@ -1031,6 +1059,123 @@ export default function AdminClasses() {
                     </div>
                   )
                 })}
+              
+              {/* Show orphaned programs that don't match any category */}
+              {(() => {
+                // Find all active programs
+                const allActivePrograms = programs.filter(p => !p.archived)
+                
+                // Find programs that have been assigned to categories
+                const assignedProgramIds = new Set<number>()
+                categories
+                  .filter(cat => !cat.archived)
+                  .forEach(category => {
+                    programs
+                      .filter(p => 
+                        (p.categoryId === category.id || p.categoryDisplayName === category.displayName) &&
+                        !p.archived
+                      )
+                      .forEach(p => assignedProgramIds.add(p.id))
+                  })
+                
+                // Find orphaned programs (not assigned to any category)
+                const orphanedPrograms = allActivePrograms.filter(p => !assignedProgramIds.has(p.id))
+                
+                if (orphanedPrograms.length === 0) {
+                  return null
+                }
+                
+                return (
+                  <div className="bg-yellow-50 rounded-lg p-6 border-2 border-yellow-400">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-xl md:text-2xl font-display font-bold text-black">
+                            Uncategorized Programs
+                          </h3>
+                          <span className="text-xs bg-yellow-500 text-white px-2 py-1 rounded">
+                            {orphanedPrograms.length} program{orphanedPrograms.length !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                        <p className="text-sm text-yellow-800 mt-1">
+                          These programs are not assigned to any category. Please assign them to the correct category or archive them.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      {orphanedPrograms.map((program) => (
+                        <div key={program.id} className="bg-white rounded-lg p-4 border border-yellow-300">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="text-lg font-semibold text-black">{program.displayName}</h4>
+                                {program.category && (
+                                  <span className="text-xs bg-gray-500 text-white px-2 py-1 rounded">
+                                    Enum: {program.category}
+                                  </span>
+                                )}
+                                {program.categoryDisplayName && (
+                                  <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded">
+                                    Category Display: {program.categoryDisplayName}
+                                  </span>
+                                )}
+                                {!program.isActive && (
+                                  <span className="text-xs bg-gray-500 text-white px-2 py-1 rounded">Inactive</span>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-700">
+                                {program.skillLevel && (
+                                  <div>
+                                    <span className="font-medium text-gray-600">Skill Level:</span> {program.skillLevel.replace('_', ' ')}
+                                  </div>
+                                )}
+                                {(program.ageMin !== null || program.ageMax !== null) && (
+                                  <div>
+                                    <span className="font-medium text-gray-600">Age Range:</span>{' '}
+                                    {program.ageMin !== null ? program.ageMin : 'Any'} - {program.ageMax !== null ? program.ageMax : 'Any'}
+                                  </div>
+                                )}
+                                {program.skillRequirements && (
+                                  <div className="md:col-span-2">
+                                    <span className="font-medium text-gray-600">Requirements:</span> {program.skillRequirements}
+                                  </div>
+                                )}
+                                {program.description && (
+                                  <div className="md:col-span-2">
+                                    <span className="font-medium text-gray-600">Description:</span> {program.description}
+                                  </div>
+                                )}
+                                <div className="md:col-span-2">
+                                  <span className="font-medium text-gray-600">Category ID:</span> {program.categoryId || 'None'}
+                                  {program.categoryId && (
+                                    <span className="text-xs text-gray-500 ml-2">(Category may not exist or is archived)</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleEditProgram(program)}
+                                className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleArchiveProgram(program.id, true)}
+                                className="flex items-center gap-2 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white text-sm font-medium"
+                              >
+                                <Archive className="w-4 h-4" />
+                                Archive
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           )}
         </div>
