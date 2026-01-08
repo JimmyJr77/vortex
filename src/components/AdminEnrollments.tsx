@@ -98,17 +98,18 @@ export default function AdminEnrollments() {
 
   const fetchAllFamilies = async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/admin/families`, {
+      // Fetch all athletes directly - they include all the data we need for enrollment
+      const athletesResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`
         }
       })
       
-      if (response.ok) {
-        const data = await response.json()
-        const families = data.families || data.data || []
+      if (athletesResponse.ok) {
+        const athletesData = await athletesResponse.json()
+        const athletes = athletesData.data || athletesData.athletes || []
         
-        // Fetch all family members
+        // Convert athletes to family member format for enrollment
         const allMembers: Array<{
           id?: number
           user_id?: number
@@ -117,37 +118,25 @@ export default function AdminEnrollments() {
           last_name?: string
           lastName?: string
           family_id?: number
-        }> = []
-        for (const family of families) {
-          try {
-            const membersResponse = await fetch(`${apiUrl}/api/admin/families/${family.id}/members`, {
-              headers: {
-                'Authorization': `Bearer ${adminToken}`
-              }
-            })
-            if (membersResponse.ok) {
-              const membersData = await membersResponse.json()
-              const members = membersData.members || membersData.data || []
-              allMembers.push(...members.map((m: {
-                id?: number
-                user_id?: number
-                first_name?: string
-                firstName?: string
-                last_name?: string
-                lastName?: string
-              }) => ({
-                ...m,
-                family_id: family.id
-              })))
-            }
-          } catch (error) {
-            console.error(`Error fetching members for family ${family.id}:`, error)
-          }
-        }
+        }> = athletes.map((athlete: {
+          id: number
+          user_id?: number | null
+          linked_user_id?: number | null
+          first_name: string
+          last_name: string
+          family_id?: number | null
+        }) => ({
+          id: athlete.id,
+          user_id: athlete.user_id || athlete.linked_user_id || undefined,
+          first_name: athlete.first_name,
+          last_name: athlete.last_name,
+          family_id: athlete.family_id || undefined
+        }))
+        
         setAllFamilyMembers(allMembers)
       }
     } catch (error) {
-      console.error('Error fetching families:', error)
+      console.error('Error fetching athletes for enrollment:', error)
     }
   }
 
@@ -164,7 +153,7 @@ export default function AdminEnrollments() {
       
       if (response.ok) {
         const data = await response.json()
-        const athletes = data.athletes || data.data || []
+        const athletes = data.data || data.athletes || []
         
         // Get enrollments for each athlete
         const allEnrollments: Enrollment[] = []
