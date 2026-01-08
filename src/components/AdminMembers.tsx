@@ -458,10 +458,21 @@ export default function AdminMembers() {
     
     // Check if there's a pending enrollment in tempData that hasn't been committed
     const tempEnrollment = member.sections.enrollment.tempData
+    console.log(`getAllEnrollments for member ${member.id}:`, {
+      existingEnrollments: enrollments.length,
+      tempEnrollment: tempEnrollment,
+      hasProgramId: tempEnrollment.programId !== null && tempEnrollment.programId !== undefined
+    })
+    
     if (tempEnrollment.programId !== null && tempEnrollment.programId !== undefined) {
       // Check if this enrollment is already in the enrollments array
       const alreadyExists = enrollments.some(e => e.programId === tempEnrollment.programId)
       if (!alreadyExists) {
+        // Validate that days are selected if program is selected
+        if (tempEnrollment.selectedDays.length !== tempEnrollment.daysPerWeek) {
+          console.warn(`Enrollment in tempData has ${tempEnrollment.selectedDays.length} days selected but ${tempEnrollment.daysPerWeek} required`)
+        }
+        
         // Add the temp enrollment if it's valid
         enrollments.push({
           id: `enrollment-temp-${Date.now()}`,
@@ -472,9 +483,13 @@ export default function AdminMembers() {
           isCompleted: true,
           isExpanded: false
         })
+        console.log(`Added temp enrollment to list:`, enrollments[enrollments.length - 1])
+      } else {
+        console.log(`Temp enrollment already exists in enrollments array`)
       }
     }
     
+    console.log(`Final enrollments list:`, enrollments)
     return enrollments
   }
   
@@ -925,6 +940,7 @@ export default function AdminMembers() {
             
             // Handle enrollments - collect from both member.enrollments and tempData
             const allEnrollments = getAllEnrollments(member)
+            console.log(`Processing enrollments for athlete ${member.athleteId}:`, allEnrollments)
             
             const existingEnrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}/enrollments`)
             let existingEnrollments: any[] = []
@@ -942,13 +958,16 @@ export default function AdminMembers() {
               )
               if (!stillExists && existing.id) {
                 try {
-                  await fetch(`${apiUrl}/api/members/enroll/${existing.id}`, {
+                  const deleteResponse = await fetch(`${apiUrl}/api/members/enroll/${existing.id}`, {
                     method: 'DELETE',
                     headers: { 
                       'Content-Type': 'application/json',
                       'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                     }
                   })
+                  if (!deleteResponse.ok) {
+                    console.error(`Failed to delete enrollment ${existing.id}:`, await deleteResponse.json())
+                  }
                 } catch (error) {
                   console.error('Error removing enrollment:', error)
                 }
@@ -958,19 +977,33 @@ export default function AdminMembers() {
             // Create or update enrollments
             for (const enrollment of allEnrollments) {
               if (enrollment.programId) {
-                await fetch(`${apiUrl}/api/members/enroll`, {
-                  method: 'POST',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                  },
-                  body: JSON.stringify({
-                    programId: enrollment.programId,
-                    familyMemberId: member.athleteId,
-                    daysPerWeek: enrollment.daysPerWeek,
-                    selectedDays: enrollment.selectedDays
+                try {
+                  const enrollResponse = await fetch(`${apiUrl}/api/members/enroll`, {
+                    method: 'POST',
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    },
+                    body: JSON.stringify({
+                      programId: enrollment.programId,
+                      familyMemberId: member.athleteId,
+                      daysPerWeek: enrollment.daysPerWeek,
+                      selectedDays: enrollment.selectedDays
+                    })
                   })
-                })
+                  
+                  if (!enrollResponse.ok) {
+                    const errorData = await enrollResponse.json()
+                    console.error(`Failed to save enrollment for athlete ${member.athleteId}:`, errorData)
+                    throw new Error(`Failed to save enrollment: ${errorData.message || 'Unknown error'}`)
+                  } else {
+                    const result = await enrollResponse.json()
+                    console.log(`Successfully saved enrollment for athlete ${member.athleteId}:`, result)
+                  }
+                } catch (error) {
+                  console.error(`Error saving enrollment for athlete ${member.athleteId}:`, error)
+                  throw error
+                }
               }
             }
           }
@@ -1476,9 +1509,8 @@ export default function AdminMembers() {
           for (const enrollment of allEnrollments) {
             if (enrollment.programId) {
               const existingEnrollment = existingEnrollments.find(e => e.program_id === enrollment.programId)
-              if (existingEnrollment) {
-                // Update existing enrollment (enroll endpoint handles updates via ON CONFLICT)
-                await fetch(`${apiUrl}/api/members/enroll`, {
+              try {
+                const enrollResponse = await fetch(`${apiUrl}/api/members/enroll`, {
                   method: 'POST',
                   headers: { 
                     'Content-Type': 'application/json',
@@ -1491,21 +1523,18 @@ export default function AdminMembers() {
                     selectedDays: enrollment.selectedDays
                   })
                 })
-              } else {
-                // Create new enrollment
-                await fetch(`${apiUrl}/api/members/enroll`, {
-                  method: 'POST',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                  },
-                  body: JSON.stringify({
-                    programId: enrollment.programId,
-                    familyMemberId: athleteId,
-                    daysPerWeek: enrollment.daysPerWeek,
-                    selectedDays: enrollment.selectedDays
-                  })
-                })
+                
+                if (!enrollResponse.ok) {
+                  const errorData = await enrollResponse.json()
+                  console.error(`Failed to save enrollment for athlete ${athleteId}:`, errorData)
+                  // Don't throw - continue with other enrollments
+                } else {
+                  const result = await enrollResponse.json()
+                  console.log(`Successfully saved enrollment for athlete ${athleteId}:`, result)
+                }
+              } catch (error) {
+                console.error(`Error saving enrollment for athlete ${athleteId}:`, error)
+                // Don't throw - continue with other enrollments
               }
             }
           }
@@ -1793,9 +1822,8 @@ export default function AdminMembers() {
           for (const enrollment of allEnrollments) {
             if (enrollment.programId) {
               const existingEnrollment = existingEnrollments.find(e => e.program_id === enrollment.programId)
-              if (existingEnrollment) {
-                // Update existing enrollment (enroll endpoint handles updates via ON CONFLICT)
-                await fetch(`${apiUrl}/api/members/enroll`, {
+              try {
+                const enrollResponse = await fetch(`${apiUrl}/api/members/enroll`, {
                   method: 'POST',
                   headers: { 
                     'Content-Type': 'application/json',
@@ -1808,21 +1836,18 @@ export default function AdminMembers() {
                     selectedDays: enrollment.selectedDays
                   })
                 })
-              } else {
-                // Create new enrollment
-                await fetch(`${apiUrl}/api/members/enroll`, {
-                  method: 'POST',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                  },
-                  body: JSON.stringify({
-                    programId: enrollment.programId,
-                    familyMemberId: athleteId,
-                    daysPerWeek: enrollment.daysPerWeek,
-                    selectedDays: enrollment.selectedDays
-                  })
-                })
+                
+                if (!enrollResponse.ok) {
+                  const errorData = await enrollResponse.json()
+                  console.error(`Failed to save enrollment for athlete ${athleteId}:`, errorData)
+                  // Don't throw - continue with other enrollments
+                } else {
+                  const result = await enrollResponse.json()
+                  console.log(`Successfully saved enrollment for athlete ${athleteId}:`, result)
+                }
+              } catch (error) {
+                console.error(`Error saving enrollment for athlete ${athleteId}:`, error)
+                // Don't throw - continue with other enrollments
               }
             }
           }
