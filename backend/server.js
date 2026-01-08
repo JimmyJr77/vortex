@@ -61,6 +61,17 @@ function isOriginAllowed(origin) {
   })
 }
 
+// Helper function to set CORS headers on response
+function setCorsHeaders(req, res) {
+  const origin = req.headers.origin
+  if (origin && isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+    res.header('Access-Control-Allow-Credentials', 'true')
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  }
+}
+
 // Handle preflight OPTIONS requests explicitly
 app.options('*', (req, res) => {
   const origin = req.headers.origin
@@ -2016,6 +2027,7 @@ app.get('/api/admin/users/:id', async (req, res) => {
     `, [id])
     
     if (result.rows.length === 0) {
+      setCorsHeaders(req, res)
       return res.status(404).json({
         success: false,
         message: 'User not found'
@@ -2035,6 +2047,8 @@ app.get('/api/admin/users/:id', async (req, res) => {
     })
   } catch (error) {
     console.error('Get user error:', error)
+    console.error('Error stack:', error.stack)
+    setCorsHeaders(req, res)
     res.status(500).json({
       success: false,
       message: 'Internal server error'
