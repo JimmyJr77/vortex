@@ -381,32 +381,101 @@ export default function AdminMembers() {
   }
   
   const combineAddress = (street: string, city: string, state: string, zip: string): string => {
-    const parts = [street, city, state, zip].filter(part => part && part.trim())
+    // Combine address parts, joining state and zip together in the last part
+    // This ensures consistent format: "street, city, state zip"
+    const parts: string[] = []
+    
+    // Normalize inputs - handle null/undefined by converting to empty string
+    const normalizedStreet = (street || '').trim()
+    const normalizedCity = (city || '').trim()
+    const normalizedState = (state || '').trim()
+    const normalizedZip = (zip || '').trim()
+    
+    if (normalizedStreet) parts.push(normalizedStreet)
+    if (normalizedCity) parts.push(normalizedCity)
+    
+    // Combine state and zip together (e.g., "CA 12345")
+    // This format matches what parseAddress expects
+    const stateZip = [normalizedState, normalizedZip].filter(p => p).join(' ')
+    if (stateZip) parts.push(stateZip)
+    
     return parts.join(', ') || ''
   }
   
   const parseAddress = (address: string): { street: string; city: string; state: string; zip: string } => {
     if (!address) return { street: '', city: '', state: '', zip: '' }
     
-    const parts = address.split(',').map(p => p.trim())
+    const parts = address.split(',').map(p => p.trim()).filter(p => p)
     
     if (parts.length >= 3) {
+      // Format: "street, city, state zip"
       const street = parts[0]
       const city = parts[1]
       const stateZip = parts[2] || ''
-      const stateZipParts = stateZip.split(/\s+/)
+      const stateZipParts = stateZip.split(/\s+/).filter(p => p)
+      
       if (stateZipParts.length >= 2) {
+        // State is typically 2 characters, zip is the rest
         const state = stateZipParts[0]
         const zip = stateZipParts.slice(1).join(' ')
         return { street, city, state, zip }
+      } else if (stateZipParts.length === 1) {
+        // Could be just state or just zip - try to determine
+        const value = stateZipParts[0]
+        // If it's 2 characters, assume it's a state; otherwise assume it's a zip
+        if (value.length === 2) {
+          return { street, city, state: value, zip: '' }
+        } else {
+          return { street, city, state: '', zip: value }
+        }
       } else {
-        return { street, city, state: stateZip, zip: '' }
+        return { street, city, state: '', zip: '' }
       }
     } else if (parts.length === 2) {
-      return { street: parts[0], city: parts[1], state: '', zip: '' }
+      // Format: "street, city" or "street, state zip"
+      // Try to determine if second part is city or state+zip
+      const first = parts[0]
+      const second = parts[1]
+      const secondParts = second.split(/\s+/).filter(p => p)
+      
+      if (secondParts.length >= 2 && secondParts[0].length === 2) {
+        // Likely "state zip" format
+        return { street: first, city: '', state: secondParts[0], zip: secondParts.slice(1).join(' ') }
+      } else {
+        // Likely city
+        return { street: first, city: second, state: '', zip: '' }
+      }
+    } else if (parts.length === 1) {
+      return { street: parts[0], city: '', state: '', zip: '' }
     } else {
-      return { street: address, city: '', state: '', zip: '' }
+      return { street: '', city: '', state: '', zip: '' }
     }
+  }
+  
+  // Helper function to collect all enrollments from both member.enrollments and tempData
+  const getAllEnrollments = (member: FamilyMemberData): EnrollmentData[] => {
+    const enrollments = [...(member.enrollments || [])]
+    
+    // Check if there's a pending enrollment in tempData that hasn't been committed
+    const tempEnrollment = member.sections.enrollment.tempData
+    if (tempEnrollment.programId !== null && tempEnrollment.programId !== undefined) {
+      // Check if this enrollment is already in the enrollments array
+      const alreadyExists = enrollments.some(e => e.programId === tempEnrollment.programId)
+      if (!alreadyExists) {
+        // Add the temp enrollment if it's valid
+        enrollments.push({
+          id: `enrollment-temp-${Date.now()}`,
+          programId: tempEnrollment.programId,
+          program: tempEnrollment.program,
+          daysPerWeek: tempEnrollment.daysPerWeek,
+          selectedDays: tempEnrollment.selectedDays,
+          isCompleted: true,
+          isExpanded: false
+        })
+      }
+    }
+    
+    return enrollments
   }
   
   const formatPhoneNumber = (value: string): string => {
@@ -854,7 +923,9 @@ export default function AdminMembers() {
               throw new Error(data.message || `Failed to update athlete for ${firstName} ${lastName}`)
             }
             
-            // Handle enrollments
+            // Handle enrollments - collect from both member.enrollments and tempData
+            const allEnrollments = getAllEnrollments(member)
+            
             const existingEnrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}/enrollments`)
             let existingEnrollments: any[] = []
             if (existingEnrollmentsResponse.ok) {
@@ -866,7 +937,7 @@ export default function AdminMembers() {
             
             // Delete enrollments that are no longer in the member's enrollment list
             for (const existing of existingEnrollments) {
-              const stillExists = member.enrollments.some(e => 
+              const stillExists = allEnrollments.some(e => 
                 e.programId === existing.program_id
               )
               if (!stillExists && existing.id) {
@@ -885,7 +956,7 @@ export default function AdminMembers() {
             }
             
             // Create or update enrollments
-            for (const enrollment of member.enrollments) {
+            for (const enrollment of allEnrollments) {
               if (enrollment.programId) {
                 await fetch(`${apiUrl}/api/members/enroll`, {
                   method: 'POST',
@@ -1150,11 +1221,13 @@ export default function AdminMembers() {
         }
       }
       
-      // Validate days selection for all enrollments
+      // Validate days selection for all enrollments (check both member.enrollments and tempData)
       for (const member of familyMembers) {
-        for (const enrollment of member.enrollments) {
+        const allEnrollments = getAllEnrollments(member)
+        for (const enrollment of allEnrollments) {
           if (enrollment.programId && enrollment.selectedDays.length !== enrollment.daysPerWeek) {
-            alert(`Please select exactly ${enrollment.daysPerWeek} day(s) for ${member.firstName} ${member.lastName}'s enrollment in ${enrollment.program}`)
+            const memberName = member.sections.contactInfo.tempData.firstName || member.firstName || 'this member'
+            alert(`Please select exactly ${enrollment.daysPerWeek} day(s) for ${memberName}'s enrollment in ${enrollment.program}`)
             return
           }
         }
@@ -1375,9 +1448,12 @@ export default function AdminMembers() {
             }
           }
           
+          // Collect all enrollments from both member.enrollments and tempData
+          const allEnrollments = getAllEnrollments(member)
+          
           // Delete enrollments that are no longer in the member's enrollment list
           for (const existing of existingEnrollments) {
-            const stillExists = member.enrollments.some(e => 
+            const stillExists = allEnrollments.some(e => 
               e.programId === existing.program_id
             )
             if (!stillExists && existing.id) {
@@ -1397,7 +1473,7 @@ export default function AdminMembers() {
           }
           
           // Create or update enrollments
-          for (const enrollment of member.enrollments) {
+          for (const enrollment of allEnrollments) {
             if (enrollment.programId) {
               const existingEnrollment = existingEnrollments.find(e => e.program_id === enrollment.programId)
               if (existingEnrollment) {
@@ -1540,11 +1616,13 @@ export default function AdminMembers() {
         }
       }
       
-      // Validate days selection for all enrollments
+      // Validate days selection for all enrollments (check both member.enrollments and tempData)
       for (const member of familyMembers) {
-        for (const enrollment of member.enrollments) {
+        const allEnrollments = getAllEnrollments(member)
+        for (const enrollment of allEnrollments) {
           if (enrollment.programId && enrollment.selectedDays.length !== enrollment.daysPerWeek) {
-            alert(`Please select exactly ${enrollment.daysPerWeek} day(s) for ${member.firstName} ${member.lastName}'s enrollment in ${enrollment.program}`)
+            const memberName = member.sections.contactInfo.tempData.firstName || member.firstName || 'this member'
+            alert(`Please select exactly ${enrollment.daysPerWeek} day(s) for ${memberName}'s enrollment in ${enrollment.program}`)
             return
           }
         }
@@ -1687,9 +1765,12 @@ export default function AdminMembers() {
             }
           }
           
+          // Collect all enrollments from both member.enrollments and tempData
+          const allEnrollments = getAllEnrollments(member)
+          
           // Delete enrollments that are no longer in the member's enrollment list
           for (const existing of existingEnrollments) {
-            const stillExists = member.enrollments.some(e => 
+            const stillExists = allEnrollments.some(e => 
               e.programId === existing.program_id
             )
             if (!stillExists && existing.id) {
@@ -1709,7 +1790,7 @@ export default function AdminMembers() {
           }
           
           // Create or update enrollments
-          for (const enrollment of member.enrollments) {
+          for (const enrollment of allEnrollments) {
             if (enrollment.programId) {
               const existingEnrollment = existingEnrollments.find(e => e.program_id === enrollment.programId)
               if (existingEnrollment) {
