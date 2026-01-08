@@ -2,23 +2,9 @@ import { useState, useEffect } from 'react'
 import { Search, UserPlus, Users, Clock } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import EnrollmentForm from './EnrollmentForm'
+import ClassDropdown, { Program } from './ClassDropdown'
 
-interface Program {
-  id: number
-  category: 'EARLY_DEVELOPMENT' | 'GYMNASTICS' | 'VORTEX_NINJA' | 'ATHLETICISM_ACCELERATOR' | 'ADULT_FITNESS' | 'HOMESCHOOL'
-  categoryId?: number | null
-  categoryName?: string | null
-  categoryDisplayName?: string | null
-  name: string
-  displayName: string
-  skillLevel: 'EARLY_STAGE' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null
-  ageMin: number | null
-  ageMax: number | null
-  description: string | null
-  skillRequirements: string | null
-  isActive: boolean
-  archived?: boolean
-}
+// Program interface is now imported from ClassDropdown
 
 interface Enrollment {
   id: number
@@ -43,7 +29,6 @@ interface ClassOffering {
 
 export default function AdminEnrollments() {
   const [programs, setPrograms] = useState<Program[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [classOfferings, setClassOfferings] = useState<ClassOffering[]>([])
@@ -89,7 +74,8 @@ export default function AdminEnrollments() {
       
       if (response.ok) {
         const data = await response.json()
-        setPrograms((data.programs || data.data || []).filter((p: Program) => !p.archived && p.isActive))
+        const fetchedPrograms = (data.programs || data.data || []).filter((p: Program) => !p.archived && p.isActive)
+        setPrograms(fetchedPrograms)
       }
     } catch (error) {
       console.error('Error fetching programs:', error)
@@ -242,21 +228,6 @@ export default function AdminEnrollments() {
     }
   }
 
-  const filteredPrograms = programs.filter(program => {
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      const searchableText = [
-        program.displayName,
-        program.name,
-        program.description || '',
-        program.skillRequirements || ''
-      ].join(' ').toLowerCase()
-      
-      return searchableText.includes(query)
-    }
-    return true
-  })
-
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
   return (
@@ -265,41 +236,21 @@ export default function AdminEnrollments() {
         Class Enrollments
       </h2>
 
-      {/* Search Bar */}
-      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search classes by name, description, or requirements..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent"
-          />
-        </div>
-      </div>
-
       {/* Program Dropdown */}
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Select Class
         </label>
-        <select
-          value={selectedProgram?.id || ''}
-          onChange={(e) => {
-            const programId = parseInt(e.target.value, 10)
-            const program = programs.find(p => p.id === programId)
-            setSelectedProgram(program || null)
+        <ClassDropdown
+          value={selectedProgram?.id || null}
+          onChange={(programId, program) => {
+            setSelectedProgram(program)
           }}
+          programs={programs}
+          filterActiveOnly={true}
+          placeholder="Select a class..."
           className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-        >
-          <option value="">Select a class...</option>
-          {filteredPrograms.map(program => (
-            <option key={program.id} value={program.id}>
-              {program.displayName}
-            </option>
-          ))}
-        </select>
+        />
       </div>
 
       {/* Class Details and Enrollments */}
