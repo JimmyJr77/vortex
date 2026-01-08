@@ -105,7 +105,9 @@ export default function ClassDropdown({
   // Process programs: filter, group by category, sort by skill level
   const processedPrograms = programs.filter(p => {
     if (filterActiveOnly) {
-      return p.isActive && !p.archived
+      // Only show active, non-archived programs WITH valid category assignments
+      // Programs without categoryDisplayName are orphaned and should be fixed in AdminClasses first
+      return p.isActive && !p.archived && (p.categoryDisplayName || p.categoryName)
     }
     return true
   })
@@ -122,8 +124,9 @@ export default function ClassDropdown({
       // Fall back to category name if display name not available
       categoryName = program.categoryName
     } else if (program.category) {
-      // Last resort: use enum value but warn (this shouldn't happen for properly configured programs)
-      console.warn(`Program "${program.displayName}" (ID: ${program.id}) missing categoryDisplayName. Using enum value: ${program.category}`)
+      // Last resort: use enum value (only happens when filterActiveOnly is false)
+      // When filterActiveOnly is true, programs without categoryDisplayName are filtered out above
+      // This fallback is for archived/inactive programs that may not have proper category assignments
       categoryName = program.category
     }
     
