@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Search, UserPlus, Users, Clock, ChevronDown, ChevronUp } from 'lucide-react'
+import { Search, UserPlus, Users, Clock } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import EnrollmentForm from './EnrollmentForm'
 
@@ -19,14 +18,6 @@ interface Program {
   skillRequirements: string | null
   isActive: boolean
   archived?: boolean
-}
-
-interface Category {
-  id: number
-  name: string
-  displayName: string
-  description?: string | null
-  archived: boolean
 }
 
 interface Enrollment {
@@ -52,39 +43,44 @@ interface ClassOffering {
 
 export default function AdminEnrollments() {
   const [programs, setPrograms] = useState<Program[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [classOfferings, setClassOfferings] = useState<ClassOffering[]>([])
-  const [loading, setLoading] = useState(false)
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false)
   const [showEnrollModal, setShowEnrollModal] = useState(false)
-  const [allFamilies, setAllFamilies] = useState<any[]>([])
-  const [allFamilyMembers, setAllFamilyMembers] = useState<any[]>([])
+  const [allFamilyMembers, setAllFamilyMembers] = useState<Array<{
+    id?: number
+    user_id?: number
+    first_name?: string
+    firstName?: string
+    last_name?: string
+    lastName?: string
+    family_id?: number
+  }>>([])
 
   const apiUrl = getApiUrl()
   const adminToken = localStorage.getItem('adminToken')
 
   useEffect(() => {
     fetchPrograms()
-    fetchCategories()
     fetchAllFamilies()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
     if (selectedProgram) {
       fetchEnrollmentsForProgram(selectedProgram.id)
-      fetchClassOfferings(selectedProgram.id)
+      fetchClassOfferings()
     } else {
       setEnrollments([])
       setClassOfferings([])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProgram])
 
   const fetchPrograms = async () => {
     try {
-      setLoading(true)
       const response = await fetch(`${apiUrl}/api/admin/programs?archived=false`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`
@@ -97,25 +93,6 @@ export default function AdminEnrollments() {
       }
     } catch (error) {
       console.error('Error fetching programs:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch(`${apiUrl}/api/admin/categories?archived=false`, {
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        setCategories((data.categories || data.data || []).filter((c: Category) => !c.archived))
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error)
     }
   }
 
@@ -130,10 +107,17 @@ export default function AdminEnrollments() {
       if (response.ok) {
         const data = await response.json()
         const families = data.families || data.data || []
-        setAllFamilies(families)
         
         // Fetch all family members
-        const allMembers: any[] = []
+        const allMembers: Array<{
+          id?: number
+          user_id?: number
+          first_name?: string
+          firstName?: string
+          last_name?: string
+          lastName?: string
+          family_id?: number
+        }> = []
         for (const family of families) {
           try {
             const membersResponse = await fetch(`${apiUrl}/api/admin/families/${family.id}/members`, {
@@ -144,7 +128,14 @@ export default function AdminEnrollments() {
             if (membersResponse.ok) {
               const membersData = await membersResponse.json()
               const members = membersData.members || membersData.data || []
-              allMembers.push(...members.map((m: any) => ({
+              allMembers.push(...members.map((m: {
+                id?: number
+                user_id?: number
+                first_name?: string
+                firstName?: string
+                last_name?: string
+                lastName?: string
+              }) => ({
                 ...m,
                 family_id: family.id
               })))
@@ -187,13 +178,22 @@ export default function AdminEnrollments() {
             if (enrollmentsResponse.ok) {
               const enrollmentsData = await enrollmentsResponse.json()
               const athleteEnrollments = enrollmentsData.data || []
-              const programEnrollments = athleteEnrollments.filter((e: any) => e.program_id === programId)
-              allEnrollments.push(...programEnrollments.map((e: any) => ({
+              const programEnrollments = athleteEnrollments.filter((e: {
+                program_id: number
+                [key: string]: unknown
+              }) => e.program_id === programId)
+              allEnrollments.push(...programEnrollments.map((e: {
+                id: number
+                program_id: number
+                days_per_week: number
+                selected_days: string[] | string
+                [key: string]: unknown
+              }) => ({
                 ...e,
                 athlete_user_id: athlete.user_id,
                 athlete_first_name: athlete.first_name,
                 athlete_last_name: athlete.last_name
-              })))
+              })) as Enrollment[])
             }
           } catch (error) {
             console.error(`Error fetching enrollments for athlete ${athlete.id}:`, error)
@@ -208,7 +208,7 @@ export default function AdminEnrollments() {
     }
   }
 
-  const fetchClassOfferings = async (programId: number) => {
+  const fetchClassOfferings = async () => {
     try {
       // TODO: Create backend endpoint to get class offerings for a program
       // For now, we'll show a placeholder or use enrollment days
@@ -437,12 +437,14 @@ export default function AdminEnrollments() {
       {showEnrollModal && selectedProgram && (
         <EnrollmentForm
           program={selectedProgram}
-          familyMembers={allFamilyMembers.map(m => ({
-            id: m.user_id || m.id,
-            first_name: m.first_name || m.firstName || '',
-            last_name: m.last_name || m.lastName || '',
-            user_id: m.user_id || m.id
-          }))}
+          familyMembers={allFamilyMembers
+            .filter(m => (m.user_id || m.id) !== undefined)
+            .map(m => ({
+              id: (m.user_id || m.id) as number,
+              first_name: m.first_name || m.firstName || '',
+              last_name: m.last_name || m.lastName || '',
+              user_id: m.user_id || m.id || undefined
+            }))}
           onEnroll={handleEnroll}
           onCancel={() => setShowEnrollModal(false)}
           isOpen={showEnrollModal}
