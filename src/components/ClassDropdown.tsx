@@ -20,21 +20,10 @@ export interface Program {
   updatedAt: string
 }
 
-interface Category {
-  id: number
-  name: string
-  displayName: string
-  description?: string | null
-  archived: boolean
-  createdAt: string
-  updatedAt: string
-}
-
 interface ClassDropdownProps {
   value?: number | null
   onChange: (programId: number | null, program: Program | null) => void
   programs?: Program[] // Optional - if not provided, will fetch from API
-  categories?: Category[] // Optional - if not provided, will fetch from API
   filterActiveOnly?: boolean // Only show active, non-archived programs
   placeholder?: string
   className?: string
@@ -59,7 +48,6 @@ export default function ClassDropdown({
   value,
   onChange,
   programs: externalPrograms,
-  categories: externalCategories,
   filterActiveOnly = true,
   placeholder = 'Select a class...',
   className = 'w-full px-3 py-2 bg-white text-black rounded border border-gray-300',
@@ -67,7 +55,6 @@ export default function ClassDropdown({
   required = false
 }: ClassDropdownProps) {
   const [programs, setPrograms] = useState<Program[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
 
   // Fetch programs if not provided
@@ -113,53 +100,7 @@ export default function ClassDropdown({
     fetchPrograms()
   }, [externalPrograms, filterActiveOnly])
 
-  // Fetch categories if not provided
-  useEffect(() => {
-    if (externalCategories) {
-      setCategories(externalCategories)
-      return
-    }
-
-    if (externalPrograms) {
-      // If programs are provided, we can extract categories from them
-      const uniqueCategories = new Map<number, Category>()
-      externalPrograms.forEach(program => {
-        if (program.categoryId && program.categoryDisplayName && !uniqueCategories.has(program.categoryId)) {
-          uniqueCategories.set(program.categoryId, {
-            id: program.categoryId,
-            name: program.categoryName || program.category,
-            displayName: program.categoryDisplayName,
-            archived: false,
-            createdAt: '',
-            updatedAt: ''
-          })
-        }
-      })
-      setCategories(Array.from(uniqueCategories.values()))
-      return
-    }
-
-    const fetchCategories = async () => {
-      try {
-        const apiUrl = getApiUrl()
-        const adminToken = localStorage.getItem('adminToken')
-        
-        const response = await fetch(`${apiUrl}/api/admin/categories?archived=false`, {
-          headers: adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {}
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          const categoriesList = data.categories || data.data || []
-          setCategories(categoriesList.filter((c: Category) => !c.archived))
-        }
-      } catch (error) {
-        console.error('Error fetching categories:', error)
-      }
-    }
-
-    fetchCategories()
-  }, [externalCategories, externalPrograms])
+  // Categories are not needed - we group programs by categoryDisplayName from programs directly
 
   // Process programs: filter, group by category, sort by skill level
   const processedPrograms = programs.filter(p => {
@@ -171,7 +112,6 @@ export default function ClassDropdown({
 
   // Group programs by category
   const groupedByCategory = processedPrograms.reduce((acc, program) => {
-    const categoryId = program.categoryId || 0
     const categoryName = program.categoryDisplayName || program.categoryName || program.category || 'Uncategorized'
     
     if (!acc[categoryName]) {

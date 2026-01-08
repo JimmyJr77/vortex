@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Search, UserPlus, Users, Clock } from 'lucide-react'
+import { UserPlus, Users, Clock } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import EnrollmentForm from './EnrollmentForm'
-import ClassDropdown, { Program } from './ClassDropdown'
+import ClassDropdown, { type Program } from './ClassDropdown'
 
 // Program interface is now imported from ClassDropdown
 
@@ -243,7 +243,7 @@ export default function AdminEnrollments() {
         </label>
         <ClassDropdown
           value={selectedProgram?.id || null}
-          onChange={(programId, program) => {
+          onChange={(_programId, program) => {
             setSelectedProgram(program)
           }}
           programs={programs}
