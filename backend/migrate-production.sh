@@ -7,3 +7,5 @@ cd backend
 node run-migration.js add_categories_levels_tables.sql
 
 
+
+

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, Calendar, Search, Edit2, Save, X, UserPlus, CheckCircle, MapPin, Award, Users, Trophy, ChevronDown, ChevronUp } from 'lucide-react'
+import { LogOut, Home, Calendar, Search, Edit2, Save, X, UserPlus, CheckCircle, MapPin, Award, Users, Trophy } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
+import EnrollmentForm from './EnrollmentForm'
 
 interface MemberDashboardProps {
   member: any
@@ -88,9 +89,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<number | 'all'>('all')
   const [showEnrollModal, setShowEnrollModal] = useState(false)
   const [selectedClassForEnrollment, setSelectedClassForEnrollment] = useState<Program | null>(null)
-  const [selectedFamilyMemberForEnrollment, setSelectedFamilyMemberForEnrollment] = useState<number | null>(null)
-  const [daysPerWeek, setDaysPerWeek] = useState<number>(1)
-  const [selectedDays, setSelectedDays] = useState<string[]>([])
   const [enrollments, setEnrollments] = useState<any[]>([])
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false)
   const [classesLoading, setClassesLoading] = useState(false)
@@ -363,42 +361,12 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
-  const handleDayToggle = (day: string) => {
-    if (selectedDays.includes(day)) {
-      setSelectedDays(selectedDays.filter(d => d !== day))
-    } else {
-      if (selectedDays.length < daysPerWeek) {
-        setSelectedDays([...selectedDays, day])
-      } else {
-        alert(`You can only select ${daysPerWeek} day(s)`)
-      }
-    }
-  }
-
-  const handleDaysPerWeekChange = (newValue: number) => {
-    setDaysPerWeek(newValue)
-    // If current selected days exceed new days per week, remove excess
-    if (selectedDays.length > newValue) {
-      setSelectedDays(selectedDays.slice(0, newValue))
-    }
-  }
-
-  const handleEnrollInClass = async () => {
-    if (!selectedClassForEnrollment || !selectedFamilyMemberForEnrollment) {
-      alert('Please select a class and family member')
-      return
-    }
-
-    if (selectedDays.length === 0) {
-      alert('Please select at least one day of the week')
-      return
-    }
-
-    if (selectedDays.length !== daysPerWeek) {
-      alert(`Please select exactly ${daysPerWeek} day(s) of the week`)
-      return
-    }
-
+  const handleEnrollInClass = async (enrollmentData: {
+    programId: number
+    familyMemberId: number
+    daysPerWeek: number
+    selectedDays: string[]
+  }) => {
     try {
       const response = await fetch(`${apiUrl}/api/members/enroll`, {
         method: 'POST',
@@ -406,12 +374,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          programId: selectedClassForEnrollment.id,
-          familyMemberId: selectedFamilyMemberForEnrollment,
-          daysPerWeek: daysPerWeek,
-          selectedDays: selectedDays
-        })
+        body: JSON.stringify(enrollmentData)
       })
       
       if (response.ok) {
@@ -419,19 +382,17 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         alert(data.message || 'Successfully enrolled in class!')
         setShowEnrollModal(false)
         setSelectedClassForEnrollment(null)
-        setSelectedFamilyMemberForEnrollment(null)
-        setDaysPerWeek(1)
-        setSelectedDays([])
         // Refresh enrollments and family members
         await fetchEnrollments()
         await fetchFamilyMembers()
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to enroll in class')
+        throw new Error(data.message || 'Failed to enroll in class')
       }
     } catch (error) {
       console.error('Error enrolling in class:', error)
-      alert('Failed to enroll in class')
+      throw error
     }
   }
 
@@ -1345,168 +1306,20 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       </div>
 
       {/* Enrollment Modal */}
-      <AnimatePresence>
-        {showEnrollModal && selectedClassForEnrollment && (
-          <motion.div
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[100] p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative"
-              initial={{ y: -50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 50, opacity: 0 }}
-            >
-              <button
-                onClick={() => {
-                  setShowEnrollModal(false)
-                  setSelectedClassForEnrollment(null)
-                  setSelectedFamilyMemberForEnrollment(null)
-                  setDaysPerWeek(1)
-                  setSelectedDays([])
-                }}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              <h2 className="text-2xl font-display font-bold text-black mb-4">
-                Enroll in {selectedClassForEnrollment.displayName}
-              </h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Select Family Member
-                  </label>
-                  <select
-                    value={selectedFamilyMemberForEnrollment || ''}
-                    onChange={(e) => setSelectedFamilyMemberForEnrollment(parseInt(e.target.value, 10))}
-                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                  >
-                    <option value="">Select a family member...</option>
-                    {(() => {
-                      // Combine current member with family members for enrollment
-                      const allMembers: Array<{id: number, name: string, isCurrentUser: boolean}> = []
-                      
-                      // Add current member if they're not already in familyMembers
-                      if (profileData) {
-                        const currentMemberInList = familyMembers.some(fm => 
-                          fm.user_id === profileData.id || fm.id === profileData.id
-                        )
-                        if (!currentMemberInList) {
-                          allMembers.push({
-                            id: profileData.id,
-                            name: `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || profileData.email || 'You',
-                            isCurrentUser: true
-                          })
-                        }
-                      }
-                      
-                      // Add all family members
-                      familyMembers.forEach(member => {
-                        allMembers.push({
-                          id: member.user_id || member.id,
-                          name: `${member.first_name} ${member.last_name}`.trim(),
-                          isCurrentUser: false
-                        })
-                      })
-                      
-                      return allMembers.map((member) => (
-                        <option key={member.id} value={member.id}>
-                          {member.name} {member.isCurrentUser ? '(You)' : ''}
-                        </option>
-                      ))
-                    })()}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Days Per Week
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <button
-                      type="button"
-                      onClick={() => handleDaysPerWeekChange(Math.max(1, daysPerWeek - 1))}
-                      className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded"
-                    >
-                      <ChevronDown className="w-4 h-4" />
-                    </button>
-                    <input
-                      type="number"
-                      min="1"
-                      max="5"
-                      value={daysPerWeek}
-                      onChange={(e) => handleDaysPerWeekChange(Math.max(1, Math.min(5, parseInt(e.target.value, 10) || 1)))}
-                      className="w-20 px-3 py-2 text-center border border-gray-300 rounded"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleDaysPerWeekChange(Math.min(5, daysPerWeek + 1))}
-                      className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded"
-                    >
-                      <ChevronUp className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">Select {daysPerWeek} day(s) below</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Select Days (Mon-Fri)
-                  </label>
-                  <div className="grid grid-cols-5 gap-2">
-                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => (
-                      <button
-                        key={day}
-                        type="button"
-                        onClick={() => handleDayToggle(day)}
-                        className={`px-3 py-2 rounded border transition-colors ${
-                          selectedDays.includes(day)
-                            ? 'bg-vortex-red text-white border-vortex-red'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                        disabled={!selectedDays.includes(day) && selectedDays.length >= daysPerWeek}
-                      >
-                        {day.slice(0, 3)}
-                      </button>
-                    ))}
-                  </div>
-                  {selectedDays.length > 0 && (
-                    <p className="text-xs text-gray-600 mt-2">
-                      Selected: {selectedDays.join(', ')}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex gap-2 pt-4">
-                  <button
-                    onClick={handleEnrollInClass}
-                    className="flex-1 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-                  >
-                    Enroll
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowEnrollModal(false)
-                      setSelectedClassForEnrollment(null)
-                      setSelectedFamilyMemberForEnrollment(null)
-                      setDaysPerWeek(1)
-                      setSelectedDays([])
-                    }}
-                    className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {showEnrollModal && selectedClassForEnrollment && (
+        <EnrollmentForm
+          program={selectedClassForEnrollment}
+          familyMembers={familyMembers}
+          currentUserId={profileData?.id}
+          currentUserName={profileData ? `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || profileData.email : undefined}
+          onEnroll={handleEnrollInClass}
+          onCancel={() => {
+            setShowEnrollModal(false)
+            setSelectedClassForEnrollment(null)
+          }}
+          isOpen={showEnrollModal}
+        />
+      )}
     </div>
   )
 }

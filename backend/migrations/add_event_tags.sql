@@ -17,3 +17,5 @@ COMMENT ON COLUMN events.tag_boosters IS 'True when event is tagged for boosters
 COMMENT ON COLUMN events.tag_volunteers IS 'True when event is tagged for volunteers (not applicable yet)';
 
 
+
+

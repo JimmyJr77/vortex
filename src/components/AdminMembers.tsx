@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Plus } from 'lucide-react'
+import { Edit2, Archive, X, ChevronDown, ChevronUp, UserPlus, Eye } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 
@@ -29,7 +29,15 @@ interface Athlete {
   linked_user_email?: string | null
   linked_user_name?: string | null
   linked_user_role?: string | null
-  status?: 'enrolled' | 'stand-bye' | 'archived'
+  // Status is now determined by enrollments: 'athlete' if has enrollments, 'non-participant' otherwise
+  enrollments?: Array<{
+    id: number | string
+    program_id: number
+    program_display_name: string
+    days_per_week: number
+    selected_days: string[] | string
+  }>
+  is_active?: boolean
   created_at: string
   updated_at: string
   emergency_contacts?: EmergencyContact[]
@@ -76,20 +84,11 @@ interface Program {
   updatedAt: string
 }
 
-type EnrollmentData = {
-  id: string
-  programId: number | null
-  program: string
-  daysPerWeek: number
-  selectedDays: string[]
-  isCompleted: boolean
-  isExpanded?: boolean
-}
-
 type FamilyMemberData = {
   id: string
-  athleteId?: number // ID of existing athlete record (if editing)
-  userId?: number // ID of existing user record (if editing)
+  athleteId?: number | null // ID of existing athlete record (if editing)
+  userId?: number | null // ID of existing user record (if editing)
+  user_id?: number | null
   firstName: string
   lastName: string
   email: string
@@ -100,14 +99,21 @@ type FamilyMemberData = {
   addressZip: string
   username: string
   password: string
-  enrollments: EnrollmentData[]
+  enrollments?: Array<{
+    id: number | string
+    program_id: number
+    program_display_name: string
+    days_per_week: number
+    selected_days: string[] | string
+  }>
   dateOfBirth: string
   medicalNotes: string
   isFinished: boolean
+  isActive?: boolean
   sections: {
     contactInfo: { isExpanded: boolean; tempData: { firstName: string; lastName: string; email: string; phone: string; addressStreet: string; addressCity: string; addressState: string; addressZip: string } }
     loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
-    enrollment: { isExpanded: boolean; tempData: { programId: number | null; program: string; daysPerWeek: number; selectedDays: string[] } }
+    statusVerification: { isExpanded: boolean }
   }
 }
 
@@ -126,10 +132,8 @@ export default function AdminMembers() {
   const [memberModalMode, setMemberModalMode] = useState<'search' | 'new-family' | 'existing-family'>('search')
   const [unifiedModalMode, setUnifiedModalMode] = useState<'create-new' | 'add-to-existing' | 'edit' | null>(null)
   // These are set but not currently read - reserved for future edit functionality
-  // @ts-ignore - intentionally unused, setters are used
-  const [_editingFamilyId, setEditingFamilyId] = useState<number | null>(null)
-  // @ts-ignore - intentionally unused, setters are used
-  const [_editingMemberUserId, setEditingMemberUserId] = useState<number | null>(null) // User ID of the member being edited
+  const [, setEditingFamilyId] = useState<number | null>(null)
+  const [, setEditingMemberUserId] = useState<number | null>(null) // User ID of the member being edited
   
   // Family member creation state
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberData[]>([
@@ -152,7 +156,7 @@ export default function AdminMembers() {
       sections: {
         contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
         loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-        enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+        statusVerification: { isExpanded: false }
       }
     }
   ])
@@ -246,32 +250,6 @@ export default function AdminMembers() {
   
   // Programs for enrollment
   const [programs, setPrograms] = useState<Program[]>([])
-  
-  // Helper function to get active classes grouped by category
-  const getActiveClassesByCategory = (programsList: Program[]) => {
-    const activeClasses = programsList.filter(p => {
-      if (!p.isActive || p.archived) return false
-      const hasCategory = (p.categoryDisplayName && p.categoryDisplayName.trim()) || (p.categoryName && p.categoryName.trim())
-      return hasCategory
-    })
-    
-    const groupedByCategory = activeClasses.reduce((acc, program) => {
-      const categoryName = program.categoryDisplayName || program.categoryName || 'Uncategorized'
-      if (!acc[categoryName]) {
-        acc[categoryName] = []
-      }
-      acc[categoryName].push(program)
-      return acc
-    }, {} as Record<string, Program[]>)
-    
-    Object.keys(groupedByCategory).forEach(category => {
-      groupedByCategory[category].sort((a, b) => a.displayName.localeCompare(b.displayName))
-    })
-    
-    const sortedCategories = Object.keys(groupedByCategory).sort()
-    
-    return { groupedByCategory, sortedCategories }
-  }
   
   // Fetch functions
   const fetchFamilies = useCallback(async () => {
@@ -452,46 +430,6 @@ export default function AdminMembers() {
     }
   }
   
-  // Helper function to collect all enrollments from both member.enrollments and tempData
-  const getAllEnrollments = (member: FamilyMemberData): EnrollmentData[] => {
-    const enrollments = [...(member.enrollments || [])]
-    
-    // Check if there's a pending enrollment in tempData that hasn't been committed
-    const tempEnrollment = member.sections.enrollment.tempData
-    console.log(`getAllEnrollments for member ${member.id}:`, {
-      existingEnrollments: enrollments.length,
-      tempEnrollment: tempEnrollment,
-      hasProgramId: tempEnrollment.programId !== null && tempEnrollment.programId !== undefined
-    })
-    
-    if (tempEnrollment.programId !== null && tempEnrollment.programId !== undefined) {
-      // Check if this enrollment is already in the enrollments array
-      const alreadyExists = enrollments.some(e => e.programId === tempEnrollment.programId)
-      if (!alreadyExists) {
-        // Validate that days are selected if program is selected
-        if (tempEnrollment.selectedDays.length !== tempEnrollment.daysPerWeek) {
-          console.warn(`Enrollment in tempData has ${tempEnrollment.selectedDays.length} days selected but ${tempEnrollment.daysPerWeek} required`)
-        }
-        
-        // Add the temp enrollment if it's valid
-        enrollments.push({
-          id: `enrollment-temp-${Date.now()}`,
-          programId: tempEnrollment.programId,
-          program: tempEnrollment.program,
-          daysPerWeek: tempEnrollment.daysPerWeek,
-          selectedDays: tempEnrollment.selectedDays,
-          isCompleted: true,
-          isExpanded: false
-        })
-        console.log(`Added temp enrollment to list:`, enrollments[enrollments.length - 1])
-      } else {
-        console.log(`Temp enrollment already exists in enrollments array`)
-      }
-    }
-    
-    console.log(`Final enrollments list:`, enrollments)
-    return enrollments
-  }
   
   const formatPhoneNumber = (value: string): string => {
     const digits = value.replace(/\D/g, '')
@@ -539,6 +477,7 @@ export default function AdminMembers() {
       let address = ''
       
       // Fetch user details if userId exists
+      let isActive = true // Default to active
       if (member.userId) {
         try {
           const userResponse = await fetch(`${apiUrl}/api/admin/users/${member.userId}`)
@@ -548,6 +487,7 @@ export default function AdminMembers() {
               email = userData.data.email || ''
               username = userData.data.username || ''
               address = userData.data.address || ''
+              isActive = userData.data.is_active !== false // Set isActive based on user's is_active
             }
           }
         } catch (error) {
@@ -556,7 +496,13 @@ export default function AdminMembers() {
       }
       
       // Get enrollments for athletes
-      const enrollments: EnrollmentData[] = []
+      const enrollments: Array<{
+        id: number | string
+        program_id: number
+        program_display_name: string
+        days_per_week: number
+        selected_days: string[] | string
+      }> = []
       if (member.type === 'athlete' && 'id' in member.data) {
         try {
           const enrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.data.id}/enrollments`)
@@ -565,13 +511,11 @@ export default function AdminMembers() {
             if (enrollmentsData.success && enrollmentsData.data) {
               for (const enrollment of enrollmentsData.data) {
                 enrollments.push({
-                  id: `enrollment-${enrollment.id}`,
-                  programId: enrollment.program_id || null,
-                  program: enrollment.program_display_name || 'Unknown Program',
-                  daysPerWeek: enrollment.days_per_week || 1,
-                  selectedDays: enrollment.selected_days || [],
-                  isCompleted: true,
-                  isExpanded: false
+                  id: enrollment.id || `enrollment-${Date.now()}`,
+                  program_id: enrollment.program_id || 0,
+                  program_display_name: enrollment.program_display_name || 'Unknown Program',
+                  days_per_week: enrollment.days_per_week || 1,
+                  selected_days: enrollment.selected_days || []
                 })
               }
             }
@@ -613,6 +557,7 @@ export default function AdminMembers() {
         enrollments,
         dateOfBirth: member.type === 'athlete' ? (member.data as Athlete).date_of_birth || '' : '',
         medicalNotes: member.type === 'athlete' ? (member.data as Athlete).medical_notes || '' : '',
+        isActive, // Set isActive based on user's is_active status
         isFinished: true, // Mark as finished since they're existing members
         sections: {
           contactInfo: { 
@@ -632,9 +577,8 @@ export default function AdminMembers() {
             isExpanded: isEditingThisMember && username ? true : false,
             tempData: { username: username || '', password: 'vortex' } 
           },
-          enrollment: { 
-            isExpanded: isEditingThisMember && enrollments.length > 0,
-            tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } 
+          statusVerification: { 
+            isExpanded: false
           }
         }
       })
@@ -938,74 +882,8 @@ export default function AdminMembers() {
               throw new Error(data.message || `Failed to update athlete for ${firstName} ${lastName}`)
             }
             
-            // Handle enrollments - collect from both member.enrollments and tempData
-            const allEnrollments = getAllEnrollments(member)
-            console.log(`Processing enrollments for athlete ${member.athleteId}:`, allEnrollments)
-            
-            const existingEnrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}/enrollments`)
-            let existingEnrollments: any[] = []
-            if (existingEnrollmentsResponse.ok) {
-              const enrollmentsData = await existingEnrollmentsResponse.json()
-              if (enrollmentsData.success && enrollmentsData.data) {
-                existingEnrollments = enrollmentsData.data
-              }
-            }
-            
-            // Delete enrollments that are no longer in the member's enrollment list
-            for (const existing of existingEnrollments) {
-              const stillExists = allEnrollments.some(e => 
-                e.programId === existing.program_id
-              )
-              if (!stillExists && existing.id) {
-                try {
-                  const deleteResponse = await fetch(`${apiUrl}/api/members/enroll/${existing.id}`, {
-                    method: 'DELETE',
-                    headers: { 
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                    }
-                  })
-                  if (!deleteResponse.ok) {
-                    console.error(`Failed to delete enrollment ${existing.id}:`, await deleteResponse.json())
-                  }
-                } catch (error) {
-                  console.error('Error removing enrollment:', error)
-                }
-              }
-            }
-            
-            // Create or update enrollments
-            for (const enrollment of allEnrollments) {
-              if (enrollment.programId) {
-                try {
-                  const enrollResponse = await fetch(`${apiUrl}/api/members/enroll`, {
-                    method: 'POST',
-                    headers: { 
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                    },
-                    body: JSON.stringify({
-                      programId: enrollment.programId,
-                      familyMemberId: member.athleteId,
-                      daysPerWeek: enrollment.daysPerWeek,
-                      selectedDays: enrollment.selectedDays
-                    })
-                  })
-                  
-                  if (!enrollResponse.ok) {
-                    const errorData = await enrollResponse.json()
-                    console.error(`Failed to save enrollment for athlete ${member.athleteId}:`, errorData)
-                    throw new Error(`Failed to save enrollment: ${errorData.message || 'Unknown error'}`)
-                  } else {
-                    const result = await enrollResponse.json()
-                    console.log(`Successfully saved enrollment for athlete ${member.athleteId}:`, result)
-                  }
-                } catch (error) {
-                  console.error(`Error saving enrollment for athlete ${member.athleteId}:`, error)
-                  throw error
-                }
-              }
-            }
+            // Enrollment is now managed separately through the Enrollments tab or member portal
+            // No enrollment saving during member edit
           }
         }
         
@@ -1067,35 +945,8 @@ export default function AdminMembers() {
             })
           }
           
-          const existingEnrollments = await fetch(`${apiUrl}/api/admin/athletes/${member.id}/enrollments`)
-          if (existingEnrollments.ok) {
-            const enrollmentsData = await existingEnrollments.json()
-            if (enrollmentsData.success && enrollmentsData.data) {
-              for (const enrollment of enrollmentsData.data) {
-                await fetch(`${apiUrl}/api/admin/enrollments/${enrollment.id}`, {
-                  method: 'DELETE'
-                })
-              }
-            }
-          }
-          
-          for (const enrollment of (member.enrollments || [])) {
-            if (enrollment.programId) {
-              await fetch(`${apiUrl}/api/members/enroll`, {
-                method: 'POST',
-                headers: { 
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                },
-                body: JSON.stringify({
-                  programId: enrollment.programId,
-                  familyMemberId: member.id,
-                  daysPerWeek: enrollment.daysPerWeek,
-                  selectedDays: enrollment.selectedDays
-                })
-              })
-            }
-          }
+          // Enrollment is now managed separately through the Enrollments tab or member portal
+          // No enrollment saving during member edit
         } else {
           const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
           const today = new Date()
@@ -1144,28 +995,13 @@ export default function AdminMembers() {
             })
           })
           
-          if (athleteResponse.ok) {
-            const athleteData = await athleteResponse.json()
-            if (athleteData.success && athleteData.data) {
-              for (const enrollment of (member.enrollments || [])) {
-                if (enrollment.programId) {
-                  await fetch(`${apiUrl}/api/members/enroll`, {
-                    method: 'POST',
-                    headers: { 
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                    },
-                    body: JSON.stringify({
-                      programId: enrollment.programId,
-                      familyMemberId: athleteData.data.id,
-                      daysPerWeek: enrollment.daysPerWeek,
-                      selectedDays: enrollment.selectedDays
-                    })
-                  })
-                }
-              }
-            }
+          if (!athleteResponse.ok) {
+            const errorData = await athleteResponse.json()
+            throw new Error(errorData.message || 'Failed to create athlete')
           }
+          
+          // Enrollment is now managed separately through the Enrollments tab or member portal
+          // No enrollment saving during member creation
         }
       }
       
@@ -1230,7 +1066,7 @@ export default function AdminMembers() {
       sections: {
         contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
         loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-        enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+        statusVerification: { isExpanded: false }
       }
     }
     setFamilyMembers(prev => [...prev, newMember])
@@ -1255,16 +1091,7 @@ export default function AdminMembers() {
       }
       
       // Validate days selection for all enrollments (check both member.enrollments and tempData)
-      for (const member of familyMembers) {
-        const allEnrollments = getAllEnrollments(member)
-        for (const enrollment of allEnrollments) {
-          if (enrollment.programId && enrollment.selectedDays.length !== enrollment.daysPerWeek) {
-            const memberName = member.sections.contactInfo.tempData.firstName || member.firstName || 'this member'
-            alert(`Please select exactly ${enrollment.daysPerWeek} day(s) for ${memberName}'s enrollment in ${enrollment.program}`)
-            return
-          }
-        }
-      }
+      // Enrollment validation removed - enrollments are now managed separately
       
       const apiUrl = getApiUrl()
       
@@ -1471,73 +1298,8 @@ export default function AdminMembers() {
         
         // Update enrollments if athlete was created/updated
         if (athleteId) {
-          // Get existing enrollments
-          const existingEnrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${athleteId}/enrollments`)
-          let existingEnrollments: any[] = []
-          if (existingEnrollmentsResponse.ok) {
-            const enrollmentsData = await existingEnrollmentsResponse.json()
-            if (enrollmentsData.success && enrollmentsData.data) {
-              existingEnrollments = enrollmentsData.data
-            }
-          }
-          
-          // Collect all enrollments from both member.enrollments and tempData
-          const allEnrollments = getAllEnrollments(member)
-          
-          // Delete enrollments that are no longer in the member's enrollment list
-          for (const existing of existingEnrollments) {
-            const stillExists = allEnrollments.some(e => 
-              e.programId === existing.program_id
-            )
-            if (!stillExists && existing.id) {
-              // Try to delete via unenrollment endpoint
-              try {
-                await fetch(`${apiUrl}/api/members/enroll/${existing.id}`, {
-                  method: 'DELETE',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                  }
-                })
-              } catch (error) {
-                console.error('Error removing enrollment:', error)
-              }
-            }
-          }
-          
-          // Create or update enrollments
-          for (const enrollment of allEnrollments) {
-            if (enrollment.programId) {
-              const existingEnrollment = existingEnrollments.find(e => e.program_id === enrollment.programId)
-              try {
-                const enrollResponse = await fetch(`${apiUrl}/api/members/enroll`, {
-                  method: 'POST',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                  },
-                  body: JSON.stringify({
-                    programId: enrollment.programId,
-                    familyMemberId: athleteId,
-                    daysPerWeek: enrollment.daysPerWeek,
-                    selectedDays: enrollment.selectedDays
-                  })
-                })
-                
-                if (!enrollResponse.ok) {
-                  const errorData = await enrollResponse.json()
-                  console.error(`Failed to save enrollment for athlete ${athleteId}:`, errorData)
-                  // Don't throw - continue with other enrollments
-                } else {
-                  const result = await enrollResponse.json()
-                  console.log(`Successfully saved enrollment for athlete ${athleteId}:`, result)
-                }
-              } catch (error) {
-                console.error(`Error saving enrollment for athlete ${athleteId}:`, error)
-                // Don't throw - continue with other enrollments
-              }
-            }
-          }
+          // Enrollment is now managed separately through the Enrollments tab or member portal
+          // No enrollment saving during member creation
         }
       }
       
@@ -1564,7 +1326,7 @@ export default function AdminMembers() {
         sections: {
           contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
           loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-          enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+          statusVerification: { isExpanded: false }
         }
       }])
       setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
@@ -1646,16 +1408,7 @@ export default function AdminMembers() {
       }
       
       // Validate days selection for all enrollments (check both member.enrollments and tempData)
-      for (const member of familyMembers) {
-        const allEnrollments = getAllEnrollments(member)
-        for (const enrollment of allEnrollments) {
-          if (enrollment.programId && enrollment.selectedDays.length !== enrollment.daysPerWeek) {
-            const memberName = member.sections.contactInfo.tempData.firstName || member.firstName || 'this member'
-            alert(`Please select exactly ${enrollment.daysPerWeek} day(s) for ${memberName}'s enrollment in ${enrollment.program}`)
-            return
-          }
-        }
-      }
+      // Enrollment validation removed - enrollments are now managed separately
       
       const apiUrl = getApiUrl()
       const familyId = selectedFamilyForMember.id
@@ -1784,73 +1537,8 @@ export default function AdminMembers() {
         
         // Update enrollments if athlete was created/updated
         if (athleteId) {
-          // Get existing enrollments
-          const existingEnrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${athleteId}/enrollments`)
-          let existingEnrollments: any[] = []
-          if (existingEnrollmentsResponse.ok) {
-            const enrollmentsData = await existingEnrollmentsResponse.json()
-            if (enrollmentsData.success && enrollmentsData.data) {
-              existingEnrollments = enrollmentsData.data
-            }
-          }
-          
-          // Collect all enrollments from both member.enrollments and tempData
-          const allEnrollments = getAllEnrollments(member)
-          
-          // Delete enrollments that are no longer in the member's enrollment list
-          for (const existing of existingEnrollments) {
-            const stillExists = allEnrollments.some(e => 
-              e.programId === existing.program_id
-            )
-            if (!stillExists && existing.id) {
-              // Try to delete via unenrollment endpoint
-              try {
-                await fetch(`${apiUrl}/api/members/enroll/${existing.id}`, {
-                  method: 'DELETE',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                  }
-                })
-              } catch (error) {
-                console.error('Error removing enrollment:', error)
-              }
-            }
-          }
-          
-          // Create or update enrollments
-          for (const enrollment of allEnrollments) {
-            if (enrollment.programId) {
-              const existingEnrollment = existingEnrollments.find(e => e.program_id === enrollment.programId)
-              try {
-                const enrollResponse = await fetch(`${apiUrl}/api/members/enroll`, {
-                  method: 'POST',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                  },
-                  body: JSON.stringify({
-                    programId: enrollment.programId,
-                    familyMemberId: athleteId,
-                    daysPerWeek: enrollment.daysPerWeek,
-                    selectedDays: enrollment.selectedDays
-                  })
-                })
-                
-                if (!enrollResponse.ok) {
-                  const errorData = await enrollResponse.json()
-                  console.error(`Failed to save enrollment for athlete ${athleteId}:`, errorData)
-                  // Don't throw - continue with other enrollments
-                } else {
-                  const result = await enrollResponse.json()
-                  console.log(`Successfully saved enrollment for athlete ${athleteId}:`, result)
-                }
-              } catch (error) {
-                console.error(`Error saving enrollment for athlete ${athleteId}:`, error)
-                // Don't throw - continue with other enrollments
-              }
-            }
-          }
+          // Enrollment is now managed separately through the Enrollments tab or member portal
+          // No enrollment saving during member creation
         }
       }
       
@@ -1877,7 +1565,7 @@ export default function AdminMembers() {
         sections: {
           contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
           loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-          enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+          statusVerification: { isExpanded: false }
         }
       }])
       setExpandedFamilyMemberId(null)
@@ -1930,27 +1618,12 @@ export default function AdminMembers() {
       sections: {
         contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
         loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-        enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+        statusVerification: { isExpanded: false }
       }
     }])
     setExpandedFamilyMemberId(newMemberId)
   }
   
-  const handleToggleEnrollment = (memberId: string, enrollmentId: string) => {
-    setFamilyMembers(prev => prev.map(member => {
-      if (member.id === memberId) {
-        return {
-          ...member,
-          enrollments: member.enrollments.map(enrollment => 
-            enrollment.id === enrollmentId
-              ? { ...enrollment, isExpanded: !(enrollment.isExpanded ?? false) }
-              : enrollment
-          )
-        }
-      }
-      return member
-    }))
-  }
   
   
   // Wrapper function for updating a member (used by MemberFormSection component)
@@ -1973,7 +1646,7 @@ export default function AdminMembers() {
   }, [])
   
   
-  const handleSectionContinue = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'enrollment') => {
+  const handleSectionContinue = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -2003,30 +1676,16 @@ export default function AdminMembers() {
             sections: {
               ...member.sections,
               loginSecurity: { ...sectionData, isExpanded: false },
-              enrollment: { ...member.sections.enrollment, isExpanded: true }
+              statusVerification: { ...member.sections.statusVerification, isExpanded: true }
             }
           }
         } else {
-          const sectionData = member.sections.enrollment
-          if (sectionData.tempData.programId && sectionData.tempData.selectedDays.length !== sectionData.tempData.daysPerWeek) {
-            alert(`Please select exactly ${sectionData.tempData.daysPerWeek} day(s)`)
-            return member
-          }
-          const newEnrollment: EnrollmentData = {
-            id: `enrollment-${Date.now()}`,
-            programId: sectionData.tempData.programId,
-            program: sectionData.tempData.program,
-            daysPerWeek: sectionData.tempData.daysPerWeek,
-            selectedDays: sectionData.tempData.selectedDays,
-            isCompleted: true,
-            isExpanded: false
-          }
+          // Status verification section - just minimize it
           return {
             ...member,
-            enrollments: [...member.enrollments, newEnrollment],
             sections: {
               ...member.sections,
-              enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+              statusVerification: { isExpanded: false }
             }
           }
         }
@@ -2035,7 +1694,7 @@ export default function AdminMembers() {
     }))
   }
   
-  const handleSectionMinimize = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'enrollment') => {
+  const handleSectionMinimize = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -2067,26 +1726,12 @@ export default function AdminMembers() {
             }
           }
         } else {
-          const sectionData = member.sections.enrollment
-          if (sectionData.tempData.programId && sectionData.tempData.selectedDays.length !== sectionData.tempData.daysPerWeek) {
-            alert(`Please select exactly ${sectionData.tempData.daysPerWeek} day(s)`)
-            return member
-          }
-          const newEnrollment: EnrollmentData = {
-            id: `enrollment-${Date.now()}`,
-            programId: sectionData.tempData.programId,
-            program: sectionData.tempData.program,
-            daysPerWeek: sectionData.tempData.daysPerWeek,
-            selectedDays: sectionData.tempData.selectedDays,
-            isCompleted: true,
-            isExpanded: false
-          }
+          // Status verification section - just minimize it
           return {
             ...member,
-            enrollments: [...member.enrollments, newEnrollment],
             sections: {
               ...member.sections,
-              enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+              statusVerification: { isExpanded: false }
             }
           }
         }
@@ -2095,7 +1740,7 @@ export default function AdminMembers() {
     }))
   }
   
-  const handleSectionCancel = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'enrollment') => {
+  const handleSectionCancel = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -2137,14 +1782,8 @@ export default function AdminMembers() {
             ...member,
             sections: {
               ...member.sections,
-              enrollment: {
-                isExpanded: false,
-                tempData: {
-                  programId: null,
-                  program: 'Non-Participant',
-                  daysPerWeek: 1,
-                  selectedDays: []
-                }
+              statusVerification: {
+                isExpanded: false
               }
             }
           }
@@ -2154,7 +1793,7 @@ export default function AdminMembers() {
     }))
   }
   
-  const handleToggleSection = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'enrollment') => {
+  const handleToggleSection = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -2214,30 +1853,12 @@ export default function AdminMembers() {
             }
           }
         } else {
-          const sectionData = member.sections.enrollment
-          if (!sectionData.isExpanded) {
-            return {
-              ...member,
-              sections: {
-                ...member.sections,
-                enrollment: {
-                  isExpanded: true,
-                  tempData: {
-                    programId: null,
-                    program: 'Non-Participant',
-                    daysPerWeek: 1,
-                    selectedDays: []
-                  }
-                }
-              }
-            }
-          } else {
-            return {
-              ...member,
-              sections: {
-                ...member.sections,
-                enrollment: { ...sectionData, isExpanded: false }
-              }
+          const sectionData = member.sections.statusVerification
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              statusVerification: { ...sectionData, isExpanded: !sectionData.isExpanded }
             }
           }
         }
@@ -2630,7 +2251,7 @@ export default function AdminMembers() {
                           sections: {
                             contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
                             loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-                            enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+                            statusVerification: { isExpanded: false }
                           }
                         }])
                         if (familyMembers.length > 0) {
@@ -2665,9 +2286,6 @@ export default function AdminMembers() {
                       onSectionMinimize={handleSectionMinimize}
                       onSectionCancel={handleSectionCancel}
                       onFinishedWithMember={handleFinishedWithMember}
-                      onToggleEnrollment={handleToggleEnrollment}
-                      programs={programs}
-                      getActiveClassesByCategory={getActiveClassesByCategory}
                       generateUsername={generateUsername}
                       formatPhoneNumber={formatPhoneNumber}
                     />
@@ -2798,7 +2416,7 @@ export default function AdminMembers() {
                           sections: {
                             contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
                             loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-                            enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+                            statusVerification: { isExpanded: false }
                           }
                         }])
                         setExpandedFamilyMemberId('member-1')
@@ -2841,9 +2459,6 @@ export default function AdminMembers() {
                       onSectionMinimize={handleSectionMinimize}
                       onSectionCancel={handleSectionCancel}
                       onFinishedWithMember={handleFinishedWithMember}
-                      onToggleEnrollment={handleToggleEnrollment}
-                      programs={programs}
-                      getActiveClassesByCategory={getActiveClassesByCategory}
                       generateUsername={generateUsername}
                       formatPhoneNumber={formatPhoneNumber}
                     />
@@ -2966,7 +2581,7 @@ export default function AdminMembers() {
                           sections: {
                             contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
                             loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-                            enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+                            statusVerification: { isExpanded: false }
                           }
                         }])
                         setExpandedFamilyMemberId('member-1')
@@ -3054,17 +2669,29 @@ export default function AdminMembers() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <div className="text-white font-medium">{athlete.first_name} {athlete.last_name}</div>
-                              {athlete.status && (
-                                <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                  athlete.status === 'enrolled' ? 'bg-green-600 text-white' :
-                                  athlete.status === 'stand-bye' ? 'bg-yellow-600 text-white' :
-                                  'bg-gray-600 text-white'
-                                }`}>
-                                  {athlete.status === 'enrolled' ? 'Enrolled' :
-                                   athlete.status === 'stand-bye' ? 'Stand-Bye' :
-                                   'Archived'}
-                                </span>
-                              )}
+                              {(() => {
+                                // Determine status: athlete if has enrollments, otherwise non-participant
+                                const hasEnrollments = athlete.enrollments && athlete.enrollments.length > 0
+                                const enrollmentStatus = hasEnrollments ? 'athlete' : 'non-participant'
+                                const activityStatus = athlete.is_active !== false ? 'active' : 'idle'
+                                
+                                return (
+                                  <div className="flex gap-2">
+                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                      enrollmentStatus === 'athlete' ? 'bg-green-600 text-white' :
+                                      'bg-gray-600 text-white'
+                                    }`}>
+                                      {enrollmentStatus === 'athlete' ? 'Athlete' : 'Non-Participant'}
+                                    </span>
+                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                      activityStatus === 'active' ? 'bg-blue-600 text-white' :
+                                      'bg-yellow-600 text-white'
+                                    }`}>
+                                      {activityStatus === 'active' ? 'Active' : 'Idle'}
+                                    </span>
+                                  </div>
+                                )
+                              })()}
                             </div>
                             <button
                               onClick={async () => {
@@ -3188,17 +2815,29 @@ export default function AdminMembers() {
                                 <div className="text-white font-medium text-lg">
                                   {athlete.first_name} {athlete.last_name}
                                 </div>
-                                {athlete.status && (
-                                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                    athlete.status === 'enrolled' ? 'bg-green-600 text-white' :
-                                    athlete.status === 'stand-bye' ? 'bg-yellow-600 text-white' :
-                                    'bg-gray-600 text-white'
-                                  }`}>
-                                    {athlete.status === 'enrolled' ? 'Enrolled' :
-                                     athlete.status === 'stand-bye' ? 'Stand-Bye' :
-                                     'Archived'}
-                                  </span>
-                                )}
+                                {(() => {
+                                  // Determine status: athlete if has enrollments, otherwise non-participant
+                                  const hasEnrollments = athlete.enrollments && athlete.enrollments.length > 0
+                                  const enrollmentStatus = hasEnrollments ? 'athlete' : 'non-participant'
+                                  const activityStatus = athlete.is_active !== false ? 'active' : 'idle'
+                                  
+                                  return (
+                                    <div className="flex gap-2">
+                                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                        enrollmentStatus === 'athlete' ? 'bg-green-600 text-white' :
+                                        'bg-gray-600 text-white'
+                                      }`}>
+                                        {enrollmentStatus === 'athlete' ? 'Athlete' : 'Non-Participant'}
+                                      </span>
+                                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                        activityStatus === 'active' ? 'bg-blue-600 text-white' :
+                                        'bg-yellow-600 text-white'
+                                      }`}>
+                                        {activityStatus === 'active' ? 'Active' : 'Idle'}
+                                      </span>
+                                    </div>
+                                  )
+                                })()}
                               </div>
                               <div className="text-gray-300 text-sm mt-1">
                                 Date of Birth: {athlete.date_of_birth ? new Date(athlete.date_of_birth).toLocaleDateString() : 'N/A'}
@@ -3513,167 +3152,6 @@ export default function AdminMembers() {
                                     </>
                                   )}
                                   <div className="md:col-span-2">
-                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Enrollment</label>
-                                    <div className="space-y-3">
-                                      {(member.enrollments || []).map((enrollment, enrollmentIndex) => {
-                                        const selectedProgramIds = (member.enrollments || []).map(e => e.programId).filter(Boolean)
-                                        return (
-                                          <div key={enrollmentIndex} className="bg-gray-600 p-4 rounded border border-gray-500">
-                                            <div className="flex justify-between items-center mb-3">
-                                              <span className="text-white font-medium">Enrollment {enrollmentIndex + 1}</span>
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  const updated = [...editingFamilyMembers]
-                                                  if (!updated[index].enrollments) {
-                                                    updated[index].enrollments = []
-                                                  }
-                                                  updated[index].enrollments = updated[index].enrollments.filter((_, i) => i !== enrollmentIndex)
-                                                  setEditingFamilyMembers(updated)
-                                                }}
-                                                className="text-red-400 hover:text-red-300"
-                                              >
-                                                <X className="w-4 h-4" />
-                                              </button>
-                                            </div>
-                                            <div className="space-y-3">
-                                              <div>
-                                                <label className="block text-sm font-semibold text-gray-300 mb-2">Class *</label>
-                                                <select
-                                                  value={enrollment.programId || ''}
-                                                  onChange={(e) => {
-                                                    const updated = [...editingFamilyMembers]
-                                                    if (!updated[index].enrollments) {
-                                                      updated[index].enrollments = []
-                                                    }
-                                                    const programId = e.target.value ? parseInt(e.target.value) : null
-                                                    const selectedProgram = programs.find(p => p.id === programId)
-                                                    updated[index].enrollments[enrollmentIndex].programId = programId
-                                                    updated[index].enrollments[enrollmentIndex].program = selectedProgram?.displayName || ''
-                                                    setEditingFamilyMembers(updated)
-                                                  }}
-                                                  className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
-                                                  required
-                                                >
-                                                  <option value="">Select a class</option>
-                                                  {(() => {
-                                                    const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
-                                                    return sortedCategories.map(categoryName => (
-                                                      <optgroup key={categoryName} label={categoryName}>
-                                                        {groupedByCategory[categoryName].map((program) => {
-                                                          const isSelected = selectedProgramIds.includes(program.id) && (member.enrollments || [])[enrollmentIndex].programId !== program.id
-                                                          return (
-                                                            <option 
-                                                              key={program.id} 
-                                                              value={program.id}
-                                                              disabled={isSelected}
-                                                            >
-                                                              {program.displayName}
-                                                            </option>
-                                                          )
-                                                        })}
-                                                      </optgroup>
-                                                    ))
-                                                  })()}
-                                                </select>
-                                              </div>
-                                              {enrollment.programId && (
-                                                <>
-                                                  <div>
-                                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
-                                                    <select
-                                                      value={enrollment.daysPerWeek}
-                                                      onChange={(e) => {
-                                                        const updated = [...editingFamilyMembers]
-                                                        if (!updated[index].enrollments) {
-                                                          updated[index].enrollments = []
-                                                        }
-                                                        const daysPerWeek = parseInt(e.target.value)
-                                                        updated[index].enrollments[enrollmentIndex].daysPerWeek = daysPerWeek
-                                                        if (updated[index].enrollments[enrollmentIndex].selectedDays.length !== daysPerWeek) {
-                                                          updated[index].enrollments[enrollmentIndex].selectedDays = []
-                                                        }
-                                                        setEditingFamilyMembers(updated)
-                                                      }}
-                                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
-                                                      required
-                                                    >
-                                                      <option value={1}>1 day</option>
-                                                      <option value={2}>2 days</option>
-                                                      <option value={3}>3 days</option>
-                                                      <option value={4}>4 days</option>
-                                                      <option value={5}>5 days</option>
-                                                      <option value={6}>6 days</option>
-                                                      <option value={7}>7 days</option>
-                                                    </select>
-                                                  </div>
-                                                  <div>
-                                                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                                                      Select Days * ({enrollment.selectedDays.length} of {enrollment.daysPerWeek} selected)
-                                                    </label>
-                                                    <div className="grid grid-cols-7 gap-2">
-                                                      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-                                                        <button
-                                                          key={day}
-                                                          type="button"
-                                                          onClick={() => {
-                                                            const updated = [...editingFamilyMembers]
-                                                            if (!updated[index].enrollments) {
-                                                              updated[index].enrollments = []
-                                                            }
-                                                            const dayIndex = updated[index].enrollments[enrollmentIndex].selectedDays.indexOf(day)
-                                                            if (dayIndex > -1) {
-                                                              updated[index].enrollments[enrollmentIndex].selectedDays.splice(dayIndex, 1)
-                                                            } else {
-                                                              if (updated[index].enrollments[enrollmentIndex].selectedDays.length < updated[index].enrollments[enrollmentIndex].daysPerWeek) {
-                                                                updated[index].enrollments[enrollmentIndex].selectedDays.push(day)
-                                                              } else {
-                                                                alert(`Please select exactly ${updated[index].enrollments[enrollmentIndex].daysPerWeek} day(s)`)
-                                                                return
-                                                              }
-                                                            }
-                                                            setEditingFamilyMembers(updated)
-                                                          }}
-                                                          className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                                                            enrollment.selectedDays.includes(day)
-                                                              ? 'bg-vortex-red text-white'
-                                                              : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                                                          }`}
-                                                        >
-                                                          {day.substring(0, 3)}
-                                                        </button>
-                                                      ))}
-                                                    </div>
-                                                  </div>
-                                                </>
-                                              )}
-                                            </div>
-                                          </div>
-                                        )
-                                      })}
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          const updated = [...editingFamilyMembers]
-                                          if (!updated[index].enrollments) {
-                                            updated[index].enrollments = []
-                                          }
-                                          updated[index].enrollments = [...(updated[index].enrollments || []), {
-                                            programId: null,
-                                            program: '',
-                                            daysPerWeek: 1,
-                                            selectedDays: []
-                                          }]
-                                          setEditingFamilyMembers(updated)
-                                        }}
-                                        className="w-full px-4 py-2 bg-gray-600 text-white rounded border border-gray-500 hover:bg-gray-500 flex items-center justify-center gap-2"
-                                      >
-                                        <Plus className="w-4 h-4" />
-                                        Add Enrollment
-                                      </button>
-                                    </div>
-                                  </div>
-                                  <div className="md:col-span-2">
                                     <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
                                     <textarea
                                       value={member.medicalNotes}
@@ -3820,172 +3298,6 @@ export default function AdminMembers() {
                           )
                         })()}
                         <div className="md:col-span-2">
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">Enrollment</label>
-                          <div className="space-y-3">
-                            {newFamilyMemberInEdit.enrollments && newFamilyMemberInEdit.enrollments.length > 0 && newFamilyMemberInEdit.enrollments.map((enrollment, enrollmentIndex) => {
-                              const selectedProgramIds = newFamilyMemberInEdit.enrollments.map(e => e.programId).filter(Boolean)
-                              return (
-                                <div key={enrollmentIndex} className="bg-gray-600 p-4 rounded border border-gray-500">
-                                  <div className="flex justify-between items-center mb-3">
-                                    <span className="text-white font-medium">Enrollment {enrollmentIndex + 1}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setNewFamilyMemberInEdit({
-                                          ...newFamilyMemberInEdit,
-                                          enrollments: newFamilyMemberInEdit.enrollments.filter((_, i) => i !== enrollmentIndex)
-                                        })
-                                      }}
-                                      className="text-red-400 hover:text-red-300"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                  <div className="space-y-3">
-                                    <div>
-                                      <label className="block text-sm font-semibold text-gray-300 mb-2">Class *</label>
-                                      <select
-                                        value={enrollment.programId || ''}
-                                        onChange={(e) => {
-                                          const programId = e.target.value ? parseInt(e.target.value) : null
-                                          const selectedProgram = programs.find(p => p.id === programId)
-                                          const updatedEnrollments = [...newFamilyMemberInEdit.enrollments]
-                                          updatedEnrollments[enrollmentIndex].programId = programId
-                                          updatedEnrollments[enrollmentIndex].program = selectedProgram?.displayName || ''
-                                          setNewFamilyMemberInEdit({
-                                            ...newFamilyMemberInEdit,
-                                            enrollments: updatedEnrollments
-                                          })
-                                        }}
-                                        className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
-                                        required
-                                      >
-                                        <option value="">Select a class</option>
-                                        {(() => {
-                                          const { groupedByCategory, sortedCategories } = getActiveClassesByCategory(programs)
-                                          return sortedCategories.map(categoryName => (
-                                            <optgroup key={categoryName} label={categoryName}>
-                                              {groupedByCategory[categoryName].map((program) => {
-                                                const isSelected = selectedProgramIds.includes(program.id) && (newFamilyMemberInEdit.enrollments || [])[enrollmentIndex].programId !== program.id
-                                                return (
-                                                  <option 
-                                                    key={program.id} 
-                                                    value={program.id}
-                                                    disabled={isSelected}
-                                                  >
-                                                    {program.displayName}
-                                                  </option>
-                                                )
-                                              })}
-                                            </optgroup>
-                                          ))
-                                        })()}
-                                      </select>
-                                    </div>
-                                    {enrollment.programId && (
-                                      <>
-                                        <div>
-                                          <label className="block text-sm font-semibold text-gray-300 mb-2">Days Per Week *</label>
-                                          <select
-                                            value={enrollment.daysPerWeek}
-                                            onChange={(e) => {
-                                              const daysPerWeek = parseInt(e.target.value)
-                                              const updatedEnrollments = [...newFamilyMemberInEdit.enrollments]
-                                              updatedEnrollments[enrollmentIndex].daysPerWeek = daysPerWeek
-                                              if (updatedEnrollments[enrollmentIndex].selectedDays.length !== daysPerWeek) {
-                                                updatedEnrollments[enrollmentIndex].selectedDays = []
-                                              }
-                                              setNewFamilyMemberInEdit({
-                                                ...newFamilyMemberInEdit,
-                                                enrollments: updatedEnrollments
-                                              })
-                                            }}
-                                            className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
-                                            required
-                                          >
-                                            <option value={1}>1 day</option>
-                                            <option value={2}>2 days</option>
-                                            <option value={3}>3 days</option>
-                                            <option value={4}>4 days</option>
-                                            <option value={5}>5 days</option>
-                                            <option value={6}>6 days</option>
-                                            <option value={7}>7 days</option>
-                                          </select>
-                                        </div>
-                                        <div>
-                                          <label className="block text-sm font-semibold text-gray-300 mb-2">
-                                            Select Days * ({enrollment.selectedDays.length} of {enrollment.daysPerWeek} selected)
-                                          </label>
-                                          <div className="grid grid-cols-7 gap-2">
-                                            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-                                              <button
-                                                key={day}
-                                                type="button"
-                                                onClick={() => {
-                                                  const dayIndex = enrollment.selectedDays.indexOf(day)
-                                                  const updatedEnrollments = [...newFamilyMemberInEdit.enrollments]
-                                                  if (dayIndex > -1) {
-                                                    updatedEnrollments[enrollmentIndex].selectedDays = updatedEnrollments[enrollmentIndex].selectedDays.filter(d => d !== day)
-                                                  } else {
-                                                    if (updatedEnrollments[enrollmentIndex].selectedDays.length < updatedEnrollments[enrollmentIndex].daysPerWeek) {
-                                                      updatedEnrollments[enrollmentIndex].selectedDays.push(day)
-                                                    } else {
-                                                      alert(`Please select exactly ${updatedEnrollments[enrollmentIndex].daysPerWeek} day(s)`)
-                                                      return
-                                                    }
-                                                  }
-                                                  setNewFamilyMemberInEdit({
-                                                    ...newFamilyMemberInEdit,
-                                                    enrollments: updatedEnrollments
-                                                  })
-                                                }}
-                                                className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                                                  enrollment.selectedDays.includes(day)
-                                                    ? 'bg-vortex-red text-white'
-                                                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                                                }`}
-                                              >
-                                                {day.substring(0, 3)}
-                                              </button>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              )
-                            })}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (!newFamilyMemberInEdit.enrollments) {
-                                  setNewFamilyMemberInEdit({
-                                    ...newFamilyMemberInEdit,
-                                    enrollments: []
-                                  })
-                                }
-                                setNewFamilyMemberInEdit({
-                                  ...newFamilyMemberInEdit,
-                                  enrollments: [
-                                    ...(newFamilyMemberInEdit.enrollments || []),
-                                    {
-                                      programId: null,
-                                      program: '',
-                                      daysPerWeek: 1,
-                                      selectedDays: []
-                                    }
-                                  ]
-                                })
-                              }}
-                              className="w-full px-4 py-2 bg-gray-600 text-white rounded border border-gray-500 hover:bg-gray-500 flex items-center justify-center gap-2"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Add Enrollment
-                            </button>
-                          </div>
-                        </div>
-                        <div className="md:col-span-2">
                           <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
                           <textarea
                             value={newFamilyMemberInEdit.medicalNotes}
@@ -4008,18 +3320,7 @@ export default function AdminMembers() {
                                 alert('Adults must have email and username')
                                 return
                               }
-                              if (newFamilyMemberInEdit.enrollments && newFamilyMemberInEdit.enrollments.length > 0) {
-                                for (const enrollment of newFamilyMemberInEdit.enrollments) {
-                                  if (!enrollment.programId) {
-                                    alert('Please select a class for all enrollments')
-                                    return
-                                  }
-                                  if (enrollment.selectedDays.length !== enrollment.daysPerWeek) {
-                                    alert(`Please select exactly ${enrollment.daysPerWeek} day(s) for ${enrollment.program || 'enrollment'}`)
-                                    return
-                                  }
-                                }
-                              }
+                              // Enrollment is now managed separately through the Enrollments tab or member portal
                               setEditingFamilyMembers([...editingFamilyMembers, {
                                 firstName: newFamilyMemberInEdit.firstName,
                                 lastName: newFamilyMemberInEdit.lastName,
@@ -4029,7 +3330,7 @@ export default function AdminMembers() {
                                 password: newFamilyMemberInEdit.password,
                                 medicalNotes: newFamilyMemberInEdit.medicalNotes,
                                 internalFlags: newFamilyMemberInEdit.internalFlags,
-                                enrollments: newFamilyMemberInEdit.enrollments || [],
+                                enrollments: [], // Enrollments are managed separately
                                 userId: null
                               }])
                               setNewFamilyMemberInEdit({
