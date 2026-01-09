@@ -468,62 +468,70 @@ export default function EnrollmentForm({
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Select Class Iteration
-            </label>
-            {iterationsLoading ? (
-              <div className="text-center py-4 text-gray-600">Loading iterations...</div>
-            ) : iterations.length === 0 ? (
-              <div className="text-center py-4 text-gray-600">No class iterations available for this program.</div>
-            ) : (
-              <select
-                value={selectedIterationId || ''}
-                onChange={(e) => {
-                  const newIterationId = e.target.value ? parseInt(e.target.value, 10) : null
-                  console.log('Iteration selection changed:', { 
-                    newIterationId, 
-                    availableIterations: iterations.map(i => ({ id: i.id, idType: typeof i.id }))
-                  })
-                  setSelectedIterationId(newIterationId)
-                }}
-                className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-              >
-                <option value="">Select an iteration...</option>
-                {iterations.map((iteration) => {
-                  const days = iteration.daysOfWeek.map(dayNum => dayNames[dayNum].slice(0, 3)).join(', ')
-                  const timeRange = `${formatTime(iteration.startTime)} - ${formatTime(iteration.endTime)}`
-                  return (
-                    <option key={iteration.id} value={iteration.id}>
-                      Iteration {iteration.iterationNumber}: {days} ({timeRange})
-                    </option>
-                  )
-                })}
-              </select>
-            )}
-            {selectedIteration && (
-              <div className="mt-2 p-3 bg-gray-50 rounded border border-gray-200">
-                <div className="flex items-center gap-2 text-sm text-gray-700 mb-1">
-                  <Clock className="w-4 h-4" />
-                  <span className="font-medium">Schedule:</span>
-                  <span>{selectedIteration.daysOfWeek.map(dayNum => dayNames[dayNum]).join(', ')}</span>
-                </div>
-                <div className="text-sm text-gray-600">
-                  Time: {formatTime(selectedIteration.startTime)} - {formatTime(selectedIteration.endTime)}
-                </div>
-                {selectedIteration.durationType !== 'indefinite' && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    {selectedIteration.durationType === '3_month_block' && selectedIteration.startDate && (
-                      <>3-Month Block starting {new Date(selectedIteration.startDate).toLocaleDateString()}</>
-                    )}
-                    {selectedIteration.durationType === 'finite' && selectedIteration.startDate && selectedIteration.endDate && (
-                      <>{new Date(selectedIteration.startDate).toLocaleDateString()} - {new Date(selectedIteration.endDate).toLocaleDateString()}</>
-                    )}
-                  </div>
-                )}
+          {/* Only show iteration selection if no preselected iteration */}
+          {!preselectedIterationId && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Select Class Iteration
+              </label>
+              {iterationsLoading ? (
+                <div className="text-center py-4 text-gray-600">Loading iterations...</div>
+              ) : iterations.length === 0 ? (
+                <div className="text-center py-4 text-gray-600">No class iterations available for this program.</div>
+              ) : (
+                <select
+                  value={selectedIterationId || ''}
+                  onChange={(e) => {
+                    const newIterationId = e.target.value ? parseInt(e.target.value, 10) : null
+                    console.log('Iteration selection changed:', { 
+                      newIterationId, 
+                      availableIterations: iterations.map(i => ({ id: i.id, idType: typeof i.id }))
+                    })
+                    setSelectedIterationId(newIterationId)
+                  }}
+                  className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+                >
+                  <option value="">Select an iteration...</option>
+                  {iterations.map((iteration) => {
+                    const days = iteration.daysOfWeek.map(dayNum => dayNames[dayNum].slice(0, 3)).join(', ')
+                    const timeRange = `${formatTime(iteration.startTime)} - ${formatTime(iteration.endTime)}`
+                    return (
+                      <option key={iteration.id} value={iteration.id}>
+                        Iteration {iteration.iterationNumber}: {days} ({timeRange})
+                      </option>
+                    )
+                  })}
+                </select>
+              )}
+            </div>
+          )}
+          
+          {/* Always show iteration details if one is selected or preselected */}
+          {selectedIteration && (
+            <div className="mb-4 p-3 bg-gray-50 rounded border border-gray-200">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Class Iteration Details
+              </label>
+              <div className="flex items-center gap-2 text-sm text-gray-700 mb-1">
+                <Clock className="w-4 h-4" />
+                <span className="font-medium">Schedule:</span>
+                <span>{selectedIteration.daysOfWeek.map(dayNum => dayNames[dayNum]).join(', ')}</span>
               </div>
-            )}
-          </div>
+              <div className="text-sm text-gray-600">
+                Time: {formatTime(selectedIteration.startTime)} - {formatTime(selectedIteration.endTime)}
+              </div>
+              {selectedIteration.durationType !== 'indefinite' && (
+                <div className="text-xs text-gray-500 mt-1">
+                  {selectedIteration.durationType === '3_month_block' && selectedIteration.startDate && (
+                    <>3-Month Block starting {new Date(selectedIteration.startDate).toLocaleDateString()}</>
+                  )}
+                  {selectedIteration.durationType === 'finite' && selectedIteration.startDate && selectedIteration.endDate && (
+                    <>{new Date(selectedIteration.startDate).toLocaleDateString()} - {new Date(selectedIteration.endDate).toLocaleDateString()}</>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {selectedIteration && (
             <>

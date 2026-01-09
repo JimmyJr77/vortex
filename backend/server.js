@@ -6690,30 +6690,60 @@ app.post('/api/admin/login', async (req, res) => {
     }
 
     // Create JWT token for admin
-    const adminToken = jwt.sign(
-      { 
-        adminId: admin.id, 
-        role: 'ADMIN',
-        email: admin.email 
-      },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    )
+    try {
+      const adminToken = jwt.sign(
+        { 
+          adminId: admin.id, 
+          role: 'ADMIN',
+          email: admin.email 
+        },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      )
+      
+      console.log('[Admin Login] Token created successfully for admin:', admin.id, admin.email)
 
-    // Return admin info (without password) and token
-    res.json({
-      success: true,
-      admin: {
-        id: admin.id,
-        firstName: admin.first_name,
-        lastName: admin.last_name,
-        email: admin.email,
-        phone: admin.phone,
-        username: admin.username,
-        isMaster: admin.is_master
-      },
-      token: adminToken
-    })
+      // Return admin info (without password) and token
+      const responseData = {
+        success: true,
+        admin: {
+          id: admin.id,
+          firstName: admin.first_name,
+          lastName: admin.last_name,
+          email: admin.email,
+          phone: admin.phone,
+          username: admin.username,
+          isMaster: admin.is_master
+        },
+        token: adminToken
+      }
+      
+      console.log('[Admin Login] Sending response with token:', { 
+        success: responseData.success, 
+        adminId: responseData.admin.id,
+        hasToken: !!responseData.token,
+        tokenLength: responseData.token?.length 
+      })
+      
+      res.json(responseData)
+    } catch (tokenError) {
+      console.error('[Admin Login] Error creating token:', tokenError)
+      // Return response without token if token creation fails (shouldn't happen, but handle gracefully)
+      res.json({
+        success: true,
+        admin: {
+          id: admin.id,
+          firstName: admin.first_name,
+          lastName: admin.last_name,
+          email: admin.email,
+          phone: admin.phone,
+          username: admin.username,
+          isMaster: admin.is_master
+        },
+        token: null,
+        warning: 'Token generation failed - please contact administrator'
+      })
+    }
   } catch (error) {
     console.error('Admin login error:', error)
     res.status(500).json({
