@@ -6673,6 +6673,23 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
     const { programId, iterationId } = req.params
     const { daysOfWeek, startTime, endTime, durationType, startDate, endDate } = req.body
 
+    // Check if table exists first
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'class_iteration'
+      )
+    `)
+    
+    if (!tableCheck.rows[0].exists) {
+      return res.status(503).json({
+        success: false,
+        message: 'class_iteration table does not exist. Please restart the backend server or run the migration.',
+        error: 'Table missing - migration required'
+      })
+    }
+
     // Validate iteration exists and belongs to program
     const checkResult = await pool.query(
       'SELECT id FROM class_iteration WHERE id = $1 AND program_id = $2',
