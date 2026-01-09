@@ -303,8 +303,15 @@ export default function AdminEnrollments() {
         <ClassDropdown
           value={selectedProgram?.id || null}
           onChange={(_programId, program) => {
-            console.log('ClassDropdown onChange called:', { programId: _programId, program })
-            setSelectedProgram(program)
+            console.log('ClassDropdown onChange called:', { programId: _programId, program, availablePrograms: programs.map(p => ({ id: p.id, name: p.displayName })) })
+            if (!program && _programId) {
+              // Fallback: find program in our local programs array
+              const foundProgram = programs.find(p => p.id === _programId)
+              console.log('Fallback search found:', foundProgram)
+              setSelectedProgram(foundProgram || null)
+            } else {
+              setSelectedProgram(program)
+            }
           }}
           programs={programs}
           filterActiveOnly={true}
