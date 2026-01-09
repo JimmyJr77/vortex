@@ -33,6 +33,10 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
       if (response.ok && data.success) {
         // Store login state in localStorage
         localStorage.setItem('vortex_admin', 'true')
+        // Store admin token
+        if (data.token) {
+          localStorage.setItem('adminToken', data.token)
+        }
         // Store admin info for edit tracking
         const adminData = {
           email: data.admin.email,

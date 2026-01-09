@@ -78,6 +78,7 @@ export default function EnrollmentForm({
     user_id?: number | null
   }>>([])
   const [searching, setSearching] = useState(false)
+  const [selectedMemberName, setSelectedMemberName] = useState<string>('')
 
   const apiUrl = getApiUrl()
 
@@ -421,6 +422,7 @@ export default function EnrollmentForm({
                       type="button"
                       onClick={() => {
                         setSelectedFamilyMemberId(user.id)
+                        setSelectedMemberName(`${user.first_name} ${user.last_name}`)
                         setSearchQuery('')
                         setSearchResults([])
                       }}
@@ -438,24 +440,10 @@ export default function EnrollmentForm({
               {searchQuery && !searching && searchResults.length === 0 && (
                 <p className="text-xs text-gray-500 mt-1">No users found. Try a different search.</p>
               )}
-              {selectedFamilyMemberId && (
+              {selectedFamilyMemberId && selectedMemberName && (
                 <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
                   <p className="text-sm text-green-800">
-                    Selected: {searchResults.find((u: {
-                      id: number
-                      first_name: string
-                      last_name: string
-                      email?: string
-                      phone?: string
-                      user_id?: number | null
-                    }) => u.id === selectedFamilyMemberId)?.first_name} {searchResults.find((u: {
-                      id: number
-                      first_name: string
-                      last_name: string
-                      email?: string
-                      phone?: string
-                      user_id?: number | null
-                    }) => u.id === selectedFamilyMemberId)?.last_name}
+                    Selected: {selectedMemberName}
                   </p>
                 </div>
               )}

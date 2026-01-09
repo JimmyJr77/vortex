@@ -1230,7 +1230,7 @@ const setUserRoles = async (userId, roles) => {
   }
 }
 
-// Middleware to verify JWT token
+// Middleware to verify JWT token (member or admin)
 const authenticateMember = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1]
   
@@ -1241,8 +1241,9 @@ const authenticateMember = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET)
     // Support both old (memberId) and new (userId) token formats
-    req.userId = decoded.userId || decoded.memberId
+    req.userId = decoded.userId || decoded.memberId || decoded.adminId
     req.memberId = decoded.userId || decoded.memberId // For backward compatibility
+    req.isAdmin = decoded.role === 'ADMIN' || decoded.adminId !== undefined
     next()
   } catch (error) {
     return res.status(401).json({ success: false, message: 'Invalid token' })
@@ -5382,21 +5383,24 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       })
     }
 
-    // Check if user has permission (is adult or is the family member)
-    const userResult = await pool.query(`
-      SELECT u.role
-      FROM app_user u
-      WHERE u.id = $1
-    `, [userId])
+    // If admin is enrolling, skip permission check
+    let userRole = null
+    if (!req.isAdmin) {
+      // Check if user has permission (is adult or is the family member)
+      const userResult = await pool.query(`
+        SELECT u.role
+        FROM app_user u
+        WHERE u.id = $1
+      `, [userId])
 
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      })
-    }
+      if (userResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        })
+      }
 
-    const userRole = userResult.rows[0].role
+      userRole = userResult.rows[0].role
 
     // Check if user_id column exists in athlete table
     const athleteUserIdColumnCheck = await pool.query(`
@@ -5529,13 +5533,16 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     }
 
     // Check if user has permission (is PARENT_GUARDIAN or is the athlete themselves)
-    const isAthleteSelf = hasUserIdColumn && athlete.user_id && String(athlete.user_id) === String(userId)
-    const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
-    if (!hasParentRole && !isAthleteSelf) {
-      return res.status(403).json({
-        success: false,
-        message: 'You do not have permission to enroll this family member'
-      })
+    // Admins can enroll any member, so skip permission check for admins
+    if (!req.isAdmin) {
+      const isAthleteSelf = hasUserIdColumn && athlete.user_id && String(athlete.user_id) === String(userId)
+      const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
+      if (!hasParentRole && !isAthleteSelf) {
+        return res.status(403).json({
+          success: false,
+          message: 'You do not have permission to enroll this family member'
+        })
+      }
     }
 
     // Check if program exists
@@ -6665,7 +6672,18 @@ app.post('/api/admin/login', async (req, res) => {
       })
     }
 
-    // Return admin info (without password)
+    // Create JWT token for admin
+    const adminToken = jwt.sign(
+      { 
+        adminId: admin.id, 
+        role: 'ADMIN',
+        email: admin.email 
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    // Return admin info (without password) and token
     res.json({
       success: true,
       admin: {
@@ -6676,7 +6694,8 @@ app.post('/api/admin/login', async (req, res) => {
         phone: admin.phone,
         username: admin.username,
         isMaster: admin.is_master
-      }
+      },
+      token: adminToken
     })
   } catch (error) {
     console.error('Admin login error:', error)
