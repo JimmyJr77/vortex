@@ -155,15 +155,24 @@ export default function ClassDropdown({
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const programId = e.target.value ? parseInt(e.target.value, 10) : null
-    console.log('ClassDropdown handleChange:', { programId, programsCount: programs.length, programs: programs.map(p => ({ id: p.id, name: p.displayName })) })
+    console.log('ClassDropdown handleChange:', { 
+      programId, 
+      programIdType: typeof programId,
+      programsCount: programs.length, 
+      programIds: programs.map(p => ({ id: p.id, idType: typeof p.id, name: p.displayName }))
+    })
     
     // Try to find in both the local programs state and externalPrograms if provided
-    let selectedProgram = programId ? programs.find(p => p.id === programId) || null : null
+    // Use == instead of === to handle type coercion (number vs string)
+    let selectedProgram = programId ? programs.find(p => p.id == programId || p.id === programId) || null : null
     
-    // If not found in local programs and externalPrograms is provided, try there
-    if (!selectedProgram && programId && externalPrograms) {
-      selectedProgram = externalPrograms.find(p => p.id === programId) || null
-      console.log('Found in externalPrograms:', selectedProgram)
+    if (!selectedProgram && programId) {
+      console.log('Not found in local programs, checking externalPrograms...')
+      // If not found in local programs and externalPrograms is provided, try there
+      if (externalPrograms) {
+        selectedProgram = externalPrograms.find(p => p.id == programId || p.id === programId) || null
+        console.log('Found in externalPrograms:', selectedProgram)
+      }
     }
     
     console.log('Selected program:', selectedProgram)

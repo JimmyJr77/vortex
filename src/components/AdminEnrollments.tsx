@@ -303,10 +303,16 @@ export default function AdminEnrollments() {
         <ClassDropdown
           value={selectedProgram?.id || null}
           onChange={(_programId, program) => {
-            console.log('ClassDropdown onChange called:', { programId: _programId, program, availablePrograms: programs.map(p => ({ id: p.id, name: p.displayName })) })
+            console.log('ClassDropdown onChange called:', { 
+              programId: _programId, 
+              programIdType: typeof _programId,
+              program, 
+              availablePrograms: programs.map(p => ({ id: p.id, idType: typeof p.id, name: p.displayName }))
+            })
             if (!program && _programId) {
               // Fallback: find program in our local programs array
-              const foundProgram = programs.find(p => p.id === _programId)
+              // Use == instead of === to handle type coercion (number vs string)
+              const foundProgram = programs.find(p => p.id == _programId || p.id === _programId)
               console.log('Fallback search found:', foundProgram)
               setSelectedProgram(foundProgram || null)
             } else {
