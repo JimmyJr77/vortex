@@ -6496,23 +6496,16 @@ app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
   try {
     const { programId } = req.params
     
-    // Check if table exists first
-    const tableCheck = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'class_iteration'
-      )
-    `)
-    
-    if (!tableCheck.rows[0].exists) {
-      // Table doesn't exist - return empty array instead of error
-      // This allows the frontend to work while the migration is pending
-      console.warn('class_iteration table does not exist - returning empty array')
+    // Ensure table exists (create if missing)
+    try {
+      await ensureClassIterationTable()
+    } catch (error) {
+      // If table creation fails, return empty array gracefully
+      console.warn('Could not ensure class_iteration table exists:', error.message)
       return res.json({
         success: true,
         data: [],
-        warning: 'class_iteration table not found - migration may be needed'
+        warning: 'class_iteration table not available'
       })
     }
     
@@ -6557,6 +6550,45 @@ app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
   }
 })
 
+// Helper function to ensure class_iteration table exists
+const ensureClassIterationTable = async () => {
+  try {
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'class_iteration'
+      )
+    `)
+    
+    if (!tableCheck.rows[0].exists) {
+      console.log('Creating class_iteration table...')
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS class_iteration (
+          id                  BIGSERIAL PRIMARY KEY,
+          program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+          iteration_number    INTEGER NOT NULL,
+          days_of_week        INTEGER[] NOT NULL DEFAULT ARRAY[1,2,3,4,5] CHECK (array_length(days_of_week, 1) > 0),
+          start_time          TIME NOT NULL DEFAULT '18:00:00',
+          end_time            TIME NOT NULL DEFAULT '19:30:00',
+          duration_type       VARCHAR(20) NOT NULL DEFAULT 'indefinite' CHECK (duration_type IN ('indefinite', '3_month_block', 'finite')),
+          start_date          DATE,
+          end_date            DATE,
+          created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+          UNIQUE (program_id, iteration_number)
+        )
+      `)
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_program ON class_iteration(program_id)`)
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_number ON class_iteration(program_id, iteration_number)`)
+      console.log('class_iteration table created successfully')
+    }
+  } catch (error) {
+    console.error('Error ensuring class_iteration table exists:', error)
+    throw error
+  }
+}
+
 // Create a new iteration for a program
 app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
   try {
@@ -6572,22 +6604,8 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
       })
     }
 
-    // Check if table exists first
-    const tableCheck = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'class_iteration'
-      )
-    `)
-    
-    if (!tableCheck.rows[0].exists) {
-      return res.status(503).json({
-        success: false,
-        message: 'class_iteration table does not exist. Please restart the backend server or run the migration.',
-        error: 'Table missing - migration required'
-      })
-    }
+    // Ensure table exists (create if missing)
+    await ensureClassIterationTable()
 
     // Get the next iteration number
     const maxIterationResult = await pool.query(
@@ -6673,22 +6691,8 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
     const { programId, iterationId } = req.params
     const { daysOfWeek, startTime, endTime, durationType, startDate, endDate } = req.body
 
-    // Check if table exists first
-    const tableCheck = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'class_iteration'
-      )
-    `)
-    
-    if (!tableCheck.rows[0].exists) {
-      return res.status(503).json({
-        success: false,
-        message: 'class_iteration table does not exist. Please restart the backend server or run the migration.',
-        error: 'Table missing - migration required'
-      })
-    }
+    // Ensure table exists (create if missing)
+    await ensureClassIterationTable()
 
     // Validate iteration exists and belongs to program
     const checkResult = await pool.query(
@@ -6778,22 +6782,8 @@ app.delete('/api/admin/programs/:programId/iterations/:iterationId', async (req,
   try {
     const { programId, iterationId } = req.params
 
-    // Check if table exists first
-    const tableCheck = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'class_iteration'
-      )
-    `)
-    
-    if (!tableCheck.rows[0].exists) {
-      return res.status(503).json({
-        success: false,
-        message: 'class_iteration table does not exist. Please restart the backend server or run the migration.',
-        error: 'Table missing - migration required'
-      })
-    }
+    // Ensure table exists (create if missing)
+    await ensureClassIterationTable()
 
     // Validate iteration exists and belongs to program
     const checkResult = await pool.query(
