@@ -2933,7 +2933,7 @@ app.get('/api/admin/search-users', async (req, res) => {
     const searchQuery = q.trim()
     
     // Normalize phone number - strip all non-numeric characters
-    const normalizePhone = (phone: string) => phone.replace(/\D/g, '')
+    const normalizePhone = (phone) => phone.replace(/\D/g, '')
     const isPhoneNumber = /^\d+$/.test(normalizePhone(searchQuery)) && normalizePhone(searchQuery).length >= 7
     
     // If it looks like a phone number, search with normalized version
