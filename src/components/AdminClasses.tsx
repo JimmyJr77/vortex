@@ -1171,10 +1171,6 @@ export default function AdminClasses() {
                                 {programIterations.length === 0 ? (
                                   <div className="space-y-2">
                                     <p className="text-sm text-gray-500">No iterations loaded. Click "Add Iteration" to create one.</p>
-                                    <p className="text-xs text-yellow-600 bg-yellow-50 p-2 rounded">
-                                      ⚠️ If you're seeing 500 errors, the class_iteration table may not exist in production. 
-                                      Restart your backend server or run the migration script to create it.
-                                    </p>
                                   </div>
                                 ) : (
                                   <div className="space-y-3">
