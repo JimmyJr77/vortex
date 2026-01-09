@@ -27,12 +27,26 @@ interface ClassOffering {
   name?: string
 }
 
+interface ClassIteration {
+  id: number
+  programId: number
+  iterationNumber: number
+  daysOfWeek: number[]
+  startTime: string
+  endTime: string
+  durationType: string
+  startDate?: string | null
+  endDate?: string | null
+}
+
 export default function AdminEnrollments() {
   const [programs, setPrograms] = useState<Program[]>([])
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [classOfferings, setClassOfferings] = useState<ClassOffering[]>([])
+  const [classIterations, setClassIterations] = useState<ClassIteration[]>([])
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false)
+  const [iterationsLoading, setIterationsLoading] = useState(false)
   const [showEnrollModal, setShowEnrollModal] = useState(false)
   const [allFamilyMembers, setAllFamilyMembers] = useState<Array<{
     id?: number
@@ -186,10 +200,12 @@ export default function AdminEnrollments() {
   const fetchClassOfferings = async () => {
     if (!selectedProgram) {
       setClassOfferings([])
+      setClassIterations([])
       return
     }
     
     try {
+      setIterationsLoading(true)
       const response = await fetch(`${apiUrl}/api/admin/programs/${selectedProgram.id}/iterations`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`
@@ -198,20 +214,27 @@ export default function AdminEnrollments() {
       
       if (response.ok) {
         const data = await response.json()
-        if (data.success && data.data) {
-          // Convert iterations to ClassOffering format for display
+        console.log('Fetched iterations data:', data)
+        
+        if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+          // Store full iteration data
+          const iterations: ClassIteration[] = data.data.map((iteration: any) => ({
+            id: iteration.id,
+            programId: iteration.programId || iteration.program_id,
+            iterationNumber: iteration.iterationNumber || iteration.iteration_number,
+            daysOfWeek: iteration.daysOfWeek || iteration.days_of_week || [],
+            startTime: iteration.startTime || iteration.start_time,
+            endTime: iteration.endTime || iteration.end_time,
+            durationType: iteration.durationType || iteration.duration_type,
+            startDate: iteration.startDate || iteration.start_date || null,
+            endDate: iteration.endDate || iteration.end_date || null
+          }))
+          
+          setClassIterations(iterations)
+          
+          // Also convert to ClassOffering format for backward compatibility
           const offerings: ClassOffering[] = []
-          data.data.forEach((iteration: {
-            id: number
-            iterationNumber: number
-            daysOfWeek: number[]
-            startTime: string
-            endTime: string
-            durationType: string
-            startDate?: string
-            endDate?: string
-          }) => {
-            // Create a separate offering for each day
+          iterations.forEach((iteration) => {
             iteration.daysOfWeek.forEach(day => {
               offerings.push({
                 id: iteration.id,
@@ -224,14 +247,22 @@ export default function AdminEnrollments() {
           })
           setClassOfferings(offerings)
         } else {
+          console.log('No iterations found or empty data:', data)
+          setClassIterations([])
           setClassOfferings([])
         }
       } else {
+        const errorText = await response.text()
+        console.error('Failed to fetch iterations:', response.status, errorText)
+        setClassIterations([])
         setClassOfferings([])
       }
     } catch (error) {
       console.error('Error fetching class offerings:', error)
+      setClassIterations([])
       setClassOfferings([])
+    } finally {
+      setIterationsLoading(false)
     }
   }
 
@@ -327,35 +358,71 @@ export default function AdminEnrollments() {
             </div>
           </div>
 
-          {/* Class Offerings (Days and Times) */}
-          {classOfferings.length > 0 ? (
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-              <h3 className="text-xl font-display font-bold text-black mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Class Schedule
-              </h3>
-              <div className="space-y-2">
-                {classOfferings.map((offering, index) => (
-                  <div key={`${offering.id}-${offering.day_of_week}-${index}`} className="bg-gray-50 p-3 rounded border border-gray-200">
-                    <div className="font-medium">{dayNames[offering.day_of_week]}</div>
-                    <div className="text-sm text-gray-600">
-                      {offering.start_time} - {offering.end_time}
+          {/* Class Offerings (Iterations) */}
+          <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+            <h3 className="text-xl font-display font-bold text-black mb-4 flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              Class Schedule
+            </h3>
+            {iterationsLoading ? (
+              <div className="text-center py-8 text-gray-600">Loading class schedule...</div>
+            ) : classIterations.length > 0 ? (
+              <div className="space-y-4">
+                {classIterations.map((iteration) => {
+                  const days = iteration.daysOfWeek.map(day => dayNames[day]).join(', ')
+                  const startTime = iteration.startTime.substring(0, 5) // Format HH:MM:SS to HH:MM
+                  const endTime = iteration.endTime.substring(0, 5)
+                  
+                  let durationText = ''
+                  if (iteration.durationType === 'indefinite') {
+                    durationText = 'Indefinite'
+                  } else if (iteration.durationType === '3_month_block') {
+                    durationText = iteration.startDate 
+                      ? `3-Month Block starting ${new Date(iteration.startDate).toLocaleDateString()}`
+                      : '3-Month Block'
+                  } else if (iteration.durationType === 'finite') {
+                    if (iteration.startDate && iteration.endDate) {
+                      durationText = `${new Date(iteration.startDate).toLocaleDateString()} - ${new Date(iteration.endDate).toLocaleDateString()}`
+                    } else if (iteration.startDate) {
+                      durationText = `Starting ${new Date(iteration.startDate).toLocaleDateString()}`
+                    } else {
+                      durationText = 'Finite duration'
+                    }
+                  }
+                  
+                  return (
+                    <div key={iteration.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-semibold text-black">
+                          Iteration {iteration.iterationNumber}
+                        </h4>
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          {iteration.durationType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </span>
+                      </div>
+                      <div className="space-y-1 text-sm text-gray-700">
+                        <div>
+                          <span className="font-medium">Days:</span> {days}
+                        </div>
+                        <div>
+                          <span className="font-medium">Time:</span> {startTime} - {endTime}
+                        </div>
+                        {durationText && (
+                          <div>
+                            <span className="font-medium">Duration:</span> {durationText}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
-            </div>
-          ) : (
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-              <h3 className="text-xl font-display font-bold text-black mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Class Schedule
-              </h3>
+            ) : (
               <p className="text-gray-600">
                 No Class Offerings for this Class Found.
               </p>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Enrolled Members */}
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
