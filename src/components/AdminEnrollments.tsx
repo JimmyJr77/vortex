@@ -303,6 +303,7 @@ export default function AdminEnrollments() {
         <ClassDropdown
           value={selectedProgram?.id || null}
           onChange={(_programId, program) => {
+            console.log('ClassDropdown onChange called:', { programId: _programId, program })
             setSelectedProgram(program)
           }}
           programs={programs}
