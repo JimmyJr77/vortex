@@ -19,14 +19,6 @@ interface Enrollment {
   program_name: string
 }
 
-interface ClassOffering {
-  id?: number
-  day_of_week: number
-  start_time: string
-  end_time: string
-  name?: string
-}
-
 interface ClassIteration {
   id: number
   programId: number
@@ -43,7 +35,6 @@ export default function AdminEnrollments() {
   const [programs, setPrograms] = useState<Program[]>([])
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
-  const [classOfferings, setClassOfferings] = useState<ClassOffering[]>([])
   const [classIterations, setClassIterations] = useState<ClassIteration[]>([])
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false)
   const [iterationsLoading, setIterationsLoading] = useState(false)
@@ -73,7 +64,7 @@ export default function AdminEnrollments() {
       fetchClassOfferings()
     } else {
       setEnrollments([])
-      setClassOfferings([])
+      setClassIterations([])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProgram])
@@ -199,7 +190,6 @@ export default function AdminEnrollments() {
 
   const fetchClassOfferings = async () => {
     if (!selectedProgram) {
-      setClassOfferings([])
       setClassIterations([])
       return
     }
@@ -231,36 +221,18 @@ export default function AdminEnrollments() {
           }))
           
           setClassIterations(iterations)
-          
-          // Also convert to ClassOffering format for backward compatibility
-          const offerings: ClassOffering[] = []
-          iterations.forEach((iteration) => {
-            iteration.daysOfWeek.forEach(day => {
-              offerings.push({
-                id: iteration.id,
-                day_of_week: day,
-                start_time: iteration.startTime,
-                end_time: iteration.endTime,
-                name: `Iteration ${iteration.iterationNumber}`
-              })
-            })
-          })
-          setClassOfferings(offerings)
         } else {
           console.log('No iterations found or empty data:', data)
           setClassIterations([])
-          setClassOfferings([])
         }
       } else {
         const errorText = await response.text()
         console.error('Failed to fetch iterations:', response.status, errorText)
         setClassIterations([])
-        setClassOfferings([])
       }
     } catch (error) {
       console.error('Error fetching class offerings:', error)
       setClassIterations([])
-      setClassOfferings([])
     } finally {
       setIterationsLoading(false)
     }
