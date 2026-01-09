@@ -215,7 +215,8 @@ export default function EnrollmentForm({
         searchQuery = normalizePhoneNumber(searchQuery)
       }
       
-      const response = await fetch(`${apiUrl}/api/admin/search-users?q=${encodeURIComponent(searchQuery)}`, {
+      // Use new unified search-members endpoint (only returns active members for enrollment)
+      const response = await fetch(`${apiUrl}/api/admin/search-members?q=${encodeURIComponent(searchQuery)}`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`
         }

@@ -117,12 +117,53 @@ type FamilyMemberData = {
   }
 }
 
+// Unified Member interface
+interface UnifiedMember {
+  id: number
+  firstName: string
+  lastName: string
+  email?: string | null
+  phone?: string | null
+  address?: string | null
+  billingStreet?: string | null
+  billingCity?: string | null
+  billingState?: string | null
+  billingZip?: string | null
+  dateOfBirth?: string | null
+  age?: number | null
+  medicalNotes?: string | null
+  internalFlags?: string | null
+  status: string
+  isActive: boolean
+  familyIsActive?: boolean
+  familyId?: number | null
+  familyName?: string | null
+  username?: string | null
+  roles: Array<{ id: string; role: string }>
+  enrollments: Array<{
+    id: number
+    program_id: number
+    program_display_name: string
+    days_per_week: number
+    selected_days: string[] | string
+  }>
+  createdAt: string
+  updatedAt: string
+}
+
 export default function AdminMembers() {
   // State
   const [families, setFamilies] = useState<Family[]>([])
   const [familiesLoading, setFamiliesLoading] = useState(false)
   const [familySearchQuery, setFamilySearchQuery] = useState('')
   const [showArchivedFamilies, setShowArchivedFamilies] = useState(false)
+  
+  // Unified members state
+  const [members, setMembers] = useState<UnifiedMember[]>([])
+  const [membersLoading, setMembersLoading] = useState(false)
+  const [memberSearchQuery, setMemberSearchQuery] = useState('')
+  const [showArchivedMembers, setShowArchivedMembers] = useState(false)
+  const [viewMode, setViewMode] = useState<'families' | 'members'>('members') // Default to members view
   
   // Unified member/family modal state
   const [showMemberModal, setShowMemberModal] = useState(false)
@@ -250,6 +291,39 @@ export default function AdminMembers() {
   
   // Programs for enrollment
   const [programs, setPrograms] = useState<Program[]>([])
+  
+  // Fetch all members (unified endpoint)
+  const fetchMembers = useCallback(async () => {
+    try {
+      setMembersLoading(true)
+      const apiUrl = getApiUrl()
+      const params = new URLSearchParams()
+      if (memberSearchQuery) {
+        params.append('search', memberSearchQuery)
+      }
+      if (showArchivedMembers) {
+        params.append('showArchived', 'true')
+      }
+      const response = await fetch(`${apiUrl}/api/admin/members?${params.toString()}`)
+      if (!response.ok) {
+        setMembers([])
+        const errorText = await response.text().catch(() => response.statusText)
+        console.error('Error fetching members:', response.status, errorText)
+        return
+      }
+      const data = await response.json()
+      if (data.success) {
+        setMembers(data.data || [])
+      } else {
+        setMembers([])
+      }
+    } catch (error) {
+      console.error('Error fetching members:', error)
+      setMembers([])
+    } finally {
+      setMembersLoading(false)
+    }
+  }, [memberSearchQuery, showArchivedMembers])
   
   // Fetch functions
   const fetchFamilies = useCallback(async () => {
@@ -1867,10 +1941,41 @@ export default function AdminMembers() {
     }))
   }
   
+  // Archive/Unarchive member handler
+  const handleArchiveMember = async (id: number, archived: boolean) => {
+    if (!confirm(archived ? 'Are you sure you want to archive this member?' : 'Are you sure you want to unarchive this member?')) {
+      return
+    }
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/members/${id}/archive`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ archived })
+      })
+      if (response.ok) {
+        await fetchMembers()
+        if (viewMode === 'families') {
+          await fetchFamilies()
+        }
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to archive/unarchive member')
+      }
+    } catch (error) {
+      console.error('Error archiving member:', error)
+      alert('Failed to archive/unarchive member')
+    }
+  }
+  
   // Effects
   useEffect(() => {
-    fetchFamilies()
-  }, [fetchFamilies])
+    if (viewMode === 'members') {
+      fetchMembers()
+    } else {
+      fetchFamilies()
+    }
+  }, [viewMode, fetchMembers, fetchFamilies])
   
   useEffect(() => {
     if (showMemberModal && programs.length === 0) {
@@ -1929,23 +2034,60 @@ export default function AdminMembers() {
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-              Members ({families.filter(f => showArchivedFamilies ? f.archived : !f.archived).reduce((sum, f) => sum + (f.guardians?.length || 0) + (f.athletes?.length || 0), 0)})
+              {viewMode === 'members' 
+                ? `Members (${members.filter(m => showArchivedMembers ? !m.isActive : m.isActive).length})`
+                : `Members (${families.filter(f => showArchivedFamilies ? f.archived : !f.archived).reduce((sum, f) => sum + (f.guardians?.length || 0) + (f.athletes?.length || 0), 0)})`
+              }
             </h2>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              {/* View Toggle */}
+              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('members')}
+                  className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
+                    viewMode === 'members'
+                      ? 'bg-vortex-red text-white'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  All Members
+                </button>
+                <button
+                  onClick={() => setViewMode('families')}
+                  className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
+                    viewMode === 'families'
+                      ? 'bg-vortex-red text-white'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  By Family
+                </button>
+              </div>
+              
               <input
                 type="text"
                 placeholder="Search Members"
-                value={familySearchQuery}
+                value={viewMode === 'members' ? memberSearchQuery : familySearchQuery}
                 onChange={(e) => {
-                  setFamilySearchQuery(e.target.value)
-                  fetchFamilies()
+                  if (viewMode === 'members') {
+                    setMemberSearchQuery(e.target.value)
+                  } else {
+                    setFamilySearchQuery(e.target.value)
+                    fetchFamilies()
+                  }
                 }}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />
               <motion.button
-                onClick={() => setShowArchivedFamilies(!showArchivedFamilies)}
+                onClick={() => {
+                  if (viewMode === 'members') {
+                    setShowArchivedMembers(!showArchivedMembers)
+                  } else {
+                    setShowArchivedFamilies(!showArchivedFamilies)
+                  }
+                }}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                  showArchivedFamilies
+                  (viewMode === 'members' ? showArchivedMembers : showArchivedFamilies)
                     ? 'bg-gray-600 text-white hover:bg-gray-700'
                     : 'bg-gray-500 text-white hover:bg-gray-600'
                 }`}
@@ -1953,7 +2095,7 @@ export default function AdminMembers() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Archive className="w-4 h-4" />
-                <span>{showArchivedFamilies ? 'Show Active' : 'Show Archives'}</span>
+                <span>{(viewMode === 'members' ? showArchivedMembers : showArchivedFamilies) ? 'Show Active' : 'Show Archives'}</span>
               </motion.button>
               <motion.button
                 onClick={() => {
@@ -1976,10 +2118,98 @@ export default function AdminMembers() {
             </div>
           </div>
 
-          {familiesLoading ? (
-            <div className="text-center py-12 text-gray-600">Loading members...</div>
-          ) : (() => {
-            const filteredFamilies = families.filter(f => showArchivedFamilies ? f.archived : !f.archived)
+          {/* Unified Members View */}
+          {viewMode === 'members' ? (
+            membersLoading ? (
+              <div className="text-center py-12 text-gray-600">Loading members...</div>
+            ) : (() => {
+              const filteredMembers = members.filter(m => showArchivedMembers ? !m.isActive : m.isActive)
+              
+              if (filteredMembers.length === 0) {
+                return <div className="text-center py-12 text-gray-600">No {showArchivedMembers ? 'archived' : 'active'} members yet</div>
+              }
+              
+              return (
+                <div className="space-y-4">
+                  {filteredMembers.map((member) => {
+                    const hasEnrollments = member.enrollments && member.enrollments.length > 0
+                    const enrollmentStatus = hasEnrollments ? 'Athlete' : 'Non-Participant'
+                    const rolesList = member.roles?.map(r => r.role).join(', ') || 'No roles'
+                    
+                    return (
+                      <div 
+                        key={member.id}
+                        className={`bg-gray-50 rounded-lg p-4 border ${
+                          member.isActive ? 'border-gray-200' : 'border-gray-300 bg-gray-100'
+                        }`}
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <div className="text-black font-semibold text-lg">
+                                {member.firstName} {member.lastName}
+                              </div>
+                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                member.isActive 
+                                  ? 'bg-green-600 text-white' 
+                                  : 'bg-gray-500 text-white'
+                              }`}>
+                                {member.isActive ? 'Active' : 'Archived'}
+                              </span>
+                              {hasEnrollments && (
+                                <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-600 text-white">
+                                  {enrollmentStatus}
+                                </span>
+                              )}
+                            </div>
+                            {member.email && (
+                              <div className="text-gray-600 text-sm mt-1">{member.email}</div>
+                            )}
+                            {member.phone && (
+                              <div className="text-gray-600 text-sm">{member.phone}</div>
+                            )}
+                            {member.age !== null && member.age !== undefined && (
+                              <div className="text-gray-600 text-sm">Age: {member.age}</div>
+                            )}
+                            <div className="text-gray-500 text-xs mt-1">
+                              Roles: {rolesList} • Status: {member.status}
+                              {member.familyName && ` • Family: ${member.familyName}`}
+                              {member.familyId && ` (ID: ${member.familyId})`}
+                            </div>
+                            {hasEnrollments && (
+                              <div className="text-gray-500 text-xs mt-1">
+                                Enrolled in: {member.enrollments.map(e => e.program_display_name).join(', ')}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <motion.button
+                              onClick={() => handleArchiveMember(member.id, !member.isActive)}
+                              className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                                member.isActive
+                                  ? 'bg-gray-500 text-white hover:bg-gray-600'
+                                  : 'bg-green-600 text-white hover:bg-green-700'
+                              }`}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <Archive className="w-4 h-4" />
+                              <span>{member.isActive ? 'Archive' : 'Unarchive'}</span>
+                            </motion.button>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })()
+          ) : (
+            /* Families View */
+            familiesLoading ? (
+              <div className="text-center py-12 text-gray-600">Loading members...</div>
+            ) : (() => {
+              const filteredFamilies = families.filter(f => showArchivedFamilies ? f.archived : !f.archived)
             const allMembers: Array<{family: Family, member: Guardian | Athlete, type: 'guardian' | 'athlete'}> = []
             
             filteredFamilies.forEach(family => {
