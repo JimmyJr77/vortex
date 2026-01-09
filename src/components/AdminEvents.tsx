@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users } from 'lucide-react'
+import { Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 
 interface DateTimeEntry {
@@ -21,6 +21,7 @@ interface Event {
   type?: 'camp' | 'class' | 'event' | 'watch-party'
   datesAndTimes?: DateTimeEntry[]
   keyDetails?: string[]
+  images?: string[]
   address?: string
   archived?: boolean
   tagType?: 'all_classes_and_parents' | 'specific_classes' | 'specific_categories' | 'all_parents' | 'boosters' | 'volunteers'
@@ -55,6 +56,93 @@ interface AdminEventsProps {
   programs: Program[]
   categories: Category[]
   adminInfo: AdminInfo | null
+}
+
+// Image Slider Component
+const ImageSlider = ({ images }: { images: string[] }) => {
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  if (images.length === 0) return null
+
+  if (images.length === 1) {
+    return (
+      <div className="w-full">
+        <img
+          src={images[0]}
+          alt="Event"
+          className="w-full h-64 md:h-96 object-cover rounded-lg"
+        />
+      </div>
+    )
+  }
+
+  const nextImage = () => {
+    setCurrentIndex((prev) => (prev + 1) % images.length)
+  }
+
+  const prevImage = () => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+  }
+
+  return (
+    <div className="relative w-full">
+      <div className="relative overflow-hidden rounded-lg">
+        <div
+          className="flex transition-transform duration-300 ease-in-out"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {images.map((image, index) => (
+            <div key={index} className="w-full flex-shrink-0">
+              <img
+                src={image}
+                alt={`Event ${index + 1}`}
+                className="w-full h-64 md:h-96 object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Navigation buttons */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={prevImage}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={nextImage}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+            aria-label="Next image"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          
+          {/* Dots indicator */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index === currentIndex ? 'bg-white' : 'bg-white/50'
+                }`}
+                aria-label={`Go to image ${index + 1}`}
+              />
+            ))}
+          </div>
+          
+          {/* Image counter */}
+          <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-sm">
+            {currentIndex + 1} / {images.length}
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
 
 const EventsView = ({ 
@@ -341,6 +429,12 @@ const EventsView = ({
                     {event.longDescription}
                   </p>
                   
+                  {event.images && event.images.length > 0 && (
+                    <div className="mb-4">
+                      <ImageSlider images={event.images} />
+                    </div>
+                  )}
+                  
                   {event.datesAndTimes && event.datesAndTimes.length > 0 && (
                     <div className="mb-4 space-y-2">
                       <h4 className="font-bold text-black mb-2">Dates & Times:</h4>
@@ -407,6 +501,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     type: 'event',
     datesAndTimes: [],
     keyDetails: [],
+    images: [],
     address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715',
     tagType: 'all_classes_and_parents',
     tagClassIds: [],
@@ -479,7 +574,8 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                       }
                     }
                   })
-                : []
+                : [],
+              images: Array.isArray(event.images) ? event.images : []
             }
             // Validate that startDate is a valid Date
             if (isNaN(parsedEvent.startDate.getTime())) {
@@ -493,7 +589,8 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
               ...event,
               startDate: new Date(),
               endDate: undefined,
-              datesAndTimes: []
+              datesAndTimes: [],
+              images: []
             }
           }
         })
@@ -593,6 +690,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
           type: 'event',
           datesAndTimes: [],
           keyDetails: [],
+          images: [],
           address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715',
           tagType: 'all_classes_and_parents',
           tagClassIds: [],
@@ -629,6 +727,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       type: event.type || 'event',
       datesAndTimes,
       keyDetails: event.keyDetails || [],
+      images: event.images || [],
       address: event.address || 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715',
       tagType: event.tagType || 'all_classes_and_parents',
       tagClassIds: event.tagClassIds || [],
@@ -722,6 +821,118 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     const minuteStr = minute.toString().padStart(2, '0')
     
     return `${hourStr}:${minuteStr}${ampm}`
+  }
+
+  // Compress image function
+  const compressImage = (file: File, maxWidth: number = 1920, maxHeight: number = 1080, quality: number = 0.8): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          let width = img.width
+          let height = img.height
+
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width
+              width = maxWidth
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height
+              height = maxHeight
+            }
+          }
+
+          canvas.width = width
+          canvas.height = height
+
+          const ctx = canvas.getContext('2d')
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'))
+            return
+          }
+
+          ctx.drawImage(img, 0, 0, width, height)
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality)
+          resolve(compressedDataUrl)
+        }
+        img.onerror = reject
+        img.src = e.target?.result as string
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+    const newImages: string[] = []
+    const errors: string[] = []
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        errors.push(`${file.name} is not an image file`)
+        continue
+      }
+
+      // Validate file size
+      if (file.size > MAX_FILE_SIZE) {
+        errors.push(`${file.name} is too large (max 10MB). Compressing...`)
+        // Still try to compress it
+      }
+
+      try {
+        // Compress and convert to base64
+        const compressedImage = await compressImage(file)
+        newImages.push(compressedImage)
+      } catch (error) {
+        console.error(`Error processing ${file.name}:`, error)
+        errors.push(`Failed to process ${file.name}`)
+      }
+    }
+
+    if (errors.length > 0) {
+      alert(`Some images had issues:\n${errors.join('\n')}`)
+    }
+
+    if (newImages.length > 0) {
+      setEventFormData({
+        ...eventFormData,
+        images: [...(eventFormData.images || []), ...newImages]
+      })
+    }
+
+    // Reset input
+    e.target.value = ''
+  }
+
+  const removeImage = (index: number) => {
+    const updatedImages = [...(eventFormData.images || [])]
+    updatedImages.splice(index, 1)
+    setEventFormData({
+      ...eventFormData,
+      images: updatedImages
+    })
+  }
+
+  const moveImage = (fromIndex: number, toIndex: number) => {
+    const updatedImages = [...(eventFormData.images || [])]
+    const [moved] = updatedImages.splice(fromIndex, 1)
+    updatedImages.splice(toIndex, 0, moved)
+    setEventFormData({
+      ...eventFormData,
+      images: updatedImages
+    })
   }
 
   const TimeSpinner = ({ value, onChange, allowEmpty = false }: { value: string; onChange: (value: string) => void; allowEmpty?: boolean }) => {
@@ -1133,6 +1344,102 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                     onChange={(e) => setEventFormData({ ...eventFormData, address: e.target.value })}
                     className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
                   />
+                </div>
+
+                {/* Images */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Event Images</label>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-600 rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <ImageIcon className="w-8 h-8 mb-2 text-gray-400" />
+                          <p className="mb-2 text-sm text-gray-400">
+                            <span className="font-semibold">Click to upload</span> or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB (multiple images supported)</p>
+                        </div>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageUpload}
+                        />
+                      </label>
+                    </div>
+                    
+                    {/* Preview uploaded images */}
+                    {(eventFormData.images || []).length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-xs text-gray-400">Drag images to reorder. First image will be the primary display image.</p>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          {(eventFormData.images || []).map((image, index) => (
+                            <div 
+                              key={index} 
+                              className="relative group cursor-move"
+                              draggable
+                              onDragStart={(e) => {
+                                e.dataTransfer.effectAllowed = 'move'
+                                e.dataTransfer.setData('text/html', index.toString())
+                              }}
+                              onDragOver={(e) => {
+                                e.preventDefault()
+                                e.dataTransfer.dropEffect = 'move'
+                              }}
+                              onDrop={(e) => {
+                                e.preventDefault()
+                                const draggedIndex = parseInt(e.dataTransfer.getData('text/html'))
+                                if (draggedIndex !== index) {
+                                  moveImage(draggedIndex, index)
+                                }
+                              }}
+                            >
+                              <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-10">
+                                {index + 1}
+                              </div>
+                              <img
+                                src={image}
+                                alt={`Preview ${index + 1}`}
+                                className="w-full h-32 object-cover rounded-lg border border-gray-600"
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                aria-label="Remove image"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                              {index > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => moveImage(index, index - 1)}
+                                  className="absolute bottom-2 left-2 bg-blue-600 hover:bg-blue-700 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                  aria-label="Move left"
+                                  title="Move left"
+                                >
+                                  <ChevronLeft className="w-4 h-4" />
+                                </button>
+                              )}
+                              {index < (eventFormData.images || []).length - 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => moveImage(index, index + 1)}
+                                  className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                  aria-label="Move right"
+                                  title="Move right"
+                                >
+                                  <ChevronRight className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Dates & Times */}

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Calendar, Clock, MapPin, Users, Award, Trophy, Zap, CheckCircle, Search } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Award, Trophy, Zap, CheckCircle, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { getApiUrl } from '../utils/api'
 
@@ -21,6 +21,7 @@ interface Event {
   type?: 'camp' | 'class' | 'event' | 'watch-party' // Optional for icon display
   datesAndTimes?: DateTimeEntry[] // Flexible dates and times configuration
   keyDetails?: string[] // Key Details for Event Details section
+  images?: string[] // Event images
   address?: string // Address with map link capability
 }
 
@@ -331,7 +332,8 @@ const ReadBoard = () => {
                   date: new Date(dt.date)
                 }))
               : [],
-            keyDetails: Array.isArray(event.keyDetails) ? event.keyDetails : []
+            keyDetails: Array.isArray(event.keyDetails) ? event.keyDetails : [],
+            images: Array.isArray(event.images) ? event.images : []
           }))
           setAllEvents(events)
         }
@@ -426,6 +428,93 @@ const ReadBoard = () => {
       default:
         return 'bg-gray-200 text-gray-700'
     }
+  }
+
+  // Image Slider Component
+  const ImageSlider = ({ images }: { images: string[] }) => {
+    const [currentIndex, setCurrentIndex] = useState(0)
+
+    if (images.length === 0) return null
+
+    if (images.length === 1) {
+      return (
+        <div className="w-full">
+          <img
+            src={images[0]}
+            alt="Event"
+            className="w-full h-64 md:h-96 object-cover rounded-lg"
+          />
+        </div>
+      )
+    }
+
+    const nextImage = () => {
+      setCurrentIndex((prev) => (prev + 1) % images.length)
+    }
+
+    const prevImage = () => {
+      setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+    }
+
+    return (
+      <div className="relative w-full">
+        <div className="relative overflow-hidden rounded-lg">
+          <div
+            className="flex transition-transform duration-300 ease-in-out"
+            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          >
+            {images.map((image, index) => (
+              <div key={index} className="w-full flex-shrink-0">
+                <img
+                  src={image}
+                  alt={`Event ${index + 1}`}
+                  className="w-full h-64 md:h-96 object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Navigation buttons */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            
+            {/* Dots indicator */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentIndex ? 'bg-white' : 'bg-white/50'
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+            
+            {/* Image counter */}
+            <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-sm">
+              {currentIndex + 1} / {images.length}
+            </div>
+          </>
+        )}
+      </div>
+    )
   }
 
   const formatClassName = (name: string, discipline: ScheduledClass['discipline']) => {
@@ -841,6 +930,13 @@ const ReadBoard = () => {
                           <p className="text-gray-700 mb-6 leading-relaxed">
                             {event.longDescription}
                           </p>
+                          
+                          {/* Images Section */}
+                          {event.images && event.images.length > 0 && (
+                            <div className="mb-6">
+                              <ImageSlider images={event.images} />
+                            </div>
+                          )}
                           
                           {/* Dates & Times Section */}
                           {event.datesAndTimes && event.datesAndTimes.length > 0 && (

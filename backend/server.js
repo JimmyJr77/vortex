@@ -242,6 +242,11 @@ export const initDatabase = async () => {
       ALTER TABLE events ADD COLUMN IF NOT EXISTS tag_volunteers BOOLEAN DEFAULT FALSE
     `)
     
+    // Add images column if it doesn't exist (for storing base64 image data)
+    await pool.query(`
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]'::jsonb
+    `)
+    
     // Create index for archived column
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_events_archived ON events(archived)
@@ -525,6 +530,26 @@ export const initDatabase = async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_program ON class(program_id)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_day_time ON class(day_of_week, start_time)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_active ON class(is_active)`)
+
+    // Create class_iteration table for multiple iterations per program
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS class_iteration (
+        id                  BIGSERIAL PRIMARY KEY,
+        program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+        iteration_number    INTEGER NOT NULL,
+        days_of_week        INTEGER[] NOT NULL DEFAULT ARRAY[1,2,3,4,5] CHECK (array_length(days_of_week, 1) > 0),
+        start_time          TIME NOT NULL DEFAULT '18:00:00',
+        end_time            TIME NOT NULL DEFAULT '19:30:00',
+        duration_type       VARCHAR(20) NOT NULL DEFAULT 'indefinite' CHECK (duration_type IN ('indefinite', '3_month_block', 'finite')),
+        start_date          DATE,
+        end_date            DATE,
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        UNIQUE (program_id, iteration_number)
+      )
+    `)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_program ON class_iteration(program_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_number ON class_iteration(program_id, iteration_number)`)
 
     // Seed programs - Early Development
     await pool.query(`
@@ -882,6 +907,7 @@ const eventSchema = Joi.object({
     allDay: Joi.boolean().optional()
   })).optional().default([]),
   keyDetails: Joi.array().items(Joi.string()).optional().default([]),
+  images: Joi.array().items(Joi.string()).optional().default([]),
   adminEmail: Joi.string().email().optional(),
   adminName: Joi.string().optional(),
   tagType: Joi.string().valid('all_classes_and_parents', 'specific_classes', 'specific_categories', 'all_parents', 'boosters', 'volunteers').optional().default('all_classes_and_parents'),
@@ -5012,6 +5038,7 @@ app.get('/api/events', async (req, res) => {
         address,
         dates_and_times as "datesAndTimes",
         key_details as "keyDetails",
+        images,
         tag_type as "tagType",
         tag_class_ids as "tagClassIds",
         tag_category_ids as "tagCategoryIds",
@@ -5030,6 +5057,7 @@ app.get('/api/events', async (req, res) => {
       // Parse JSONB fields (PostgreSQL returns them as JSON strings)
       let datesAndTimes = []
       let keyDetails = []
+      let images = []
       
       try {
         datesAndTimes = typeof event.datesAndTimes === 'string' 
@@ -5038,6 +5066,9 @@ app.get('/api/events', async (req, res) => {
         keyDetails = typeof event.keyDetails === 'string'
           ? JSON.parse(event.keyDetails)
           : (event.keyDetails || [])
+        images = typeof event.images === 'string'
+          ? JSON.parse(event.images)
+          : (event.images || [])
       } catch (e) {
         console.error('Error parsing JSON fields:', e)
       }
@@ -5061,6 +5092,7 @@ app.get('/api/events', async (req, res) => {
             }))
           : [],
         keyDetails: Array.isArray(keyDetails) ? keyDetails : [],
+        images: Array.isArray(images) ? images : [],
         tagType: event.tagType || 'all_classes_and_parents',
         tagClassIds: event.tagClassIds || null,
         tagCategoryIds: event.tagCategoryIds || null,
@@ -5143,6 +5175,7 @@ app.get('/api/admin/events', async (req, res) => {
         address,
         dates_and_times as "datesAndTimes",
         key_details as "keyDetails",
+        images,
         tag_type as "tagType",
         tag_class_ids as "tagClassIds",
         tag_category_ids as "tagCategoryIds",
@@ -5161,6 +5194,7 @@ app.get('/api/admin/events', async (req, res) => {
       // Parse JSONB fields (PostgreSQL returns them as JSON strings)
       let datesAndTimes = []
       let keyDetails = []
+      let images = []
       
       try {
         datesAndTimes = typeof event.datesAndTimes === 'string' 
@@ -5169,6 +5203,9 @@ app.get('/api/admin/events', async (req, res) => {
         keyDetails = typeof event.keyDetails === 'string'
           ? JSON.parse(event.keyDetails)
           : (event.keyDetails || [])
+        images = typeof event.images === 'string'
+          ? JSON.parse(event.images)
+          : (event.images || [])
       } catch (e) {
         console.error('Error parsing JSON fields:', e)
       }
@@ -5195,6 +5232,7 @@ app.get('/api/admin/events', async (req, res) => {
             }))
           : [],
         keyDetails: Array.isArray(keyDetails) ? keyDetails : [],
+        images: Array.isArray(images) ? images : [],
         tagType: event.tagType || 'all_classes_and_parents',
         tagClassIds: event.tagClassIds || null,
         tagCategoryIds: event.tagCategoryIds || null,
@@ -5231,9 +5269,9 @@ app.post('/api/admin/events', async (req, res) => {
 
     const result = await pool.query(`
       INSERT INTO events 
-      (event_name, short_description, long_description, start_date, end_date, type, address, dates_and_times, key_details,
+      (event_name, short_description, long_description, start_date, end_date, type, address, dates_and_times, key_details, images,
        tag_type, tag_class_ids, tag_category_ids, tag_all_parents, tag_boosters, tag_volunteers)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       RETURNING 
         id,
         event_name as "eventName",
@@ -5245,6 +5283,7 @@ app.post('/api/admin/events', async (req, res) => {
         address,
         dates_and_times as "datesAndTimes",
         key_details as "keyDetails",
+        images,
         tag_type as "tagType",
         tag_class_ids as "tagClassIds",
         tag_category_ids as "tagCategoryIds",
@@ -5261,6 +5300,7 @@ app.post('/api/admin/events', async (req, res) => {
       value.address || null,
       JSON.stringify(value.datesAndTimes || []),
       JSON.stringify(value.keyDetails || []),
+      JSON.stringify(value.images || []),
       value.tagType || 'all_classes_and_parents',
       value.tagClassIds && value.tagClassIds.length > 0 ? value.tagClassIds : null,
       value.tagCategoryIds && value.tagCategoryIds.length > 0 ? value.tagCategoryIds : null,
@@ -5274,6 +5314,7 @@ app.post('/api/admin/events', async (req, res) => {
     // Parse JSONB fields
     let datesAndTimes = []
     let keyDetails = []
+    let images = []
     
     try {
       datesAndTimes = typeof event.datesAndTimes === 'string' 
@@ -5282,6 +5323,9 @@ app.post('/api/admin/events', async (req, res) => {
       keyDetails = typeof event.keyDetails === 'string'
         ? JSON.parse(event.keyDetails)
         : (event.keyDetails || [])
+      images = typeof event.images === 'string'
+        ? JSON.parse(event.images)
+        : (event.images || [])
     } catch (e) {
       console.error('Error parsing JSON fields:', e)
     }
@@ -5303,6 +5347,7 @@ app.post('/api/admin/events', async (req, res) => {
         }))
       : []
     event.keyDetails = Array.isArray(keyDetails) ? keyDetails : []
+    event.images = Array.isArray(images) ? images : []
 
     res.json({
       success: true,
@@ -5342,7 +5387,8 @@ app.put('/api/admin/events/:id', async (req, res) => {
         type,
         address,
         dates_and_times,
-        key_details
+        key_details,
+        images
       FROM events
       WHERE id = $1
     `, [id])
@@ -5425,6 +5471,13 @@ app.put('/api/admin/events/:id', async (req, res) => {
     if (JSON.stringify(currentKeyDetails) !== JSON.stringify(value.keyDetails || [])) {
       changes.keyDetails = { old: currentKeyDetails, new: value.keyDetails || [] }
     }
+    
+    const currentImages = typeof currentEvent.images === 'string'
+      ? JSON.parse(currentEvent.images)
+      : (currentEvent.images || [])
+    if (JSON.stringify(currentImages) !== JSON.stringify(value.images || [])) {
+      changes.images = { old: currentImages, new: value.images || [] }
+    }
 
     // Update the event
     const result = await pool.query(`
@@ -5438,14 +5491,15 @@ app.put('/api/admin/events/:id', async (req, res) => {
           address = $7, 
           dates_and_times = $8, 
           key_details = $9,
-          tag_type = $10,
-          tag_class_ids = $11,
-          tag_category_ids = $12,
-          tag_all_parents = $13,
-          tag_boosters = $14,
-          tag_volunteers = $15,
+          images = $10,
+          tag_type = $11,
+          tag_class_ids = $12,
+          tag_category_ids = $13,
+          tag_all_parents = $14,
+          tag_boosters = $15,
+          tag_volunteers = $16,
           updated_at = CURRENT_TIMESTAMP
-      WHERE id = $16
+      WHERE id = $17
       RETURNING 
         id,
         event_name as "eventName",
@@ -5457,6 +5511,7 @@ app.put('/api/admin/events/:id', async (req, res) => {
         address,
         dates_and_times as "datesAndTimes",
         key_details as "keyDetails",
+        images,
         tag_type as "tagType",
         tag_class_ids as "tagClassIds",
         tag_category_ids as "tagCategoryIds",
@@ -5473,6 +5528,7 @@ app.put('/api/admin/events/:id', async (req, res) => {
       value.address || null,
       JSON.stringify(value.datesAndTimes || []),
       JSON.stringify(value.keyDetails || []),
+      JSON.stringify(value.images || []),
       value.tagType || 'all_classes_and_parents',
       value.tagClassIds && value.tagClassIds.length > 0 ? value.tagClassIds : null,
       value.tagCategoryIds && value.tagCategoryIds.length > 0 ? value.tagCategoryIds : null,
@@ -5505,6 +5561,7 @@ app.put('/api/admin/events/:id', async (req, res) => {
     // Parse JSONB fields
     let datesAndTimes = []
     let keyDetails = []
+    let images = []
     
     try {
       datesAndTimes = typeof event.datesAndTimes === 'string' 
@@ -5513,6 +5570,9 @@ app.put('/api/admin/events/:id', async (req, res) => {
       keyDetails = typeof event.keyDetails === 'string'
         ? JSON.parse(event.keyDetails)
         : (event.keyDetails || [])
+      images = typeof event.images === 'string'
+        ? JSON.parse(event.images)
+        : (event.images || [])
     } catch (e) {
       console.error('Error parsing JSON fields:', e)
     }
@@ -5534,6 +5594,7 @@ app.put('/api/admin/events/:id', async (req, res) => {
         }))
       : []
     event.keyDetails = Array.isArray(keyDetails) ? keyDetails : []
+    event.images = Array.isArray(images) ? images : []
 
     res.json({
       success: true,
@@ -6084,6 +6145,25 @@ app.post('/api/admin/programs', async (req, res) => {
     console.log('Insert columns:', insertColumns)
 
     const result = await pool.query(insertQuery, insertValues)
+    const newProgramId = result.rows[0].id
+
+    // Automatically create iteration 1 with default values (6pm-7:30pm, Mon-Fri, indefinite)
+    try {
+      await pool.query(`
+        INSERT INTO class_iteration (
+          program_id,
+          iteration_number,
+          days_of_week,
+          start_time,
+          end_time,
+          duration_type
+        )
+        VALUES ($1, 1, ARRAY[1,2,3,4,5], '18:00:00', '19:30:00', 'indefinite')
+      `, [newProgramId])
+    } catch (iterationError) {
+      console.error('Error creating default iteration:', iterationError)
+      // Don't fail the program creation if iteration creation fails
+    }
 
     res.json({
       success: true,
@@ -6401,6 +6481,263 @@ app.delete('/api/admin/programs/:id', async (req, res) => {
     })
   } catch (error) {
     console.error('Delete program error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// ========== CLASS ITERATION ENDPOINTS ==========
+
+// Get all iterations for a program
+app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
+  try {
+    const { programId } = req.params
+    
+    const result = await pool.query(`
+      SELECT 
+        id,
+        program_id as "programId",
+        iteration_number as "iterationNumber",
+        days_of_week as "daysOfWeek",
+        start_time as "startTime",
+        end_time as "endTime",
+        duration_type as "durationType",
+        start_date as "startDate",
+        end_date as "endDate",
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+      FROM class_iteration
+      WHERE program_id = $1
+      ORDER BY iteration_number ASC
+    `, [programId])
+
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get iterations error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Create a new iteration for a program
+app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
+  try {
+    const { programId } = req.params
+    const { daysOfWeek, startTime, endTime, durationType, startDate, endDate } = req.body
+
+    // Validate program exists
+    const programCheck = await pool.query('SELECT id FROM program WHERE id = $1', [programId])
+    if (programCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Program not found'
+      })
+    }
+
+    // Get the next iteration number
+    const maxIterationResult = await pool.query(
+      'SELECT COALESCE(MAX(iteration_number), 0) as max_num FROM class_iteration WHERE program_id = $1',
+      [programId]
+    )
+    const nextIterationNumber = (maxIterationResult.rows[0].max_num || 0) + 1
+
+    // Default values
+    const defaultDaysOfWeek = daysOfWeek || [1, 2, 3, 4, 5] // Mon-Fri
+    const defaultStartTime = startTime || '18:00:00' // 6pm
+    const defaultEndTime = endTime || '19:30:00' // 7:30pm
+    const defaultDurationType = durationType || 'indefinite'
+
+    // Validate duration type specific fields
+    if (defaultDurationType === 'finite' && (!startDate || !endDate)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start date and end date are required for finite duration'
+      })
+    }
+
+    if (defaultDurationType === '3_month_block' && !startDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start date is required for 3-month block duration'
+      })
+    }
+
+    const result = await pool.query(`
+      INSERT INTO class_iteration (
+        program_id,
+        iteration_number,
+        days_of_week,
+        start_time,
+        end_time,
+        duration_type,
+        start_date,
+        end_date
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING 
+        id,
+        program_id as "programId",
+        iteration_number as "iterationNumber",
+        days_of_week as "daysOfWeek",
+        start_time as "startTime",
+        end_time as "endTime",
+        duration_type as "durationType",
+        start_date as "startDate",
+        end_date as "endDate",
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+    `, [
+      programId,
+      nextIterationNumber,
+      defaultDaysOfWeek,
+      defaultStartTime,
+      defaultEndTime,
+      defaultDurationType,
+      defaultDurationType === 'indefinite' ? null : startDate,
+      defaultDurationType === 'finite' ? endDate : null
+    ])
+
+    res.json({
+      success: true,
+      message: 'Iteration created successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Create iteration error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Update an iteration
+app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, res) => {
+  try {
+    const { programId, iterationId } = req.params
+    const { daysOfWeek, startTime, endTime, durationType, startDate, endDate } = req.body
+
+    // Validate iteration exists and belongs to program
+    const checkResult = await pool.query(
+      'SELECT id FROM class_iteration WHERE id = $1 AND program_id = $2',
+      [iterationId, programId]
+    )
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Iteration not found'
+      })
+    }
+
+    // Validate duration type specific fields
+    if (durationType === 'finite' && (!startDate || !endDate)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start date and end date are required for finite duration'
+      })
+    }
+
+    if (durationType === '3_month_block' && !startDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start date is required for 3-month block duration'
+      })
+    }
+
+    const result = await pool.query(`
+      UPDATE class_iteration
+      SET 
+        days_of_week = $1,
+        start_time = $2,
+        end_time = $3,
+        duration_type = $4,
+        start_date = $5,
+        end_date = $6,
+        updated_at = now()
+      WHERE id = $7 AND program_id = $8
+      RETURNING 
+        id,
+        program_id as "programId",
+        iteration_number as "iterationNumber",
+        days_of_week as "daysOfWeek",
+        start_time as "startTime",
+        end_time as "endTime",
+        duration_type as "durationType",
+        start_date as "startDate",
+        end_date as "endDate",
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+    `, [
+      daysOfWeek,
+      startTime,
+      endTime,
+      durationType,
+      durationType === 'indefinite' ? null : startDate,
+      durationType === 'finite' ? endDate : null,
+      iterationId,
+      programId
+    ])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Iteration not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Iteration updated successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Update iteration error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Delete an iteration
+app.delete('/api/admin/programs/:programId/iterations/:iterationId', async (req, res) => {
+  try {
+    const { programId, iterationId } = req.params
+
+    // Validate iteration exists and belongs to program
+    const checkResult = await pool.query(
+      'SELECT id FROM class_iteration WHERE id = $1 AND program_id = $2',
+      [iterationId, programId]
+    )
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Iteration not found'
+      })
+    }
+
+    await pool.query(
+      'DELETE FROM class_iteration WHERE id = $1 AND program_id = $2',
+      [iterationId, programId]
+    )
+
+    res.json({
+      success: true,
+      message: 'Iteration deleted successfully'
+    })
+  } catch (error) {
+    console.error('Delete iteration error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error',
