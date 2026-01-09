@@ -80,33 +80,6 @@ function setCorsHeaders(req, res) {
   }
 }
 
-// Handle preflight OPTIONS requests explicitly
-app.options('*', (req, res) => {
-  const origin = req.headers.origin
-  
-  // Log in both development and production for debugging
-  console.log('[CORS] OPTIONS preflight request from origin:', origin || '(no origin)')
-  
-  if (isOriginAllowed(origin)) {
-    // If origin is undefined, don't set Access-Control-Allow-Origin
-    // (browser will handle same-origin requests)
-    if (origin) {
-      res.header('Access-Control-Allow-Origin', origin)
-      console.log('[CORS] Allowed preflight request from:', origin)
-    }
-    res.header('Access-Control-Allow-Credentials', 'true')
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    res.header('Access-Control-Max-Age', '86400') // 24 hours
-    res.sendStatus(204)
-  } else {
-    console.warn(`[CORS] Blocked OPTIONS request from origin: ${origin}`)
-    console.warn(`[CORS] Allowed origins:`, allowedOrigins.filter(o => typeof o === 'string'))
-    // Still send 204 with no CORS headers to avoid exposing internal structure
-    res.sendStatus(204)
-  }
-})
-
 app.use(cors({
   origin: function (origin, callback) {
     // Log the origin for debugging (in both dev and production for troubleshooting)
@@ -130,9 +103,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   preflightContinue: false,
-  optionsSuccessStatus: 204,
-  // Explicitly set exposed headers if needed
-  exposedHeaders: []
+  optionsSuccessStatus: 204
 }))
 
 // Middleware - helmet after CORS to avoid interfering with CORS headers
