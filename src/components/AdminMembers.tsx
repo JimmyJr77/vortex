@@ -167,7 +167,6 @@ export default function AdminMembers() {
   
   // Unified member/family modal state
   const [showMemberModal, setShowMemberModal] = useState(false)
-  const [memberSearchQuery, setMemberSearchQuery] = useState('')
   const [memberSearchResults, setMemberSearchResults] = useState<Family[]>([])
   const [selectedFamilyForMember, setSelectedFamilyForMember] = useState<Family | null>(null)
   const [memberModalMode, setMemberModalMode] = useState<'search' | 'new-family' | 'existing-family'>('search')
@@ -2210,28 +2209,28 @@ export default function AdminMembers() {
               <div className="text-center py-12 text-gray-600">Loading members...</div>
             ) : (() => {
               const filteredFamilies = families.filter(f => showArchivedFamilies ? f.archived : !f.archived)
-            const allMembers: Array<{family: Family, member: Guardian | Athlete, type: 'guardian' | 'athlete'}> = []
-            
-            filteredFamilies.forEach(family => {
-              if (family.guardians) {
-                family.guardians.forEach(guardian => {
-                  allMembers.push({ family, member: guardian, type: 'guardian' })
-                })
-              }
-              if (family.athletes) {
-                family.athletes.forEach(athlete => {
-                  allMembers.push({ family, member: athlete, type: 'athlete' })
-                })
-              }
-            })
+              const allMembers: Array<{family: Family, member: Guardian | Athlete, type: 'guardian' | 'athlete'}> = []
+              
+              filteredFamilies.forEach(family => {
+                if (family.guardians) {
+                  family.guardians.forEach(guardian => {
+                    allMembers.push({ family, member: guardian, type: 'guardian' })
+                  })
+                }
+                if (family.athletes) {
+                  family.athletes.forEach(athlete => {
+                    allMembers.push({ family, member: athlete, type: 'athlete' })
+                  })
+                }
+              })
 
-            if (allMembers.length === 0) {
-              return <div className="text-center py-12 text-gray-600">No {showArchivedFamilies ? 'archived' : ''} members yet</div>
-            }
+              if (allMembers.length === 0) {
+                return <div className="text-center py-12 text-gray-600">No {showArchivedFamilies ? 'archived' : ''} members yet</div>
+              }
 
-            return (
-              <div className="space-y-4">
-                {allMembers.map(({ family, member, type }) => {
+              return (
+                <div className="space-y-4">
+                  {allMembers.map(({ family, member, type }) => {
                   const isGuardian = type === 'guardian'
                   const memberName = isGuardian 
                     ? (member as Guardian).fullName 
@@ -2361,10 +2360,11 @@ export default function AdminMembers() {
                       </div>
                     </div>
                   )
-                })}
-              </div>
-            )
-          })()}
+                  })}
+                </div>
+              )
+            })()
+          )}
         </div>
       </motion.div>
 
