@@ -146,15 +146,25 @@ export default function EnrollmentForm({
       setIsSubmitting(false)
       setSearchQuery('')
       setSearchResults([])
-    } else if (preselectedIterationId) {
-      setSelectedIterationId(preselectedIterationId)
     }
-  }, [isOpen, preselectedIterationId])
+  }, [isOpen])
+
+  // Set preselected iteration after iterations are loaded
+  useEffect(() => {
+    if (isOpen && preselectedIterationId && iterations.length > 0 && !selectedIterationId) {
+      // Find the iteration to ensure it exists
+      const found = iterations.find(iter => iter.id == preselectedIterationId || iter.id === preselectedIterationId)
+      if (found) {
+        setSelectedIterationId(preselectedIterationId)
+      }
+    }
+  }, [isOpen, preselectedIterationId, iterations, selectedIterationId])
 
   // Reset selected days and update available days when iteration changes
   useEffect(() => {
     if (selectedIterationId) {
-      const currentIteration = iterations.find(iter => iter.id === selectedIterationId)
+      // Use loose equality to handle potential type mismatches (string vs number)
+      const currentIteration = iterations.find(iter => iter.id == selectedIterationId || iter.id === selectedIterationId)
       if (currentIteration) {
         // Reset selected days when iteration changes
         setSelectedDays([])
@@ -166,12 +176,16 @@ export default function EnrollmentForm({
       } else {
         // If iteration not found yet, clear selected days
         setSelectedDays([])
+        console.warn('Selected iteration not found in iterations array:', {
+          selectedIterationId,
+          availableIterationIds: iterations.map(i => i.id)
+        })
       }
     } else {
       // If no iteration selected, clear selected days
       setSelectedDays([])
     }
-  }, [selectedIterationId, iterations])
+  }, [selectedIterationId, iterations, daysPerWeek])
   
   // Normalize phone number - strip all non-numeric characters
   const normalizePhoneNumber = (phone: string): string => {
@@ -239,7 +253,10 @@ export default function EnrollmentForm({
 
 
   const selectedIteration = useMemo(() => {
-    return iterations.find(iter => iter.id === selectedIterationId)
+    if (!selectedIterationId) return null
+    // Use loose equality to handle potential type mismatches (string vs number)
+    const found = iterations.find(iter => iter.id == selectedIterationId || iter.id === selectedIterationId)
+    return found || null
   }, [iterations, selectedIterationId])
   
   const availableDays = useMemo(() => {
@@ -473,7 +490,14 @@ export default function EnrollmentForm({
             ) : (
               <select
                 value={selectedIterationId || ''}
-                onChange={(e) => setSelectedIterationId(parseInt(e.target.value, 10))}
+                onChange={(e) => {
+                  const newIterationId = e.target.value ? parseInt(e.target.value, 10) : null
+                  console.log('Iteration selection changed:', { 
+                    newIterationId, 
+                    availableIterations: iterations.map(i => ({ id: i.id, idType: typeof i.id }))
+                  })
+                  setSelectedIterationId(newIterationId)
+                }}
                 className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
               >
                 <option value="">Select an iteration...</option>

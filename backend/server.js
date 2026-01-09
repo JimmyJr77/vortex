@@ -2983,7 +2983,8 @@ app.get('/api/admin/search-users', async (req, res) => {
             u.email,
             u.phone,
             a.user_id,
-            u.id as user_id_from_user
+            u.id as user_id_from_user,
+            COALESCE(u.full_name, '') as full_name_for_sort
           FROM app_user u
           LEFT JOIN athlete a ON a.user_id = u.id
           WHERE 
@@ -2993,7 +2994,7 @@ app.get('/api/admin/search-users', async (req, res) => {
               COALESCE(u.phone, '') ILIKE $1 
               OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(u.phone, ''), '-', ''), '(', ''), ')', ''), ' ', ''), '.', '') ILIKE $2
             )
-          ORDER BY COALESCE(u.full_name, ''), COALESCE(a.first_name, ''), COALESCE(a.last_name, '')
+          ORDER BY full_name_for_sort, first_name, last_name
           LIMIT 20
         `
       } else {
@@ -3014,7 +3015,8 @@ app.get('/api/admin/search-users', async (req, res) => {
             u.email,
             u.phone,
             NULL as user_id,
-            u.id as user_id_from_user
+            u.id as user_id_from_user,
+            COALESCE(u.full_name, '') as full_name_for_sort
           FROM app_user u
           WHERE 
             (COALESCE(u.full_name, '') ILIKE $1 OR COALESCE(u.email, '') ILIKE $1)
@@ -3022,7 +3024,7 @@ app.get('/api/admin/search-users', async (req, res) => {
               COALESCE(u.phone, '') ILIKE $1 
               OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(u.phone, ''), '-', ''), '(', ''), ')', ''), ' ', ''), '.', '') ILIKE $2
             )
-          ORDER BY COALESCE(u.full_name, '')
+          ORDER BY full_name_for_sort
           LIMIT 20
         `
       }
