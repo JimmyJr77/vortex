@@ -45,33 +45,74 @@ async function runMigration() {
     
     // Step 1: Migrate app_user to member
     console.log('📝 Step 1: Migrating app_user records to member table...')
-    const userResult = await client.query(`
-      INSERT INTO member (
-        id, facility_id, first_name, last_name, email, phone, address,
-        password_hash, username, is_active, status, created_at, updated_at
-      )
-      SELECT 
-        id,
-        facility_id,
-        SPLIT_PART(full_name, ' ', 1) as first_name,
-        SUBSTRING(full_name FROM LENGTH(SPLIT_PART(full_name, ' ', 1)) + 2) as last_name,
-        email,
-        phone,
-        address,
-        password_hash,
-        username,
-        is_active,
-        CASE 
-          WHEN is_active = FALSE THEN 'archived'
-          ELSE 'legacy'
-        END as status,
-        created_at,
-        updated_at
-      FROM app_user
-      WHERE NOT EXISTS (SELECT 1 FROM member WHERE member.id = app_user.id)
-      ON CONFLICT DO NOTHING
-      RETURNING id
+    
+    // Check if username column exists in app_user
+    const usernameCheck = await client.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'app_user' AND column_name = 'username'
     `)
+    const hasUsername = usernameCheck.rows.length > 0
+    
+    let userQuery
+    if (hasUsername) {
+      userQuery = `
+        INSERT INTO member (
+          id, facility_id, first_name, last_name, email, phone, address,
+          password_hash, username, is_active, status, created_at, updated_at
+        )
+        SELECT 
+          id,
+          facility_id,
+          SPLIT_PART(full_name, ' ', 1) as first_name,
+          SUBSTRING(full_name FROM LENGTH(SPLIT_PART(full_name, ' ', 1)) + 2) as last_name,
+          email,
+          phone,
+          address,
+          password_hash,
+          username,
+          is_active,
+          CASE 
+            WHEN is_active = FALSE THEN 'archived'
+            ELSE 'legacy'
+          END as status,
+          created_at,
+          updated_at
+        FROM app_user
+        WHERE NOT EXISTS (SELECT 1 FROM member WHERE member.id = app_user.id)
+        ON CONFLICT DO NOTHING
+        RETURNING id
+      `
+    } else {
+      userQuery = `
+        INSERT INTO member (
+          id, facility_id, first_name, last_name, email, phone, address,
+          password_hash, is_active, status, created_at, updated_at
+        )
+        SELECT 
+          id,
+          facility_id,
+          SPLIT_PART(full_name, ' ', 1) as first_name,
+          SUBSTRING(full_name FROM LENGTH(SPLIT_PART(full_name, ' ', 1)) + 2) as last_name,
+          email,
+          phone,
+          address,
+          password_hash,
+          is_active,
+          CASE 
+            WHEN is_active = FALSE THEN 'archived'
+            ELSE 'legacy'
+          END as status,
+          created_at,
+          updated_at
+        FROM app_user
+        WHERE NOT EXISTS (SELECT 1 FROM member WHERE member.id = app_user.id)
+        ON CONFLICT DO NOTHING
+        RETURNING id
+      `
+    }
+    
+    const userResult = await client.query(userQuery)
     console.log(`✅ Migrated ${userResult.rows.length} app_user records`)
     
     // Step 2: Migrate athletes without user_id (children)
@@ -135,7 +176,20 @@ async function runMigration() {
     
     // Step 4: Migrate athlete_program to member_program
     console.log('📝 Step 4: Migrating enrollments from athlete_program to member_program...')
-    const enrollmentResult = await client.query(`
+    
+    // Check if athlete_program table exists
+    const athleteProgramCheck = await client.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'athlete_program'
+      )
+    `)
+    
+    if (!athleteProgramCheck.rows[0].exists) {
+      console.log('⚠️  athlete_program table does not exist, skipping enrollment migration')
+    } else {
+      const enrollmentResult = await client.query(`
       INSERT INTO member_program (
         member_id, program_id, iteration_id, days_per_week, selected_days, created_at, updated_at
       )
@@ -178,8 +232,9 @@ async function runMigration() {
           AND COALESCE(mp.iteration_id, 0) = COALESCE(ap.iteration_id, 0)
         )
       RETURNING id
-    `)
-    console.log(`✅ Migrated ${enrollmentResult.rows.length} enrollment records`)
+      `)
+      console.log(`✅ Migrated ${enrollmentResult.rows.length} enrollment records`)
+    }
     
     // Step 5: Update family_guardian to use member_id
     console.log('📝 Step 5: Updating family_guardian to reference member table...')
@@ -222,12 +277,23 @@ async function runMigration() {
     
     // Step 8: Update user_role to reference member
     console.log('📝 Step 8: Updating user_role to reference member...')
-    await client.query(`
-      UPDATE user_role ur
-      SET member_id = ur.user_id
-      WHERE ur.user_id IS NOT NULL AND ur.member_id IS NULL
+    const userRoleCheck = await client.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'user_role'
+      )
     `)
-    console.log('✅ Updated user_role references')
+    if (userRoleCheck.rows[0].exists) {
+      await client.query(`
+        UPDATE user_role ur
+        SET member_id = ur.user_id
+        WHERE ur.user_id IS NOT NULL AND ur.member_id IS NULL
+      `)
+      console.log('✅ Updated user_role references')
+    } else {
+      console.log('⚠️  user_role table does not exist, skipping')
+    }
     
     // Step 9: Calculate family_is_active status
     console.log('📝 Step 9: Calculating family_is_active status...')
@@ -236,29 +302,42 @@ async function runMigration() {
     
     // Step 10: Create parent_guardian_authority relationships
     console.log('📝 Step 10: Creating parent_guardian_authority relationships...')
-    const authorityResult = await client.query(`
-      INSERT INTO parent_guardian_authority (
-        parent_member_id, child_member_id, has_legal_authority, relationship
+    
+    // Check if family_guardian table exists and has member_id column
+    const familyGuardianCheck = await client.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.columns 
+        WHERE table_name = 'family_guardian' AND column_name = 'member_id'
       )
-      SELECT DISTINCT
-        pg.member_id as parent_member_id,
-        m.id as child_member_id,
-        TRUE as has_legal_authority,
-        'Parent/Guardian' as relationship
-      FROM family_guardian pg
-      JOIN family f ON pg.family_id = f.id
-      JOIN member m ON m.family_id = f.id
-      WHERE pg.member_id IS NOT NULL
-        AND m.date_of_birth IS NOT NULL
-        AND EXTRACT(YEAR FROM AGE(m.date_of_birth)) < 18
-        AND NOT EXISTS (
-          SELECT 1 FROM parent_guardian_authority pga
-          WHERE pga.parent_member_id = pg.member_id
-            AND pga.child_member_id = m.id
-        )
-      RETURNING id
     `)
-    console.log(`✅ Created ${authorityResult.rows.length} parent_guardian_authority relationships`)
+    
+    if (familyGuardianCheck.rows[0].exists) {
+      const authorityResult = await client.query(`
+        INSERT INTO parent_guardian_authority (
+          parent_member_id, child_member_id, has_legal_authority, relationship
+        )
+        SELECT DISTINCT
+          pg.member_id as parent_member_id,
+          m.id as child_member_id,
+          TRUE as has_legal_authority,
+          'Parent/Guardian' as relationship
+        FROM family_guardian pg
+        JOIN family f ON pg.family_id = f.id
+        JOIN member m ON m.family_id = f.id
+        WHERE pg.member_id IS NOT NULL
+          AND m.date_of_birth IS NOT NULL
+          AND EXTRACT(YEAR FROM AGE(m.date_of_birth)) < 18
+          AND NOT EXISTS (
+            SELECT 1 FROM parent_guardian_authority pga
+            WHERE pga.parent_member_id = pg.member_id
+              AND pga.child_member_id = m.id
+          )
+        RETURNING id
+      `)
+      console.log(`✅ Created ${authorityResult.rows.length} parent_guardian_authority relationships`)
+    } else {
+      console.log('⚠️  family_guardian.member_id column does not exist, skipping parent_guardian_authority creation')
+    }
     
     await client.query('COMMIT')
     console.log('✅ Migration completed successfully!')

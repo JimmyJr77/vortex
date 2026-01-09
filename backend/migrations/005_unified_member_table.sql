@@ -39,10 +39,7 @@ CREATE TABLE IF NOT EXISTS member (
   
   -- Metadata
   created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-  
-  -- Constraints
-  UNIQUE (facility_id, email) WHERE email IS NOT NULL
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Create indexes
@@ -53,6 +50,11 @@ CREATE INDEX IF NOT EXISTS idx_member_status ON member(status);
 CREATE INDEX IF NOT EXISTS idx_member_active ON member(is_active);
 CREATE INDEX IF NOT EXISTS idx_member_family_active ON member(family_is_active);
 CREATE INDEX IF NOT EXISTS idx_member_name ON member(last_name, first_name);
+
+-- Create unique constraint for email (only when email is not null)
+CREATE UNIQUE INDEX IF NOT EXISTS member_facility_email_unique 
+ON member(facility_id, email) 
+WHERE email IS NOT NULL;
 
 -- Step 2: Create parent_guardian_authority table for legal authority
 CREATE TABLE IF NOT EXISTS parent_guardian_authority (
@@ -75,41 +77,83 @@ CREATE INDEX IF NOT EXISTS idx_parent_guardian_legal ON parent_guardian_authorit
 
 -- Step 3: Migrate data from app_user to member
 -- First, insert all app_user records as members
-INSERT INTO member (
-  id,
-  facility_id,
-  first_name,
-  last_name,
-  email,
-  phone,
-  address,
-  password_hash,
-  username,
-  is_active,
-  status,
-  created_at,
-  updated_at
-)
-SELECT 
-  id,
-  facility_id,
-  -- Split full_name into first_name and last_name
-  SPLIT_PART(full_name, ' ', 1) as first_name,
-  SUBSTRING(full_name FROM LENGTH(SPLIT_PART(full_name, ' ', 1)) + 2) as last_name,
-  email,
-  phone,
-  address,
-  password_hash,
-  username,
-  is_active,
-  CASE 
-    WHEN is_active = FALSE THEN 'archived'
-    ELSE 'legacy'
-  END as status,
-  created_at,
-  updated_at
-FROM app_user
-ON CONFLICT DO NOTHING;
+-- Check if username column exists in app_user
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'app_user' AND column_name = 'username') THEN
+    INSERT INTO member (
+      id,
+      facility_id,
+      first_name,
+      last_name,
+      email,
+      phone,
+      address,
+      password_hash,
+      username,
+      is_active,
+      status,
+      created_at,
+      updated_at
+    )
+    SELECT 
+      id,
+      facility_id,
+      -- Split full_name into first_name and last_name
+      SPLIT_PART(full_name, ' ', 1) as first_name,
+      SUBSTRING(full_name FROM LENGTH(SPLIT_PART(full_name, ' ', 1)) + 2) as last_name,
+      email,
+      phone,
+      address,
+      password_hash,
+      username,
+      is_active,
+      CASE 
+        WHEN is_active = FALSE THEN 'archived'
+        ELSE 'legacy'
+      END as status,
+      created_at,
+      updated_at
+    FROM app_user
+    WHERE NOT EXISTS (SELECT 1 FROM member WHERE member.id = app_user.id)
+    ON CONFLICT DO NOTHING;
+  ELSE
+    INSERT INTO member (
+      id,
+      facility_id,
+      first_name,
+      last_name,
+      email,
+      phone,
+      address,
+      password_hash,
+      is_active,
+      status,
+      created_at,
+      updated_at
+    )
+    SELECT 
+      id,
+      facility_id,
+      -- Split full_name into first_name and last_name
+      SPLIT_PART(full_name, ' ', 1) as first_name,
+      SUBSTRING(full_name FROM LENGTH(SPLIT_PART(full_name, ' ', 1)) + 2) as last_name,
+      email,
+      phone,
+      address,
+      password_hash,
+      is_active,
+      CASE 
+        WHEN is_active = FALSE THEN 'archived'
+        ELSE 'legacy'
+      END as status,
+      created_at,
+      updated_at
+    FROM app_user
+    WHERE NOT EXISTS (SELECT 1 FROM member WHERE member.id = app_user.id)
+    ON CONFLICT DO NOTHING;
+  END IF;
+END $$;
 
 -- Step 4: Migrate data from athlete to member
 -- For athletes that don't have a corresponding app_user record
@@ -170,13 +214,26 @@ CREATE TABLE IF NOT EXISTS member_program (
   id                  BIGSERIAL PRIMARY KEY,
   member_id           BIGINT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
   program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
-  iteration_id        BIGINT REFERENCES class_iteration(id) ON DELETE CASCADE,
+  iteration_id        BIGINT,
   days_per_week       INTEGER NOT NULL,
   selected_days       JSONB,
   created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (member_id, program_id, iteration_id)
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Add foreign key for iteration_id if class_iteration table exists
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'class_iteration') THEN
+    ALTER TABLE member_program 
+    ADD CONSTRAINT member_program_iteration_fk 
+    FOREIGN KEY (iteration_id) REFERENCES class_iteration(id) ON DELETE CASCADE;
+  END IF;
+END $$;
+
+-- Create unique constraint (handle NULL iteration_id)
+CREATE UNIQUE INDEX IF NOT EXISTS member_program_unique 
+ON member_program(member_id, program_id, COALESCE(iteration_id, 0));
 
 CREATE INDEX IF NOT EXISTS idx_member_program_member ON member_program(member_id);
 CREATE INDEX IF NOT EXISTS idx_member_program_program ON member_program(program_id);
@@ -254,12 +311,17 @@ SET member_id = (
 )
 WHERE ec.athlete_id IS NOT NULL;
 
--- Step 11: Update user_role to reference member
-ALTER TABLE user_role ADD COLUMN IF NOT EXISTS member_id BIGINT REFERENCES member(id) ON DELETE CASCADE;
-
-UPDATE user_role ur
-SET member_id = ur.user_id
-WHERE ur.user_id IS NOT NULL;
+-- Step 11: Update user_role to reference member (only if table exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_role') THEN
+    ALTER TABLE user_role ADD COLUMN IF NOT EXISTS member_id BIGINT REFERENCES member(id) ON DELETE CASCADE;
+    
+    UPDATE user_role ur
+    SET member_id = ur.user_id
+    WHERE ur.user_id IS NOT NULL AND ur.member_id IS NULL;
+  END IF;
+END $$;
 
 -- Step 12: Function to update family_is_active status
 CREATE OR REPLACE FUNCTION update_family_active_status()
@@ -281,6 +343,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger to update family_is_active when member is updated
+DROP TRIGGER IF EXISTS trigger_update_family_active ON member;
 CREATE TRIGGER trigger_update_family_active
 AFTER UPDATE OF is_active, family_is_active ON member
 FOR EACH ROW
