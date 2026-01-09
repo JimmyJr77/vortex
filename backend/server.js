@@ -4480,12 +4480,12 @@ app.post('/api/members/family/:id/mark-for-removal', authenticateMember, async (
 app.post('/api/members/enroll', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
-    const { programId, familyMemberId, daysPerWeek, selectedDays } = req.body
+    const { programId, familyMemberId, iterationId, daysPerWeek, selectedDays } = req.body
 
-    if (!programId || !familyMemberId || !daysPerWeek) {
+    if (!programId || !familyMemberId || !iterationId || !daysPerWeek) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields: programId, familyMemberId, daysPerWeek'
+        message: 'Missing required fields: programId, familyMemberId, iterationId, daysPerWeek'
       })
     }
 
@@ -4500,6 +4500,37 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       return res.status(400).json({
         success: false,
         message: `Number of selected days (${selectedDays.length}) must match days per week (${daysPerWeek})`
+      })
+    }
+    
+    // Validate that iteration belongs to program
+    const iterationCheck = await pool.query(`
+      SELECT id, program_id, days_of_week, start_time, end_time
+      FROM class_iteration
+      WHERE id = $1 AND program_id = $2
+    `, [iterationId, programId])
+    
+    if (iterationCheck.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid iteration for this program'
+      })
+    }
+    
+    const iteration = iterationCheck.rows[0]
+    const iterationDays = iteration.days_of_week || []
+    
+    // Validate that selected days are within iteration's available days
+    const dayNameToNumber: Record<string, number> = {
+      'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 0
+    }
+    const selectedDayNumbers = selectedDays.map((day: string) => dayNameToNumber[day]).filter((num: number) => num !== undefined)
+    
+    const invalidDays = selectedDayNumbers.filter((dayNum: number) => !iterationDays.includes(dayNum))
+    if (invalidDays.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Selected days must be within the iteration's available days: ${iterationDays.map((d: number) => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d]).join(', ')}`
       })
     }
 
@@ -4723,11 +4754,12 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
             id                  BIGSERIAL PRIMARY KEY,
             athlete_id          BIGINT NOT NULL REFERENCES athlete(id) ON DELETE CASCADE,
             program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+            iteration_id        BIGINT REFERENCES class_iteration(id) ON DELETE CASCADE,
             days_per_week       INTEGER NOT NULL,
             selected_days       JSONB,
             created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
             updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-            UNIQUE (athlete_id, program_id)
+            UNIQUE (athlete_id, program_id, iteration_id)
           )
         `)
         
@@ -4738,6 +4770,33 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
         await pool.query(`
           CREATE INDEX IF NOT EXISTS idx_athlete_program_program ON athlete_program(program_id)
         `)
+        await pool.query(`
+          CREATE INDEX IF NOT EXISTS idx_athlete_program_iteration ON athlete_program(iteration_id)
+        `)
+      }
+      
+      // Check if iteration_id column exists, add it if not
+      const iterationColumnCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'athlete_program' AND column_name = 'iteration_id'
+      `)
+      
+      if (iterationColumnCheck.rows.length === 0) {
+        await pool.query(`
+          ALTER TABLE athlete_program 
+          ADD COLUMN iteration_id BIGINT REFERENCES class_iteration(id) ON DELETE CASCADE
+        `)
+        await pool.query(`
+          CREATE INDEX IF NOT EXISTS idx_athlete_program_iteration ON athlete_program(iteration_id)
+        `)
+        // Update unique constraint to include iteration_id
+        try {
+          await pool.query(`ALTER TABLE athlete_program DROP CONSTRAINT IF EXISTS athlete_program_athlete_id_program_id_key`)
+          await pool.query(`ALTER TABLE athlete_program ADD CONSTRAINT athlete_program_athlete_id_program_id_iteration_id_key UNIQUE (athlete_id, program_id, iteration_id)`)
+        } catch (constraintError) {
+          console.log('Constraint update may have failed (might not exist):', constraintError.message)
+        }
       }
       
       // Check if selected_days column exists
@@ -4752,19 +4811,19 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       
       if (hasSelectedDaysColumn) {
         await pool.query(`
-          INSERT INTO athlete_program (athlete_id, program_id, days_per_week, selected_days, created_at, updated_at)
-          VALUES ($1, $2, $3, $4::jsonb, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-          ON CONFLICT (athlete_id, program_id) DO UPDATE
-          SET days_per_week = $3, selected_days = $4::jsonb, updated_at = CURRENT_TIMESTAMP
-        `, [athlete.id, programId, daysPerWeek, selectedDaysJson])
+          INSERT INTO athlete_program (athlete_id, program_id, iteration_id, days_per_week, selected_days, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, $5::jsonb, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+          ON CONFLICT (athlete_id, program_id, iteration_id) DO UPDATE
+          SET days_per_week = $4, selected_days = $5::jsonb, updated_at = CURRENT_TIMESTAMP
+        `, [athlete.id, programId, iterationId, daysPerWeek, selectedDaysJson])
       } else {
         // If selected_days column doesn't exist, try without it first, then add column
         await pool.query(`
-          INSERT INTO athlete_program (athlete_id, program_id, days_per_week, created_at, updated_at)
-          VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-          ON CONFLICT (athlete_id, program_id) DO UPDATE
-          SET days_per_week = $3, updated_at = CURRENT_TIMESTAMP
-        `, [athlete.id, programId, daysPerWeek])
+          INSERT INTO athlete_program (athlete_id, program_id, iteration_id, days_per_week, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+          ON CONFLICT (athlete_id, program_id, iteration_id) DO UPDATE
+          SET days_per_week = $4, updated_at = CURRENT_TIMESTAMP
+        `, [athlete.id, programId, iterationId, daysPerWeek])
         
         // Try to add the column
         try {

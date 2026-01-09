@@ -10,6 +10,7 @@ interface Enrollment {
   id: number
   athlete_id: number
   program_id: number
+  iteration_id?: number | null
   days_per_week: number
   selected_days: string[] | string
   athlete_user_id: number
@@ -256,6 +257,7 @@ export default function AdminEnrollments() {
   const handleEnroll = async (enrollmentData: {
     programId: number
     familyMemberId: number
+    iterationId: number
     daysPerWeek: number
     selectedDays: string[]
   }) => {
@@ -431,7 +433,7 @@ export default function AdminEnrollments() {
             )}
           </div>
 
-          {/* Enrolled Members */}
+          {/* Enrolled Members - Grouped by Iteration */}
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-display font-bold text-black flex items-center gap-2">
@@ -452,36 +454,103 @@ export default function AdminEnrollments() {
             ) : enrollments.length === 0 ? (
               <div className="text-center py-8 text-gray-500">No members enrolled in this class yet.</div>
             ) : (
-              <div className="space-y-3">
-                {enrollments.map((enrollment) => {
-                  const selectedDaysArray = Array.isArray(enrollment.selected_days) 
-                    ? enrollment.selected_days 
-                    : (typeof enrollment.selected_days === 'string' 
-                        ? JSON.parse(enrollment.selected_days || '[]') 
-                        : [])
+              <div className="space-y-6">
+                {classIterations.map((iteration) => {
+                  const iterationEnrollments = enrollments.filter(e => 
+                    (e.iteration_id === iteration.id) || (!e.iteration_id && iteration.iterationNumber === 1)
+                  )
+                  
+                  if (iterationEnrollments.length === 0) return null
+                  
+                  const days = iteration.daysOfWeek.map(dayNum => dayNames[dayNum]).join(', ')
+                  const startTime = iteration.startTime.substring(0, 5)
+                  const endTime = iteration.endTime.substring(0, 5)
                   
                   return (
-                    <div key={enrollment.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="text-lg font-semibold text-black mb-2">
-                            {enrollment.athlete_first_name} {enrollment.athlete_last_name}
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
-                            <div>
-                              <span className="font-medium">Days Per Week:</span> {enrollment.days_per_week}
-                            </div>
-                            {selectedDaysArray.length > 0 && (
-                              <div>
-                                <span className="font-medium">Selected Days:</span> {selectedDaysArray.join(', ')}
-                              </div>
-                            )}
-                          </div>
+                    <div key={iteration.id} className="border border-gray-300 rounded-lg p-4">
+                      <div className="mb-3 pb-2 border-b border-gray-200">
+                        <h4 className="text-lg font-semibold text-black">
+                          Iteration {iteration.iterationNumber}
+                        </h4>
+                        <div className="text-sm text-gray-600 mt-1">
+                          <span className="font-medium">Days:</span> {days} | <span className="font-medium">Time:</span> {startTime} - {endTime}
                         </div>
+                      </div>
+                      <div className="space-y-2">
+                        {iterationEnrollments.map((enrollment) => {
+                          const selectedDaysArray = Array.isArray(enrollment.selected_days) 
+                            ? enrollment.selected_days 
+                            : (typeof enrollment.selected_days === 'string' 
+                                ? JSON.parse(enrollment.selected_days || '[]') 
+                                : [])
+                          
+                          return (
+                            <div key={enrollment.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h5 className="font-semibold text-black mb-1">
+                                    {enrollment.athlete_first_name} {enrollment.athlete_last_name}
+                                  </h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
+                                    <div>
+                                      <span className="font-medium">Days Per Week:</span> {enrollment.days_per_week}
+                                    </div>
+                                    {selectedDaysArray.length > 0 && (
+                                      <div>
+                                        <span className="font-medium">Selected Days:</span> {selectedDaysArray.join(', ')}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   )
                 })}
+                {/* Show enrollments without iteration_id (legacy data) */}
+                {enrollments.filter(e => !e.iteration_id && !classIterations.some(iter => iter.iterationNumber === 1 && e.program_id === iter.programId)).length > 0 && (
+                  <div className="border border-gray-300 rounded-lg p-4">
+                    <div className="mb-3 pb-2 border-b border-gray-200">
+                      <h4 className="text-lg font-semibold text-black">
+                        Legacy Enrollments (No Iteration)
+                      </h4>
+                    </div>
+                    <div className="space-y-2">
+                      {enrollments.filter(e => !e.iteration_id && !classIterations.some(iter => iter.iterationNumber === 1 && e.program_id === iter.programId)).map((enrollment) => {
+                        const selectedDaysArray = Array.isArray(enrollment.selected_days) 
+                          ? enrollment.selected_days 
+                          : (typeof enrollment.selected_days === 'string' 
+                              ? JSON.parse(enrollment.selected_days || '[]') 
+                              : [])
+                        
+                        return (
+                          <div key={enrollment.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h5 className="font-semibold text-black mb-1">
+                                  {enrollment.athlete_first_name} {enrollment.athlete_last_name}
+                                </h5>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
+                                  <div>
+                                    <span className="font-medium">Days Per Week:</span> {enrollment.days_per_week}
+                                  </div>
+                                  {selectedDaysArray.length > 0 && (
+                                    <div>
+                                      <span className="font-medium">Selected Days:</span> {selectedDaysArray.join(', ')}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
