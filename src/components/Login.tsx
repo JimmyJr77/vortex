@@ -30,23 +30,25 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
 
       const data = await response.json()
       
-      console.log('[Login] Response data:', { 
-        success: data.success, 
-        hasToken: !!data.token, 
-        hasAdmin: !!data.admin,
-        tokenLength: data.token?.length 
-      })
+      // Log the full response to see what we're actually receiving
+      console.log('[Login] Full response data:', data)
+      console.log('[Login] Response keys:', Object.keys(data))
+      console.log('[Login] Has token field?', 'token' in data)
+      console.log('[Login] Token value:', data.token)
+      console.log('[Login] Response status:', response.status, response.ok)
 
       if (response.ok && data.success) {
         // Store login state in localStorage
         localStorage.setItem('vortex_admin', 'true')
-        // Store admin token
-        if (data.token) {
-          localStorage.setItem('adminToken', data.token)
-          console.log('[Login] Admin token stored successfully, length:', data.token.length)
+        // Store admin token - check both 'token' and 'adminToken' field names
+        const tokenValue = data.token || data.adminToken
+        if (tokenValue) {
+          localStorage.setItem('adminToken', tokenValue)
+          console.log('[Login] Admin token stored successfully, length:', tokenValue.length)
         } else {
           console.error('[Login] No token received from server! Response data:', data)
           console.warn('[Login] No token received from server - authentication may fail for some operations')
+          // Try to continue anyway - maybe token generation failed but login succeeded
         }
         // Store admin info for edit tracking
         const adminData = {

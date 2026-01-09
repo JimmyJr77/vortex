@@ -84,9 +84,10 @@ export default function AdminEnrollments() {
 
   const fetchPrograms = async () => {
     try {
+      const token = localStorage.getItem('adminToken')
       const response = await fetch(`${apiUrl}/api/admin/programs?archived=false`, {
         headers: {
-          'Authorization': `Bearer ${adminToken}`
+          'Authorization': `Bearer ${token}`
         }
       })
       
@@ -102,10 +103,11 @@ export default function AdminEnrollments() {
 
   const fetchAllFamilies = async () => {
     try {
+      const token = localStorage.getItem('adminToken')
       // Fetch all athletes directly - they include all the data we need for enrollment
       const athletesResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
         headers: {
-          'Authorization': `Bearer ${adminToken}`
+          'Authorization': `Bearer ${token}`
         }
       })
       
@@ -147,11 +149,12 @@ export default function AdminEnrollments() {
   const fetchEnrollmentsForProgram = async (programId: number) => {
     try {
       setEnrollmentsLoading(true)
+      const token = localStorage.getItem('adminToken')
       // For now, we'll need to fetch all enrollments and filter
       // TODO: Create backend endpoint to get enrollments by program
       const response = await fetch(`${apiUrl}/api/admin/athletes`, {
         headers: {
-          'Authorization': `Bearer ${adminToken}`
+          'Authorization': `Bearer ${token}`
         }
       })
       
@@ -165,7 +168,7 @@ export default function AdminEnrollments() {
           try {
             const enrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${athlete.id}/enrollments`, {
               headers: {
-                'Authorization': `Bearer ${adminToken}`
+                'Authorization': `Bearer ${token}`
               }
             })
             if (enrollmentsResponse.ok) {
