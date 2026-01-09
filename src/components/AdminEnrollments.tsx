@@ -196,19 +196,29 @@ export default function AdminEnrollments() {
     
     try {
       setIterationsLoading(true)
+      console.log('Fetching iterations for program:', selectedProgram.id)
+      
+      const headers: Record<string, string> = {}
+      if (adminToken) {
+        headers['Authorization'] = `Bearer ${adminToken}`
+      }
+      
       const response = await fetch(`${apiUrl}/api/admin/programs/${selectedProgram.id}/iterations`, {
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        }
+        headers
       })
+      
+      console.log('Iterations response status:', response.status, response.ok)
       
       if (response.ok) {
         const data = await response.json()
         console.log('Fetched iterations data:', data)
         
-        if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+        if (data.success) {
+          const fetchedIterations = data.data || []
+          console.log('Fetched iterations array:', fetchedIterations)
+          
           // Store full iteration data
-          const iterations: ClassIteration[] = data.data.map((iteration: any) => ({
+          const iterations: ClassIteration[] = fetchedIterations.map((iteration: any) => ({
             id: iteration.id,
             programId: iteration.programId || iteration.program_id,
             iterationNumber: iteration.iterationNumber || iteration.iteration_number,
@@ -220,14 +230,22 @@ export default function AdminEnrollments() {
             endDate: iteration.endDate || iteration.end_date || null
           }))
           
+          console.log('Processed iterations:', iterations)
           setClassIterations(iterations)
         } else {
-          console.log('No iterations found or empty data:', data)
+          console.log('API returned success: false:', data)
           setClassIterations([])
         }
       } else {
-        const errorText = await response.text()
-        console.error('Failed to fetch iterations:', response.status, errorText)
+        // If we get a 500 error, it might mean the table doesn't exist yet
+        // But iterations might still exist, so try to parse the response
+        try {
+          const errorData = await response.json()
+          console.error('Failed to fetch iterations:', response.status, errorData)
+        } catch {
+          const errorText = await response.text()
+          console.error('Failed to fetch iterations (non-JSON):', response.status, errorText)
+        }
         setClassIterations([])
       }
     } catch (error) {
