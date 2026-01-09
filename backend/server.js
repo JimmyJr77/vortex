@@ -2941,26 +2941,98 @@ app.get('/api/admin/search-users', async (req, res) => {
     const nameSearchTerm = `%${searchQuery}%`
     const phoneSearchTermPattern = `%${phoneSearchTerm}%`
     
+    // Check if user_id column exists in athlete table
+    let hasUserIdColumn = false
+    try {
+      const columnCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'athlete' AND column_name = 'user_id'
+      `)
+      hasUserIdColumn = columnCheck.rows.length > 0
+    } catch (checkError) {
+      console.log('Could not check for user_id column in athlete table:', checkError.message)
+      // Continue without user_id column check
+    }
+    
     // Search in athletes (via user_id) and app_user
     // For phone numbers, also search normalized version
-    const result = await pool.query(`
-      SELECT DISTINCT
-        COALESCE(a.id, u.id) as id,
-        COALESCE(a.first_name, SPLIT_PART(u.full_name, ' ', 1)) as first_name,
-        COALESCE(a.last_name, SPLIT_PART(u.full_name, ' ', 2)) as last_name,
-        u.email,
-        u.phone,
-        a.user_id,
-        u.id as user_id_from_user
-      FROM app_user u
-      LEFT JOIN athlete a ON a.user_id = u.id
-      WHERE 
-        (u.full_name ILIKE $1 OR u.email ILIKE $1)
-        OR (a.first_name ILIKE $1 OR a.last_name ILIKE $1)
-        OR (u.phone ILIKE $1 OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(u.phone, '-', ''), '(', ''), ')', ''), ' ', ''), '.', '') ILIKE $2)
-      ORDER BY u.full_name, a.first_name, a.last_name
-      LIMIT 20
-    `, [nameSearchTerm, phoneSearchTermPattern])
+    let result
+    try {
+      let query
+      if (hasUserIdColumn) {
+        query = `
+          SELECT DISTINCT
+            COALESCE(a.id, u.id) as id,
+            COALESCE(
+              a.first_name, 
+              CASE 
+                WHEN u.full_name IS NOT NULL AND u.full_name != '' 
+                THEN TRIM(SPLIT_PART(u.full_name, ' ', 1))
+                ELSE NULL 
+              END
+            ) as first_name,
+            COALESCE(
+              a.last_name, 
+              CASE 
+                WHEN u.full_name IS NOT NULL AND u.full_name != '' 
+                THEN TRIM(SPLIT_PART(u.full_name, ' ', 2))
+                ELSE NULL 
+              END
+            ) as last_name,
+            u.email,
+            u.phone,
+            a.user_id,
+            u.id as user_id_from_user
+          FROM app_user u
+          LEFT JOIN athlete a ON a.user_id = u.id
+          WHERE 
+            (COALESCE(u.full_name, '') ILIKE $1 OR COALESCE(u.email, '') ILIKE $1)
+            OR (COALESCE(a.first_name, '') ILIKE $1 OR COALESCE(a.last_name, '') ILIKE $1)
+            OR (
+              COALESCE(u.phone, '') ILIKE $1 
+              OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(u.phone, ''), '-', ''), '(', ''), ')', ''), ' ', ''), '.', '') ILIKE $2
+            )
+          ORDER BY COALESCE(u.full_name, ''), COALESCE(a.first_name, ''), COALESCE(a.last_name, '')
+          LIMIT 20
+        `
+      } else {
+        // Fallback query without athlete join if user_id column doesn't exist
+        query = `
+          SELECT DISTINCT
+            u.id as id,
+            CASE 
+              WHEN u.full_name IS NOT NULL AND u.full_name != '' 
+              THEN TRIM(SPLIT_PART(u.full_name, ' ', 1))
+              ELSE NULL 
+            END as first_name,
+            CASE 
+              WHEN u.full_name IS NOT NULL AND u.full_name != '' 
+              THEN TRIM(SPLIT_PART(u.full_name, ' ', 2))
+              ELSE NULL 
+            END as last_name,
+            u.email,
+            u.phone,
+            NULL as user_id,
+            u.id as user_id_from_user
+          FROM app_user u
+          WHERE 
+            (COALESCE(u.full_name, '') ILIKE $1 OR COALESCE(u.email, '') ILIKE $1)
+            OR (
+              COALESCE(u.phone, '') ILIKE $1 
+              OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(u.phone, ''), '-', ''), '(', ''), ')', ''), ' ', ''), '.', '') ILIKE $2
+            )
+          ORDER BY COALESCE(u.full_name, '')
+          LIMIT 20
+        `
+      }
+      
+      result = await pool.query(query, [nameSearchTerm, phoneSearchTermPattern])
+    } catch (queryError) {
+      console.error('Search users query error:', queryError)
+      console.error('Query params:', { nameSearchTerm, phoneSearchTermPattern })
+      throw queryError
+    }
     
     const users = result.rows.map(row => ({
       id: row.user_id_from_user || row.user_id || row.id,

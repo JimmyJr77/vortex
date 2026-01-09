@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { X, ChevronDown, ChevronUp, Clock } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
@@ -153,18 +153,25 @@ export default function EnrollmentForm({
 
   // Reset selected days and update available days when iteration changes
   useEffect(() => {
-    setSelectedDays([])
-    // Update days per week max to match available days when iteration changes
     if (selectedIterationId) {
       const currentIteration = iterations.find(iter => iter.id === selectedIterationId)
       if (currentIteration) {
+        // Reset selected days when iteration changes
+        setSelectedDays([])
+        // Update days per week max to match available days when iteration changes
         const maxDays = currentIteration.daysOfWeek.length
         if (daysPerWeek > maxDays) {
           setDaysPerWeek(maxDays)
         }
+      } else {
+        // If iteration not found yet, clear selected days
+        setSelectedDays([])
       }
+    } else {
+      // If no iteration selected, clear selected days
+      setSelectedDays([])
     }
-  }, [selectedIterationId, iterations, daysPerWeek])
+  }, [selectedIterationId, iterations])
   
   // Normalize phone number - strip all non-numeric characters
   const normalizePhoneNumber = (phone: string): string => {
@@ -231,8 +238,16 @@ export default function EnrollmentForm({
   }, [searchQuery, isAdminMode])
 
 
-  const selectedIteration = iterations.find(iter => iter.id === selectedIterationId)
-  const availableDays = selectedIteration ? selectedIteration.daysOfWeek.map(dayNum => dayNames[dayNum]) : []
+  const selectedIteration = useMemo(() => {
+    return iterations.find(iter => iter.id === selectedIterationId)
+  }, [iterations, selectedIterationId])
+  
+  const availableDays = useMemo(() => {
+    if (!selectedIteration || !selectedIteration.daysOfWeek) {
+      return []
+    }
+    return selectedIteration.daysOfWeek.map(dayNum => dayNames[dayNum])
+  }, [selectedIteration])
 
   const handleDayToggle = (day: string) => {
     if (!selectedIteration) return
