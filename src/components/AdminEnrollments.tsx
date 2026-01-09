@@ -263,11 +263,20 @@ export default function AdminEnrollments() {
     selectedDays: string[]
   }) => {
     try {
+      // Get fresh token in case it was updated
+      const token = localStorage.getItem('adminToken')
+      if (!token) {
+        alert('No admin token found. Please log out and log back in.')
+        return
+      }
+      
+      console.log('[Enrollment] Sending enrollment request with token:', token.substring(0, 20) + '...')
+      
       const response = await fetch(`${apiUrl}/api/members/enroll`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminToken}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(enrollmentData)
       })

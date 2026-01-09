@@ -1232,20 +1232,37 @@ const setUserRoles = async (userId, roles) => {
 
 // Middleware to verify JWT token (member or admin)
 const authenticateMember = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1]
+  const authHeader = req.headers.authorization
+  const token = authHeader?.split(' ')[1]
   
   if (!token) {
+    console.log('[AUTH] No token provided in request to:', req.path)
     return res.status(401).json({ success: false, message: 'No token provided' })
   }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET)
+    console.log('[AUTH] Token decoded successfully:', { 
+      userId: decoded.userId, 
+      memberId: decoded.memberId, 
+      adminId: decoded.adminId,
+      role: decoded.role,
+      path: req.path 
+    })
     // Support both old (memberId) and new (userId) token formats
     req.userId = decoded.userId || decoded.memberId || decoded.adminId
     req.memberId = decoded.userId || decoded.memberId // For backward compatibility
     req.isAdmin = decoded.role === 'ADMIN' || decoded.adminId !== undefined
+    console.log('[AUTH] Authenticated:', { userId: req.userId, isAdmin: req.isAdmin })
     next()
   } catch (error) {
+    console.error('[AUTH] Token verification failed:', {
+      error: error.message,
+      errorName: error.name,
+      path: req.path,
+      tokenLength: token?.length,
+      tokenPrefix: token?.substring(0, 20) + '...'
+    })
     return res.status(401).json({ success: false, message: 'Invalid token' })
   }
 }
