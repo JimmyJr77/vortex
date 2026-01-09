@@ -373,6 +373,14 @@ export default function AdminClasses() {
           setIterations(fetchedIterations)
           return fetchedIterations
         }
+      } else {
+        // If we get a 500 error, it might mean the table doesn't exist yet
+        // But the default iteration might have been created, so we'll return empty
+        // and let the user know they need to add iterations
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Error fetching iterations:', errorData.message || 'Unknown error')
+        setIterations([])
+        return []
       }
       return []
     } catch (error) {
@@ -406,7 +414,18 @@ export default function AdminClasses() {
       startDate: iter.startDate || undefined,
       endDate: iter.endDate || undefined
     }))
-    setProgramIterations(iterationsData)
+    
+    // If no iterations were fetched but this is a newly created class,
+    // it might have a default iteration that we can't fetch yet (table doesn't exist)
+    // In that case, we'll show empty and let user add iterations
+    // But if fetch failed with 500, show a helpful message
+    if (iterationsData.length === 0) {
+      // Check if there was an error - if so, the iterations might exist but table is missing
+      // We'll still set empty array, but the UI will show a message
+      setProgramIterations([])
+    } else {
+      setProgramIterations(iterationsData)
+    }
     setEditingIterationIndex(null)
   }
 
@@ -506,12 +525,16 @@ export default function AdminClasses() {
   }
 
   const addIterationToForm = () => {
-    setProgramIterations([...programIterations, {
-      daysOfWeek: [1, 2, 3, 4, 5],
-      startTime: '18:00:00',
-      endTime: '19:30:00',
-      durationType: 'indefinite'
-    }])
+    // Add new iteration with default values (Mon-Fri, 6pm-7:30pm, indefinite)
+    const newIteration = {
+      daysOfWeek: [1, 2, 3, 4, 5], // Monday through Friday
+      startTime: '18:00:00', // 6:00 PM
+      endTime: '19:30:00', // 7:30 PM
+      durationType: 'indefinite' as const
+    }
+    setProgramIterations([...programIterations, newIteration])
+    // Automatically start editing the new iteration
+    setEditingIterationIndex(programIterations.length)
   }
 
   const updateIterationInForm = (index: number, iteration: Partial<ClassIteration>) => {
@@ -1146,7 +1169,13 @@ export default function AdminClasses() {
                                   </button>
                                 </div>
                                 {programIterations.length === 0 ? (
-                                  <p className="text-sm text-gray-500">No iterations yet. Add one to set class schedule.</p>
+                                  <div className="space-y-2">
+                                    <p className="text-sm text-gray-500">No iterations loaded. Click "Add Iteration" to create one.</p>
+                                    <p className="text-xs text-yellow-600 bg-yellow-50 p-2 rounded">
+                                      ⚠️ If you're seeing 500 errors, the class_iteration table may not exist in production. 
+                                      Restart your backend server or run the migration script to create it.
+                                    </p>
+                                  </div>
                                 ) : (
                                   <div className="space-y-3">
                                     {programIterations.map((iteration, index) => {
