@@ -36,6 +36,9 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
         // Store admin token
         if (data.token) {
           localStorage.setItem('adminToken', data.token)
+          console.log('[Login] Admin token stored successfully')
+        } else {
+          console.warn('[Login] No token received from server - authentication may fail for some operations')
         }
         // Store admin info for edit tracking
         const adminData = {

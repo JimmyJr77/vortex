@@ -270,7 +270,7 @@ export default function AdminEnrollments() {
         return
       }
       
-      console.log('[Enrollment] Sending enrollment request with token:', token.substring(0, 20) + '...')
+      console.log('[Enrollment] Sending enrollment request with token:', token ? token.substring(0, 20) + '...' : 'NO TOKEN')
       
       const response = await fetch(`${apiUrl}/api/members/enroll`, {
         method: 'POST',
@@ -290,8 +290,13 @@ export default function AdminEnrollments() {
         }
         await fetchAllFamilies()
       } else {
-        const errorData = await response.json()
-        alert(errorData.message || 'Failed to enroll member')
+        const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }))
+        console.error('[Enrollment] Error response:', { status: response.status, errorData })
+        if (response.status === 401) {
+          alert('Authentication failed. Please log out and log back in to refresh your session.')
+        } else {
+          alert(errorData.message || 'Failed to enroll member')
+        }
       }
     } catch (error) {
       console.error('Error enrolling member:', error)
