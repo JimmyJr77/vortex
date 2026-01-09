@@ -55,7 +55,9 @@ export default function EnrollmentForm({
   currentUserName,
   onEnroll,
   onCancel,
-  isOpen
+  isOpen,
+  isAdminMode = false,
+  preselectedIterationId = null
 }: EnrollmentFormProps) {
   const [selectedFamilyMemberId, setSelectedFamilyMemberId] = useState<number | null>(null)
   const [selectedIterationId, setSelectedIterationId] = useState<number | null>(null)
@@ -64,6 +66,18 @@ export default function EnrollmentForm({
   const [daysPerWeek, setDaysPerWeek] = useState<number>(1)
   const [selectedDays, setSelectedDays] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Admin mode: search by name/phone/email
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [searchResults, setSearchResults] = useState<Array<{
+    id: number
+    first_name: string
+    last_name: string
+    email?: string
+    phone?: string
+    user_id?: number | null
+  }>>([])
+  const [searching, setSearching] = useState(false)
 
   const apiUrl = getApiUrl()
 
@@ -332,7 +346,14 @@ export default function EnrollmentForm({
               )}
               {searchResults.length > 0 && (
                 <div className="mt-2 border border-gray-300 rounded max-h-48 overflow-y-auto">
-                  {searchResults.map((user) => (
+                  {searchResults.map((user: {
+                    id: number
+                    first_name: string
+                    last_name: string
+                    email?: string
+                    phone?: string
+                    user_id?: number | null
+                  }) => (
                     <button
                       key={user.id}
                       type="button"
@@ -358,7 +379,21 @@ export default function EnrollmentForm({
               {selectedFamilyMemberId && (
                 <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
                   <p className="text-sm text-green-800">
-                    Selected: {searchResults.find(u => u.id === selectedFamilyMemberId)?.first_name} {searchResults.find(u => u.id === selectedFamilyMemberId)?.last_name}
+                    Selected: {searchResults.find((u: {
+                      id: number
+                      first_name: string
+                      last_name: string
+                      email?: string
+                      phone?: string
+                      user_id?: number | null
+                    }) => u.id === selectedFamilyMemberId)?.first_name} {searchResults.find((u: {
+                      id: number
+                      first_name: string
+                      last_name: string
+                      email?: string
+                      phone?: string
+                      user_id?: number | null
+                    }) => u.id === selectedFamilyMemberId)?.last_name}
                   </p>
                 </div>
               )}

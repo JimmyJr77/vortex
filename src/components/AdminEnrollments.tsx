@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { UserPlus, Users, Clock } from 'lucide-react'
+import { UserPlus, Users } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import EnrollmentForm from './EnrollmentForm'
 import ClassDropdown, { type Program } from './ClassDropdown'
@@ -40,6 +40,7 @@ export default function AdminEnrollments() {
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false)
   const [iterationsLoading, setIterationsLoading] = useState(false)
   const [showEnrollModal, setShowEnrollModal] = useState(false)
+  const [selectedIterationForEnrollment, setSelectedIterationForEnrollment] = useState<number | null>(null)
   const [allFamilyMembers, setAllFamilyMembers] = useState<Array<{
     id?: number
     user_id?: number
