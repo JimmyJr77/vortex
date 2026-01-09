@@ -353,7 +353,7 @@ export default function AdminEnrollments() {
               Class Schedule
             </h3>
             {/* Debug info - remove in production */}
-            {process.env.NODE_ENV === 'development' && (
+            {import.meta.env.DEV && (
               <div className="mb-2 text-xs text-gray-500">
                 Debug: Loading={iterationsLoading.toString()}, Count={classIterations.length}, ProgramID={selectedProgram.id}
               </div>
