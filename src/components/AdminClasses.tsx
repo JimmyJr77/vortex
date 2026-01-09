@@ -66,10 +66,7 @@ export default function AdminClasses() {
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showClassModal, setShowClassModal] = useState(false)
   const [selectedCategoryForClass, setSelectedCategoryForClass] = useState<number | null>(null)
-  const [iterations, setIterations] = useState<ClassIteration[]>([])
-  const [editingIterationId, setEditingIterationId] = useState<number | null>(null)
-  const [iterationFormData, setIterationFormData] = useState<Partial<ClassIteration>>({})
-  const [showIterationModal, setShowIterationModal] = useState(false)
+  const [, setIterations] = useState<ClassIteration[]>([])
 
   const fetchAllPrograms = async () => {
     try {
@@ -437,7 +434,7 @@ export default function AdminClasses() {
         
         // Delete iterations that are no longer in programIterations
         for (const existing of existingIterations) {
-          const stillExists = programIterations.some((iter, idx) => {
+          const stillExists = programIterations.some((_iter, idx) => {
             // Match by iteration number or by comparing all fields
             return existing.iterationNumber === idx + 1
           })
@@ -504,111 +501,6 @@ export default function AdminClasses() {
       const errorMessage = error instanceof Error ? error.message : 'Network error'
       alert(`Failed to update program: ${errorMessage}`)
     }
-  }
-
-  const handleCreateIteration = async () => {
-    if (!editingProgramId) return
-    
-    try {
-      const apiUrl = getApiUrl()
-      // Ensure time format is correct (HH:MM:SS)
-      const formData = { ...iterationFormData }
-      if (formData.startTime && formData.startTime.length === 5) {
-        formData.startTime = `${formData.startTime}:00`
-      }
-      if (formData.endTime && formData.endTime.length === 5) {
-        formData.endTime = `${formData.endTime}:00`
-      }
-      
-      const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-      
-      if (response.ok) {
-        await fetchIterations(editingProgramId)
-        setIterationFormData({})
-        setShowIterationModal(false)
-        setEditingIterationId(null)
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to create iteration')
-      }
-    } catch (error) {
-      console.error('Error creating iteration:', error)
-      alert('Failed to create iteration')
-    }
-  }
-
-  const handleUpdateIteration = async () => {
-    if (!editingProgramId || !editingIterationId) return
-    
-    try {
-      const apiUrl = getApiUrl()
-      // Ensure time format is correct (HH:MM:SS)
-      const formData = { ...iterationFormData }
-      if (formData.startTime && formData.startTime.length === 5) {
-        formData.startTime = `${formData.startTime}:00`
-      }
-      if (formData.endTime && formData.endTime.length === 5) {
-        formData.endTime = `${formData.endTime}:00`
-      }
-      
-      const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations/${editingIterationId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-      
-      if (response.ok) {
-        await fetchIterations(editingProgramId)
-        setIterationFormData({})
-        setShowIterationModal(false)
-        setEditingIterationId(null)
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to update iteration')
-      }
-    } catch (error) {
-      console.error('Error updating iteration:', error)
-      alert('Failed to update iteration')
-    }
-  }
-
-  const handleDeleteIteration = async (iterationId: number) => {
-    if (!editingProgramId) return
-    if (!confirm('Are you sure you want to delete this iteration?')) return
-    
-    try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations/${iterationId}`, {
-        method: 'DELETE'
-      })
-      
-      if (response.ok) {
-        await fetchIterations(editingProgramId)
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to delete iteration')
-      }
-    } catch (error) {
-      console.error('Error deleting iteration:', error)
-      alert('Failed to delete iteration')
-    }
-  }
-
-  const handleEditIteration = (iteration: ClassIteration) => {
-    setEditingIterationId(iteration.id)
-    setIterationFormData({
-      daysOfWeek: iteration.daysOfWeek,
-      startTime: iteration.startTime,
-      endTime: iteration.endTime,
-      durationType: iteration.durationType,
-      startDate: iteration.startDate || undefined,
-      endDate: iteration.endDate || undefined
-    })
-    setShowIterationModal(true)
   }
 
   const addIterationToForm = () => {
@@ -1728,6 +1620,8 @@ export default function AdminClasses() {
                 setShowClassModal(false)
                 setSelectedCategoryForClass(null)
                 setProgramFormData({})
+                setProgramIterations([])
+                setEditingIterationIndex(null)
               }}
             />
             <motion.div
@@ -1746,6 +1640,8 @@ export default function AdminClasses() {
                     setShowClassModal(false)
                     setSelectedCategoryForClass(null)
                     setProgramFormData({})
+                    setProgramIterations([])
+                    setEditingIterationIndex(null)
                   }}
                   className="text-gray-400 hover:text-white"
                 >
@@ -1996,6 +1892,7 @@ export default function AdminClasses() {
                       setSelectedCategoryForClass(null)
                       setProgramFormData({})
                       setProgramIterations([])
+                      setEditingIterationIndex(null)
                     }}
                     className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
                   >
@@ -2014,157 +1911,6 @@ export default function AdminClasses() {
         )}
       </AnimatePresence>
 
-      {/* Iteration Modal */}
-      <AnimatePresence>
-        {showIterationModal && editingProgramId && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
-          >
-            <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => {
-                setShowIterationModal(false)
-                setEditingIterationId(null)
-                setIterationFormData({})
-              }}
-            />
-            <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">
-                  {editingIterationId ? 'Edit Iteration' : 'Add New Iteration'}
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowIterationModal(false)
-                    setEditingIterationId(null)
-                    setIterationFormData({})
-                  }}
-                  className="text-gray-400 hover:text-white"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Days of Week *</label>
-                  <div className="grid grid-cols-7 gap-2">
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-                      <label key={day} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={(iterationFormData.daysOfWeek || []).includes(index)}
-                          onChange={(e) => {
-                            const currentDays = iterationFormData.daysOfWeek || []
-                            if (e.target.checked) {
-                              setIterationFormData({ ...iterationFormData, daysOfWeek: [...currentDays, index].sort() })
-                            } else {
-                              setIterationFormData({ ...iterationFormData, daysOfWeek: currentDays.filter(d => d !== index) })
-                            }
-                          }}
-                          className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
-                        />
-                        <span className="text-sm text-gray-300">{day}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Start Time *</label>
-                    <input
-                      type="time"
-                      value={iterationFormData.startTime ? iterationFormData.startTime.substring(0, 5) : '18:00'}
-                      onChange={(e) => {
-                        const time = e.target.value
-                        setIterationFormData({ ...iterationFormData, startTime: time || '18:00:00' })
-                      }}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">End Time *</label>
-                    <input
-                      type="time"
-                      value={iterationFormData.endTime ? iterationFormData.endTime.substring(0, 5) : '19:30'}
-                      onChange={(e) => {
-                        const time = e.target.value
-                        setIterationFormData({ ...iterationFormData, endTime: time || '19:30:00' })
-                      }}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Duration Type *</label>
-                  <select
-                    value={iterationFormData.durationType || 'indefinite'}
-                    onChange={(e) => setIterationFormData({ ...iterationFormData, durationType: e.target.value as 'indefinite' | '3_month_block' | 'finite' })}
-                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                  >
-                    <option value="indefinite">Indefinite</option>
-                    <option value="3_month_block">3-Month Block</option>
-                    <option value="finite">Finite (Specific Dates)</option>
-                  </select>
-                </div>
-                {(iterationFormData.durationType === '3_month_block' || iterationFormData.durationType === 'finite') && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Start Date *</label>
-                    <input
-                      type="date"
-                      value={iterationFormData.startDate || ''}
-                      onChange={(e) => setIterationFormData({ ...iterationFormData, startDate: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                      required
-                    />
-                  </div>
-                )}
-                {iterationFormData.durationType === 'finite' && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">End Date *</label>
-                    <input
-                      type="date"
-                      value={iterationFormData.endDate || ''}
-                      onChange={(e) => setIterationFormData({ ...iterationFormData, endDate: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                      required
-                    />
-                  </div>
-                )}
-                <div className="flex gap-2 justify-end">
-                  <button
-                    onClick={() => {
-                      setShowIterationModal(false)
-                      setEditingIterationId(null)
-                      setIterationFormData({})
-                    }}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={editingIterationId ? handleUpdateIteration : handleCreateIteration}
-                    className="px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
-                  >
-                    {editingIterationId ? 'Save Changes' : 'Create Iteration'}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   )
 }
