@@ -4591,16 +4591,17 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     const iterationDays = iteration.days_of_week || []
     
     // Validate that selected days are within iteration's available days
-    const dayNameToNumber: Record<string, number> = {
+    const dayNameToNumber = {
       'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 0
     }
-    const selectedDayNumbers = selectedDays.map((day: string) => dayNameToNumber[day]).filter((num: number) => num !== undefined)
+    const selectedDayNumbers = selectedDays.map((day) => dayNameToNumber[day]).filter((num) => num !== undefined)
     
-    const invalidDays = selectedDayNumbers.filter((dayNum: number) => !iterationDays.includes(dayNum))
+    const invalidDays = selectedDayNumbers.filter((dayNum) => !iterationDays.includes(dayNum))
     if (invalidDays.length > 0) {
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
       return res.status(400).json({
         success: false,
-        message: `Selected days must be within the iteration's available days: ${iterationDays.map((d: number) => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d]).join(', ')}`
+        message: `Selected days must be within the iteration's available days: ${iterationDays.map((d) => dayNames[d]).join(', ')}`
       })
     }
 
