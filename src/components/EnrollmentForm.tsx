@@ -155,13 +155,16 @@ export default function EnrollmentForm({
   useEffect(() => {
     setSelectedDays([])
     // Update days per week max to match available days when iteration changes
-    if (selectedIteration) {
-      const maxDays = selectedIteration.daysOfWeek.length
-      if (daysPerWeek > maxDays) {
-        setDaysPerWeek(maxDays)
+    if (selectedIterationId) {
+      const currentIteration = iterations.find(iter => iter.id === selectedIterationId)
+      if (currentIteration) {
+        const maxDays = currentIteration.daysOfWeek.length
+        if (daysPerWeek > maxDays) {
+          setDaysPerWeek(maxDays)
+        }
       }
     }
-  }, [selectedIterationId, selectedIteration, daysPerWeek])
+  }, [selectedIterationId, iterations, daysPerWeek])
   
   // Normalize phone number - strip all non-numeric characters
   const normalizePhoneNumber = (phone: string): string => {
