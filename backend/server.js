@@ -3867,6 +3867,9 @@ app.post('/api/members/login', async (req, res) => {
       }
     }
 
+    // Get all user roles
+    const allUserRoles = await getUserRoles(user.id)
+
     // Generate JWT token with all roles
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role, roles: allUserRoles },
