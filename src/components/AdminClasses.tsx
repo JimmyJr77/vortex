@@ -416,8 +416,10 @@ export default function AdminClasses() {
     try {
       const apiUrl = getApiUrl()
       // Allow categoryId to be updated, but don't send archived (managed separately)
+      // Also remove categoryDisplayName as it's display-only and not allowed by validation
       const updateData = { ...programFormData }
       delete updateData.archived
+      delete updateData.categoryDisplayName
       // Keep categoryId if it's set, otherwise don't send it (won't update if not provided)
       
       const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}`, {
