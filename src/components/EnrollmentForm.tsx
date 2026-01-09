@@ -42,6 +42,8 @@ interface EnrollmentFormProps {
   }) => Promise<void>
   onCancel: () => void
   isOpen: boolean
+  isAdminMode?: boolean // If true, search by name/phone/email. If false, select family member.
+  preselectedIterationId?: number | null // Pre-select an iteration (for admin mode)
 }
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -128,13 +130,62 @@ export default function EnrollmentForm({
       setDaysPerWeek(1)
       setSelectedDays([])
       setIsSubmitting(false)
+      setSearchQuery('')
+      setSearchResults([])
+    } else if (preselectedIterationId) {
+      setSelectedIterationId(preselectedIterationId)
     }
-  }, [isOpen])
+  }, [isOpen, preselectedIterationId])
 
   // Reset selected days when iteration changes
   useEffect(() => {
     setSelectedDays([])
   }, [selectedIterationId])
+  
+  // Search for users (admin mode)
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([])
+      return
+    }
+    
+    setSearching(true)
+    try {
+      const adminToken = localStorage.getItem('adminToken')
+      const response = await fetch(`${apiUrl}/api/admin/search-users?q=${encodeURIComponent(query)}`, {
+        headers: {
+          'Authorization': `Bearer ${adminToken}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setSearchResults(data.users || data.data || [])
+      } else {
+        setSearchResults([])
+      }
+    } catch (error) {
+      console.error('Error searching users:', error)
+      setSearchResults([])
+    } finally {
+      setSearching(false)
+    }
+  }
+  
+  // Debounce search
+  useEffect(() => {
+    if (!isAdminMode || !searchQuery.trim()) {
+      setSearchResults([])
+      return
+    }
+    
+    const timer = setTimeout(() => {
+      handleSearch(searchQuery)
+    }, 500)
+    
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, isAdminMode])
 
 
   const selectedIteration = iterations.find(iter => iter.id === selectedIterationId)
@@ -264,23 +315,73 @@ export default function EnrollmentForm({
         </h2>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Select Family Member
-            </label>
-            <select
-              value={selectedFamilyMemberId || ''}
-              onChange={(e) => setSelectedFamilyMemberId(parseInt(e.target.value, 10))}
-              className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-            >
-              <option value="">Select a family member...</option>
-              {allMembers.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.name} {member.isCurrentUser ? '(You)' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
+          {isAdminMode ? (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Search for User (Name, Phone, or Email)
+              </label>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Enter name, phone number, or email..."
+                className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+              />
+              {searching && (
+                <p className="text-xs text-gray-500 mt-1">Searching...</p>
+              )}
+              {searchResults.length > 0 && (
+                <div className="mt-2 border border-gray-300 rounded max-h-48 overflow-y-auto">
+                  {searchResults.map((user) => (
+                    <button
+                      key={user.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedFamilyMemberId(user.id)
+                        setSearchQuery('')
+                        setSearchResults([])
+                      }}
+                      className={`w-full text-left px-3 py-2 hover:bg-gray-100 border-b border-gray-200 last:border-b-0 ${
+                        selectedFamilyMemberId === user.id ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <div className="font-medium">{user.first_name} {user.last_name}</div>
+                      {user.email && <div className="text-xs text-gray-600">{user.email}</div>}
+                      {user.phone && <div className="text-xs text-gray-600">{user.phone}</div>}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {searchQuery && !searching && searchResults.length === 0 && (
+                <p className="text-xs text-gray-500 mt-1">No users found. Try a different search.</p>
+              )}
+              {selectedFamilyMemberId && (
+                <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
+                  <p className="text-sm text-green-800">
+                    Selected: {searchResults.find(u => u.id === selectedFamilyMemberId)?.first_name} {searchResults.find(u => u.id === selectedFamilyMemberId)?.last_name}
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Select Family Member
+              </label>
+              <select
+                value={selectedFamilyMemberId || ''}
+                onChange={(e) => setSelectedFamilyMemberId(parseInt(e.target.value, 10))}
+                className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
+              >
+                <option value="">Select a family member...</option>
+                {allMembers.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name} {member.isCurrentUser ? '(You)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">

@@ -361,50 +361,47 @@ export default function AdminEnrollments() {
             </div>
           </div>
 
-          {/* Class Offerings (Iterations) */}
-          <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-            <h3 className="text-xl font-display font-bold text-black mb-4 flex items-center gap-2">
-              <Clock className="w-5 h-5" />
-              Class Schedule
-            </h3>
-            {/* Debug info - remove in production */}
-            {import.meta.env.DEV && (
-              <div className="mb-2 text-xs text-gray-500">
-                Debug: Loading={iterationsLoading.toString()}, Count={classIterations.length}, ProgramID={selectedProgram.id}
-              </div>
-            )}
-            {iterationsLoading ? (
-              <div className="text-center py-8 text-gray-600">Loading class schedule...</div>
-            ) : classIterations.length > 0 ? (
-              <div className="space-y-4">
-                {classIterations.map((iteration) => {
-                  const days = iteration.daysOfWeek.map(day => dayNames[day]).join(', ')
-                  const startTime = iteration.startTime.substring(0, 5) // Format HH:MM:SS to HH:MM
-                  const endTime = iteration.endTime.substring(0, 5)
-                  
-                  let durationText = ''
-                  if (iteration.durationType === 'indefinite') {
-                    durationText = 'Indefinite'
-                  } else if (iteration.durationType === '3_month_block') {
-                    durationText = iteration.startDate 
-                      ? `3-Month Block starting ${new Date(iteration.startDate).toLocaleDateString()}`
-                      : '3-Month Block'
-                  } else if (iteration.durationType === 'finite') {
-                    if (iteration.startDate && iteration.endDate) {
-                      durationText = `${new Date(iteration.startDate).toLocaleDateString()} - ${new Date(iteration.endDate).toLocaleDateString()}`
-                    } else if (iteration.startDate) {
-                      durationText = `Starting ${new Date(iteration.startDate).toLocaleDateString()}`
-                    } else {
-                      durationText = 'Finite duration'
-                    }
+          {/* Class Iterations - Each iteration as a block with enrolled members inside */}
+          {iterationsLoading ? (
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+              <div className="text-center py-8 text-gray-600">Loading class iterations...</div>
+            </div>
+          ) : classIterations.length > 0 ? (
+            <div className="space-y-6">
+              {classIterations.map((iteration) => {
+                const iterationEnrollments = enrollments.filter(e => 
+                  (e.iteration_id === iteration.id) || (!e.iteration_id && iteration.iterationNumber === 1)
+                )
+                
+                const days = iteration.daysOfWeek.map(dayNum => dayNames[dayNum]).join(', ')
+                const startTime = iteration.startTime.substring(0, 5)
+                const endTime = iteration.endTime.substring(0, 5)
+                
+                let durationText = ''
+                if (iteration.durationType === 'indefinite') {
+                  durationText = 'Indefinite'
+                } else if (iteration.durationType === '3_month_block') {
+                  durationText = iteration.startDate 
+                    ? `3-Month Block starting ${new Date(iteration.startDate).toLocaleDateString()}`
+                    : '3-Month Block'
+                } else if (iteration.durationType === 'finite') {
+                  if (iteration.startDate && iteration.endDate) {
+                    durationText = `${new Date(iteration.startDate).toLocaleDateString()} - ${new Date(iteration.endDate).toLocaleDateString()}`
+                  } else if (iteration.startDate) {
+                    durationText = `Starting ${new Date(iteration.startDate).toLocaleDateString()}`
+                  } else {
+                    durationText = 'Finite duration'
                   }
-                  
-                  return (
-                    <div key={iteration.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                }
+                
+                return (
+                  <div key={iteration.id} className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                    {/* Iteration Header */}
+                    <div className="mb-4">
                       <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold text-black">
-                          Iteration {iteration.iterationNumber}
-                        </h4>
+                        <h3 className="text-xl font-display font-bold text-black">
+                          Class Iteration {iteration.iterationNumber}
+                        </h3>
                         <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
                           {iteration.durationType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
@@ -416,108 +413,83 @@ export default function AdminEnrollments() {
                         <div>
                           <span className="font-medium">Time:</span> {startTime} - {endTime}
                         </div>
-                        {durationText && (
+                        {durationText && durationText !== 'Indefinite' && (
                           <div>
                             <span className="font-medium">Duration:</span> {durationText}
                           </div>
                         )}
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="text-gray-600">
-                No Class Offerings for this Class Found.
-              </p>
-            )}
-          </div>
 
-          {/* Enrolled Members - Grouped by Iteration */}
-          <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-display font-bold text-black flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Enrolled Members ({enrollments.length})
-              </h3>
-              <button
-                onClick={() => setShowEnrollModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
-              >
-                <UserPlus className="w-4 h-4" />
-                Enroll Member
-              </button>
-            </div>
-
-            {enrollmentsLoading ? (
-              <div className="text-center py-12 text-gray-600">Loading enrollments...</div>
-            ) : enrollments.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">No members enrolled in this class yet.</div>
-            ) : (
-              <div className="space-y-6">
-                {classIterations.map((iteration) => {
-                  const iterationEnrollments = enrollments.filter(e => 
-                    (e.iteration_id === iteration.id) || (!e.iteration_id && iteration.iterationNumber === 1)
-                  )
-                  
-                  if (iterationEnrollments.length === 0) return null
-                  
-                  const days = iteration.daysOfWeek.map(dayNum => dayNames[dayNum]).join(', ')
-                  const startTime = iteration.startTime.substring(0, 5)
-                  const endTime = iteration.endTime.substring(0, 5)
-                  
-                  return (
-                    <div key={iteration.id} className="border border-gray-300 rounded-lg p-4">
-                      <div className="mb-3 pb-2 border-b border-gray-200">
-                        <h4 className="text-lg font-semibold text-black">
-                          Iteration {iteration.iterationNumber}
+                    {/* Enrolled Members Section (Shaded Block) */}
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="text-lg font-display font-semibold text-black flex items-center gap-2">
+                          <Users className="w-5 h-5" />
+                          Enrolled Members ({iterationEnrollments.length})
                         </h4>
-                        <div className="text-sm text-gray-600 mt-1">
-                          <span className="font-medium">Days:</span> {days} | <span className="font-medium">Time:</span> {startTime} - {endTime}
-                        </div>
+                        <button
+                          onClick={() => {
+                            setShowEnrollModal(true)
+                            // Store the selected iteration ID for the enrollment form
+                            setSelectedIterationForEnrollment(iteration.id)
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                        >
+                          <UserPlus className="w-4 h-4" />
+                          Enroll Member
+                        </button>
                       </div>
-                      <div className="space-y-2">
-                        {iterationEnrollments.map((enrollment) => {
-                          const selectedDaysArray = Array.isArray(enrollment.selected_days) 
-                            ? enrollment.selected_days 
-                            : (typeof enrollment.selected_days === 'string' 
-                                ? JSON.parse(enrollment.selected_days || '[]') 
-                                : [])
-                          
-                          return (
-                            <div key={enrollment.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <h5 className="font-semibold text-black mb-1">
-                                    {enrollment.athlete_first_name} {enrollment.athlete_last_name}
-                                  </h5>
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
-                                    <div>
-                                      <span className="font-medium">Days Per Week:</span> {enrollment.days_per_week}
-                                    </div>
-                                    {selectedDaysArray.length > 0 && (
+
+                      {enrollmentsLoading ? (
+                        <div className="text-center py-8 text-gray-600">Loading enrollments...</div>
+                      ) : iterationEnrollments.length === 0 ? (
+                        <div className="text-center py-4 text-gray-500">No members enrolled in this iteration yet.</div>
+                      ) : (
+                        <div className="space-y-2">
+                          {iterationEnrollments.map((enrollment) => {
+                            const selectedDaysArray = Array.isArray(enrollment.selected_days) 
+                              ? enrollment.selected_days 
+                              : (typeof enrollment.selected_days === 'string' 
+                                  ? JSON.parse(enrollment.selected_days || '[]') 
+                                  : [])
+                            
+                            return (
+                              <div key={enrollment.id} className="bg-white rounded-lg p-3 border border-gray-200">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <h5 className="font-semibold text-black mb-1">
+                                      {enrollment.athlete_first_name} {enrollment.athlete_last_name}
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
                                       <div>
-                                        <span className="font-medium">Selected Days:</span> {selectedDaysArray.join(', ')}
+                                        <span className="font-medium">Days Per Week:</span> {enrollment.days_per_week}
                                       </div>
-                                    )}
+                                      {selectedDaysArray.length > 0 && (
+                                        <div>
+                                          <span className="font-medium">Selected Days:</span> {selectedDaysArray.join(', ')}
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          )
-                        })}
-                      </div>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
-                  )
-                })}
-                {/* Show enrollments without iteration_id (legacy data) */}
-                {enrollments.filter(e => !e.iteration_id && !classIterations.some(iter => iter.iterationNumber === 1 && e.program_id === iter.programId)).length > 0 && (
-                  <div className="border border-gray-300 rounded-lg p-4">
-                    <div className="mb-3 pb-2 border-b border-gray-200">
-                      <h4 className="text-lg font-semibold text-black">
-                        Legacy Enrollments (No Iteration)
-                      </h4>
-                    </div>
+                  </div>
+                )
+              })}
+              
+              {/* Legacy enrollments without iteration_id */}
+              {enrollments.filter(e => !e.iteration_id && !classIterations.some(iter => iter.iterationNumber === 1 && e.program_id === iter.programId)).length > 0 && (
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <h3 className="text-xl font-display font-bold text-black mb-4">
+                    Legacy Enrollments (No Iteration)
+                  </h3>
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <div className="space-y-2">
                       {enrollments.filter(e => !e.iteration_id && !classIterations.some(iter => iter.iterationNumber === 1 && e.program_id === iter.programId)).map((enrollment) => {
                         const selectedDaysArray = Array.isArray(enrollment.selected_days) 
@@ -527,7 +499,7 @@ export default function AdminEnrollments() {
                               : [])
                         
                         return (
-                          <div key={enrollment.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                          <div key={enrollment.id} className="bg-white rounded-lg p-3 border border-gray-200">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <h5 className="font-semibold text-black mb-1">
@@ -550,10 +522,16 @@ export default function AdminEnrollments() {
                       })}
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+              <p className="text-gray-600">
+                No Class Offerings for this Class Found.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -570,8 +548,13 @@ export default function AdminEnrollments() {
               user_id: m.user_id || m.id || undefined
             }))}
           onEnroll={handleEnroll}
-          onCancel={() => setShowEnrollModal(false)}
+          onCancel={() => {
+            setShowEnrollModal(false)
+            setSelectedIterationForEnrollment(null)
+          }}
           isOpen={showEnrollModal}
+          isAdminMode={true}
+          preselectedIterationId={selectedIterationForEnrollment}
         />
       )}
     </div>

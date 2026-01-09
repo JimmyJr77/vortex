@@ -2918,6 +2918,62 @@ app.delete('/api/admin/users/by-email/:email', async (req, res) => {
 })
 
 // Get all athletes (admin endpoint)
+// Search users by name, phone, or email (admin endpoint)
+app.get('/api/admin/search-users', async (req, res) => {
+  try {
+    const { q } = req.query
+    
+    if (!q || typeof q !== 'string' || q.trim().length === 0) {
+      return res.json({
+        success: true,
+        users: []
+      })
+    }
+    
+    const searchTerm = `%${q.trim()}%`
+    
+    // Search in athletes (via user_id) and app_user
+    const result = await pool.query(`
+      SELECT DISTINCT
+        COALESCE(a.id, u.id) as id,
+        COALESCE(a.first_name, SPLIT_PART(u.full_name, ' ', 1)) as first_name,
+        COALESCE(a.last_name, SPLIT_PART(u.full_name, ' ', 2)) as last_name,
+        u.email,
+        u.phone,
+        a.user_id,
+        u.id as user_id_from_user
+      FROM app_user u
+      LEFT JOIN athlete a ON a.user_id = u.id
+      WHERE 
+        (u.full_name ILIKE $1 OR u.email ILIKE $1 OR u.phone ILIKE $1)
+        OR (a.first_name ILIKE $1 OR a.last_name ILIKE $1)
+      ORDER BY u.full_name, a.first_name, a.last_name
+      LIMIT 20
+    `, [searchTerm])
+    
+    const users = result.rows.map(row => ({
+      id: row.user_id_from_user || row.user_id || row.id,
+      first_name: row.first_name || '',
+      last_name: row.last_name || '',
+      email: row.email || null,
+      phone: row.phone || null,
+      user_id: row.user_id_from_user || row.user_id || null
+    }))
+    
+    res.json({
+      success: true,
+      users: users
+    })
+  } catch (error) {
+    console.error('Search users error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
 app.get('/api/admin/athletes', async (req, res) => {
   try {
     const { search, familyId } = req.query
