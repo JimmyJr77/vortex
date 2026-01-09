@@ -2930,9 +2930,19 @@ app.get('/api/admin/search-users', async (req, res) => {
       })
     }
     
-    const searchTerm = `%${q.trim()}%`
+    const searchQuery = q.trim()
+    
+    // Normalize phone number - strip all non-numeric characters
+    const normalizePhone = (phone: string) => phone.replace(/\D/g, '')
+    const isPhoneNumber = /^\d+$/.test(normalizePhone(searchQuery)) && normalizePhone(searchQuery).length >= 7
+    
+    // If it looks like a phone number, search with normalized version
+    const phoneSearchTerm = isPhoneNumber ? normalizePhone(searchQuery) : searchQuery
+    const nameSearchTerm = `%${searchQuery}%`
+    const phoneSearchTermPattern = `%${phoneSearchTerm}%`
     
     // Search in athletes (via user_id) and app_user
+    // For phone numbers, also search normalized version
     const result = await pool.query(`
       SELECT DISTINCT
         COALESCE(a.id, u.id) as id,
@@ -2945,11 +2955,12 @@ app.get('/api/admin/search-users', async (req, res) => {
       FROM app_user u
       LEFT JOIN athlete a ON a.user_id = u.id
       WHERE 
-        (u.full_name ILIKE $1 OR u.email ILIKE $1 OR u.phone ILIKE $1)
+        (u.full_name ILIKE $1 OR u.email ILIKE $1)
         OR (a.first_name ILIKE $1 OR a.last_name ILIKE $1)
+        OR (u.phone ILIKE $1 OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(u.phone, '-', ''), '(', ''), ')', ''), ' ', ''), '.', '') ILIKE $2)
       ORDER BY u.full_name, a.first_name, a.last_name
       LIMIT 20
-    `, [searchTerm])
+    `, [nameSearchTerm, phoneSearchTermPattern])
     
     const users = result.rows.map(row => ({
       id: row.user_id_from_user || row.user_id || row.id,

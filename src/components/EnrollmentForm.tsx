@@ -151,10 +151,28 @@ export default function EnrollmentForm({
     }
   }, [isOpen, preselectedIterationId])
 
-  // Reset selected days when iteration changes
+  // Reset selected days and update available days when iteration changes
   useEffect(() => {
     setSelectedDays([])
-  }, [selectedIterationId])
+    // Update days per week max to match available days when iteration changes
+    if (selectedIteration) {
+      const maxDays = selectedIteration.daysOfWeek.length
+      if (daysPerWeek > maxDays) {
+        setDaysPerWeek(maxDays)
+      }
+    }
+  }, [selectedIterationId, selectedIteration, daysPerWeek])
+  
+  // Normalize phone number - strip all non-numeric characters
+  const normalizePhoneNumber = (phone: string): string => {
+    return phone.replace(/\D/g, '')
+  }
+  
+  // Check if query looks like a phone number (mostly digits)
+  const isPhoneNumber = (query: string): boolean => {
+    const digitsOnly = normalizePhoneNumber(query)
+    return digitsOnly.length >= 7 && /^\d+$/.test(digitsOnly)
+  }
   
   // Search for users (admin mode)
   const handleSearch = async (query: string) => {
@@ -166,7 +184,14 @@ export default function EnrollmentForm({
     setSearching(true)
     try {
       const adminToken = localStorage.getItem('adminToken')
-      const response = await fetch(`${apiUrl}/api/admin/search-users?q=${encodeURIComponent(query)}`, {
+      
+      // If it looks like a phone number, normalize it (strip non-numeric)
+      let searchQuery = query.trim()
+      if (isPhoneNumber(searchQuery)) {
+        searchQuery = normalizePhoneNumber(searchQuery)
+      }
+      
+      const response = await fetch(`${apiUrl}/api/admin/search-users?q=${encodeURIComponent(searchQuery)}`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`
         }
@@ -176,6 +201,7 @@ export default function EnrollmentForm({
         const data = await response.json()
         setSearchResults(data.users || data.data || [])
       } else {
+        console.error('Search failed:', response.status, response.statusText)
         setSearchResults([])
       }
     } catch (error) {
