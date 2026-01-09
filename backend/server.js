@@ -50,7 +50,7 @@ function isOriginAllowed(origin) {
   if (!origin) return true
   
   const normalizedOrigin = origin.toLowerCase().replace(/\/$/, '')
-  return allowedOrigins.some(allowed => {
+  const isAllowed = allowedOrigins.some(allowed => {
     // Handle regex patterns (for Vercel deployments)
     if (allowed instanceof RegExp) {
       return allowed.test(normalizedOrigin)
@@ -59,6 +59,14 @@ function isOriginAllowed(origin) {
     const normalizedAllowed = allowed.toLowerCase().replace(/\/$/, '')
     return normalizedOrigin === normalizedAllowed
   })
+  
+  // Log in production for debugging CORS issues
+  if (!isAllowed && process.env.NODE_ENV === 'production') {
+    console.log(`[CORS] Blocked origin: ${origin} (normalized: ${normalizedOrigin})`)
+    console.log(`[CORS] Allowed origins:`, allowedOrigins.filter(o => typeof o === 'string'))
+  }
+  
+  return isAllowed
 }
 
 // Helper function to set CORS headers on response
@@ -76,16 +84,15 @@ function setCorsHeaders(req, res) {
 app.options('*', (req, res) => {
   const origin = req.headers.origin
   
-  // Only log in development
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('OPTIONS preflight request from origin:', origin || '(no origin)')
-  }
+  // Log in both development and production for debugging
+  console.log('[CORS] OPTIONS preflight request from origin:', origin || '(no origin)')
   
   if (isOriginAllowed(origin)) {
     // If origin is undefined, don't set Access-Control-Allow-Origin
     // (browser will handle same-origin requests)
     if (origin) {
       res.header('Access-Control-Allow-Origin', origin)
+      console.log('[CORS] Allowed preflight request from:', origin)
     }
     res.header('Access-Control-Allow-Credentials', 'true')
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
@@ -93,19 +100,17 @@ app.options('*', (req, res) => {
     res.header('Access-Control-Max-Age', '86400') // 24 hours
     res.sendStatus(204)
   } else {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(`CORS blocked OPTIONS request from origin: ${origin}`)
-    }
-    res.sendStatus(403)
+    console.warn(`[CORS] Blocked OPTIONS request from origin: ${origin}`)
+    console.warn(`[CORS] Allowed origins:`, allowedOrigins.filter(o => typeof o === 'string'))
+    // Still send 204 with no CORS headers to avoid exposing internal structure
+    res.sendStatus(204)
   }
 })
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Log the origin for debugging (only in development)
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('CORS request from origin:', origin || '(no origin - same-origin request)')
-    }
+    // Log the origin for debugging (in both dev and production for troubleshooting)
+    console.log('[CORS] Request from origin:', origin || '(no origin - same-origin request)')
     
     // Allow requests with no origin (same-origin, server-to-server, etc.)
     if (!origin) {
@@ -113,13 +118,11 @@ app.use(cors({
     }
     
     if (isOriginAllowed(origin)) {
+      console.log('[CORS] Allowed request from:', origin)
       callback(null, true)
     } else {
-      // Only log warnings in development
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(`CORS blocked origin: ${origin}`)
-        console.warn('Allowed origins:', allowedOrigins.filter(o => typeof o === 'string'))
-      }
+      console.warn(`[CORS] Blocked origin: ${origin}`)
+      console.warn('[CORS] Allowed origins:', allowedOrigins.filter(o => typeof o === 'string'))
       callback(new Error('Not allowed by CORS'))
     }
   },
@@ -127,7 +130,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   preflightContinue: false,
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
+  // Explicitly set exposed headers if needed
+  exposedHeaders: []
 }))
 
 // Middleware - helmet after CORS to avoid interfering with CORS headers
