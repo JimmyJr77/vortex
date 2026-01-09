@@ -59,10 +59,13 @@ export default function AdminEnrollments() {
   }, [])
 
   useEffect(() => {
+    console.log('useEffect triggered, selectedProgram:', selectedProgram)
     if (selectedProgram) {
+      console.log('Selected program ID:', selectedProgram.id)
       fetchEnrollmentsForProgram(selectedProgram.id)
       fetchClassOfferings()
     } else {
+      console.log('No program selected, clearing data')
       setEnrollments([])
       setClassIterations([])
     }
@@ -348,6 +351,12 @@ export default function AdminEnrollments() {
               <Clock className="w-5 h-5" />
               Class Schedule
             </h3>
+            {/* Debug info - remove in production */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mb-2 text-xs text-gray-500">
+                Debug: Loading={iterationsLoading.toString()}, Count={classIterations.length}, ProgramID={selectedProgram.id}
+              </div>
+            )}
             {iterationsLoading ? (
               <div className="text-center py-8 text-gray-600">Loading class schedule...</div>
             ) : classIterations.length > 0 ? (
