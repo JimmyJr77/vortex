@@ -6496,6 +6496,26 @@ app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
   try {
     const { programId } = req.params
     
+    // Check if table exists first
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'class_iteration'
+      )
+    `)
+    
+    if (!tableCheck.rows[0].exists) {
+      // Table doesn't exist - return empty array instead of error
+      // This allows the frontend to work while the migration is pending
+      console.warn('class_iteration table does not exist - returning empty array')
+      return res.json({
+        success: true,
+        data: [],
+        warning: 'class_iteration table not found - migration may be needed'
+      })
+    }
+    
     const result = await pool.query(`
       SELECT 
         id,
@@ -6520,12 +6540,13 @@ app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
     })
   } catch (error) {
     console.error('Get iterations error:', error)
-    // Check if table doesn't exist
-    if (error.message && error.message.includes('does not exist')) {
-      return res.status(500).json({
-        success: false,
-        message: 'class_iteration table does not exist. Please run database migration or restart the server.',
-        error: process.env.NODE_ENV === 'development' ? error.message : 'Table missing - migration required'
+    // If table doesn't exist, return empty array instead of error
+    if (error.message && (error.message.includes('does not exist') || error.message.includes('relation') && error.message.includes('class_iteration'))) {
+      console.warn('class_iteration table does not exist - returning empty array')
+      return res.json({
+        success: true,
+        data: [],
+        warning: 'class_iteration table not found - migration may be needed'
       })
     }
     res.status(500).json({
@@ -6548,6 +6569,23 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'Program not found'
+      })
+    }
+
+    // Check if table exists first
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'class_iteration'
+      )
+    `)
+    
+    if (!tableCheck.rows[0].exists) {
+      return res.status(503).json({
+        success: false,
+        message: 'class_iteration table does not exist. Please restart the backend server or run the migration.',
+        error: 'Table missing - migration required'
       })
     }
 
@@ -6722,6 +6760,23 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
 app.delete('/api/admin/programs/:programId/iterations/:iterationId', async (req, res) => {
   try {
     const { programId, iterationId } = req.params
+
+    // Check if table exists first
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'class_iteration'
+      )
+    `)
+    
+    if (!tableCheck.rows[0].exists) {
+      return res.status(503).json({
+        success: false,
+        message: 'class_iteration table does not exist. Please restart the backend server or run the migration.',
+        error: 'Table missing - migration required'
+      })
+    }
 
     // Validate iteration exists and belongs to program
     const checkResult = await pool.query(
