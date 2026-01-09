@@ -6520,6 +6520,14 @@ app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
     })
   } catch (error) {
     console.error('Get iterations error:', error)
+    // Check if table doesn't exist
+    if (error.message && error.message.includes('does not exist')) {
+      return res.status(500).json({
+        success: false,
+        message: 'class_iteration table does not exist. Please run database migration or restart the server.',
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Table missing - migration required'
+      })
+    }
     res.status(500).json({
       success: false,
       message: 'Internal server error',
