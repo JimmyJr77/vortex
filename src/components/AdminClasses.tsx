@@ -32,6 +32,20 @@ interface Category {
   updatedAt: string
 }
 
+interface ClassIteration {
+  id: number
+  programId: number
+  iterationNumber: number
+  daysOfWeek: number[]
+  startTime: string
+  endTime: string
+  durationType: 'indefinite' | '3_month_block' | 'finite'
+  startDate?: string | null
+  endDate?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 export default function AdminClasses() {
   const [error, setError] = useState<string | null>(null)
   const [programs, setPrograms] = useState<Program[]>([])
@@ -40,6 +54,8 @@ export default function AdminClasses() {
   const [categoriesLoading, setCategoriesLoading] = useState(false)
   const [editingProgramId, setEditingProgramId] = useState<number | null>(null)
   const [programFormData, setProgramFormData] = useState<Partial<Program>>({})
+  const [programIterations, setProgramIterations] = useState<Partial<ClassIteration>[]>([])
+  const [editingIterationIndex, setEditingIterationIndex] = useState<number | null>(null)
   const [showArchivedCategories, setShowArchivedCategories] = useState(false)
   const [showArchivedClasses, setShowArchivedClasses] = useState(false)
   const [categoryArchiveSearch, setCategoryArchiveSearch] = useState('')
@@ -50,6 +66,10 @@ export default function AdminClasses() {
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showClassModal, setShowClassModal] = useState(false)
   const [selectedCategoryForClass, setSelectedCategoryForClass] = useState<number | null>(null)
+  const [iterations, setIterations] = useState<ClassIteration[]>([])
+  const [editingIterationId, setEditingIterationId] = useState<number | null>(null)
+  const [iterationFormData, setIterationFormData] = useState<Partial<ClassIteration>>({})
+  const [showIterationModal, setShowIterationModal] = useState(false)
 
   const fetchAllPrograms = async () => {
     try {
@@ -221,8 +241,6 @@ export default function AdminClasses() {
         categoryId: selectedCategoryForClass
       }
       
-      // We need to create a program endpoint that accepts categoryId
-      // For now, we'll use the existing structure but need to update backend
       const response = await fetch(`${apiUrl}/api/admin/programs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -230,8 +248,36 @@ export default function AdminClasses() {
       })
       
       if (response.ok) {
+        const data = await response.json()
+        const newProgramId = data.data?.id
+        
+        // Create iterations if any were specified
+        if (newProgramId && programIterations.length > 0) {
+          for (const iteration of programIterations) {
+            // Ensure time format is correct (HH:MM:SS)
+            let startTime = iteration.startTime || '18:00:00'
+            let endTime = iteration.endTime || '19:30:00'
+            if (startTime.length === 5) startTime = `${startTime}:00`
+            if (endTime.length === 5) endTime = `${endTime}:00`
+            
+            await fetch(`${apiUrl}/api/admin/programs/${newProgramId}/iterations`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                daysOfWeek: iteration.daysOfWeek || [1, 2, 3, 4, 5],
+                startTime,
+                endTime,
+                durationType: iteration.durationType || 'indefinite',
+                startDate: iteration.startDate,
+                endDate: iteration.endDate
+              })
+            })
+          }
+        }
+        
         await fetchAllPrograms()
         setProgramFormData({})
+        setProgramIterations([])
         setShowClassModal(false)
         setSelectedCategoryForClass(null)
       } else {
@@ -319,7 +365,27 @@ export default function AdminClasses() {
     }
   }
 
-  const handleEditProgram = (program: Program) => {
+  const fetchIterations = async (programId: number) => {
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/programs/${programId}/iterations`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          const fetchedIterations = data.data || []
+          setIterations(fetchedIterations)
+          return fetchedIterations
+        }
+      }
+      return []
+    } catch (error) {
+      console.error('Error fetching iterations:', error)
+      setIterations([])
+      return []
+    }
+  }
+
+  const handleEditProgram = async (program: Program) => {
     setEditingProgramId(program.id)
     setProgramFormData({
       displayName: program.displayName,
@@ -333,6 +399,18 @@ export default function AdminClasses() {
       categoryId: program.categoryId || null, // Allow updating category
       categoryDisplayName: program.categoryDisplayName || program.categoryName || program.category || null // For display only
     })
+    const fetchedIterations = await fetchIterations(program.id)
+    // Convert fetched iterations to form data format
+    const iterationsData = fetchedIterations.map((iter: ClassIteration) => ({
+      daysOfWeek: iter.daysOfWeek,
+      startTime: iter.startTime,
+      endTime: iter.endTime,
+      durationType: iter.durationType,
+      startDate: iter.startDate || undefined,
+      endDate: iter.endDate || undefined
+    }))
+    setProgramIterations(iterationsData)
+    setEditingIterationIndex(null)
   }
 
   const handleUpdateProgram = async () => {
@@ -352,10 +430,69 @@ export default function AdminClasses() {
       })
       
       if (response.ok) {
+        // Update iterations - first get existing iterations
+        const existingIterationsResponse = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations`)
+        const existingIterationsData = existingIterationsResponse.ok ? await existingIterationsResponse.json() : { data: [] }
+        const existingIterations = existingIterationsData.data || []
+        
+        // Delete iterations that are no longer in programIterations
+        for (const existing of existingIterations) {
+          const stillExists = programIterations.some((iter, idx) => {
+            // Match by iteration number or by comparing all fields
+            return existing.iterationNumber === idx + 1
+          })
+          if (!stillExists) {
+            await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations/${existing.id}`, {
+              method: 'DELETE'
+            })
+          }
+        }
+        
+        // Create or update iterations
+        for (let i = 0; i < programIterations.length; i++) {
+          const iteration = programIterations[i]
+          const existing = existingIterations.find((iter: ClassIteration) => iter.iterationNumber === i + 1)
+          
+          // Ensure time format is correct (HH:MM:SS)
+          let startTime = iteration.startTime || '18:00:00'
+          let endTime = iteration.endTime || '19:30:00'
+          if (startTime.length === 5) startTime = `${startTime}:00`
+          if (endTime.length === 5) endTime = `${endTime}:00`
+          
+          const iterationData = {
+            daysOfWeek: iteration.daysOfWeek || [1, 2, 3, 4, 5],
+            startTime,
+            endTime,
+            durationType: iteration.durationType || 'indefinite',
+            startDate: iteration.startDate,
+            endDate: iteration.endDate
+          }
+          
+          if (existing) {
+            // Update existing iteration
+            await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations/${existing.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(iterationData)
+            })
+          } else {
+            // Create new iteration
+            await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(iterationData)
+            })
+          }
+        }
+        
         // Refresh both programs and categories to ensure UI is up to date
         await Promise.all([fetchAllPrograms(), fetchAllCategories()])
+        if (editingProgramId) {
+          await fetchIterations(editingProgramId)
+        }
         setEditingProgramId(null)
         setProgramFormData({})
+        setProgramIterations([])
       } else {
         const data = await response.json()
         const errorMessage = data.errors ? data.errors.join(', ') : (data.message || 'Failed to update program')
@@ -367,6 +504,130 @@ export default function AdminClasses() {
       const errorMessage = error instanceof Error ? error.message : 'Network error'
       alert(`Failed to update program: ${errorMessage}`)
     }
+  }
+
+  const handleCreateIteration = async () => {
+    if (!editingProgramId) return
+    
+    try {
+      const apiUrl = getApiUrl()
+      // Ensure time format is correct (HH:MM:SS)
+      const formData = { ...iterationFormData }
+      if (formData.startTime && formData.startTime.length === 5) {
+        formData.startTime = `${formData.startTime}:00`
+      }
+      if (formData.endTime && formData.endTime.length === 5) {
+        formData.endTime = `${formData.endTime}:00`
+      }
+      
+      const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+      
+      if (response.ok) {
+        await fetchIterations(editingProgramId)
+        setIterationFormData({})
+        setShowIterationModal(false)
+        setEditingIterationId(null)
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to create iteration')
+      }
+    } catch (error) {
+      console.error('Error creating iteration:', error)
+      alert('Failed to create iteration')
+    }
+  }
+
+  const handleUpdateIteration = async () => {
+    if (!editingProgramId || !editingIterationId) return
+    
+    try {
+      const apiUrl = getApiUrl()
+      // Ensure time format is correct (HH:MM:SS)
+      const formData = { ...iterationFormData }
+      if (formData.startTime && formData.startTime.length === 5) {
+        formData.startTime = `${formData.startTime}:00`
+      }
+      if (formData.endTime && formData.endTime.length === 5) {
+        formData.endTime = `${formData.endTime}:00`
+      }
+      
+      const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations/${editingIterationId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+      
+      if (response.ok) {
+        await fetchIterations(editingProgramId)
+        setIterationFormData({})
+        setShowIterationModal(false)
+        setEditingIterationId(null)
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to update iteration')
+      }
+    } catch (error) {
+      console.error('Error updating iteration:', error)
+      alert('Failed to update iteration')
+    }
+  }
+
+  const handleDeleteIteration = async (iterationId: number) => {
+    if (!editingProgramId) return
+    if (!confirm('Are you sure you want to delete this iteration?')) return
+    
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations/${iterationId}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        await fetchIterations(editingProgramId)
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to delete iteration')
+      }
+    } catch (error) {
+      console.error('Error deleting iteration:', error)
+      alert('Failed to delete iteration')
+    }
+  }
+
+  const handleEditIteration = (iteration: ClassIteration) => {
+    setEditingIterationId(iteration.id)
+    setIterationFormData({
+      daysOfWeek: iteration.daysOfWeek,
+      startTime: iteration.startTime,
+      endTime: iteration.endTime,
+      durationType: iteration.durationType,
+      startDate: iteration.startDate || undefined,
+      endDate: iteration.endDate || undefined
+    })
+    setShowIterationModal(true)
+  }
+
+  const addIterationToForm = () => {
+    setProgramIterations([...programIterations, {
+      daysOfWeek: [1, 2, 3, 4, 5],
+      startTime: '18:00:00',
+      endTime: '19:30:00',
+      durationType: 'indefinite'
+    }])
+  }
+
+  const updateIterationInForm = (index: number, iteration: Partial<ClassIteration>) => {
+    const updated = [...programIterations]
+    updated[index] = { ...updated[index], ...iteration }
+    setProgramIterations(updated)
+  }
+
+  const removeIterationFromForm = (index: number) => {
+    setProgramIterations(programIterations.filter((_, i) => i !== index))
   }
 
   useEffect(() => {
@@ -976,6 +1237,167 @@ export default function AdminClasses() {
                                 />
                                 <label className="text-sm font-semibold text-gray-700">Active</label>
                               </div>
+                              
+                              {/* Class Iterations Section */}
+                              <div className="border-t border-gray-300 pt-4 mt-4">
+                                <div className="flex justify-between items-center mb-4">
+                                  <h4 className="text-lg font-semibold text-gray-700">Class Iterations</h4>
+                                  <button
+                                    type="button"
+                                    onClick={addIterationToForm}
+                                    className="flex items-center gap-2 px-3 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    Add Iteration
+                                  </button>
+                                </div>
+                                {programIterations.length === 0 ? (
+                                  <p className="text-sm text-gray-500">No iterations yet. Add one to set class schedule.</p>
+                                ) : (
+                                  <div className="space-y-3">
+                                    {programIterations.map((iteration, index) => {
+                                      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                                      const days = (iteration.daysOfWeek || []).map((d: number) => dayNames[d]).join(', ')
+                                      return (
+                                        <div key={index} className="bg-gray-50 p-3 rounded border border-gray-200">
+                                          <div className="flex justify-between items-start">
+                                            <div className="flex-1">
+                                              <div className="font-semibold text-gray-800 mb-2">
+                                                Iteration {index + 1}
+                                              </div>
+                                              {editingIterationIndex === index ? (
+                                                <div className="space-y-3">
+                                                  <div>
+                                                    <label className="block text-xs font-semibold text-gray-700 mb-1">Days of Week *</label>
+                                                    <div className="grid grid-cols-7 gap-1">
+                                                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, dayIndex) => (
+                                                        <label key={day} className="flex items-center space-x-1">
+                                                          <input
+                                                            type="checkbox"
+                                                            checked={(iteration.daysOfWeek || []).includes(dayIndex)}
+                                                            onChange={(e) => {
+                                                              const currentDays = iteration.daysOfWeek || []
+                                                              let newDays
+                                                              if (e.target.checked) {
+                                                                newDays = [...currentDays, dayIndex].sort()
+                                                              } else {
+                                                                newDays = currentDays.filter((d: number) => d !== dayIndex)
+                                                              }
+                                                              updateIterationInForm(index, { daysOfWeek: newDays })
+                                                            }}
+                                                            className="w-3 h-3 text-vortex-red bg-white border-gray-300 rounded focus:ring-vortex-red"
+                                                          />
+                                                          <span className="text-xs text-gray-700">{day}</span>
+                                                        </label>
+                                                      ))}
+                                                    </div>
+                                                  </div>
+                                                  <div className="grid grid-cols-2 gap-2">
+                                                    <div>
+                                                      <label className="block text-xs font-semibold text-gray-700 mb-1">Start Time *</label>
+                                                      <input
+                                                        type="time"
+                                                        value={iteration.startTime ? iteration.startTime.substring(0, 5) : '18:00'}
+                                                        onChange={(e) => updateIterationInForm(index, { startTime: e.target.value || '18:00:00' })}
+                                                        className="w-full px-2 py-1 bg-white text-black rounded border border-gray-300 text-sm"
+                                                      />
+                                                    </div>
+                                                    <div>
+                                                      <label className="block text-xs font-semibold text-gray-700 mb-1">End Time *</label>
+                                                      <input
+                                                        type="time"
+                                                        value={iteration.endTime ? iteration.endTime.substring(0, 5) : '19:30'}
+                                                        onChange={(e) => updateIterationInForm(index, { endTime: e.target.value || '19:30:00' })}
+                                                        className="w-full px-2 py-1 bg-white text-black rounded border border-gray-300 text-sm"
+                                                      />
+                                                    </div>
+                                                  </div>
+                                                  <div>
+                                                    <label className="block text-xs font-semibold text-gray-700 mb-1">Duration Type *</label>
+                                                    <select
+                                                      value={iteration.durationType || 'indefinite'}
+                                                      onChange={(e) => updateIterationInForm(index, { durationType: e.target.value as 'indefinite' | '3_month_block' | 'finite' })}
+                                                      className="w-full px-2 py-1 bg-white text-black rounded border border-gray-300 text-sm"
+                                                    >
+                                                      <option value="indefinite">Indefinite</option>
+                                                      <option value="3_month_block">3-Month Block</option>
+                                                      <option value="finite">Finite (Specific Dates)</option>
+                                                    </select>
+                                                  </div>
+                                                  {(iteration.durationType === '3_month_block' || iteration.durationType === 'finite') && (
+                                                    <div>
+                                                      <label className="block text-xs font-semibold text-gray-700 mb-1">Start Date *</label>
+                                                      <input
+                                                        type="date"
+                                                        value={iteration.startDate || ''}
+                                                        onChange={(e) => updateIterationInForm(index, { startDate: e.target.value })}
+                                                        className="w-full px-2 py-1 bg-white text-black rounded border border-gray-300 text-sm"
+                                                      />
+                                                    </div>
+                                                  )}
+                                                  {iteration.durationType === 'finite' && (
+                                                    <div>
+                                                      <label className="block text-xs font-semibold text-gray-700 mb-1">End Date *</label>
+                                                      <input
+                                                        type="date"
+                                                        value={iteration.endDate || ''}
+                                                        onChange={(e) => updateIterationInForm(index, { endDate: e.target.value })}
+                                                        className="w-full px-2 py-1 bg-white text-black rounded border border-gray-300 text-sm"
+                                                      />
+                                                    </div>
+                                                  )}
+                                                  <div className="flex gap-2">
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => setEditingIterationIndex(null)}
+                                                      className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-white text-xs font-medium"
+                                                    >
+                                                      Done
+                                                    </button>
+                                                  </div>
+                                                </div>
+                                              ) : (
+                                                <div className="text-sm text-gray-600 space-y-1">
+                                                  <div><span className="font-medium">Days:</span> {days || 'None'}</div>
+                                                  <div><span className="font-medium">Time:</span> {iteration.startTime?.substring(0, 5) || '18:00'} - {iteration.endTime?.substring(0, 5) || '19:30'}</div>
+                                                  <div><span className="font-medium">Duration:</span> {
+                                                    iteration.durationType === 'indefinite' ? 'Indefinite' :
+                                                    iteration.durationType === '3_month_block' ? `3-Month Block (from ${iteration.startDate || 'TBD'})` :
+                                                    `Finite (${iteration.startDate || 'TBD'} to ${iteration.endDate || 'TBD'})`
+                                                  }</div>
+                                                </div>
+                                              )}
+                                            </div>
+                                            <div className="flex gap-2 ml-2">
+                                              {editingIterationIndex !== index && (
+                                                <>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => setEditingIterationIndex(index)}
+                                                    className="flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-medium"
+                                                  >
+                                                    <Edit2 className="w-3 h-3" />
+                                                    Edit
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => removeIterationFromForm(index)}
+                                                    className="flex items-center gap-1 px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-white text-xs font-medium"
+                                                  >
+                                                    <X className="w-3 h-3" />
+                                                    Remove
+                                                  </button>
+                                                </>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                              
                               <div className="flex gap-2">
                                 <button
                                   onClick={handleUpdateProgram}
@@ -988,6 +1410,9 @@ export default function AdminClasses() {
                                   onClick={() => {
                                     setEditingProgramId(null)
                                     setProgramFormData({})
+                                    setIterations([])
+                                    setProgramIterations([])
+                                    setEditingIterationIndex(null)
                                   }}
                                   className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
                                 >
@@ -1403,12 +1828,174 @@ export default function AdminClasses() {
                   />
                   <label className="text-sm font-semibold text-gray-300">Active</label>
                 </div>
+
+                {/* Class Iterations Section */}
+                <div className="border-t border-gray-600 pt-4 mt-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-lg font-semibold text-gray-300">Class Iterations</h4>
+                    <button
+                      type="button"
+                      onClick={addIterationToForm}
+                      className="flex items-center gap-2 px-3 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Iteration
+                    </button>
+                  </div>
+                  {programIterations.length === 0 ? (
+                    <p className="text-sm text-gray-400">No iterations yet. Add one to set class schedule. A default iteration will be created if none are specified.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {programIterations.map((iteration, index) => {
+                        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                        const days = (iteration.daysOfWeek || []).map((d: number) => dayNames[d]).join(', ')
+                        return (
+                          <div key={index} className="bg-gray-700 p-3 rounded border border-gray-600">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className="font-semibold text-gray-200 mb-2">
+                                  Iteration {index + 1}
+                                </div>
+                                {editingIterationIndex === index ? (
+                                  <div className="space-y-3">
+                                    <div>
+                                      <label className="block text-xs font-semibold text-gray-300 mb-1">Days of Week *</label>
+                                      <div className="grid grid-cols-7 gap-1">
+                                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, dayIndex) => (
+                                          <label key={day} className="flex items-center space-x-1">
+                                            <input
+                                              type="checkbox"
+                                              checked={(iteration.daysOfWeek || []).includes(dayIndex)}
+                                              onChange={(e) => {
+                                                const currentDays = iteration.daysOfWeek || []
+                                                let newDays
+                                                if (e.target.checked) {
+                                                  newDays = [...currentDays, dayIndex].sort()
+                                                } else {
+                                                  newDays = currentDays.filter((d: number) => d !== dayIndex)
+                                                }
+                                                updateIterationInForm(index, { daysOfWeek: newDays })
+                                              }}
+                                              className="w-3 h-3 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                                            />
+                                            <span className="text-xs text-gray-300">{day}</span>
+                                          </label>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div>
+                                        <label className="block text-xs font-semibold text-gray-300 mb-1">Start Time *</label>
+                                        <input
+                                          type="time"
+                                          value={iteration.startTime ? iteration.startTime.substring(0, 5) : '18:00'}
+                                          onChange={(e) => updateIterationInForm(index, { startTime: e.target.value || '18:00:00' })}
+                                          className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs font-semibold text-gray-300 mb-1">End Time *</label>
+                                        <input
+                                          type="time"
+                                          value={iteration.endTime ? iteration.endTime.substring(0, 5) : '19:30'}
+                                          onChange={(e) => updateIterationInForm(index, { endTime: e.target.value || '19:30:00' })}
+                                          className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-semibold text-gray-300 mb-1">Duration Type *</label>
+                                      <select
+                                        value={iteration.durationType || 'indefinite'}
+                                        onChange={(e) => updateIterationInForm(index, { durationType: e.target.value as 'indefinite' | '3_month_block' | 'finite' })}
+                                        className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                      >
+                                        <option value="indefinite">Indefinite</option>
+                                        <option value="3_month_block">3-Month Block</option>
+                                        <option value="finite">Finite (Specific Dates)</option>
+                                      </select>
+                                    </div>
+                                    {(iteration.durationType === '3_month_block' || iteration.durationType === 'finite') && (
+                                      <div>
+                                        <label className="block text-xs font-semibold text-gray-300 mb-1">Start Date *</label>
+                                        <input
+                                          type="date"
+                                          value={iteration.startDate || ''}
+                                          onChange={(e) => updateIterationInForm(index, { startDate: e.target.value })}
+                                          className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                        />
+                                      </div>
+                                    )}
+                                    {iteration.durationType === 'finite' && (
+                                      <div>
+                                        <label className="block text-xs font-semibold text-gray-300 mb-1">End Date *</label>
+                                        <input
+                                          type="date"
+                                          value={iteration.endDate || ''}
+                                          onChange={(e) => updateIterationInForm(index, { endDate: e.target.value })}
+                                          className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                        />
+                                      </div>
+                                    )}
+                                    <div className="flex gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => setEditingIterationIndex(null)}
+                                        className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-white text-xs font-medium"
+                                      >
+                                        Done
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="text-sm text-gray-400 space-y-1">
+                                    <div><span className="font-medium">Days:</span> {days || 'None'}</div>
+                                    <div><span className="font-medium">Time:</span> {iteration.startTime?.substring(0, 5) || '18:00'} - {iteration.endTime?.substring(0, 5) || '19:30'}</div>
+                                    <div><span className="font-medium">Duration:</span> {
+                                      iteration.durationType === 'indefinite' ? 'Indefinite' :
+                                      iteration.durationType === '3_month_block' ? `3-Month Block (from ${iteration.startDate || 'TBD'})` :
+                                      `Finite (${iteration.startDate || 'TBD'} to ${iteration.endDate || 'TBD'})`
+                                    }</div>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex gap-2 ml-2">
+                                {editingIterationIndex !== index && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingIterationIndex(index)}
+                                      className="flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-medium"
+                                    >
+                                      <Edit2 className="w-3 h-3" />
+                                      Edit
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => removeIterationFromForm(index)}
+                                      className="flex items-center gap-1 px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-white text-xs font-medium"
+                                    >
+                                      <X className="w-3 h-3" />
+                                      Remove
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex gap-2 justify-end">
                   <button
                     onClick={() => {
                       setShowClassModal(false)
                       setSelectedCategoryForClass(null)
                       setProgramFormData({})
+                      setProgramIterations([])
                     }}
                     className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
                   >
@@ -1419,6 +2006,158 @@ export default function AdminClasses() {
                     className="px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
                   >
                     Create Class
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Iteration Modal */}
+      <AnimatePresence>
+        {showIterationModal && editingProgramId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                setShowIterationModal(false)
+                setEditingIterationId(null)
+                setIterationFormData({})
+              }}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">
+                  {editingIterationId ? 'Edit Iteration' : 'Add New Iteration'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowIterationModal(false)
+                    setEditingIterationId(null)
+                    setIterationFormData({})
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Days of Week *</label>
+                  <div className="grid grid-cols-7 gap-2">
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+                      <label key={day} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={(iterationFormData.daysOfWeek || []).includes(index)}
+                          onChange={(e) => {
+                            const currentDays = iterationFormData.daysOfWeek || []
+                            if (e.target.checked) {
+                              setIterationFormData({ ...iterationFormData, daysOfWeek: [...currentDays, index].sort() })
+                            } else {
+                              setIterationFormData({ ...iterationFormData, daysOfWeek: currentDays.filter(d => d !== index) })
+                            }
+                          }}
+                          className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                        />
+                        <span className="text-sm text-gray-300">{day}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Start Time *</label>
+                    <input
+                      type="time"
+                      value={iterationFormData.startTime ? iterationFormData.startTime.substring(0, 5) : '18:00'}
+                      onChange={(e) => {
+                        const time = e.target.value
+                        setIterationFormData({ ...iterationFormData, startTime: time || '18:00:00' })
+                      }}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">End Time *</label>
+                    <input
+                      type="time"
+                      value={iterationFormData.endTime ? iterationFormData.endTime.substring(0, 5) : '19:30'}
+                      onChange={(e) => {
+                        const time = e.target.value
+                        setIterationFormData({ ...iterationFormData, endTime: time || '19:30:00' })
+                      }}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Duration Type *</label>
+                  <select
+                    value={iterationFormData.durationType || 'indefinite'}
+                    onChange={(e) => setIterationFormData({ ...iterationFormData, durationType: e.target.value as 'indefinite' | '3_month_block' | 'finite' })}
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                  >
+                    <option value="indefinite">Indefinite</option>
+                    <option value="3_month_block">3-Month Block</option>
+                    <option value="finite">Finite (Specific Dates)</option>
+                  </select>
+                </div>
+                {(iterationFormData.durationType === '3_month_block' || iterationFormData.durationType === 'finite') && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Start Date *</label>
+                    <input
+                      type="date"
+                      value={iterationFormData.startDate || ''}
+                      onChange={(e) => setIterationFormData({ ...iterationFormData, startDate: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      required
+                    />
+                  </div>
+                )}
+                {iterationFormData.durationType === 'finite' && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">End Date *</label>
+                    <input
+                      type="date"
+                      value={iterationFormData.endDate || ''}
+                      onChange={(e) => setIterationFormData({ ...iterationFormData, endDate: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      required
+                    />
+                  </div>
+                )}
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={() => {
+                      setShowIterationModal(false)
+                      setEditingIterationId(null)
+                      setIterationFormData({})
+                    }}
+                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={editingIterationId ? handleUpdateIteration : handleCreateIteration}
+                    className="px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
+                  >
+                    {editingIterationId ? 'Save Changes' : 'Create Iteration'}
                   </button>
                 </div>
               </div>

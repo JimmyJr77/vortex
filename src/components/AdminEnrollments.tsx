@@ -184,13 +184,54 @@ export default function AdminEnrollments() {
   }
 
   const fetchClassOfferings = async () => {
-    try {
-      // TODO: Create backend endpoint to get class offerings for a program
-      // For now, we'll show a placeholder or use enrollment days
-      // The user mentioned they'll set up course offerings later
+    if (!selectedProgram) {
       setClassOfferings([])
+      return
+    }
+    
+    try {
+      const response = await fetch(`${apiUrl}/api/admin/programs/${selectedProgram.id}/iterations`, {
+        headers: {
+          'Authorization': `Bearer ${adminToken}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.data) {
+          // Convert iterations to ClassOffering format for display
+          const offerings: ClassOffering[] = []
+          data.data.forEach((iteration: {
+            id: number
+            iterationNumber: number
+            daysOfWeek: number[]
+            startTime: string
+            endTime: string
+            durationType: string
+            startDate?: string
+            endDate?: string
+          }) => {
+            // Create a separate offering for each day
+            iteration.daysOfWeek.forEach(day => {
+              offerings.push({
+                id: iteration.id,
+                day_of_week: day,
+                start_time: iteration.startTime,
+                end_time: iteration.endTime,
+                name: `Iteration ${iteration.iterationNumber}`
+              })
+            })
+          })
+          setClassOfferings(offerings)
+        } else {
+          setClassOfferings([])
+        }
+      } else {
+        setClassOfferings([])
+      }
     } catch (error) {
       console.error('Error fetching class offerings:', error)
+      setClassOfferings([])
     }
   }
 
@@ -295,7 +336,7 @@ export default function AdminEnrollments() {
               </h3>
               <div className="space-y-2">
                 {classOfferings.map((offering, index) => (
-                  <div key={offering.id || index} className="bg-gray-50 p-3 rounded border border-gray-200">
+                  <div key={`${offering.id}-${offering.day_of_week}-${index}`} className="bg-gray-50 p-3 rounded border border-gray-200">
                     <div className="font-medium">{dayNames[offering.day_of_week]}</div>
                     <div className="text-sm text-gray-600">
                       {offering.start_time} - {offering.end_time}
@@ -311,7 +352,7 @@ export default function AdminEnrollments() {
                 Class Schedule
               </h3>
               <p className="text-gray-600">
-                Class schedule details will be available once course offerings are configured.
+                No Class Offerings for this Class Found.
               </p>
             </div>
           )}
