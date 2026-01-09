@@ -52,7 +52,15 @@ export default function AdminEnrollments() {
   }>>([])
 
   const apiUrl = getApiUrl()
-  const adminToken = localStorage.getItem('adminToken')
+  
+  // Check for admin token on component mount and warn if missing
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken')
+    const isAdmin = localStorage.getItem('vortex_admin') === 'true'
+    if (isAdmin && !token) {
+      console.warn('[AdminEnrollments] Admin is logged in but no token found. This may cause authentication issues. Please log out and log back in.')
+    }
+  }, [])
 
   useEffect(() => {
     fetchPrograms()
