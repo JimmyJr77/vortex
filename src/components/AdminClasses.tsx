@@ -479,19 +479,49 @@ export default function AdminClasses() {
           
           // Get timeBlocks or convert legacy format
           const timeBlocks = iteration.timeBlocks && iteration.timeBlocks.length > 0
-            ? iteration.timeBlocks.map(tb => ({
-                daysOfWeek: tb.daysOfWeek || [],
-                startTime: tb.startTime && tb.startTime.length === 5 ? `${tb.startTime}:00` : (tb.startTime || '18:00:00'),
-                endTime: tb.endTime && tb.endTime.length === 5 ? `${tb.endTime}:00` : (tb.endTime || '19:30:00')
-              }))
+            ? iteration.timeBlocks
+                .map(tb => ({
+                  // Ensure daysOfWeek is always a non-empty array (default to Mon-Fri if empty)
+                  daysOfWeek: Array.isArray(tb.daysOfWeek) && tb.daysOfWeek.length > 0 
+                    ? tb.daysOfWeek 
+                    : [1, 2, 3, 4, 5],
+                  // Ensure times are properly formatted (HH:MM:SS)
+                  startTime: tb.startTime 
+                    ? (tb.startTime.length === 5 ? `${tb.startTime}:00` : tb.startTime)
+                    : '18:00:00',
+                  endTime: tb.endTime 
+                    ? (tb.endTime.length === 5 ? `${tb.endTime}:00` : tb.endTime)
+                    : '19:30:00'
+                }))
+                .filter(tb => tb.daysOfWeek && tb.daysOfWeek.length > 0) // Filter out any invalid blocks
             : [{
-                daysOfWeek: iteration.daysOfWeek || [1, 2, 3, 4, 5],
-                startTime: (iteration.startTime || '18:00:00').length === 5 ? `${iteration.startTime}:00` : (iteration.startTime || '18:00:00'),
-                endTime: (iteration.endTime || '19:30:00').length === 5 ? `${iteration.endTime}:00` : (iteration.endTime || '19:30:00')
+                daysOfWeek: Array.isArray(iteration.daysOfWeek) && iteration.daysOfWeek.length > 0
+                  ? iteration.daysOfWeek
+                  : [1, 2, 3, 4, 5],
+                startTime: iteration.startTime 
+                  ? ((iteration.startTime.length === 5 ? `${iteration.startTime}:00` : iteration.startTime))
+                  : '18:00:00',
+                endTime: iteration.endTime 
+                  ? ((iteration.endTime.length === 5 ? `${iteration.endTime}:00` : iteration.endTime))
+                  : '19:30:00'
               }]
+          
+          // Ensure we have at least one valid time block
+          if (timeBlocks.length === 0) {
+            timeBlocks.push({
+              daysOfWeek: [1, 2, 3, 4, 5],
+              startTime: '18:00:00',
+              endTime: '19:30:00'
+            })
+          }
           
           // For backward compatibility, also send first time block as legacy fields
           const firstTimeBlock = timeBlocks[0]
+          
+          // Ensure firstTimeBlock has valid daysOfWeek
+          if (!firstTimeBlock.daysOfWeek || firstTimeBlock.daysOfWeek.length === 0) {
+            firstTimeBlock.daysOfWeek = [1, 2, 3, 4, 5]
+          }
           
           const iterationData = {
             daysOfWeek: firstTimeBlock.daysOfWeek,
@@ -499,8 +529,8 @@ export default function AdminClasses() {
             endTime: firstTimeBlock.endTime,
             timeBlocks: timeBlocks, // Always send timeBlocks (even if single block)
             durationType: iteration.durationType || 'indefinite',
-            startDate: iteration.startDate,
-            endDate: iteration.endDate
+            startDate: iteration.startDate || null,
+            endDate: iteration.endDate || null
           }
           
           if (existing) {

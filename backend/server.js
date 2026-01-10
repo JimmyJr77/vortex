@@ -8785,8 +8785,9 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
 
 // Update an iteration
 app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, res) => {
+  const { programId, iterationId } = req.params
+  
   try {
-    const { programId, iterationId } = req.params
     const { daysOfWeek, startTime, endTime, timeBlocks, durationType, startDate, endDate } = req.body
 
     // Ensure table exists (create if missing)
@@ -8813,6 +8814,52 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
       })
     }
 
+    // Validate and normalize daysOfWeek
+    let normalizedDaysOfWeek = daysOfWeek
+    if (!daysOfWeek || !Array.isArray(daysOfWeek) || daysOfWeek.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'daysOfWeek must be a non-empty array'
+      })
+    }
+
+    // Convert to integers and validate each day is between 1-7
+    try {
+      normalizedDaysOfWeek = daysOfWeek.map(day => {
+        const numDay = typeof day === 'string' ? parseInt(day, 10) : day
+        if (!Number.isInteger(numDay) || numDay < 1 || numDay > 7) {
+          throw new Error(`Invalid day value: ${day}`)
+        }
+        return numDay
+      })
+    } catch (validationError) {
+      return res.status(400).json({
+        success: false,
+        message: 'daysOfWeek must contain integers between 1 and 7 (1=Monday, 7=Sunday)'
+      })
+    }
+
+    if (!startTime || typeof startTime !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'startTime is required and must be a string'
+      })
+    }
+
+    if (!endTime || typeof endTime !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'endTime is required and must be a string'
+      })
+    }
+
+    if (!durationType || !['indefinite', '3_month_block', 'finite'].includes(durationType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'durationType must be one of: indefinite, 3_month_block, finite'
+      })
+    }
+
     // Validate duration type specific fields
     if (durationType === 'finite' && (!startDate || !endDate)) {
       return res.status(400).json({
@@ -8832,8 +8879,52 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
     // Store timeBlocks if provided (even if single block), otherwise null for backward compatibility
     // For JSONB columns, pass the JavaScript object directly - pg will handle conversion
     let timeBlocksValue = null
-    if (timeBlocks && Array.isArray(timeBlocks) && timeBlocks.length > 0) {
-      timeBlocksValue = timeBlocks // Pass object directly for JSONB
+    if (timeBlocks) {
+      // If timeBlocks is a string, try to parse it
+      let parsedTimeBlocks = timeBlocks
+      if (typeof timeBlocks === 'string') {
+        try {
+          parsedTimeBlocks = JSON.parse(timeBlocks)
+        } catch (parseError) {
+          console.error('Failed to parse timeBlocks as JSON:', parseError)
+          return res.status(400).json({
+            success: false,
+            message: 'timeBlocks must be a valid JSON array'
+          })
+        }
+      }
+
+      // Validate it's an array
+      if (!Array.isArray(parsedTimeBlocks)) {
+        return res.status(400).json({
+          success: false,
+          message: 'timeBlocks must be an array'
+        })
+      }
+
+      // Validate and clean each time block
+      if (parsedTimeBlocks.length > 0) {
+        const cleanedTimeBlocks = parsedTimeBlocks.map(tb => {
+          if (!tb || typeof tb !== 'object') {
+            throw new Error('Each time block must be an object')
+          }
+          if (!Array.isArray(tb.daysOfWeek) || tb.daysOfWeek.length === 0) {
+            throw new Error('Each time block must have a non-empty daysOfWeek array')
+          }
+          if (!tb.startTime || typeof tb.startTime !== 'string') {
+            throw new Error('Each time block must have a valid startTime string')
+          }
+          if (!tb.endTime || typeof tb.endTime !== 'string') {
+            throw new Error('Each time block must have a valid endTime string')
+          }
+          return {
+            daysOfWeek: tb.daysOfWeek,
+            startTime: tb.startTime,
+            endTime: tb.endTime
+          }
+        })
+        timeBlocksValue = cleanedTimeBlocks
+      }
     }
 
     let result
@@ -8864,7 +8955,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
         created_at as "createdAt",
         updated_at as "updatedAt"
     `, [
-      daysOfWeek,
+      normalizedDaysOfWeek,
       startTime,
       endTime,
       timeBlocksValue,
@@ -8910,7 +9001,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
               created_at as "createdAt",
               updated_at as "updatedAt"
           `, [
-            daysOfWeek,
+            normalizedDaysOfWeek,
             startTime,
             endTime,
             timeBlocksValue,
@@ -8942,10 +9033,30 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
     })
   } catch (error) {
     console.error('Update iteration error:', error)
+    console.error('Request body received:', JSON.stringify(req.body, null, 2))
+    console.error('Request params:', { programId, iterationId })
+    
+    // Provide more specific error messages for common issues
+    let errorMessage = 'Internal server error'
+    if (error.code === '22P02') {
+      errorMessage = 'Invalid data format - check that all fields are correctly formatted'
+    } else if (error.code === '23502') {
+      errorMessage = 'Required field is missing'
+    } else if (error.code === '23514') {
+      errorMessage = 'Data validation failed - check field constraints'
+    } else if (error.message) {
+      errorMessage = error.message
+    }
+
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? {
+        message: error.message,
+        code: error.code,
+        detail: error.detail,
+        where: error.where
+      } : undefined
     })
   }
 })
