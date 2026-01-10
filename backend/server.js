@@ -1289,6 +1289,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() })
 })
 
+// Test endpoint to verify routing works
+app.get('/api/test-enrollment-route', (req, res) => {
+  console.log('[Test] Test enrollment route endpoint hit')
+  res.json({ success: true, message: 'Enrollment route test - routing is working' })
+})
+
 // Module 0 verification endpoint
 app.get('/api/verify/module0', async (req, res) => {
   try {
