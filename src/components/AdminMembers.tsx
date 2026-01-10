@@ -63,6 +63,11 @@ interface Family {
   created_at: string
   updated_at: string
   archived?: boolean
+  // Additional properties for search results
+  familyName?: string
+  familyUsername?: string
+  family_username?: string
+  memberCount?: number
 }
 
 interface Program {
@@ -2256,11 +2261,11 @@ export default function AdminMembers() {
                     </div>
                     {memberSearchResults.length > 0 && (
                       <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
-                          {memberSearchResults.map((family: { id: number; familyName?: string; family_name?: string; familyUsername?: string; family_username?: string; memberCount?: number }) => (
+                          {memberSearchResults.map((family: Family) => (
                           <div
                             key={family.id}
                               onClick={() => {
-                                setSelectedFamilyForMember(family as Family)
+                                setSelectedFamilyForMember(family)
                                 setMemberModalMode('existing-family')
                                 setFamilyJoinInfo(prev => ({ ...prev, familyId: family.id }))
                               }}

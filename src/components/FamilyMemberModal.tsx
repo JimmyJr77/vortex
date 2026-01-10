@@ -172,15 +172,13 @@ export default function FamilyMemberModal(props: FamilyMemberModalProps) {
       }
     }
   ])
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<string | number | null>(null)
+  const [, setExpandedFamilyMemberId] = useState<string | number | null>(null)
   const [billingInfo, setBillingInfo] = useState({
     firstName: '',
     lastName: '',
     billingAddress: ''
   })
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isBillingExpanded, setIsBillingExpanded] = useState(true)
+  const [, setIsBillingExpanded] = useState(true)
 
   const populateFormFromFamily = async (family: Family, editingUserId?: number | null) => {
     const apiUrl = getApiUrl()
