@@ -2540,7 +2540,27 @@ app.get('/api/admin/members', async (req, res) => {
 // This endpoint returns members in the format expected by legacy code that uses "athletes"
 app.get('/api/admin/athletes', async (req, res) => {
   try {
-    // Forward to members endpoint
+    // Check if member table exists
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member'
+      )
+    `)
+    
+    const hasMemberTable = tableCheck.rows[0].exists
+    
+    if (!hasMemberTable) {
+      // Return empty array if table doesn't exist yet
+      return res.json({
+        success: true,
+        data: [],
+        athletes: []
+      })
+    }
+    
+    // Query members
     const membersResponse = await pool.query(`
       SELECT 
         m.id,
@@ -2567,28 +2587,33 @@ app.get('/api/admin/athletes', async (req, res) => {
     let enrollmentsMap = {}
     
     if (memberIds.length > 0) {
-      const enrollmentsResult = await pool.query(`
-        SELECT 
-          mp.member_id,
-          json_agg(
-            jsonb_build_object(
-              'id', mp.id,
-              'program_id', mp.program_id,
-              'iteration_id', mp.iteration_id,
-              'program_display_name', COALESCE(p.display_name, ''),
-              'days_per_week', mp.days_per_week,
-              'selected_days', mp.selected_days
-            )
-          ) as enrollments
-        FROM member_program mp
-        LEFT JOIN program p ON mp.program_id = p.id
-        WHERE mp.member_id = ANY($1::bigint[])
-        GROUP BY mp.member_id
-      `, [memberIds])
-      
-      enrollmentsResult.rows.forEach(row => {
-        enrollmentsMap[row.member_id] = row.enrollments || []
-      })
+      try {
+        const enrollmentsResult = await pool.query(`
+          SELECT 
+            mp.member_id,
+            json_agg(
+              jsonb_build_object(
+                'id', mp.id,
+                'program_id', mp.program_id,
+                'iteration_id', mp.iteration_id,
+                'program_display_name', COALESCE(p.display_name, ''),
+                'days_per_week', mp.days_per_week,
+                'selected_days', mp.selected_days
+              )
+            ) as enrollments
+          FROM member_program mp
+          LEFT JOIN program p ON mp.program_id = p.id
+          WHERE mp.member_id = ANY($1::bigint[])
+          GROUP BY mp.member_id
+        `, [memberIds])
+        
+        enrollmentsResult.rows.forEach(row => {
+          enrollmentsMap[row.member_id] = row.enrollments || []
+        })
+      } catch (enrollmentsError) {
+        // member_program table might not exist yet
+        console.warn('Error fetching enrollments (table might not exist):', enrollmentsError.message)
+      }
     }
     
     // Format as athletes (snake_case for backward compatibility)
@@ -2626,6 +2651,22 @@ app.get('/api/admin/athletes', async (req, res) => {
 app.get('/api/admin/athletes/:id/enrollments', async (req, res) => {
   try {
     const { id } = req.params
+    
+    // Check if member_program table exists
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member_program'
+      )
+    `)
+    
+    if (!tableCheck.rows[0].exists) {
+      return res.json({
+        success: true,
+        data: []
+      })
+    }
     
     const enrollmentsResult = await pool.query(`
       SELECT 
@@ -2670,6 +2711,22 @@ app.get('/api/admin/athletes/:id/enrollments', async (req, res) => {
 app.get('/api/admin/athletes/:id', async (req, res) => {
   try {
     const { id } = req.params
+    
+    // Check if member table exists
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member'
+      )
+    `)
+    
+    if (!tableCheck.rows[0].exists) {
+      return res.status(404).json({
+        success: false,
+        message: 'Athlete not found'
+      })
+    }
     
     const memberResult = await pool.query(`
       SELECT 
@@ -2727,6 +2784,22 @@ app.put('/api/admin/athletes/:id', async (req, res) => {
   try {
     const { id } = req.params
     const { firstName, lastName, dateOfBirth, medicalNotes, internalFlags } = req.body
+    
+    // Check if member table exists
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member'
+      )
+    `)
+    
+    if (!tableCheck.rows[0].exists) {
+      return res.status(404).json({
+        success: false,
+        message: 'Athlete not found'
+      })
+    }
     
     // Check if member exists
     const memberCheck = await pool.query('SELECT id FROM member WHERE id = $1', [id])
@@ -2796,6 +2869,22 @@ app.post('/api/admin/athletes', async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'firstName, lastName, and dateOfBirth are required'
+      })
+    }
+    
+    // Check if member table exists
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member'
+      )
+    `)
+    
+    if (!tableCheck.rows[0].exists) {
+      return res.status(500).json({
+        success: false,
+        message: 'Member table does not exist. Please run database migrations first.'
       })
     }
     

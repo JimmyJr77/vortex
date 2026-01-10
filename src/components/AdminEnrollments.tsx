@@ -217,8 +217,12 @@ export default function AdminEnrollments() {
       setIterationsLoading(true)
       console.log('Fetching iterations for program:', selectedProgram.id)
       
-      // Note: AdminClasses doesn't use Authorization header for this endpoint
-      const response = await fetch(`${apiUrl}/api/admin/programs/${selectedProgram.id}/iterations`)
+      const token = localStorage.getItem('adminToken')
+      const response = await fetch(`${apiUrl}/api/admin/programs/${selectedProgram.id}/iterations`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       
       console.log('Iterations response status:', response.status, response.ok)
       
