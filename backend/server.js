@@ -1759,17 +1759,7 @@ app.get('/api/admin/members', async (req, res) => {
     const { search, showArchived, role } = req.query
     const showArchivedBool = showArchived === 'true' || showArchived === true
     
-    // Get facility
-    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
-    if (facilityResult.rows.length === 0) {
-      return res.status(500).json({
-        success: false,
-        message: 'No facility found'
-      })
-    }
-    const facilityId = facilityResult.rows[0].id
-    
-    // Check if member table exists, if not fall back to legacy tables
+    // Check if member table exists
     const tableCheck = await pool.query(`
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
@@ -1780,136 +1770,207 @@ app.get('/api/admin/members', async (req, res) => {
     
     const hasMemberTable = tableCheck.rows[0].exists
     
-    if (hasMemberTable) {
-      // Use unified member table
-      let query = `
-        SELECT 
-          m.id,
-          m.first_name,
-          m.last_name,
-          m.email,
-          m.phone,
-          m.address,
-          m.billing_street,
-          m.billing_city,
-          m.billing_state,
-          m.billing_zip,
-          m.date_of_birth,
-          m.medical_notes,
-          m.internal_flags,
-          m.status,
-          m.is_active,
-          m.family_is_active,
-          m.family_id,
-          m.username,
-          m.created_at,
-          m.updated_at,
-          f.family_name,
-          EXTRACT(YEAR FROM AGE(m.date_of_birth)) as age,
-          COALESCE(
-            json_agg(
-              DISTINCT jsonb_build_object(
-                'id', ur.role,
-                'role', ur.role
-              )
-            ) FILTER (WHERE ur.role IS NOT NULL),
-            '[]'
-          ) as roles,
-          COALESCE(
-            json_agg(
-              DISTINCT jsonb_build_object(
-                'id', mp.id,
-                'program_id', mp.program_id,
-                'program_display_name', p.display_name,
-                'days_per_week', mp.days_per_week,
-                'selected_days', mp.selected_days
-              )
-            ) FILTER (WHERE mp.id IS NOT NULL),
-            '[]'
-          ) as enrollments
-        FROM member m
-        LEFT JOIN family f ON m.family_id = f.id
-        LEFT JOIN user_role ur ON m.id = ur.member_id
-        LEFT JOIN member_program mp ON m.id = mp.member_id
-        LEFT JOIN program p ON mp.program_id = p.id
-        WHERE m.facility_id = $1
-      `
-      const params = [facilityId]
-      let paramCount = 1
-      
-      // Filter by active/archived
-      if (!showArchivedBool) {
-        paramCount++
-        query += ` AND m.is_active = TRUE`
-      }
-      
-      // Search filter
-      if (search) {
-        paramCount++
-        query += ` AND (
-          m.first_name ILIKE $${paramCount} OR 
-          m.last_name ILIKE $${paramCount} OR 
-          m.email ILIKE $${paramCount} OR
-          m.phone ILIKE $${paramCount}
-        )`
-        params.push(`%${search}%`)
-      }
-      
-      // Role filter (if member has this role)
-      if (role) {
-        paramCount++
-        query += ` AND EXISTS (
-          SELECT 1 FROM user_role ur2 
-          WHERE ur2.member_id = m.id AND ur2.role = $${paramCount}::user_role
-        )`
-        params.push(role)
-      }
-      
-      query += ` GROUP BY m.id, f.family_name ORDER BY m.last_name, m.first_name`
-      
-      const result = await pool.query(query, params)
-      
-      // Format the response
-      const members = result.rows.map(row => ({
-        id: row.id,
-        firstName: row.first_name,
-        lastName: row.last_name,
-        email: row.email,
-        phone: row.phone,
-        address: row.address,
-        billingStreet: row.billing_street,
-        billingCity: row.billing_city,
-        billingState: row.billing_state,
-        billingZip: row.billing_zip,
-        dateOfBirth: row.date_of_birth,
-        age: row.age ? parseInt(row.age) : null,
-        medicalNotes: row.medical_notes,
-        internalFlags: row.internal_flags,
-        status: row.status,
-        isActive: row.is_active,
-        familyIsActive: row.family_is_active,
-        familyId: row.family_id,
-        familyName: row.family_name,
-        username: row.username,
-        roles: row.roles || [],
-        enrollments: row.enrollments || [],
-        createdAt: row.created_at,
-        updatedAt: row.updated_at
-      }))
-      
-      res.json({
-        success: true,
-        data: members
-      })
-    } else {
-      // Fallback: if member table doesn't exist, return empty (shouldn't happen in production)
-      res.json({
+    if (!hasMemberTable) {
+      return res.json({
         success: true,
         data: []
       })
     }
+    
+    // Check if facility_id column exists in member table
+    const facilityColumnCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member'
+        AND column_name = 'facility_id'
+      )
+    `)
+    
+    const hasFacilityColumn = facilityColumnCheck.rows[0].exists
+    let facilityId = null
+    
+    if (hasFacilityColumn) {
+      const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+      if (facilityResult.rows.length > 0) {
+        facilityId = facilityResult.rows[0].id
+      }
+    }
+    
+    // Check if user_role table has member_id column
+    const userRoleMemberIdCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'user_role'
+        AND column_name = 'member_id'
+      )
+    `)
+    
+    const userRoleHasMemberId = userRoleMemberIdCheck.rows[0].exists
+    
+    // Build base query - simplified to avoid complex joins that might fail
+    let query = `
+      SELECT 
+        m.id,
+        m.first_name,
+        m.last_name,
+        m.email,
+        m.phone,
+        m.address,
+        m.billing_street,
+        m.billing_city,
+        m.billing_state,
+        m.billing_zip,
+        m.date_of_birth,
+        m.medical_notes,
+        m.internal_flags,
+        m.status,
+        m.is_active,
+        m.family_is_active,
+        m.family_id,
+        m.username,
+        m.created_at,
+        m.updated_at,
+        f.family_name,
+        CASE WHEN m.date_of_birth IS NOT NULL 
+          THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
+          ELSE NULL 
+        END as age
+      FROM member m
+      LEFT JOIN family f ON m.family_id = f.id
+      WHERE 1=1
+    `
+    
+    const params = []
+    let paramCount = 0
+    
+    // Add facility filter if facility_id column exists and we have a facility
+    if (hasFacilityColumn && facilityId) {
+      paramCount++
+      query += ` AND m.facility_id = $${paramCount}`
+      params.push(facilityId)
+    }
+    
+    // Filter by active/archived
+    if (!showArchivedBool) {
+      query += ` AND m.is_active = TRUE`
+    }
+    
+    // Search filter
+    if (search) {
+      paramCount++
+      query += ` AND (
+        m.first_name ILIKE $${paramCount} OR 
+        m.last_name ILIKE $${paramCount} OR 
+        COALESCE(m.email, '') ILIKE $${paramCount} OR
+        COALESCE(m.phone, '') ILIKE $${paramCount} OR
+        COALESCE(f.family_name, '') ILIKE $${paramCount}
+      )`
+      params.push(`%${search}%`)
+    }
+    
+    // Role filter (if member has this role) - only if user_role has member_id
+    if (role && userRoleHasMemberId) {
+      paramCount++
+      query += ` AND EXISTS (
+        SELECT 1 FROM user_role ur 
+        WHERE ur.member_id = m.id AND ur.role = $${paramCount}::user_role
+      )`
+      params.push(role)
+    }
+    
+    query += ` ORDER BY m.last_name, m.first_name`
+    
+    const result = await pool.query(query, params)
+    
+    // Get enrollments separately to avoid complex joins
+    const memberIds = result.rows.map(row => row.id)
+    let enrollmentsMap = {}
+    
+    if (memberIds.length > 0) {
+      const enrollmentsQuery = `
+        SELECT 
+          mp.member_id,
+          json_agg(
+            jsonb_build_object(
+              'id', mp.id,
+              'program_id', mp.program_id,
+              'program_display_name', COALESCE(p.display_name, ''),
+              'days_per_week', mp.days_per_week,
+              'selected_days', mp.selected_days
+            )
+          ) as enrollments
+        FROM member_program mp
+        LEFT JOIN program p ON mp.program_id = p.id
+        WHERE mp.member_id = ANY($1::bigint[])
+        GROUP BY mp.member_id
+      `
+      const enrollmentsResult = await pool.query(enrollmentsQuery, [memberIds])
+      
+      enrollmentsResult.rows.forEach(row => {
+        enrollmentsMap[row.member_id] = row.enrollments || []
+      })
+    }
+    
+    // Get roles separately if user_role has member_id
+    let rolesMap = {}
+    if (userRoleHasMemberId && memberIds.length > 0) {
+      const rolesQuery = `
+        SELECT 
+          member_id,
+          json_agg(
+            jsonb_build_object(
+              'id', role,
+              'role', role
+            )
+          ) as roles
+        FROM user_role
+        WHERE member_id = ANY($1::bigint[])
+        GROUP BY member_id
+      `
+      const rolesResult = await pool.query(rolesQuery, [memberIds])
+      
+      rolesResult.rows.forEach(row => {
+        rolesMap[row.member_id] = row.roles || []
+      })
+    }
+    
+    // Format the response
+    const members = result.rows.map(row => ({
+      id: row.id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      email: row.email,
+      phone: row.phone,
+      address: row.address,
+      billingStreet: row.billing_street,
+      billingCity: row.billing_city,
+      billingState: row.billing_state,
+      billingZip: row.billing_zip,
+      dateOfBirth: row.date_of_birth,
+      age: row.age ? parseInt(row.age) : null,
+      medicalNotes: row.medical_notes,
+      internalFlags: row.internal_flags,
+      status: row.status,
+      isActive: row.is_active,
+      familyIsActive: row.family_is_active,
+      familyId: row.family_id,
+      familyName: row.family_name,
+      username: row.username,
+      roles: rolesMap[row.id] || [],
+      enrollments: enrollmentsMap[row.id] || [],
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }))
+    
+    res.json({
+      success: true,
+      data: members
+    })
   } catch (error) {
     console.error('Get members error:', error)
+    console.error('Error stack:', error.stack)
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -3550,70 +3611,6 @@ app.get('/api/admin/search-users', async (req, res) => {
   }
 })
 
-app.get('/api/admin/members', async (req, res) => {
-  try {
-    const { search, familyId } = req.query
-    
-    let query = `
-      SELECT 
-        m.*,
-        CASE WHEN m.date_of_birth IS NOT NULL 
-          THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
-          ELSE NULL 
-        END as age,
-        CASE 
-          WHEN m.family_id IS NULL THEN 'Orphan'
-          ELSE f.family_name
-        END as family_name,
-        CASE 
-          WHEN m.family_id IS NULL THEN NULL
-          ELSE f.id
-        END as family_id,
-        CASE 
-          WHEN m.family_id IS NULL THEN 'Orphan'
-          ELSE CAST(f.id AS TEXT)
-        END as family_display,
-        u.email as primary_guardian_email,
-        u.full_name as primary_guardian_name
-      FROM member m
-      LEFT JOIN family f ON m.family_id = f.id
-      LEFT JOIN app_user u ON f.primary_user_id = u.id OR f.primary_member_id = m.id
-      WHERE m.is_active = TRUE
-    `
-    
-    const params = []
-    let paramCount = 0
-    
-    if (search) {
-      paramCount++
-      query += ` AND (m.first_name ILIKE $${paramCount} OR m.last_name ILIKE $${paramCount} OR f.family_name ILIKE $${paramCount})`
-      params.push(`%${search}%`)
-    }
-    
-    if (familyId) {
-      paramCount++
-      query += ` AND m.family_id = $${paramCount}`
-      params.push(familyId)
-    }
-    
-    query += ` ORDER BY m.last_name, m.first_name`
-    
-    const result = await pool.query(query, params)
-    
-    res.json({
-      success: true,
-      data: result.rows
-    })
-  } catch (error) {
-    console.error('Get members error:', error)
-    console.error('Error stack:', error.stack)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    })
-  }
-})
 
 // Get single member (admin endpoint) - renamed from athletes to members
 app.get('/api/admin/members/:id', async (req, res) => {
