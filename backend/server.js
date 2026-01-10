@@ -8577,26 +8577,41 @@ app.use((req, res) => {
 
 // Start server
 const startServer = async () => {
-  await initDatabase()
-  
-  // Log registered routes for debugging
-  console.log('[Server] Registered routes:')
-  app._router.stack.forEach((middleware) => {
-    if (middleware.route) {
-      const methods = Object.keys(middleware.route.methods).join(', ').toUpperCase()
-      console.log(`  ${methods} ${middleware.route.path}`)
-    }
-  })
-  
-  // Only start the HTTP server if not running as a migration script
-  if (process.env.RUN_MIGRATION_ONLY !== 'true') {
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`)
-      console.log(`📊 Health check: http://localhost:${PORT}/api/health`)
-      console.log(`📝 Registrations: http://localhost:${PORT}/api/registrations`)
-      console.log(`📧 Newsletter: http://localhost:${PORT}/api/newsletter`)
-      console.log(`📝 Enrollment: http://localhost:${PORT}/api/members/enroll`)
+  console.log('[Server] Starting server initialization...')
+  try {
+    await initDatabase()
+    console.log('[Server] Database initialization complete')
+    
+    // Log registered routes for debugging
+    console.log('[Server] Checking registered routes...')
+    let routeCount = 0
+    app._router.stack.forEach((middleware) => {
+      if (middleware.route) {
+        const methods = Object.keys(middleware.route.methods).join(', ').toUpperCase()
+        console.log(`  ${methods} ${middleware.route.path}`)
+        routeCount++
+        if (middleware.route.path === '/api/members/enroll') {
+          console.log(`  ✅ Found enrollment endpoint: ${methods} ${middleware.route.path}`)
+        }
+      }
     })
+    console.log(`[Server] Total routes registered: ${routeCount}`)
+    
+    // Only start the HTTP server if not running as a migration script
+    if (process.env.RUN_MIGRATION_ONLY !== 'true') {
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`)
+        console.log(`📊 Health check: http://localhost:${PORT}/api/health`)
+        console.log(`📝 Registrations: http://localhost:${PORT}/api/registrations`)
+        console.log(`📧 Newsletter: http://localhost:${PORT}/api/newsletter`)
+        console.log(`📝 Enrollment: POST http://localhost:${PORT}/api/members/enroll`)
+      })
+    } else {
+      console.log('[Server] Running as migration script, skipping HTTP server')
+    }
+  } catch (error) {
+    console.error('[Server] Error starting server:', error)
+    throw error
   }
 }
 
