@@ -5418,21 +5418,22 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     // If admin is enrolling, skip permission check
     let userRole = null
     if (!req.isAdmin) {
-    // Check if user has permission (is adult or is the family member)
-    const userResult = await pool.query(`
-      SELECT u.role
-      FROM app_user u
-      WHERE u.id = $1
-    `, [userId])
+      // Check if user has permission (is adult or is the family member)
+      const userResult = await pool.query(`
+        SELECT u.role
+        FROM app_user u
+        WHERE u.id = $1
+      `, [userId])
 
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      })
-    }
+      if (userResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        })
+      }
 
       userRole = userResult.rows[0].role
+    }
 
     // Check if user_id column exists in athlete table
     const athleteUserIdColumnCheck = await pool.query(`
@@ -5567,13 +5568,13 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     // Check if user has permission (is PARENT_GUARDIAN or is the athlete themselves)
     // Admins can enroll any member, so skip permission check for admins
     if (!req.isAdmin) {
-    const isAthleteSelf = hasUserIdColumn && athlete.user_id && String(athlete.user_id) === String(userId)
-    const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
-    if (!hasParentRole && !isAthleteSelf) {
-      return res.status(403).json({
-        success: false,
-        message: 'You do not have permission to enroll this family member'
-      })
+      const isAthleteSelf = hasUserIdColumn && athlete.user_id && String(athlete.user_id) === String(userId)
+      const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
+      if (!hasParentRole && !isAthleteSelf) {
+        return res.status(403).json({
+          success: false,
+          message: 'You do not have permission to enroll this family member'
+        })
       }
     }
 
