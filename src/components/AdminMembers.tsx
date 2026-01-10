@@ -2183,7 +2183,7 @@ export default function AdminMembers() {
                           </div>
                           <div className="flex gap-2">
                             <motion.button
-                              onClick={() => handleArchiveMember(member.id, !member.isActive)}
+                              onClick={() => handleArchiveMember(member.id, member.isActive)}
                               className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${
                                 member.isActive
                                   ? 'bg-gray-500 text-white hover:bg-gray-600'
