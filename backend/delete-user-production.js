@@ -36,22 +36,7 @@ async function deleteUserFromProduction() {
     
     if (userResult.rows.length === 0) {
       console.log('❌ User not found in app_user table')
-      
-      // Check old members table
-      try {
-        const oldMembersResult = await client.query(
-          'SELECT id, email, first_name, last_name FROM members WHERE email = $1',
-          [emailToDelete]
-        )
-        if (oldMembersResult.rows.length > 0) {
-          console.log('⚠️  Found in old members table, deleting...')
-          await client.query('DELETE FROM members WHERE email = $1', [emailToDelete])
-          console.log('✅ Deleted from old members table')
-        }
-      } catch (error) {
-        // Old members table might not exist
-        console.log('ℹ️  Old members table does not exist (expected)')
-      }
+      console.log('ℹ️  Also check the unified member table if user should exist as a member')
     } else {
       const user = userResult.rows[0]
       console.log(`✅ Found user: ${user.full_name} (ID: ${user.id}, Facility: ${user.facility_id})`)
@@ -71,35 +56,35 @@ async function deleteUserFromProduction() {
         const facilityResult = await client.query('SELECT id FROM facility LIMIT 1')
         const facilityId = facilityResult.rows.length > 0 ? facilityResult.rows[0].id : null
         
-        // Delete athletes in these families
+        // Delete members in these families (unified member table replaces old athlete table)
         for (const familyId of familyIds) {
           if (facilityId) {
-            const athletesResult = await client.query(
-              'SELECT id FROM athlete WHERE family_id = $1 AND facility_id = $2',
+            const membersResult = await client.query(
+              'SELECT id FROM member WHERE family_id = $1 AND facility_id = $2',
               [familyId, facilityId]
             )
-            const athleteIds = athletesResult.rows.map(row => row.id)
+            const memberIds = membersResult.rows.map(row => row.id)
             
-            if (athleteIds.length > 0) {
+            if (memberIds.length > 0) {
               await client.query(
-                'DELETE FROM athlete WHERE id = ANY($1::bigint[])',
-                [athleteIds]
+                'DELETE FROM member WHERE id = ANY($1::bigint[])',
+                [memberIds]
               )
-              console.log(`  🗑️  Deleted ${athleteIds.length} athlete(s) from family ${familyId}`)
+              console.log(`  🗑️  Deleted ${memberIds.length} member(s) from family ${familyId}`)
             }
           } else {
-            const athletesResult = await client.query(
-              'SELECT id FROM athlete WHERE family_id = $1',
+            const membersResult = await client.query(
+              'SELECT id FROM member WHERE family_id = $1',
               [familyId]
             )
-            const athleteIds = athletesResult.rows.map(row => row.id)
+            const memberIds = membersResult.rows.map(row => row.id)
             
-            if (athleteIds.length > 0) {
+            if (memberIds.length > 0) {
               await client.query(
-                'DELETE FROM athlete WHERE id = ANY($1::bigint[])',
-                [athleteIds]
+                'DELETE FROM member WHERE id = ANY($1::bigint[])',
+                [memberIds]
               )
-              console.log(`  🗑️  Deleted ${athleteIds.length} athlete(s) from family ${familyId}`)
+              console.log(`  🗑️  Deleted ${memberIds.length} member(s) from family ${familyId}`)
             }
           }
         }
@@ -112,20 +97,20 @@ async function deleteUserFromProduction() {
       // Delete the user
       await client.query('DELETE FROM app_user WHERE id = $1', [user.id])
       console.log('✅ User deleted from app_user table')
-    }
-    
-    // Also check and delete from old members table if it exists
-    try {
-      const oldMembersResult = await client.query(
-        'SELECT id, email FROM members WHERE email = $1',
-        [emailToDelete]
-      )
-      if (oldMembersResult.rows.length > 0) {
-        await client.query('DELETE FROM members WHERE email = $1', [emailToDelete])
-        console.log('✅ Deleted from old members table')
+      
+      // Also check and delete from unified member table if it exists
+      try {
+        const memberResult = await client.query(
+          'SELECT id, email, first_name, last_name FROM member WHERE email = $1',
+          [emailToDelete]
+        )
+        if (memberResult.rows.length > 0) {
+          await client.query('DELETE FROM member WHERE email = $1', [emailToDelete])
+          console.log('✅ Deleted from unified member table')
+        }
+      } catch (error) {
+        console.log('ℹ️  Could not check/delete from member table:', error.message)
       }
-    } catch (error) {
-      // Old members table might not exist, that's OK
     }
     
     await client.query('COMMIT')

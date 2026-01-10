@@ -11,6 +11,7 @@
     "migrate": "node run-migration.js",
     "migrate:module0": "node run-module0-migration.js",
     "verify:module0": "node verify-module0.js",
+    "list-tables": "DB_HOST=localhost DB_PORT=5432 DB_NAME=vortex_athletics DB_USER=postgres DB_PASSWORD=vortex2024 node list-all-tables.js",
     "postinstall": "echo 'Backend dependencies installed'"
   },
   "dependencies": {

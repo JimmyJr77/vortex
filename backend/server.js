@@ -240,15 +240,8 @@ export const initDatabase = async () => {
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_newsletter_email ON newsletter_subscribers(email)
     `)
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_members_email ON members(email)
-    `)
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_members_status ON members(account_status)
-    `)
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_member_children_member_id ON member_children(member_id)
-    `)
+    // Legacy members and member_children table indexes removed - these tables no longer exist
+    // Indexes are now managed by the unified member table (migration 005)
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_events_start_date ON events(start_date)
     `)
@@ -1554,33 +1547,220 @@ const setUserRoles = async (userId, roles) => {
 }
 
 // Middleware to verify JWT token (member or admin)
+// Admin authentication middleware - verifies admin has OWNER_ADMIN role
+const authenticateAdmin = async (req, res, next) => {
+  const authHeader = req.headers.authorization
+  const token = authHeader?.split(' ')[1]
+  
+  if (!token) {
+    console.log('[ADMIN AUTH] No token provided in request to:', req.path)
+    return res.status(401).json({ 
+      success: false, 
+      message: 'No authentication token provided. Admin access required.' 
+    })
+  }
+
+  // TEMPORARY: Handle temporary client-side tokens during development
+  if (token.startsWith('temp-admin-')) {
+    console.warn('[ADMIN AUTH] Using temporary token - this should only be used in development!')
+    const parts = token.split('-')
+    if (parts.length >= 3) {
+      const adminId = parseInt(parts[2])
+      req.adminId = adminId
+      req.adminEmail = 'temp-admin@vortexathletics.com'
+      req.isAdmin = true
+      console.log('[ADMIN AUTH] Authenticated with temporary token:', { adminId, isAdmin: true })
+      return next()
+    }
+    return res.status(401).json({ success: false, message: 'Invalid temporary token' })
+  }
+
+  try {
+    // Verify JWT token
+    const decoded = jwt.verify(token, JWT_SECRET)
+    
+    // Get admin ID (support both old and new token formats)
+    const adminId = decoded.adminId || decoded.userId
+    
+    if (!adminId) {
+      console.log('[ADMIN AUTH] Token missing admin ID:', req.path)
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid token: Admin ID not found' 
+      })
+    }
+    
+    // CRITICAL SECURITY: Verify admin exists and has OWNER_ADMIN role in app_user table
+    // IMPORTANT: This checks the SPECIFIC user's role only - NOT family relationships
+    // Even if an admin is in a family, ONLY the admin user themselves can access admin portal
+    // Family members (spouse, children, etc.) will NOT have access even if they share the same family
+    try {
+      const appUserCheck = await pool.query(`
+        SELECT 
+          au.id, 
+          au.email, 
+          au.is_active, 
+          au.role,
+          au.facility_id,
+          COALESCE(
+            EXISTS(
+              SELECT 1 FROM user_role ur 
+              WHERE ur.user_id = au.id 
+              AND ur.role = 'OWNER_ADMIN'
+            ),
+            false
+          ) as has_owner_admin_role
+        FROM app_user au
+        WHERE au.id = $1
+      `, [adminId])
+      
+      if (appUserCheck.rows.length > 0) {
+        const user = appUserCheck.rows[0]
+        
+        // SECURITY: Verify THIS SPECIFIC USER (by ID) has OWNER_ADMIN role
+        // This is checked against the exact user ID from the token, not family relationships
+        // Family members will have different user IDs and different roles, so they will be denied
+        const isOwnerAdmin = user.role === 'OWNER_ADMIN' || user.has_owner_admin_role === true
+        
+        if (!isOwnerAdmin) {
+          console.log('[ADMIN AUTH] Access denied: User does not have OWNER_ADMIN role:', { 
+            userId: adminId, 
+            role: user.role,
+            hasOwnerAdminRole: user.has_owner_admin_role,
+            email: user.email
+          })
+          return res.status(403).json({ 
+            success: false, 
+            message: 'Access denied: Admin privileges (OWNER_ADMIN role) required. Only the specific admin user can access the admin portal, not family members.' 
+          })
+        }
+        
+        if (!user.is_active) {
+          console.log('[ADMIN AUTH] Access denied: Admin account is inactive:', { userId: adminId, email: user.email })
+          return res.status(403).json({ 
+            success: false, 
+            message: 'Access denied: Admin account is inactive' 
+          })
+        }
+        
+        // SECURITY: Additional verification - ensure we're authenticating the exact user from token
+        // This double-check prevents any potential token manipulation or ID mismatch
+        // CRITICAL: We verify the SPECIFIC user ID from token matches the database record
+        // Family members will have different IDs, so they cannot access admin portal
+        // Note: We query WHERE au.id = $1 with adminId, so they should match, but this is defensive programming
+        if (String(user.id) !== String(adminId)) {
+          console.error('[ADMIN AUTH] SECURITY WARNING: User ID mismatch!', {
+            tokenAdminId: adminId,
+            tokenAdminIdType: typeof adminId,
+            dbUserId: user.id,
+            dbUserIdType: typeof user.id,
+            email: user.email
+          })
+          return res.status(401).json({ 
+            success: false, 
+            message: 'Authentication verification failed' 
+          })
+        }
+        
+        req.adminId = user.id
+        req.adminEmail = user.email
+        req.isAdmin = true
+        console.log('[ADMIN AUTH] Authenticated admin (specific user only):', { 
+          adminId: user.id, 
+          email: user.email,
+          role: user.role,
+          facilityId: user.facility_id
+        })
+        return next()
+      }
+    } catch (appUserError) {
+      console.error('[ADMIN AUTH] Error checking app_user table:', appUserError.message)
+      // Continue to fallback check
+    }
+    
+    // Fallback: Check legacy admins table (for backward compatibility during migration)
+    try {
+      const adminCheck = await pool.query(`
+        SELECT id, email, is_master
+        FROM admins
+        WHERE id = $1
+      `, [adminId])
+      
+      if (adminCheck.rows.length > 0) {
+        const admin = adminCheck.rows[0]
+        req.adminId = admin.id
+        req.adminEmail = admin.email
+        req.isAdmin = true
+        console.log('[ADMIN AUTH] Authenticated via legacy admins table:', { adminId: admin.id, email: admin.email })
+        return next()
+      }
+    } catch (adminsError) {
+      console.error('[ADMIN AUTH] Error checking admins table:', adminsError.message)
+    }
+    
+    console.log('[ADMIN AUTH] Admin not found in app_user or admins table:', { adminId })
+    return res.status(401).json({ 
+      success: false, 
+      message: 'Invalid token: Admin account not found' 
+    })
+    
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      console.log('[ADMIN AUTH] Invalid JWT token:', req.path)
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid authentication token' 
+      })
+    }
+    if (error.name === 'TokenExpiredError') {
+      console.log('[ADMIN AUTH] Expired JWT token:', req.path)
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Authentication token has expired' 
+      })
+    }
+    
+    console.error('[ADMIN AUTH] Authentication error:', {
+      error: error.message,
+      errorName: error.name,
+      path: req.path,
+      tokenLength: token?.length
+    })
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Authentication error' 
+    })
+  }
+}
+
+// Member authentication middleware (for member portal, not admin)
 const authenticateMember = (req, res, next) => {
   const authHeader = req.headers.authorization
   const token = authHeader?.split(' ')[1]
   
   if (!token) {
-    console.log('[AUTH] No token provided in request to:', req.path)
+    console.log('[MEMBER AUTH] No token provided in request to:', req.path)
     return res.status(401).json({ success: false, message: 'No token provided' })
   }
 
   // TEMPORARY: Handle temporary client-side tokens until backend is fully deployed
   // This allows enrollment to work even if backend login hasn't been updated yet
   if (token.startsWith('temp-admin-')) {
-    console.warn('[AUTH] Using temporary token - backend login endpoint needs to be updated!')
+    console.warn('[MEMBER AUTH] Using temporary token - backend login endpoint needs to be updated!')
     const parts = token.split('-')
     if (parts.length >= 3) {
       const adminId = parseInt(parts[2])
       req.userId = adminId
       req.memberId = adminId
       req.isAdmin = true
-      console.log('[AUTH] Authenticated with temporary token:', { userId: adminId, isAdmin: true })
+      console.log('[MEMBER AUTH] Authenticated with temporary token:', { userId: adminId, isAdmin: true })
       return next()
     }
   }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET)
-    console.log('[AUTH] Token decoded successfully:', { 
+    console.log('[MEMBER AUTH] Token decoded successfully:', { 
       userId: decoded.userId, 
       memberId: decoded.memberId, 
       adminId: decoded.adminId,
@@ -1591,10 +1771,10 @@ const authenticateMember = (req, res, next) => {
     req.userId = decoded.userId || decoded.memberId || decoded.adminId
     req.memberId = decoded.userId || decoded.memberId // For backward compatibility
     req.isAdmin = decoded.role === 'ADMIN' || decoded.adminId !== undefined
-    console.log('[AUTH] Authenticated:', { userId: req.userId, isAdmin: req.isAdmin })
+    console.log('[MEMBER AUTH] Authenticated:', { userId: req.userId, isAdmin: req.isAdmin })
     next()
   } catch (error) {
-    console.error('[AUTH] Token verification failed:', {
+    console.error('[MEMBER AUTH] Token verification failed:', {
       error: error.message,
       errorName: error.name,
       path: req.path,
@@ -1604,6 +1784,25 @@ const authenticateMember = (req, res, next) => {
     return res.status(401).json({ success: false, message: 'Invalid token' })
   }
 }
+
+// ============================================================
+// SECURITY: Apply admin authentication to all /api/admin routes
+// ============================================================
+// This middleware protects all admin routes except login and verification endpoints
+// Note: When using app.use('/api/admin', ...), req.path is relative to the mount point
+// So '/api/admin/login' becomes '/login' in req.path
+app.use('/api/admin', async (req, res, next) => {
+  // Skip authentication for admin login endpoint
+  if ((req.path === '/login' || req.originalUrl === '/api/admin/login') && req.method === 'POST') {
+    return next()
+  }
+  // Skip authentication for module0 verification endpoint (used for setup/migration)
+  if ((req.path === '/verify/module0' || req.originalUrl === '/api/admin/verify/module0') && req.method === 'GET') {
+    return next()
+  }
+  // Apply admin authentication to all other admin routes
+  return authenticateAdmin(req, res, next)
+})
 
 // Routes
 
@@ -1965,7 +2164,13 @@ app.post('/api/newsletter', async (req, res) => {
   }
 })
 
-// Get registrations (admin endpoint - in production, add authentication)
+// ============================================================
+// ADMIN ROUTES - All routes below require admin authentication
+// ============================================================
+// Note: All /api/admin/* routes are protected by authenticateAdmin middleware
+// (applied via app.use() above). Login route is excluded in the middleware.
+
+// Get registrations (admin endpoint)
 app.get('/api/admin/registrations', async (req, res) => {
   try {
     const result = await pool.query(`
@@ -5449,8 +5654,8 @@ app.post('/api/members/login', async (req, res) => {
           LEFT JOIN user_role ur ON ur.user_id = u.id
           WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.email = $2 
-            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
-                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE'))
+            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
+                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [facilityId, emailOrUsername]
@@ -5460,8 +5665,8 @@ app.post('/api/members/login', async (req, res) => {
           FROM app_user u
           LEFT JOIN user_role ur ON ur.user_id = u.id
           WHERE u.email = $1 
-            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
-                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE'))
+            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
+                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [emailOrUsername]
@@ -5477,8 +5682,8 @@ app.post('/api/members/login', async (req, res) => {
           WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.username IS NOT NULL
             AND LOWER(u.username) = $2 
-            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
-                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE'))
+            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
+                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [facilityId, usernameLower]
@@ -5489,8 +5694,8 @@ app.post('/api/members/login', async (req, res) => {
           LEFT JOIN user_role ur ON ur.user_id = u.id
           WHERE u.username IS NOT NULL
             AND LOWER(u.username) = $1 
-            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
-                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE'))
+            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
+                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [usernameLower]
@@ -5549,6 +5754,8 @@ app.post('/api/members/login', async (req, res) => {
     }
 
     // Get user's family information (optional - allow if family table doesn't exist)
+    // Note: Admins (OWNER_ADMIN) can be in families, but ONLY the admin user themselves
+    // can access admin portal - family members cannot access admin portal even if in same family
     let familyResult = { rows: [] }
     try {
       familyResult = await pool.query(`
@@ -5565,9 +5772,18 @@ app.post('/api/members/login', async (req, res) => {
       familyResult = { rows: [] }
     }
 
-    // Get user's family members if they're a guardian
+    // Get all user roles FIRST (includes roles from user_role junction table)
+    // This is needed to check if user is guardian or admin
+    const allUserRoles = await getUserRoles(user.id)
+
+    // Get user's family members if they're a guardian or admin with family
+    // Note: This includes OWNER_ADMIN users who may also be parents/guardians
+    // SECURITY: Only the admin user themselves gets admin portal access, not family members
     let familyMembers = []
-    if (user.role === 'PARENT_GUARDIAN' && familyResult.rows.length > 0) {
+    const isGuardianOrAdmin = user.role === 'PARENT_GUARDIAN' || user.role === 'OWNER_ADMIN' || 
+                              allUserRoles.includes('PARENT_GUARDIAN') || allUserRoles.includes('OWNER_ADMIN')
+    
+    if (isGuardianOrAdmin && familyResult.rows.length > 0) {
       try {
         const membersResult = await pool.query(`
           SELECT m.id, m.first_name, m.last_name, m.date_of_birth, m.status
@@ -5581,16 +5797,33 @@ app.post('/api/members/login', async (req, res) => {
         familyMembers = []
       }
     }
-
-    // Get all user roles
-    const allUserRoles = await getUserRoles(user.id)
+    
+    // Check if this SPECIFIC user has OWNER_ADMIN role
+    // SECURITY: This check is user-specific, not family-based
+    // Family members will have different user IDs and won't have OWNER_ADMIN role
+    const isOwnerAdmin = user.role === 'OWNER_ADMIN' || allUserRoles.includes('OWNER_ADMIN')
 
     // Generate JWT token with all roles
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role, roles: allUserRoles },
-      JWT_SECRET,
-      { expiresIn: '30d' }
-    )
+    // SECURITY NOTE: Including adminId here allows this SPECIFIC user to access admin portal
+    // This does NOT grant admin portal access to family members because:
+    // 1. Family members have different user IDs
+    // 2. authenticateAdmin middleware verifies the SPECIFIC user's role by checking their user ID
+    // 3. Only users with OWNER_ADMIN role get adminId in their token
+    const tokenPayload = { 
+      userId: user.id, 
+      email: user.email, 
+      role: user.role, 
+      roles: allUserRoles 
+    }
+    
+    // Only include adminId if this SPECIFIC user is OWNER_ADMIN
+    // This allows admins to use the same token for both member and admin portals
+    if (isOwnerAdmin) {
+      tokenPayload.adminId = user.id
+      tokenPayload.role = 'OWNER_ADMIN' // Set role for admin portal compatibility
+    }
+    
+    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '30d' })
 
     // Format member data for frontend
     const fullName = user.full_name || ''
@@ -5603,7 +5836,8 @@ app.post('/api/members/login', async (req, res) => {
       phone: user.phone || null,
       username: user.username || '',
       role: user.role || '', // Primary role for backward compatibility
-      roles: allUserRoles, // All roles
+      roles: allUserRoles, // All roles (may include OWNER_ADMIN for admins)
+      isAdmin: isOwnerAdmin, // Flag to indicate if this user is an admin (for frontend)
       familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
       familyName: familyResult.rows.length > 0 ? familyResult.rows[0].family_name : null,
       familyMembers: familyMembers.map(m => ({
@@ -5613,6 +5847,17 @@ app.post('/api/members/login', async (req, res) => {
         dateOfBirth: m.date_of_birth || null,
         status: m.status || 'legacy'
       }))
+    }
+    
+    // Log if admin is logging in via member portal
+    if (isOwnerAdmin) {
+      console.log('[Member Login] Admin user logged in via member portal:', {
+        userId: user.id,
+        email: user.email,
+        roles: allUserRoles,
+        familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
+        note: 'Admin can access member portal. Admin portal access requires admin authentication via /api/admin/login or token with adminId.'
+      })
     }
 
     res.json({
@@ -7195,6 +7440,8 @@ app.post('/api/admin/events/seed', async (req, res) => {
 })
 
 // Admin login (accepts username or email)
+// Updated to use app_user table with OWNER_ADMIN role (modern RBAC system)
+// Falls back to admins table for backward compatibility during migration
 app.post('/api/admin/login', async (req, res) => {
   try {
     const { error, value } = adminLoginSchema.validate(req.body)
@@ -7210,29 +7457,154 @@ app.post('/api/admin/login', async (req, res) => {
     const usernameOrEmail = value.usernameOrEmail.trim()
     const isEmail = usernameOrEmail.includes('@')
     
-    let query, params
-    if (isEmail) {
-      // Email comparison is case-sensitive
-      query = 'SELECT * FROM admins WHERE email = $1'
-      params = [usernameOrEmail]
-    } else {
-      // Username comparison - case insensitive
-      query = 'SELECT * FROM admins WHERE LOWER(username) = LOWER($1)'
-      params = [usernameOrEmail]
+    let admin = null
+    let userSource = null // Track which table we found the user in
+    
+    // First, try app_user table (preferred - modern RBAC system)
+    try {
+      let query, params
+      if (isEmail) {
+        // Check app_user for OWNER_ADMIN role
+        query = `
+          SELECT 
+            au.id, 
+            au.email, 
+            au.full_name,
+            au.password_hash,
+            au.phone,
+            au.role,
+            au.is_active,
+            au.username,
+            COALESCE(
+              EXISTS(
+                SELECT 1 FROM user_role ur 
+                WHERE ur.user_id = au.id 
+                AND ur.role = 'OWNER_ADMIN'
+              ),
+              false
+            ) as has_owner_admin_role
+          FROM app_user au
+          WHERE au.email = $1
+          AND (
+            au.role = 'OWNER_ADMIN' 
+            OR EXISTS(
+              SELECT 1 FROM user_role ur 
+              WHERE ur.user_id = au.id 
+              AND ur.role = 'OWNER_ADMIN'
+            )
+          )
+        `
+        params = [usernameOrEmail]
+      } else {
+        query = `
+          SELECT 
+            au.id, 
+            au.email, 
+            au.full_name,
+            au.password_hash,
+            au.phone,
+            au.role,
+            au.is_active,
+            au.username,
+            COALESCE(
+              EXISTS(
+                SELECT 1 FROM user_role ur 
+                WHERE ur.user_id = au.id 
+                AND ur.role = 'OWNER_ADMIN'
+              ),
+              false
+            ) as has_owner_admin_role
+          FROM app_user au
+          WHERE LOWER(au.username) = LOWER($1)
+          AND (
+            au.role = 'OWNER_ADMIN' 
+            OR EXISTS(
+              SELECT 1 FROM user_role ur 
+              WHERE ur.user_id = au.id 
+              AND ur.role = 'OWNER_ADMIN'
+            )
+          )
+        `
+        params = [usernameOrEmail]
+      }
+      
+      const appUserResult = await pool.query(query, params)
+      
+      if (appUserResult.rows.length > 0) {
+        const user = appUserResult.rows[0]
+        
+        // Verify user has OWNER_ADMIN role
+        const isOwnerAdmin = user.role === 'OWNER_ADMIN' || user.has_owner_admin_role === true
+        
+        if (isOwnerAdmin && user.is_active) {
+          admin = {
+            id: user.id,
+            email: user.email,
+            full_name: user.full_name,
+            password_hash: user.password_hash,
+            phone: user.phone,
+            username: user.username,
+            is_master: user.role === 'OWNER_ADMIN', // Consider OWNER_ADMIN as master
+            first_name: user.full_name?.split(' ')[0] || 'Admin',
+            last_name: user.full_name?.split(' ').slice(1).join(' ') || 'User'
+          }
+          userSource = 'app_user'
+          console.log('[Admin Login] Found admin in app_user table:', admin.email)
+        }
+      }
+    } catch (appUserError) {
+      console.error('[Admin Login] Error checking app_user table:', appUserError.message)
+      // Continue to fallback
     }
     
-    const result = await pool.query(query, params)
+    // Fallback: Check legacy admins table (for backward compatibility)
+    if (!admin) {
+      try {
+        let query, params
+        if (isEmail) {
+          query = 'SELECT * FROM admins WHERE email = $1'
+          params = [usernameOrEmail]
+        } else {
+          query = 'SELECT * FROM admins WHERE LOWER(username) = LOWER($1)'
+          params = [usernameOrEmail]
+        }
+        
+        const adminsResult = await pool.query(query, params)
+        
+        if (adminsResult.rows.length > 0) {
+          admin = adminsResult.rows[0]
+          userSource = 'admins'
+          console.log('[Admin Login] Found admin in legacy admins table:', admin.email)
+          console.warn('[Admin Login] WARNING: Using legacy admins table. Consider migrating to app_user table.')
+        }
+      } catch (adminsError) {
+        console.error('[Admin Login] Error checking admins table:', adminsError.message)
+      }
+    }
 
-    if (result.rows.length === 0) {
+    if (!admin) {
       return res.status(401).json({
         success: false,
         message: 'Invalid username/email or password'
       })
     }
 
-    const admin = result.rows[0]
+    // Verify account is active
+    if (userSource === 'app_user' && !admin.is_active) {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is inactive. Please contact administrator.'
+      })
+    }
 
     // Verify password
+    if (!admin.password_hash) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid username/email or password'
+      })
+    }
+
     const isValid = await bcrypt.compare(value.password, admin.password_hash)
     if (!isValid) {
       return res.status(401).json({
@@ -7243,13 +7615,16 @@ app.post('/api/admin/login', async (req, res) => {
 
     // Create JWT token for admin
     console.log('[Admin Login] Starting token creation for admin:', admin.id, admin.email)
+    console.log('[Admin Login] User source:', userSource)
     console.log('[Admin Login] JWT_SECRET exists?', !!JWT_SECRET, 'Length:', JWT_SECRET?.length)
     
     try {
+      // Create token with consistent format for both app_user and admins
       const adminToken = jwt.sign(
         { 
-          adminId: admin.id, 
-          role: 'ADMIN',
+          adminId: admin.id,
+          userId: admin.id, // Include for compatibility
+          role: 'OWNER_ADMIN', // Always set to OWNER_ADMIN for admin portal access
           email: admin.email 
         },
         JWT_SECRET,
@@ -7258,21 +7633,21 @@ app.post('/api/admin/login', async (req, res) => {
       
       console.log('[Admin Login] Token created successfully for admin:', admin.id, admin.email)
       console.log('[Admin Login] Token length:', adminToken.length)
-      console.log('[Admin Login] Token preview:', adminToken.substring(0, 20) + '...')
 
       // Return admin info (without password) and token
       const responseData = {
-      success: true,
-      admin: {
-        id: admin.id,
-        firstName: admin.first_name,
-        lastName: admin.last_name,
-        email: admin.email,
-        phone: admin.phone,
-        username: admin.username,
-        isMaster: admin.is_master
+        success: true,
+        admin: {
+          id: admin.id,
+          firstName: admin.first_name || admin.full_name?.split(' ')[0] || 'Admin',
+          lastName: admin.last_name || admin.full_name?.split(' ').slice(1).join(' ') || 'User',
+          email: admin.email,
+          phone: admin.phone || null,
+          username: admin.username || null,
+          isMaster: admin.is_master || (userSource === 'app_user' && admin.role === 'OWNER_ADMIN')
         },
-        token: adminToken
+        token: adminToken,
+        userSource: userSource // Include for debugging (can be removed in production)
       }
       
       console.log('[Admin Login] Response data keys:', Object.keys(responseData))

@@ -19,3 +19,4 @@ COMMENT ON COLUMN events.tag_volunteers IS 'True when event is tagged for volunt
 
 
 
+
