@@ -8590,7 +8590,7 @@ const startServer = async () => {
   const workerId = process.env.RENDER_SERVICE_ID || process.pid || 'unknown'
   console.log(`[Server ${workerId}] Starting server initialization on worker ${workerId}...`)
   try {
-  await initDatabase()
+    await initDatabase()
     console.log(`[Server ${workerId}] Database initialization complete`)
     
     // Log registered routes for debugging
