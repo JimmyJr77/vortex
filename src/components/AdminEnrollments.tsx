@@ -58,7 +58,10 @@ export default function AdminEnrollments() {
     const token = localStorage.getItem('adminToken')
     const isAdmin = localStorage.getItem('vortex_admin') === 'true'
     if (isAdmin && !token) {
-      console.warn('[AdminEnrollments] Admin is logged in but no token found. This may cause authentication issues. Please log out and log back in.')
+      console.warn('[AdminEnrollments] Admin is logged in but no token found.')
+      console.warn('[AdminEnrollments] This means you logged in before token generation was added.')
+      console.warn('[AdminEnrollments] ACTION REQUIRED: Please log out completely and log back in to get a fresh token.')
+      alert('You are logged in but don\'t have an authentication token. Please log out and log back in to continue.')
     }
   }, [])
 

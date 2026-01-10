@@ -78,8 +78,13 @@ function App() {
   }
 
   const handleLogout = () => {
+    // Clear all admin-related localStorage items
     localStorage.removeItem('vortex_admin')
+    localStorage.removeItem('adminToken')
+    localStorage.removeItem('vortex-admin-info')
+    localStorage.removeItem('vortex-admin-id')
     setIsAdmin(false)
+    console.log('[Logout] All admin data cleared from localStorage')
   }
 
   const handleMemberLoginSuccess = (token: string, memberData: any) => {
