@@ -20,7 +20,20 @@ type FamilyMemberData = {
     selected_days: string[] | string
   }>
   dateOfBirth: string
+  gender: string
   medicalNotes: string
+  medicalConcerns: string
+  injuryHistoryDate: string
+  injuryHistoryBodyPart: string
+  injuryHistoryNotes: string
+  noInjuryHistory: boolean
+  experience: string
+  previousClasses?: Array<{
+    id: number | string
+    program_id: number
+    program_display_name: string
+    completed_date?: string | null
+  }>
   isFinished: boolean
   parentGuardianIds?: number[] // Array of parent/guardian member IDs (for children)
   hasCompletedWaivers?: boolean // Waiver completion status
@@ -29,9 +42,10 @@ type FamilyMemberData = {
     contactInfo: { isExpanded: boolean; tempData: { firstName: string; lastName: string; email: string; phone: string; addressStreet: string; addressCity: string; addressState: string; addressZip: string } }
     loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
     statusVerification: { isExpanded: boolean }
-    dateOfBirth?: { isExpanded: boolean; tempData: { dateOfBirth: string } }
+    personalData?: { isExpanded: boolean; tempData: { dateOfBirth: string; gender: string; medicalConcerns: string; injuryHistoryDate: string; injuryHistoryBodyPart: string; injuryHistoryNotes: string; noInjuryHistory: boolean } }
     parentGuardians?: { isExpanded: boolean; tempData: { parentGuardianIds: number[] } }
     waivers?: { isExpanded: boolean; tempData: { hasCompletedWaivers: boolean; waiverCompletionDate: string | null } }
+    previousClasses?: { isExpanded: boolean; tempData: { experience: string } }
   }
   athleteId?: number | null
   userId?: number | null
@@ -45,10 +59,10 @@ interface MemberFormSectionProps {
   isExpanded: boolean
   onToggleExpand: (memberId: string) => void
   onUpdateMember: (memberId: string, updates: Partial<FamilyMemberData> | ((prev: FamilyMemberData) => FamilyMemberData)) => void
-  onToggleSection: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => void
-  onSectionContinue: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => void
-  onSectionMinimize: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => void
-  onSectionCancel: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => void
+  onToggleSection: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => void
+  onSectionContinue: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => void
+  onSectionMinimize: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => void
+  onSectionCancel: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => void
   onFinishedWithMember: (memberId: string) => void
   generateUsername: (firstName: string, lastName?: string) => Promise<string>
   formatPhoneNumber: (value: string) => string
@@ -84,7 +98,7 @@ export default function MemberFormSection({
 
   // Helper to update member's section tempData
   const updateSectionTempData = (
-    section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers',
+    section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses',
     updates: Record<string, unknown>
   ) => {
     onUpdateMember(member.id, (prev) => ({
@@ -367,35 +381,59 @@ export default function MemberFormSection({
             )}
           </div>
 
-          {/* 3. Date of Birth & Age Section */}
+          {/* 3. Personal Data Section */}
           <div className="mb-4 border border-gray-600 rounded">
             <button
               type="button"
-              onClick={() => onToggleSection(member.id, 'dateOfBirth')}
+              onClick={() => onToggleSection(member.id, 'personalData')}
               className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
             >
-              <span>3. Date of Birth {!member.dateOfBirth && <span className="text-red-400">*</span>}</span>
-              <span>{member.sections.dateOfBirth?.isExpanded ? '−' : '+'}</span>
+              <span>3. Personal Data <span className="text-red-400">*</span></span>
+              <span>{member.sections.personalData?.isExpanded ? '−' : '+'}</span>
             </button>
-            {member.sections.dateOfBirth?.isExpanded && (
+            {member.sections.personalData?.isExpanded && (
               <div className="p-4 bg-gray-800">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      Date of Birth {isChild() ? '(Required for children)' : '(Optional for adults)'}
+                      Gender *
+                    </label>
+                    <select
+                      value={member.sections.personalData?.tempData?.gender || member.gender || ''}
+                      onChange={(e) => {
+                        onUpdateMember(member.id, (prev) => ({
+                          ...prev,
+                          gender: e.target.value
+                        }))
+                        updateSectionTempData('personalData', { gender: e.target.value })
+                      }}
+                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      required
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Non-binary">Non-binary</option>
+                      <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      Date of Birth *
                     </label>
                     <input
                       type="date"
-                      value={member.dateOfBirth || ''}
+                      value={member.sections.personalData?.tempData?.dateOfBirth || member.dateOfBirth || ''}
                       onChange={(e) => {
                         onUpdateMember(member.id, (prev) => ({
                           ...prev,
                           dateOfBirth: e.target.value
                         }))
-                        updateSectionTempData('dateOfBirth', { dateOfBirth: e.target.value })
+                        updateSectionTempData('personalData', { dateOfBirth: e.target.value })
                       }}
                       className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                       max={new Date().toISOString().split('T')[0]} // Can't be in the future
+                      required
                     />
                     {member.dateOfBirth && calculateAge(member.dateOfBirth) !== null && (
                       <p className="text-xs text-gray-400 mt-1">
@@ -404,21 +442,140 @@ export default function MemberFormSection({
                       </p>
                     )}
                   </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      Medical Concerns *
+                    </label>
+                    <textarea
+                      value={member.sections.personalData?.tempData?.medicalConcerns || member.medicalConcerns || ''}
+                      onChange={(e) => {
+                        onUpdateMember(member.id, (prev) => ({
+                          ...prev,
+                          medicalConcerns: e.target.value
+                        }))
+                        updateSectionTempData('personalData', { medicalConcerns: e.target.value })
+                      }}
+                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      rows={3}
+                      placeholder="Enter any medical concerns or conditions (enter 'None' if none)"
+                      required
+                    />
+                  </div>
+                  <div className="border-t border-gray-600 pt-4">
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      History of Injury *
+                    </label>
+                    <div className="mb-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={member.sections.personalData?.tempData?.noInjuryHistory || member.noInjuryHistory || false}
+                          onChange={(e) => {
+                            onUpdateMember(member.id, (prev) => ({
+                              ...prev,
+                              noInjuryHistory: e.target.checked,
+                              injuryHistoryDate: e.target.checked ? '' : prev.injuryHistoryDate,
+                              injuryHistoryBodyPart: e.target.checked ? '' : prev.injuryHistoryBodyPart,
+                              injuryHistoryNotes: e.target.checked ? '' : prev.injuryHistoryNotes
+                            }))
+                            updateSectionTempData('personalData', { 
+                              noInjuryHistory: e.target.checked,
+                              injuryHistoryDate: e.target.checked ? '' : (member.sections.personalData?.tempData?.injuryHistoryDate || ''),
+                              injuryHistoryBodyPart: e.target.checked ? '' : (member.sections.personalData?.tempData?.injuryHistoryBodyPart || ''),
+                              injuryHistoryNotes: e.target.checked ? '' : (member.sections.personalData?.tempData?.injuryHistoryNotes || '')
+                            })
+                          }}
+                          className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                        />
+                        <span className="text-sm font-semibold text-gray-300">
+                          No history of injury *
+                        </span>
+                      </label>
+                    </div>
+                    {!member.sections.personalData?.tempData?.noInjuryHistory && !member.noInjuryHistory && (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                            Injury Date *
+                          </label>
+                          <input
+                            type="date"
+                            value={member.sections.personalData?.tempData?.injuryHistoryDate || member.injuryHistoryDate || ''}
+                            onChange={(e) => {
+                              onUpdateMember(member.id, (prev) => ({
+                                ...prev,
+                                injuryHistoryDate: e.target.value
+                              }))
+                              updateSectionTempData('personalData', { injuryHistoryDate: e.target.value })
+                            }}
+                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            max={new Date().toISOString().split('T')[0]}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                            Body Part *
+                          </label>
+                          <input
+                            type="text"
+                            value={member.sections.personalData?.tempData?.injuryHistoryBodyPart || member.injuryHistoryBodyPart || ''}
+                            onChange={(e) => {
+                              onUpdateMember(member.id, (prev) => ({
+                                ...prev,
+                                injuryHistoryBodyPart: e.target.value
+                              }))
+                              updateSectionTempData('personalData', { injuryHistoryBodyPart: e.target.value })
+                            }}
+                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            placeholder="e.g., Left knee, Right shoulder"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                            Injury Notes *
+                          </label>
+                          <textarea
+                            value={member.sections.personalData?.tempData?.injuryHistoryNotes || member.injuryHistoryNotes || ''}
+                            onChange={(e) => {
+                              onUpdateMember(member.id, (prev) => ({
+                                ...prev,
+                                injuryHistoryNotes: e.target.value
+                              }))
+                              updateSectionTempData('personalData', { injuryHistoryNotes: e.target.value })
+                            }}
+                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            rows={3}
+                            placeholder="Describe the injury and any relevant details"
+                            required
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="flex gap-2 mt-4">
                   <button
                     type="button"
-                    onClick={() => onSectionContinue(member.id, 'dateOfBirth')}
+                    onClick={() => onSectionContinue(member.id, 'personalData')}
                     className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
                   >
                     Continue
                   </button>
                   <button
                     type="button"
-                    onClick={() => onSectionMinimize(member.id, 'dateOfBirth')}
+                    onClick={() => onSectionMinimize(member.id, 'personalData')}
                     className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
                   >
                     Minimize
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSectionCancel(member.id, 'personalData')}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -532,14 +689,14 @@ export default function MemberFormSection({
             </div>
           )}
 
-          {/* 5. Waiver Status Section */}
+          {/* 4. Waiver Status Section */}
           <div className="mb-4 border border-gray-600 rounded">
             <button
               type="button"
               onClick={() => onToggleSection(member.id, 'waivers')}
               className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
             >
-              <span>5. Waiver Status</span>
+              <span>4. Waiver Status</span>
               <span>{member.sections.waivers?.isExpanded ? '−' : '+'}</span>
             </button>
             {member.sections.waivers?.isExpanded && (
@@ -612,14 +769,14 @@ export default function MemberFormSection({
             )}
           </div>
 
-          {/* 6. Status Verification Section */}
+          {/* 5. Status Verification Section */}
           <div className="mb-4 border border-gray-600 rounded">
             <button
               type="button"
               onClick={() => onToggleSection(member.id, 'statusVerification')}
               className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
             >
-              <span>6. Status Verification</span>
+              <span>5. Status Verification</span>
               <span>{member.sections.statusVerification.isExpanded ? '−' : '+'}</span>
             </button>
             {!member.sections.statusVerification.isExpanded && (
@@ -749,6 +906,90 @@ export default function MemberFormSection({
                   <button
                     type="button"
                     onClick={() => onSectionCancel(member.id, 'statusVerification')}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 6. Previous Classes Section */}
+          <div className="mb-4 border border-gray-600 rounded">
+            <button
+              type="button"
+              onClick={() => onToggleSection(member.id, 'previousClasses')}
+              className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+            >
+              <span>6. Previous Classes</span>
+              <span>{member.sections.previousClasses?.isExpanded ? '−' : '+'}</span>
+            </button>
+            {member.sections.previousClasses?.isExpanded && (
+              <div className="p-4 bg-gray-800">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      Experience
+                    </label>
+                    <textarea
+                      value={member.sections.previousClasses?.tempData?.experience || member.experience || ''}
+                      onChange={(e) => {
+                        onUpdateMember(member.id, (prev) => ({
+                          ...prev,
+                          experience: e.target.value
+                        }))
+                        updateSectionTempData('previousClasses', { experience: e.target.value })
+                      }}
+                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      rows={4}
+                      placeholder="Describe your previous experience with gymnastics, athletics, or related activities"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      Previous Classes
+                    </label>
+                    {!member.previousClasses || member.previousClasses.length === 0 ? (
+                      <div className="text-gray-400 text-sm p-4 bg-gray-700 rounded">
+                        No previous history
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {member.previousClasses.map((previousClass) => (
+                          <div key={previousClass.id} className="bg-gray-700 p-3 rounded">
+                            <div className="text-white font-medium">
+                              {previousClass.program_display_name || 'Unknown Class'}
+                            </div>
+                            {previousClass.completed_date && (
+                              <div className="text-gray-400 text-sm mt-1">
+                                Completed: {new Date(previousClass.completed_date).toLocaleDateString()}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => onSectionContinue(member.id, 'previousClasses')}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Continue
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSectionMinimize(member.id, 'previousClasses')}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Minimize
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSectionCancel(member.id, 'previousClasses')}
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
                   >
                     Cancel

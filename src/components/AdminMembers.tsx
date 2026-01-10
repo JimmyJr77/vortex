@@ -112,7 +112,20 @@ type FamilyMemberData = {
     selected_days: string[] | string
   }>
   dateOfBirth: string
+  gender: string
   medicalNotes: string
+  medicalConcerns: string
+  injuryHistoryDate: string
+  injuryHistoryBodyPart: string
+  injuryHistoryNotes: string
+  noInjuryHistory: boolean
+  experience: string
+  previousClasses?: Array<{
+    id: number | string
+    program_id: number
+    program_display_name: string
+    completed_date?: string | null
+  }>
   isFinished: boolean
   isActive?: boolean
   parentGuardianIds?: number[] // Array of parent/guardian member IDs (for children)
@@ -121,10 +134,11 @@ type FamilyMemberData = {
   sections: {
     contactInfo: { isExpanded: boolean; tempData: { firstName: string; lastName: string; email: string; phone: string; addressStreet: string; addressCity: string; addressState: string; addressZip: string } }
     loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
-    dateOfBirth?: { isExpanded: boolean; tempData: { dateOfBirth: string } }
+    personalData?: { isExpanded: boolean; tempData: { dateOfBirth: string; gender: string; medicalConcerns: string; injuryHistoryDate: string; injuryHistoryBodyPart: string; injuryHistoryNotes: string; noInjuryHistory: boolean } }
     parentGuardians?: { isExpanded: boolean; tempData: { parentGuardianIds: number[] } }
     waivers?: { isExpanded: boolean; tempData: { hasCompletedWaivers: boolean; waiverCompletionDate: string | null } }
     statusVerification: { isExpanded: boolean }
+    previousClasses?: { isExpanded: boolean; tempData: { experience: string } }
   }
 }
 
@@ -204,11 +218,21 @@ export default function AdminMembers() {
       password: 'vortex',
       enrollments: [],
       dateOfBirth: '',
+      gender: '',
       medicalNotes: '',
+      medicalConcerns: '',
+      injuryHistoryDate: '',
+      injuryHistoryBodyPart: '',
+      injuryHistoryNotes: '',
+      noInjuryHistory: false,
+      experience: '',
+      previousClasses: [],
       isFinished: false,
       sections: {
         contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
         loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+        personalData: { isExpanded: false, tempData: { dateOfBirth: '', gender: '', medicalConcerns: '', injuryHistoryDate: '', injuryHistoryBodyPart: '', injuryHistoryNotes: '', noInjuryHistory: false } },
+        previousClasses: { isExpanded: false, tempData: { experience: '' } },
         statusVerification: { isExpanded: false }
       }
     }
@@ -666,7 +690,15 @@ export default function AdminMembers() {
         password: 'vortex', // Don't populate password
         enrollments,
         dateOfBirth: member.type === 'athlete' ? (member.data as Athlete).date_of_birth || '' : '',
+        gender: '',
         medicalNotes: member.type === 'athlete' ? (member.data as Athlete).medical_notes || '' : '',
+        medicalConcerns: '',
+        injuryHistoryDate: '',
+        injuryHistoryBodyPart: '',
+        injuryHistoryNotes: '',
+        noInjuryHistory: false,
+        experience: '',
+        previousClasses: [],
         isActive, // Set isActive based on user's is_active status
         isFinished: true, // Mark as finished since they're existing members
         sections: {
@@ -686,6 +718,22 @@ export default function AdminMembers() {
           loginSecurity: { 
             isExpanded: isEditingThisMember && username ? true : false,
             tempData: { username: username || '', password: 'vortex' } 
+          },
+          personalData: {
+            isExpanded: false,
+            tempData: {
+              dateOfBirth: member.type === 'athlete' ? (member.data as Athlete).date_of_birth || '' : '',
+              gender: '',
+              medicalConcerns: '',
+              injuryHistoryDate: '',
+              injuryHistoryBodyPart: '',
+              injuryHistoryNotes: '',
+              noInjuryHistory: false
+            }
+          },
+          previousClasses: {
+            isExpanded: false,
+            tempData: { experience: '' }
           },
           statusVerification: { 
             isExpanded: false
@@ -1185,7 +1233,7 @@ export default function AdminMembers() {
         }
         
         // Get date of birth from member or section tempData
-        const dateOfBirth = member.dateOfBirth || member.sections.dateOfBirth?.tempData?.dateOfBirth || null
+        const dateOfBirth = member.dateOfBirth || member.sections.personalData?.tempData?.dateOfBirth || null
         
         // Get waiver status from member or section tempData
         const hasCompletedWaivers = member.hasCompletedWaivers !== undefined 
@@ -1418,7 +1466,7 @@ export default function AdminMembers() {
         }
         
         // Get date of birth from member or section tempData
-        const dateOfBirth = member.dateOfBirth || member.sections.dateOfBirth?.tempData?.dateOfBirth || null
+        const dateOfBirth = member.dateOfBirth || member.sections.personalData?.tempData?.dateOfBirth || null
         
         // Get waiver status from member or section tempData
         const hasCompletedWaivers = member.hasCompletedWaivers !== undefined 
@@ -1546,7 +1594,15 @@ export default function AdminMembers() {
     password: 'vortex',
     enrollments: [],
     dateOfBirth: '',
+    gender: '',
     medicalNotes: '',
+    medicalConcerns: '',
+    injuryHistoryDate: '',
+    injuryHistoryBodyPart: '',
+    injuryHistoryNotes: '',
+    noInjuryHistory: false,
+    experience: '',
+    previousClasses: [],
     isFinished: false,
     parentGuardianIds: [],
     hasCompletedWaivers: false,
@@ -1554,10 +1610,11 @@ export default function AdminMembers() {
     sections: {
       contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
       loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-      dateOfBirth: { isExpanded: false, tempData: { dateOfBirth: '' } },
+      personalData: { isExpanded: false, tempData: { dateOfBirth: '', gender: '', medicalConcerns: '', injuryHistoryDate: '', injuryHistoryBodyPart: '', injuryHistoryNotes: '', noInjuryHistory: false } },
       parentGuardians: { isExpanded: false, tempData: { parentGuardianIds: [] } },
       waivers: { isExpanded: false, tempData: { hasCompletedWaivers: false, waiverCompletionDate: null } },
-      statusVerification: { isExpanded: false }
+      statusVerification: { isExpanded: false },
+      previousClasses: { isExpanded: false, tempData: { experience: '' } }
     }
   }), [])
   
@@ -1614,7 +1671,7 @@ export default function AdminMembers() {
   }, [])
   
   
-  const handleSectionContinue = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => {
+  const handleSectionContinue = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -1633,9 +1690,10 @@ export default function AdminMembers() {
               ...member.sections,
               contactInfo: { ...sectionData, isExpanded: false },
               loginSecurity: { ...member.sections.loginSecurity, isExpanded: true },
-              dateOfBirth: member.sections.dateOfBirth || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth } },
+              personalData: member.sections.personalData || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory } },
               parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds: member.parentGuardianIds || [] } },
-              waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }
+              waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } },
+              previousClasses: member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
             }
           }
         } else if (section === 'loginSecurity') {
@@ -1647,25 +1705,32 @@ export default function AdminMembers() {
             sections: {
               ...member.sections,
               loginSecurity: { ...sectionData, isExpanded: false },
-              dateOfBirth: { ...(member.sections.dateOfBirth || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth } }), isExpanded: true }
+              personalData: { ...(member.sections.personalData || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory } }), isExpanded: true }
             }
           }
-        } else if (section === 'dateOfBirth') {
-          const birthDate = member.sections.dateOfBirth?.tempData?.dateOfBirth || member.dateOfBirth
+        } else if (section === 'personalData') {
+          const personalData = member.sections.personalData?.tempData || { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory }
           const updatedMember = {
             ...member,
-            dateOfBirth: birthDate,
+            dateOfBirth: personalData.dateOfBirth,
+            gender: personalData.gender,
+            medicalConcerns: personalData.medicalConcerns,
+            injuryHistoryDate: personalData.injuryHistoryDate,
+            injuryHistoryBodyPart: personalData.injuryHistoryBodyPart,
+            injuryHistoryNotes: personalData.injuryHistoryNotes,
+            noInjuryHistory: personalData.noInjuryHistory,
             sections: {
               ...member.sections,
-              dateOfBirth: { ...(member.sections.dateOfBirth || { isExpanded: false, tempData: { dateOfBirth: birthDate } }), isExpanded: false },
+              personalData: { ...(member.sections.personalData || { isExpanded: false, tempData: personalData }), isExpanded: false },
               parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds: member.parentGuardianIds || [] } },
-              waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }
+              waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } },
+              previousClasses: member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
             }
           }
           
           // Check if child - if so, expand parent/guardian section next, otherwise expand waivers
-          if (birthDate) {
-            const birthDateObj = new Date(birthDate)
+          if (personalData.dateOfBirth) {
+            const birthDateObj = new Date(personalData.dateOfBirth)
             const today = new Date()
             const age = today.getFullYear() - birthDateObj.getFullYear() - 
               (today.getMonth() < birthDateObj.getMonth() || 
@@ -1701,29 +1766,41 @@ export default function AdminMembers() {
             ...member,
             hasCompletedWaivers: waiverData.hasCompletedWaivers,
             waiverCompletionDate: waiverData.waiverCompletionDate,
-            // dateOfBirth: member.dateOfBirth, // Explicitly include dateOfBirth if needed
             sections: {
               ...member.sections,
               waivers: { ...(member.sections.waivers || { isExpanded: false, tempData: waiverData }), isExpanded: false },
               statusVerification: { ...member.sections.statusVerification, isExpanded: true }
             }
           }
-        } else {
-          // Status verification section - just minimize it
+        } else if (section === 'statusVerification') {
+          // Status verification section - expand previous classes next
           return {
             ...member,
             sections: {
               ...member.sections,
-              statusVerification: { isExpanded: false }
+              statusVerification: { isExpanded: false },
+              previousClasses: { ...(member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }), isExpanded: true }
             }
           }
+        } else if (section === 'previousClasses') {
+          const experience = member.sections.previousClasses?.tempData?.experience || member.experience
+          return {
+            ...member,
+            experience,
+            sections: {
+              ...member.sections,
+              previousClasses: { ...(member.sections.previousClasses || { isExpanded: false, tempData: { experience } }), isExpanded: false }
+            }
+          }
+        } else {
+          return member
         }
       }
       return member
     }))
   }
   
-  const handleSectionMinimize = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => {
+  const handleSectionMinimize = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -1769,7 +1846,7 @@ export default function AdminMembers() {
     }))
   }
   
-  const handleSectionCancel = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => {
+  const handleSectionCancel = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -1822,7 +1899,7 @@ export default function AdminMembers() {
     }))
   }
   
-  const handleToggleSection = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => {
+  const handleToggleSection = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -1879,6 +1956,42 @@ export default function AdminMembers() {
                 ...member.sections,
                 loginSecurity: { ...sectionData, isExpanded: false }
               }
+            }
+          }
+        } else if (section === 'personalData') {
+          const sectionData = member.sections.personalData || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory } }
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              personalData: { ...sectionData, isExpanded: !sectionData.isExpanded }
+            }
+          }
+        } else if (section === 'parentGuardians') {
+          const sectionData = member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds: member.parentGuardianIds || [] } }
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              parentGuardians: { ...sectionData, isExpanded: !sectionData.isExpanded }
+            }
+          }
+        } else if (section === 'waivers') {
+          const sectionData = member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              waivers: { ...sectionData, isExpanded: !sectionData.isExpanded }
+            }
+          }
+        } else if (section === 'previousClasses') {
+          const sectionData = member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              previousClasses: { ...sectionData, isExpanded: !sectionData.isExpanded }
             }
           }
         } else {
@@ -2213,7 +2326,7 @@ export default function AdminMembers() {
                     {/* Search by name/username */}
                     <div className="mb-4">
                     <label className="block text-sm font-semibold text-gray-300 mb-2">
-                        Search for Family (by name or username)
+                        Search for Family Member
                     </label>
                     <div className="flex gap-2">
                       <input
@@ -2294,28 +2407,7 @@ export default function AdminMembers() {
                   </div>
 
                   <div className="border-t border-gray-600 pt-4">
-                    <h4 className="text-lg font-semibold text-white mb-4">Option 2: Create New Family</h4>
-                    <button
-                      onClick={() => {
-                        setUnifiedModalMode('create-new')
-                        setMemberModalMode('new-family')
-                        setEditingFamilyId(null)
-                        setEditingMemberUserId(null)
-                        setFamilyCreationInfo({ familyName: '', familyUsername: '', familyPassword: '', familyPasswordConfirm: '' })
-                        // Reset to blank form for new family
-                        setFamilyMembers([createDefaultMember('member-1')])
-                        setExpandedFamilyMemberId('member-1')
-                        setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
-                        setIsBillingExpanded(true)
-                      }}
-                      className="w-full bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                    >
-                      Create New Family
-                    </button>
-                  </div>
-                  
-                  <div className="border-t border-gray-600 pt-4">
-                    <h4 className="text-lg font-semibold text-white mb-4">Option 3: Create Member Without Family</h4>
+                    <h4 className="text-lg font-semibold text-white mb-4">Option 2: Create New Member or Family</h4>
                     <button
                       onClick={() => {
                         setUnifiedModalMode('create-new')
@@ -2324,15 +2416,15 @@ export default function AdminMembers() {
                         setEditingMemberUserId(null)
                         setFamilyCreationInfo({ familyName: '', familyUsername: '', familyPassword: '', familyPasswordConfirm: '' })
                         setFamilyJoinInfo({ familyId: null, familyUsername: '', familyPassword: '' })
-                        // Reset to blank form - no family (orphan member)
+                        // Reset to blank form - no family by default
                         setFamilyMembers([createDefaultMember('member-1')])
                         setExpandedFamilyMemberId('member-1')
                         setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
                         setIsBillingExpanded(true)
                       }}
-                      className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                      className="w-full bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
-                      Create Member (No Family)
+                      Create New Member or Family
                     </button>
                   </div>
                 </div>
@@ -2341,9 +2433,9 @@ export default function AdminMembers() {
               {/* New Family Mode */}
               {memberModalMode === 'new-family' && (
                 <div className="space-y-6">
-                  {/* Family Creation Form (only show if we're creating a new family, not orphan) */}
+                  {/* Family Creation Form (only show if there are multiple members) */}
                   {(!familyJoinInfo.familyId && !familyJoinInfo.familyUsername && 
-                    (familyCreationInfo.familyName || familyMembers.length > 0)) && (
+                    familyMembers.length > 1) && (
                     <div className="bg-gray-700 p-4 rounded">
                       <h4 className="text-lg font-semibold text-white mb-4">Family Information</h4>
                       <div className="space-y-4">
@@ -3611,4 +3703,5 @@ export default function AdminMembers() {
     </>
   )
 }
+
 
