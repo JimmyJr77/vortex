@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, X, ChevronDown, ChevronUp, UserPlus, Eye } from 'lucide-react'
+import { Archive, X, ChevronDown, ChevronUp, UserPlus } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 
@@ -152,18 +152,20 @@ interface UnifiedMember {
 }
 
 export default function AdminMembers() {
-  // State
-  const [families, setFamilies] = useState<Family[]>([])
-  const [familiesLoading, setFamiliesLoading] = useState(false)
-  const [familySearchQuery, setFamilySearchQuery] = useState('')
-  const [showArchivedFamilies, setShowArchivedFamilies] = useState(false)
-  
   // Unified members state
   const [members, setMembers] = useState<UnifiedMember[]>([])
   const [membersLoading, setMembersLoading] = useState(false)
   const [memberSearchQuery, setMemberSearchQuery] = useState('')
   const [showArchivedMembers, setShowArchivedMembers] = useState(false)
-  const [viewMode, setViewMode] = useState<'families' | 'members'>('members') // Default to members view
+  
+  // Delete confirmation state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [memberToDelete, setMemberToDelete] = useState<{ id: number; name: string } | null>(null)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  
+  // Family state (still needed for member creation modal)
+  const [, setFamilies] = useState<Family[]>([])
+  const [, setFamiliesLoading] = useState(false)
   
   // Unified member/family modal state
   const [showMemberModal, setShowMemberModal] = useState(false)
@@ -329,11 +331,7 @@ export default function AdminMembers() {
     try {
       setFamiliesLoading(true)
       const apiUrl = getApiUrl()
-      const params = new URLSearchParams()
-      if (familySearchQuery) {
-        params.append('search', familySearchQuery)
-      }
-      const response = await fetch(`${apiUrl}/api/admin/families?${params.toString()}`)
+      const response = await fetch(`${apiUrl}/api/admin/families`)
       if (!response.ok) {
         setFamilies([])
         const errorText = await response.text().catch(() => response.statusText)
@@ -355,7 +353,7 @@ export default function AdminMembers() {
     } finally {
       setFamiliesLoading(false)
     }
-  }, [familySearchQuery])
+  }, [])
   
   const fetchAllPrograms = useCallback(async () => {
     try {
@@ -777,63 +775,6 @@ export default function AdminMembers() {
   }
   
   // Handler functions
-  const handleArchiveFamily = async (id: number, archived: boolean) => {
-    if (!confirm(archived ? 'Are you sure you want to archive this family?' : 'Are you sure you want to unarchive this family?')) {
-      return
-    }
-    try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/families/${id}/archive`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ archived })
-      })
-      if (response.ok) {
-        await fetchFamilies()
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to archive/unarchive family')
-      }
-    } catch (error) {
-      console.error('Error archiving family:', error)
-      alert('Failed to archive/unarchive family')
-    }
-  }
-  
-  const handleDeleteFamily = async (id: number) => {
-    if (!confirm('Are you sure you want to permanently delete this family? This will also delete all associated athletes. This action cannot be undone.')) {
-      return
-    }
-    try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/families/${id}`, {
-        method: 'DELETE'
-      })
-      if (response.ok) {
-        await fetchFamilies()
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to delete family')
-      }
-    } catch (error) {
-      console.error('Error deleting family:', error)
-      alert('Failed to delete family')
-    }
-  }
-  
-  const handleViewFamily = (family: Family) => {
-    setSelectedFamilyForView(family)
-    setShowFamilyViewModal(true)
-  }
-  
-  const handleEditFamily = (family: Family) => {
-    handleViewFamily(family)
-  }
-  
-  const handleViewMember = (guardian: Guardian, family: Family) => {
-    setViewingMember({ guardian, family })
-    setShowMemberViewModal(true)
-  }
   
   // Remove member from family
   const handleRemoveMemberFromFamily = async (familyId: number, memberId: number) => {
@@ -1954,9 +1895,6 @@ export default function AdminMembers() {
       })
       if (response.ok) {
         await fetchMembers()
-        if (viewMode === 'families') {
-          await fetchFamilies()
-        }
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to archive/unarchive member')
@@ -1967,14 +1905,51 @@ export default function AdminMembers() {
     }
   }
   
+  // Delete member handler - opens confirmation dialog
+  const handleDeleteMemberClick = (id: number, firstName: string, lastName: string) => {
+    setMemberToDelete({ id, name: `${firstName} ${lastName}` })
+    setDeleteConfirmText('')
+    setDeleteConfirmOpen(true)
+  }
+  
+  // Delete member handler - actually deletes after confirmation
+  const handleDeleteMember = async () => {
+    if (!memberToDelete) return
+    
+    // Check if user typed "delete" (case-insensitive)
+    if (deleteConfirmText.toLowerCase().trim() !== 'delete') {
+      alert('Please type "delete" to confirm deletion')
+      return
+    }
+    
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/members/${memberToDelete.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setDeleteConfirmOpen(false)
+        setMemberToDelete(null)
+        setDeleteConfirmText('')
+        await fetchMembers()
+        alert(data.message || 'Member deleted successfully')
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to delete member')
+      }
+    } catch (error) {
+      console.error('Error deleting member:', error)
+      alert('Failed to delete member')
+    }
+  }
+  
   // Effects
   useEffect(() => {
-    if (viewMode === 'members') {
-      fetchMembers()
-    } else {
-      fetchFamilies()
-    }
-  }, [viewMode, fetchMembers, fetchFamilies])
+    fetchMembers()
+  }, [fetchMembers])
   
   useEffect(() => {
     if (showMemberModal && programs.length === 0) {
@@ -2033,60 +2008,20 @@ export default function AdminMembers() {
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-              {viewMode === 'members' 
-                ? `Members (${members.filter(m => showArchivedMembers ? !m.isActive : m.isActive).length})`
-                : `Members (${families.filter(f => showArchivedFamilies ? f.archived : !f.archived).reduce((sum, f) => sum + (f.guardians?.length || 0) + (f.athletes?.length || 0), 0)})`
-              }
+              Members ({members.filter(m => showArchivedMembers ? !m.isActive : m.isActive).length})
             </h2>
             <div className="flex gap-2 flex-wrap">
-              {/* View Toggle */}
-              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode('members')}
-                  className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
-                    viewMode === 'members'
-                      ? 'bg-vortex-red text-white'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
-                >
-                  All Members
-                </button>
-                <button
-                  onClick={() => setViewMode('families')}
-                  className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
-                    viewMode === 'families'
-                      ? 'bg-vortex-red text-white'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
-                >
-                  By Family
-                </button>
-              </div>
-              
               <input
                 type="text"
                 placeholder="Search Members"
-                value={viewMode === 'members' ? memberSearchQuery : familySearchQuery}
-                onChange={(e) => {
-                  if (viewMode === 'members') {
-                    setMemberSearchQuery(e.target.value)
-                  } else {
-                    setFamilySearchQuery(e.target.value)
-                    fetchFamilies()
-                  }
-                }}
+                value={memberSearchQuery}
+                onChange={(e) => setMemberSearchQuery(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />
               <motion.button
-                onClick={() => {
-                  if (viewMode === 'members') {
-                    setShowArchivedMembers(!showArchivedMembers)
-                  } else {
-                    setShowArchivedFamilies(!showArchivedFamilies)
-                  }
-                }}
+                onClick={() => setShowArchivedMembers(!showArchivedMembers)}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                  (viewMode === 'members' ? showArchivedMembers : showArchivedFamilies)
+                  showArchivedMembers
                     ? 'bg-gray-600 text-white hover:bg-gray-700'
                     : 'bg-gray-500 text-white hover:bg-gray-600'
                 }`}
@@ -2094,7 +2029,7 @@ export default function AdminMembers() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Archive className="w-4 h-4" />
-                <span>{(viewMode === 'members' ? showArchivedMembers : showArchivedFamilies) ? 'Show Active' : 'Show Archives'}</span>
+                <span>{showArchivedMembers ? 'Show Active' : 'Show Archives'}</span>
               </motion.button>
               <motion.button
                 onClick={() => {
@@ -2117,254 +2052,102 @@ export default function AdminMembers() {
             </div>
           </div>
 
-          {/* Unified Members View */}
-          {viewMode === 'members' ? (
-            membersLoading ? (
-              <div className="text-center py-12 text-gray-600">Loading members...</div>
-            ) : (() => {
-              const filteredMembers = members.filter(m => showArchivedMembers ? !m.isActive : m.isActive)
-              
-              if (filteredMembers.length === 0) {
-                return <div className="text-center py-12 text-gray-600">No {showArchivedMembers ? 'archived' : 'active'} members yet</div>
-              }
-              
-              return (
-                <div className="space-y-4">
-                  {filteredMembers.map((member) => {
-                    const hasEnrollments = member.enrollments && member.enrollments.length > 0
-                    const enrollmentStatus = hasEnrollments ? 'Athlete' : 'Non-Participant'
-                    const rolesList = member.roles?.map(r => r.role).join(', ') || 'No roles'
-                    
-                    return (
-                      <div 
-                        key={member.id}
-                        className={`bg-gray-50 rounded-lg p-4 border ${
-                          member.isActive ? 'border-gray-200' : 'border-gray-300 bg-gray-100'
-                        }`}
-                      >
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <div className="text-black font-semibold text-lg">
-                                {member.firstName} {member.lastName}
-                              </div>
-                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                member.isActive 
-                                  ? 'bg-green-600 text-white' 
-                                  : 'bg-gray-500 text-white'
-                              }`}>
-                                {member.isActive ? 'Active' : 'Archived'}
-                              </span>
-                              {hasEnrollments && (
-                                <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-600 text-white">
-                                  {enrollmentStatus}
-                                </span>
-                              )}
-                            </div>
-                            {member.email && (
-                              <div className="text-gray-600 text-sm mt-1">{member.email}</div>
-                            )}
-                            {member.phone && (
-                              <div className="text-gray-600 text-sm">{member.phone}</div>
-                            )}
-                            {member.age !== null && member.age !== undefined && (
-                              <div className="text-gray-600 text-sm">Age: {member.age}</div>
-                            )}
-                            <div className="text-gray-500 text-xs mt-1">
-                              Roles: {rolesList} • Status: {member.status}
-                              {member.familyName && ` • Family: ${member.familyName}`}
-                              {member.familyId && ` (ID: ${member.familyId})`}
-                            </div>
-                            {hasEnrollments && (
-                              <div className="text-gray-500 text-xs mt-1">
-                                Enrolled in: {member.enrollments.map(e => e.program_display_name).join(', ')}
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex gap-2">
-                            <motion.button
-                              onClick={() => handleArchiveMember(member.id, member.isActive)}
-                              className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${
-                                member.isActive
-                                  ? 'bg-gray-500 text-white hover:bg-gray-600'
-                                  : 'bg-green-600 text-white hover:bg-green-700'
-                              }`}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <Archive className="w-4 h-4" />
-                              <span>{member.isActive ? 'Archive' : 'Unarchive'}</span>
-                            </motion.button>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })()
-          ) : (
-            /* Families View */
-            familiesLoading ? (
-              <div className="text-center py-12 text-gray-600">Loading members...</div>
-            ) : (() => {
-              const filteredFamilies = families.filter(f => showArchivedFamilies ? f.archived : !f.archived)
-              const allMembers: Array<{family: Family, member: Guardian | Athlete, type: 'guardian' | 'athlete'}> = []
-              
-              filteredFamilies.forEach(family => {
-                if (family.guardians) {
-                  family.guardians.forEach(guardian => {
-                    allMembers.push({ family, member: guardian, type: 'guardian' })
-                  })
-                }
-                if (family.athletes) {
-                  family.athletes.forEach(athlete => {
-                    allMembers.push({ family, member: athlete, type: 'athlete' })
-                  })
-                }
-              })
-
-              if (allMembers.length === 0) {
-                return <div className="text-center py-12 text-gray-600">No {showArchivedFamilies ? 'archived' : ''} members yet</div>
-              }
-
-              return (
-                <div className="space-y-4">
-                  {allMembers.map(({ family, member, type }) => {
-                  const isGuardian = type === 'guardian'
-                  const memberName = isGuardian 
-                    ? (member as Guardian).fullName 
-                    : `${(member as Athlete).first_name} ${(member as Athlete).last_name}`
-                  const memberEmail = isGuardian ? (member as Guardian).email : null
-                  const memberPhone = isGuardian ? (member as Guardian).phone : null
-                  const memberAge = !isGuardian ? (member as Athlete).age : null
-
+          {/* Members View */}
+          {membersLoading ? (
+            <div className="text-center py-12 text-gray-600">Loading members...</div>
+          ) : (() => {
+            const filteredMembers = members.filter(m => showArchivedMembers ? !m.isActive : m.isActive)
+            
+            if (filteredMembers.length === 0) {
+              return <div className="text-center py-12 text-gray-600">No {showArchivedMembers ? 'archived' : 'active'} members yet</div>
+            }
+            
+            return (
+              <div className="space-y-4">
+                {filteredMembers.map((member) => {
+                  const hasEnrollments = member.enrollments && member.enrollments.length > 0
+                  const enrollmentStatus = hasEnrollments ? 'Athlete' : 'Non-Participant'
+                  const rolesList = member.roles?.map(r => r.role).join(', ') || 'No roles'
+                  
                   return (
                     <div 
-                      key={`${family.id}-${type}-${isGuardian ? (member as Guardian).id : (member as Athlete).id}`}
-                      className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                      key={member.id}
+                      className={`bg-gray-50 rounded-lg p-4 border ${
+                        member.isActive ? 'border-gray-200' : 'border-gray-300 bg-gray-100'
+                      }`}
                     >
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="flex-1">
-                          <div className="text-black font-semibold text-lg">
-                            {memberName}
+                          <div className="flex items-center gap-2">
+                            <div className="text-black font-semibold text-lg">
+                              {member.firstName} {member.lastName}
+                            </div>
+                            <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                              member.isActive 
+                                ? 'bg-green-600 text-white' 
+                                : 'bg-gray-500 text-white'
+                            }`}>
+                              {member.isActive ? 'Active' : 'Archived'}
+                            </span>
+                            {hasEnrollments && (
+                              <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-600 text-white">
+                                {enrollmentStatus}
+                              </span>
+                            )}
                           </div>
-                          {memberEmail && (
-                            <div className="text-gray-600 text-sm mt-1">{memberEmail}</div>
+                          {member.email && (
+                            <div className="text-gray-600 text-sm mt-1">{member.email}</div>
                           )}
-                          {memberPhone && (
-                            <div className="text-gray-600 text-sm">{memberPhone}</div>
+                          {member.phone && (
+                            <div className="text-gray-600 text-sm">{member.phone}</div>
                           )}
-                          {memberAge !== null && (
-                            <div className="text-gray-600 text-sm">Age: {memberAge}</div>
+                          {member.age !== null && member.age !== undefined && (
+                            <div className="text-gray-600 text-sm">Age: {member.age}</div>
                           )}
                           <div className="text-gray-500 text-xs mt-1">
-                            {isGuardian ? 'Guardian' : 'Athlete'} • {
-                              !isGuardian && ((member as Athlete).family_display === 'Orphan' || (member as Athlete).family_id === null)
-                                ? 'Orphan'
-                                : `Family ID: ${family.id}`
-                            }
+                            Roles: {rolesList} • Status: {member.status}
+                            {member.familyName && ` • Family: ${member.familyName}`}
+                            {member.familyId && ` (ID: ${member.familyId})`}
                           </div>
+                          {hasEnrollments && (
+                            <div className="text-gray-500 text-xs mt-1">
+                              Enrolled in: {member.enrollments.map(e => e.program_display_name).join(', ')}
+                            </div>
+                          )}
                         </div>
                         <div className="flex gap-2">
-                          {isGuardian ? (
-                            <>
-                              <motion.button
-                                onClick={() => handleViewMember(member as Guardian, family)}
-                                className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 flex items-center gap-2"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                <Eye className="w-4 h-4" />
-                                View
-                              </motion.button>
-                              <motion.button
-                                onClick={() => handleEditMember(member as Guardian, family)}
-                                className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                <Edit2 className="w-4 h-4" />
-                                Edit
-                              </motion.button>
-                            </>
-                          ) : (
-                            <>
-                              <motion.button
-                                onClick={() => {
-                                  const primaryGuardian = family.guardians?.find(g => g.id === family.primary_user_id) || family.guardians?.[0]
-                                  if (primaryGuardian) {
-                                    handleViewMember(primaryGuardian, family)
-                                  } else {
-                                    handleViewFamily(family)
-                                  }
-                                }}
-                                className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 flex items-center gap-2"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                <Eye className="w-4 h-4" />
-                                View Family
-                              </motion.button>
-                              <motion.button
-                                onClick={() => {
-                                  const primaryGuardian = family.guardians?.find(g => g.id === family.primary_user_id) || family.guardians?.[0]
-                                  if (primaryGuardian) {
-                                    handleEditMember(primaryGuardian, family)
-                                  } else {
-                                    handleEditFamily(family)
-                                  }
-                                }}
-                                className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                <Edit2 className="w-4 h-4" />
-                                Edit Family
-                              </motion.button>
-                            </>
-                          )}
-                          {showArchivedFamilies ? (
-                            <>
-                              <motion.button
-                                onClick={() => handleArchiveFamily(family.id, false)}
-                                className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                <Archive className="w-4 h-4" />
-                                Unarchive
-                              </motion.button>
-                              <motion.button
-                                onClick={() => handleDeleteFamily(family.id)}
-                                className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 flex items-center gap-2"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                <X className="w-4 h-4" />
-                                Delete
-                              </motion.button>
-                            </>
-                          ) : (
+                          <motion.button
+                            onClick={() => handleArchiveMember(member.id, member.isActive)}
+                            className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                              member.isActive
+                                ? 'bg-gray-500 text-white hover:bg-gray-600'
+                                : 'bg-green-600 text-white hover:bg-green-700'
+                            }`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Archive className="w-4 h-4" />
+                            <span>{member.isActive ? 'Archive' : 'Unarchive'}</span>
+                          </motion.button>
+                          {!member.isActive && showArchivedMembers && (
                             <motion.button
-                              onClick={() => handleArchiveFamily(family.id, true)}
-                              className="px-3 py-2 bg-orange-600 text-white rounded-lg text-sm font-semibold hover:bg-orange-700 flex items-center gap-2"
+                              onClick={() => handleDeleteMemberClick(member.id, member.firstName, member.lastName)}
+                              className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-red-600 text-white hover:bg-red-700"
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                             >
-                              <Archive className="w-4 h-4" />
-                              Archive
+                              <X className="w-4 h-4" />
+                              <span>Delete</span>
                             </motion.button>
                           )}
                         </div>
                       </div>
                     </div>
                   )
-                  })}
-                </div>
-              )
-            })()
-          )}
+                })}
+              </div>
+            )
+          })()}
         </div>
       </motion.div>
 
@@ -3660,6 +3443,66 @@ export default function AdminMembers() {
               >
                 Cancel
               </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Delete Confirmation Dialog */}
+      <AnimatePresence>
+        {deleteConfirmOpen && memberToDelete && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[200] p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+            >
+              <h2 className="text-2xl font-bold text-red-600 mb-4">
+                Delete Member
+              </h2>
+              <p className="text-gray-700 mb-4">
+                Are you sure you want to permanently delete <strong>{memberToDelete.name}</strong>? This action cannot be undone.
+              </p>
+              <p className="text-gray-600 mb-4 text-sm">
+                To confirm deletion, please type <strong>"delete"</strong> in the box below:
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type 'delete' to confirm"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500"
+                autoFocus
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDeleteMember}
+                  disabled={deleteConfirmText.toLowerCase().trim() !== 'delete'}
+                  className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                    deleteConfirmText.toLowerCase().trim() === 'delete'
+                      ? 'bg-red-600 hover:bg-red-700 text-white'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  Delete Member
+                </button>
+                <button
+                  onClick={() => {
+                    setDeleteConfirmOpen(false)
+                    setMemberToDelete(null)
+                    setDeleteConfirmText('')
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

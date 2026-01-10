@@ -518,6 +518,7 @@ export const initDatabase = async () => {
         days_of_week        INTEGER[] NOT NULL DEFAULT ARRAY[1,2,3,4,5] CHECK (array_length(days_of_week, 1) > 0),
         start_time          TIME NOT NULL DEFAULT '18:00:00',
         end_time            TIME NOT NULL DEFAULT '19:30:00',
+        time_blocks         JSONB DEFAULT NULL,
         duration_type       VARCHAR(20) NOT NULL DEFAULT 'indefinite' CHECK (duration_type IN ('indefinite', '3_month_block', 'finite')),
         start_date          DATE,
         end_date            DATE,
@@ -525,6 +526,19 @@ export const initDatabase = async () => {
         updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
         UNIQUE (program_id, iteration_number)
       )
+    `)
+    
+    // Add time_blocks column if it doesn't exist (for existing tables)
+    await pool.query(`
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'class_iteration' AND column_name = 'time_blocks'
+        ) THEN
+          ALTER TABLE class_iteration ADD COLUMN time_blocks JSONB DEFAULT NULL;
+        END IF;
+      END $$;
     `)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_program ON class_iteration(program_id)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_number ON class_iteration(program_id, iteration_number)`)
@@ -6901,6 +6915,7 @@ app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
         days_of_week as "daysOfWeek",
         start_time as "startTime",
         end_time as "endTime",
+        time_blocks as "timeBlocks",
         duration_type as "durationType",
         start_date as "startDate",
         end_date as "endDate",
@@ -6955,6 +6970,7 @@ const ensureClassIterationTable = async () => {
           days_of_week        INTEGER[] NOT NULL DEFAULT ARRAY[1,2,3,4,5] CHECK (array_length(days_of_week, 1) > 0),
           start_time          TIME NOT NULL DEFAULT '18:00:00',
           end_time            TIME NOT NULL DEFAULT '19:30:00',
+          time_blocks         JSONB DEFAULT NULL,
           duration_type       VARCHAR(20) NOT NULL DEFAULT 'indefinite' CHECK (duration_type IN ('indefinite', '3_month_block', 'finite')),
           start_date          DATE,
           end_date            DATE,
@@ -6962,6 +6978,19 @@ const ensureClassIterationTable = async () => {
           updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
           UNIQUE (program_id, iteration_number)
         )
+      `)
+      
+      // Add time_blocks column if it doesn't exist (for existing tables)
+      await pool.query(`
+        DO $$ 
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'class_iteration' AND column_name = 'time_blocks'
+          ) THEN
+            ALTER TABLE class_iteration ADD COLUMN time_blocks JSONB DEFAULT NULL;
+          END IF;
+        END $$;
       `)
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_program ON class_iteration(program_id)`)
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_number ON class_iteration(program_id, iteration_number)`)
@@ -6977,7 +7006,7 @@ const ensureClassIterationTable = async () => {
 app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
   try {
     const { programId } = req.params
-    const { daysOfWeek, startTime, endTime, durationType, startDate, endDate } = req.body
+    const { daysOfWeek, startTime, endTime, timeBlocks, durationType, startDate, endDate } = req.body
 
     // Validate program exists
     const programCheck = await pool.query('SELECT id FROM program WHERE id = $1', [programId])
@@ -7019,6 +7048,13 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
       })
     }
 
+    // Process timeBlocks if provided
+    // Store timeBlocks if provided (even if single block), otherwise null for backward compatibility
+    let timeBlocksValue = null
+    if (timeBlocks && Array.isArray(timeBlocks) && timeBlocks.length > 0) {
+      timeBlocksValue = JSON.stringify(timeBlocks)
+    }
+
     const result = await pool.query(`
       INSERT INTO class_iteration (
         program_id,
@@ -7026,11 +7062,12 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
         days_of_week,
         start_time,
         end_time,
+        time_blocks,
         duration_type,
         start_date,
         end_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING 
         id,
         program_id as "programId",
@@ -7038,6 +7075,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
         days_of_week as "daysOfWeek",
         start_time as "startTime",
         end_time as "endTime",
+        time_blocks as "timeBlocks",
         duration_type as "durationType",
         start_date as "startDate",
         end_date as "endDate",
@@ -7049,6 +7087,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
       defaultDaysOfWeek,
       defaultStartTime,
       defaultEndTime,
+      timeBlocksValue,
       defaultDurationType,
       defaultDurationType === 'indefinite' ? null : startDate,
       defaultDurationType === 'finite' ? endDate : null
@@ -7073,7 +7112,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
 app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, res) => {
   try {
     const { programId, iterationId } = req.params
-    const { daysOfWeek, startTime, endTime, durationType, startDate, endDate } = req.body
+    const { daysOfWeek, startTime, endTime, timeBlocks, durationType, startDate, endDate } = req.body
 
     // Ensure table exists (create if missing)
     await ensureClassIterationTable()
@@ -7105,17 +7144,25 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
       })
     }
 
+    // Process timeBlocks if provided
+    // Store timeBlocks if provided (even if single block), otherwise null for backward compatibility
+    let timeBlocksValue = null
+    if (timeBlocks && Array.isArray(timeBlocks) && timeBlocks.length > 0) {
+      timeBlocksValue = JSON.stringify(timeBlocks)
+    }
+
     const result = await pool.query(`
       UPDATE class_iteration
       SET 
         days_of_week = $1,
         start_time = $2,
         end_time = $3,
-        duration_type = $4,
-        start_date = $5,
-        end_date = $6,
+        time_blocks = $4,
+        duration_type = $5,
+        start_date = $6,
+        end_date = $7,
         updated_at = now()
-      WHERE id = $7 AND program_id = $8
+      WHERE id = $8 AND program_id = $9
       RETURNING 
         id,
         program_id as "programId",
@@ -7123,6 +7170,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
         days_of_week as "daysOfWeek",
         start_time as "startTime",
         end_time as "endTime",
+        time_blocks as "timeBlocks",
         duration_type as "durationType",
         start_date as "startDate",
         end_date as "endDate",
@@ -7132,6 +7180,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
       daysOfWeek,
       startTime,
       endTime,
+      timeBlocksValue,
       durationType,
       durationType === 'indefinite' ? null : startDate,
       durationType === 'finite' ? endDate : null,
