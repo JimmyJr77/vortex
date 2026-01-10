@@ -5363,8 +5363,10 @@ app.post('/api/members/family/:id/mark-for-removal', authenticateMember, async (
 })
 
 // Enroll in class
-console.log('[Server Init] Registering POST /api/members/enroll endpoint')
+const workerId = process.env.RENDER_SERVICE_ID || process.pid || 'unknown'
+console.log(`[Server Init ${workerId}] Registering POST /api/members/enroll endpoint`)
 app.post('/api/members/enroll', authenticateMember, async (req, res) => {
+  console.log(`[Enroll ${workerId}] Enrollment request received on worker ${workerId}`)
   console.log('[Enroll] Enrollment request received:', { 
     userId: req.userId, 
     isAdmin: req.isAdmin,
@@ -8583,34 +8585,43 @@ app.use((req, res) => {
 
 // Start server
 const startServer = async () => {
-  console.log('[Server] Starting server initialization...')
+  const workerId = process.env.RENDER_SERVICE_ID || process.pid || 'unknown'
+  console.log(`[Server ${workerId}] Starting server initialization on worker ${workerId}...`)
   try {
-    await initDatabase()
-    console.log('[Server] Database initialization complete')
+  await initDatabase()
+    console.log(`[Server ${workerId}] Database initialization complete`)
     
     // Log registered routes for debugging
-    console.log('[Server] Checking registered routes...')
+    console.log(`[Server ${workerId}] Checking registered routes...`)
     let routeCount = 0
+    let enrollmentFound = false
     app._router.stack.forEach((middleware) => {
       if (middleware.route) {
         const methods = Object.keys(middleware.route.methods).join(', ').toUpperCase()
-        console.log(`  ${methods} ${middleware.route.path}`)
+        console.log(`[Server ${workerId}]   ${methods} ${middleware.route.path}`)
         routeCount++
         if (middleware.route.path === '/api/members/enroll') {
-          console.log(`  ✅ Found enrollment endpoint: ${methods} ${middleware.route.path}`)
+          enrollmentFound = true
+          console.log(`[Server ${workerId}]   ✅ Found enrollment endpoint: ${methods} ${middleware.route.path}`)
         }
       }
     })
-    console.log(`[Server] Total routes registered: ${routeCount}`)
-    
-    // Only start the HTTP server if not running as a migration script
-    if (process.env.RUN_MIGRATION_ONLY !== 'true') {
-      app.listen(PORT, () => {
-        console.log(`🚀 Server running on port ${PORT}`)
-        console.log(`📊 Health check: http://localhost:${PORT}/api/health`)
-        console.log(`📝 Registrations: http://localhost:${PORT}/api/registrations`)
-        console.log(`📧 Newsletter: http://localhost:${PORT}/api/newsletter`)
-        console.log(`📝 Enrollment: POST http://localhost:${PORT}/api/members/enroll`)
+    console.log(`[Server ${workerId}] Total routes registered: ${routeCount}`)
+    if (!enrollmentFound) {
+      console.error(`[Server ${workerId}] ⚠️ WARNING: Enrollment endpoint NOT found in registered routes!`)
+    }
+  
+  // Only start the HTTP server if not running as a migration script
+  if (process.env.RUN_MIGRATION_ONLY !== 'true') {
+    app.listen(PORT, () => {
+        console.log(`[Server ${workerId}] 🚀 Server running on port ${PORT} (worker ${workerId})`)
+        console.log(`[Server ${workerId}] 📊 Health check: http://localhost:${PORT}/api/health`)
+        console.log(`[Server ${workerId}] 📝 Registrations: http://localhost:${PORT}/api/registrations`)
+        console.log(`[Server ${workerId}] 📧 Newsletter: http://localhost:${PORT}/api/newsletter`)
+        console.log(`[Server ${workerId}] 📝 Enrollment: POST http://localhost:${PORT}/api/members/enroll`)
+        if (!enrollmentFound) {
+          console.error(`[Server ${workerId}] ⚠️ ERROR: Enrollment endpoint missing on worker ${workerId}!`)
+        }
       })
     } else {
       console.log('[Server] Running as migration script, skipping HTTP server')
