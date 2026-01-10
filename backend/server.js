@@ -5357,6 +5357,7 @@ app.post('/api/members/family/:id/mark-for-removal', authenticateMember, async (
 })
 
 // Enroll in class
+console.log('[Server Init] Registering POST /api/members/enroll endpoint')
 app.post('/api/members/enroll', authenticateMember, async (req, res) => {
   console.log('[Enroll] Enrollment request received:', { 
     userId: req.userId, 
