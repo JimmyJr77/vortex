@@ -2536,6 +2536,345 @@ app.get('/api/admin/members', async (req, res) => {
   }
 })
 
+// Get all athletes (admin endpoint) - backward compatibility wrapper for /api/admin/members
+// This endpoint returns members in the format expected by legacy code that uses "athletes"
+app.get('/api/admin/athletes', async (req, res) => {
+  try {
+    // Forward to members endpoint
+    const membersResponse = await pool.query(`
+      SELECT 
+        m.id,
+        m.first_name,
+        m.last_name,
+        m.date_of_birth,
+        m.medical_notes,
+        m.internal_flags,
+        m.family_id,
+        m.user_id,
+        CASE WHEN m.date_of_birth IS NOT NULL 
+          THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
+          ELSE NULL 
+        END as age,
+        f.family_name
+      FROM member m
+      LEFT JOIN family f ON m.family_id = f.id
+      WHERE m.is_active = TRUE
+      ORDER BY m.last_name, m.first_name
+    `)
+    
+    // Get enrollments for all members
+    const memberIds = membersResponse.rows.map(row => row.id)
+    let enrollmentsMap = {}
+    
+    if (memberIds.length > 0) {
+      const enrollmentsResult = await pool.query(`
+        SELECT 
+          mp.member_id,
+          json_agg(
+            jsonb_build_object(
+              'id', mp.id,
+              'program_id', mp.program_id,
+              'iteration_id', mp.iteration_id,
+              'program_display_name', COALESCE(p.display_name, ''),
+              'days_per_week', mp.days_per_week,
+              'selected_days', mp.selected_days
+            )
+          ) as enrollments
+        FROM member_program mp
+        LEFT JOIN program p ON mp.program_id = p.id
+        WHERE mp.member_id = ANY($1::bigint[])
+        GROUP BY mp.member_id
+      `, [memberIds])
+      
+      enrollmentsResult.rows.forEach(row => {
+        enrollmentsMap[row.member_id] = row.enrollments || []
+      })
+    }
+    
+    // Format as athletes (snake_case for backward compatibility)
+    const athletes = membersResponse.rows.map(row => ({
+      id: row.id,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      date_of_birth: row.date_of_birth,
+      age: row.age ? parseInt(row.age) : null,
+      medical_notes: row.medical_notes,
+      internal_flags: row.internal_flags,
+      family_id: row.family_id,
+      user_id: row.user_id,
+      linked_user_id: row.user_id, // For backward compatibility
+      family_name: row.family_name,
+      enrollments: enrollmentsMap[row.id] || []
+    }))
+    
+    res.json({
+      success: true,
+      data: athletes,
+      athletes: athletes // Also include as 'athletes' for backward compatibility
+    })
+  } catch (error) {
+    console.error('Get athletes error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Get enrollments for a specific athlete (admin endpoint) - backward compatibility
+app.get('/api/admin/athletes/:id/enrollments', async (req, res) => {
+  try {
+    const { id } = req.params
+    
+    const enrollmentsResult = await pool.query(`
+      SELECT 
+        mp.id,
+        mp.program_id,
+        mp.iteration_id,
+        mp.days_per_week,
+        mp.selected_days,
+        p.display_name as program_display_name,
+        p.name as program_name
+      FROM member_program mp
+      LEFT JOIN program p ON mp.program_id = p.id
+      WHERE mp.member_id = $1
+      ORDER BY mp.created_at DESC
+    `, [id])
+    
+    const enrollments = enrollmentsResult.rows.map(e => ({
+      id: e.id,
+      program_id: e.program_id,
+      iteration_id: e.iteration_id,
+      days_per_week: e.days_per_week,
+      selected_days: e.selected_days,
+      program_display_name: e.program_display_name,
+      program_name: e.program_name
+    }))
+    
+    res.json({
+      success: true,
+      data: enrollments
+    })
+  } catch (error) {
+    console.error('Get athlete enrollments error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Get single athlete (admin endpoint) - backward compatibility
+app.get('/api/admin/athletes/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    
+    const memberResult = await pool.query(`
+      SELECT 
+        m.*,
+        CASE WHEN m.date_of_birth IS NOT NULL 
+          THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
+          ELSE NULL 
+        END as age,
+        f.family_name
+      FROM member m
+      LEFT JOIN family f ON m.family_id = f.id
+      WHERE m.id = $1
+    `, [id])
+    
+    if (memberResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Athlete not found'
+      })
+    }
+    
+    const member = memberResult.rows[0]
+    
+    // Format as athlete (snake_case for backward compatibility)
+    res.json({
+      success: true,
+      data: {
+        id: member.id,
+        first_name: member.first_name,
+        last_name: member.last_name,
+        date_of_birth: member.date_of_birth,
+        age: member.age ? parseInt(member.age) : null,
+        medical_notes: member.medical_notes,
+        internal_flags: member.internal_flags,
+        family_id: member.family_id,
+        user_id: member.user_id,
+        linked_user_id: member.user_id, // For backward compatibility
+        family_name: member.family_name,
+        created_at: member.created_at,
+        updated_at: member.updated_at
+      }
+    })
+  } catch (error) {
+    console.error('Get athlete error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Update athlete (admin endpoint) - backward compatibility wrapper for /api/admin/members/:id
+app.put('/api/admin/athletes/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { firstName, lastName, dateOfBirth, medicalNotes, internalFlags } = req.body
+    
+    // Check if member exists
+    const memberCheck = await pool.query('SELECT id FROM member WHERE id = $1', [id])
+    if (memberCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Athlete not found'
+      })
+    }
+    
+    // Update member
+    const updateResult = await pool.query(`
+      UPDATE member
+      SET 
+        first_name = COALESCE($1, first_name),
+        last_name = COALESCE($2, last_name),
+        date_of_birth = COALESCE($3, date_of_birth),
+        medical_notes = COALESCE($4, medical_notes),
+        internal_flags = COALESCE($5, internal_flags),
+        updated_at = NOW()
+      WHERE id = $6
+      RETURNING *
+    `, [
+      firstName || null,
+      lastName || null,
+      dateOfBirth || null,
+      medicalNotes || null,
+      internalFlags || null,
+      id
+    ])
+    
+    const updatedMember = updateResult.rows[0]
+    
+    // Format response as athlete (snake_case for backward compatibility)
+    res.json({
+      success: true,
+      data: {
+        id: updatedMember.id,
+        first_name: updatedMember.first_name,
+        last_name: updatedMember.last_name,
+        date_of_birth: updatedMember.date_of_birth,
+        medical_notes: updatedMember.medical_notes,
+        internal_flags: updatedMember.internal_flags,
+        family_id: updatedMember.family_id,
+        user_id: updatedMember.user_id,
+        created_at: updatedMember.created_at,
+        updated_at: updatedMember.updated_at
+      }
+    })
+  } catch (error) {
+    console.error('Update athlete error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Create athlete (admin endpoint) - backward compatibility wrapper for /api/admin/members
+app.post('/api/admin/athletes', async (req, res) => {
+  try {
+    const { familyId, firstName, lastName, dateOfBirth, medicalNotes, internalFlags, userId } = req.body
+    
+    // Validate required fields
+    if (!firstName || !lastName || !dateOfBirth) {
+      return res.status(400).json({
+        success: false,
+        message: 'firstName, lastName, and dateOfBirth are required'
+      })
+    }
+    
+    // Check if family exists if familyId is provided
+    if (familyId) {
+      const familyCheck = await pool.query('SELECT id FROM family WHERE id = $1', [familyId])
+      if (familyCheck.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Family not found'
+        })
+      }
+    }
+    
+    // Create member using the members endpoint logic
+    const insertResult = await pool.query(`
+      INSERT INTO member (
+        first_name,
+        last_name,
+        date_of_birth,
+        medical_notes,
+        internal_flags,
+        family_id,
+        user_id,
+        status,
+        is_active,
+        created_at,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+      RETURNING *
+    `, [
+      firstName,
+      lastName,
+      dateOfBirth,
+      medicalNotes || null,
+      internalFlags || null,
+      familyId || null,
+      userId || null,
+      'legacy', // Default status
+      true // is_active
+    ])
+    
+    const newMember = insertResult.rows[0]
+    
+    // Update family_is_active for all family members if familyId is provided
+    if (familyId) {
+      await pool.query(`
+        UPDATE member
+        SET family_is_active = TRUE
+        WHERE family_id = $1
+      `, [familyId])
+    }
+    
+    // Format response as athlete (snake_case for backward compatibility)
+    res.json({
+      success: true,
+      data: {
+        id: newMember.id,
+        first_name: newMember.first_name,
+        last_name: newMember.last_name,
+        date_of_birth: newMember.date_of_birth,
+        medical_notes: newMember.medical_notes,
+        internal_flags: newMember.internal_flags,
+        family_id: newMember.family_id,
+        user_id: newMember.user_id,
+        created_at: newMember.created_at,
+        updated_at: newMember.updated_at
+      }
+    })
+  } catch (error) {
+    console.error('Create athlete error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
 // Archive/Unarchive member (admin endpoint)
 app.patch('/api/admin/members/:id/archive', async (req, res) => {
   try {
