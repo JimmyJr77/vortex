@@ -335,7 +335,6 @@ export default function AdminMembers() {
   const fetchMembers = useCallback(async () => {
     try {
       setMembersLoading(true)
-      const apiUrl = getApiUrl()
       const params = new URLSearchParams()
       if (memberSearchQuery) {
         params.append('search', memberSearchQuery)
@@ -401,7 +400,6 @@ export default function AdminMembers() {
   const fetchAllPrograms = useCallback(async () => {
     try {
       // Loading state handled by programs array
-      const apiUrl = getApiUrl()
       
       const [activeResponse, archivedResponse] = await Promise.all([
         adminApiRequest('/api/admin/programs?archived=false'),
@@ -443,7 +441,6 @@ export default function AdminMembers() {
     let counter = 1
     
     try {
-      const apiUrl = getApiUrl()
       let found = false
       do {
         const response = await adminApiRequest(`/api/admin/users?search=${encodeURIComponent(username)}`)
@@ -563,7 +560,6 @@ export default function AdminMembers() {
   
   // Helper function to populate form from family data
   const populateFormFromFamily = async (family: Family, editingUserId?: number | null) => {
-    const apiUrl = getApiUrl()
     const populatedMembers: FamilyMemberData[] = []
     
     // Get all guardians and athletes from the family
@@ -762,8 +758,6 @@ export default function AdminMembers() {
     password: string,
     address: string | null
   ): Promise<number> => {
-    const apiUrl = getApiUrl()
-    
     const userData = {
       fullName,
       email,
@@ -821,7 +815,6 @@ export default function AdminMembers() {
   // Remove member from family
   const handleRemoveMemberFromFamily = async (familyId: number, memberId: number) => {
     try {
-      const apiUrl = getApiUrl()
       const response = await adminApiRequest(`/api/admin/families/${familyId}/members/${memberId}`, {
         method: 'DELETE'
       })
@@ -873,8 +866,6 @@ export default function AdminMembers() {
     }
     
     try {
-      const apiUrl = getApiUrl()
-      
       // Handle unified modal edit mode
       if (isUnifiedModalEdit) {
         if (!selectedFamilyForMember) {
@@ -1070,7 +1061,6 @@ export default function AdminMembers() {
       return
     }
     try {
-      const apiUrl = getApiUrl()
       // Use new family search endpoint
       const response = await adminApiRequest(`/api/admin/families/search?search=${encodeURIComponent(query)}`)
       if (response.ok) {
@@ -1103,8 +1093,6 @@ export default function AdminMembers() {
   // Handle creating member with new unified backend
   const handleCreateFamilyWithPrimaryAdult = async () => {
     try {
-      const apiUrl = getApiUrl()
-      
       // Determine family mode based on memberModalMode
       let familyId: number | null = null
       let familyName: string | null = null
@@ -1319,8 +1307,6 @@ export default function AdminMembers() {
     if (!pendingUserData) return
     
     try {
-      const apiUrl = getApiUrl()
-      
       // Create/update user with the chosen action
       const response = await adminApiRequest('/api/admin/users', {
         method: 'POST',
@@ -1408,7 +1394,6 @@ export default function AdminMembers() {
         }
       }
       
-      const apiUrl = getApiUrl()
       const familyId = selectedFamilyForMember.id
       
       // Create members using unified endpoint
