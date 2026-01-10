@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LogOut } from 'lucide-react'
-import { getApiUrl } from '../utils/api'
+import { adminApiRequest } from '../utils/api'
 import AdminAdmins from './AdminAdmins'
 import AdminInquiries from './AdminInquiries'
 import AdminMembers from './AdminMembers'
@@ -81,8 +81,7 @@ export default function Admin({ onLogout }: AdminProps) {
 
   const fetchAllPrograms = async () => {
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/programs`)
+      const response = await adminApiRequest('/api/admin/programs')
       
       if (!response.ok) {
         throw new Error(`Backend returned error`)
@@ -103,12 +102,10 @@ export default function Admin({ onLogout }: AdminProps) {
 
   const fetchAllCategories = async () => {
     try {
-      const apiUrl = getApiUrl()
-      
       // Fetch both archived and active categories
       const [activeResponse, archivedResponse] = await Promise.all([
-        fetch(`${apiUrl}/api/admin/categories?archived=false`),
-        fetch(`${apiUrl}/api/admin/categories?archived=true`)
+        adminApiRequest('/api/admin/categories?archived=false'),
+        adminApiRequest('/api/admin/categories?archived=true')
       ])
       
       if (!activeResponse.ok || !archivedResponse.ok) {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, X, Save, Plus, Search, Trash2 } from 'lucide-react'
-import { getApiUrl } from '../utils/api'
+import { adminApiRequest } from '../utils/api'
 
 interface Program {
   id: number
@@ -79,12 +79,10 @@ export default function AdminClasses() {
     try {
       setProgramsLoading(true)
       setError(null)
-      const apiUrl = getApiUrl()
-      
       // Fetch both archived and active programs
       const [activeResponse, archivedResponse] = await Promise.all([
-        fetch(`${apiUrl}/api/admin/programs?archived=false`),
-        fetch(`${apiUrl}/api/admin/programs?archived=true`)
+        adminApiRequest('/api/admin/programs?archived=false'),
+        adminApiRequest('/api/admin/programs?archived=true')
       ])
       
       if (!activeResponse.ok || !archivedResponse.ok) {
@@ -110,12 +108,11 @@ export default function AdminClasses() {
   const fetchAllCategories = async () => {
     try {
       setCategoriesLoading(true)
-      const apiUrl = getApiUrl()
       
       // Fetch both archived and active categories
       const [activeResponse, archivedResponse] = await Promise.all([
-        fetch(`${apiUrl}/api/admin/categories?archived=false`),
-        fetch(`${apiUrl}/api/admin/categories?archived=true`)
+        adminApiRequest('/api/admin/categories?archived=false'),
+        adminApiRequest('/api/admin/categories?archived=true')
       ])
       
       if (!activeResponse.ok || !archivedResponse.ok) {
@@ -139,10 +136,8 @@ export default function AdminClasses() {
 
   const handleArchiveProgram = async (id: number, archived: boolean) => {
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/programs/${id}/archive`, {
+      const response = await adminApiRequest(`/api/admin/programs/${id}/archive`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ archived })
       })
       
@@ -154,9 +149,8 @@ export default function AdminClasses() {
             const category = categories.find(c => c.id === program.categoryId)
             if (category && category.archived) {
               // Unarchive the category as well
-              await fetch(`${apiUrl}/api/admin/categories/${category.id}/archive`, {
+              await adminApiRequest(`/api/admin/categories/${category.id}/archive`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ archived: false })
               })
             }
@@ -180,8 +174,7 @@ export default function AdminClasses() {
     }
     
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/programs/${id}`, {
+      const response = await adminApiRequest(`/api/admin/programs/${id}`, {
         method: 'DELETE'
       })
       
@@ -208,10 +201,8 @@ export default function AdminClasses() {
 
   const handleCreateCategory = async () => {
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/categories`, {
+      const response = await adminApiRequest('/api/admin/categories', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(categoryFormData)
       })
       
@@ -238,16 +229,14 @@ export default function AdminClasses() {
     }
     
     try {
-      const apiUrl = getApiUrl()
       // Create program with category_id
       const classData = {
         ...programFormData,
         categoryId: selectedCategoryForClass
       }
       
-      const response = await fetch(`${apiUrl}/api/admin/programs`, {
+      const response = await adminApiRequest('/api/admin/programs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(classData)
       })
       
@@ -274,9 +263,8 @@ export default function AdminClasses() {
             // For backward compatibility, also send first time block as legacy fields
             const firstTimeBlock = timeBlocks[0]
             
-            await fetch(`${apiUrl}/api/admin/programs/${newProgramId}/iterations`, {
+            await adminApiRequest(`/api/admin/programs/${newProgramId}/iterations`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 daysOfWeek: firstTimeBlock.daysOfWeek,
                 startTime: firstTimeBlock.startTime,
@@ -312,10 +300,8 @@ export default function AdminClasses() {
     if (!editingCategoryId) return
     
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/categories/${editingCategoryId}`, {
+      const response = await adminApiRequest(`/api/admin/categories/${editingCategoryId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(categoryFormData)
       })
       
@@ -337,10 +323,8 @@ export default function AdminClasses() {
 
   const handleArchiveCategory = async (id: number, archived: boolean) => {
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/categories/${id}/archive`, {
+      const response = await adminApiRequest(`/api/admin/categories/${id}/archive`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ archived })
       })
       
@@ -363,8 +347,7 @@ export default function AdminClasses() {
     }
     
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/categories/${id}`, {
+      const response = await adminApiRequest(`/api/admin/categories/${id}`, {
         method: 'DELETE'
       })
       
@@ -382,8 +365,7 @@ export default function AdminClasses() {
 
   const fetchIterations = async (programId: number) => {
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/programs/${programId}/iterations`)
+      const response = await adminApiRequest(`/api/admin/programs/${programId}/iterations`)
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
@@ -459,7 +441,6 @@ export default function AdminClasses() {
     if (!editingProgramId) return
     
     try {
-      const apiUrl = getApiUrl()
       // Allow categoryId to be updated, but don't send archived (managed separately)
       // Also remove categoryDisplayName as it's display-only and not allowed by validation
       const updateData = { ...programFormData }
@@ -467,15 +448,14 @@ export default function AdminClasses() {
       delete updateData.categoryDisplayName
       // Keep categoryId if it's set, otherwise don't send it (won't update if not provided)
       
-      const response = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}`, {
+      const response = await adminApiRequest(`/api/admin/programs/${editingProgramId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData)
       })
       
       if (response.ok) {
         // Update iterations - first get existing iterations
-        const existingIterationsResponse = await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations`)
+        const existingIterationsResponse = await adminApiRequest(`/api/admin/programs/${editingProgramId}/iterations`)
         const existingIterationsData = existingIterationsResponse.ok ? await existingIterationsResponse.json() : { data: [] }
         const existingIterations = existingIterationsData.data || []
         
@@ -486,7 +466,7 @@ export default function AdminClasses() {
             return existing.iterationNumber === idx + 1
           })
           if (!stillExists) {
-            await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations/${existing.id}`, {
+            await adminApiRequest(`/api/admin/programs/${editingProgramId}/iterations/${existing.id}`, {
               method: 'DELETE'
             })
           }
@@ -525,16 +505,14 @@ export default function AdminClasses() {
           
           if (existing) {
             // Update existing iteration
-            await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations/${existing.id}`, {
+            await adminApiRequest(`/api/admin/programs/${editingProgramId}/iterations/${existing.id}`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(iterationData)
             })
           } else {
             // Create new iteration
-            await fetch(`${apiUrl}/api/admin/programs/${editingProgramId}/iterations`, {
+            await adminApiRequest(`/api/admin/programs/${editingProgramId}/iterations`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(iterationData)
             })
           }

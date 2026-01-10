@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
-import { getApiUrl } from '../utils/api'
+import { adminApiRequest } from '../utils/api'
 
 interface DateTimeEntry {
   date: Date
@@ -521,9 +521,8 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     try {
       setEventsLoading(true)
       setError(null)
-      const apiUrl = getApiUrl()
       
-      const response = await fetch(`${apiUrl}/api/admin/events`)
+      const response = await adminApiRequest('/api/admin/events')
       if (!response.ok) {
         throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
       }
@@ -613,8 +612,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
   const fetchEditLog = async (eventId: string | number) => {
     try {
       setEditLogLoading(true)
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/events/${eventId}/log`)
+      const response = await adminApiRequest(`/api/admin/events/${eventId}/log`)
       if (!response.ok) {
         throw new Error(`Failed to fetch edit log: ${response.status}`)
       }
@@ -634,11 +632,9 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
 
   const handleCreateOrUpdateEvent = async () => {
     try {
-      const apiUrl = getApiUrl()
-      
-      const url = editingEventId 
-        ? `${apiUrl}/api/admin/events/${editingEventId}`
-        : `${apiUrl}/api/admin/events`
+      const endpoint = editingEventId 
+        ? `/api/admin/events/${editingEventId}`
+        : '/api/admin/events'
       
       const method = editingEventId ? 'PUT' : 'POST'
       
@@ -671,9 +667,8 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
         } : {})
       }
       
-      const response = await fetch(url, {
+      const response = await adminApiRequest(endpoint, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSubmit)
       })
 
@@ -744,11 +739,8 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     if (!confirm(archived ? 'Are you sure you want to archive this event?' : 'Are you sure you want to unarchive this event?')) return
     
     try {
-      const apiUrl = getApiUrl()
-      
-      const response = await fetch(`${apiUrl}/api/admin/events/${id}/archive`, {
+      const response = await adminApiRequest(`/api/admin/events/${id}/archive`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ archived })
       })
 
@@ -767,9 +759,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     if (!confirm('Are you sure you want to delete this event?')) return
     
     try {
-      const apiUrl = getApiUrl()
-      
-      const response = await fetch(`${apiUrl}/api/admin/events/${id}`, {
+      const response = await adminApiRequest(`/api/admin/events/${id}`, {
         method: 'DELETE'
       })
 

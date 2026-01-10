@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, X, Save, UserPlus } from 'lucide-react'
-import { getApiUrl } from '../utils/api'
+import { adminApiRequest } from '../utils/api'
 
 interface AdminInfo {
   email: string
@@ -65,8 +65,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
   const fetchAdmins = useCallback(async () => {
     try {
       setAdminsLoading(true)
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/admins`)
+      const response = await adminApiRequest('/api/admin/admins')
       if (!response.ok) {
         throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
       }
@@ -86,8 +85,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
       const adminId = localStorage.getItem('vortex-admin-id')
       if (!adminId) return
       
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/admins/me?id=${adminId}`)
+      const response = await adminApiRequest(`/api/admin/admins/me?id=${adminId}`)
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
@@ -121,10 +119,8 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
 
   const handleCreateAdmin = async () => {
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/admins`, {
+      const response = await adminApiRequest('/api/admin/admins', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(adminFormData)
       })
 
@@ -154,7 +150,6 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
       const adminId = localStorage.getItem('vortex-admin-id')
       if (!adminId) return
 
-      const apiUrl = getApiUrl()
       const updateData: AdminUpdateData = {
         firstName: myAccountData.firstName,
         lastName: myAccountData.lastName,
@@ -167,9 +162,8 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
         updateData.password = myAccountData.password
       }
 
-      const response = await fetch(`${apiUrl}/api/admin/admins/${adminId}`, {
+      const response = await adminApiRequest(`/api/admin/admins/${adminId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData)
       })
 

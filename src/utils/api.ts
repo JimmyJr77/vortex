@@ -19,3 +19,36 @@ export const getApiUrl = (): string => {
   return 'http://localhost:3001'
 }
 
+/**
+ * Get admin token from localStorage
+ */
+export const getAdminToken = (): string | null => {
+  return localStorage.getItem('adminToken')
+}
+
+/**
+ * Make an authenticated admin API request
+ * Automatically includes the Authorization header with the admin token
+ */
+export const adminApiRequest = async (
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<Response> => {
+  const apiUrl = getApiUrl()
+  const token = getAdminToken()
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string> || {}),
+  }
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+  
+  return fetch(`${apiUrl}${endpoint}`, {
+    ...options,
+    headers,
+  })
+}
+

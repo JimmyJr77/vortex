@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Archive, X, ChevronDown, ChevronUp, UserPlus } from 'lucide-react'
-import { getApiUrl } from '../utils/api'
+import { adminApiRequest } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 
 // Member-related interfaces
@@ -343,9 +343,9 @@ export default function AdminMembers() {
       if (showArchivedMembers) {
         params.append('showArchived', 'true')
       }
-      const url = `${apiUrl}/api/admin/members?${params.toString()}`
+      const url = `/api/admin/members?${params.toString()}`
       console.log('[AdminMembers] Fetching members from:', url)
-      const response = await fetch(url)
+      const response = await adminApiRequest(url)
       console.log('[AdminMembers] Response status:', response.status, response.statusText)
       if (!response.ok) {
         setMembers([])
@@ -374,8 +374,7 @@ export default function AdminMembers() {
   const fetchFamilies = useCallback(async () => {
     try {
       setFamiliesLoading(true)
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/families`)
+      const response = await adminApiRequest('/api/admin/families')
       if (!response.ok) {
         setFamilies([])
         const errorText = await response.text().catch(() => response.statusText)
@@ -405,8 +404,8 @@ export default function AdminMembers() {
       const apiUrl = getApiUrl()
       
       const [activeResponse, archivedResponse] = await Promise.all([
-        fetch(`${apiUrl}/api/admin/programs?archived=false`),
-        fetch(`${apiUrl}/api/admin/programs?archived=true`)
+        adminApiRequest('/api/admin/programs?archived=false'),
+        adminApiRequest('/api/admin/programs?archived=true')
       ])
       
       if (!activeResponse.ok || !archivedResponse.ok) {
@@ -447,7 +446,7 @@ export default function AdminMembers() {
       const apiUrl = getApiUrl()
       let found = false
       do {
-        const response = await fetch(`${apiUrl}/api/admin/users?search=${encodeURIComponent(username)}`)
+        const response = await adminApiRequest(`/api/admin/users?search=${encodeURIComponent(username)}`)
         if (response.ok) {
           const data = await response.json()
           if (data.success && data.data) {
@@ -595,7 +594,7 @@ export default function AdminMembers() {
       let isActive = true // Default to active
       if (member.userId) {
         try {
-          const userResponse = await fetch(`${apiUrl}/api/admin/users/${member.userId}`)
+          const userResponse = await adminApiRequest(`/api/admin/users/${member.userId}`)
           if (userResponse.ok) {
             const userData = await userResponse.json()
             if (userData.success && userData.data) {
@@ -620,7 +619,7 @@ export default function AdminMembers() {
       }> = []
       if (member.type === 'athlete' && 'id' in member.data) {
         try {
-          const enrollmentsResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.data.id}/enrollments`)
+          const enrollmentsResponse = await adminApiRequest(`/api/admin/athletes/${member.data.id}/enrollments`)
           if (enrollmentsResponse.ok) {
             const enrollmentsData = await enrollmentsResponse.json()
             if (enrollmentsData.success && enrollmentsData.data) {
@@ -713,7 +712,7 @@ export default function AdminMembers() {
       // Get address from primary guardian's user account
       if (primaryGuardian.id) {
         try {
-          const userResponse = await fetch(`${apiUrl}/api/admin/users/${primaryGuardian.id}`)
+          const userResponse = await adminApiRequest(`/api/admin/users/${primaryGuardian.id}`)
           if (userResponse.ok) {
             const userData = await userResponse.json()
             if (userData.success && userData.data && userData.data.address) {
@@ -775,9 +774,8 @@ export default function AdminMembers() {
       address
     }
     
-    const response = await fetch(`${apiUrl}/api/admin/users`, {
+    const response = await adminApiRequest('/api/admin/users', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData)
     })
     
@@ -824,9 +822,8 @@ export default function AdminMembers() {
   const handleRemoveMemberFromFamily = async (familyId: number, memberId: number) => {
     try {
       const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/families/${familyId}/members/${memberId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
+      const response = await adminApiRequest(`/api/admin/families/${familyId}/members/${memberId}`, {
+        method: 'DELETE'
       })
       
       if (!response.ok) {
@@ -902,9 +899,8 @@ export default function AdminMembers() {
           
           // Update user if this member has a userId (guardian or adult athlete)
           if (member.userId) {
-            const userResponse = await fetch(`${apiUrl}/api/admin/users/${member.userId}`, {
+            const userResponse = await adminApiRequest(`/api/admin/users/${member.userId}`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 fullName: `${firstName} ${lastName}`,
                 email: email,
@@ -923,9 +919,8 @@ export default function AdminMembers() {
           
           // Update athlete if this member has an athleteId
           if (member.athleteId) {
-            const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}`, {
+            const athleteResponse = await adminApiRequest(`/api/admin/athletes/${member.athleteId}`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 firstName: firstName,
                 lastName: lastName,
@@ -956,9 +951,8 @@ export default function AdminMembers() {
       // Original logic for member edit modal
       if (!editingMember) return
       
-      const response = await fetch(`${apiUrl}/api/admin/users/${editingMember.guardian.id}`, {
+      const response = await adminApiRequest(`/api/admin/users/${editingMember.guardian.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fullName: `${editingMemberData.firstName} ${editingMemberData.lastName}`,
           email: editingMemberData.email,
@@ -976,9 +970,8 @@ export default function AdminMembers() {
       
       for (const member of editingFamilyMembers) {
         if (member.id) {
-          await fetch(`${apiUrl}/api/admin/athletes/${member.id}`, {
+          await adminApiRequest(`/api/admin/athletes/${member.id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               firstName: member.firstName,
               lastName: member.lastName,
@@ -992,7 +985,7 @@ export default function AdminMembers() {
           const today = new Date()
           const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
           if (age !== null && age >= 18 && member.userId) {
-            await fetch(`${apiUrl}/api/admin/users/${member.userId}`, {
+            await adminApiRequest(`/api/admin/users/${member.userId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -1013,9 +1006,8 @@ export default function AdminMembers() {
           
           let userId = null
           if (isAdult) {
-            const userResponse = await fetch(`${apiUrl}/api/admin/users`, {
+            const userResponse = await adminApiRequest('/api/admin/users', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 fullName: `${member.firstName} ${member.lastName}`,
                 email: member.email,
@@ -1039,9 +1031,8 @@ export default function AdminMembers() {
             return
           }
           
-          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
+          const athleteResponse = await adminApiRequest('/api/admin/athletes', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               familyId: editingMember.family.id,
               firstName: member.firstName,
@@ -1081,7 +1072,7 @@ export default function AdminMembers() {
     try {
       const apiUrl = getApiUrl()
       // Use new family search endpoint
-      const response = await fetch(`${apiUrl}/api/admin/families/search?search=${encodeURIComponent(query)}`)
+      const response = await adminApiRequest(`/api/admin/families/search?search=${encodeURIComponent(query)}`)
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.data) {
@@ -1282,9 +1273,8 @@ export default function AdminMembers() {
         // Otherwise, no family (orphan member) - familyId stays null
         
         // Create member using unified endpoint
-        const memberResponse = await fetch(`${apiUrl}/api/admin/members`, {
+        const memberResponse = await adminApiRequest('/api/admin/members', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(memberPayload)
         })
         
@@ -1332,9 +1322,8 @@ export default function AdminMembers() {
       const apiUrl = getApiUrl()
       
       // Create/update user with the chosen action
-      const response = await fetch(`${apiUrl}/api/admin/users`, {
+      const response = await adminApiRequest('/api/admin/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fullName: pendingUserData.fullName,
           email: pendingUserData.email,
@@ -1501,9 +1490,8 @@ export default function AdminMembers() {
         }
         
         // Create member using unified endpoint
-        const memberResponse = await fetch(`${apiUrl}/api/admin/members`, {
+        const memberResponse = await adminApiRequest('/api/admin/members', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(memberPayload)
         })
         
@@ -1602,8 +1590,7 @@ export default function AdminMembers() {
     }
     
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/members/search?q=${encodeURIComponent(query)}&adultsOnly=true`)
+      const response = await adminApiRequest(`/api/admin/members/search?q=${encodeURIComponent(query)}&adultsOnly=true`)
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
@@ -1930,10 +1917,8 @@ export default function AdminMembers() {
       return
     }
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/members/${id}/archive`, {
+      const response = await adminApiRequest(`/api/admin/members/${id}/archive`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ archived })
       })
       if (response.ok) {
@@ -1966,10 +1951,8 @@ export default function AdminMembers() {
     }
     
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/members/${memberToDelete.id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
+      const response = await adminApiRequest(`/api/admin/members/${memberToDelete.id}`, {
+        method: 'DELETE'
       })
       
       if (response.ok) {

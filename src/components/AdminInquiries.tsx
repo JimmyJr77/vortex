@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, Save, X, ChevronDown, ChevronUp } from 'lucide-react'
-import { getApiUrl } from '../utils/api'
+import { adminApiRequest } from '../utils/api'
 
 interface User {
   id: number
@@ -34,15 +34,14 @@ export default function AdminInquiries() {
     try {
       setLoading(true)
       setError(null)
-      const apiUrl = getApiUrl()
       
-      const regResponse = await fetch(`${apiUrl}/api/admin/registrations`)
+      const regResponse = await adminApiRequest('/api/admin/registrations')
       if (!regResponse.ok) {
         throw new Error(`Backend returned ${regResponse.status}: ${regResponse.statusText}`)
       }
       const regData = await regResponse.json()
       
-      const newsResponse = await fetch(`${apiUrl}/api/admin/newsletter`)
+      const newsResponse = await adminApiRequest('/api/admin/newsletter')
       if (!newsResponse.ok) {
         throw new Error(`Backend returned ${newsResponse.status}: ${newsResponse.statusText}`)
       }
@@ -143,10 +142,8 @@ export default function AdminInquiries() {
     if (!editingId) return
     
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/registrations/${editingId}`, {
+      const response = await adminApiRequest(`/api/admin/registrations/${editingId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editData)
       })
       
@@ -166,8 +163,7 @@ export default function AdminInquiries() {
     if (!confirm('Archive this user?')) return
     
     try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/registrations/${id}`, {
+      const response = await adminApiRequest(`/api/admin/registrations/${id}`, {
         method: 'DELETE'
       })
       
