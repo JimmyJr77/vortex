@@ -41,14 +41,24 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
         // Store login state in localStorage
         localStorage.setItem('vortex_admin', 'true')
         // Store admin token - check both 'token' and 'adminToken' field names
-        const tokenValue = data.token || data.adminToken
+        let tokenValue = data.token || data.adminToken
+        
+        // TEMPORARY FALLBACK: If backend hasn't been updated yet, create a client-side token
+        // This should be removed once backend is deployed with token generation
+        if (!tokenValue && data.admin && data.admin.id) {
+          console.warn('[Login] No token from server - using temporary client-side token (backend needs update)')
+          // Create a simple token-like string for now (not secure, but will work until backend is updated)
+          // In production, the backend MUST be updated to create proper JWT tokens
+          tokenValue = `temp-admin-${data.admin.id}-${Date.now()}`
+          console.warn('[Login] Using temporary token - BACKEND MUST BE UPDATED for proper authentication!')
+        }
+        
         if (tokenValue) {
           localStorage.setItem('adminToken', tokenValue)
           console.log('[Login] Admin token stored successfully, length:', tokenValue.length)
         } else {
           console.error('[Login] No token received from server! Response data:', data)
           console.warn('[Login] No token received from server - authentication may fail for some operations')
-          // Try to continue anyway - maybe token generation failed but login succeeded
         }
         // Store admin info for edit tracking
         const adminData = {
