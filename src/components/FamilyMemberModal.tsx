@@ -120,26 +120,34 @@ interface FamilyMemberModalProps {
   getActiveClassesByCategory?: (programs: Program[]) => { groupedByCategory: Record<string, Program[]>, sortedCategories: string[] }
 }
 
-export default function FamilyMemberModal({
-  isOpen,
-  mode,
-  onClose,
-  onSubmit,
-  editingFamily,
-  editingMemberUserId,
-  existingFamily,
-  programs: _programs,
-  generateUsername: _generateUsername = async (f, l) => `${f.toLowerCase()}${l.toLowerCase()}`,
-  formatPhoneNumber: _formatPhoneNumber = (p) => p,
-  parseAddress = () => ({ street: '', city: '', state: '', zip: '' }),
-  combineAddress: _combineAddress = (s, c, st, z) => [s, c, st, z].filter(Boolean).join(', '),
-  cleanPhoneNumber: _cleanPhoneNumber = (p) => p.replace(/\D/g, ''),
-  getActiveClassesByCategory: _getActiveClassesByCategory = () => ({ groupedByCategory: {}, sortedCategories: [] })
-}: FamilyMemberModalProps) {
+export default function FamilyMemberModal(props: FamilyMemberModalProps) {
+  // Destructure only what we use, keep rest for future implementation
+  const {
+    isOpen,
+    mode,
+    onClose,
+    onSubmit,
+    editingFamily,
+    editingMemberUserId,
+    existingFamily,
+    parseAddress = () => ({ street: '', city: '', state: '', zip: '' }),
+    // These props are reserved for future implementation when modal is completed
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    programs: _programs,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    generateUsername: _generateUsername,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    formatPhoneNumber: _formatPhoneNumber,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    combineAddress: _combineAddress,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    cleanPhoneNumber: _cleanPhoneNumber,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getActiveClassesByCategory: _getActiveClassesByCategory
+  } = props
+  
   // Internal state
   const [memberModalMode, setMemberModalMode] = useState<'search' | 'new-family'>('search')
-  const [_memberSearchQuery, _setMemberSearchQuery] = useState('')
-  const [_memberSearchResults, _setMemberSearchResults] = useState<Family[]>([])
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberData[]>([
     {
       id: 'member-1',
@@ -164,85 +172,15 @@ export default function FamilyMemberModal({
       }
     }
   ])
-  const [_expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<string | number | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<string | number | null>(null)
   const [billingInfo, setBillingInfo] = useState({
     firstName: '',
     lastName: '',
     billingAddress: ''
   })
-  const [_isBillingExpanded, setIsBillingExpanded] = useState(true)
-
-  // Initialize based on mode
-  useEffect(() => {
-    if (!isOpen) return
-
-    if (mode === 'edit' && editingFamily) {
-      // Populate from editing family
-      populateFormFromFamily(editingFamily, editingMemberUserId || null)
-      setMemberModalMode('new-family')
-    } else if (mode === 'add-to-existing' && existingFamily) {
-      // Populate from existing family, then add blank member
-      populateFormFromFamily(existingFamily, null).then(() => {
-        const newMember: FamilyMemberData = {
-          id: `member-${familyMembers.length + 1}`,
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          addressStreet: '',
-          addressCity: '',
-          addressState: '',
-          addressZip: '',
-          username: '',
-          password: 'vortex',
-          enrollments: [],
-          dateOfBirth: '',
-          medicalNotes: '',
-          isFinished: false,
-          sections: {
-            contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-            loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-            enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
-          }
-        }
-        setFamilyMembers(prev => [...prev, newMember])
-        setExpandedFamilyMemberId(newMember.id)
-      })
-      setMemberModalMode('new-family')
-    } else if (mode === 'create-new') {
-      // Start with blank form
-      setMemberModalMode('search')
-      resetForm()
-    }
-  }, [isOpen, mode, editingFamily, existingFamily, editingMemberUserId])
-
-  const resetForm = () => {
-    setFamilyMembers([{
-      id: 'member-1',
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      addressStreet: '',
-      addressCity: '',
-      addressState: '',
-      addressZip: '',
-      username: '',
-      password: 'vortex',
-      enrollments: [],
-      dateOfBirth: '',
-      medicalNotes: '',
-      isFinished: false,
-      sections: {
-        contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-        loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-        enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
-      }
-    }])
-    setExpandedFamilyMemberId('member-1')
-    setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
-    setIsBillingExpanded(true)
-  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isBillingExpanded, setIsBillingExpanded] = useState(true)
 
   const populateFormFromFamily = async (family: Family, editingUserId?: number | null) => {
     const apiUrl = getApiUrl()
@@ -419,9 +357,86 @@ export default function FamilyMemberModal({
     }
   }
 
+  // Initialize based on mode
+  useEffect(() => {
+    if (!isOpen) return
+
+    if (mode === 'edit' && editingFamily) {
+      // Populate from editing family
+      populateFormFromFamily(editingFamily, editingMemberUserId || null)
+      setMemberModalMode('new-family')
+    } else if (mode === 'add-to-existing' && existingFamily) {
+      // Populate from existing family, then add blank member
+      populateFormFromFamily(existingFamily, null).then(() => {
+        setFamilyMembers(prev => {
+          const newMember: FamilyMemberData = {
+            id: `member-${prev.length + 1}`,
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            addressStreet: '',
+            addressCity: '',
+            addressState: '',
+            addressZip: '',
+            username: '',
+            password: 'vortex',
+            enrollments: [],
+            dateOfBirth: '',
+            medicalNotes: '',
+            isFinished: false,
+            sections: {
+              contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+              loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+              enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+            }
+          }
+          const updated = [...prev, newMember]
+          setExpandedFamilyMemberId(newMember.id)
+          return updated
+        })
+      })
+      setMemberModalMode('new-family')
+    } else if (mode === 'create-new') {
+      // Start with blank form
+      setMemberModalMode('search')
+      resetForm()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, mode, editingFamily?.id, existingFamily?.id, editingMemberUserId])
+
+  const resetForm = () => {
+    setFamilyMembers([{
+      id: 'member-1',
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      addressStreet: '',
+      addressCity: '',
+      addressState: '',
+      addressZip: '',
+      username: '',
+      password: 'vortex',
+      enrollments: [],
+      dateOfBirth: '',
+      medicalNotes: '',
+      isFinished: false,
+      sections: {
+        contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+        loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+        enrollment: { isExpanded: false, tempData: { programId: null, program: 'Non-Participant', daysPerWeek: 1, selectedDays: [] } }
+      }
+    }])
+    setExpandedFamilyMemberId('member-1')
+    setBillingInfo({ firstName: '', lastName: '', billingAddress: '' })
+    setIsBillingExpanded(true)
+  }
+
   const handleSubmit = async () => {
     await onSubmit({ familyMembers, billingInfo })
   }
+  
 
   if (!isOpen) return null
 
@@ -460,15 +475,32 @@ export default function FamilyMemberModal({
               </button>
             </div>
 
-            {/* Modal content will go here - this is a placeholder structure */}
-            <div className="text-white">
-              <p>Modal content will be implemented here...</p>
-              <button
-                onClick={handleSubmit}
-                className="mt-4 bg-vortex-red hover:bg-red-700 text-white px-4 py-2 rounded"
-              >
-                Submit
-              </button>
+            {/* Modal content - simplified for now as this modal is legacy */}
+            <div className="text-white space-y-4">
+              <div className="text-gray-300">
+                {mode === 'edit' && 'Editing family member information'}
+                {mode === 'add-to-existing' && 'Adding member to existing family'}
+                {mode === 'create-new' && 'Creating new family member'}
+              </div>
+              <div className="bg-gray-700 p-4 rounded">
+                <p className="text-sm text-gray-300 mb-4">
+                  This modal is currently a placeholder. Please use the main member creation flow in the Members tab.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSubmit}
+                    className="flex-1 bg-vortex-red hover:bg-red-700 text-white px-4 py-2 rounded font-semibold transition-colors"
+                  >
+                    Submit
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
           </motion.div>
         </motion.div>

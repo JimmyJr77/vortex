@@ -1103,89 +1103,6 @@ export default function AdminMembers() {
     }
   }
   
-  // Unused function - commented out
-  /* const handleSelectFamilyForMember = async (family: any) => {
-    // Use unified modal in add-to-existing mode
-    setUnifiedModalMode('add-to-existing')
-    setSelectedFamilyForMember(family)
-    setMemberModalMode('existing-family')
-    setFamilyJoinInfo({ familyId: family.id, familyUsername: family.familyUsername || family.family_username || '', familyPassword: '' })
-    setMemberSearchQuery('')
-    setMemberSearchResults([])
-    
-    // Reset to blank member form
-    setFamilyMembers([{
-      id: 'member-1',
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      addressStreet: '',
-      addressCity: '',
-      addressState: '',
-      addressZip: '',
-      username: '',
-      password: 'vortex',
-      enrollments: [],
-      dateOfBirth: '',
-      medicalNotes: '',
-      isFinished: false,
-      sections: {
-        contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-        loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-        statusVerification: { isExpanded: false }
-      }
-    }])
-    setExpandedFamilyMemberId('member-1')
-    
-    // Add a new blank member for the new person being added
-    const newMember: FamilyMemberData = {
-      id: `member-${familyMembers.length + 1}`,
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      addressStreet: '',
-      addressCity: '',
-      addressState: '',
-      addressZip: '',
-      username: '',
-      password: 'vortex',
-      enrollments: [],
-      dateOfBirth: '',
-      medicalNotes: '',
-      isFinished: false,
-      sections: {
-        contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-        loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-        statusVerification: { isExpanded: false }
-      }
-    }
-    setFamilyMembers(prev => [...prev, newMember])
-    setExpandedFamilyMemberId(newMember.id)
-  } */
-  
-  // Search for parent/guardians (adults only) for children (unused for now)
-  /* const searchParentGuardians = useCallback(async (query: string) => {
-    if (!query || query.length < 2) {
-      setAvailableParentGuardians([])
-          return
-        }
-    
-    try {
-      const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/members/search?q=${encodeURIComponent(query)}&adultsOnly=true`)
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success) {
-          setAvailableParentGuardians(data.data || [])
-        }
-      }
-    } catch (error) {
-      console.error('Error searching parent guardians:', error)
-      setAvailableParentGuardians([])
-    }
-  }, []) */
   
   // Handle creating member with new unified backend
   const handleCreateFamilyWithPrimaryAdult = async () => {
@@ -1488,9 +1405,12 @@ export default function AdminMembers() {
           isChild = age < 18
         }
         
-        if (isChild && (!(member as any).parentGuardianIds || (member as any).parentGuardianIds.length === 0)) {
-          alert(`Children under 18 must have at least one parent/guardian. Please select parent/guardian for ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`)
-          return
+        if (isChild) {
+          const parentIds = member.parentGuardianIds || member.sections.parentGuardians?.tempData?.parentGuardianIds || []
+          if (parentIds.length === 0) {
+            alert(`Children under 18 must have at least one parent/guardian. Please select parent/guardian for ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`)
+            return
+          }
         }
       }
       
@@ -1668,6 +1588,32 @@ export default function AdminMembers() {
     setFamilyMembers(prev => [...prev, newMember])
     setExpandedFamilyMemberId(newMember.id)
   }
+  
+  // Search for parent/guardians (adults only) for children
+  const searchParentGuardians = useCallback(async (query: string) => {
+    if (!query || query.length < 2) {
+      setAvailableParentGuardians([])
+      return
+    }
+    
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/members/search?q=${encodeURIComponent(query)}&adultsOnly=true`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setAvailableParentGuardians(data.data || [])
+        } else {
+          setAvailableParentGuardians([])
+        }
+      } else {
+        setAvailableParentGuardians([])
+      }
+    } catch (error) {
+      console.error('Error searching parent guardians:', error)
+      setAvailableParentGuardians([])
+    }
+  }, [])
   
   
   
@@ -2310,25 +2256,25 @@ export default function AdminMembers() {
                     </div>
                     {memberSearchResults.length > 0 && (
                       <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
-                          {memberSearchResults.map((family: any) => (
+                          {memberSearchResults.map((family: { id: number; familyName?: string; family_name?: string; familyUsername?: string; family_username?: string; memberCount?: number }) => (
                           <div
                             key={family.id}
                               onClick={() => {
-                                setSelectedFamilyForMember(family)
+                                setSelectedFamilyForMember(family as Family)
                                 setMemberModalMode('existing-family')
                                 setFamilyJoinInfo(prev => ({ ...prev, familyId: family.id }))
                               }}
                               className="p-3 bg-gray-600 rounded cursor-pointer hover:bg-gray-500 transition-colors"
                           >
                             <div className="font-semibold text-white">
-                                {family.familyName || family.family_name || 'Unnamed Family'}
+                              {family.familyName || family.family_name || 'Unnamed Family'}
                             </div>
-                              {family.familyUsername && (
-                                <div className="text-sm text-gray-300">Username: {family.familyUsername}</div>
+                            {(family.familyUsername || family.family_username) && (
+                              <div className="text-sm text-gray-300">Username: {family.familyUsername || family.family_username}</div>
                             )}
-                              {family.memberCount !== undefined && (
+                            {family.memberCount !== undefined && (
                               <div className="text-xs text-gray-400 mt-1">
-                                  {family.memberCount} member(s)
+                                {family.memberCount} member(s)
                               </div>
                             )}
                           </div>
@@ -2384,29 +2330,8 @@ export default function AdminMembers() {
                         setEditingMemberUserId(null)
                         setFamilyCreationInfo({ familyName: '', familyUsername: '', familyPassword: '', familyPasswordConfirm: '' })
                         // Reset to blank form for new family
-                        setFamilyMembers([{
-                          id: 'member-1',
-                          firstName: '',
-                          lastName: '',
-                          email: '',
-                          phone: '',
-                          addressStreet: '',
-                          addressCity: '',
-                          addressState: '',
-                          addressZip: '',
-                          username: '',
-                          password: 'vortex',
-                          enrollments: [],
-                          dateOfBirth: '',
-                          medicalNotes: '',
-                          isFinished: false,
-                          sections: {
-                            contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-                            loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-                            statusVerification: { isExpanded: false }
-                          }
-                        }])
-                          setExpandedFamilyMemberId('member-1')
+                        setFamilyMembers([createDefaultMember('member-1')])
+                        setExpandedFamilyMemberId('member-1')
                         setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
                         setIsBillingExpanded(true)
                       }}
@@ -2427,28 +2352,7 @@ export default function AdminMembers() {
                         setFamilyCreationInfo({ familyName: '', familyUsername: '', familyPassword: '', familyPasswordConfirm: '' })
                         setFamilyJoinInfo({ familyId: null, familyUsername: '', familyPassword: '' })
                         // Reset to blank form - no family (orphan member)
-                        setFamilyMembers([{
-                          id: 'member-1',
-                          firstName: '',
-                          lastName: '',
-                          email: '',
-                          phone: '',
-                          addressStreet: '',
-                          addressCity: '',
-                          addressState: '',
-                          addressZip: '',
-                          username: '',
-                          password: 'vortex',
-                          enrollments: [],
-                          dateOfBirth: '',
-                          medicalNotes: '',
-                          isFinished: false,
-                          sections: {
-                            contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-                            loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-                            statusVerification: { isExpanded: false }
-                          }
-                        }])
+                        setFamilyMembers([createDefaultMember('member-1')])
                         setExpandedFamilyMemberId('member-1')
                         setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
                         setIsBillingExpanded(true)
@@ -2549,21 +2453,7 @@ export default function AdminMembers() {
                       generateUsername={generateUsername}
                       formatPhoneNumber={formatPhoneNumber}
                       availableParentGuardians={availableParentGuardians}
-                      onSearchParentGuardians={(query: string) => {
-                        if (query && query.length >= 2) {
-                          const apiUrl = getApiUrl()
-                          fetch(`${apiUrl}/api/admin/members/search?q=${encodeURIComponent(query)}&adultsOnly=true`)
-                            .then(res => res.json())
-                            .then(data => {
-                              if (data.success) {
-                                setAvailableParentGuardians(data.data || [])
-                              }
-                            })
-                            .catch(() => setAvailableParentGuardians([]))
-                        } else {
-                          setAvailableParentGuardians([])
-                        }
-                      }}
+                      onSearchParentGuardians={searchParentGuardians}
                     />
                   ))}
 
@@ -2648,12 +2538,12 @@ export default function AdminMembers() {
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, addressZip: e.target.value }))}
                                   className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                                   placeholder="ZIP code"
-                                />
-                              </div>
-                            </div>
+                            />
                           </div>
-                        )}
+                        </div>
                       </div>
+                    )}
+                  </div>
 
                   <div className="flex gap-2">
                         <button
@@ -2673,28 +2563,7 @@ export default function AdminMembers() {
                     <button
                       onClick={() => {
                         setMemberModalMode('search')
-                        setFamilyMembers([{
-                          id: 'member-1',
-                          firstName: '',
-                          lastName: '',
-                          email: '',
-                          phone: '',
-                          addressStreet: '',
-                          addressCity: '',
-                          addressState: '',
-                          addressZip: '',
-                          username: '',
-                          password: 'vortex',
-                          enrollments: [],
-                          dateOfBirth: '',
-                          medicalNotes: '',
-                          isFinished: false,
-                          sections: {
-                            contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-                            loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-                            statusVerification: { isExpanded: false }
-                          }
-                        }])
+                        setFamilyMembers([createDefaultMember('member-1')])
                         setExpandedFamilyMemberId('member-1')
                         setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
                         setIsBillingExpanded(true)
@@ -2753,21 +2622,7 @@ export default function AdminMembers() {
                       generateUsername={generateUsername}
                       formatPhoneNumber={formatPhoneNumber}
                       availableParentGuardians={availableParentGuardians}
-                      onSearchParentGuardians={(query: string) => {
-                        if (query && query.length >= 2) {
-                          const apiUrl = getApiUrl()
-                          fetch(`${apiUrl}/api/admin/members/search?q=${encodeURIComponent(query)}&adultsOnly=true`)
-                            .then(res => res.json())
-                            .then(data => {
-                              if (data.success) {
-                                setAvailableParentGuardians(data.data || [])
-                              }
-                            })
-                            .catch(() => setAvailableParentGuardians([]))
-                        } else {
-                          setAvailableParentGuardians([])
-                        }
-                      }}
+                      onSearchParentGuardians={searchParentGuardians}
                     />
                   ))}
 
@@ -2869,28 +2724,7 @@ export default function AdminMembers() {
                     <button
                       onClick={() => {
                         setMemberModalMode('search')
-                        setFamilyMembers([{
-                          id: 'member-1',
-                          firstName: '',
-                          lastName: '',
-                          email: '',
-                          phone: '',
-                          addressStreet: '',
-                          addressCity: '',
-                          addressState: '',
-                          addressZip: '',
-                          username: '',
-                          password: 'vortex',
-                          enrollments: [],
-                          dateOfBirth: '',
-                          medicalNotes: '',
-                          isFinished: false,
-                          sections: {
-                            contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-                            loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-                            statusVerification: { isExpanded: false }
-                          }
-                        }])
+                        setFamilyMembers([createDefaultMember('member-1')])
                         setExpandedFamilyMemberId('member-1')
                         setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
                         setIsBillingExpanded(true)
