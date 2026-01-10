@@ -5403,19 +5403,19 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     // If admin is enrolling, skip permission check
     let userRole = null
     if (!req.isAdmin) {
-      // Check if user has permission (is adult or is the family member)
-      const userResult = await pool.query(`
-        SELECT u.role
-        FROM app_user u
-        WHERE u.id = $1
-      `, [userId])
+    // Check if user has permission (is adult or is the family member)
+    const userResult = await pool.query(`
+      SELECT u.role
+      FROM app_user u
+      WHERE u.id = $1
+    `, [userId])
 
-      if (userResult.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'User not found'
-        })
-      }
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      })
+    }
 
       userRole = userResult.rows[0].role
 
@@ -5552,13 +5552,13 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     // Check if user has permission (is PARENT_GUARDIAN or is the athlete themselves)
     // Admins can enroll any member, so skip permission check for admins
     if (!req.isAdmin) {
-      const isAthleteSelf = hasUserIdColumn && athlete.user_id && String(athlete.user_id) === String(userId)
-      const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
-      if (!hasParentRole && !isAthleteSelf) {
-        return res.status(403).json({
-          success: false,
-          message: 'You do not have permission to enroll this family member'
-        })
+    const isAthleteSelf = hasUserIdColumn && athlete.user_id && String(athlete.user_id) === String(userId)
+    const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
+    if (!hasParentRole && !isAthleteSelf) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to enroll this family member'
+      })
       }
     }
 
@@ -6690,6 +6690,9 @@ app.post('/api/admin/login', async (req, res) => {
     }
 
     // Create JWT token for admin
+    console.log('[Admin Login] Starting token creation for admin:', admin.id, admin.email)
+    console.log('[Admin Login] JWT_SECRET exists?', !!JWT_SECRET, 'Length:', JWT_SECRET?.length)
+    
     try {
       const adminToken = jwt.sign(
         { 
@@ -6702,34 +6705,39 @@ app.post('/api/admin/login', async (req, res) => {
       )
       
       console.log('[Admin Login] Token created successfully for admin:', admin.id, admin.email)
+      console.log('[Admin Login] Token length:', adminToken.length)
+      console.log('[Admin Login] Token preview:', adminToken.substring(0, 20) + '...')
 
       // Return admin info (without password) and token
       const responseData = {
-        success: true,
-        admin: {
-          id: admin.id,
-          firstName: admin.first_name,
-          lastName: admin.last_name,
-          email: admin.email,
-          phone: admin.phone,
-          username: admin.username,
-          isMaster: admin.is_master
+      success: true,
+      admin: {
+        id: admin.id,
+        firstName: admin.first_name,
+        lastName: admin.last_name,
+        email: admin.email,
+        phone: admin.phone,
+        username: admin.username,
+        isMaster: admin.is_master
         },
         token: adminToken
       }
       
-      console.log('[Admin Login] Sending response with token:', { 
-        success: responseData.success, 
-        adminId: responseData.admin.id,
-        hasToken: !!responseData.token,
-        tokenLength: responseData.token?.length 
-      })
+      console.log('[Admin Login] Response data keys:', Object.keys(responseData))
+      console.log('[Admin Login] Response data has token?', 'token' in responseData)
+      console.log('[Admin Login] Token value in response:', responseData.token ? responseData.token.substring(0, 20) + '...' : 'NULL')
       
+      console.log('[Admin Login] Sending response with token')
       res.json(responseData)
+      console.log('[Admin Login] Response sent successfully')
     } catch (tokenError) {
-      console.error('[Admin Login] Error creating token:', tokenError)
+      console.error('[Admin Login] ERROR creating token:', tokenError)
+      console.error('[Admin Login] Error name:', tokenError.name)
+      console.error('[Admin Login] Error message:', tokenError.message)
+      console.error('[Admin Login] Error stack:', tokenError.stack)
+      
       // Return response without token if token creation fails (shouldn't happen, but handle gracefully)
-      res.json({
+      const errorResponse = {
         success: true,
         admin: {
           id: admin.id,
@@ -6741,8 +6749,11 @@ app.post('/api/admin/login', async (req, res) => {
           isMaster: admin.is_master
         },
         token: null,
-        warning: 'Token generation failed - please contact administrator'
-      })
+        warning: 'Token generation failed - please contact administrator',
+        error: tokenError.message
+      }
+      console.log('[Admin Login] Sending error response:', errorResponse)
+      res.json(errorResponse)
     }
   } catch (error) {
     console.error('Admin login error:', error)
