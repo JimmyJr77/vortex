@@ -9352,31 +9352,56 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
 
       // Validate and clean each time block
       if (parsedTimeBlocks.length > 0) {
-        const cleanedTimeBlocks = parsedTimeBlocks.map(tb => {
-          if (!tb || typeof tb !== 'object') {
-            throw new Error('Each time block must be an object')
-          }
-          if (!Array.isArray(tb.daysOfWeek) || tb.daysOfWeek.length === 0) {
-            throw new Error('Each time block must have a non-empty daysOfWeek array')
-          }
-          if (!tb.startTime || typeof tb.startTime !== 'string') {
-            throw new Error('Each time block must have a valid startTime string')
-          }
-          if (!tb.endTime || typeof tb.endTime !== 'string') {
-            throw new Error('Each time block must have a valid endTime string')
-          }
-          return {
-            daysOfWeek: tb.daysOfWeek,
-            startTime: tb.startTime,
-            endTime: tb.endTime
-          }
-        })
-        timeBlocksValue = cleanedTimeBlocks
+        try {
+          const cleanedTimeBlocks = parsedTimeBlocks.map(tb => {
+            if (!tb || typeof tb !== 'object') {
+              throw new Error('Each time block must be an object')
+            }
+            if (!Array.isArray(tb.daysOfWeek) || tb.daysOfWeek.length === 0) {
+              throw new Error('Each time block must have a non-empty daysOfWeek array')
+            }
+            if (!tb.startTime || typeof tb.startTime !== 'string') {
+              throw new Error('Each time block must have a valid startTime string')
+            }
+            if (!tb.endTime || typeof tb.endTime !== 'string') {
+              throw new Error('Each time block must have a valid endTime string')
+            }
+            return {
+              daysOfWeek: tb.daysOfWeek,
+              startTime: tb.startTime,
+              endTime: tb.endTime
+            }
+          })
+          // Ensure it's a proper JavaScript array/object, not a string
+          timeBlocksValue = cleanedTimeBlocks
+        } catch (validationError) {
+          return res.status(400).json({
+            success: false,
+            message: validationError.message || 'Invalid timeBlocks format'
+          })
+        }
       }
     }
 
+    // Log the request for debugging
+    console.log('Request body received:', JSON.stringify(req.body, null, 2))
+    console.log('Request params:', { programId, iterationId })
+    console.log('timeBlocksValue type:', typeof timeBlocksValue, 'value:', JSON.stringify(timeBlocksValue))
+    
     let result
     try {
+      // Ensure timeBlocksValue is a proper JavaScript object/array or null for JSONB
+      // If it's already a string, it means it was double-encoded somewhere
+      let finalTimeBlocksValue = timeBlocksValue
+      if (timeBlocksValue && typeof timeBlocksValue === 'string') {
+        try {
+          finalTimeBlocksValue = JSON.parse(timeBlocksValue)
+        } catch (parseErr) {
+          console.error('timeBlocksValue was a string but failed to parse:', parseErr)
+          finalTimeBlocksValue = null
+        }
+      }
+      
       result = await pool.query(`
       UPDATE class_iteration
       SET 
@@ -9406,7 +9431,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
       normalizedDaysOfWeek,
       startTime,
       endTime,
-      timeBlocksValue,
+      finalTimeBlocksValue, // Use the properly formatted value
       durationType,
       durationType === 'indefinite' ? null : startDate,
       durationType === 'finite' ? endDate : null,
@@ -9414,6 +9439,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
       programId
     ])
     } catch (updateError) {
+      console.error('Update iteration error:', updateError)
       // If column doesn't exist, try to add it and retry
       if (updateError.code === '42703' && updateError.message.includes('time_blocks')) {
         console.log('time_blocks column missing in UPDATE, adding it now...')
@@ -9422,6 +9448,17 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
             ALTER TABLE class_iteration ADD COLUMN IF NOT EXISTS time_blocks JSONB DEFAULT NULL
           `)
           console.log('✅ Added time_blocks column, retrying UPDATE...')
+          // Ensure timeBlocksValue is properly formatted for retry
+          let retryTimeBlocksValue = timeBlocksValue
+          if (timeBlocksValue && typeof timeBlocksValue === 'string') {
+            try {
+              retryTimeBlocksValue = JSON.parse(timeBlocksValue)
+            } catch (parseErr) {
+              console.error('timeBlocksValue was a string but failed to parse in retry:', parseErr)
+              retryTimeBlocksValue = null
+            }
+          }
+          
           // Retry the UPDATE
           result = await pool.query(`
             UPDATE class_iteration
@@ -9452,7 +9489,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
             normalizedDaysOfWeek,
             startTime,
             endTime,
-            timeBlocksValue,
+            retryTimeBlocksValue,
             durationType,
             durationType === 'indefinite' ? null : startDate,
             durationType === 'finite' ? endDate : null,
