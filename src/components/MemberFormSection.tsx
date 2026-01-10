@@ -85,7 +85,7 @@ export default function MemberFormSection({
   // Helper to update member's section tempData
   const updateSectionTempData = (
     section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers',
-    updates: Record<string, any>
+    updates: Record<string, unknown>
   ) => {
     onUpdateMember(member.id, (prev) => ({
       ...prev,
@@ -427,7 +427,7 @@ export default function MemberFormSection({
 
           {/* 4. Parent/Guardian Selection (for children) */}
           {isChild() && (
-            <div className="mb-4 border border-gray-600 rounded border-yellow-600">
+            <div className="mb-4 border-2 border-yellow-600 rounded">
               <button
                 type="button"
                 onClick={() => onToggleSection(member.id, 'parentGuardians')}

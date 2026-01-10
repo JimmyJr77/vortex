@@ -244,8 +244,8 @@ export default function AdminMembers() {
     phone?: string
   }>>([])
   
-  // Parent/guardian search query
-  const [parentGuardianSearchQuery, setParentGuardianSearchQuery] = useState('')
+  // Parent/guardian search query (unused for now)
+  // const [parentGuardianSearchQuery, setParentGuardianSearchQuery] = useState('')
   
   // View/Edit member state
   const [selectedFamilyForView, setSelectedFamilyForView] = useState<Family | null>(null)
@@ -749,8 +749,8 @@ export default function AdminMembers() {
     }
   }
   
-  // Helper function to create user account, handling archived users
-  const createUserAccount = async (
+  // Helper function to create user account, handling archived users (unused for now)
+  /* const createUserAccount = async (
     fullName: string,
     email: string,
     phone: string,
@@ -811,7 +811,7 @@ export default function AdminMembers() {
     }
     
     return result.data.id
-  }
+  } */
   
   // Handler functions
   
@@ -1081,7 +1081,7 @@ export default function AdminMembers() {
         const data = await response.json()
         if (data.success && data.data) {
           // Transform data to match expected format
-          const transformedFamilies = data.data.map((f: any) => ({
+          const transformedFamilies = data.data.map((f: { id: number; familyName?: string; familyUsername?: string; memberCount?: number; members?: unknown[] }) => ({
             id: f.id,
             family_name: f.familyName,
             familyName: f.familyName,
@@ -1103,7 +1103,8 @@ export default function AdminMembers() {
     }
   }
   
-  const handleSelectFamilyForMember = async (family: any) => {
+  // Unused function - commented out
+  /* const handleSelectFamilyForMember = async (family: any) => {
     // Use unified modal in add-to-existing mode
     setUnifiedModalMode('add-to-existing')
     setSelectedFamilyForMember(family)
@@ -1162,10 +1163,10 @@ export default function AdminMembers() {
     }
     setFamilyMembers(prev => [...prev, newMember])
     setExpandedFamilyMemberId(newMember.id)
-  }
+  } */
   
-  // Search for parent/guardians (adults only) for children
-  const searchParentGuardians = useCallback(async (query: string) => {
+  // Search for parent/guardians (adults only) for children (unused for now)
+  /* const searchParentGuardians = useCallback(async (query: string) => {
     if (!query || query.length < 2) {
       setAvailableParentGuardians([])
           return
@@ -1184,7 +1185,7 @@ export default function AdminMembers() {
       console.error('Error searching parent guardians:', error)
       setAvailableParentGuardians([])
     }
-  }, [])
+  }, []) */
   
   // Handle creating member with new unified backend
   const handleCreateFamilyWithPrimaryAdult = async () => {
@@ -1248,15 +1249,14 @@ export default function AdminMembers() {
         }
         
         // Check if member is a child (< 18) and validate parent/guardian IDs
-        const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
-        let isChild = false
-        if (birthDate) {
-          const today = new Date()
-          const age = today.getFullYear() - birthDate.getFullYear() - 
-            (today.getMonth() < birthDate.getMonth() || 
-             (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
-          isChild = age < 18
-        }
+        // const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+        // const isChild = birthDate ? (() => {
+        //   const today = new Date()
+        //   const age = today.getFullYear() - birthDate.getFullYear() - 
+        //     (today.getMonth() < birthDate.getMonth() || 
+        //      (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+        //   return age < 18
+        // })() : false
         
         // For children, check if parentGuardianIds are set (will be handled in member creation)
         // We'll validate this in the API call
@@ -1393,28 +1393,7 @@ export default function AdminMembers() {
       setSelectedFamilyForMember(null)
       setFamilyCreationInfo({ familyName: '', familyUsername: '', familyPassword: '', familyPasswordConfirm: '' })
       setFamilyJoinInfo({ familyId: null, familyUsername: '', familyPassword: '' })
-      setFamilyMembers([{
-        id: 'member-1',
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        addressStreet: '',
-        addressCity: '',
-        addressState: '',
-        addressZip: '',
-        username: '',
-        password: 'vortex',
-        enrollments: [],
-        dateOfBirth: '',
-        medicalNotes: '',
-        isFinished: false,
-        sections: {
-          contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-          loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-          statusVerification: { isExpanded: false }
-        }
-      }])
+      setFamilyMembers([createDefaultMember('member-1')])
       setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
       alert('Member(s) created successfully!')
     } catch (error) {
@@ -1624,28 +1603,7 @@ export default function AdminMembers() {
       setMemberModalMode('search')
       setSelectedFamilyForMember(null)
       setFamilyJoinInfo({ familyId: null, familyUsername: '', familyPassword: '' })
-      setFamilyMembers([{
-        id: 'member-1',
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        addressStreet: '',
-        addressCity: '',
-        addressState: '',
-        addressZip: '',
-        username: '',
-        password: 'vortex',
-        enrollments: [],
-        dateOfBirth: '',
-        medicalNotes: '',
-        isFinished: false,
-        sections: {
-          contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-          loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-          statusVerification: { isExpanded: false }
-        }
-      }])
+      setFamilyMembers([createDefaultMember('member-1')])
       setExpandedFamilyMemberId('member-1')
       alert('Member(s) added to family successfully!')
     } catch (error) {
@@ -1675,9 +1633,9 @@ export default function AdminMembers() {
     })
   }
   
-  // Helper to create default member structure
-  const createDefaultMember = (id?: string): FamilyMemberData => ({
-    id: id || `member-${Date.now()}`,
+  // Helper to create default member structure (defined inside component after other helpers)
+  const createDefaultMember = useCallback((id: string = `member-${Date.now()}`): FamilyMemberData => ({
+    id,
     firstName: '',
     lastName: '',
     email: '',
@@ -1703,12 +1661,12 @@ export default function AdminMembers() {
       waivers: { isExpanded: false, tempData: { hasCompletedWaivers: false, waiverCompletionDate: null } },
       statusVerification: { isExpanded: false }
     }
-  })
+  }), [])
   
   const handleAddFamilyMember = () => {
     const newMember = createDefaultMember()
     setFamilyMembers(prev => [...prev, newMember])
-    setExpandedFamilyMemberId(newMemberId)
+    setExpandedFamilyMemberId(newMember.id)
   }
   
   
@@ -1776,7 +1734,7 @@ export default function AdminMembers() {
             dateOfBirth: birthDate,
             sections: {
               ...member.sections,
-              dateOfBirth: { ...(member.sections.dateOfBirth || { isExpanded: false, tempData: { dateOfBirth } }), isExpanded: false },
+              dateOfBirth: { ...(member.sections.dateOfBirth || { isExpanded: false, tempData: { dateOfBirth: birthDate } }), isExpanded: false },
               parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds: member.parentGuardianIds || [] } },
               waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }
             }
@@ -1820,6 +1778,7 @@ export default function AdminMembers() {
             ...member,
             hasCompletedWaivers: waiverData.hasCompletedWaivers,
             waiverCompletionDate: waiverData.waiverCompletionDate,
+            // dateOfBirth: member.dateOfBirth, // Explicitly include dateOfBirth if needed
             sections: {
               ...member.sections,
               waivers: { ...(member.sections.waivers || { isExpanded: false, tempData: waiverData }), isExpanded: false },
@@ -2574,28 +2533,6 @@ export default function AdminMembers() {
                     </div>
                   )}
                   
-                  {/* Family Join Form (for existing family mode) */}
-                  {memberModalMode === 'existing-family' && selectedFamilyForMember && (
-                    <div className="bg-gray-700 p-4 rounded">
-                      <h4 className="text-lg font-semibold text-white mb-4">Join Family: {(selectedFamilyForMember as any).familyName || (selectedFamilyForMember as any).family_name || 'Unnamed Family'}</h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
-                            Family Password *
-                          </label>
-                          <input
-                            type="password"
-                            value={familyJoinInfo.familyPassword}
-                            onChange={(e) => setFamilyJoinInfo(prev => ({ ...prev, familyPassword: e.target.value }))}
-                            placeholder="Enter family password"
-                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
                   {familyMembers.map((member, memberIndex) => (
                     <MemberFormSection
                       key={member.id}
@@ -2611,6 +2548,22 @@ export default function AdminMembers() {
                       onFinishedWithMember={handleFinishedWithMember}
                       generateUsername={generateUsername}
                       formatPhoneNumber={formatPhoneNumber}
+                      availableParentGuardians={availableParentGuardians}
+                      onSearchParentGuardians={(query: string) => {
+                        if (query && query.length >= 2) {
+                          const apiUrl = getApiUrl()
+                          fetch(`${apiUrl}/api/admin/members/search?q=${encodeURIComponent(query)}&adultsOnly=true`)
+                            .then(res => res.json())
+                            .then(data => {
+                              if (data.success) {
+                                setAvailableParentGuardians(data.data || [])
+                              }
+                            })
+                            .catch(() => setAvailableParentGuardians([]))
+                        } else {
+                          setAvailableParentGuardians([])
+                        }
+                      }}
                     />
                   ))}
 
@@ -2758,14 +2711,29 @@ export default function AdminMembers() {
               {memberModalMode === 'existing-family' && selectedFamilyForMember && (
                 <div className="space-y-6">
                   <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-2">Family: {selectedFamilyForMember.family_name || 'Unnamed Family'}</h4>
-                    <div className="text-sm text-gray-300">
+                    <h4 className="text-lg font-semibold text-white mb-4">Join Family: {(selectedFamilyForMember as { familyName?: string; family_name?: string }).familyName || selectedFamilyForMember.family_name || 'Unnamed Family'}</h4>
+                    <div className="text-sm text-gray-300 mb-4">
                       {selectedFamilyForMember.guardians && selectedFamilyForMember.guardians.length > 0 && (
                         <div>Guardians: {selectedFamilyForMember.guardians.map(g => g.fullName).join(', ')}</div>
                       )}
                       {selectedFamilyForMember.athletes && selectedFamilyForMember.athletes.length > 0 && (
                         <div>Athletes: {selectedFamilyForMember.athletes.map(a => `${a.first_name} ${a.last_name}`).join(', ')}</div>
                       )}
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          Family Password *
+                        </label>
+                        <input
+                          type="password"
+                          value={familyJoinInfo.familyPassword}
+                          onChange={(e) => setFamilyJoinInfo(prev => ({ ...prev, familyPassword: e.target.value }))}
+                          placeholder="Enter family password"
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          required
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -2784,6 +2752,22 @@ export default function AdminMembers() {
                       onFinishedWithMember={handleFinishedWithMember}
                       generateUsername={generateUsername}
                       formatPhoneNumber={formatPhoneNumber}
+                      availableParentGuardians={availableParentGuardians}
+                      onSearchParentGuardians={(query: string) => {
+                        if (query && query.length >= 2) {
+                          const apiUrl = getApiUrl()
+                          fetch(`${apiUrl}/api/admin/members/search?q=${encodeURIComponent(query)}&adultsOnly=true`)
+                            .then(res => res.json())
+                            .then(data => {
+                              if (data.success) {
+                                setAvailableParentGuardians(data.data || [])
+                              }
+                            })
+                            .catch(() => setAvailableParentGuardians([]))
+                        } else {
+                          setAvailableParentGuardians([])
+                        }
+                      }}
                     />
                   ))}
 
