@@ -116,11 +116,12 @@ app.use(helmet({
 
 app.use(express.json({ limit: '10mb' }))
 
-// Rate limiting
+// Rate limiting - skip OPTIONS requests (CORS preflight)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  message: 'Too many requests from this IP, please try again later.',
+  skip: (req) => req.method === 'OPTIONS' // Skip rate limiting for OPTIONS requests
 })
 app.use('/api/', limiter)
 
@@ -1786,12 +1787,31 @@ const authenticateMember = (req, res, next) => {
 }
 
 // ============================================================
+// Handle OPTIONS requests for CORS preflight (before authentication)
+// ============================================================
+// This MUST be before authentication middleware to handle preflight requests
+app.options('*', (req, res) => {
+  const origin = req.headers.origin
+  if (origin && isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+    res.header('Access-Control-Allow-Credentials', 'true')
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  }
+  res.sendStatus(204)
+})
+
+// ============================================================
 // SECURITY: Apply admin authentication to all /api/admin routes
 // ============================================================
 // This middleware protects all admin routes except login and verification endpoints
 // Note: When using app.use('/api/admin', ...), req.path is relative to the mount point
 // So '/api/admin/login' becomes '/login' in req.path
 app.use('/api/admin', async (req, res, next) => {
+  // Skip authentication for OPTIONS requests (CORS preflight)
+  if (req.method === 'OPTIONS') {
+    return next()
+  }
   // Skip authentication for admin login endpoint
   if ((req.path === '/login' || req.originalUrl === '/api/admin/login') && req.method === 'POST') {
     return next()
