@@ -82,18 +82,20 @@ function setCorsHeaders(req, res) {
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Log the origin for debugging (in both dev and production for troubleshooting)
-    console.log('[CORS] Request from origin:', origin || '(no origin - same-origin request)')
-    
-    // Allow requests with no origin (same-origin, server-to-server, etc.)
+    // Only log blocked origins or in development to reduce log noise
     if (!origin) {
+      // Same-origin request - allow silently
       return callback(null, true)
     }
     
     if (isOriginAllowed(origin)) {
-      console.log('[CORS] Allowed request from:', origin)
+      // Only log in development or when debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[CORS] Allowed request from:', origin)
+      }
       callback(null, true)
     } else {
+      // Always log blocked origins
       console.warn(`[CORS] Blocked origin: ${origin}`)
       console.warn('[CORS] Allowed origins:', allowedOrigins.filter(o => typeof o === 'string'))
       callback(new Error('Not allowed by CORS'))
