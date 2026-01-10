@@ -776,12 +776,20 @@ export const initDatabase = async () => {
         username            TEXT,
         
         -- Status & Activity
+        -- Status: 'legacy' (default), 'enrolled' (has enrollment), 'athlete' (enrolled + waivers), 'archived'
         status              VARCHAR(20) DEFAULT 'legacy' 
-                            CHECK (status IN ('enrolled', 'legacy', 'archived', 'family_active')),
+                            CHECK (status IN ('enrolled', 'legacy', 'archived', 'athlete')),
         is_active           BOOLEAN DEFAULT TRUE,
         family_is_active    BOOLEAN DEFAULT FALSE,  -- True if member or their family is active
         
-        -- Athlete-specific (nullable for non-athletes)
+        -- Parent/Guardian relationships (for children < 18)
+        parent_guardian_ids BIGINT[],  -- Array of member IDs who are legal guardians
+        
+        -- Waiver/Participation forms (required for athlete status)
+        has_completed_waivers BOOLEAN DEFAULT FALSE,
+        waiver_completion_date TIMESTAMPTZ,
+        
+        -- Medical notes (for all members, not just athletes)
         medical_notes       TEXT,
         internal_flags      TEXT,
         
@@ -799,6 +807,16 @@ export const initDatabase = async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_active ON member(is_active)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_family_active ON member(family_is_active)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_name ON member(last_name, first_name)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_parent_guardian_ids ON member USING GIN(parent_guardian_ids)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_waivers ON member(has_completed_waivers)`)
+    
+    // Add new columns if they don't exist (for existing databases)
+    await pool.query(`
+      ALTER TABLE member
+      ADD COLUMN IF NOT EXISTS parent_guardian_ids BIGINT[] DEFAULT '{}',
+      ADD COLUMN IF NOT EXISTS has_completed_waivers BOOLEAN DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS waiver_completion_date TIMESTAMPTZ
+    `)
     
     // Add unique constraint for email (only when email is not null)
     await pool.query(`
@@ -836,22 +854,33 @@ export const initDatabase = async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_parent_guardian_child ON parent_guardian_authority(child_member_id)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_parent_guardian_legal ON parent_guardian_authority(has_legal_authority)`)
     
-    // Create family table (if not exists, supports both old and new structure)
+    // Create family table (simplified - no primary member concept)
+    // Family is just a linking ID - all members in family are equal
     await pool.query(`
       CREATE TABLE IF NOT EXISTS family (
         id                  BIGSERIAL PRIMARY KEY,
         facility_id         BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
-        primary_user_id     BIGINT REFERENCES app_user(id) ON DELETE SET NULL,
-        primary_member_id   BIGINT REFERENCES member(id) ON DELETE SET NULL,
-        family_name         TEXT,
+        family_name         TEXT NOT NULL,
+        family_username     TEXT UNIQUE,  -- Unique username for family joining
+        family_password_hash TEXT,  -- Hashed password for family joining
         archived            BOOLEAN NOT NULL DEFAULT FALSE,
         created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
         updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_facility ON family(facility_id)`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_primary_user ON family(primary_user_id)`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_primary_member ON family(primary_member_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_username ON family(family_username) WHERE family_username IS NOT NULL`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_name ON family(family_name)`)
+    
+    // Migrate existing data: Add new columns if they don't exist
+    await pool.query(`
+      ALTER TABLE family 
+      ADD COLUMN IF NOT EXISTS family_username TEXT UNIQUE,
+      ADD COLUMN IF NOT EXISTS family_password_hash TEXT
+    `)
+    
+    // Remove primary_user_id/primary_member_id if they exist (keep for backward compatibility but don't use)
+    // Note: These columns may still exist from old schema but will be ignored
     
     // Create family_guardian junction table (supports both old and new)
     await pool.query(`
@@ -1109,9 +1138,10 @@ const athleteSchema = Joi.object({
   lastName: Joi.string().min(1).max(100).required(),
   dateOfBirth: Joi.alternatives().try(
     Joi.date(),
-    Joi.string().custom((value, helpers) => {
+    Joi.string().allow('', null).custom((value, helpers) => {
+      // Allow empty string or null for adults who don't need DOB
       if (!value || value.trim() === '') {
-        return helpers.error('any.invalid', { message: 'dateOfBirth is required' })
+        return null
       }
       const date = new Date(value)
       if (isNaN(date.getTime())) {
@@ -1119,8 +1149,7 @@ const athleteSchema = Joi.object({
       }
       return date
     })
-  ).required().messages({
-    'any.required': 'dateOfBirth is required',
+  ).optional().allow(null, '').messages({
     'any.invalid': 'dateOfBirth must be a valid date'
   }),
   medicalNotes: Joi.string().max(2000).optional().allow('', null),
@@ -1169,21 +1198,57 @@ const emergencyContactSchema = Joi.object({
 // Helper functions for role management
 const getUserRoles = async (userId) => {
   try {
-    const result = await pool.query(`
-      SELECT role FROM user_role WHERE user_id = $1
-      UNION
-      SELECT role FROM app_user WHERE id = $1
-    `, [userId])
-    return result.rows.map(row => row.role)
-  } catch (error) {
-    console.error('Error getting user roles:', error)
-    // Fallback to single role from app_user
-    try {
-      const result = await pool.query('SELECT role FROM app_user WHERE id = $1', [userId])
-      return result.rows.length > 0 ? [result.rows[0].role] : []
-    } catch (fallbackError) {
-      return []
+    // Check if user_role table exists
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'user_role'
+      )
+    `)
+    
+    const hasUserRoleTable = tableCheck.rows[0].exists
+    
+    if (hasUserRoleTable) {
+      // Try querying user_role table first
+      try {
+        const result = await pool.query(`
+          SELECT role FROM user_role WHERE user_id = $1
+        `, [userId])
+        if (result.rows.length > 0) {
+          return result.rows.map(row => row.role)
+        }
+      } catch (userRoleError) {
+        // If query fails, continue to fallback
+        console.warn('Error querying user_role table:', userRoleError.message)
+      }
     }
+    
+    // Fallback to single role from app_user (if table exists)
+    try {
+      const appUserCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'app_user'
+        )
+      `)
+      
+      if (appUserCheck.rows[0].exists) {
+        const result = await pool.query('SELECT role FROM app_user WHERE id = $1', [userId])
+        if (result.rows.length > 0 && result.rows[0].role) {
+          return [result.rows[0].role]
+        }
+      }
+    } catch (fallbackError) {
+      // If app_user doesn't exist or query fails, return empty array
+      console.warn('Error querying app_user table:', fallbackError.message)
+    }
+    
+    return []
+  } catch (error) {
+    console.error('Error getting user roles:', error.message)
+    return []
   }
 }
 
@@ -1755,9 +1820,15 @@ app.delete('/api/admin/registrations/:id', async (req, res) => {
 // Get all members (admin endpoint) - unified endpoint for all members
 // Returns all members from the unified member table, showing active/archived status
 app.get('/api/admin/members', async (req, res) => {
+  console.log('[GET /api/admin/members] ===== ENDPOINT CALLED =====')
+  console.log('[GET /api/admin/members] Full request query:', req.query)
   try {
     const { search, showArchived, role } = req.query
+    console.log('[GET /api/admin/members] Raw query params:', { search, showArchived, role, showArchivedType: typeof showArchived })
     const showArchivedBool = showArchived === 'true' || showArchived === true
+    console.log('[GET /api/admin/members] showArchivedBool calculated as:', showArchivedBool)
+    
+    console.log('[GET /api/admin/members] Request received:', { search, showArchived, role, showArchivedBool })
     
     // Check if member table exists
     const tableCheck = await pool.query(`
@@ -1769,8 +1840,10 @@ app.get('/api/admin/members', async (req, res) => {
     `)
     
     const hasMemberTable = tableCheck.rows[0].exists
+    console.log('[GET /api/admin/members] Member table exists:', hasMemberTable)
     
     if (!hasMemberTable) {
+      console.log('[GET /api/admin/members] Member table does not exist, returning empty array')
       return res.json({
         success: true,
         data: []
@@ -1790,10 +1863,15 @@ app.get('/api/admin/members', async (req, res) => {
     const hasFacilityColumn = facilityColumnCheck.rows[0].exists
     let facilityId = null
     
+    console.log('[GET /api/admin/members] Has facility_id column:', hasFacilityColumn)
+    
     if (hasFacilityColumn) {
       const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
       if (facilityResult.rows.length > 0) {
         facilityId = facilityResult.rows[0].id
+        console.log('[GET /api/admin/members] Found facility_id:', facilityId)
+      } else {
+        console.log('[GET /api/admin/members] No facility found in database')
       }
     }
     
@@ -1846,10 +1924,17 @@ app.get('/api/admin/members', async (req, res) => {
     let paramCount = 0
     
     // Add facility filter if facility_id column exists and we have a facility
-    if (hasFacilityColumn && facilityId) {
+    // Note: We only filter by facility_id if we have a valid facility ID
+    // If no facility exists, we return ALL members (don't filter by facility_id)
+    // This ensures we can see members even if facility setup is incomplete
+    if (hasFacilityColumn && facilityId !== null && facilityId !== undefined) {
       paramCount++
       query += ` AND m.facility_id = $${paramCount}`
       params.push(facilityId)
+      console.log('[GET /api/admin/members] Filtering by facility_id:', facilityId)
+    } else {
+      // Don't filter by facility_id - return all members
+      console.log('[GET /api/admin/members] Not filtering by facility_id - returning all members')
     }
     
     // Filter by active/archived
@@ -1882,7 +1967,28 @@ app.get('/api/admin/members', async (req, res) => {
     
     query += ` ORDER BY m.last_name, m.first_name`
     
+    console.log('[GET /api/admin/members] Executing query:', query)
+    console.log('[GET /api/admin/members] Query params:', params)
+    console.log('[GET /api/admin/members] showArchivedBool:', showArchivedBool)
+    
+    // First, let's check how many total members exist (for debugging)
+    try {
+      const totalMembersCheck = await pool.query('SELECT COUNT(*) as total FROM member')
+      console.log('[GET /api/admin/members] Total members in database:', totalMembersCheck.rows[0].total)
+      
+      const activeMembersCheck = await pool.query('SELECT COUNT(*) as total FROM member WHERE is_active = TRUE')
+      console.log('[GET /api/admin/members] Active members in database:', activeMembersCheck.rows[0].total)
+      
+      // Also get a sample of member IDs to verify data exists
+      const sampleCheck = await pool.query('SELECT id, first_name, last_name, is_active FROM member LIMIT 3')
+      console.log('[GET /api/admin/members] Sample members:', sampleCheck.rows)
+    } catch (dbError) {
+      console.error('[GET /api/admin/members] Error checking member counts:', dbError.message)
+    }
+    
     const result = await pool.query(query, params)
+    
+    console.log('[GET /api/admin/members] Query returned', result.rows.length, 'members')
     
     // Get enrollments separately to avoid complex joins
     const memberIds = result.rows.map(row => row.id)
@@ -1963,6 +2069,8 @@ app.get('/api/admin/members', async (req, res) => {
       createdAt: row.created_at,
       updatedAt: row.updated_at
     }))
+    
+    console.log('[GET /api/admin/members] Returning', members.length, 'formatted members')
     
     res.json({
       success: true,
@@ -3687,57 +3795,114 @@ app.post('/api/admin/members', async (req, res) => {
       })
     }
     
-    // Get facility
-    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
-    if (facilityResult.rows.length === 0) {
-      return res.status(500).json({
-        success: false,
-        message: 'No facility found'
-      })
-    }
-    const facilityId = facilityResult.rows[0].id
+    // Get facility - check if facility table exists first
+    let facilityId = null
+    const facilityTableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'facility'
+      )
+    `)
     
-    // Verify family exists
-    const familyCheck = await pool.query('SELECT id FROM family WHERE id = $1', [value.familyId])
-    if (familyCheck.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Family not found'
-      })
+    if (facilityTableCheck.rows[0].exists) {
+      let facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+      if (facilityResult.rows.length > 0) {
+        facilityId = facilityResult.rows[0].id
+      } else {
+        // No facility exists - create a default one
+        try {
+          const defaultFacilityResult = await pool.query(`
+            INSERT INTO facility (name, timezone)
+            VALUES ('Vortex Athletics', 'America/New_York')
+            RETURNING id
+          `)
+          facilityId = defaultFacilityResult.rows[0].id
+          console.log('[POST /api/admin/members] Created default facility:', facilityId)
+        } catch (facilityError) {
+          console.error('[POST /api/admin/members] Error creating default facility:', facilityError.message)
+          return res.status(500).json({
+            success: false,
+            message: 'No facility exists and could not create default facility. Please create a facility first.'
+          })
+        }
+      }
+    } else {
+      // Facility table doesn't exist - member table requires facility_id
+      // Check if member table has facility_id as NOT NULL
+      const memberFacilityCheck = await pool.query(`
+        SELECT is_nullable 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member'
+        AND column_name = 'facility_id'
+      `)
+      
+      if (memberFacilityCheck.rows.length > 0 && memberFacilityCheck.rows[0].is_nullable === 'NO') {
+        return res.status(500).json({
+          success: false,
+          message: 'Member table requires facility_id but facility table does not exist. Please run database migrations.'
+        })
+      }
+    }
+    
+    // Verify family exists (only if familyId is provided)
+    if (value.familyId) {
+      const familyCheck = await pool.query('SELECT id FROM family WHERE id = $1', [value.familyId])
+      if (familyCheck.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Family not found'
+        })
+      }
     }
     
     // Validate that family has at least one adult guardian
     // A child cannot be a sole member - a parent must exist
-    const guardianCheck = await pool.query(`
-      SELECT COUNT(*) as guardian_count
-      FROM family_guardian fg
-      JOIN app_user u ON fg.user_id = u.id
-      WHERE fg.family_id = $1
-    `, [value.familyId])
+    let guardianCount = 0
+    let hasPrimaryGuardian = false
     
-    const guardianCount = parseInt(guardianCheck.rows[0].guardian_count || '0')
-    
-    // Check if primary_user_id is set and is a guardian
-    const primaryUserCheck = await pool.query(`
-      SELECT COUNT(*) as count
-      FROM family f
-      JOIN app_user u ON f.primary_user_id = u.id
-      WHERE f.id = $1 AND f.primary_user_id IS NOT NULL
-    `, [value.familyId])
-    
-    const hasPrimaryGuardian = parseInt(primaryUserCheck.rows[0].count || '0') > 0
+    if (value.familyId) {
+      try {
+        const guardianCheck = await pool.query(`
+          SELECT COUNT(*) as guardian_count
+          FROM family_guardian fg
+          JOIN app_user u ON fg.user_id = u.id
+          WHERE fg.family_id = $1
+        `, [value.familyId])
+        
+        guardianCount = parseInt(guardianCheck.rows[0]?.guardian_count || '0')
+        
+        // Check if primary_user_id is set and is a guardian
+        const primaryUserCheck = await pool.query(`
+          SELECT COUNT(*) as count
+          FROM family f
+          JOIN app_user u ON f.primary_user_id = u.id
+          WHERE f.id = $1 AND f.primary_user_id IS NOT NULL
+        `, [value.familyId])
+        
+        hasPrimaryGuardian = parseInt(primaryUserCheck.rows[0]?.count || '0') > 0
+      } catch (guardianError) {
+        // If tables don't exist, skip guardian check
+        console.warn('Error checking guardians (tables may not exist):', guardianError.message)
+      }
+    }
     
     // Calculate age from date of birth to determine if this is a child
-    const birthDate = new Date(value.dateOfBirth)
-    const today = new Date()
-    const age = today.getFullYear() - birthDate.getFullYear() - 
-      (today.getMonth() < birthDate.getMonth() || 
-       (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+    // If DOB is not provided, assume adult (age >= 18)
+    let age = 18 // Default to adult if no DOB
+    if (value.dateOfBirth) {
+      const birthDate = new Date(value.dateOfBirth)
+      const today = new Date()
+      age = today.getFullYear() - birthDate.getFullYear() - 
+        (today.getMonth() < birthDate.getMonth() || 
+         (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+    }
     
     // Adults must have a family_id (family of 1 is allowed)
     // Children can be orphaned (family_id = NULL) or have a family
     if (!value.familyId) {
-      if (age < 18) {
+      if (value.dateOfBirth && age < 18) {
         // Children without family_id are orphans - this is allowed
         // They can be created as orphans or assigned to a family later
         value.familyId = null
@@ -3754,22 +3919,32 @@ app.post('/api/admin/members', async (req, res) => {
         
         if (existingFamilyCheck.rows.length === 0) {
           // Create a family for this adult (family of 1)
-          const newFamilyResult = await pool.query(`
-            INSERT INTO family (facility_id, primary_user_id, family_name)
-            VALUES ($1, $2, $3)
-            RETURNING id
-          `, [facilityId, value.userId, `${value.firstName} ${value.lastName} Family`])
-          
-          const newFamilyId = newFamilyResult.rows[0].id
-          
-          // Add as guardian to new family
-          await pool.query(`
-            INSERT INTO family_guardian (family_id, user_id, is_primary)
-            VALUES ($1, $2, TRUE)
-          `, [newFamilyId, value.userId])
-          
-          // Update familyId for the athlete
-          value.familyId = newFamilyId
+          // Only create family if facility exists, otherwise set familyId to null
+          if (facilityId) {
+            const newFamilyResult = await pool.query(`
+              INSERT INTO family (facility_id, primary_user_id, family_name)
+              VALUES ($1, $2, $3)
+              RETURNING id
+            `, [facilityId, value.userId, `${value.firstName} ${value.lastName} Family`])
+            
+            const newFamilyId = newFamilyResult.rows[0].id
+            
+            // Try to add as guardian to new family (if table exists)
+            try {
+              await pool.query(`
+                INSERT INTO family_guardian (family_id, user_id, is_primary)
+                VALUES ($1, $2, TRUE)
+              `, [newFamilyId, value.userId])
+            } catch (guardianError) {
+              console.warn('Error adding guardian (table may not exist):', guardianError.message)
+            }
+            
+            // Update familyId for the athlete
+            value.familyId = newFamilyId
+          } else {
+            // No facility, set familyId to null (orphan adult)
+            value.familyId = null
+          }
         } else {
           // Use existing family
           value.familyId = existingFamilyCheck.rows[0].id
@@ -3784,7 +3959,7 @@ app.post('/api/admin/members', async (req, res) => {
     }
     
     // If this is a child (under 18) with a family_id, ensure there are guardians in the family
-    if (age < 18 && value.familyId && guardianCount === 0 && !hasPrimaryGuardian) {
+    if (value.dateOfBirth && age < 18 && value.familyId && guardianCount === 0 && !hasPrimaryGuardian) {
       return res.status(400).json({
         success: false,
         message: 'A child cannot be in a family without guardians. At least one adult guardian must exist in the family, or create the child as an orphan.'
@@ -3793,6 +3968,8 @@ app.post('/api/admin/members', async (req, res) => {
     
     // Create member with status (default to 'legacy', will be updated if enrollments exist)
     // Note: family_id can be NULL for adults who create their own account independently
+    // Note: date_of_birth can be NULL for adults who don't need it
+    // Note: facility_id can be NULL if facility table doesn't exist or no facility is set
     const insertQuery = `
       INSERT INTO member (
         facility_id, family_id, first_name, last_name, date_of_birth, 
@@ -3802,11 +3979,11 @@ app.post('/api/admin/members', async (req, res) => {
       RETURNING *
     `
     const insertParams = [
-      facilityId,
-      value.familyId || null, // Can be NULL for orphaned children
+      facilityId || null, // Can be NULL if no facility exists
+      value.familyId || null, // Can be NULL for orphaned children or adults
       value.firstName,
       value.lastName,
-      value.dateOfBirth,
+      value.dateOfBirth && value.dateOfBirth !== '' ? value.dateOfBirth : null, // Allow NULL for adults
       value.medicalNotes || null,
       value.internalFlags || null
     ]
@@ -6959,6 +7136,20 @@ const ensureClassIterationTable = async () => {
     
     if (!tableCheck.rows[0].exists) {
       console.log('Creating class_iteration table...')
+      
+      // First, verify the program table exists (required for foreign key)
+      const programTableCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'program'
+        )
+      `)
+      
+      if (!programTableCheck.rows[0].exists) {
+        throw new Error('Cannot create class_iteration table: program table does not exist')
+      }
+      
       await pool.query(`
         CREATE TABLE IF NOT EXISTS class_iteration (
           id                  BIGSERIAL PRIMARY KEY,
@@ -6991,10 +7182,18 @@ const ensureClassIterationTable = async () => {
       `)
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_program ON class_iteration(program_id)`)
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_number ON class_iteration(program_id, iteration_number)`)
-      console.log('class_iteration table created successfully')
+      console.log('✅ class_iteration table created successfully')
+    } else {
+      console.log('✅ class_iteration table already exists')
     }
   } catch (error) {
-    console.error('Error ensuring class_iteration table exists:', error)
+    console.error('❌ Error ensuring class_iteration table exists:', error)
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      hint: error.hint
+    })
     throw error
   }
 }
@@ -7015,7 +7214,21 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
     }
 
     // Ensure table exists (create if missing)
-    await ensureClassIterationTable()
+    try {
+      await ensureClassIterationTable()
+    } catch (tableError) {
+      console.error('Failed to ensure class_iteration table exists:', tableError)
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to initialize class_iteration table',
+        error: process.env.NODE_ENV === 'development' ? tableError.message : undefined,
+        details: process.env.NODE_ENV === 'development' ? {
+          code: tableError.code,
+          detail: tableError.detail,
+          hint: tableError.hint
+        } : undefined
+      })
+    }
 
     // Get the next iteration number
     const maxIterationResult = await pool.query(
@@ -7047,9 +7260,10 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
 
     // Process timeBlocks if provided
     // Store timeBlocks if provided (even if single block), otherwise null for backward compatibility
+    // For JSONB columns, pass the JavaScript object directly - pg will handle conversion
     let timeBlocksValue = null
     if (timeBlocks && Array.isArray(timeBlocks) && timeBlocks.length > 0) {
-      timeBlocksValue = JSON.stringify(timeBlocks)
+      timeBlocksValue = timeBlocks // Pass object directly for JSONB
     }
 
     const result = await pool.query(`
@@ -7097,10 +7311,22 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
     })
   } catch (error) {
     console.error('Create iteration error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      hint: error.hint,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    })
     res.status(500).json({
       success: false,
       message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? {
+        code: error.code,
+        detail: error.detail,
+        hint: error.hint
+      } : undefined
     })
   }
 })
@@ -7112,7 +7338,16 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
     const { daysOfWeek, startTime, endTime, timeBlocks, durationType, startDate, endDate } = req.body
 
     // Ensure table exists (create if missing)
-    await ensureClassIterationTable()
+    try {
+      await ensureClassIterationTable()
+    } catch (tableError) {
+      console.error('Failed to ensure class_iteration table exists:', tableError)
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to initialize class_iteration table',
+        error: process.env.NODE_ENV === 'development' ? tableError.message : undefined
+      })
+    }
 
     // Validate iteration exists and belongs to program
     const checkResult = await pool.query(
@@ -7143,9 +7378,10 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
 
     // Process timeBlocks if provided
     // Store timeBlocks if provided (even if single block), otherwise null for backward compatibility
+    // For JSONB columns, pass the JavaScript object directly - pg will handle conversion
     let timeBlocksValue = null
     if (timeBlocks && Array.isArray(timeBlocks) && timeBlocks.length > 0) {
-      timeBlocksValue = JSON.stringify(timeBlocks)
+      timeBlocksValue = timeBlocks // Pass object directly for JSONB
     }
 
     const result = await pool.query(`
@@ -7213,7 +7449,16 @@ app.delete('/api/admin/programs/:programId/iterations/:iterationId', async (req,
     const { programId, iterationId } = req.params
 
     // Ensure table exists (create if missing)
-    await ensureClassIterationTable()
+    try {
+      await ensureClassIterationTable()
+    } catch (tableError) {
+      console.error('Failed to ensure class_iteration table exists:', tableError)
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to initialize class_iteration table',
+        error: process.env.NODE_ENV === 'development' ? tableError.message : undefined
+      })
+    }
 
     // Validate iteration exists and belongs to program
     const checkResult = await pool.query(

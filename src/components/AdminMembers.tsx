@@ -305,21 +305,27 @@ export default function AdminMembers() {
       if (showArchivedMembers) {
         params.append('showArchived', 'true')
       }
-      const response = await fetch(`${apiUrl}/api/admin/members?${params.toString()}`)
+      const url = `${apiUrl}/api/admin/members?${params.toString()}`
+      console.log('[AdminMembers] Fetching members from:', url)
+      const response = await fetch(url)
+      console.log('[AdminMembers] Response status:', response.status, response.statusText)
       if (!response.ok) {
         setMembers([])
         const errorText = await response.text().catch(() => response.statusText)
-        console.error('Error fetching members:', response.status, errorText)
+        console.error('[AdminMembers] Error fetching members:', response.status, errorText)
         return
       }
       const data = await response.json()
+      console.log('[AdminMembers] Response data:', { success: data.success, memberCount: data.data?.length || 0 })
       if (data.success) {
         setMembers(data.data || [])
+        console.log('[AdminMembers] Set members:', data.data?.length || 0, 'members')
       } else {
+        console.warn('[AdminMembers] Response success was false:', data)
         setMembers([])
       }
     } catch (error) {
-      console.error('Error fetching members:', error)
+      console.error('[AdminMembers] Exception fetching members:', error)
       setMembers([])
     } finally {
       setMembersLoading(false)
