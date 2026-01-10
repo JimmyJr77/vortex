@@ -1126,20 +1126,33 @@ const programSchema = Joi.object({
 })
 
 // Module 2: Family and Athlete Schemas
+// Family creation schema - simplified, requires username and password
 const familySchema = Joi.object({
-  familyName: Joi.string().max(255).optional().allow('', null),
-  primaryUserId: Joi.number().integer().optional().allow(null),
-  guardianIds: Joi.array().items(Joi.number().integer()).optional().default([])
+  familyName: Joi.string().max(255).required(),
+  familyUsername: Joi.string().min(3).max(50).required(),
+  familyPassword: Joi.string().min(6).required(),
+  facilityId: Joi.number().integer().optional().allow(null)
 })
 
-const athleteSchema = Joi.object({
-  familyId: Joi.number().integer().optional().allow(null), // Will be auto-created if not provided for adults
+// Member creation schema - simplified, all members are equal
+const memberSchema = Joi.object({
+  // Family options (one of these must be provided):
+  // Option 1: Create new family (must provide familyName, familyUsername, familyPassword)
+  // Option 2: Join existing family (must provide familyId OR familyUsername + familyPassword)
+  // Option 3: No family (familyId: null) - creates orphan member
+  familyId: Joi.number().integer().optional().allow(null),
+  familyUsername: Joi.string().optional().allow(null, ''),
+  familyPassword: Joi.string().optional().allow(null, ''), // Required if joining existing family or creating new
+  familyName: Joi.string().max(100).optional().allow(null, ''), // Required if creating new family
+  
+  // Member details
   firstName: Joi.string().min(1).max(100).required(),
   lastName: Joi.string().min(1).max(100).required(),
+  email: Joi.string().email().optional().allow(null, ''), // Optional for children
+  phone: Joi.string().optional().allow(null, ''),
   dateOfBirth: Joi.alternatives().try(
     Joi.date(),
     Joi.string().allow('', null).custom((value, helpers) => {
-      // Allow empty string or null for adults who don't need DOB
       if (!value || value.trim() === '') {
         return null
       }
@@ -1152,18 +1165,92 @@ const athleteSchema = Joi.object({
   ).optional().allow(null, '').messages({
     'any.invalid': 'dateOfBirth must be a valid date'
   }),
+  
+  // Parent/Guardian IDs (required for children < 18, must be array of adult member IDs)
+  parentGuardianIds: Joi.array().items(Joi.number().integer()).optional().allow(null),
+  
+  // Waiver status
+  hasCompletedWaivers: Joi.boolean().optional().default(false),
+  waiverCompletionDate: Joi.date().optional().allow(null),
+  
+  // Medical and internal notes
   medicalNotes: Joi.string().max(2000).optional().allow('', null),
   internalFlags: Joi.string().max(500).optional().allow('', null),
-  userId: Joi.number().integer().optional().allow(null) // If set, links athlete to an app_user (e.g., parent who trains)
+  
+  // Address
+  address: Joi.string().max(500).optional().allow(null, ''),
+  billingStreet: Joi.string().max(200).optional().allow(null, ''),
+  billingCity: Joi.string().max(100).optional().allow(null, ''),
+  billingState: Joi.string().max(50).optional().allow(null, ''),
+  billingZip: Joi.string().max(20).optional().allow(null, ''),
+  
+  // Authentication (optional - children don't need login)
+  username: Joi.string().max(50).optional().allow(null, ''),
+  password: Joi.string().min(6).optional().allow(null, '')
+}).custom((value, helpers) => {
+  // Validation: If child (< 18), must have parentGuardianIds
+  if (value.dateOfBirth) {
+    const birthDate = new Date(value.dateOfBirth)
+    const today = new Date()
+    const age = today.getFullYear() - birthDate.getFullYear() - 
+      (today.getMonth() < birthDate.getMonth() || 
+       (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+    
+    if (age < 18 && (!value.parentGuardianIds || value.parentGuardianIds.length === 0)) {
+      return helpers.error('any.custom', { message: 'Children under 18 must have at least one parent/guardian' })
+    }
+  }
+  
+  // Validation: If joining family by username, must provide password
+  if (value.familyUsername && !value.familyId && !value.familyPassword) {
+    return helpers.error('any.custom', { message: 'Family password is required when joining by family username' })
+  }
+  
+  // Validation: If creating new family, must provide familyName, familyUsername, and familyPassword
+  if (!value.familyId && !value.familyUsername) {
+    // Creating new family
+    if (!value.familyName || value.familyName.trim() === '') {
+      return helpers.error('any.custom', { message: 'Family name is required when creating a new family' })
+    }
+    if (!value.familyUsername || value.familyUsername.trim() === '') {
+      return helpers.error('any.custom', { message: 'Family username is required when creating a new family' })
+    }
+    if (!value.familyPassword || value.familyPassword.trim() === '') {
+      return helpers.error('any.custom', { message: 'Family password is required when creating a new family' })
+    }
+  }
+  
+  return value
 })
 
-const athleteUpdateSchema = Joi.object({
+// Keep athleteSchema for backward compatibility (maps to memberSchema)
+const athleteSchema = memberSchema
+
+const memberUpdateSchema = Joi.object({
   firstName: Joi.string().min(1).max(100).optional(),
   lastName: Joi.string().min(1).max(100).optional(),
-  dateOfBirth: Joi.date().optional(),
+  email: Joi.string().email().optional().allow(null, ''),
+  phone: Joi.string().optional().allow(null, ''),
+  dateOfBirth: Joi.alternatives().try(
+    Joi.date(),
+    Joi.string().allow('', null)
+  ).optional().allow(null, ''),
+  username: Joi.string().max(50).optional().allow(null, ''),
+  password: Joi.string().min(6).optional().allow(null, ''),
+  parentGuardianIds: Joi.array().items(Joi.number().integer()).optional().allow(null),
+  hasCompletedWaivers: Joi.boolean().optional(),
+  waiverCompletionDate: Joi.date().optional().allow(null),
   medicalNotes: Joi.string().max(2000).optional().allow('', null),
-  internalFlags: Joi.string().max(500).optional().allow('', null)
+  internalFlags: Joi.string().max(500).optional().allow('', null),
+  address: Joi.string().max(500).optional().allow(null, ''),
+  billingStreet: Joi.string().max(200).optional().allow(null, ''),
+  billingCity: Joi.string().max(100).optional().allow(null, ''),
+  billingState: Joi.string().max(50).optional().allow(null, ''),
+  billingZip: Joi.string().max(20).optional().allow(null, '')
 })
+
+// Keep athleteUpdateSchema for backward compatibility
+const athleteUpdateSchema = memberUpdateSchema
 
 const emergencyContactSchema = Joi.object({
   memberId: Joi.number().integer().required(),
@@ -1186,16 +1273,173 @@ const emergencyContactSchema = Joi.object({
 // - ATHLETE: Anyone enrolled in a class (adults or children). This role is 
 //            automatically assigned when someone enrolls in a class.
 //
-// Key Rules:
-// 1. All adults in a family must have PARENT_GUARDIAN role
-// 2. When a person enrolls in a class, they get ATHLETE role (in addition to any existing roles)
-// 3. Adults can have both PARENT_GUARDIAN and ATHLETE roles simultaneously
-// 4. A child cannot be a sole member - at least one adult guardian must exist
-// 5. Creating a "New Family" = creating a new member with no linked family
-// 6. Non-participants are simply adults without ATHLETE role (they can enroll later)
+// SIMPLIFIED MEMBER SYSTEM RULES:
+// 1. All members are equal - no distinction between users/athletes at creation
+// 2. Athlete status = has enrollment + completed waivers (status becomes 'athlete')
+// 3. Status progression: 'legacy' (default) → 'enrolled' (has enrollment) → 'athlete' (enrolled + waivers)
+// 4. Family is just a linking ID - all members in family are equal, no primary member
+// 5. Family has username/password for joining
+// 6. Children (<18) must have parent_guardian_ids (array of adult member IDs)
+// 7. Members can only belong to 1 family at a time
+// 8. To join family: need family password OR login as existing adult member
 // ============================================================
 
-// Helper functions for role management
+// Helper function to calculate and update member athlete status
+// Status: 'legacy' (default), 'enrolled' (has enrollment), 'athlete' (enrolled + waivers), 'archived'
+const updateMemberAthleteStatus = async (memberId) => {
+  try {
+    // Check if member has enrollments
+    const enrollmentCheck = await pool.query(`
+      SELECT COUNT(*) as count FROM member_program WHERE member_id = $1
+    `, [memberId])
+    
+    const hasEnrollments = parseInt(enrollmentCheck.rows[0]?.count || '0') > 0
+    
+    // Get waiver status
+    const memberCheck = await pool.query(`
+      SELECT has_completed_waivers, status FROM member WHERE id = $1
+    `, [memberId])
+    
+    if (memberCheck.rows.length === 0) return null
+    
+    const hasWaivers = memberCheck.rows[0].has_completed_waivers === true
+    const currentStatus = memberCheck.rows[0].status
+    
+    // Calculate new status
+    let newStatus = 'legacy' // default
+    if (hasEnrollments && hasWaivers) {
+      newStatus = 'athlete'
+    } else if (hasEnrollments) {
+      newStatus = 'enrolled'
+    } else if (currentStatus === 'archived') {
+      newStatus = 'archived' // preserve archived status
+    } else {
+      newStatus = 'legacy'
+    }
+    
+    // Update status if changed
+    if (newStatus !== currentStatus) {
+      await pool.query(`
+        UPDATE member SET status = $1, updated_at = NOW() WHERE id = $2
+      `, [newStatus, memberId])
+    }
+    
+    return newStatus
+  } catch (error) {
+    console.error('Error updating member athlete status:', error)
+    return null
+  }
+}
+
+// Helper function to check if member is adult (age >= 18)
+const isAdult = (dateOfBirth) => {
+  if (!dateOfBirth) return true // No DOB = assume adult
+  const birthDate = new Date(dateOfBirth)
+  const today = new Date()
+  const age = today.getFullYear() - birthDate.getFullYear() - 
+    (today.getMonth() < birthDate.getMonth() || 
+     (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+  return age >= 18
+}
+
+// Helper function to generate unique family username
+const generateFamilyUsername = async (familyName, facilityId = null) => {
+  // Generate username from family name (sanitize and make unique)
+  const baseUsername = familyName
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .substring(0, 20)
+  
+  let username = baseUsername
+  let counter = 1
+  
+  while (true) {
+    const checkQuery = facilityId 
+      ? `SELECT id FROM family WHERE family_username = $1 AND facility_id = $2`
+      : `SELECT id FROM family WHERE family_username = $1`
+    
+    const params = facilityId ? [username, facilityId] : [username]
+    const result = await pool.query(checkQuery, params)
+    
+    if (result.rows.length === 0) {
+      return username // Username is available
+    }
+    
+    username = `${baseUsername}${counter}`
+    counter++
+    
+    // Safety check to prevent infinite loop
+    if (counter > 1000) {
+      // Use timestamp as fallback
+      username = `${baseUsername}${Date.now()}`
+      break
+    }
+  }
+  
+  return username
+}
+
+// Helper function to hash family password
+const hashFamilyPassword = async (password) => {
+  return await bcrypt.hash(password, 10)
+}
+
+// Helper function to verify family password
+const verifyFamilyPassword = async (password, hash) => {
+  return await bcrypt.compare(password, hash)
+}
+
+// Helper function to validate parent/guardian IDs (must be adults)
+const validateParentGuardians = async (parentGuardianIds) => {
+  if (!parentGuardianIds || parentGuardianIds.length === 0) {
+    return { valid: false, error: 'At least one parent/guardian is required for children' }
+  }
+  
+  try {
+    const result = await pool.query(`
+      SELECT id, date_of_birth, first_name, last_name 
+      FROM member 
+      WHERE id = ANY($1::bigint[])
+    `, [parentGuardianIds])
+    
+    if (result.rows.length !== parentGuardianIds.length) {
+      return { valid: false, error: 'One or more parent/guardian IDs not found' }
+    }
+    
+    // Check all are adults
+    for (const member of result.rows) {
+      if (!isAdult(member.date_of_birth)) {
+        return { 
+          valid: false, 
+          error: `${member.first_name} ${member.last_name} is not an adult (must be 18+)` 
+        }
+      }
+    }
+    
+    return { valid: true, members: result.rows }
+  } catch (error) {
+    console.error('Error validating parent guardians:', error)
+    return { valid: false, error: 'Error validating parent guardians' }
+  }
+}
+
+// Helper function to get children of a member (reverse lookup)
+const getMemberChildren = async (memberId) => {
+  try {
+    const result = await pool.query(`
+      SELECT id, first_name, last_name, date_of_birth, email, phone
+      FROM member
+      WHERE $1 = ANY(parent_guardian_ids)
+    `, [memberId])
+    
+    return result.rows
+  } catch (error) {
+    console.error('Error getting member children:', error)
+    return []
+  }
+}
+
+// Helper functions for role management (kept for backward compatibility)
 const getUserRoles = async (userId) => {
   try {
     // Check if user_role table exists
@@ -1211,12 +1455,12 @@ const getUserRoles = async (userId) => {
     
     if (hasUserRoleTable) {
       // Try querying user_role table first
-      try {
-        const result = await pool.query(`
-          SELECT role FROM user_role WHERE user_id = $1
-        `, [userId])
+  try {
+    const result = await pool.query(`
+      SELECT role FROM user_role WHERE user_id = $1
+    `, [userId])
         if (result.rows.length > 0) {
-          return result.rows.map(row => row.role)
+    return result.rows.map(row => row.role)
         }
       } catch (userRoleError) {
         // If query fails, continue to fallback
@@ -1235,7 +1479,7 @@ const getUserRoles = async (userId) => {
       `)
       
       if (appUserCheck.rows[0].exists) {
-        const result = await pool.query('SELECT role FROM app_user WHERE id = $1', [userId])
+      const result = await pool.query('SELECT role FROM app_user WHERE id = $1', [userId])
         if (result.rows.length > 0 && result.rows[0].role) {
           return [result.rows[0].role]
         }
@@ -1248,7 +1492,7 @@ const getUserRoles = async (userId) => {
     return []
   } catch (error) {
     console.error('Error getting user roles:', error.message)
-    return []
+      return []
   }
 }
 
@@ -1888,35 +2132,35 @@ app.get('/api/admin/members', async (req, res) => {
     const userRoleHasMemberId = userRoleMemberIdCheck.rows[0].exists
     
     // Build base query - simplified to avoid complex joins that might fail
-    let query = `
-      SELECT 
-        m.id,
-        m.first_name,
-        m.last_name,
-        m.email,
-        m.phone,
-        m.address,
-        m.billing_street,
-        m.billing_city,
-        m.billing_state,
-        m.billing_zip,
-        m.date_of_birth,
-        m.medical_notes,
-        m.internal_flags,
-        m.status,
-        m.is_active,
-        m.family_is_active,
-        m.family_id,
-        m.username,
-        m.created_at,
-        m.updated_at,
-        f.family_name,
+      let query = `
+        SELECT 
+          m.id,
+          m.first_name,
+          m.last_name,
+          m.email,
+          m.phone,
+          m.address,
+          m.billing_street,
+          m.billing_city,
+          m.billing_state,
+          m.billing_zip,
+          m.date_of_birth,
+          m.medical_notes,
+          m.internal_flags,
+          m.status,
+          m.is_active,
+          m.family_is_active,
+          m.family_id,
+          m.username,
+          m.created_at,
+          m.updated_at,
+          f.family_name,
         CASE WHEN m.date_of_birth IS NOT NULL 
           THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
           ELSE NULL 
         END as age
-      FROM member m
-      LEFT JOIN family f ON m.family_id = f.id
+        FROM member m
+        LEFT JOIN family f ON m.family_id = f.id
       WHERE 1=1
     `
     
@@ -1936,35 +2180,35 @@ app.get('/api/admin/members', async (req, res) => {
       // Don't filter by facility_id - return all members
       console.log('[GET /api/admin/members] Not filtering by facility_id - returning all members')
     }
-    
-    // Filter by active/archived
-    if (!showArchivedBool) {
-      query += ` AND m.is_active = TRUE`
-    }
-    
-    // Search filter
-    if (search) {
-      paramCount++
-      query += ` AND (
-        m.first_name ILIKE $${paramCount} OR 
-        m.last_name ILIKE $${paramCount} OR 
+      
+      // Filter by active/archived
+      if (!showArchivedBool) {
+        query += ` AND m.is_active = TRUE`
+      }
+      
+      // Search filter
+      if (search) {
+        paramCount++
+        query += ` AND (
+          m.first_name ILIKE $${paramCount} OR 
+          m.last_name ILIKE $${paramCount} OR 
         COALESCE(m.email, '') ILIKE $${paramCount} OR
         COALESCE(m.phone, '') ILIKE $${paramCount} OR
         COALESCE(f.family_name, '') ILIKE $${paramCount}
-      )`
-      params.push(`%${search}%`)
-    }
-    
+        )`
+        params.push(`%${search}%`)
+      }
+      
     // Role filter (if member has this role) - only if user_role has member_id
     if (role && userRoleHasMemberId) {
-      paramCount++
-      query += ` AND EXISTS (
+        paramCount++
+        query += ` AND EXISTS (
         SELECT 1 FROM user_role ur 
         WHERE ur.member_id = m.id AND ur.role = $${paramCount}::user_role
-      )`
-      params.push(role)
-    }
-    
+        )`
+        params.push(role)
+      }
+      
     query += ` ORDER BY m.last_name, m.first_name`
     
     console.log('[GET /api/admin/members] Executing query:', query)
@@ -1985,8 +2229,8 @@ app.get('/api/admin/members', async (req, res) => {
     } catch (dbError) {
       console.error('[GET /api/admin/members] Error checking member counts:', dbError.message)
     }
-    
-    const result = await pool.query(query, params)
+      
+      const result = await pool.query(query, params)
     
     console.log('[GET /api/admin/members] Query returned', result.rows.length, 'members')
     
@@ -2041,41 +2285,41 @@ app.get('/api/admin/members', async (req, res) => {
         rolesMap[row.member_id] = row.roles || []
       })
     }
-    
-    // Format the response
-    const members = result.rows.map(row => ({
-      id: row.id,
-      firstName: row.first_name,
-      lastName: row.last_name,
-      email: row.email,
-      phone: row.phone,
-      address: row.address,
-      billingStreet: row.billing_street,
-      billingCity: row.billing_city,
-      billingState: row.billing_state,
-      billingZip: row.billing_zip,
-      dateOfBirth: row.date_of_birth,
-      age: row.age ? parseInt(row.age) : null,
-      medicalNotes: row.medical_notes,
-      internalFlags: row.internal_flags,
-      status: row.status,
-      isActive: row.is_active,
-      familyIsActive: row.family_is_active,
-      familyId: row.family_id,
-      familyName: row.family_name,
-      username: row.username,
+      
+      // Format the response
+      const members = result.rows.map(row => ({
+        id: row.id,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        email: row.email,
+        phone: row.phone,
+        address: row.address,
+        billingStreet: row.billing_street,
+        billingCity: row.billing_city,
+        billingState: row.billing_state,
+        billingZip: row.billing_zip,
+        dateOfBirth: row.date_of_birth,
+        age: row.age ? parseInt(row.age) : null,
+        medicalNotes: row.medical_notes,
+        internalFlags: row.internal_flags,
+        status: row.status,
+        isActive: row.is_active,
+        familyIsActive: row.family_is_active,
+        familyId: row.family_id,
+        familyName: row.family_name,
+        username: row.username,
       roles: rolesMap[row.id] || [],
       enrollments: enrollmentsMap[row.id] || [],
-      createdAt: row.created_at,
-      updatedAt: row.updated_at
-    }))
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      }))
     
     console.log('[GET /api/admin/members] Returning', members.length, 'formatted members')
-    
-    res.json({
-      success: true,
-      data: members
-    })
+      
+      res.json({
+        success: true,
+        data: members
+      })
   } catch (error) {
     console.error('Get members error:', error)
     console.error('Error stack:', error.stack)
@@ -2874,86 +3118,340 @@ app.put('/api/admin/users/:id', async (req, res) => {
 })
 
 // Get all families (admin endpoint)
+// Search for families by name or username (for joining)
+app.get('/api/admin/families/search', async (req, res) => {
+  try {
+    const { search, familyUsername } = req.query
+    
+    if (!search && !familyUsername) {
+      return res.status(400).json({
+        success: false,
+        message: 'Search term or family username is required'
+      })
+    }
+    
+    let query = `
+      SELECT 
+        f.id,
+        f.family_name,
+        f.family_username,
+        f.created_at,
+        COUNT(DISTINCT m.id) as member_count
+      FROM family f
+      LEFT JOIN member m ON m.family_id = f.id
+      WHERE f.archived = FALSE
+    `
+    
+    const params = []
+    let paramCount = 0
+    
+    if (familyUsername) {
+      paramCount++
+      query += ` AND f.family_username = $${paramCount}`
+      params.push(familyUsername)
+    } else if (search) {
+      paramCount++
+      query += ` AND (
+        f.family_name ILIKE $${paramCount} OR 
+        f.family_username ILIKE $${paramCount}
+      )`
+      params.push(`%${search}%`)
+    }
+    
+    query += ` GROUP BY f.id, f.family_name, f.family_username, f.created_at ORDER BY f.family_name LIMIT 20`
+    
+    const result = await pool.query(query, params)
+    
+    // Return families without password hash
+    const families = result.rows.map(row => ({
+      id: row.id,
+      familyName: row.family_name,
+      familyUsername: row.family_username,
+      memberCount: parseInt(row.member_count || '0'),
+      createdAt: row.created_at
+    }))
+    
+    res.json({
+      success: true,
+      data: families
+    })
+  } catch (error) {
+    console.error('Search families error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Join family by password (admin endpoint)
+// Member must not already belong to another family
+app.post('/api/admin/members/:memberId/join-family', async (req, res) => {
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    
+    const { memberId } = req.params
+    const { familyId, familyUsername, familyPassword } = req.body
+    
+    if (!familyId && !familyUsername) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({
+        success: false,
+        message: 'Family ID or family username is required'
+      })
+    }
+    
+    if (!familyPassword) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({
+        success: false,
+        message: 'Family password is required'
+      })
+    }
+    
+    // Check if member exists and doesn't already belong to another family
+    const memberCheck = await client.query(`
+      SELECT id, first_name, last_name, family_id FROM member WHERE id = $1
+    `, [memberId])
+    
+    if (memberCheck.rows.length === 0) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found'
+      })
+    }
+    
+    const member = memberCheck.rows[0]
+    
+    // Check if member already belongs to a family
+    if (member.family_id) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({
+        success: false,
+        message: 'Member already belongs to a family. Members can only belong to one family at a time.'
+      })
+    }
+    
+    // Find family
+    let query = `SELECT id, family_name, family_username, family_password_hash FROM family WHERE archived = FALSE`
+    const params = []
+    let paramCount = 0
+    
+    if (familyId) {
+      paramCount++
+      query += ` AND id = $${paramCount}`
+      params.push(familyId)
+    } else if (familyUsername) {
+      paramCount++
+      query += ` AND family_username = $${paramCount}`
+      params.push(familyUsername)
+    }
+    
+    const familyResult = await client.query(query, params)
+    
+    if (familyResult.rows.length === 0) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({
+        success: false,
+        message: 'Family not found'
+      })
+    }
+    
+    const family = familyResult.rows[0]
+    
+    // Verify password
+    const passwordValid = await verifyFamilyPassword(familyPassword, family.family_password_hash)
+    
+    if (!passwordValid) {
+      await client.query('ROLLBACK')
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid family password'
+      })
+    }
+    
+    // Join member to family
+    await client.query(`
+      UPDATE member
+      SET family_id = $1, updated_at = NOW()
+      WHERE id = $2
+    `, [family.id, memberId])
+    
+    await client.query('COMMIT')
+    
+    res.json({
+      success: true,
+      message: `${member.first_name} ${member.last_name} has been added to ${family.family_name}`,
+      data: {
+        familyId: family.id,
+        familyName: family.family_name,
+        familyUsername: family.family_username
+      }
+    })
+  } catch (error) {
+    await client.query('ROLLBACK')
+    console.error('Join family error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  } finally {
+    client.release()
+  }
+})
+
+// Verify family password (for joining existing family)
+app.post('/api/admin/families/verify', async (req, res) => {
+  try {
+    const { familyId, familyUsername, familyPassword } = req.body
+    
+    if (!familyPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Family password is required'
+      })
+    }
+    
+    let query = `SELECT id, family_name, family_username, family_password_hash FROM family WHERE archived = FALSE`
+    const params = []
+    let paramCount = 0
+    
+    if (familyId) {
+      paramCount++
+      query += ` AND id = $${paramCount}`
+      params.push(familyId)
+    } else if (familyUsername) {
+      paramCount++
+      query += ` AND family_username = $${paramCount}`
+      params.push(familyUsername)
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Family ID or family username is required'
+      })
+    }
+    
+    const result = await pool.query(query, params)
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Family not found'
+      })
+    }
+    
+    const family = result.rows[0]
+    
+    // Verify password
+    const passwordValid = await verifyFamilyPassword(familyPassword, family.family_password_hash)
+    
+    if (!passwordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid family password'
+      })
+    }
+    
+    // Get member count
+    const memberCountResult = await pool.query(`
+      SELECT COUNT(*) as count FROM member WHERE family_id = $1
+    `, [family.id])
+    
+    res.json({
+      success: true,
+      data: {
+        id: family.id,
+        familyName: family.family_name,
+        familyUsername: family.family_username,
+        memberCount: parseInt(memberCountResult.rows[0]?.count || '0')
+      }
+    })
+  } catch (error) {
+    console.error('Verify family password error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Get all families (admin endpoint) - simplified, no primary member concept
 app.get('/api/admin/families', async (req, res) => {
   try {
-    const { search, primaryUserId } = req.query
-    // Ensure required columns exist before querying
-    await pool.query('ALTER TABLE family ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE')
-    await pool.query('ALTER TABLE athlete ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT \'legacy\'')
+    const { search } = req.query
     
     let query = `
       SELECT 
         f.id,
         f.facility_id,
-        f.primary_user_id,
         f.family_name,
+        f.family_username,
         COALESCE(f.archived, FALSE) as archived,
         f.created_at,
         f.updated_at,
-        u.email as primary_email,
-        u.full_name as primary_name,
-        u.phone as primary_phone,
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object(
-              'id', g.user_id,
-              'email', gu.email,
-              'fullName', gu.full_name,
-              'phone', gu.phone,
-              'isPrimary', g.is_primary
-            )
-          ) FILTER (WHERE g.user_id IS NOT NULL),
-          '[]'
-        ) as guardians,
+        COUNT(DISTINCT m.id) as member_count,
         COALESCE(
           json_agg(
             DISTINCT jsonb_build_object(
               'id', m.id,
               'firstName', m.first_name,
               'lastName', m.last_name,
+              'email', m.email,
+              'phone', m.phone,
               'dateOfBirth', m.date_of_birth,
               'age', CASE WHEN m.date_of_birth IS NOT NULL THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER ELSE NULL END,
-              'medicalNotes', m.medical_notes,
-              'internalFlags', m.internal_flags,
               'status', m.status,
-              'familyId', m.family_id,
-              'familyDisplay', CASE WHEN m.family_id IS NULL THEN 'Orphan' ELSE CAST(m.family_id AS TEXT) END,
-              'isActive', m.is_active
+              'isActive', m.is_active,
+              'hasCompletedWaivers', m.has_completed_waivers
             )
           ) FILTER (WHERE m.id IS NOT NULL),
           '[]'
         ) as members
       FROM family f
-      LEFT JOIN app_user u ON f.primary_user_id = u.id
-      LEFT JOIN family_guardian g ON f.id = g.family_id
-      LEFT JOIN app_user gu ON g.user_id = gu.id
       LEFT JOIN member m ON f.id = m.family_id AND m.is_active = TRUE
+      WHERE COALESCE(f.archived, FALSE) = FALSE
     `
     const params = []
-    const conditions = []
-    
-    if (primaryUserId) {
-      conditions.push(`f.primary_user_id = $${params.length + 1}`)
-      params.push(primaryUserId)
-    }
+    let paramCount = 0
     
     if (search) {
-      conditions.push(`(f.family_name ILIKE $${params.length + 1} OR u.email ILIKE $${params.length + 1} OR u.full_name ILIKE $${params.length + 1})`)
+      paramCount++
+      query += ` AND (
+        f.family_name ILIKE $${paramCount} OR 
+        f.family_username ILIKE $${paramCount} OR
+        EXISTS (
+          SELECT 1 FROM member m2 
+          WHERE m2.family_id = f.id 
+          AND (m2.first_name ILIKE $${paramCount} OR m2.last_name ILIKE $${paramCount} OR m2.email ILIKE $${paramCount})
+        )
+      )`
       params.push(`%${search}%`)
     }
     
-    if (conditions.length > 0) {
-      query += ` WHERE ${conditions.join(' AND ')}`
-    }
-    
-    // Group by all non-aggregated columns. PostgreSQL handles NULLs in GROUP BY naturally
-    query += ` GROUP BY f.id, f.facility_id, f.primary_user_id, f.family_name, f.archived, f.created_at, f.updated_at, u.email, u.full_name, u.phone ORDER BY f.created_at DESC`
+    query += ` GROUP BY f.id, f.facility_id, f.family_name, f.family_username, f.archived, f.created_at, f.updated_at ORDER BY f.family_name, f.created_at DESC`
     
     const result = await pool.query(query, params)
     
+    const families = result.rows.map(row => ({
+      id: row.id,
+      facilityId: row.facility_id,
+      familyName: row.family_name,
+      familyUsername: row.family_username,
+      archived: row.archived,
+      memberCount: parseInt(row.member_count || '0'),
+      members: row.members || [],
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }))
+    
     res.json({
       success: true,
-      data: result.rows
+      data: families
     })
   } catch (error) {
     console.error('Get families error:', error)
@@ -2966,36 +3464,22 @@ app.get('/api/admin/families', async (req, res) => {
   }
 })
 
-// Get single family (admin endpoint)
+// Get single family (admin endpoint) - simplified, no primary member concept
 app.get('/api/admin/families/:id', async (req, res) => {
   try {
     const { id } = req.params
     
     const familyResult = await pool.query(`
       SELECT 
-        f.*,
-        u.id as primary_user_id,
-        u.email as primary_email,
-        u.full_name as primary_name,
-        u.phone as primary_phone,
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object(
-              'id', g.user_id,
-              'email', gu.email,
-              'fullName', gu.full_name,
-              'phone', gu.phone,
-              'isPrimary', g.is_primary
-            )
-          ) FILTER (WHERE g.user_id IS NOT NULL),
-          '[]'
-        ) as guardians
+        f.id,
+        f.facility_id,
+        f.family_name,
+        f.family_username,
+        f.archived,
+        f.created_at,
+        f.updated_at
       FROM family f
-      LEFT JOIN app_user u ON f.primary_user_id = u.id
-      LEFT JOIN family_guardian g ON f.id = g.family_id
-      LEFT JOIN app_user gu ON g.user_id = gu.id
       WHERE f.id = $1
-      GROUP BY f.id, u.id
     `, [id])
     
     if (familyResult.rows.length === 0) {
@@ -3007,17 +3491,27 @@ app.get('/api/admin/families/:id', async (req, res) => {
     
     const family = familyResult.rows[0]
     
-    // Get members for this family
+    // Get all members in this family (all are equal, no primary member)
     const membersResult = await pool.query(`
       SELECT 
-        m.*,
+        m.id,
+        m.first_name,
+        m.last_name,
+        m.email,
+        m.phone,
+        m.username,
+        m.date_of_birth,
         CASE WHEN m.date_of_birth IS NOT NULL 
           THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
           ELSE NULL 
         END as age,
+        m.status,
+        m.is_active,
+        m.has_completed_waivers,
+        m.parent_guardian_ids,
         COALESCE(
           json_agg(
-            jsonb_build_object(
+            DISTINCT jsonb_build_object(
               'id', ec.id,
               'name', ec.name,
               'relationship', ec.relationship,
@@ -3030,30 +3524,84 @@ app.get('/api/admin/families/:id', async (req, res) => {
       FROM member m
       LEFT JOIN emergency_contact ec ON m.id = ec.member_id
       WHERE m.family_id = $1 AND m.is_active = TRUE
-      GROUP BY m.id
-      ORDER BY m.date_of_birth NULLS LAST
+      GROUP BY m.id, m.first_name, m.last_name, m.email, m.phone, m.username, 
+               m.date_of_birth, m.status, m.is_active, m.has_completed_waivers, m.parent_guardian_ids
+      ORDER BY m.date_of_birth NULLS LAST, m.last_name, m.first_name
     `, [id])
     
-    family.members = membersResult.rows
+    // Format members with parent guardians info
+    const members = membersResult.rows.map(member => {
+      const memberData = {
+        id: member.id,
+        firstName: member.first_name,
+        lastName: member.last_name,
+        email: member.email,
+        phone: member.phone,
+        username: member.username,
+        dateOfBirth: member.date_of_birth,
+        age: member.age ? parseInt(member.age) : null,
+        status: member.status,
+        isActive: member.is_active,
+        hasCompletedWaivers: member.has_completed_waivers || false,
+        parentGuardianIds: member.parent_guardian_ids || [],
+        emergencyContacts: member.emergency_contacts || []
+      }
+      
+      return memberData
+    })
+    
+    // Get parent/guardian details for children
+    for (const member of members) {
+      if (member.parentGuardianIds && member.parentGuardianIds.length > 0) {
+        const parentsResult = await pool.query(`
+          SELECT id, first_name, last_name, email, phone, username
+          FROM member
+          WHERE id = ANY($1::bigint[])
+        `, [member.parentGuardianIds])
+        member.parentGuardians = parentsResult.rows.map(p => ({
+          id: p.id,
+          firstName: p.first_name,
+          lastName: p.last_name,
+          email: p.email,
+          phone: p.phone,
+          username: p.username
+        }))
+      }
+    }
     
     res.json({
       success: true,
-      data: family
+      data: {
+        id: family.id,
+        facilityId: family.facility_id,
+        familyName: family.family_name,
+        familyUsername: family.family_username,
+        archived: family.archived || false,
+        members: members,
+        memberCount: members.length,
+        createdAt: family.created_at,
+        updatedAt: family.updated_at
+      }
     })
   } catch (error) {
     console.error('Get family error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
 
-// Create family (admin endpoint)
+// Create family (admin endpoint) - simplified, no primary member concept
 app.post('/api/admin/families', async (req, res) => {
+  const client = await pool.connect()
   try {
+    await client.query('BEGIN')
+    
     const { error, value } = familySchema.validate(req.body)
     if (error) {
+      await client.query('ROLLBACK')
       return res.status(400).json({
         success: false,
         message: 'Validation error',
@@ -3062,147 +3610,177 @@ app.post('/api/admin/families', async (req, res) => {
     }
     
     // Get facility
-    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
-    if (facilityResult.rows.length === 0) {
-      return res.status(500).json({
-        success: false,
-        message: 'No facility found'
-      })
-    }
-    const facilityId = facilityResult.rows[0].id
-    
-    // Create family
-    const familyResult = await pool.query(`
-      INSERT INTO family (facility_id, primary_user_id, family_name)
-      VALUES ($1, $2, $3)
-      RETURNING *
-    `, [facilityId, value.primaryUserId || null, value.familyName || null])
-    
-    const familyId = familyResult.rows[0].id
-    
-    // Link guardians if provided
-    if (value.guardianIds && value.guardianIds.length > 0) {
-      for (let i = 0; i < value.guardianIds.length; i++) {
-        const userId = value.guardianIds[i]
-        const isPrimary = i === 0 && !value.primaryUserId
-        
-        // Ensure all guardians have PARENT_GUARDIAN role
-        await addUserRole(userId, 'PARENT_GUARDIAN')
-        
-        await pool.query(`
-          INSERT INTO family_guardian (family_id, user_id, is_primary)
-          VALUES ($1, $2, $3)
-          ON CONFLICT (family_id, user_id) DO NOTHING
-        `, [familyId, userId, isPrimary])
-      }
+    let facilityId = value.facilityId
+    if (!facilityId) {
+      const facilityTableCheck = await client.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'facility'
+        )
+      `)
       
-      // Update primary_user_id if not set
-      if (!value.primaryUserId && value.guardianIds.length > 0) {
-        await pool.query(`
-          UPDATE family SET primary_user_id = $1 WHERE id = $2
-        `, [value.guardianIds[0], familyId])
+      if (facilityTableCheck.rows[0].exists) {
+        let facilityResult = await client.query('SELECT id FROM facility LIMIT 1')
+        if (facilityResult.rows.length > 0) {
+          facilityId = facilityResult.rows[0].id
+        } else {
+          // Create default facility
+          const defaultFacilityResult = await client.query(`
+            INSERT INTO facility (name, timezone)
+            VALUES ('Vortex Athletics', 'America/New_York')
+            RETURNING id
+          `)
+          facilityId = defaultFacilityResult.rows[0].id
+        }
       }
     }
     
-    // Fetch complete family data
-    const completeFamily = await pool.query(`
-      SELECT 
-        f.*,
-        u.id as primary_user_id,
-        u.email as primary_email,
-        u.full_name as primary_name,
-        u.phone as primary_phone,
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object(
-              'id', g.user_id,
-              'email', gu.email,
-              'fullName', gu.full_name,
-              'phone', gu.phone,
-              'isPrimary', g.is_primary
-            )
-          ) FILTER (WHERE g.user_id IS NOT NULL),
-          '[]'
-        ) as guardians
-      FROM family f
-      LEFT JOIN app_user u ON f.primary_user_id = u.id
-      LEFT JOIN family_guardian g ON f.id = g.family_id
-      LEFT JOIN app_user gu ON g.user_id = gu.id
-      WHERE f.id = $1
-      GROUP BY f.id, u.id
-    `, [familyId])
+    // Generate unique family username
+    const uniqueUsername = await generateFamilyUsername(value.familyUsername, facilityId)
+    
+    // Hash family password
+    const familyPasswordHash = await hashFamilyPassword(value.familyPassword)
+    
+    // Create family - no primary member, all members are equal
+    const familyResult = await client.query(`
+      INSERT INTO family (facility_id, family_name, family_username, family_password_hash)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, family_name, family_username, created_at
+    `, [facilityId, value.familyName, uniqueUsername, familyPasswordHash])
+    
+    const family = familyResult.rows[0]
+    
+    await client.query('COMMIT')
     
     res.json({
       success: true,
       message: 'Family created successfully',
-      data: completeFamily.rows[0]
+      data: {
+        id: family.id,
+        familyName: family.family_name,
+        familyUsername: family.family_username,
+        createdAt: family.created_at
+      }
     })
   } catch (error) {
+    await client.query('ROLLBACK')
     console.error('Create family error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    })
-  }
-})
-
-// Update family (admin endpoint)
-app.put('/api/admin/families/:id', async (req, res) => {
-  try {
-    const { id } = req.params
-    const { error, value } = familySchema.validate(req.body)
-    if (error) {
+    
+    // Check if it's a unique constraint violation
+    if (error.code === '23505') {
       return res.status(400).json({
         success: false,
-        message: 'Validation error',
-        errors: error.details.map(detail => detail.message)
+        message: 'Family username already exists. Please choose a different username.'
       })
     }
     
-    // Update family
-    await pool.query(`
-      UPDATE family 
-      SET family_name = $1, primary_user_id = $2, updated_at = now()
-      WHERE id = $3
-    `, [value.familyName || null, value.primaryUserId || null, id])
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  } finally {
+    client.release()
+  }
+})
+
+// Update family (admin endpoint) - simplified, no primary member concept
+app.put('/api/admin/families/:id', async (req, res) => {
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
     
-    // Update guardians if provided
-    if (value.guardianIds !== undefined) {
-      // Remove all existing guardians
-      await pool.query('DELETE FROM family_guardian WHERE family_id = $1', [id])
-      
-      // Add new guardians
-      if (value.guardianIds.length > 0) {
-        for (let i = 0; i < value.guardianIds.length; i++) {
-          const userId = value.guardianIds[i]
-          const isPrimary = i === 0
-          
-          // Ensure all guardians have PARENT_GUARDIAN role
-          await addUserRole(userId, 'PARENT_GUARDIAN')
-          
-          await pool.query(`
-            INSERT INTO family_guardian (family_id, user_id, is_primary)
-            VALUES ($1, $2, $3)
-          `, [id, userId, isPrimary])
-        }
-        
-        // Update primary_user_id
-        await pool.query(`
-          UPDATE family SET primary_user_id = $1 WHERE id = $2
-        `, [value.guardianIds[0], id])
-      }
+    const { id } = req.params
+    const { familyName, familyUsername, familyPassword } = req.body
+    
+    // Check if family exists
+    const familyCheck = await client.query('SELECT id FROM family WHERE id = $1', [id])
+    if (familyCheck.rows.length === 0) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({
+        success: false,
+        message: 'Family not found'
+      })
     }
+    
+    const updates = []
+    const params = []
+    let paramCount = 0
+    
+    if (familyName !== undefined) {
+      paramCount++
+      updates.push(`family_name = $${paramCount}`)
+      params.push(familyName)
+    }
+    
+    if (familyUsername !== undefined) {
+      paramCount++
+      // Check if username is already taken by another family
+      const usernameCheck = await client.query(`
+        SELECT id FROM family WHERE family_username = $1 AND id != $2
+      `, [familyUsername, id])
+      
+      if (usernameCheck.rows.length > 0) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({
+          success: false,
+          message: 'Family username already exists. Please choose a different username.'
+        })
+      }
+      
+      updates.push(`family_username = $${paramCount}`)
+      params.push(familyUsername)
+    }
+    
+    if (familyPassword !== undefined && familyPassword) {
+      paramCount++
+      const passwordHash = await hashFamilyPassword(familyPassword)
+      updates.push(`family_password_hash = $${paramCount}`)
+      params.push(passwordHash)
+    }
+    
+    if (updates.length === 0) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({
+        success: false,
+        message: 'No fields to update'
+      })
+    }
+    
+    updates.push(`updated_at = now()`)
+    paramCount++
+    params.push(id)
+    
+    await client.query(`
+      UPDATE family 
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+    `, params)
+    
+    await client.query('COMMIT')
+    
+    // Fetch updated family
+    const updatedFamilyResult = await client.query(`
+      SELECT id, family_name, family_username, created_at, updated_at
+      FROM family WHERE id = $1
+    `, [id])
     
     res.json({
       success: true,
-      message: 'Family updated successfully'
+      message: 'Family updated successfully',
+      data: updatedFamilyResult.rows[0]
     })
   } catch (error) {
+    await client.query('ROLLBACK')
     console.error('Update family error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
+  } finally {
+    client.release()
   }
 })
 
@@ -3233,19 +3811,6 @@ app.patch('/api/admin/families/:id/archive', async (req, res) => {
       await pool.query('ALTER TABLE family ADD COLUMN archived BOOLEAN DEFAULT FALSE')
     }
     
-    // Get all user IDs associated with this family
-    const familyUsersResult = await pool.query(`
-      SELECT DISTINCT user_id 
-      FROM family_guardian 
-      WHERE family_id = $1
-      UNION
-      SELECT primary_user_id 
-      FROM family 
-      WHERE id = $1 AND primary_user_id IS NOT NULL
-    `, [id])
-    
-    const userIds = familyUsersResult.rows.map(row => row.user_id).filter(userId => userId !== null)
-    
     // Start a transaction
     const client = await pool.connect()
     try {
@@ -3254,58 +3819,28 @@ app.patch('/api/admin/families/:id/archive', async (req, res) => {
       // Update family archived status
       await client.query('UPDATE family SET archived = $1, updated_at = now() WHERE id = $2', [archived, id])
       
-      // Archive/unarchive associated users
-      if (userIds.length > 0) {
-        // Update is_active (when archived = true, set is_active = false, and vice versa)
-        await client.query(
-          'UPDATE app_user SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = ANY($2::bigint[])',
-          [!archived, userIds]
-        )
-      }
-      
       // Update member status for all members in this family
+      // When family is archived, archive all members
+      // When family is unarchived, restore members (but keep their individual status)
       if (archived) {
-        // Set status to 'archived'
+        // Set all family members to archived
         await client.query(`
           UPDATE member 
-          SET status = 'archived', is_active = FALSE, updated_at = CURRENT_TIMESTAMP 
-          WHERE family_id = $1 AND facility_id = $2
-        `, [id, facilityId])
+          SET is_active = FALSE, status = 'archived', updated_at = NOW()
+          WHERE family_id = $1
+        `, [id])
       } else {
-        // Set status based on enrollments ('enrolled' if has enrollments, else 'legacy')
+        // Unarchive family members (restore is_active but keep status based on enrollments + waivers)
         await client.query(`
           UPDATE member 
-          SET status = CASE
-            WHEN EXISTS (SELECT 1 FROM member_program WHERE member_id = member.id) 
-            THEN 'enrolled'
-            ELSE 'legacy'
-          END,
-          is_active = TRUE,
-          updated_at = CURRENT_TIMESTAMP
-          WHERE family_id = $1 AND facility_id = $2
-        `, [id, facilityId])
-      }
-      
-      // Also update members linked to users in this family
-      if (userIds.length > 0) {
-        if (archived) {
-          await client.query(`
-            UPDATE member 
-            SET status = 'archived', is_active = FALSE, updated_at = CURRENT_TIMESTAMP 
-            WHERE id = ANY($1::bigint[]) AND facility_id = $2
-          `, [userIds, facilityId])
-        } else {
-          await client.query(`
-            UPDATE member 
-            SET status = CASE
-              WHEN EXISTS (SELECT 1 FROM member_program WHERE member_id = member.id) 
-              THEN 'enrolled'
-              ELSE 'legacy'
-            END,
-            is_active = TRUE,
-            updated_at = CURRENT_TIMESTAMP
-            WHERE id = ANY($1::bigint[]) AND facility_id = $2
-          `, [userIds, facilityId])
+          SET is_active = TRUE, updated_at = NOW()
+          WHERE family_id = $1
+        `, [id])
+        
+        // Update athlete status for all family members (will recalculate based on enrollments + waivers)
+        const familyMembersResult = await client.query('SELECT id FROM member WHERE family_id = $1', [id])
+        for (const memberRow of familyMembersResult.rows) {
+          await updateMemberAthleteStatus(memberRow.id)
         }
       }
       
@@ -3524,6 +4059,105 @@ app.delete('/api/admin/users/by-email/:email', async (req, res) => {
   }
 })
 
+// Search members by name, email, phone, or username (for parent/guardian selection)
+app.get('/api/admin/members/search', async (req, res) => {
+  try {
+    const { q, adultsOnly } = req.query
+    
+    if (!q || q.trim().length === 0) {
+      return res.json({
+        success: true,
+        data: []
+      })
+    }
+    
+    const searchQuery = `%${q.trim()}%`
+    
+    let query = `
+      SELECT 
+        m.id,
+        m.first_name,
+        m.last_name,
+        m.email,
+        m.phone,
+        m.username,
+        m.date_of_birth,
+        CASE WHEN m.date_of_birth IS NOT NULL 
+          THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
+          ELSE NULL 
+        END as age,
+        m.family_id,
+        f.family_name
+      FROM member m
+      LEFT JOIN family f ON m.family_id = f.id
+      WHERE m.is_active = TRUE
+        AND (
+          m.first_name ILIKE $1 OR 
+          m.last_name ILIKE $1 OR 
+          m.email ILIKE $1 OR
+          m.phone ILIKE $1 OR
+          m.username ILIKE $1 OR
+          (m.first_name || ' ' || m.last_name) ILIKE $1
+        )
+    `
+    
+    const params = [searchQuery]
+    
+    // Filter to adults only if requested (for parent/guardian selection)
+    if (adultsOnly === 'true') {
+      query += ` AND (m.date_of_birth IS NULL OR EXTRACT(YEAR FROM AGE(m.date_of_birth)) >= 18)`
+    }
+    
+    // Check facility_id column exists
+    const facilityColumnCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member'
+        AND column_name = 'facility_id'
+      )
+    `)
+    
+    if (facilityColumnCheck.rows[0].exists) {
+      const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+      if (facilityResult.rows.length > 0) {
+        query += ` AND m.facility_id = $2`
+        params.push(facilityResult.rows[0].id)
+      }
+    }
+    
+    query += ` ORDER BY m.last_name, m.first_name LIMIT 50`
+    
+    const result = await pool.query(query, params)
+    
+    const members = result.rows.map(row => ({
+      id: row.id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      email: row.email,
+      phone: row.phone,
+      username: row.username,
+      dateOfBirth: row.date_of_birth,
+      age: row.age ? parseInt(row.age) : null,
+      familyId: row.family_id,
+      familyName: row.family_name,
+      isAdult: !row.date_of_birth || (row.age ? row.age >= 18 : true)
+    }))
+    
+    res.json({
+      success: true,
+      data: members
+    })
+  } catch (error) {
+    console.error('Search members error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
 // Search members for enrollment (admin endpoint) - only returns active members
 // This is used when searching for members to enroll in classes
 app.get('/api/admin/search-members', async (req, res) => {
@@ -3720,7 +4354,7 @@ app.get('/api/admin/search-users', async (req, res) => {
 })
 
 
-// Get single member (admin endpoint) - renamed from athletes to members
+// Get single member (admin endpoint) - simplified, all members are equal
 app.get('/api/admin/members/:id', async (req, res) => {
   try {
     const { id } = req.params
@@ -3732,23 +4366,11 @@ app.get('/api/admin/members/:id', async (req, res) => {
           THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
           ELSE NULL 
         END as age,
-        CASE 
-          WHEN m.family_id IS NULL THEN 'Orphan'
-          ELSE f.family_name
-        END as family_name,
-        CASE 
-          WHEN m.family_id IS NULL THEN NULL
-          ELSE f.id
-        END as family_id,
-        CASE 
-          WHEN m.family_id IS NULL THEN 'Orphan'
-          ELSE CAST(f.id AS TEXT)
-        END as family_display,
-        u.email as primary_guardian_email,
-        u.full_name as primary_guardian_name
+        f.family_name,
+        f.family_username,
+        f.id as family_id
       FROM member m
       LEFT JOIN family f ON m.family_id = f.id
-      LEFT JOIN app_user u ON f.primary_user_id = u.id OR f.primary_member_id = m.id
       WHERE m.id = $1
     `
     
@@ -3763,31 +4385,130 @@ app.get('/api/admin/members/:id', async (req, res) => {
     
     const member = memberResult.rows[0]
     
-    // Get emergency contacts using member_id
+    // Get parent/guardians if child
+    let parentGuardians = []
+    if (member.parent_guardian_ids && member.parent_guardian_ids.length > 0) {
+      const parentsResult = await pool.query(`
+        SELECT id, first_name, last_name, email, phone, username
+        FROM member
+        WHERE id = ANY($1::bigint[])
+      `, [member.parent_guardian_ids])
+      parentGuardians = parentsResult.rows.map(p => ({
+        id: p.id,
+        firstName: p.first_name,
+        lastName: p.last_name,
+        email: p.email,
+        phone: p.phone,
+        username: p.username
+      }))
+    }
+    
+    // Get children if adult
+    const children = await getMemberChildren(parseInt(id))
+    
+    // Get emergency contacts
+    let emergencyContacts = []
+    try {
     const contactsResult = await pool.query(`
       SELECT * FROM emergency_contact WHERE member_id = $1 ORDER BY created_at
     `, [id])
+      emergencyContacts = contactsResult.rows
+    } catch (contactsError) {
+      // Table might not exist
+      console.warn('Error getting emergency contacts:', contactsError.message)
+    }
     
-    member.emergency_contacts = contactsResult.rows
+    // Get enrollments
+    let enrollments = []
+    try {
+      const enrollmentsResult = await pool.query(`
+        SELECT 
+          mp.id,
+          mp.program_id,
+          mp.iteration_id,
+          mp.days_per_week,
+          mp.selected_days,
+          p.display_name as program_display_name
+        FROM member_program mp
+        LEFT JOIN program p ON mp.program_id = p.id
+        WHERE mp.member_id = $1
+        ORDER BY mp.created_at DESC
+      `, [id])
+      enrollments = enrollmentsResult.rows.map(e => ({
+        id: e.id,
+        programId: e.program_id,
+        iterationId: e.iteration_id,
+        daysPerWeek: e.days_per_week,
+        selectedDays: e.selected_days,
+        programDisplayName: e.program_display_name
+      }))
+    } catch (enrollmentsError) {
+      console.warn('Error getting enrollments:', enrollmentsError.message)
+    }
     
+    // Format response
     res.json({
       success: true,
-      data: member
+      data: {
+        id: member.id,
+        firstName: member.first_name,
+        lastName: member.last_name,
+        email: member.email,
+        phone: member.phone,
+        username: member.username,
+        dateOfBirth: member.date_of_birth,
+        age: member.age ? parseInt(member.age) : null,
+        familyId: member.family_id,
+        familyName: member.family_name,
+        familyUsername: member.family_username,
+        parentGuardianIds: member.parent_guardian_ids || [],
+        parentGuardians: parentGuardians,
+        children: children.map(c => ({
+          id: c.id,
+          firstName: c.first_name,
+          lastName: c.last_name,
+          email: c.email,
+          phone: c.phone,
+          dateOfBirth: c.date_of_birth
+        })),
+        hasCompletedWaivers: member.has_completed_waivers || false,
+        waiverCompletionDate: member.waiver_completion_date,
+        status: member.status,
+        isActive: member.is_active,
+        medicalNotes: member.medical_notes,
+        internalFlags: member.internal_flags,
+        address: member.address,
+        billingStreet: member.billing_street,
+        billingCity: member.billing_city,
+        billingState: member.billing_state,
+        billingZip: member.billing_zip,
+        emergencyContacts: emergencyContacts,
+        enrollments: enrollments,
+        createdAt: member.created_at,
+        updatedAt: member.updated_at
+      }
     })
   } catch (error) {
     console.error('Get member error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
 
-// Create member (admin endpoint) - renamed from athletes to members
+// Create member (admin endpoint) - simplified unified member creation
+// Supports: Create new family OR Join existing family OR No family (orphan)
 app.post('/api/admin/members', async (req, res) => {
+  const client = await pool.connect()
   try {
-    const { error, value } = athleteSchema.validate(req.body)
+    await client.query('BEGIN')
+    
+    // Validate request body using memberSchema
+    const { error, value } = memberSchema.validate(req.body)
     if (error) {
+      await client.query('ROLLBACK')
       return res.status(400).json({
         success: false,
         message: 'Validation error',
@@ -3795,9 +4516,9 @@ app.post('/api/admin/members', async (req, res) => {
       })
     }
     
-    // Get facility - check if facility table exists first
+    // Get facility ID
     let facilityId = null
-    const facilityTableCheck = await pool.query(`
+    const facilityTableCheck = await client.query(`
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
@@ -3806,195 +4527,160 @@ app.post('/api/admin/members', async (req, res) => {
     `)
     
     if (facilityTableCheck.rows[0].exists) {
-      let facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+      let facilityResult = await client.query('SELECT id FROM facility LIMIT 1')
       if (facilityResult.rows.length > 0) {
         facilityId = facilityResult.rows[0].id
       } else {
-        // No facility exists - create a default one
-        try {
-          const defaultFacilityResult = await pool.query(`
-            INSERT INTO facility (name, timezone)
-            VALUES ('Vortex Athletics', 'America/New_York')
-            RETURNING id
-          `)
-          facilityId = defaultFacilityResult.rows[0].id
-          console.log('[POST /api/admin/members] Created default facility:', facilityId)
-        } catch (facilityError) {
-          console.error('[POST /api/admin/members] Error creating default facility:', facilityError.message)
-          return res.status(500).json({
-            success: false,
-            message: 'No facility exists and could not create default facility. Please create a facility first.'
-          })
-        }
-      }
-    } else {
-      // Facility table doesn't exist - member table requires facility_id
-      // Check if member table has facility_id as NOT NULL
-      const memberFacilityCheck = await pool.query(`
-        SELECT is_nullable 
-        FROM information_schema.columns 
-        WHERE table_schema = 'public' 
-        AND table_name = 'member'
-        AND column_name = 'facility_id'
-      `)
-      
-      if (memberFacilityCheck.rows.length > 0 && memberFacilityCheck.rows[0].is_nullable === 'NO') {
-        return res.status(500).json({
-          success: false,
-          message: 'Member table requires facility_id but facility table does not exist. Please run database migrations.'
-        })
+        // Create default facility
+        const defaultFacilityResult = await client.query(`
+          INSERT INTO facility (name, timezone)
+          VALUES ('Vortex Athletics', 'America/New_York')
+          RETURNING id
+        `)
+        facilityId = defaultFacilityResult.rows[0].id
       }
     }
     
-    // Verify family exists (only if familyId is provided)
-    if (value.familyId) {
-      const familyCheck = await pool.query('SELECT id FROM family WHERE id = $1', [value.familyId])
+    // Handle family assignment
+    let familyId = value.familyId || null
+    
+    // Option 1: Create new family
+    if (!familyId && value.familyName && value.familyUsername && value.familyPassword) {
+      // Generate unique family username if needed
+      const uniqueUsername = await generateFamilyUsername(value.familyUsername, facilityId)
+      const familyPasswordHash = await hashFamilyPassword(value.familyPassword)
+      
+      const newFamilyResult = await client.query(`
+        INSERT INTO family (facility_id, family_name, family_username, family_password_hash)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, family_username
+      `, [facilityId, value.familyName, uniqueUsername, familyPasswordHash])
+      
+      familyId = newFamilyResult.rows[0].id
+      console.log('[POST /api/admin/members] Created new family:', familyId, newFamilyResult.rows[0].family_username)
+    }
+    // Option 2: Join existing family by ID (already verified)
+    else if (familyId) {
+      const familyCheck = await client.query('SELECT id, family_username FROM family WHERE id = $1 AND archived = FALSE', [familyId])
       if (familyCheck.rows.length === 0) {
+        await client.query('ROLLBACK')
         return res.status(404).json({
-          success: false,
+        success: false,
           message: 'Family not found'
         })
       }
     }
+    // Option 3: Join existing family by username + password
+    else if (value.familyUsername && value.familyPassword) {
+      const familyCheck = await client.query(`
+        SELECT id, family_password_hash FROM family 
+        WHERE family_username = $1 AND archived = FALSE
+      `, [value.familyUsername])
+      
+    if (familyCheck.rows.length === 0) {
+        await client.query('ROLLBACK')
+      return res.status(404).json({
+        success: false,
+        message: 'Family not found'
+      })
+    }
     
-    // Validate that family has at least one adult guardian
-    // A child cannot be a sole member - a parent must exist
-    let guardianCount = 0
-    let hasPrimaryGuardian = false
-    
-    if (value.familyId) {
-      try {
-        const guardianCheck = await pool.query(`
-          SELECT COUNT(*) as guardian_count
-          FROM family_guardian fg
-          JOIN app_user u ON fg.user_id = u.id
-          WHERE fg.family_id = $1
-        `, [value.familyId])
-        
-        guardianCount = parseInt(guardianCheck.rows[0]?.guardian_count || '0')
-        
-        // Check if primary_user_id is set and is a guardian
-        const primaryUserCheck = await pool.query(`
-          SELECT COUNT(*) as count
-          FROM family f
-          JOIN app_user u ON f.primary_user_id = u.id
-          WHERE f.id = $1 AND f.primary_user_id IS NOT NULL
-        `, [value.familyId])
-        
-        hasPrimaryGuardian = parseInt(primaryUserCheck.rows[0]?.count || '0') > 0
-      } catch (guardianError) {
-        // If tables don't exist, skip guardian check
-        console.warn('Error checking guardians (tables may not exist):', guardianError.message)
+      const family = familyCheck.rows[0]
+      const passwordValid = await verifyFamilyPassword(value.familyPassword, family.family_password_hash)
+      
+      if (!passwordValid) {
+        await client.query('ROLLBACK')
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid family password'
+        })
       }
+      
+      familyId = family.id
+      console.log('[POST /api/admin/members] Member joining family by username:', familyId)
+    }
+    // Option 4: No family (orphan member) - allowed
+    else {
+      familyId = null
     }
     
-    // Calculate age from date of birth to determine if this is a child
-    // If DOB is not provided, assume adult (age >= 18)
-    let age = 18 // Default to adult if no DOB
-    if (value.dateOfBirth) {
-      const birthDate = new Date(value.dateOfBirth)
-      const today = new Date()
-      age = today.getFullYear() - birthDate.getFullYear() - 
-        (today.getMonth() < birthDate.getMonth() || 
-         (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+    // Check if member already belongs to another family (members can only belong to 1 family)
+    if (familyId) {
+      // This check will be done after member creation if they already exist
+      // For now, we'll allow it since this is a new member creation
     }
     
-    // Adults must have a family_id (family of 1 is allowed)
-    // Children can be orphaned (family_id = NULL) or have a family
-    if (!value.familyId) {
-      if (value.dateOfBirth && age < 18) {
-        // Children without family_id are orphans - this is allowed
-        // They can be created as orphans or assigned to a family later
-        value.familyId = null
-      } else if (age >= 18 && value.userId) {
-        // Adults must have a family - auto-create one for them (family of 1)
-        // Check if user already has a family
-        const existingFamilyCheck = await pool.query(`
-          SELECT f.id FROM family f
-          WHERE f.primary_user_id = $1 OR EXISTS (
-            SELECT 1 FROM family_guardian fg WHERE fg.user_id = $1 AND fg.family_id = f.id
-          )
-          LIMIT 1
-        `, [value.userId])
-        
-        if (existingFamilyCheck.rows.length === 0) {
-          // Create a family for this adult (family of 1)
-          // Only create family if facility exists, otherwise set familyId to null
-          if (facilityId) {
-            const newFamilyResult = await pool.query(`
-              INSERT INTO family (facility_id, primary_user_id, family_name)
-              VALUES ($1, $2, $3)
-              RETURNING id
-            `, [facilityId, value.userId, `${value.firstName} ${value.lastName} Family`])
-            
-            const newFamilyId = newFamilyResult.rows[0].id
-            
-            // Try to add as guardian to new family (if table exists)
-            try {
-              await pool.query(`
-                INSERT INTO family_guardian (family_id, user_id, is_primary)
-                VALUES ($1, $2, TRUE)
-              `, [newFamilyId, value.userId])
-            } catch (guardianError) {
-              console.warn('Error adding guardian (table may not exist):', guardianError.message)
-            }
-            
-            // Update familyId for the athlete
-            value.familyId = newFamilyId
-          } else {
-            // No facility, set familyId to null (orphan adult)
-            value.familyId = null
-          }
-        } else {
-          // Use existing family
-          value.familyId = existingFamilyCheck.rows[0].id
-        }
-      } else {
-        // Adult without userId - still need a family (shouldn't happen in normal flow, but handle it)
+    // Validate parent/guardian IDs if child (< 18)
+    const isChild = value.dateOfBirth && !isAdult(value.dateOfBirth)
+    let parentGuardianIds = value.parentGuardianIds || []
+    
+    if (isChild) {
+      if (!parentGuardianIds || parentGuardianIds.length === 0) {
+        await client.query('ROLLBACK')
         return res.status(400).json({
           success: false,
-          message: 'Adults must have a family. Please provide a family_id or create a user account first.'
+          message: 'Children under 18 must have at least one parent/guardian specified'
+        })
+      }
+      
+      // Validate parent guardians are adults and exist
+      const validation = await validateParentGuardians(parentGuardianIds)
+      if (!validation.valid) {
+        await client.query('ROLLBACK')
+      return res.status(400).json({
+        success: false,
+          message: validation.error
         })
       }
     }
     
-    // If this is a child (under 18) with a family_id, ensure there are guardians in the family
-    if (value.dateOfBirth && age < 18 && value.familyId && guardianCount === 0 && !hasPrimaryGuardian) {
-      return res.status(400).json({
-        success: false,
-        message: 'A child cannot be in a family without guardians. At least one adult guardian must exist in the family, or create the child as an orphan.'
-      })
+    // Hash member password if provided
+    let memberPasswordHash = null
+    if (value.password) {
+      memberPasswordHash = await bcrypt.hash(value.password, 10)
     }
     
-    // Create member with status (default to 'legacy', will be updated if enrollments exist)
-    // Note: family_id can be NULL for adults who create their own account independently
-    // Note: date_of_birth can be NULL for adults who don't need it
-    // Note: facility_id can be NULL if facility table doesn't exist or no facility is set
+    // Create member
     const insertQuery = `
       INSERT INTO member (
-        facility_id, family_id, first_name, last_name, date_of_birth, 
+        facility_id, family_id, first_name, last_name, email, phone,
+        date_of_birth, username, password_hash,
+        address, billing_street, billing_city, billing_state, billing_zip,
+        parent_guardian_ids, has_completed_waivers, waiver_completion_date,
         medical_notes, internal_flags, status, is_active
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, 'legacy', TRUE)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 'legacy', TRUE)
       RETURNING *
     `
+    
     const insertParams = [
-      facilityId || null, // Can be NULL if no facility exists
-      value.familyId || null, // Can be NULL for orphaned children or adults
+      facilityId,
+      familyId,
       value.firstName,
       value.lastName,
-      value.dateOfBirth && value.dateOfBirth !== '' ? value.dateOfBirth : null, // Allow NULL for adults
+      value.email || null,
+      value.phone || null,
+      value.dateOfBirth && value.dateOfBirth !== '' ? value.dateOfBirth : null,
+      value.username || null,
+      memberPasswordHash,
+      value.address || null,
+      value.billingStreet || null,
+      value.billingCity || null,
+      value.billingState || null,
+      value.billingZip || null,
+      parentGuardianIds.length > 0 ? parentGuardianIds : null, // Array or NULL
+      value.hasCompletedWaivers || false,
+      value.hasCompletedWaivers && value.waiverCompletionDate ? value.waiverCompletionDate : null,
       value.medicalNotes || null,
       value.internalFlags || null
     ]
     
-    const memberResult = await pool.query(insertQuery, insertParams)
-    
+    const memberResult = await client.query(insertQuery, insertParams)
     const member = memberResult.rows[0]
     
-    // Add computed age
+    // Calculate age
     if (member.date_of_birth) {
-      const ageResult = await pool.query(`
+      const ageResult = await client.query(`
         SELECT EXTRACT(YEAR FROM AGE(date_of_birth)) as age 
         FROM member WHERE id = $1
       `, [member.id])
@@ -4003,94 +4689,120 @@ app.post('/api/admin/members', async (req, res) => {
       member.age = null
     }
     
+    // Update parent/guardian authority table (keep for relationship metadata)
+    if (parentGuardianIds.length > 0) {
+      for (const parentId of parentGuardianIds) {
+        try {
+          await client.query(`
+            INSERT INTO parent_guardian_authority (parent_member_id, child_member_id, has_legal_authority)
+            VALUES ($1, $2, TRUE)
+            ON CONFLICT (parent_member_id, child_member_id) DO UPDATE
+            SET has_legal_authority = TRUE, updated_at = NOW()
+          `, [parentId, member.id])
+        } catch (pgError) {
+          // Table might not exist, that's okay - we're using parent_guardian_ids array
+          console.warn('Error updating parent_guardian_authority:', pgError.message)
+        }
+      }
+    }
+    
+    // Update athlete status (based on enrollments + waivers)
+    await updateMemberAthleteStatus(member.id)
+    
+    await client.query('COMMIT')
+    
+    // Format response
     res.json({
       success: true,
       message: 'Member created successfully',
-      data: member
+      data: {
+        id: member.id,
+        firstName: member.first_name,
+        lastName: member.last_name,
+        email: member.email,
+        phone: member.phone,
+        dateOfBirth: member.date_of_birth,
+        age: member.age,
+        familyId: member.family_id,
+        parentGuardianIds: member.parent_guardian_ids || [],
+        hasCompletedWaivers: member.has_completed_waivers,
+        status: member.status,
+        isActive: member.is_active,
+        createdAt: member.created_at,
+        updatedAt: member.updated_at
+      }
     })
   } catch (error) {
-    console.error('Create athlete error:', error)
+    await client.query('ROLLBACK')
+    console.error('Create member error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
+  } finally {
+    client.release()
   }
 })
 
 // Helper function to update member status based on enrollments and family activity
+// NOTE: This is kept for backward compatibility but should use updateMemberAthleteStatus instead
+// This function uses old status logic (enrolled, family_active, legacy)
+// The new updateMemberAthleteStatus uses: legacy, enrolled, athlete (enrolled + waivers), archived
 const updateMemberStatus = async (memberId) => {
-  try {
-    // Check if member has any enrollments using member_program table
-    const enrollmentCheck = await pool.query(`
-      SELECT COUNT(*) as count 
-      FROM member_program
-      WHERE member_id = $1
-    `, [memberId])
-    
-    const hasEnrollments = parseInt(enrollmentCheck.rows[0].count) > 0
-    
-    // Get member's current status and family info
-    const memberCheck = await pool.query(`
-      SELECT status, is_active, family_id, family_is_active 
-      FROM member 
-      WHERE id = $1
-    `, [memberId])
-    
-    if (memberCheck.rows.length === 0) return
-    
-    const currentStatus = memberCheck.rows[0].status
-    const isActive = memberCheck.rows[0].is_active
-    const familyId = memberCheck.rows[0].family_id
-    const familyIsActive = memberCheck.rows[0].family_is_active
-    
-    // Only update if not archived
-    if (currentStatus === 'archived') return
-    
-    // Check if any family member is active
-    let anyFamilyActive = familyIsActive
-    if (familyId) {
-      const familyCheck = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM member 
-        WHERE family_id = $1 AND is_active = TRUE AND id != $2
-      `, [familyId, memberId])
-      anyFamilyActive = parseInt(familyCheck.rows[0].count) > 0 || familyIsActive
-    }
-    
-    // Determine new status:
-    // - 'enrolled' if has enrollments and member is active
-    // - 'family_active' if family is active (even if member isn't enrolled)
-    // - 'legacy' otherwise (was 'stand-bye')
-    let newStatus = 'legacy'
-    if (hasEnrollments && isActive) {
-      newStatus = 'enrolled'
-    } else if (anyFamilyActive && familyId) {
-      newStatus = 'family_active'
-    }
-    
-    await pool.query(`
-      UPDATE member 
-      SET status = $1, 
-          family_is_active = $2,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = $3
-    `, [newStatus, anyFamilyActive, memberId])
-  } catch (error) {
-    console.error('Error updating member status:', error)
-  }
+  // Redirect to new athlete status logic
+  return await updateMemberAthleteStatus(memberId)
 }
 
 // Update member (admin endpoint) - renamed from athletes to members
+// Update member (admin endpoint)
 app.put('/api/admin/members/:id', async (req, res) => {
+  const client = await pool.connect()
   try {
+    await client.query('BEGIN')
+    
     const { id } = req.params
-    const { error, value } = athleteUpdateSchema.validate(req.body)
+    const { error, value } = memberUpdateSchema.validate(req.body)
     if (error) {
+      await client.query('ROLLBACK')
       return res.status(400).json({
         success: false,
         message: 'Validation error',
         errors: error.details.map(detail => detail.message)
       })
+    }
+    
+    // Check if member exists
+    const memberCheck = await client.query('SELECT id, date_of_birth FROM member WHERE id = $1', [id])
+    if (memberCheck.rows.length === 0) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found'
+      })
+    }
+    
+    const existingMember = memberCheck.rows[0]
+    const isChild = existingMember.date_of_birth && !isAdult(existingMember.date_of_birth)
+    
+    // Validate parent/guardian IDs if updating for a child
+    if (value.parentGuardianIds !== undefined && isChild) {
+      if (!value.parentGuardianIds || value.parentGuardianIds.length === 0) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({
+          success: false,
+          message: 'Children under 18 must have at least one parent/guardian'
+        })
+      }
+      
+      const validation = await validateParentGuardians(value.parentGuardianIds)
+      if (!validation.valid) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({
+          success: false,
+          message: validation.error
+        })
+      }
     }
     
     // Build update query dynamically
@@ -4108,10 +4820,46 @@ app.put('/api/admin/members/:id', async (req, res) => {
       updates.push(`last_name = $${paramCount}`)
       params.push(value.lastName)
     }
+    if (value.email !== undefined) {
+      paramCount++
+      updates.push(`email = $${paramCount}`)
+      params.push(value.email || null)
+    }
+    if (value.phone !== undefined) {
+      paramCount++
+      updates.push(`phone = $${paramCount}`)
+      params.push(value.phone || null)
+    }
     if (value.dateOfBirth !== undefined) {
       paramCount++
       updates.push(`date_of_birth = $${paramCount}`)
-      params.push(value.dateOfBirth)
+      params.push(value.dateOfBirth && value.dateOfBirth !== '' ? value.dateOfBirth : null)
+    }
+    if (value.username !== undefined) {
+      paramCount++
+      updates.push(`username = $${paramCount}`)
+      params.push(value.username || null)
+    }
+    if (value.password !== undefined && value.password) {
+      paramCount++
+      const passwordHash = await bcrypt.hash(value.password, 10)
+      updates.push(`password_hash = $${paramCount}`)
+      params.push(passwordHash)
+    }
+    if (value.parentGuardianIds !== undefined) {
+      paramCount++
+      updates.push(`parent_guardian_ids = $${paramCount}`)
+      params.push(value.parentGuardianIds && value.parentGuardianIds.length > 0 ? value.parentGuardianIds : null)
+    }
+    if (value.hasCompletedWaivers !== undefined) {
+      paramCount++
+      updates.push(`has_completed_waivers = $${paramCount}`)
+      params.push(value.hasCompletedWaivers)
+    }
+    if (value.waiverCompletionDate !== undefined) {
+      paramCount++
+      updates.push(`waiver_completion_date = $${paramCount}`)
+      params.push(value.waiverCompletionDate || null)
     }
     if (value.medicalNotes !== undefined) {
       paramCount++
@@ -4123,8 +4871,34 @@ app.put('/api/admin/members/:id', async (req, res) => {
       updates.push(`internal_flags = $${paramCount}`)
       params.push(value.internalFlags || null)
     }
+    if (value.address !== undefined) {
+      paramCount++
+      updates.push(`address = $${paramCount}`)
+      params.push(value.address || null)
+    }
+    if (value.billingStreet !== undefined) {
+      paramCount++
+      updates.push(`billing_street = $${paramCount}`)
+      params.push(value.billingStreet || null)
+    }
+    if (value.billingCity !== undefined) {
+      paramCount++
+      updates.push(`billing_city = $${paramCount}`)
+      params.push(value.billingCity || null)
+    }
+    if (value.billingState !== undefined) {
+      paramCount++
+      updates.push(`billing_state = $${paramCount}`)
+      params.push(value.billingState || null)
+    }
+    if (value.billingZip !== undefined) {
+      paramCount++
+      updates.push(`billing_zip = $${paramCount}`)
+      params.push(value.billingZip || null)
+    }
     
     if (updates.length === 0) {
+      await client.query('ROLLBACK')
       return res.status(400).json({
         success: false,
         message: 'No fields to update'
@@ -4135,19 +4909,54 @@ app.put('/api/admin/members/:id', async (req, res) => {
     paramCount++
     params.push(id)
     
-    await pool.query(`
+    await client.query(`
       UPDATE member 
       SET ${updates.join(', ')}
       WHERE id = $${paramCount}
     `, params)
     
-    // Update member status based on enrollments
-    await updateMemberStatus(parseInt(id))
+    // Update parent/guardian authority table if parentGuardianIds changed
+    if (value.parentGuardianIds !== undefined) {
+      // Delete existing relationships
+      try {
+        await client.query(`
+          DELETE FROM parent_guardian_authority WHERE child_member_id = $1
+        `, [id])
+        
+        // Add new relationships
+        if (value.parentGuardianIds && value.parentGuardianIds.length > 0) {
+          for (const parentId of value.parentGuardianIds) {
+            await client.query(`
+              INSERT INTO parent_guardian_authority (parent_member_id, child_member_id, has_legal_authority)
+              VALUES ($1, $2, TRUE)
+              ON CONFLICT (parent_member_id, child_member_id) DO UPDATE
+              SET has_legal_authority = TRUE, updated_at = NOW()
+            `, [parentId, id])
+          }
+        }
+      } catch (pgError) {
+        // Table might not exist, that's okay
+        console.warn('Error updating parent_guardian_authority:', pgError.message)
+      }
+    }
+    
+    // Update member athlete status (based on enrollments + waivers)
+    await updateMemberAthleteStatus(parseInt(id))
+    
+    await client.query('COMMIT')
     
     // Re-fetch member with updated status
     const updatedMemberResult = await pool.query(`
-      SELECT m.*, EXTRACT(YEAR FROM AGE(m.date_of_birth)) as age
+      SELECT 
+        m.*,
+        CASE WHEN m.date_of_birth IS NOT NULL 
+          THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
+          ELSE NULL 
+        END as age,
+        f.family_name,
+        f.family_username
       FROM member m
+      LEFT JOIN family f ON m.family_id = f.id
       WHERE m.id = $1
     `, [id])
     
@@ -4159,19 +4968,197 @@ app.put('/api/admin/members/:id', async (req, res) => {
     }
     
     const updatedMember = updatedMemberResult.rows[0]
-    updatedMember.age = updatedMember.date_of_birth ? parseInt(updatedMember.age) : null
+    
+    // Get parent guardians info if child
+    let parentGuardians = []
+    if (updatedMember.parent_guardian_ids && updatedMember.parent_guardian_ids.length > 0) {
+      const parentsResult = await pool.query(`
+        SELECT id, first_name, last_name, email, phone
+        FROM member
+        WHERE id = ANY($1::bigint[])
+      `, [updatedMember.parent_guardian_ids])
+      parentGuardians = parentsResult.rows
+    }
+    
+    // Get children if adult
+    const children = await getMemberChildren(parseInt(id))
     
     res.json({
       success: true,
       message: 'Member updated successfully',
-      data: updatedMember
+      data: {
+        id: updatedMember.id,
+        firstName: updatedMember.first_name,
+        lastName: updatedMember.last_name,
+        email: updatedMember.email,
+        phone: updatedMember.phone,
+        dateOfBirth: updatedMember.date_of_birth,
+        age: updatedMember.age ? parseInt(updatedMember.age) : null,
+        username: updatedMember.username,
+        familyId: updatedMember.family_id,
+        familyName: updatedMember.family_name,
+        familyUsername: updatedMember.family_username,
+        parentGuardianIds: updatedMember.parent_guardian_ids || [],
+        parentGuardians: parentGuardians,
+        children: children,
+        hasCompletedWaivers: updatedMember.has_completed_waivers,
+        waiverCompletionDate: updatedMember.waiver_completion_date,
+        status: updatedMember.status,
+        isActive: updatedMember.is_active,
+        medicalNotes: updatedMember.medical_notes,
+        internalFlags: updatedMember.internal_flags,
+        createdAt: updatedMember.created_at,
+        updatedAt: updatedMember.updated_at
+      }
     })
   } catch (error) {
+    await client.query('ROLLBACK')
     console.error('Update member error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
+  } finally {
+    client.release()
+  }
+})
+
+// Update member waiver status (admin endpoint)
+app.patch('/api/admin/members/:id/waivers', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { hasCompletedWaivers, waiverCompletionDate } = req.body
+    
+    if (typeof hasCompletedWaivers !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'hasCompletedWaivers must be a boolean'
+      })
+    }
+    
+    // Update waiver status
+    await pool.query(`
+      UPDATE member
+      SET has_completed_waivers = $1,
+          waiver_completion_date = $2,
+          updated_at = NOW()
+      WHERE id = $3
+    `, [hasCompletedWaivers, waiverCompletionDate || (hasCompletedWaivers ? new Date() : null), id])
+    
+    // Update athlete status (will check enrollments + waivers)
+    await updateMemberAthleteStatus(parseInt(id))
+    
+    res.json({
+      success: true,
+      message: 'Waiver status updated successfully'
+    })
+  } catch (error) {
+    console.error('Update waiver status error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Update parent/guardian relationships (admin endpoint)
+app.put('/api/admin/members/:id/parent-guardians', async (req, res) => {
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    
+    const { id } = req.params
+    const { parentGuardianIds } = req.body
+    
+    if (!Array.isArray(parentGuardianIds)) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({
+        success: false,
+        message: 'parentGuardianIds must be an array'
+      })
+    }
+    
+    // Check if member exists and is a child
+    const memberCheck = await client.query('SELECT id, date_of_birth FROM member WHERE id = $1', [id])
+    if (memberCheck.rows.length === 0) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found'
+      })
+    }
+    
+    const member = memberCheck.rows[0]
+    const isChild = member.date_of_birth && !isAdult(member.date_of_birth)
+    
+    if (!isChild) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({
+        success: false,
+        message: 'Parent/guardian relationships can only be set for children (under 18)'
+      })
+    }
+    
+    // Validate parent guardians if provided
+    if (parentGuardianIds.length > 0) {
+      const validation = await validateParentGuardians(parentGuardianIds)
+      if (!validation.valid) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({
+          success: false,
+          message: validation.error
+        })
+      }
+    }
+    
+    // Update member's parent_guardian_ids
+    await client.query(`
+      UPDATE member
+      SET parent_guardian_ids = $1,
+          updated_at = NOW()
+      WHERE id = $2
+    `, [parentGuardianIds.length > 0 ? parentGuardianIds : null, id])
+    
+    // Update parent_guardian_authority table
+    try {
+      // Delete existing relationships
+      await client.query(`
+        DELETE FROM parent_guardian_authority WHERE child_member_id = $1
+      `, [id])
+      
+      // Add new relationships
+      if (parentGuardianIds.length > 0) {
+        for (const parentId of parentGuardianIds) {
+          await client.query(`
+            INSERT INTO parent_guardian_authority (parent_member_id, child_member_id, has_legal_authority)
+            VALUES ($1, $2, TRUE)
+            ON CONFLICT (parent_member_id, child_member_id) DO UPDATE
+            SET has_legal_authority = TRUE, updated_at = NOW()
+          `, [parentId, id])
+        }
+      }
+    } catch (pgError) {
+      console.warn('Error updating parent_guardian_authority:', pgError.message)
+    }
+    
+    await client.query('COMMIT')
+    
+    res.json({
+      success: true,
+      message: 'Parent/guardian relationships updated successfully'
+    })
+  } catch (error) {
+    await client.query('ROLLBACK')
+    console.error('Update parent/guardian relationships error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  } finally {
+    client.release()
   }
 })
 
@@ -5306,14 +6293,8 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       })
     }
 
-    // Update member status to 'enrolled' if not already
-    if (member.status !== 'enrolled') {
-      await pool.query(`
-        UPDATE member
-        SET status = 'enrolled', updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1
-      `, [member.id])
-    }
+    // Update member athlete status (will check enrollments + waivers)
+    await updateMemberAthleteStatus(member.id)
 
     res.json({
       success: true,
@@ -5387,25 +6368,8 @@ app.delete('/api/members/enroll/:enrollmentId', authenticateMember, async (req, 
     // Delete enrollment
     await pool.query('DELETE FROM member_program WHERE id = $1', [enrollmentId])
     
-    // Update member status - check if they have any remaining enrollments
-    const remainingEnrollments = await pool.query(`
-      SELECT COUNT(*) as count
-      FROM member_program
-      WHERE member_id = $1
-    `, [memberId])
-    
-    if (remainingEnrollments.rows[0].count === '0') {
-      // No more enrollments, update status to 'legacy' or 'family_active'
-      await pool.query(`
-        UPDATE member
-        SET status = CASE 
-          WHEN family_is_active = TRUE THEN 'family_active'
-          ELSE 'legacy'
-        END,
-        updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1
-      `, [memberId])
-    }
+    // Update member athlete status (will check enrollments + waivers)
+    await updateMemberAthleteStatus(memberId)
     
     res.json({
       success: true,
@@ -7081,7 +8045,9 @@ app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
       })
     }
     
-    const result = await pool.query(`
+    let result
+    try {
+      result = await pool.query(`
       SELECT 
         id,
         program_id as "programId",
@@ -7099,6 +8065,60 @@ app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
       WHERE program_id = $1
       ORDER BY iteration_number ASC
     `, [programId])
+    } catch (queryError) {
+      // If column doesn't exist, try to add it and retry
+      if (queryError.code === '42703' && queryError.message.includes('time_blocks')) {
+        console.log('time_blocks column missing, adding it now...')
+        try {
+          await pool.query(`
+            ALTER TABLE class_iteration ADD COLUMN IF NOT EXISTS time_blocks JSONB DEFAULT NULL
+          `)
+          console.log('✅ Added time_blocks column, retrying query...')
+          // Retry the query
+          result = await pool.query(`
+            SELECT 
+              id,
+              program_id as "programId",
+              iteration_number as "iterationNumber",
+              days_of_week as "daysOfWeek",
+              start_time as "startTime",
+              end_time as "endTime",
+              time_blocks as "timeBlocks",
+              duration_type as "durationType",
+              start_date as "startDate",
+              end_date as "endDate",
+              created_at as "createdAt",
+              updated_at as "updatedAt"
+            FROM class_iteration
+            WHERE program_id = $1
+            ORDER BY iteration_number ASC
+          `, [programId])
+        } catch (alterError) {
+          // If adding column fails, return data without time_blocks
+          console.warn('Could not add time_blocks column, returning data without it:', alterError.message)
+          result = await pool.query(`
+            SELECT 
+              id,
+              program_id as "programId",
+              iteration_number as "iterationNumber",
+              days_of_week as "daysOfWeek",
+              start_time as "startTime",
+              end_time as "endTime",
+              NULL as "timeBlocks",
+              duration_type as "durationType",
+              start_date as "startDate",
+              end_date as "endDate",
+              created_at as "createdAt",
+              updated_at as "updatedAt"
+            FROM class_iteration
+            WHERE program_id = $1
+            ORDER BY iteration_number ASC
+          `, [programId])
+        }
+      } else {
+        throw queryError
+      }
+    }
 
     res.json({
       success: true,
@@ -7167,8 +8187,14 @@ const ensureClassIterationTable = async () => {
           UNIQUE (program_id, iteration_number)
         )
       `)
-      
-      // Add time_blocks column if it doesn't exist (for existing tables)
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_program ON class_iteration(program_id)`)
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_number ON class_iteration(program_id, iteration_number)`)
+      console.log('✅ class_iteration table created successfully')
+    } else {
+      console.log('✅ class_iteration table already exists')
+    }
+    
+    // Always ensure time_blocks column exists (even if table was created before this column was added)
       await pool.query(`
         DO $$ 
         BEGIN
@@ -7177,15 +8203,10 @@ const ensureClassIterationTable = async () => {
             WHERE table_name = 'class_iteration' AND column_name = 'time_blocks'
           ) THEN
             ALTER TABLE class_iteration ADD COLUMN time_blocks JSONB DEFAULT NULL;
+          RAISE NOTICE 'Added time_blocks column to class_iteration table';
           END IF;
         END $$;
       `)
-      await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_program ON class_iteration(program_id)`)
-      await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_number ON class_iteration(program_id, iteration_number)`)
-      console.log('✅ class_iteration table created successfully')
-    } else {
-      console.log('✅ class_iteration table already exists')
-    }
   } catch (error) {
     console.error('❌ Error ensuring class_iteration table exists:', error)
     console.error('Error details:', {
@@ -7215,7 +8236,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
 
     // Ensure table exists (create if missing)
     try {
-      await ensureClassIterationTable()
+    await ensureClassIterationTable()
     } catch (tableError) {
       console.error('Failed to ensure class_iteration table exists:', tableError)
       return res.status(500).json({
@@ -7266,7 +8287,9 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
       timeBlocksValue = timeBlocks // Pass object directly for JSONB
     }
 
-    const result = await pool.query(`
+    let result
+    try {
+      result = await pool.query(`
       INSERT INTO class_iteration (
         program_id,
         iteration_number,
@@ -7303,6 +8326,60 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
       defaultDurationType === 'indefinite' ? null : startDate,
       defaultDurationType === 'finite' ? endDate : null
     ])
+    } catch (insertError) {
+      // If column doesn't exist, try to add it and retry
+      if (insertError.code === '42703' && insertError.message.includes('time_blocks')) {
+        console.log('time_blocks column missing in INSERT, adding it now...')
+        try {
+          await pool.query(`
+            ALTER TABLE class_iteration ADD COLUMN IF NOT EXISTS time_blocks JSONB DEFAULT NULL
+          `)
+          console.log('✅ Added time_blocks column, retrying INSERT...')
+          // Retry the INSERT without time_blocks first, then update if needed
+          result = await pool.query(`
+            INSERT INTO class_iteration (
+              program_id,
+              iteration_number,
+              days_of_week,
+              start_time,
+              end_time,
+              time_blocks,
+              duration_type,
+              start_date,
+              end_date
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING 
+              id,
+              program_id as "programId",
+              iteration_number as "iterationNumber",
+              days_of_week as "daysOfWeek",
+              start_time as "startTime",
+              end_time as "endTime",
+              time_blocks as "timeBlocks",
+              duration_type as "durationType",
+              start_date as "startDate",
+              end_date as "endDate",
+              created_at as "createdAt",
+              updated_at as "updatedAt"
+          `, [
+            programId,
+            nextIterationNumber,
+            defaultDaysOfWeek,
+            defaultStartTime,
+            defaultEndTime,
+            timeBlocksValue,
+            defaultDurationType,
+            defaultDurationType === 'indefinite' ? null : startDate,
+            defaultDurationType === 'finite' ? endDate : null
+          ])
+        } catch (retryError) {
+          throw retryError
+        }
+      } else {
+        throw insertError
+      }
+    }
 
     res.json({
       success: true,
@@ -7339,7 +8416,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
 
     // Ensure table exists (create if missing)
     try {
-      await ensureClassIterationTable()
+    await ensureClassIterationTable()
     } catch (tableError) {
       console.error('Failed to ensure class_iteration table exists:', tableError)
       return res.status(500).json({
@@ -7384,7 +8461,9 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
       timeBlocksValue = timeBlocks // Pass object directly for JSONB
     }
 
-    const result = await pool.query(`
+    let result
+    try {
+      result = await pool.query(`
       UPDATE class_iteration
       SET 
         days_of_week = $1,
@@ -7420,6 +8499,59 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
       iterationId,
       programId
     ])
+    } catch (updateError) {
+      // If column doesn't exist, try to add it and retry
+      if (updateError.code === '42703' && updateError.message.includes('time_blocks')) {
+        console.log('time_blocks column missing in UPDATE, adding it now...')
+        try {
+          await pool.query(`
+            ALTER TABLE class_iteration ADD COLUMN IF NOT EXISTS time_blocks JSONB DEFAULT NULL
+          `)
+          console.log('✅ Added time_blocks column, retrying UPDATE...')
+          // Retry the UPDATE
+          result = await pool.query(`
+            UPDATE class_iteration
+            SET 
+              days_of_week = $1,
+              start_time = $2,
+              end_time = $3,
+              time_blocks = $4,
+              duration_type = $5,
+              start_date = $6,
+              end_date = $7,
+              updated_at = now()
+            WHERE id = $8 AND program_id = $9
+            RETURNING 
+              id,
+              program_id as "programId",
+              iteration_number as "iterationNumber",
+              days_of_week as "daysOfWeek",
+              start_time as "startTime",
+              end_time as "endTime",
+              time_blocks as "timeBlocks",
+              duration_type as "durationType",
+              start_date as "startDate",
+              end_date as "endDate",
+              created_at as "createdAt",
+              updated_at as "updatedAt"
+          `, [
+            daysOfWeek,
+            startTime,
+            endTime,
+            timeBlocksValue,
+            durationType,
+            durationType === 'indefinite' ? null : startDate,
+            durationType === 'finite' ? endDate : null,
+            iterationId,
+            programId
+          ])
+        } catch (retryError) {
+          throw retryError
+        }
+      } else {
+        throw updateError
+      }
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -7450,7 +8582,7 @@ app.delete('/api/admin/programs/:programId/iterations/:iterationId', async (req,
 
     // Ensure table exists (create if missing)
     try {
-      await ensureClassIterationTable()
+    await ensureClassIterationTable()
     } catch (tableError) {
       console.error('Failed to ensure class_iteration table exists:', tableError)
       return res.status(500).json({

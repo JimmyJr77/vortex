@@ -22,10 +22,16 @@ type FamilyMemberData = {
   dateOfBirth: string
   medicalNotes: string
   isFinished: boolean
+  parentGuardianIds?: number[] // Array of parent/guardian member IDs (for children)
+  hasCompletedWaivers?: boolean // Waiver completion status
+  waiverCompletionDate?: string | null // Date when waivers were completed
   sections: {
     contactInfo: { isExpanded: boolean; tempData: { firstName: string; lastName: string; email: string; phone: string; addressStreet: string; addressCity: string; addressState: string; addressZip: string } }
     loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
     statusVerification: { isExpanded: boolean }
+    dateOfBirth?: { isExpanded: boolean; tempData: { dateOfBirth: string } }
+    parentGuardians?: { isExpanded: boolean; tempData: { parentGuardianIds: number[] } }
+    waivers?: { isExpanded: boolean; tempData: { hasCompletedWaivers: boolean; waiverCompletionDate: string | null } }
   }
   athleteId?: number | null
   userId?: number | null
@@ -39,13 +45,16 @@ interface MemberFormSectionProps {
   isExpanded: boolean
   onToggleExpand: (memberId: string) => void
   onUpdateMember: (memberId: string, updates: Partial<FamilyMemberData> | ((prev: FamilyMemberData) => FamilyMemberData)) => void
-  onToggleSection: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => void
-  onSectionContinue: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => void
-  onSectionMinimize: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => void
-  onSectionCancel: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => void
+  onToggleSection: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => void
+  onSectionContinue: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => void
+  onSectionMinimize: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => void
+  onSectionCancel: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => void
   onFinishedWithMember: (memberId: string) => void
   generateUsername: (firstName: string, lastName?: string) => Promise<string>
   formatPhoneNumber: (value: string) => string
+  // New props for parent/guardian selection
+  availableParentGuardians?: Array<{ id: number; firstName: string; lastName: string; email?: string; phone?: string }>
+  onSearchParentGuardians?: (query: string) => void
 }
 
 export default function MemberFormSection({
@@ -60,7 +69,9 @@ export default function MemberFormSection({
   onSectionCancel,
   onFinishedWithMember,
   generateUsername,
-  formatPhoneNumber
+  formatPhoneNumber,
+  availableParentGuardians = [],
+  onSearchParentGuardians
 }: MemberFormSectionProps) {
   // Get member display name - use actual name if available, otherwise show placeholder
   const memberDisplayName = member.firstName || member.lastName 
@@ -73,8 +84,8 @@ export default function MemberFormSection({
 
   // Helper to update member's section tempData
   const updateSectionTempData = (
-    section: 'contactInfo' | 'loginSecurity' | 'statusVerification',
-    updates: Record<string, string>
+    section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers',
+    updates: Record<string, any>
   ) => {
     onUpdateMember(member.id, (prev) => ({
       ...prev,
@@ -82,10 +93,37 @@ export default function MemberFormSection({
         ...prev.sections,
         [section]: {
           ...prev.sections[section],
-          ...(section === 'statusVerification' ? {} : { tempData: { ...prev.sections[section].tempData, ...updates } })
+          ...(section === 'statusVerification' ? {} : { tempData: { ...(prev.sections[section]?.tempData || {}), ...updates } })
         }
       }
     }))
+  }
+  
+  // Calculate age from date of birth
+  const calculateAge = (dateOfBirth: string): number | null => {
+    if (!dateOfBirth) return null
+    const birthDate = new Date(dateOfBirth)
+    if (isNaN(birthDate.getTime())) return null
+    const today = new Date()
+    const age = today.getFullYear() - birthDate.getFullYear() - 
+      (today.getMonth() < birthDate.getMonth() || 
+       (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+    return age
+  }
+  
+  // Check if member is a child (< 18)
+  const isChild = (): boolean => {
+    if (!member.dateOfBirth) return false
+    const age = calculateAge(member.dateOfBirth)
+    return age !== null && age < 18
+  }
+  
+  // Get parent/guardian IDs from member
+  const getParentGuardianIds = (): number[] => {
+    if (member.sections.parentGuardians?.tempData?.parentGuardianIds) {
+      return member.sections.parentGuardians.tempData.parentGuardianIds
+    }
+    return member.parentGuardianIds || []
   }
 
   // Handle contact info changes with username generation
@@ -329,14 +367,259 @@ export default function MemberFormSection({
             )}
           </div>
 
-          {/* 3. Status Verification Section */}
+          {/* 3. Date of Birth & Age Section */}
+          <div className="mb-4 border border-gray-600 rounded">
+            <button
+              type="button"
+              onClick={() => onToggleSection(member.id, 'dateOfBirth')}
+              className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+            >
+              <span>3. Date of Birth {!member.dateOfBirth && <span className="text-red-400">*</span>}</span>
+              <span>{member.sections.dateOfBirth?.isExpanded ? '−' : '+'}</span>
+            </button>
+            {member.sections.dateOfBirth?.isExpanded && (
+              <div className="p-4 bg-gray-800">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      Date of Birth {isChild() ? '(Required for children)' : '(Optional for adults)'}
+                    </label>
+                    <input
+                      type="date"
+                      value={member.dateOfBirth || ''}
+                      onChange={(e) => {
+                        onUpdateMember(member.id, (prev) => ({
+                          ...prev,
+                          dateOfBirth: e.target.value
+                        }))
+                        updateSectionTempData('dateOfBirth', { dateOfBirth: e.target.value })
+                      }}
+                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      max={new Date().toISOString().split('T')[0]} // Can't be in the future
+                    />
+                    {member.dateOfBirth && calculateAge(member.dateOfBirth) !== null && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        Age: {calculateAge(member.dateOfBirth)} years old
+                        {isChild() && <span className="text-yellow-400 ml-2">(Child - Parent/Guardian required)</span>}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => onSectionContinue(member.id, 'dateOfBirth')}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Continue
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSectionMinimize(member.id, 'dateOfBirth')}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Minimize
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 4. Parent/Guardian Selection (for children) */}
+          {isChild() && (
+            <div className="mb-4 border border-gray-600 rounded border-yellow-600">
+              <button
+                type="button"
+                onClick={() => onToggleSection(member.id, 'parentGuardians')}
+                className="w-full px-4 py-3 bg-yellow-700 hover:bg-yellow-600 text-white font-semibold flex justify-between items-center rounded-t"
+              >
+                <span>4. Parent/Guardian Selection <span className="text-red-400">* (Required for children)</span></span>
+                <span>{member.sections.parentGuardians?.isExpanded ? '−' : '+'}</span>
+              </button>
+              {member.sections.parentGuardians?.isExpanded && (
+                <div className="p-4 bg-gray-800">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        Search for Parent/Guardian (must be 18+)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Search by name, email, or phone..."
+                        onChange={(e) => {
+                          const query = e.target.value
+                          if (onSearchParentGuardians && query.length >= 2) {
+                            onSearchParentGuardians(query)
+                          }
+                        }}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      />
+                      {availableParentGuardians.length > 0 && (
+                        <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
+                          {availableParentGuardians.map((parent) => {
+                            const isSelected = getParentGuardianIds().includes(parent.id)
+                            return (
+                              <div
+                                key={parent.id}
+                                onClick={() => {
+                                  const currentIds = getParentGuardianIds()
+                                  const newIds = isSelected
+                                    ? currentIds.filter(id => id !== parent.id)
+                                    : [...currentIds, parent.id]
+                                  
+                                  onUpdateMember(member.id, (prev) => ({
+                                    ...prev,
+                                    parentGuardianIds: newIds
+                                  }))
+                                  updateSectionTempData('parentGuardians', { parentGuardianIds: newIds })
+                                }}
+                                className={`p-3 rounded cursor-pointer transition-colors ${
+                                  isSelected 
+                                    ? 'bg-green-700 hover:bg-green-600 border-2 border-green-500' 
+                                    : 'bg-gray-600 hover:bg-gray-500 border-2 border-transparent'
+                                }`}
+                              >
+                                <div className="font-semibold text-white">
+                                  {parent.firstName} {parent.lastName}
+                                  {isSelected && <span className="ml-2 text-green-300">✓ Selected</span>}
+                                </div>
+                                {parent.email && (
+                                  <div className="text-sm text-gray-300">{parent.email}</div>
+                                )}
+                                {parent.phone && (
+                                  <div className="text-sm text-gray-300">{parent.phone}</div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    {getParentGuardianIds().length > 0 && (
+                      <div className="bg-green-900/30 p-3 rounded border border-green-600">
+                        <p className="text-sm text-green-300 font-semibold mb-2">
+                          Selected Parent/Guardian(s): {getParentGuardianIds().length}
+                        </p>
+                      </div>
+                    )}
+                    {isChild() && getParentGuardianIds().length === 0 && (
+                      <div className="bg-red-900/30 p-3 rounded border border-red-600">
+                        <p className="text-sm text-red-300">
+                          ⚠️ Children under 18 must have at least one parent/guardian selected
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      type="button"
+                      onClick={() => onSectionContinue(member.id, 'parentGuardians')}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                      disabled={getParentGuardianIds().length === 0}
+                    >
+                      Continue
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onSectionMinimize(member.id, 'parentGuardians')}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                    >
+                      Minimize
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 5. Waiver Status Section */}
+          <div className="mb-4 border border-gray-600 rounded">
+            <button
+              type="button"
+              onClick={() => onToggleSection(member.id, 'waivers')}
+              className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+            >
+              <span>5. Waiver Status</span>
+              <span>{member.sections.waivers?.isExpanded ? '−' : '+'}</span>
+            </button>
+            {member.sections.waivers?.isExpanded && (
+              <div className="p-4 bg-gray-800">
+                <div className="space-y-4">
+                  <div>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={member.hasCompletedWaivers || false}
+                        onChange={(e) => {
+                          onUpdateMember(member.id, (prev) => ({
+                            ...prev,
+                            hasCompletedWaivers: e.target.checked,
+                            waiverCompletionDate: e.target.checked ? new Date().toISOString().split('T')[0] : null
+                          }))
+                          updateSectionTempData('waivers', {
+                            hasCompletedWaivers: e.target.checked,
+                            waiverCompletionDate: e.target.checked ? new Date().toISOString().split('T')[0] : null
+                          })
+                        }}
+                        className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                      />
+                      <span className="text-sm font-semibold text-gray-300">
+                        Has Completed Waivers
+                      </span>
+                    </label>
+                  </div>
+                  {member.hasCompletedWaivers && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        Waiver Completion Date
+                      </label>
+                      <input
+                        type="date"
+                        value={member.waiverCompletionDate || new Date().toISOString().split('T')[0]}
+                        onChange={(e) => {
+                          onUpdateMember(member.id, (prev) => ({
+                            ...prev,
+                            waiverCompletionDate: e.target.value
+                          }))
+                          updateSectionTempData('waivers', { waiverCompletionDate: e.target.value })
+                        }}
+                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        max={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-400">
+                    Note: Athlete status requires both enrollment and completed waivers
+                  </p>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => onSectionContinue(member.id, 'waivers')}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Continue
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSectionMinimize(member.id, 'waivers')}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Minimize
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 6. Status Verification Section */}
           <div className="mb-4 border border-gray-600 rounded">
             <button
               type="button"
               onClick={() => onToggleSection(member.id, 'statusVerification')}
               className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
             >
-              <span>3. Status Verification</span>
+              <span>6. Status Verification</span>
               <span>{member.sections.statusVerification.isExpanded ? '−' : '+'}</span>
             </button>
             {!member.sections.statusVerification.isExpanded && (

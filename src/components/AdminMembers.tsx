@@ -110,9 +110,15 @@ type FamilyMemberData = {
   medicalNotes: string
   isFinished: boolean
   isActive?: boolean
+  parentGuardianIds?: number[] // Array of parent/guardian member IDs (for children)
+  hasCompletedWaivers?: boolean // Waiver completion status
+  waiverCompletionDate?: string | null // Date when waivers were completed
   sections: {
     contactInfo: { isExpanded: boolean; tempData: { firstName: string; lastName: string; email: string; phone: string; addressStreet: string; addressCity: string; addressState: string; addressZip: string } }
     loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
+    dateOfBirth?: { isExpanded: boolean; tempData: { dateOfBirth: string } }
+    parentGuardians?: { isExpanded: boolean; tempData: { parentGuardianIds: number[] } }
+    waivers?: { isExpanded: boolean; tempData: { hasCompletedWaivers: boolean; waiverCompletionDate: string | null } }
     statusVerification: { isExpanded: boolean }
   }
 }
@@ -213,6 +219,33 @@ export default function AdminMembers() {
     addressZip: ''
   })
   const [isBillingExpanded, setIsBillingExpanded] = useState(true)
+  
+  // New family creation state (for Create New Family mode)
+  const [familyCreationInfo, setFamilyCreationInfo] = useState({
+    familyName: '',
+    familyUsername: '',
+    familyPassword: '',
+    familyPasswordConfirm: ''
+  })
+  
+  // Family joining state (for Join Existing Family mode)
+  const [familyJoinInfo, setFamilyJoinInfo] = useState({
+    familyId: null as number | null,
+    familyUsername: '',
+    familyPassword: ''
+  })
+  
+  // Available parent/guardians for selection (populated from existing members)
+  const [availableParentGuardians, setAvailableParentGuardians] = useState<Array<{
+    id: number
+    firstName: string
+    lastName: string
+    email?: string
+    phone?: string
+  }>>([])
+  
+  // Parent/guardian search query
+  const [parentGuardianSearchQuery, setParentGuardianSearchQuery] = useState('')
   
   // View/Edit member state
   const [selectedFamilyForView, setSelectedFamilyForView] = useState<Family | null>(null)
@@ -1042,29 +1075,67 @@ export default function AdminMembers() {
     }
     try {
       const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/families?search=${encodeURIComponent(query)}`)
+      // Use new family search endpoint
+      const response = await fetch(`${apiUrl}/api/admin/families/search?search=${encodeURIComponent(query)}`)
       if (response.ok) {
         const data = await response.json()
-        if (data.success) {
-          setMemberSearchResults(data.data)
+        if (data.success && data.data) {
+          // Transform data to match expected format
+          const transformedFamilies = data.data.map((f: any) => ({
+            id: f.id,
+            family_name: f.familyName,
+            familyName: f.familyName,
+            family_username: f.familyUsername,
+            familyUsername: f.familyUsername,
+            memberCount: f.memberCount,
+            members: f.members || []
+          }))
+          setMemberSearchResults(transformedFamilies)
+        } else {
+          setMemberSearchResults([])
         }
+      } else {
+        setMemberSearchResults([])
       }
     } catch (error) {
       console.error('Error searching families:', error)
+      setMemberSearchResults([])
     }
   }
   
-  const handleSelectFamilyForMember = async (family: Family) => {
+  const handleSelectFamilyForMember = async (family: any) => {
     // Use unified modal in add-to-existing mode
     setUnifiedModalMode('add-to-existing')
     setSelectedFamilyForMember(family)
-    setMemberModalMode('new-family') // Use the new-family form structure
+    setMemberModalMode('existing-family')
+    setFamilyJoinInfo({ familyId: family.id, familyUsername: family.familyUsername || family.family_username || '', familyPassword: '' })
     setMemberSearchQuery('')
     setMemberSearchResults([])
-    setShowMemberModal(true)
     
-    // Populate form from family data, then add a blank new member
-    await populateFormFromFamily(family, null)
+    // Reset to blank member form
+    setFamilyMembers([{
+      id: 'member-1',
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      addressStreet: '',
+      addressCity: '',
+      addressState: '',
+      addressZip: '',
+      username: '',
+      password: 'vortex',
+      enrollments: [],
+      dateOfBirth: '',
+      medicalNotes: '',
+      isFinished: false,
+      sections: {
+        contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+        loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+        statusVerification: { isExpanded: false }
+      }
+    }])
+    setExpandedFamilyMemberId('member-1')
     
     // Add a new blank member for the new person being added
     const newMember: FamilyMemberData = {
@@ -1093,240 +1164,235 @@ export default function AdminMembers() {
     setExpandedFamilyMemberId(newMember.id)
   }
   
+  // Search for parent/guardians (adults only) for children
+  const searchParentGuardians = useCallback(async (query: string) => {
+    if (!query || query.length < 2) {
+      setAvailableParentGuardians([])
+          return
+        }
+    
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/members/search?q=${encodeURIComponent(query)}&adultsOnly=true`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setAvailableParentGuardians(data.data || [])
+        }
+      }
+    } catch (error) {
+      console.error('Error searching parent guardians:', error)
+      setAvailableParentGuardians([])
+    }
+  }, [])
+  
+  // Handle creating member with new unified backend
   const handleCreateFamilyWithPrimaryAdult = async () => {
     try {
+      const apiUrl = getApiUrl()
+      
+      // Determine family mode based on memberModalMode
+      let familyId: number | null = null
+      let familyName: string | null = null
+      let familyUsername: string | null = null
+      let familyPassword: string | null = null
+      
+      if (memberModalMode === 'new-family') {
+        // Create new family - validate family creation info
+        if (!familyCreationInfo.familyName || !familyCreationInfo.familyName.trim()) {
+          alert('Please enter a family name')
+          return
+        }
+        if (!familyCreationInfo.familyUsername || !familyCreationInfo.familyUsername.trim()) {
+          alert('Please enter a family username')
+          return
+        }
+        if (!familyCreationInfo.familyPassword || familyCreationInfo.familyPassword.length < 6) {
+          alert('Please enter a family password (minimum 6 characters)')
+          return
+        }
+        if (familyCreationInfo.familyPassword !== familyCreationInfo.familyPasswordConfirm) {
+          alert('Family passwords do not match')
+          return
+        }
+        
+        familyName = familyCreationInfo.familyName.trim()
+        familyUsername = familyCreationInfo.familyUsername.trim()
+        familyPassword = familyCreationInfo.familyPassword
+      } else if (memberModalMode === 'existing-family' && selectedFamilyForMember) {
+        // Join existing family - use existing family ID
+        familyId = selectedFamilyForMember.id
+      } else if (familyJoinInfo.familyId) {
+        // Join by family ID
+        familyId = familyJoinInfo.familyId
+        if (familyJoinInfo.familyPassword) {
+          familyPassword = familyJoinInfo.familyPassword
+        }
+      } else if (familyJoinInfo.familyUsername) {
+        // Join by family username + password
+        familyUsername = familyJoinInfo.familyUsername
+        if (!familyJoinInfo.familyPassword) {
+          alert('Please enter the family password to join')
+          return
+        }
+        familyPassword = familyJoinInfo.familyPassword
+      }
+      // Otherwise, familyId stays null (orphan member)
+      
       // Validate all family members have required fields
       for (const member of familyMembers) {
         if (!member.sections.contactInfo.tempData.firstName || 
-            !member.sections.contactInfo.tempData.lastName || 
-            !member.sections.contactInfo.tempData.email || 
-            !member.sections.contactInfo.tempData.phone) {
+            !member.sections.contactInfo.tempData.lastName) {
           alert(`Please complete contact information for all family members`)
           return
         }
-        if (member.id === familyMembers[0].id && (!member.sections.loginSecurity.tempData.username || !member.sections.loginSecurity.tempData.password)) {
-          alert(`Please complete login information for the primary adult`)
-          return
+        
+        // Check if member is a child (< 18) and validate parent/guardian IDs
+        const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+        let isChild = false
+        if (birthDate) {
+          const today = new Date()
+          const age = today.getFullYear() - birthDate.getFullYear() - 
+            (today.getMonth() < birthDate.getMonth() || 
+             (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+          isChild = age < 18
         }
+        
+        // For children, check if parentGuardianIds are set (will be handled in member creation)
+        // We'll validate this in the API call
       }
       
-      // Validate days selection for all enrollments (check both member.enrollments and tempData)
-      // Enrollment validation removed - enrollments are now managed separately
-      
-      const apiUrl = getApiUrl()
-      
-      // Create primary user account
-      const primaryMember = familyMembers[0]
-      let primaryUserId: number
-      
-      try {
-        primaryUserId = await createUserAccount(
-          `${primaryMember.sections.contactInfo.tempData.firstName} ${primaryMember.sections.contactInfo.tempData.lastName}`,
-          primaryMember.sections.contactInfo.tempData.email,
-          primaryMember.sections.contactInfo.tempData.phone,
-          primaryMember.sections.loginSecurity.tempData.username,
-          primaryMember.sections.loginSecurity.tempData.password || 'vortex',
-          combineAddress(
-            primaryMember.sections.contactInfo.tempData.addressStreet,
-            primaryMember.sections.contactInfo.tempData.addressCity,
-            primaryMember.sections.contactInfo.tempData.addressState,
-            primaryMember.sections.contactInfo.tempData.addressZip
-          ) || null
-        )
-      } catch (error) {
-        if (error instanceof Error && error.message === 'ARCHIVED_USER_PENDING_CHOICE') {
-          // Store pending data as primary and return (dialog will handle continuation)
-          setPendingUserData({
-          fullName: `${primaryMember.sections.contactInfo.tempData.firstName} ${primaryMember.sections.contactInfo.tempData.lastName}`,
-          email: primaryMember.sections.contactInfo.tempData.email,
-          phone: cleanPhoneNumber(primaryMember.sections.contactInfo.tempData.phone),
-          username: primaryMember.sections.loginSecurity.tempData.username,
-          password: primaryMember.sections.loginSecurity.tempData.password || 'vortex',
-          address: combineAddress(
-            primaryMember.sections.contactInfo.tempData.addressStreet,
-            primaryMember.sections.contactInfo.tempData.addressCity,
-            primaryMember.sections.contactInfo.tempData.addressState,
-            primaryMember.sections.contactInfo.tempData.addressZip
-            ) || null,
-            isPrimary: true
-          })
-          return // Exit early, dialog will handle continuation
-        }
-        throw error // Re-throw other errors
-      }
-      
-      // Create family
-      const familyResponse = await fetch(`${apiUrl}/api/admin/families`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          familyName: billingInfo.firstName && billingInfo.lastName 
-            ? `${billingInfo.firstName} ${billingInfo.lastName} Family`
-            : null,
-          primaryUserId: primaryUserId,
-          guardianIds: [primaryUserId]
-        })
-      })
-      
-      if (!familyResponse.ok) {
-        const data = await familyResponse.json()
-        throw new Error(data.message || 'Failed to create family')
-      }
-      
-      const familyData = await familyResponse.json()
-      const familyId = familyData.success ? familyData.data.id : null
-      
-      if (!familyId) {
-        throw new Error('Failed to get family ID')
-      }
-      
-      // Create additional user accounts and athletes for all family members
+      // Create all members using the unified endpoint
       for (const member of familyMembers) {
         const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
-        const today = new Date()
-        const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
-        const isAdult = age !== null && age >= 18
+        let isChild = false
+        let parentGuardianIds: number[] = []
         
-        let userId = null
-        if (isAdult && member.id !== familyMembers[0].id) {
-          // Create user account for additional adults
-          try {
-            userId = await createUserAccount(
-              `${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`,
-              member.sections.contactInfo.tempData.email,
-              member.sections.contactInfo.tempData.phone,
-              member.sections.loginSecurity.tempData.username,
-              member.sections.loginSecurity.tempData.password || 'vortex',
-              combineAddress(
-                member.sections.contactInfo.tempData.addressStreet,
-                member.sections.contactInfo.tempData.addressCity,
-                member.sections.contactInfo.tempData.addressState,
-                member.sections.contactInfo.tempData.addressZip
-              ) || null
-            )
-              
-              // Add as guardian
-              const updateResponse = await fetch(`${apiUrl}/api/admin/families/${familyId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  familyName: familyData.data.family_name,
-                  primaryUserId: primaryUserId,
-                  guardianIds: [
-                    ...(familyData.data.guardians?.map((g: Guardian) => g.id) || []),
-                    userId
-                  ]
-                })
-              })
-              
-              if (!updateResponse.ok) {
-                console.warn('Failed to add guardian to family')
-              }
-          } catch (error) {
-            if (error instanceof Error && error.message === 'ARCHIVED_USER_PENDING_CHOICE') {
-              // Store pending data and show dialog
-              setPendingUserData({
-                fullName: `${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`,
-                email: member.sections.contactInfo.tempData.email,
-                phone: cleanPhoneNumber(member.sections.contactInfo.tempData.phone),
-                username: member.sections.loginSecurity.tempData.username,
-                password: member.sections.loginSecurity.tempData.password || 'vortex',
-                address: combineAddress(
-                  member.sections.contactInfo.tempData.addressStreet,
-                  member.sections.contactInfo.tempData.addressCity,
-                  member.sections.contactInfo.tempData.addressState,
-                  member.sections.contactInfo.tempData.addressZip
-                ) || null,
-                isPrimary: false,
-                memberIndex: familyMembers.indexOf(member)
-              })
-              return // Exit early, dialog will handle continuation
-            }
-            // For other errors, continue without creating user account
-            console.error('Failed to create user account for additional adult:', error)
-          }
-        } else if (member.id === familyMembers[0].id) {
-          userId = primaryUserId
-        } else if (member.userId) {
-          // Use existing userId if member already has one
-          userId = member.userId
+        if (birthDate) {
+        const today = new Date()
+          const age = today.getFullYear() - birthDate.getFullYear() - 
+            (today.getMonth() < birthDate.getMonth() || 
+             (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+          isChild = age < 18
         }
         
-        // Update or create athlete record
-        let athleteId: number | null = null
+        // Get parent/guardian IDs from member data (if set via UI)
+        if (isChild) {
+          parentGuardianIds = member.parentGuardianIds || 
+            member.sections.parentGuardians?.tempData?.parentGuardianIds || 
+            []
+        }
         
-        // Validate dateOfBirth is not empty before creating/updating athlete
-        if (!member.dateOfBirth || member.dateOfBirth.trim() === '') {
-          alert(`Please enter a date of birth for ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`)
+        // Get date of birth from member or section tempData
+        const dateOfBirth = member.dateOfBirth || member.sections.dateOfBirth?.tempData?.dateOfBirth || null
+        
+        // Get waiver status from member or section tempData
+        const hasCompletedWaivers = member.hasCompletedWaivers !== undefined 
+          ? member.hasCompletedWaivers 
+          : (member.sections.waivers?.tempData?.hasCompletedWaivers || false)
+        const waiverCompletionDate = member.waiverCompletionDate || member.sections.waivers?.tempData?.waiverCompletionDate || null
+        
+        // Build member creation payload
+        const memberPayload: {
+          familyId?: number | null
+          familyUsername?: string | null
+          familyPassword?: string | null
+          familyName?: string | null
+          firstName: string
+          lastName: string
+          email: string | null
+          phone: string | null
+          dateOfBirth: string | null
+          username: string | null
+          password: string | null
+          address?: string | null
+          billingStreet?: string | null
+          billingCity?: string | null
+          billingState?: string | null
+          billingZip?: string | null
+          medicalNotes?: string | null
+          internalFlags: null
+          hasCompletedWaivers: boolean
+          waiverCompletionDate: string | null
+          parentGuardianIds: number[] | null
+        } = {
+          firstName: member.sections.contactInfo.tempData.firstName,
+          lastName: member.sections.contactInfo.tempData.lastName,
+          email: member.sections.contactInfo.tempData.email || null,
+          phone: cleanPhoneNumber(member.sections.contactInfo.tempData.phone) || null,
+          dateOfBirth: dateOfBirth || null,
+          username: member.sections.loginSecurity.tempData.username || null,
+          password: member.sections.loginSecurity.tempData.password || null,
+          address: combineAddress(
+            member.sections.contactInfo.tempData.addressStreet,
+            member.sections.contactInfo.tempData.addressCity,
+            member.sections.contactInfo.tempData.addressState,
+            member.sections.contactInfo.tempData.addressZip
+          ) || null,
+          billingStreet: billingInfo.addressStreet || null,
+          billingCity: billingInfo.addressCity || null,
+          billingState: billingInfo.addressState || null,
+          billingZip: billingInfo.addressZip || null,
+          medicalNotes: member.medicalNotes || null,
+          internalFlags: null,
+          hasCompletedWaivers,
+          waiverCompletionDate,
+          parentGuardianIds: parentGuardianIds.length > 0 ? parentGuardianIds : null
+        }
+        
+        // Add family information based on mode
+        if (memberModalMode === 'new-family' && member === familyMembers[0]) {
+          // First member creates the family
+          memberPayload.familyName = familyName
+          memberPayload.familyUsername = familyUsername
+          memberPayload.familyPassword = familyPassword
+        } else if (familyId) {
+          // Join existing family by ID
+          memberPayload.familyId = familyId
+          if (familyPassword) {
+            memberPayload.familyPassword = familyPassword
+          }
+        } else if (familyUsername && familyPassword) {
+          // Join existing family by username + password
+          memberPayload.familyUsername = familyUsername
+          memberPayload.familyPassword = familyPassword
+        }
+        // Otherwise, no family (orphan member) - familyId stays null
+        
+        // Create member using unified endpoint
+        const memberResponse = await fetch(`${apiUrl}/api/admin/members`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(memberPayload)
+        })
+        
+        if (!memberResponse.ok) {
+          const errorData = await memberResponse.json()
+          const errorMessage = errorData.message || 'Failed to create member'
+          const errors = errorData.errors ? errorData.errors.join(', ') : ''
+          alert(`Failed to create member ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}: ${errorMessage}${errors ? '. ' + errors : ''}`)
           return
         }
         
-        if (member.athleteId) {
-          // Update existing athlete
-          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              firstName: member.sections.contactInfo.tempData.firstName,
-              lastName: member.sections.contactInfo.tempData.lastName,
-              dateOfBirth: member.dateOfBirth,
-              medicalNotes: member.medicalNotes || null,
-              internalFlags: null
-            })
-          })
-          
-          if (athleteResponse.ok) {
-            const athleteData = await athleteResponse.json()
-            if (athleteData.success && athleteData.data) {
-              athleteId = athleteData.data.id
-            }
-          } else {
-            const errorData = await athleteResponse.json()
-            console.error('Failed to update athlete:', errorData)
-            alert(`Failed to update athlete: ${errorData.message || 'Unknown error'}. ${errorData.errors ? errorData.errors.join(', ') : ''}`)
+        const memberData = await memberResponse.json()
+        if (!memberData.success) {
+          alert(`Failed to create member: ${memberData.message || 'Unknown error'}`)
             return
-          }
-        } else {
-          // Create new athlete
-          
-          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              familyId: familyId,
-              firstName: member.sections.contactInfo.tempData.firstName,
-              lastName: member.sections.contactInfo.tempData.lastName,
-              dateOfBirth: member.dateOfBirth,
-              medicalNotes: member.medicalNotes || null,
-              internalFlags: null,
-              userId: userId
-            })
-          })
-          
-          if (athleteResponse.ok) {
-            const athleteData = await athleteResponse.json()
-            if (athleteData.success && athleteData.data) {
-              athleteId = athleteData.data.id
-            }
-          } else {
-            const errorData = await athleteResponse.json()
-            console.error('Failed to create athlete:', errorData)
-            alert(`Failed to create athlete: ${errorData.message || 'Unknown error'}. ${errorData.errors ? errorData.errors.join(', ') : ''}`)
-            return
-          }
         }
         
-        // Update enrollments if athlete was created/updated
-        if (athleteId) {
-          // Enrollment is now managed separately through the Enrollments tab or member portal
-          // No enrollment saving during member creation
+        // If this was the first member and we created a family, store family ID for subsequent members
+        if (member === familyMembers[0] && memberModalMode === 'new-family' && memberData.data?.familyId) {
+          familyId = memberData.data.familyId
         }
       }
       
-      await fetchFamilies()
+      // Success - refresh data and reset form
+      await fetchMembers()
       setShowMemberModal(false)
       setMemberModalMode('search')
       setSelectedFamilyForMember(null)
+      setFamilyCreationInfo({ familyName: '', familyUsername: '', familyPassword: '', familyPasswordConfirm: '' })
+      setFamilyJoinInfo({ familyId: null, familyUsername: '', familyPassword: '' })
       setFamilyMembers([{
         id: 'member-1',
         firstName: '',
@@ -1350,10 +1416,10 @@ export default function AdminMembers() {
         }
       }])
       setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
-      alert('Family created successfully!')
+      alert('Member(s) created successfully!')
     } catch (error) {
-      console.error('Error creating family:', error)
-      alert(error instanceof Error ? error.message : 'Failed to create family')
+      console.error('Error creating member:', error)
+      alert(error instanceof Error ? error.message : 'Failed to create member')
     }
   }
   
@@ -1413,11 +1479,17 @@ export default function AdminMembers() {
     }
   }
   
-  // Handler for adding members to existing family
+  // Handler for adding members to existing family - updated to use unified endpoint
   const handleAddMembersToExistingFamily = async () => {
     if (!selectedFamilyForMember) return
     
     try {
+      // Validate family password if provided
+      if (!familyJoinInfo.familyPassword) {
+        alert('Please enter the family password to join this family')
+        return
+      }
+      
       // Validate all family members have required fields
       for (const member of familyMembers) {
         if (!member.sections.contactInfo.tempData.firstName || 
@@ -1425,147 +1497,133 @@ export default function AdminMembers() {
           alert(`Please complete contact information for all family members`)
           return
         }
+        
+        // Check if member is a child and validate parent/guardian IDs
+        const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+        let isChild = false
+        if (birthDate) {
+          const today = new Date()
+          const age = today.getFullYear() - birthDate.getFullYear() - 
+            (today.getMonth() < birthDate.getMonth() || 
+             (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+          isChild = age < 18
+        }
+        
+        if (isChild && (!(member as any).parentGuardianIds || (member as any).parentGuardianIds.length === 0)) {
+          alert(`Children under 18 must have at least one parent/guardian. Please select parent/guardian for ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`)
+          return
+        }
       }
-      
-      // Validate days selection for all enrollments (check both member.enrollments and tempData)
-      // Enrollment validation removed - enrollments are now managed separately
       
       const apiUrl = getApiUrl()
       const familyId = selectedFamilyForMember.id
       
-      // Create user accounts and athletes for all family members
+      // Create members using unified endpoint
       for (const member of familyMembers) {
         const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+        let isChild = false
+        let parentGuardianIds: number[] = []
+        
+        if (birthDate) {
         const today = new Date()
-        const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
-        const isAdult = age !== null && age >= 18
-        
-        let userId = null
-        if (isAdult) {
-          // Check if email and username are provided for adults
-          if (!member.sections.contactInfo.tempData.email || !member.sections.loginSecurity.tempData.username) {
-            alert(`Adults must have email and username. Please complete login information for ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`)
-            return
-          }
-          
-          // Create user account for adults
-          const userResponse = await fetch(`${apiUrl}/api/admin/users`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              fullName: `${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`,
-              email: member.sections.contactInfo.tempData.email,
-              phone: cleanPhoneNumber(member.sections.contactInfo.tempData.phone),
-              username: member.sections.loginSecurity.tempData.username,
-              password: member.sections.loginSecurity.tempData.password || 'vortex',
-              role: 'PARENT_GUARDIAN',
-              address: combineAddress(
-                member.sections.contactInfo.tempData.addressStreet,
-                member.sections.contactInfo.tempData.addressCity,
-                member.sections.contactInfo.tempData.addressState,
-                member.sections.contactInfo.tempData.addressZip
-              ) || null
-            })
-          })
-          
-          if (userResponse.ok) {
-            const userData = await userResponse.json()
-            if (userData.success && userData.data) {
-              userId = userData.data.id
-              
-              // Add as guardian
-              const updateResponse = await fetch(`${apiUrl}/api/admin/families/${familyId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  familyName: selectedFamilyForMember.family_name,
-                  primaryUserId: selectedFamilyForMember.primary_user_id || userId,
-                  guardianIds: [
-                    ...(selectedFamilyForMember.guardians?.map((g: Guardian) => g.id) || []),
-                    userId
-                  ]
-                })
-              })
-              
-              if (!updateResponse.ok) {
-                console.warn('Failed to add guardian to family')
-              }
-            }
-          } else {
-            const errorData = await userResponse.json()
-            throw new Error(errorData.message || 'Failed to create user account')
-          }
+          const age = today.getFullYear() - birthDate.getFullYear() - 
+            (today.getMonth() < birthDate.getMonth() || 
+             (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+          isChild = age < 18
         }
         
-        // Update or create athlete record
-        let athleteId: number | null = null
-        if (member.athleteId) {
-          // Update existing athlete
-          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes/${member.athleteId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              firstName: member.sections.contactInfo.tempData.firstName,
-              lastName: member.sections.contactInfo.tempData.lastName,
-              dateOfBirth: member.dateOfBirth || null,
-              medicalNotes: member.medicalNotes || null,
-              internalFlags: null
-            })
-          })
-          
-          if (athleteResponse.ok) {
-            const athleteData = await athleteResponse.json()
-            if (athleteData.success && athleteData.data) {
-              athleteId = athleteData.data.id
-            }
-          } else {
-            const errorData = await athleteResponse.json()
-            throw new Error(errorData.message || 'Failed to update athlete record')
-          }
-        } else {
-          // Create new athlete
-          // Validate dateOfBirth is not empty before sending
-          if (!member.dateOfBirth || member.dateOfBirth.trim() === '') {
-            alert(`Please enter a date of birth for ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`)
-            return
-          }
-          
-          const athleteResponse = await fetch(`${apiUrl}/api/admin/athletes`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              familyId: familyId,
-              firstName: member.sections.contactInfo.tempData.firstName,
-              lastName: member.sections.contactInfo.tempData.lastName,
-              dateOfBirth: member.dateOfBirth,
-              medicalNotes: member.medicalNotes || null,
-              internalFlags: null,
-              userId: userId
-            })
-          })
-          
-          if (athleteResponse.ok) {
-            const athleteData = await athleteResponse.json()
-            if (athleteData.success && athleteData.data) {
-              athleteId = athleteData.data.id
-            }
-          } else {
-            const errorData = await athleteResponse.json()
-            throw new Error(errorData.message || 'Failed to create athlete record')
-          }
+        // Get parent/guardian IDs from member data (if set via UI)
+        if (isChild) {
+          parentGuardianIds = member.parentGuardianIds || 
+            member.sections.parentGuardians?.tempData?.parentGuardianIds || 
+            []
         }
         
-        // Update enrollments if athlete was created/updated
-        if (athleteId) {
-          // Enrollment is now managed separately through the Enrollments tab or member portal
-          // No enrollment saving during member creation
+        // Get date of birth from member or section tempData
+        const dateOfBirth = member.dateOfBirth || member.sections.dateOfBirth?.tempData?.dateOfBirth || null
+        
+        // Get waiver status from member or section tempData
+        const hasCompletedWaivers = member.hasCompletedWaivers !== undefined 
+          ? member.hasCompletedWaivers 
+          : (member.sections.waivers?.tempData?.hasCompletedWaivers || false)
+        const waiverCompletionDate = member.waiverCompletionDate || member.sections.waivers?.tempData?.waiverCompletionDate || null
+        
+        // Build member creation payload
+        const memberPayload: {
+          familyId: number
+          familyPassword: string
+          firstName: string
+          lastName: string
+          email: string | null
+          phone: string | null
+          dateOfBirth: string | null
+          username: string | null
+          password: string | null
+          address?: string | null
+          billingStreet?: string | null
+          billingCity?: string | null
+          billingState?: string | null
+          billingZip?: string | null
+          medicalNotes?: string | null
+          internalFlags: null
+          hasCompletedWaivers: boolean
+          waiverCompletionDate: string | null
+          parentGuardianIds: number[] | null
+        } = {
+          familyId: familyId,
+          familyPassword: familyJoinInfo.familyPassword,
+          firstName: member.sections.contactInfo.tempData.firstName,
+          lastName: member.sections.contactInfo.tempData.lastName,
+          email: member.sections.contactInfo.tempData.email || null,
+          phone: cleanPhoneNumber(member.sections.contactInfo.tempData.phone) || null,
+          dateOfBirth: dateOfBirth || null,
+          username: member.sections.loginSecurity.tempData.username || null,
+          password: member.sections.loginSecurity.tempData.password || null,
+          address: combineAddress(
+            member.sections.contactInfo.tempData.addressStreet,
+            member.sections.contactInfo.tempData.addressCity,
+            member.sections.contactInfo.tempData.addressState,
+            member.sections.contactInfo.tempData.addressZip
+          ) || null,
+          billingStreet: billingInfo.addressStreet || null,
+          billingCity: billingInfo.addressCity || null,
+          billingState: billingInfo.addressState || null,
+          billingZip: billingInfo.addressZip || null,
+          medicalNotes: member.medicalNotes || null,
+          internalFlags: null,
+          hasCompletedWaivers,
+          waiverCompletionDate,
+          parentGuardianIds: parentGuardianIds.length > 0 ? parentGuardianIds : null
+        }
+        
+        // Create member using unified endpoint
+        const memberResponse = await fetch(`${apiUrl}/api/admin/members`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(memberPayload)
+        })
+        
+        if (!memberResponse.ok) {
+          const errorData = await memberResponse.json()
+          const errorMessage = errorData.message || 'Failed to create member'
+          const errors = errorData.errors ? errorData.errors.join(', ') : ''
+          alert(`Failed to add member ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}: ${errorMessage}${errors ? '. ' + errors : ''}`)
+          return
+        }
+        
+        const memberData = await memberResponse.json()
+        if (!memberData.success) {
+          alert(`Failed to add member: ${memberData.message || 'Unknown error'}`)
+          return
         }
       }
       
-      await fetchFamilies()
+      // Success - refresh data and reset form
+      await fetchMembers()
       setShowMemberModal(false)
       setMemberModalMode('search')
       setSelectedFamilyForMember(null)
+      setFamilyJoinInfo({ familyId: null, familyUsername: '', familyPassword: '' })
       setFamilyMembers([{
         id: 'member-1',
         firstName: '',
@@ -1588,7 +1646,7 @@ export default function AdminMembers() {
           statusVerification: { isExpanded: false }
         }
       }])
-      setExpandedFamilyMemberId(null)
+      setExpandedFamilyMemberId('member-1')
       alert('Member(s) added to family successfully!')
     } catch (error) {
       console.error('Error adding members to family:', error)
@@ -1617,30 +1675,39 @@ export default function AdminMembers() {
     })
   }
   
+  // Helper to create default member structure
+  const createDefaultMember = (id?: string): FamilyMemberData => ({
+    id: id || `member-${Date.now()}`,
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    addressStreet: '',
+    addressCity: '',
+    addressState: '',
+    addressZip: '',
+    username: '',
+    password: 'vortex',
+    enrollments: [],
+    dateOfBirth: '',
+    medicalNotes: '',
+    isFinished: false,
+    parentGuardianIds: [],
+    hasCompletedWaivers: false,
+    waiverCompletionDate: null,
+    sections: {
+      contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+      loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+      dateOfBirth: { isExpanded: false, tempData: { dateOfBirth: '' } },
+      parentGuardians: { isExpanded: false, tempData: { parentGuardianIds: [] } },
+      waivers: { isExpanded: false, tempData: { hasCompletedWaivers: false, waiverCompletionDate: null } },
+      statusVerification: { isExpanded: false }
+    }
+  })
+  
   const handleAddFamilyMember = () => {
-    const newMemberId = `member-${Date.now()}`
-    setFamilyMembers(prev => [...prev, {
-      id: newMemberId,
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      addressStreet: '',
-      addressCity: '',
-      addressState: '',
-      addressZip: '',
-      username: '',
-      password: 'vortex',
-      enrollments: [],
-      dateOfBirth: '',
-      medicalNotes: '',
-      isFinished: false,
-      sections: {
-        contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-        loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-        statusVerification: { isExpanded: false }
-      }
-    }])
+    const newMember = createDefaultMember()
+    setFamilyMembers(prev => [...prev, newMember])
     setExpandedFamilyMemberId(newMemberId)
   }
   
@@ -1666,7 +1733,7 @@ export default function AdminMembers() {
   }, [])
   
   
-  const handleSectionContinue = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => {
+  const handleSectionContinue = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -1684,7 +1751,10 @@ export default function AdminMembers() {
             sections: {
               ...member.sections,
               contactInfo: { ...sectionData, isExpanded: false },
-              loginSecurity: { ...member.sections.loginSecurity, isExpanded: true }
+              loginSecurity: { ...member.sections.loginSecurity, isExpanded: true },
+              dateOfBirth: member.sections.dateOfBirth || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth } },
+              parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds: member.parentGuardianIds || [] } },
+              waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }
             }
           }
         } else if (section === 'loginSecurity') {
@@ -1696,6 +1766,63 @@ export default function AdminMembers() {
             sections: {
               ...member.sections,
               loginSecurity: { ...sectionData, isExpanded: false },
+              dateOfBirth: { ...(member.sections.dateOfBirth || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth } }), isExpanded: true }
+            }
+          }
+        } else if (section === 'dateOfBirth') {
+          const birthDate = member.sections.dateOfBirth?.tempData?.dateOfBirth || member.dateOfBirth
+          const updatedMember = {
+            ...member,
+            dateOfBirth: birthDate,
+            sections: {
+              ...member.sections,
+              dateOfBirth: { ...(member.sections.dateOfBirth || { isExpanded: false, tempData: { dateOfBirth } }), isExpanded: false },
+              parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds: member.parentGuardianIds || [] } },
+              waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }
+            }
+          }
+          
+          // Check if child - if so, expand parent/guardian section next, otherwise expand waivers
+          if (birthDate) {
+            const birthDateObj = new Date(birthDate)
+            const today = new Date()
+            const age = today.getFullYear() - birthDateObj.getFullYear() - 
+              (today.getMonth() < birthDateObj.getMonth() || 
+               (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate()) ? 1 : 0)
+            
+            if (age < 18) {
+              // Child - expand parent/guardian section
+              updatedMember.sections.parentGuardians = { ...updatedMember.sections.parentGuardians, isExpanded: true }
+            } else {
+              // Adult - expand waivers section
+              updatedMember.sections.waivers = { ...updatedMember.sections.waivers, isExpanded: true }
+            }
+          } else {
+            // No DOB - expand waivers section
+            updatedMember.sections.waivers = { ...updatedMember.sections.waivers, isExpanded: true }
+          }
+          
+          return updatedMember
+        } else if (section === 'parentGuardians') {
+          const parentGuardianIds = member.sections.parentGuardians?.tempData?.parentGuardianIds || member.parentGuardianIds || []
+          return {
+            ...member,
+            parentGuardianIds,
+            sections: {
+              ...member.sections,
+              parentGuardians: { ...(member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds } }), isExpanded: false },
+              waivers: { ...(member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }), isExpanded: true }
+            }
+          }
+        } else if (section === 'waivers') {
+          const waiverData = member.sections.waivers?.tempData || { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null }
+          return {
+            ...member,
+            hasCompletedWaivers: waiverData.hasCompletedWaivers,
+            waiverCompletionDate: waiverData.waiverCompletionDate,
+            sections: {
+              ...member.sections,
+              waivers: { ...(member.sections.waivers || { isExpanded: false, tempData: waiverData }), isExpanded: false },
               statusVerification: { ...member.sections.statusVerification, isExpanded: true }
             }
           }
@@ -1714,7 +1841,7 @@ export default function AdminMembers() {
     }))
   }
   
-  const handleSectionMinimize = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => {
+  const handleSectionMinimize = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -1760,7 +1887,7 @@ export default function AdminMembers() {
     }))
   }
   
-  const handleSectionCancel = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => {
+  const handleSectionCancel = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -1813,7 +1940,7 @@ export default function AdminMembers() {
     }))
   }
   
-  const handleToggleSection = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification') => {
+  const handleToggleSection = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'dateOfBirth' | 'parentGuardians' | 'waivers') => {
     setFamilyMembers(prev => prev.map(member => {
       if (member.id === memberId) {
         if (section === 'contactInfo') {
@@ -2201,10 +2328,14 @@ export default function AdminMembers() {
 
               {/* Search Mode */}
               {memberModalMode === 'search' && (
-                <div className="space-y-4">
-                  <div>
+                <div className="space-y-6">
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="text-lg font-semibold text-white mb-4">Option 1: Join Existing Family</h4>
+                    
+                    {/* Search by name/username */}
+                    <div className="mb-4">
                     <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      Search for Existing Family (by name or email)
+                        Search for Family (by name or username)
                     </label>
                     <div className="flex gap-2">
                       <input
@@ -2215,26 +2346,30 @@ export default function AdminMembers() {
                           searchFamiliesForMember(e.target.value)
                         }}
                         placeholder="Type to search..."
-                        className="flex-1 px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                          className="flex-1 px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
                       />
                     </div>
                     {memberSearchResults.length > 0 && (
                       <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
-                        {memberSearchResults.map((family) => (
+                          {memberSearchResults.map((family: any) => (
                           <div
                             key={family.id}
-                            onClick={() => handleSelectFamilyForMember(family)}
-                            className="p-3 bg-gray-700 rounded cursor-pointer hover:bg-gray-600 transition-colors"
+                              onClick={() => {
+                                setSelectedFamilyForMember(family)
+                                setMemberModalMode('existing-family')
+                                setFamilyJoinInfo(prev => ({ ...prev, familyId: family.id }))
+                              }}
+                              className="p-3 bg-gray-600 rounded cursor-pointer hover:bg-gray-500 transition-colors"
                           >
                             <div className="font-semibold text-white">
-                              {family.family_name || `${family.primary_name || 'Unnamed'} Family`}
+                                {family.familyName || family.family_name || 'Unnamed Family'}
                             </div>
-                            {family.primary_email && (
-                              <div className="text-sm text-gray-300">{family.primary_email}</div>
+                              {family.familyUsername && (
+                                <div className="text-sm text-gray-300">Username: {family.familyUsername}</div>
                             )}
-                            {family.guardians && family.guardians.length > 0 && (
+                              {family.memberCount !== undefined && (
                               <div className="text-xs text-gray-400 mt-1">
-                                {family.guardians.length} guardian(s), {family.athletes?.length || 0} athlete(s)
+                                  {family.memberCount} member(s)
                               </div>
                             )}
                           </div>
@@ -2243,13 +2378,52 @@ export default function AdminMembers() {
                     )}
                   </div>
 
+                    {/* Or join by username + password */}
                   <div className="border-t border-gray-600 pt-4">
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        Or Join by Family Username
+                      </label>
+                      <div className="space-y-2">
+                        <input
+                          type="text"
+                          value={familyJoinInfo.familyUsername}
+                          onChange={(e) => setFamilyJoinInfo(prev => ({ ...prev, familyUsername: e.target.value }))}
+                          placeholder="Family username"
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                        <input
+                          type="password"
+                          value={familyJoinInfo.familyPassword}
+                          onChange={(e) => setFamilyJoinInfo(prev => ({ ...prev, familyPassword: e.target.value }))}
+                          placeholder="Family password"
+                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        />
+                        <button
+                          onClick={() => {
+                            if (!familyJoinInfo.familyUsername || !familyJoinInfo.familyPassword) {
+                              alert('Please enter both family username and password')
+                              return
+                            }
+                            // Verify family password and proceed
+                            setMemberModalMode('existing-family')
+                          }}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                        >
+                          Verify & Join Family
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-600 pt-4">
+                    <h4 className="text-lg font-semibold text-white mb-4">Option 2: Create New Family</h4>
                     <button
                       onClick={() => {
                         setUnifiedModalMode('create-new')
                         setMemberModalMode('new-family')
                         setEditingFamilyId(null)
                         setEditingMemberUserId(null)
+                        setFamilyCreationInfo({ familyName: '', familyUsername: '', familyPassword: '', familyPasswordConfirm: '' })
                         // Reset to blank form for new family
                         setFamilyMembers([{
                           id: 'member-1',
@@ -2273,17 +2447,56 @@ export default function AdminMembers() {
                             statusVerification: { isExpanded: false }
                           }
                         }])
-                        if (familyMembers.length > 0) {
-                          setExpandedFamilyMemberId(familyMembers[0].id)
-                        } else {
                           setExpandedFamilyMemberId('member-1')
-                        }
                         setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
                         setIsBillingExpanded(true)
                       }}
                       className="w-full bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
                     >
-                      Create New Family Instead
+                      Create New Family
+                    </button>
+                  </div>
+                  
+                  <div className="border-t border-gray-600 pt-4">
+                    <h4 className="text-lg font-semibold text-white mb-4">Option 3: Create Member Without Family</h4>
+                    <button
+                      onClick={() => {
+                        setUnifiedModalMode('create-new')
+                        setMemberModalMode('new-family')
+                        setEditingFamilyId(null)
+                        setEditingMemberUserId(null)
+                        setFamilyCreationInfo({ familyName: '', familyUsername: '', familyPassword: '', familyPasswordConfirm: '' })
+                        setFamilyJoinInfo({ familyId: null, familyUsername: '', familyPassword: '' })
+                        // Reset to blank form - no family (orphan member)
+                        setFamilyMembers([{
+                          id: 'member-1',
+                          firstName: '',
+                          lastName: '',
+                          email: '',
+                          phone: '',
+                          addressStreet: '',
+                          addressCity: '',
+                          addressState: '',
+                          addressZip: '',
+                          username: '',
+                          password: 'vortex',
+                          enrollments: [],
+                          dateOfBirth: '',
+                          medicalNotes: '',
+                          isFinished: false,
+                          sections: {
+                            contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+                            loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+                            statusVerification: { isExpanded: false }
+                          }
+                        }])
+                        setExpandedFamilyMemberId('member-1')
+                        setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
+                        setIsBillingExpanded(true)
+                      }}
+                      className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    >
+                      Create Member (No Family)
                     </button>
                   </div>
                 </div>
@@ -2292,6 +2505,97 @@ export default function AdminMembers() {
               {/* New Family Mode */}
               {memberModalMode === 'new-family' && (
                 <div className="space-y-6">
+                  {/* Family Creation Form (only show if we're creating a new family, not orphan) */}
+                  {(!familyJoinInfo.familyId && !familyJoinInfo.familyUsername && 
+                    (familyCreationInfo.familyName || familyMembers.length > 0)) && (
+                    <div className="bg-gray-700 p-4 rounded">
+                      <h4 className="text-lg font-semibold text-white mb-4">Family Information</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                            Family Name *
+                          </label>
+                          <input
+                            type="text"
+                            value={familyCreationInfo.familyName}
+                            onChange={(e) => setFamilyCreationInfo(prev => ({ ...prev, familyName: e.target.value }))}
+                            placeholder="e.g., Smith Family"
+                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                            Family Username *
+                          </label>
+                          <input
+                            type="text"
+                            value={familyCreationInfo.familyUsername}
+                            onChange={(e) => setFamilyCreationInfo(prev => ({ ...prev, familyUsername: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '') }))}
+                            placeholder="e.g., smithfamily"
+                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            required
+                          />
+                          <p className="text-xs text-gray-400 mt-1">Used to join family. Letters and numbers only.</p>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                            Family Password *
+                          </label>
+                          <input
+                            type="password"
+                            value={familyCreationInfo.familyPassword}
+                            onChange={(e) => setFamilyCreationInfo(prev => ({ ...prev, familyPassword: e.target.value }))}
+                            placeholder="Minimum 6 characters"
+                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            required
+                            minLength={6}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                            Confirm Family Password *
+                          </label>
+                          <input
+                            type="password"
+                            value={familyCreationInfo.familyPasswordConfirm}
+                            onChange={(e) => setFamilyCreationInfo(prev => ({ ...prev, familyPasswordConfirm: e.target.value }))}
+                            placeholder="Re-enter password"
+                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            required
+                            minLength={6}
+                          />
+                          {familyCreationInfo.familyPassword && familyCreationInfo.familyPasswordConfirm && 
+                           familyCreationInfo.familyPassword !== familyCreationInfo.familyPasswordConfirm && (
+                            <p className="text-xs text-red-400 mt-1">Passwords do not match</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Family Join Form (for existing family mode) */}
+                  {memberModalMode === 'existing-family' && selectedFamilyForMember && (
+                    <div className="bg-gray-700 p-4 rounded">
+                      <h4 className="text-lg font-semibold text-white mb-4">Join Family: {(selectedFamilyForMember as any).familyName || (selectedFamilyForMember as any).family_name || 'Unnamed Family'}</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                            Family Password *
+                          </label>
+                          <input
+                            type="password"
+                            value={familyJoinInfo.familyPassword}
+                            onChange={(e) => setFamilyJoinInfo(prev => ({ ...prev, familyPassword: e.target.value }))}
+                            placeholder="Enter family password"
+                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   {familyMembers.map((member, memberIndex) => (
                     <MemberFormSection
                       key={member.id}
