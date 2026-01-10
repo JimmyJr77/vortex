@@ -8578,6 +8578,15 @@ app.use((req, res) => {
 const startServer = async () => {
   await initDatabase()
   
+  // Log registered routes for debugging
+  console.log('[Server] Registered routes:')
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      const methods = Object.keys(middleware.route.methods).join(', ').toUpperCase()
+      console.log(`  ${methods} ${middleware.route.path}`)
+    }
+  })
+  
   // Only start the HTTP server if not running as a migration script
   if (process.env.RUN_MIGRATION_ONLY !== 'true') {
     app.listen(PORT, () => {
@@ -8585,6 +8594,7 @@ const startServer = async () => {
       console.log(`📊 Health check: http://localhost:${PORT}/api/health`)
       console.log(`📝 Registrations: http://localhost:${PORT}/api/registrations`)
       console.log(`📧 Newsletter: http://localhost:${PORT}/api/newsletter`)
+      console.log(`📝 Enrollment: http://localhost:${PORT}/api/members/enroll`)
     })
   }
 }
