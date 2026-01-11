@@ -1840,6 +1840,17 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                       <div className="text-center py-12 text-gray-600">Loading classes...</div>
                     </div>
+                  ) : classes.length === 0 && !classesLoading ? (
+                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                      <div className="text-center py-12">
+                        <div className="text-red-600 font-semibold mb-2">Unable to Load Classes</div>
+                        <div className="text-gray-500 text-sm">
+                          The class browsing feature requires backend updates to support member access.
+                          <br />
+                          Please contact support or use the admin portal to view available classes.
+                        </div>
+                      </div>
+                    </div>
                   ) : filteredClasses.length === 0 ? (
                     <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                       <div className="text-center py-12 text-gray-500">
