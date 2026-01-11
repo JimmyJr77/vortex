@@ -7106,10 +7106,35 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     }
 
     // Create enrollment record in member_program table
+    // First, ensure the table exists (create if it doesn't)
+    try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS member_program (
+          id                  BIGSERIAL PRIMARY KEY,
+          member_id           BIGINT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
+          program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+          iteration_id        BIGINT REFERENCES class_iteration(id) ON DELETE CASCADE,
+          days_per_week       INTEGER NOT NULL,
+          selected_days       JSONB,
+          created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+          UNIQUE (member_id, program_id, iteration_id)
+        )
+      `)
+      
+      // Create indexes if they don't exist
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_program_member ON member_program(member_id)`)
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_program_program ON member_program(program_id)`)
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_program_iteration ON member_program(iteration_id)`)
+    } catch (tableError) {
+      // If table creation fails, log but continue - might already exist
+      console.warn('[Enrollment] Could not ensure member_program table exists:', tableError.message)
+    }
+    
+    // Now insert the enrollment record
     try {
       const selectedDaysJson = JSON.stringify(selectedDays)
       
-      // Insert enrollment record - member_program table already exists (created in initDatabase)
       await pool.query(`
         INSERT INTO member_program (member_id, program_id, iteration_id, days_per_week, selected_days, created_at, updated_at)
         VALUES ($1, $2, $3, $4, $5::jsonb, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
