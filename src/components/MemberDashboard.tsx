@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, Calendar, Search, Edit2, UserPlus, CheckCircle, MapPin, Award, Users, Trophy } from 'lucide-react'
+import { LogOut, Home, Calendar, Search, Edit2, UserPlus, CheckCircle, MapPin, Award, Users, Trophy, Eye, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import EnrollmentForm from './EnrollmentForm'
@@ -24,6 +24,36 @@ interface FamilyMember {
   user_id?: number | null
   is_adult?: boolean
   marked_for_removal?: boolean
+}
+
+// Unified Member interface (matching AdminMembers format)
+interface UnifiedMember {
+  id: number
+  firstName: string
+  lastName: string
+  email?: string | null
+  phone?: string | null
+  address?: string | null
+  dateOfBirth?: string | null
+  age?: number | null
+  medicalNotes?: string | null
+  internalFlags?: string | null
+  status: string
+  isActive: boolean
+  familyIsActive?: boolean
+  familyId?: number | null
+  familyName?: string | null
+  username?: string | null
+  roles: Array<{ id: string; role: string }> | string[]
+  enrollments: Array<{
+    id: number
+    program_id: number
+    program_display_name: string
+    days_per_week: number
+    selected_days: string[] | string
+  }>
+  createdAt?: string
+  updatedAt?: string
 }
 
 interface Category {
@@ -75,8 +105,13 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const [activeTab, setActiveTab] = useState<MemberTab>('profile')
   const [profileData, setProfileData] = useState<any>(null)
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([])
+  const [members, setMembers] = useState<UnifiedMember[]>([]) // Combined members list for display
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [viewingMember, setViewingMember] = useState<UnifiedMember | null>(null)
+  const [showViewModal, setShowViewModal] = useState(false)
+  const [editingMember, setEditingMember] = useState<UnifiedMember | null>(null)
+  const [showEditModal, setShowEditModal] = useState(false)
   
   // Classes tab state
   const [classes, setClasses] = useState<Program[]>([])
@@ -126,20 +161,77 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const fetchProfileData = async () => {
     try {
       setLoading(true)
+      setError(null)
+      
+      if (!token) {
+        setError('No authentication token found. Please log in again.')
+        setLoading(false)
+        return
+      }
+      
+      console.log('[MemberDashboard] Fetching profile data from:', `${apiUrl}/api/members/me`)
+      console.log('[MemberDashboard] Token exists:', !!token, 'Token length:', token?.length)
+      
       const response = await fetch(`${apiUrl}/api/members/me`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       })
       
-      if (response.ok) {
-        const data = await response.json()
-        const member = data.data || data.member
-        setProfileData(member)
+      console.log('[MemberDashboard] Response status:', response.status, response.statusText)
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }))
+        console.error('[MemberDashboard] Error response:', errorData)
+        setError(errorData.message || `Failed to load profile data (${response.status})`)
+        setLoading(false)
+        return
+      }
+      
+      const data = await response.json()
+      console.log('[MemberDashboard] Profile data received:', data)
+      
+      const member = data.data || data.member
+      if (!member) {
+        setError('No member data received from server')
+        setLoading(false)
+        return
+      }
+      
+      setProfileData(member)
+        
+        // Convert current member to UnifiedMember format
+        const currentMember: UnifiedMember = {
+          id: member.id,
+          firstName: member.firstName || member.first_name,
+          lastName: member.lastName || member.last_name,
+          email: member.email,
+          phone: member.phone,
+          address: member.address,
+          dateOfBirth: member.dateOfBirth || member.date_of_birth,
+          age: member.age,
+          medicalNotes: member.medicalNotes || member.medical_notes,
+          internalFlags: member.internalFlags || member.internal_flags,
+          status: member.status || 'Active',
+          isActive: member.isActive !== undefined ? member.isActive : true,
+          familyIsActive: member.familyIsActive || member.family_is_active,
+          familyId: member.familyId || member.family_id,
+          familyName: member.familyName || member.family_name,
+          username: member.username,
+          roles: member.roles || [],
+          enrollments: member.enrollments || [],
+          createdAt: member.createdAt || member.created_at,
+          updatedAt: member.updatedAt || member.updated_at
+        }
+        
         // Also set family members from the response
+        const familyMembersList: FamilyMember[] = []
+        const membersList: UnifiedMember[] = [currentMember]
+        
         if (data.familyMembers && Array.isArray(data.familyMembers)) {
           // Convert to FamilyMember format
-          setFamilyMembers(data.familyMembers.map((fm: any) => ({
+          const convertedFamilyMembers = data.familyMembers.map((fm: any) => ({
             id: fm.id,
             first_name: fm.firstName || fm.first_name,
             last_name: fm.lastName || fm.last_name,
@@ -149,8 +241,38 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
             age: fm.age,
             user_id: fm.id,
             is_adult: fm.roles?.some((r: any) => typeof r === 'string' ? r === 'PARENT_GUARDIAN' : r.role === 'PARENT_GUARDIAN') || false
-          })))
+          }))
+          setFamilyMembers(convertedFamilyMembers)
+          
+          // Convert family members to UnifiedMember format
+          data.familyMembers.forEach((fm: any) => {
+            const unifiedMember: UnifiedMember = {
+              id: fm.id,
+              firstName: fm.firstName || fm.first_name,
+              lastName: fm.lastName || fm.last_name,
+              email: fm.email,
+              phone: fm.phone,
+              address: fm.address,
+              dateOfBirth: fm.dateOfBirth || fm.date_of_birth,
+              age: fm.age,
+              medicalNotes: fm.medicalNotes || fm.medical_notes,
+              internalFlags: fm.internalFlags || fm.internal_flags,
+              status: fm.status || 'Active',
+              isActive: fm.isActive !== undefined ? fm.isActive : true,
+              familyIsActive: fm.familyIsActive || fm.family_is_active,
+              familyId: fm.familyId || fm.family_id,
+              familyName: fm.familyName || fm.family_name,
+              username: fm.username,
+              roles: fm.roles || [],
+              enrollments: fm.enrollments || [],
+              createdAt: fm.createdAt || fm.created_at,
+              updatedAt: fm.updatedAt || fm.updated_at
+            }
+            membersList.push(unifiedMember)
+          })
         }
+        
+        setMembers(membersList)
       } else {
         setError('Failed to load profile data')
       }
@@ -569,103 +691,39 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {/* Profile Information - Matching Admin Format */}
+                {/* Members Section - Matching AdminMembers Format */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                     <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-                      Your Profile
+                      Family Members ({members.length})
                     </h2>
-                    {profileData && (
-                      <motion.button
-                        onClick={() => alert('Edit functionality coming soon - will use the same form as admin portal')}
-                        className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-green-600 text-white hover:bg-green-700"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Edit2 className="w-4 h-4" />
-                        <span>Edit</span>
-                      </motion.button>
-                    )}
                   </div>
 
                   {loading ? (
-                    <div className="text-center py-12 text-gray-600">Loading profile...</div>
+                    <div className="text-center py-12 text-gray-600">Loading members...</div>
                   ) : error ? (
                     <div className="text-center py-12 text-red-600">{error}</div>
-                  ) : profileData ? (
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <div className="text-black font-semibold text-lg">
-                              {profileData.firstName || profileData.first_name || (profileData.full_name ? profileData.full_name.split(' ')[0] : '')} {profileData.lastName || profileData.last_name || (profileData.full_name ? profileData.full_name.split(' ').slice(1).join(' ') : '')}
-                            </div>
-                            <span className="px-2 py-1 rounded text-xs font-semibold bg-green-600 text-white">
-                              Active
-                            </span>
-                            {enrollments && enrollments.length > 0 && (
-                              <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-600 text-white">
-                                Athlete
-                              </span>
-                            )}
-                          </div>
-                          {profileData.email && (
-                            <div className="text-gray-600 text-sm mt-1">{profileData.email}</div>
-                          )}
-                          {profileData.phone && (
-                            <div className="text-gray-600 text-sm">{profileData.phone}</div>
-                          )}
-                          {profileData.age !== null && profileData.age !== undefined && (
-                            <div className="text-gray-600 text-sm">Age: {profileData.age}</div>
-                          )}
-                          <div className="text-gray-500 text-xs mt-1">
-                            Roles: {(profileData.roles && profileData.roles.length > 0) 
-                              ? (Array.isArray(profileData.roles) 
-                                  ? profileData.roles.map((r: any) => typeof r === 'string' ? r : r.role).join(', ')
-                                  : profileData.roles)
-                              : (profileData.role || 'No roles')} • Status: {profileData.status || 'Active'}
-                            {profileData.familyName && ` • Family: ${profileData.familyName}`}
-                            {profileData.familyId && ` (ID: ${profileData.familyId})`}
-                          </div>
-                          {enrollments && enrollments.length > 0 && (
-                            <div className="text-gray-500 text-xs mt-1">
-                              Enrolled in: {enrollments.map((e: any) => e.program_display_name || e.program_name || 'Unknown').join(', ')}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-
-                {/* Family Members - Matching Admin Format */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
-                    Family Members
-                  </h2>
-                  
-                  {familyMembers.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">No family members found</div>
+                  ) : members.length === 0 ? (
+                    <div className="text-center py-12 text-gray-600">No members found</div>
                   ) : (
                     <div className="space-y-4">
-                      {familyMembers.map((member) => {
-                        // Get enrollments for this family member
-                        const memberEnrollments = enrollments.filter((e: any) => 
-                          (e.athlete_user_id === (member.user_id || member.id))
-                        )
-                        const hasEnrollments = memberEnrollments.length > 0
+                      {members.map((member) => {
+                        const hasEnrollments = member.enrollments && member.enrollments.length > 0
                         const enrollmentStatus = hasEnrollments ? 'Athlete' : 'Non-Participant'
+                        const rolesList = Array.isArray(member.roles)
+                          ? member.roles.map(r => typeof r === 'string' ? r : r.role).join(', ')
+                          : 'No roles'
                         
                         return (
                           <div 
-                            key={member.id} 
+                            key={member.id}
                             className="bg-gray-50 rounded-lg p-4 border border-gray-200"
                           >
                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
                                   <div className="text-black font-semibold text-lg">
-                                    {member.first_name} {member.last_name}
+                                    {member.firstName} {member.lastName}
                                   </div>
                                   <span className="px-2 py-1 rounded text-xs font-semibold bg-green-600 text-white">
                                     Active
@@ -686,24 +744,35 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                                   <div className="text-gray-600 text-sm">Age: {member.age}</div>
                                 )}
                                 <div className="text-gray-500 text-xs mt-1">
-                                  Status: Active
-                                  {profileData?.familyName && ` • Family: ${profileData.familyName}`}
+                                  Roles: {rolesList} • Status: {member.status}
+                                  {member.familyName && ` • Family: ${member.familyName}`}
+                                  {member.familyId && ` (ID: ${member.familyId})`}
                                 </div>
                                 {hasEnrollments && (
                                   <div className="text-gray-500 text-xs mt-1">
-                                    Enrolled in: {memberEnrollments.map((e: any) => e.program_display_name || e.program_name || 'Unknown').join(', ')}
-                                  </div>
-                                )}
-                                {member.marked_for_removal && (
-                                  <div className="mt-2 text-sm text-yellow-600 font-medium">
-                                    Marked for removal by administrator
+                                    Enrolled in: {member.enrollments.map(e => e.program_display_name).join(', ')}
                                   </div>
                                 )}
                               </div>
-                              {isAdult() && (
-                                <div className="flex gap-2">
+                              <div className="flex gap-2">
+                                <motion.button
+                                  onClick={() => {
+                                    setViewingMember(member)
+                                    setShowViewModal(true)
+                                  }}
+                                  className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-blue-600 text-white hover:bg-blue-700"
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                  <span>View</span>
+                                </motion.button>
+                                {(isAdult() || member.id === profileData?.id) && (
                                   <motion.button
-                                    onClick={() => alert('Edit functionality coming soon - will use the same form as admin portal')}
+                                    onClick={() => {
+                                      setEditingMember(member)
+                                      setShowEditModal(true)
+                                    }}
                                     className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-green-600 text-white hover:bg-green-700"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
@@ -711,8 +780,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                                     <Edit2 className="w-4 h-4" />
                                     <span>Edit</span>
                                   </motion.button>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
                           </div>
                         )
@@ -1092,6 +1161,143 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
           </AnimatePresence>
         </div>
       </div>
+
+      {/* View Member Modal */}
+      <AnimatePresence>
+        {showViewModal && viewingMember && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                setShowViewModal(false)
+                setViewingMember(null)
+              }}
+            />
+            <motion.div
+              className="relative bg-white rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-black">
+                  Member Details
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowViewModal(false)
+                    setViewingMember(null)
+                  }}
+                  className="text-gray-400 hover:text-black"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-gray-700 mb-2">Name</h4>
+                  <p className="text-black">{viewingMember.firstName} {viewingMember.lastName}</p>
+                </div>
+                {viewingMember.email && (
+                  <div>
+                    <h4 className="font-semibold text-gray-700 mb-2">Email</h4>
+                    <p className="text-black">{viewingMember.email}</p>
+                  </div>
+                )}
+                {viewingMember.phone && (
+                  <div>
+                    <h4 className="font-semibold text-gray-700 mb-2">Phone</h4>
+                    <p className="text-black">{viewingMember.phone}</p>
+                  </div>
+                )}
+                {viewingMember.age !== null && viewingMember.age !== undefined && (
+                  <div>
+                    <h4 className="font-semibold text-gray-700 mb-2">Age</h4>
+                    <p className="text-black">{viewingMember.age}</p>
+                  </div>
+                )}
+                <div>
+                  <h4 className="font-semibold text-gray-700 mb-2">Status</h4>
+                  <p className="text-black">{viewingMember.status}</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-700 mb-2">Roles</h4>
+                  <p className="text-black">
+                    {Array.isArray(viewingMember.roles)
+                      ? viewingMember.roles.map(r => typeof r === 'string' ? r : r.role).join(', ')
+                      : 'No roles'}
+                  </p>
+                </div>
+                {viewingMember.enrollments && viewingMember.enrollments.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-700 mb-2">Enrollments</h4>
+                    <ul className="list-disc list-inside text-black">
+                      {viewingMember.enrollments.map((e, idx) => (
+                        <li key={idx}>{e.program_display_name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Member Modal */}
+      <AnimatePresence>
+        {showEditModal && editingMember && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                setShowEditModal(false)
+                setEditingMember(null)
+              }}
+            />
+            <motion.div
+              className="relative bg-white rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-black">
+                  Edit Member
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false)
+                    setEditingMember(null)
+                  }}
+                  className="text-gray-400 hover:text-black"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="text-center py-12 text-gray-600">
+                Edit functionality will use the same form as the admin portal. 
+                <br />
+                Coming soon!
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Enrollment Modal */}
       {showEnrollModal && selectedClassForEnrollment && (
