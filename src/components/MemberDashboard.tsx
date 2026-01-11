@@ -1135,123 +1135,14 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
-  const fetchClasses = async () => {
-    try {
-      setClassesLoading(true)
-      // Try public endpoint first, then with member token
-      let response = await fetch(`${apiUrl}/api/admin/programs?archived=false`)
-      
-      if (!response.ok && token) {
-        response = await fetch(`${apiUrl}/api/admin/programs?archived=false`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-      }
-      
-      if (response.ok) {
-        const data = await response.json()
-        const programs = data.programs || data.data || []
-        setClasses(programs.filter((p: Program) => !p.archived && p.isActive))
-      } else {
-        console.error('Failed to fetch classes:', response.status, response.statusText)
-        setClasses([])
-      }
-    } catch (error) {
-      console.error('Error fetching classes:', error)
-      setClasses([])
-    } finally {
-      setClassesLoading(false)
-    }
-  }
-
-  const fetchCategories = async () => {
-    try {
-      // Try public endpoint first, then with member token
-      let response = await fetch(`${apiUrl}/api/admin/categories?archived=false`)
-      
-      if (!response.ok && token) {
-        response = await fetch(`${apiUrl}/api/admin/categories?archived=false`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-      }
-      
-      if (response.ok) {
-        const data = await response.json()
-        const categories = data.categories || data.data || []
-        setCategories(categories.filter((c: Category) => !c.archived))
-      } else {
-        console.error('Failed to fetch categories:', response.status, response.statusText)
-        setCategories([])
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-      setCategories([])
-    }
-  }
-
-  // Filter classes based on search and category/class selection
-  const filteredClasses = classes.filter((program: Program) => {
-    // Category/Class filter - handle both category ID and program ID
-    if (selectedCategoryFilter !== 'all') {
-      // Check if selectedCategoryFilter is a program ID (if it matches a program ID, show only that program)
-      const matchingProgram = classes.find(p => p.id === selectedCategoryFilter)
-      if (matchingProgram) {
-        // Filter to show only this specific program
-        return program.id === selectedCategoryFilter
-      }
-      
-      // Otherwise, treat it as a category ID
-      if (program.categoryId != null) {
-        if (program.categoryId !== selectedCategoryFilter && String(program.categoryId) !== String(selectedCategoryFilter)) {
-          // Also check categoryDisplayName as fallback
-          const selectedCategory = categories.find(c => c.id === selectedCategoryFilter)
-          if (selectedCategory) {
-            if (program.categoryDisplayName !== selectedCategory.displayName) {
-              return false
-            }
-          } else {
-            return false
-          }
-        }
-      } else {
-        // If categoryId is null, try to match by categoryDisplayName
-        const selectedCategory = categories.find(c => c.id === selectedCategoryFilter)
-        if (selectedCategory && program.categoryDisplayName !== selectedCategory.displayName) {
-          return false
-        } else if (!selectedCategory) {
-          return false
-        }
-      }
-    }
-    
-    // Search filter - search through all class details
-    if (classSearchQuery.trim()) {
-      const query = classSearchQuery.toLowerCase()
-      const programCategory = categories.find(c => 
-        c.id === program.categoryId || 
-        c.displayName === program.categoryDisplayName ||
-        c.name === program.categoryName
-      )
-      const searchableText = [
-        program.displayName,
-        program.name,
-        program.description || '',
-        program.skillRequirements || '',
-        program.categoryDisplayName || '',
-        program.categoryName || '',
-        programCategory?.displayName || '',
-        programCategory?.name || '',
-        program.skillLevel || ''
-      ].join(' ').toLowerCase()
-      
-      return searchableText.includes(query)
-    }
-    
-    return true
-  })
+  // Classes/categories fetching - disabled until backend provides member-accessible endpoints
+  // const fetchClasses = async () => { ... }
+  // const fetchCategories = async () => { ... }
+  
+  // Filter classes - disabled until backend provides member-accessible endpoints
+  // const filteredClasses = classes.filter((program: Program) => {
+  //   ... filtering logic ...
+  // })
 
   // Helper function to check if an event should be shown based on tags and family member enrollments
   const isEventRelevant = (event: Event): boolean => {
