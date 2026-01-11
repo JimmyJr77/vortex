@@ -2592,27 +2592,62 @@ app.get('/api/admin/athletes', async (req, res) => {
       })
     }
     
-    // Query members
-    const membersResponse = await pool.query(`
-      SELECT 
-        m.id,
-        m.first_name,
-        m.last_name,
-        m.date_of_birth,
-        m.medical_notes,
-        m.internal_flags,
-        m.family_id,
-        m.user_id,
-        CASE WHEN m.date_of_birth IS NOT NULL 
-          THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
-          ELSE NULL 
-        END as age,
-        f.family_name
-      FROM member m
-      LEFT JOIN family f ON m.family_id = f.id
-      WHERE m.is_active = TRUE
-      ORDER BY m.last_name, m.first_name
+    // Check if family table exists (for the LEFT JOIN)
+    const familyTableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'family'
+      )
     `)
+    
+    const hasFamilyTable = familyTableCheck.rows[0].exists
+    
+    // Query members - handle family table existence
+    let membersResponse
+    if (hasFamilyTable) {
+      membersResponse = await pool.query(`
+        SELECT 
+          m.id,
+          m.first_name,
+          m.last_name,
+          m.date_of_birth,
+          m.medical_notes,
+          m.internal_flags,
+          m.family_id,
+          m.user_id,
+          CASE WHEN m.date_of_birth IS NOT NULL 
+            THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
+            ELSE NULL 
+          END as age,
+          f.family_name
+        FROM member m
+        LEFT JOIN family f ON m.family_id = f.id
+        WHERE m.is_active = TRUE
+        ORDER BY m.last_name, m.first_name
+      `)
+    } else {
+      // If family table doesn't exist, query without the join
+      membersResponse = await pool.query(`
+        SELECT 
+          m.id,
+          m.first_name,
+          m.last_name,
+          m.date_of_birth,
+          m.medical_notes,
+          m.internal_flags,
+          m.family_id,
+          m.user_id,
+          CASE WHEN m.date_of_birth IS NOT NULL 
+            THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
+            ELSE NULL 
+          END as age,
+          NULL as family_name
+        FROM member m
+        WHERE m.is_active = TRUE
+        ORDER BY m.last_name, m.first_name
+      `)
+    }
     
     // Get enrollments for all members
     const memberIds = membersResponse.rows.map(row => row.id)
@@ -2671,10 +2706,22 @@ app.get('/api/admin/athletes', async (req, res) => {
     })
   } catch (error) {
     console.error('Get athletes error:', error)
+    console.error('Error stack:', error.stack)
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      hint: error.hint
+    })
     res.status(500).json({
       success: false,
       message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'development' ? {
+        message: error.message,
+        code: error.code,
+        detail: error.detail,
+        hint: error.hint
+      } : undefined
     })
   }
 })
