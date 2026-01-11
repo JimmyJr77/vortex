@@ -1067,17 +1067,12 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const fetchClasses = async () => {
     try {
       setClassesLoading(true)
-      // Try without authentication first (public data)
-      let response = await fetch(`${apiUrl}/api/admin/programs?archived=false`)
-      
-      // If that fails, try with member token
-      if (!response.ok && token) {
-        response = await fetch(`${apiUrl}/api/admin/programs?archived=false`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-      }
+      // Try with member token first
+      let response = token ? await fetch(`${apiUrl}/api/admin/programs?archived=false`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }) : await fetch(`${apiUrl}/api/admin/programs?archived=false`)
       
       if (response.ok) {
         const data = await response.json()
@@ -1085,10 +1080,14 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         const programs = data.programs || data.data || []
         setClasses(programs.filter((p: Program) => !p.archived && p.isActive))
       } else {
-        console.error('Failed to fetch classes:', response.status, response.statusText)
+        // If admin endpoint fails, the backend requires admin access
+        // For now, set empty array and show error message in UI
+        console.warn('Cannot fetch classes: Backend requires admin access. Member endpoints needed.')
+        setClasses([])
       }
     } catch (error) {
       console.error('Error fetching classes:', error)
+      setClasses([])
     } finally {
       setClassesLoading(false)
     }
@@ -1096,17 +1095,12 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
 
   const fetchCategories = async () => {
     try {
-      // Try without authentication first (public data)
-      let response = await fetch(`${apiUrl}/api/admin/categories?archived=false`)
-      
-      // If that fails, try with member token
-      if (!response.ok && token) {
-        response = await fetch(`${apiUrl}/api/admin/categories?archived=false`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-      }
+      // Try with member token first
+      let response = token ? await fetch(`${apiUrl}/api/admin/categories?archived=false`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }) : await fetch(`${apiUrl}/api/admin/categories?archived=false`)
       
       if (response.ok) {
         const data = await response.json()
@@ -1114,10 +1108,14 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         const categories = data.categories || data.data || []
         setCategories(categories.filter((c: Category) => !c.archived))
       } else {
-        console.error('Failed to fetch categories:', response.status, response.statusText)
+        // If admin endpoint fails, the backend requires admin access
+        // For now, set empty array
+        console.warn('Cannot fetch categories: Backend requires admin access. Member endpoints needed.')
+        setCategories([])
       }
     } catch (error) {
       console.error('Error fetching categories:', error)
+      setCategories([])
     }
   }
 
