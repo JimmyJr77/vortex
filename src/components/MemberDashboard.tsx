@@ -2440,7 +2440,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                 <button
                   onClick={() => {
                     setShowEditModal(false)
-                    setEditingMember(null)
                     setEditingMemberId(null)
                     setEditingFamilyMembers([])
                     setExpandedFamilyMemberId(null)
@@ -2484,7 +2483,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                 <button
                   onClick={() => {
                     setShowEditModal(false)
-                    setEditingMember(null)
                     setEditingMemberId(null)
                     setEditingFamilyMembers([])
                     setExpandedFamilyMemberId(null)
