@@ -1067,23 +1067,25 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const fetchClasses = async () => {
     try {
       setClassesLoading(true)
-      const response = await fetch(`${apiUrl}/api/admin/programs?archived=false`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      // Try without authentication first (public data)
+      let response = await fetch(`${apiUrl}/api/admin/programs?archived=false`)
+      
+      // If that fails, try with member token
+      if (!response.ok && token) {
+        response = await fetch(`${apiUrl}/api/admin/programs?archived=false`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+      }
       
       if (response.ok) {
         const data = await response.json()
         // Filter out archived classes and only show active ones
-        setClasses((data.programs || []).filter((p: Program) => !p.archived && p.isActive))
+        const programs = data.programs || data.data || []
+        setClasses(programs.filter((p: Program) => !p.archived && p.isActive))
       } else {
-        // If admin endpoint fails, try public endpoint
-        const publicResponse = await fetch(`${apiUrl}/api/admin/programs?archived=false`)
-        if (publicResponse.ok) {
-          const publicData = await publicResponse.json()
-          setClasses((publicData.programs || []).filter((p: Program) => !p.archived && p.isActive))
-        }
+        console.error('Failed to fetch classes:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('Error fetching classes:', error)
@@ -1094,23 +1096,25 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/admin/categories?archived=false`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      // Try without authentication first (public data)
+      let response = await fetch(`${apiUrl}/api/admin/categories?archived=false`)
+      
+      // If that fails, try with member token
+      if (!response.ok && token) {
+        response = await fetch(`${apiUrl}/api/admin/categories?archived=false`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+      }
       
       if (response.ok) {
         const data = await response.json()
         // Filter out archived categories
-        setCategories((data.categories || []).filter((c: Category) => !c.archived))
+        const categories = data.categories || data.data || []
+        setCategories(categories.filter((c: Category) => !c.archived))
       } else {
-        // If admin endpoint fails, try public endpoint
-        const publicResponse = await fetch(`${apiUrl}/api/admin/categories?archived=false`)
-        if (publicResponse.ok) {
-          const publicData = await publicResponse.json()
-          setCategories((publicData.categories || []).filter((c: Category) => !c.archived))
-        }
+        console.error('Failed to fetch categories:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('Error fetching categories:', error)
