@@ -915,7 +915,7 @@ export const initDatabase = async () => {
         member_id           BIGINT REFERENCES member(id) ON DELETE CASCADE,
         is_primary          BOOLEAN NOT NULL DEFAULT FALSE,
         created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-        PRIMARY KEY (family_id, COALESCE(member_id, user_id))
+        PRIMARY KEY (family_id, member_id, user_id)
       )
     `)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_family ON family_guardian(family_id)`)
