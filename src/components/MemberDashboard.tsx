@@ -113,7 +113,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const [viewingMember, setViewingMember] = useState<UnifiedMember | null>(null)
   const [viewingMemberFamilyData, setViewingMemberFamilyData] = useState<any>(null)
   const [showViewModal, setShowViewModal] = useState(false)
-  const [editingMember, setEditingMember] = useState<UnifiedMember | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   
   // Edit modal state (for MemberFormSection)
@@ -181,15 +180,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     email?: string
     phone?: string
   }>>([])
-  const [billingInfo, setBillingInfo] = useState({
-    firstName: '',
-    lastName: '',
-    addressStreet: '',
-    addressCity: '',
-    addressState: '',
-    addressZip: ''
-  })
-  const [isBillingExpanded, setIsBillingExpanded] = useState(false)
   
   // Classes tab state
   const [classes, setClasses] = useState<Program[]>([])
@@ -330,18 +320,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     return phone.replace(/\D/g, '')
   }
 
-  const formatDateForInput = (date: string | null | undefined): string => {
-    if (!date) return ''
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date
-    try {
-      const d = new Date(date)
-      if (isNaN(d.getTime())) return ''
-      return d.toISOString().split('T')[0]
-    } catch {
-      return ''
-    }
-  }
-
   // Check if current member is an adult (can edit family members)
   const isAdult = () => {
     // Check if user has PARENT_GUARDIAN role (support both single role and multiple roles)
@@ -370,50 +348,10 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
-  // Helper to create default member structure
-  const createDefaultMember = useCallback((id: string = `member-${Date.now()}`): FamilyMemberData => ({
-    id,
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    addressStreet: '',
-    addressCity: '',
-    addressState: '',
-    addressZip: '',
-    username: '',
-    password: 'vortex',
-    enrollments: [],
-    dateOfBirth: '',
-    gender: '',
-    medicalNotes: '',
-    medicalConcerns: '',
-    injuryHistoryDate: '',
-    injuryHistoryBodyPart: '',
-    injuryHistoryNotes: '',
-    noInjuryHistory: false,
-    experience: '',
-    previousClasses: [],
-    isFinished: false,
-    parentGuardianIds: [],
-    hasCompletedWaivers: false,
-    waiverCompletionDate: null,
-    sections: {
-      contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
-      loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
-      personalData: { isExpanded: false, tempData: { dateOfBirth: '', gender: '', medicalConcerns: '', injuryHistoryDate: '', injuryHistoryBodyPart: '', injuryHistoryNotes: '', noInjuryHistory: false } },
-      parentGuardians: { isExpanded: false, tempData: { parentGuardians: [] } },
-      waivers: { isExpanded: false, tempData: { hasCompletedWaivers: false, waiverCompletionDate: null } },
-      statusVerification: { isExpanded: false },
-      previousClasses: { isExpanded: false, tempData: { experience: '' } }
-    }
-  }), [])
-
   // Handle edit member - populate form with member data
   const handleEditMember = async (member: UnifiedMember) => {
     try {
       setEditingMemberId(member.id)
-      setEditingMember(member)
       
       // Parse address
       const addressParts = parseAddress(member.address || '')
@@ -502,16 +440,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       
       setEditingFamilyMembers([populatedMember])
       setExpandedFamilyMemberId(populatedMember.id)
-      
-      // Set billing info
-      setBillingInfo({
-        firstName: member.firstName || '',
-        lastName: member.lastName || '',
-        addressStreet: '',
-        addressCity: '',
-        addressState: '',
-        addressZip: ''
-      })
       
       setShowEditModal(true)
     } catch (error) {
@@ -976,7 +904,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       
       // Close modal
       setShowEditModal(false)
-      setEditingMember(null)
       setEditingMemberId(null)
       setEditingFamilyMembers([])
       setExpandedFamilyMemberId(null)
@@ -989,12 +916,12 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   }
 
   // Generate username (simplified - not used in member portal)
-  const generateUsername = async (firstName: string, lastName: string = ''): Promise<string> => {
+  const generateUsername = async (_firstName: string, _lastName: string = ''): Promise<string> => {
     return ''
   }
 
   // Search parent guardians (simplified - not used in member portal)
-  const searchParentGuardians = useCallback(async (query: string) => {
+  const searchParentGuardians = useCallback(async (_query: string) => {
     setAvailableParentGuardians([])
   }, [])
 
@@ -2494,7 +2421,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => {
                 setShowEditModal(false)
-                setEditingMember(null)
                 setEditingMemberId(null)
                 setEditingFamilyMembers([])
                 setExpandedFamilyMemberId(null)
