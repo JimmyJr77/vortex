@@ -1084,8 +1084,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
             allEnrollments.push({
               ...enrollment,
               member_id: member.id,
-              member_first_name: member.firstName || member.first_name,
-              member_last_name: member.lastName || member.last_name
+              member_first_name: member.firstName,
+              member_last_name: member.lastName
             })
           })
         }
