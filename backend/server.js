@@ -371,9 +371,21 @@ export const initDatabase = async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_email ON app_user(email)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_active ON app_user(is_active)`)
 
-    // Create user_role junction table for multiple roles per user
+    // Create app_user_role junction table for multiple roles per user
+    // Note: Named app_user_role to avoid conflict with user_role enum type
+    // First, migrate old table name if it exists
+    try {
+      await pool.query(`ALTER TABLE user_role RENAME TO app_user_role`)
+      console.log('✅ Migrated user_role table to app_user_role')
+    } catch (renameError) {
+      // Table doesn't exist or already renamed, that's fine
+      if (renameError.code !== '42P01' && !renameError.message.includes('does not exist')) {
+        console.log('Note: Could not rename user_role table (may not exist):', renameError.message)
+      }
+    }
+    
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS user_role (
+      CREATE TABLE IF NOT EXISTS app_user_role (
         id                  BIGSERIAL PRIMARY KEY,
         user_id             BIGINT NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
         role                user_role NOT NULL,
@@ -381,16 +393,16 @@ export const initDatabase = async () => {
         UNIQUE (user_id, role)
       )
     `)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_role_user_id ON user_role(user_id)`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_role_role ON user_role(role)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_role_user_id ON app_user_role(user_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_role_role ON app_user_role(role)`)
     
-    // Migrate existing single roles to user_role table
+    // Migrate existing single roles to app_user_role table
     await pool.query(`
-      INSERT INTO user_role (user_id, role, created_at)
+      INSERT INTO app_user_role (user_id, role, created_at)
       SELECT id, role, created_at
       FROM app_user
       WHERE NOT EXISTS (
-        SELECT 1 FROM user_role ur WHERE ur.user_id = app_user.id AND ur.role = app_user.role
+        SELECT 1 FROM app_user_role ur WHERE ur.user_id = app_user.id AND ur.role = app_user.role
       )
     `)
 
@@ -1436,29 +1448,29 @@ const getMemberChildren = async (memberId) => {
 // Helper functions for role management (kept for backward compatibility)
 const getUserRoles = async (userId) => {
   try {
-    // Check if user_role table exists
+    // Check if app_user_role table exists
     const tableCheck = await pool.query(`
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'user_role'
+        AND table_name = 'app_user_role'
       )
     `)
     
     const hasUserRoleTable = tableCheck.rows[0].exists
     
     if (hasUserRoleTable) {
-      // Try querying user_role table first
+      // Try querying app_user_role table first
   try {
     const result = await pool.query(`
-      SELECT role FROM user_role WHERE user_id = $1
+      SELECT role FROM app_user_role WHERE user_id = $1
     `, [userId])
         if (result.rows.length > 0) {
     return result.rows.map(row => row.role)
         }
       } catch (userRoleError) {
         // If query fails, continue to fallback
-        console.warn('Error querying user_role table:', userRoleError.message)
+        console.warn('Error querying app_user_role table:', userRoleError.message)
       }
     }
     
@@ -1503,7 +1515,7 @@ const userHasAnyRole = async (userId, roles) => {
 const addUserRole = async (userId, role) => {
   try {
     await pool.query(`
-      INSERT INTO user_role (user_id, role)
+      INSERT INTO app_user_role (user_id, role)
       VALUES ($1, $2::user_role)
       ON CONFLICT (user_id, role) DO NOTHING
     `, [userId, role])
@@ -1516,7 +1528,7 @@ const addUserRole = async (userId, role) => {
 
 const removeUserRole = async (userId, role) => {
   try {
-    await pool.query('DELETE FROM user_role WHERE user_id = $1 AND role = $2::user_role', [userId, role])
+    await pool.query('DELETE FROM app_user_role WHERE user_id = $1 AND role = $2::user_role', [userId, role])
     return true
   } catch (error) {
     console.error('Error removing user role:', error)
@@ -1527,11 +1539,11 @@ const removeUserRole = async (userId, role) => {
 const setUserRoles = async (userId, roles) => {
   try {
     // Remove all existing roles from junction table
-    await pool.query('DELETE FROM user_role WHERE user_id = $1', [userId])
+    await pool.query('DELETE FROM app_user_role WHERE user_id = $1', [userId])
     // Add new roles
     for (const role of roles) {
       await pool.query(`
-        INSERT INTO user_role (user_id, role)
+        INSERT INTO app_user_role (user_id, role)
         VALUES ($1, $2::user_role)
         ON CONFLICT (user_id, role) DO NOTHING
       `, [userId, role])
@@ -1605,7 +1617,7 @@ const authenticateAdmin = async (req, res, next) => {
           au.facility_id,
           COALESCE(
             EXISTS(
-              SELECT 1 FROM user_role ur 
+              SELECT 1 FROM app_user_role ur 
               WHERE ur.user_id = au.id 
               AND ur.role = 'OWNER_ADMIN'
             ),
@@ -6099,7 +6111,7 @@ app.post('/api/members/login', async (req, res) => {
         query = `
           SELECT DISTINCT u.* 
           FROM app_user u
-          LEFT JOIN user_role ur ON ur.user_id = u.id
+          LEFT JOIN app_user_role ur ON ur.user_id = u.id
           WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.email = $2 
             AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
@@ -6111,7 +6123,7 @@ app.post('/api/members/login', async (req, res) => {
         query = `
           SELECT DISTINCT u.* 
           FROM app_user u
-          LEFT JOIN user_role ur ON ur.user_id = u.id
+          LEFT JOIN app_user_role ur ON ur.user_id = u.id
           WHERE u.email = $1 
             AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
                  OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN'))
@@ -6126,7 +6138,7 @@ app.post('/api/members/login', async (req, res) => {
         query = `
           SELECT DISTINCT u.* 
           FROM app_user u
-          LEFT JOIN user_role ur ON ur.user_id = u.id
+          LEFT JOIN app_user_role ur ON ur.user_id = u.id
           WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.username IS NOT NULL
             AND LOWER(u.username) = $2 
@@ -6139,7 +6151,7 @@ app.post('/api/members/login', async (req, res) => {
         query = `
           SELECT DISTINCT u.* 
           FROM app_user u
-          LEFT JOIN user_role ur ON ur.user_id = u.id
+          LEFT JOIN app_user_role ur ON ur.user_id = u.id
           WHERE u.username IS NOT NULL
             AND LOWER(u.username) = $1 
             AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
@@ -7925,7 +7937,7 @@ app.post('/api/admin/login', async (req, res) => {
             au.username,
             COALESCE(
               EXISTS(
-                SELECT 1 FROM user_role ur 
+                SELECT 1 FROM app_user_role ur 
                 WHERE ur.user_id = au.id 
                 AND ur.role = 'OWNER_ADMIN'
               ),
@@ -7936,7 +7948,7 @@ app.post('/api/admin/login', async (req, res) => {
           AND (
             au.role = 'OWNER_ADMIN' 
             OR EXISTS(
-              SELECT 1 FROM user_role ur 
+              SELECT 1 FROM app_user_role ur 
               WHERE ur.user_id = au.id 
               AND ur.role = 'OWNER_ADMIN'
             )
@@ -7956,7 +7968,7 @@ app.post('/api/admin/login', async (req, res) => {
             au.username,
             COALESCE(
               EXISTS(
-                SELECT 1 FROM user_role ur 
+                SELECT 1 FROM app_user_role ur 
                 WHERE ur.user_id = au.id 
                 AND ur.role = 'OWNER_ADMIN'
               ),
@@ -7967,7 +7979,7 @@ app.post('/api/admin/login', async (req, res) => {
           AND (
             au.role = 'OWNER_ADMIN' 
             OR EXISTS(
-              SELECT 1 FROM user_role ur 
+              SELECT 1 FROM app_user_role ur 
               WHERE ur.user_id = au.id 
               AND ur.role = 'OWNER_ADMIN'
             )
@@ -9110,9 +9122,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
       timeBlocksValue = timeBlocks
     }
     
-    // Convert to JSON string for JSONB column
-    const timeBlocksParam = timeBlocksValue ? JSON.stringify(timeBlocksValue) : null
-
+    // For JSONB columns, pass raw object/array - pg library handles conversion automatically
     let result
     try {
       result = await pool.query(`
@@ -9127,7 +9137,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
         start_date,
         end_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING 
         id,
         program_id as "programId",
@@ -9147,7 +9157,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
       defaultDaysOfWeek,
       defaultStartTime,
       defaultEndTime,
-      timeBlocksParam,
+      timeBlocksValue, // Pass raw object/array, pg library handles JSONB conversion
       defaultDurationType,
       defaultDurationType === 'indefinite' ? null : startDate,
       defaultDurationType === 'finite' ? endDate : null
@@ -9393,8 +9403,8 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
     
     let result
     try {
-      // For JSONB columns, we need to pass the value as a JSON string and cast it
-      // The pg library should handle this, but to be safe, we'll stringify and cast in SQL
+      // For JSONB columns, the pg library handles conversion automatically
+      // Pass the raw object/array and let pg convert it to JSONB
       let finalTimeBlocksValue = timeBlocksValue
       if (timeBlocksValue && typeof timeBlocksValue === 'string') {
         try {
@@ -9405,16 +9415,13 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
         }
       }
       
-      // Convert to JSON string if it's an object/array, then cast to JSONB in SQL
-      const timeBlocksParam = finalTimeBlocksValue ? JSON.stringify(finalTimeBlocksValue) : null
-      
       result = await pool.query(`
       UPDATE class_iteration
       SET 
         days_of_week = $1,
         start_time = $2,
         end_time = $3,
-        time_blocks = $4::jsonb,
+        time_blocks = $4,
         duration_type = $5,
         start_date = $6,
         end_date = $7,
@@ -9437,7 +9444,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
       normalizedDaysOfWeek,
       startTime,
       endTime,
-      timeBlocksParam, // Pass as JSON string, cast to JSONB in SQL
+      finalTimeBlocksValue, // Pass raw object/array, pg library handles JSONB conversion
       durationType,
       durationType === 'indefinite' ? null : startDate,
       durationType === 'finite' ? endDate : null,
@@ -9465,9 +9472,6 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
             }
           }
           
-          // Convert to JSON string for retry as well
-          const retryTimeBlocksParam = retryTimeBlocksValue ? JSON.stringify(retryTimeBlocksValue) : null
-          
           // Retry the UPDATE
           result = await pool.query(`
             UPDATE class_iteration
@@ -9475,7 +9479,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
               days_of_week = $1,
               start_time = $2,
               end_time = $3,
-              time_blocks = $4::jsonb,
+              time_blocks = $4,
               duration_type = $5,
               start_date = $6,
               end_date = $7,
@@ -9498,7 +9502,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
             normalizedDaysOfWeek,
             startTime,
             endTime,
-            retryTimeBlocksParam,
+            retryTimeBlocksValue, // Pass raw object/array, pg library handles JSONB conversion
             durationType,
             durationType === 'indefinite' ? null : startDate,
             durationType === 'finite' ? endDate : null,
