@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, Calendar, Search, Edit2, UserPlus, CheckCircle, MapPin, Award, Users, Trophy, Eye, X } from 'lucide-react'
+import { LogOut, Home, Calendar, Search, Edit2, UserPlus, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import EnrollmentForm from './EnrollmentForm'
+import MemberFormSection from './MemberFormSection'
 
 interface MemberDashboardProps {
   member: any
@@ -91,6 +92,7 @@ interface Event {
   type?: 'camp' | 'class' | 'event' | 'watch-party'
   datesAndTimes?: any[]
   keyDetails?: string[]
+  images?: string[]
   address?: string
   archived?: boolean
   tagType?: 'all_classes_and_parents' | 'specific_classes' | 'specific_categories' | 'all_parents' | 'boosters' | 'volunteers'
@@ -113,6 +115,81 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const [showViewModal, setShowViewModal] = useState(false)
   const [editingMember, setEditingMember] = useState<UnifiedMember | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
+  
+  // Edit modal state (for MemberFormSection)
+  type FamilyMemberData = {
+    id: string
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    addressStreet: string
+    addressCity: string
+    addressState: string
+    addressZip: string
+    username: string
+    password: string
+    enrollments?: Array<{
+      id: number | string
+      program_id: number
+      program_display_name: string
+      days_per_week: number
+      selected_days: string[] | string
+    }>
+    dateOfBirth: string
+    gender: string
+    medicalNotes: string
+    medicalConcerns: string
+    injuryHistoryDate: string
+    injuryHistoryBodyPart: string
+    injuryHistoryNotes: string
+    noInjuryHistory: boolean
+    experience: string
+    previousClasses?: Array<{
+      id: number | string
+      program_id: number
+      program_display_name: string
+      completed_date?: string | null
+    }>
+    isFinished: boolean
+    parentGuardianIds?: number[]
+    parentGuardians?: Array<{ id: number; relationship: string; relationshipOther?: string }>
+    hasCompletedWaivers?: boolean
+    waiverCompletionDate?: string | null
+    sections: {
+      contactInfo: { isExpanded: boolean; tempData: { firstName: string; lastName: string; email: string; phone: string; addressStreet: string; addressCity: string; addressState: string; addressZip: string } }
+      loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
+      statusVerification: { isExpanded: boolean }
+      personalData?: { isExpanded: boolean; tempData: { dateOfBirth: string; gender: string; medicalConcerns: string; injuryHistoryDate: string; injuryHistoryBodyPart: string; injuryHistoryNotes: string; noInjuryHistory: boolean } }
+      parentGuardians?: { isExpanded: boolean; tempData: { parentGuardians: Array<{ id: number; relationship: string; relationshipOther?: string }> } }
+      waivers?: { isExpanded: boolean; tempData: { hasCompletedWaivers: boolean; waiverCompletionDate: string | null } }
+      previousClasses?: { isExpanded: boolean; tempData: { experience: string } }
+    }
+    athleteId?: number | null
+    userId?: number | null
+    user_id?: number | null
+    isActive?: boolean
+  }
+  
+  const [editingFamilyMembers, setEditingFamilyMembers] = useState<FamilyMemberData[]>([])
+  const [expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<string | null>(null)
+  const [editingMemberId, setEditingMemberId] = useState<number | null>(null)
+  const [availableParentGuardians, setAvailableParentGuardians] = useState<Array<{
+    id: number
+    firstName: string
+    lastName: string
+    email?: string
+    phone?: string
+  }>>([])
+  const [billingInfo, setBillingInfo] = useState({
+    firstName: '',
+    lastName: '',
+    addressStreet: '',
+    addressCity: '',
+    addressState: '',
+    addressZip: ''
+  })
+  const [isBillingExpanded, setIsBillingExpanded] = useState(false)
   
   // Classes tab state
   const [classes, setClasses] = useState<Program[]>([])
@@ -178,6 +255,93 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     return mostRecent.toISOString()
   }
 
+  // Helper functions for edit modal (matching AdminMembers)
+  const parseAddress = (address: string | null | undefined): { street: string; city: string; state: string; zip: string } => {
+    if (!address) return { street: '', city: '', state: '', zip: '' }
+    
+    const parts = address.split(',').map(p => p.trim()).filter(p => p)
+    
+    if (parts.length >= 3) {
+      const street = parts[0]
+      const city = parts[1]
+      const stateZip = parts[2] || ''
+      const stateZipParts = stateZip.split(/\s+/).filter(p => p)
+      
+      if (stateZipParts.length >= 2) {
+        const state = stateZipParts[0]
+        const zip = stateZipParts.slice(1).join(' ')
+        return { street, city, state, zip }
+      } else if (stateZipParts.length === 1) {
+        const value = stateZipParts[0]
+        if (value.length === 2) {
+          return { street, city, state: value, zip: '' }
+        } else {
+          return { street, city, state: '', zip: value }
+        }
+      } else {
+        return { street, city, state: '', zip: '' }
+      }
+    } else if (parts.length === 2) {
+      const first = parts[0]
+      const second = parts[1]
+      const secondParts = second.split(/\s+/).filter(p => p)
+      
+      if (secondParts.length >= 2 && secondParts[0].length === 2) {
+        return { street: first, city: '', state: secondParts[0], zip: secondParts.slice(1).join(' ') }
+      } else {
+        return { street: first, city: second, state: '', zip: '' }
+      }
+    } else if (parts.length === 1) {
+      return { street: parts[0], city: '', state: '', zip: '' }
+    } else {
+      return { street: '', city: '', state: '', zip: '' }
+    }
+  }
+
+  const combineAddress = (street: string, city: string, state: string, zip: string): string => {
+    const parts: string[] = []
+    const normalizedStreet = (street || '').trim()
+    const normalizedCity = (city || '').trim()
+    const normalizedState = (state || '').trim()
+    const normalizedZip = (zip || '').trim()
+    
+    if (normalizedStreet) parts.push(normalizedStreet)
+    if (normalizedCity) parts.push(normalizedCity)
+    
+    const stateZip = [normalizedState, normalizedZip].filter(p => p).join(' ')
+    if (stateZip) parts.push(stateZip)
+    
+    return parts.join(', ') || ''
+  }
+
+  const formatPhoneNumber = (value: string): string => {
+    const digits = value.replace(/\D/g, '')
+    const limited = digits.slice(0, 10)
+    if (limited.length <= 3) {
+      return limited
+    } else if (limited.length <= 6) {
+      return `${limited.slice(0, 3)}-${limited.slice(3)}`
+    } else {
+      return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`
+    }
+  }
+
+  const cleanPhoneNumber = (phone: string): string => {
+    return phone.replace(/\D/g, '')
+  }
+
+  const formatDateForInput = (date: string | null | undefined): string => {
+    if (!date) return ''
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date
+    try {
+      const d = new Date(date)
+      if (isNaN(d.getTime())) return ''
+      return d.toISOString().split('T')[0]
+    } catch {
+      return ''
+    }
+  }
+
   // Check if current member is an adult (can edit family members)
   const isAdult = () => {
     // Check if user has PARENT_GUARDIAN role (support both single role and multiple roles)
@@ -205,6 +369,634 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       alert('Failed to load member data')
     }
   }
+
+  // Helper to create default member structure
+  const createDefaultMember = useCallback((id: string = `member-${Date.now()}`): FamilyMemberData => ({
+    id,
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    addressStreet: '',
+    addressCity: '',
+    addressState: '',
+    addressZip: '',
+    username: '',
+    password: 'vortex',
+    enrollments: [],
+    dateOfBirth: '',
+    gender: '',
+    medicalNotes: '',
+    medicalConcerns: '',
+    injuryHistoryDate: '',
+    injuryHistoryBodyPart: '',
+    injuryHistoryNotes: '',
+    noInjuryHistory: false,
+    experience: '',
+    previousClasses: [],
+    isFinished: false,
+    parentGuardianIds: [],
+    hasCompletedWaivers: false,
+    waiverCompletionDate: null,
+    sections: {
+      contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
+      loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
+      personalData: { isExpanded: false, tempData: { dateOfBirth: '', gender: '', medicalConcerns: '', injuryHistoryDate: '', injuryHistoryBodyPart: '', injuryHistoryNotes: '', noInjuryHistory: false } },
+      parentGuardians: { isExpanded: false, tempData: { parentGuardians: [] } },
+      waivers: { isExpanded: false, tempData: { hasCompletedWaivers: false, waiverCompletionDate: null } },
+      statusVerification: { isExpanded: false },
+      previousClasses: { isExpanded: false, tempData: { experience: '' } }
+    }
+  }), [])
+
+  // Handle edit member - populate form with member data
+  const handleEditMember = async (member: UnifiedMember) => {
+    try {
+      setEditingMemberId(member.id)
+      setEditingMember(member)
+      
+      // Parse address
+      const addressParts = parseAddress(member.address || '')
+      
+      // Create FamilyMemberData from UnifiedMember
+      const populatedMember: FamilyMemberData = {
+        id: `member-${member.id}`,
+        athleteId: member.id,
+        userId: member.id,
+        user_id: member.id,
+        firstName: member.firstName || '',
+        lastName: member.lastName || '',
+        email: member.email || '',
+        phone: member.phone || '',
+        addressStreet: addressParts.street,
+        addressCity: addressParts.city,
+        addressState: addressParts.state,
+        addressZip: addressParts.zip,
+        username: member.username || '',
+        password: 'vortex',
+        enrollments: (member.enrollments || []).map(e => ({
+          id: e.id,
+          program_id: e.program_id,
+          program_display_name: e.program_display_name,
+          days_per_week: e.days_per_week,
+          selected_days: e.selected_days
+        })),
+        dateOfBirth: member.dateOfBirth || '',
+        gender: '',
+        medicalNotes: member.medicalNotes || '',
+        medicalConcerns: '',
+        injuryHistoryDate: '',
+        injuryHistoryBodyPart: '',
+        injuryHistoryNotes: '',
+        noInjuryHistory: true,
+        experience: '',
+        previousClasses: [],
+        isFinished: false,
+        isActive: member.isActive,
+        parentGuardians: [],
+        hasCompletedWaivers: false,
+        waiverCompletionDate: null,
+        sections: {
+          contactInfo: {
+            isExpanded: true,
+            tempData: {
+              firstName: member.firstName || '',
+              lastName: member.lastName || '',
+              email: member.email || '',
+              phone: member.phone || '',
+              addressStreet: addressParts.street,
+              addressCity: addressParts.city,
+              addressState: addressParts.state,
+              addressZip: addressParts.zip
+            }
+          },
+          loginSecurity: {
+            isExpanded: false,
+            tempData: {
+              username: member.username || '',
+              password: 'vortex'
+            }
+          },
+          statusVerification: { isExpanded: false },
+          personalData: {
+            isExpanded: false,
+            tempData: {
+              dateOfBirth: member.dateOfBirth || '',
+              gender: '',
+              medicalConcerns: '',
+              injuryHistoryDate: '',
+              injuryHistoryBodyPart: '',
+              injuryHistoryNotes: '',
+              noInjuryHistory: true
+            }
+          },
+          waivers: {
+            isExpanded: false,
+            tempData: {
+              hasCompletedWaivers: false,
+              waiverCompletionDate: null
+            }
+          }
+        }
+      }
+      
+      setEditingFamilyMembers([populatedMember])
+      setExpandedFamilyMemberId(populatedMember.id)
+      
+      // Set billing info
+      setBillingInfo({
+        firstName: member.firstName || '',
+        lastName: member.lastName || '',
+        addressStreet: '',
+        addressCity: '',
+        addressState: '',
+        addressZip: ''
+      })
+      
+      setShowEditModal(true)
+    } catch (error) {
+      console.error('Error editing member:', error)
+      alert('Failed to load member data')
+    }
+  }
+
+  // Wrapper function for updating a member (used by MemberFormSection component)
+  const handleUpdateMember = useCallback((memberId: string, updates: Partial<FamilyMemberData> | ((prev: FamilyMemberData) => FamilyMemberData)) => {
+    setEditingFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        if (typeof updates === 'function') {
+          return updates(member)
+        } else {
+          return { ...member, ...updates }
+        }
+      }
+      return member
+    }))
+  }, [])
+  
+  // Wrapper for toggling member expand/collapse
+  const handleToggleMemberExpand = useCallback((memberId: string) => {
+    setExpandedFamilyMemberId(prev => prev === memberId ? null : memberId)
+  }, [])
+  
+  const handleSectionContinue = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
+    setEditingFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        if (section === 'contactInfo') {
+          const sectionData = member.sections.contactInfo
+          return {
+            ...member,
+            firstName: sectionData.tempData.firstName,
+            lastName: sectionData.tempData.lastName,
+            email: sectionData.tempData.email,
+            phone: sectionData.tempData.phone,
+            addressStreet: sectionData.tempData.addressStreet,
+            addressCity: sectionData.tempData.addressCity,
+            addressState: sectionData.tempData.addressState,
+            addressZip: sectionData.tempData.addressZip,
+            sections: {
+              ...member.sections,
+              contactInfo: { ...sectionData, isExpanded: false },
+              loginSecurity: { ...member.sections.loginSecurity, isExpanded: true },
+              personalData: member.sections.personalData || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory } },
+              parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians: member.parentGuardians || (member.parentGuardianIds ? member.parentGuardianIds.map(id => ({ id, relationship: '' })) : []) } },
+              waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } },
+              previousClasses: member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
+            }
+          }
+        } else if (section === 'loginSecurity') {
+          const sectionData = member.sections.loginSecurity
+          return {
+            ...member,
+            username: sectionData.tempData.username,
+            password: sectionData.tempData.password,
+            sections: {
+              ...member.sections,
+              loginSecurity: { ...sectionData, isExpanded: false },
+              personalData: { ...(member.sections.personalData || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory } }), isExpanded: true }
+            }
+          }
+        } else if (section === 'personalData') {
+          const personalData = member.sections.personalData?.tempData || { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory }
+          const updatedMember = {
+            ...member,
+            dateOfBirth: personalData.dateOfBirth,
+            gender: personalData.gender,
+            medicalConcerns: personalData.medicalConcerns,
+            injuryHistoryDate: personalData.injuryHistoryDate,
+            injuryHistoryBodyPart: personalData.injuryHistoryBodyPart,
+            injuryHistoryNotes: personalData.injuryHistoryNotes,
+            noInjuryHistory: personalData.noInjuryHistory,
+            sections: {
+              ...member.sections,
+              personalData: { ...(member.sections.personalData || { isExpanded: false, tempData: personalData }), isExpanded: false },
+              parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians: member.parentGuardians || (member.parentGuardianIds ? member.parentGuardianIds.map(id => ({ id, relationship: '' })) : []) } },
+              waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } },
+              previousClasses: member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
+            }
+          }
+          
+          // Check if child - if so, expand parent/guardian section next, otherwise expand waivers
+          if (personalData.dateOfBirth) {
+            const birthDateObj = new Date(personalData.dateOfBirth)
+            const today = new Date()
+            const age = today.getFullYear() - birthDateObj.getFullYear() - 
+              (today.getMonth() < birthDateObj.getMonth() || 
+               (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate()) ? 1 : 0)
+            
+            if (age < 18) {
+              updatedMember.sections.parentGuardians = { ...updatedMember.sections.parentGuardians, isExpanded: true }
+            } else {
+              updatedMember.sections.waivers = { ...updatedMember.sections.waivers, isExpanded: true }
+            }
+          } else {
+            updatedMember.sections.waivers = { ...updatedMember.sections.waivers, isExpanded: true }
+          }
+          
+          return updatedMember
+        } else if (section === 'parentGuardians') {
+          let parentGuardians = member.sections.parentGuardians?.tempData?.parentGuardians || []
+          if (parentGuardians.length === 0 && member.parentGuardianIds) {
+            parentGuardians = member.parentGuardianIds.map((id: number) => ({ id, relationship: '' }))
+          }
+          return {
+            ...member,
+            parentGuardians,
+            parentGuardianIds: parentGuardians.map(pg => pg.id),
+            sections: {
+              ...member.sections,
+              parentGuardians: { ...(member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians: [] } }), isExpanded: false, tempData: { parentGuardians } },
+              waivers: { ...(member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }), isExpanded: true }
+            }
+          }
+        } else if (section === 'waivers') {
+          const waiverData = member.sections.waivers?.tempData || { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null }
+          return {
+            ...member,
+            hasCompletedWaivers: waiverData.hasCompletedWaivers,
+            waiverCompletionDate: waiverData.waiverCompletionDate,
+            sections: {
+              ...member.sections,
+              waivers: { ...(member.sections.waivers || { isExpanded: false, tempData: waiverData }), isExpanded: false },
+              statusVerification: { ...member.sections.statusVerification, isExpanded: true }
+            }
+          }
+        } else if (section === 'statusVerification') {
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              statusVerification: { isExpanded: false },
+              previousClasses: { ...(member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }), isExpanded: true }
+            }
+          }
+        } else if (section === 'previousClasses') {
+          const experience = member.sections.previousClasses?.tempData?.experience || member.experience
+          return {
+            ...member,
+            experience,
+            sections: {
+              ...member.sections,
+              previousClasses: { ...(member.sections.previousClasses || { isExpanded: false, tempData: { experience } }), isExpanded: false }
+            }
+          }
+        } else {
+          return member
+        }
+      }
+      return member
+    }))
+  }
+  
+  const handleSectionMinimize = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
+    setEditingFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        if (section === 'contactInfo') {
+          const sectionData = member.sections.contactInfo
+          return {
+            ...member,
+            firstName: sectionData.tempData.firstName,
+            lastName: sectionData.tempData.lastName,
+            email: sectionData.tempData.email,
+            phone: sectionData.tempData.phone,
+            addressStreet: sectionData.tempData.addressStreet,
+            addressCity: sectionData.tempData.addressCity,
+            addressState: sectionData.tempData.addressState,
+            addressZip: sectionData.tempData.addressZip,
+            sections: {
+              ...member.sections,
+              contactInfo: { ...sectionData, isExpanded: false }
+            }
+          }
+        } else if (section === 'loginSecurity') {
+          const sectionData = member.sections.loginSecurity
+          return {
+            ...member,
+            username: sectionData.tempData.username,
+            password: sectionData.tempData.password,
+            sections: {
+              ...member.sections,
+              loginSecurity: { ...sectionData, isExpanded: false }
+            }
+          }
+        } else {
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              statusVerification: { isExpanded: false }
+            }
+          }
+        }
+      }
+      return member
+    }))
+  }
+  
+  const handleSectionCancel = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
+    setEditingFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        if (section === 'contactInfo') {
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              contactInfo: {
+                isExpanded: false,
+                tempData: {
+                  firstName: member.firstName,
+                  lastName: member.lastName,
+                  email: member.email,
+                  phone: member.phone,
+                  addressStreet: member.addressStreet,
+                  addressCity: member.addressCity,
+                  addressState: member.addressState,
+                  addressZip: member.addressZip
+                }
+              }
+            }
+          }
+        } else if (section === 'loginSecurity') {
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              loginSecurity: {
+                isExpanded: false,
+                tempData: {
+                  username: member.username,
+                  password: member.password
+                }
+              }
+            }
+          }
+        } else {
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              statusVerification: {
+                isExpanded: false
+              }
+            }
+          }
+        }
+      }
+      return member
+    }))
+  }
+  
+  const handleToggleSection = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
+    setEditingFamilyMembers(prev => prev.map(member => {
+      if (member.id === memberId) {
+        if (section === 'contactInfo') {
+          const sectionData = member.sections.contactInfo
+          if (!sectionData.isExpanded) {
+            return {
+              ...member,
+              sections: {
+                ...member.sections,
+                contactInfo: {
+                  isExpanded: true,
+                  tempData: {
+                    firstName: member.firstName,
+                    lastName: member.lastName,
+                    email: member.email,
+                    phone: member.phone,
+                    addressStreet: member.addressStreet,
+                    addressCity: member.addressCity,
+                    addressState: member.addressState,
+                    addressZip: member.addressZip
+                  }
+                }
+              }
+            }
+          } else {
+            return {
+              ...member,
+              sections: {
+                ...member.sections,
+                contactInfo: { ...sectionData, isExpanded: false }
+              }
+            }
+          }
+        } else if (section === 'loginSecurity') {
+          const sectionData = member.sections.loginSecurity
+          if (!sectionData.isExpanded) {
+            return {
+              ...member,
+              sections: {
+                ...member.sections,
+                loginSecurity: {
+                  isExpanded: true,
+                  tempData: {
+                    username: member.username,
+                    password: member.password
+                  }
+                }
+              }
+            }
+          } else {
+            return {
+              ...member,
+              sections: {
+                ...member.sections,
+                loginSecurity: { ...sectionData, isExpanded: false }
+              }
+            }
+          }
+        } else if (section === 'personalData') {
+          const sectionData = member.sections.personalData || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory } }
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              personalData: { ...sectionData, isExpanded: !sectionData.isExpanded }
+            }
+          }
+        } else if (section === 'parentGuardians') {
+          let parentGuardians = member.sections.parentGuardians?.tempData?.parentGuardians || []
+          if (parentGuardians.length === 0 && member.parentGuardianIds) {
+            parentGuardians = member.parentGuardianIds.map((id: number) => ({ id, relationship: '' }))
+          }
+          const sectionData = member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians } }
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              parentGuardians: { ...sectionData, isExpanded: !sectionData.isExpanded }
+            }
+          }
+        } else if (section === 'waivers') {
+          const sectionData = member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              waivers: { ...sectionData, isExpanded: !sectionData.isExpanded }
+            }
+          }
+        } else if (section === 'previousClasses') {
+          const sectionData = member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              previousClasses: { ...sectionData, isExpanded: !sectionData.isExpanded }
+            }
+          }
+        } else {
+          const sectionData = member.sections.statusVerification
+          return {
+            ...member,
+            sections: {
+              ...member.sections,
+              statusVerification: { ...sectionData, isExpanded: !sectionData.isExpanded }
+            }
+          }
+        }
+      }
+      return member
+    }))
+  }
+  
+  const handleFinishedWithMember = (memberId: string) => {
+    setEditingFamilyMembers(prev => {
+      const updated = prev.map(member => {
+        if (member.id === memberId) {
+          return { ...member, isFinished: true }
+        }
+        return member
+      })
+      if (expandedFamilyMemberId === memberId) {
+        const firstUnfinished = updated.find(m => !m.isFinished)
+        if (firstUnfinished) {
+          setExpandedFamilyMemberId(firstUnfinished.id)
+        } else {
+          setExpandedFamilyMemberId(null)
+        }
+      }
+      return updated
+    })
+  }
+
+  // Handle save member edit - adapted for member endpoints
+  const handleSaveMemberEdit = async () => {
+    if (editingFamilyMembers.length === 0) {
+      alert('No member data to save')
+      return
+    }
+    
+    try {
+      const member = editingFamilyMembers[0]
+      const firstName = member.sections.contactInfo.tempData.firstName ?? member.firstName
+      const lastName = member.sections.contactInfo.tempData.lastName ?? member.lastName
+      const email = member.sections.contactInfo.tempData.email ?? member.email
+      const phone = member.sections.contactInfo.tempData.phone ?? member.phone
+      const addressStreet = member.sections.contactInfo.tempData.addressStreet ?? member.addressStreet ?? ''
+      const addressCity = member.sections.contactInfo.tempData.addressCity ?? member.addressCity ?? ''
+      const addressState = member.sections.contactInfo.tempData.addressState ?? member.addressState ?? ''
+      const addressZip = member.sections.contactInfo.tempData.addressZip ?? member.addressZip ?? ''
+      
+      const address = combineAddress(addressStreet, addressCity, addressState, addressZip)
+      
+      // Determine if editing current member or family member
+      const isCurrentMember = editingMemberId === profileData?.id
+      const currentToken = localStorage.getItem('vortex_member_token')
+      if (!currentToken) {
+        alert('No authentication token found')
+        return
+      }
+      
+      if (isCurrentMember) {
+        // Use /api/members/me endpoint
+        const response = await fetch(`${apiUrl}/api/members/me`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            email: email || null,
+            phone: phone ? cleanPhoneNumber(phone) : null,
+            address: address || null
+          })
+        })
+        
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.message || 'Failed to update member')
+        }
+      } else {
+        // Use /api/members/family/:id endpoint
+        const response = await fetch(`${apiUrl}/api/members/family/${editingMemberId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            email: email || null,
+            phone: phone ? cleanPhoneNumber(phone) : null
+          })
+        })
+        
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.message || 'Failed to update family member')
+        }
+      }
+      
+      // Refresh profile data
+      await fetchProfileData()
+      
+      // Close modal
+      setShowEditModal(false)
+      setEditingMember(null)
+      setEditingMemberId(null)
+      setEditingFamilyMembers([])
+      setExpandedFamilyMemberId(null)
+      
+      alert('Member updated successfully!')
+    } catch (error: any) {
+      console.error('Error saving member edit:', error)
+      alert(error.message || 'Failed to save member changes')
+    }
+  }
+
+  // Generate username (simplified - not used in member portal)
+  const generateUsername = async (firstName: string, lastName: string = ''): Promise<string> => {
+    return ''
+  }
+
+  // Search parent guardians (simplified - not used in member portal)
+  const searchParentGuardians = useCallback(async (query: string) => {
+    setAvailableParentGuardians([])
+  }, [])
 
   useEffect(() => {
     fetchProfileData()
@@ -639,6 +1431,110 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
+  // Image Slider Component
+  const ImageSlider = ({ images }: { images: string[] }) => {
+    const [currentIndex, setCurrentIndex] = useState(0)
+
+    if (images.length === 0) return null
+
+    if (images.length === 1) {
+      return (
+        <div className="w-full">
+          <img
+            src={images[0]}
+            alt="Event"
+            className="w-full h-64 md:h-96 object-cover rounded-lg"
+          />
+        </div>
+      )
+    }
+
+    const nextImage = () => {
+      setCurrentIndex((prev) => (prev + 1) % images.length)
+    }
+
+    const prevImage = () => {
+      setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+    }
+
+    return (
+      <div className="relative w-full">
+        <div className="relative overflow-hidden rounded-lg">
+          <div
+            className="flex transition-transform duration-300 ease-in-out"
+            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          >
+            {images.map((image, index) => (
+              <div key={index} className="w-full flex-shrink-0">
+                <img
+                  src={image}
+                  alt={`Event ${index + 1}`}
+                  className="w-full h-64 md:h-96 object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Navigation buttons */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            
+            {/* Dots indicator */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentIndex ? 'bg-white' : 'bg-white/50'
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+            
+            {/* Image counter */}
+            <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-sm">
+              {currentIndex + 1} / {images.length}
+            </div>
+          </>
+        )}
+      </div>
+    )
+  }
+
+  // Format date/time entry helper
+  const formatDateTimeEntry = (entry: any) => {
+    const dateStr = formatDate(entry.date)
+    
+    if (entry.allDay) {
+      return `${dateStr}: All Day Event`
+    } else if (entry.startTime && entry.endTime) {
+      return `${dateStr}: ${entry.startTime} - ${entry.endTime}`
+    } else if (entry.startTime) {
+      return `${dateStr}: ${entry.startTime}`
+    } else if (entry.description) {
+      return `${dateStr}: ${entry.description}`
+    } else {
+      return dateStr
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Member Portal Header Section - Dark Background */}
@@ -827,10 +1723,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                                 </motion.button>
                                 {(isAdult() || member.id === profileData?.id) && (
                                   <motion.button
-                                    onClick={() => {
-                                      setEditingMember(member)
-                                      setShowEditModal(true)
-                                    }}
+                                    onClick={() => handleEditMember(member)}
                                     className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-green-600 text-white hover:bg-green-700"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
@@ -1139,10 +2032,10 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                   )}
                 </div>
 
-                {/* Events List */}
+                {/* Calendar of Events */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
-                    Upcoming Events {filteredEvents.length > 0 && `(${filteredEvents.length} total)`}
+                    Calendar of Events {events.length > 0 && `(${events.length} total)`}
                   </h2>
                   
                   {eventsLoading ? (
@@ -1151,12 +2044,55 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     <div className="text-center py-12 text-gray-500">
                       {eventSearchQuery 
                         ? `No events found matching "${eventSearchQuery}"`
-                        : 'No events at this time'}
+                        : `No events at this time. (Total events in database: ${events.length})`}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {filteredEvents.map((event) => (
+                        <div
+                          key={event.id}
+                          className="flex items-start justify-between space-x-4 py-3 border-b border-gray-200 last:border-b-0"
+                        >
+                          <div className="flex items-start space-x-4 flex-1">
+                            <div className="flex-shrink-0 w-32">
+                              <p className="text-sm font-semibold text-vortex-red">
+                                {formatDateRange(event.startDate, event.endDate)}
+                              </p>
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="text-lg font-display font-bold text-black mb-1">
+                                {event.eventName}
+                              </h3>
+                              <p className="text-gray-600 text-sm leading-relaxed">
+                                {event.shortDescription}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Event Details */}
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
+                    Event Details
+                  </h2>
+                  
+                  {eventsLoading ? (
+                    <div className="text-center py-12 text-gray-600">Loading events...</div>
+                  ) : filteredEvents.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      {eventSearchQuery 
+                        ? `No events found matching "${eventSearchQuery}"`
+                        : 'No events at this time.'}
                     </div>
                   ) : (
                     <div className="space-y-6">
                       {filteredEvents.map((event) => {
-                        const Icon = getEventIcon(event.type)
+                        const Icon = getEventIcon(event.type || 'event')
+                        
                         return (
                           <div
                             key={event.id}
@@ -1181,9 +2117,29 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                               {event.longDescription}
                             </p>
                             
+                            {event.images && event.images.length > 0 && (
+                              <div className="mb-4">
+                                <ImageSlider images={event.images} />
+                              </div>
+                            )}
+                            
+                            {event.datesAndTimes && event.datesAndTimes.length > 0 && (
+                              <div className="mb-4 space-y-2">
+                                <h4 className="font-bold text-black mb-2">Dates & Times:</h4>
+                                <ul className="space-y-1">
+                                  {event.datesAndTimes.map((entry: any, entryIndex: number) => (
+                                    <li key={entryIndex} className="flex items-start space-x-2 text-gray-700 text-sm">
+                                      <Calendar className="w-4 h-4 text-vortex-red flex-shrink-0 mt-1" />
+                                      <span>{formatDateTimeEntry(entry)}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
                             {event.keyDetails && event.keyDetails.length > 0 && (
-                              <div className="space-y-2 mb-4">
-                                <h4 className="font-bold text-black">Key Details:</h4>
+                              <div className="space-y-2">
+                                <h4 className="font-bold text-black mb-2">Key Details:</h4>
                                 <ul className="space-y-1">
                                   {event.keyDetails.map((detail, detailIndex) => (
                                     <li key={detailIndex} className="flex items-start space-x-2">
@@ -1512,8 +2468,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                   <button
                     onClick={() => {
                       setShowViewModal(false)
-                      setEditingMember(viewingMember)
-                      setShowEditModal(true)
+                      handleEditMember(viewingMember)
                     }}
                     className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
                   >
@@ -1528,7 +2483,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
 
       {/* Edit Member Modal */}
       <AnimatePresence>
-        {showEditModal && editingMember && (
+        {showEditModal && editingFamilyMembers.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1540,34 +2495,78 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
               onClick={() => {
                 setShowEditModal(false)
                 setEditingMember(null)
+                setEditingMemberId(null)
+                setEditingFamilyMembers([])
+                setExpandedFamilyMemberId(null)
               }}
             />
             <motion.div
-              className="relative bg-white rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-black">
+                <h3 className="text-2xl font-display font-bold text-white">
                   Edit Member
                 </h3>
                 <button
                   onClick={() => {
                     setShowEditModal(false)
                     setEditingMember(null)
+                    setEditingMemberId(null)
+                    setEditingFamilyMembers([])
+                    setExpandedFamilyMemberId(null)
                   }}
-                  className="text-gray-400 hover:text-black"
+                  className="text-gray-400 hover:text-white"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
-              
-              <div className="text-center py-12 text-gray-600">
-                Edit functionality will use the same form as the admin portal. 
-                <br />
-                Coming soon!
+
+              <div className="space-y-6">
+                {editingFamilyMembers.map((member, memberIndex) => (
+                  <MemberFormSection
+                    key={member.id}
+                    member={member}
+                    memberIndex={memberIndex}
+                    isExpanded={expandedFamilyMemberId === member.id}
+                    onToggleExpand={handleToggleMemberExpand}
+                    onUpdateMember={handleUpdateMember}
+                    onToggleSection={handleToggleSection}
+                    onSectionContinue={handleSectionContinue}
+                    onSectionMinimize={handleSectionMinimize}
+                    onSectionCancel={handleSectionCancel}
+                    onFinishedWithMember={handleFinishedWithMember}
+                    generateUsername={generateUsername}
+                    formatPhoneNumber={formatPhoneNumber}
+                    availableParentGuardians={availableParentGuardians}
+                    onSearchParentGuardians={searchParentGuardians}
+                    allFamilyMembers={editingFamilyMembers}
+                  />
+                ))}
+              </div>
+
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={handleSaveMemberEdit}
+                  className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false)
+                    setEditingMember(null)
+                    setEditingMemberId(null)
+                    setEditingFamilyMembers([])
+                    setExpandedFamilyMemberId(null)
+                  }}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
               </div>
             </motion.div>
           </motion.div>
