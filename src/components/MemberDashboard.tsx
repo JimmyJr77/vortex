@@ -1810,7 +1810,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                           }, {} as Record<string, Program[]>)
                           
                           const sortedCategories = Object.keys(groupedByCategory).sort()
-                          const result: JSX.Element[] = []
+                          const result = []
                           
                           sortedCategories.forEach(categoryName => {
                             const categoryPrograms = groupedByCategory[categoryName].sort((a, b) => {
@@ -1851,10 +1851,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     </div>
                   ) : (
                     filteredClasses.map((program) => {
-                      const programCategory = categories.find(c => 
-                        c.id === program.categoryId || 
-                        c.displayName === program.categoryDisplayName
-                      )
                       return (
                         <div key={program.id} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
                           {/* Red top section with white text (title) */}
