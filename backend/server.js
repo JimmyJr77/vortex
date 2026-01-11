@@ -7535,6 +7535,97 @@ app.get('/api/members/enrollments', authenticateMember, async (req, res) => {
   }
 })
 
+// Get programs for members (member-accessible endpoint)
+app.get('/api/members/programs', authenticateMember, async (req, res) => {
+  try {
+    // Members only see active, non-archived programs
+    let query = `
+      SELECT 
+        p.id,
+        p.category,
+        p.category_id as "categoryId",
+        pc.name as "categoryName",
+        pc.display_name as "categoryDisplayName",
+        p.name,
+        p.display_name as "displayName",
+        p.skill_level as "skillLevel",
+        p.age_min as "ageMin",
+        p.age_max as "ageMax",
+        p.description,
+        p.skill_requirements as "skillRequirements",
+        p.is_active as "isActive",
+        p.archived,
+        p.created_at as "createdAt",
+        p.updated_at as "updatedAt"
+      FROM program p
+      LEFT JOIN program_categories pc ON p.category_id = pc.id
+      WHERE p.archived = FALSE AND p.is_active = TRUE
+    `
+    
+    query += ' ORDER BY pc.display_name ASC, p.skill_level NULLS LAST, p.display_name'
+
+    const result = await pool.query(query)
+
+    res.json({
+      success: true,
+      programs: result.rows,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get programs error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Get categories for members (member-accessible endpoint)
+app.get('/api/members/categories', authenticateMember, async (req, res) => {
+  try {
+    // Members only see active, non-archived categories
+    // Check if description column exists
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'program_categories' 
+      AND column_name = 'description'
+    `)
+    const hasDescriptionColumn = columnCheck.rows.length > 0
+    
+    let query = `
+      SELECT 
+        id,
+        name,
+        display_name as "displayName",
+        ${hasDescriptionColumn ? 'description,' : 'NULL as description,'}
+        archived,
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+      FROM program_categories
+      WHERE archived = FALSE
+    `
+    
+    query += ' ORDER BY display_name ASC'
+    
+    const result = await pool.query(query)
+
+    res.json({
+      success: true,
+      categories: result.rows,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get categories error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
 // ========== EVENT ENDPOINTS ==========
 
 // Get all events (public endpoint for ReadBoard)
