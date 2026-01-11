@@ -9104,11 +9104,14 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
 
     // Process timeBlocks if provided
     // Store timeBlocks if provided (even if single block), otherwise null for backward compatibility
-    // For JSONB columns, pass the JavaScript object directly - pg will handle conversion
+    // For JSONB columns, stringify and cast in SQL to avoid encoding issues
     let timeBlocksValue = null
     if (timeBlocks && Array.isArray(timeBlocks) && timeBlocks.length > 0) {
-      timeBlocksValue = timeBlocks // Pass object directly for JSONB
+      timeBlocksValue = timeBlocks
     }
+    
+    // Convert to JSON string for JSONB column
+    const timeBlocksParam = timeBlocksValue ? JSON.stringify(timeBlocksValue) : null
 
     let result
     try {
@@ -9124,7 +9127,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
         start_date,
         end_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9)
       RETURNING 
         id,
         program_id as "programId",
@@ -9144,7 +9147,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
       defaultDaysOfWeek,
       defaultStartTime,
       defaultEndTime,
-      timeBlocksValue,
+      timeBlocksParam,
       defaultDurationType,
       defaultDurationType === 'indefinite' ? null : startDate,
       defaultDurationType === 'finite' ? endDate : null
@@ -9158,7 +9161,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
             ALTER TABLE class_iteration ADD COLUMN IF NOT EXISTS time_blocks JSONB DEFAULT NULL
           `)
           console.log('✅ Added time_blocks column, retrying INSERT...')
-          // Retry the INSERT without time_blocks first, then update if needed
+          // Retry the INSERT with proper JSONB casting
           result = await pool.query(`
             INSERT INTO class_iteration (
               program_id,
@@ -9171,7 +9174,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
               start_date,
               end_date
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9)
             RETURNING 
               id,
               program_id as "programId",
@@ -9191,7 +9194,7 @@ app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
             defaultDaysOfWeek,
             defaultStartTime,
             defaultEndTime,
-            timeBlocksValue,
+            timeBlocksParam,
             defaultDurationType,
             defaultDurationType === 'indefinite' ? null : startDate,
             defaultDurationType === 'finite' ? endDate : null
@@ -9390,8 +9393,8 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
     
     let result
     try {
-      // Ensure timeBlocksValue is a proper JavaScript object/array or null for JSONB
-      // If it's already a string, it means it was double-encoded somewhere
+      // For JSONB columns, we need to pass the value as a JSON string and cast it
+      // The pg library should handle this, but to be safe, we'll stringify and cast in SQL
       let finalTimeBlocksValue = timeBlocksValue
       if (timeBlocksValue && typeof timeBlocksValue === 'string') {
         try {
@@ -9402,13 +9405,16 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
         }
       }
       
+      // Convert to JSON string if it's an object/array, then cast to JSONB in SQL
+      const timeBlocksParam = finalTimeBlocksValue ? JSON.stringify(finalTimeBlocksValue) : null
+      
       result = await pool.query(`
       UPDATE class_iteration
       SET 
         days_of_week = $1,
         start_time = $2,
         end_time = $3,
-        time_blocks = $4,
+        time_blocks = $4::jsonb,
         duration_type = $5,
         start_date = $6,
         end_date = $7,
@@ -9431,7 +9437,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
       normalizedDaysOfWeek,
       startTime,
       endTime,
-      finalTimeBlocksValue, // Use the properly formatted value
+      timeBlocksParam, // Pass as JSON string, cast to JSONB in SQL
       durationType,
       durationType === 'indefinite' ? null : startDate,
       durationType === 'finite' ? endDate : null,
@@ -9459,6 +9465,9 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
             }
           }
           
+          // Convert to JSON string for retry as well
+          const retryTimeBlocksParam = retryTimeBlocksValue ? JSON.stringify(retryTimeBlocksValue) : null
+          
           // Retry the UPDATE
           result = await pool.query(`
             UPDATE class_iteration
@@ -9466,7 +9475,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
               days_of_week = $1,
               start_time = $2,
               end_time = $3,
-              time_blocks = $4,
+              time_blocks = $4::jsonb,
               duration_type = $5,
               start_date = $6,
               end_date = $7,
@@ -9489,7 +9498,7 @@ app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, re
             normalizedDaysOfWeek,
             startTime,
             endTime,
-            retryTimeBlocksValue,
+            retryTimeBlocksParam,
             durationType,
             durationType === 'indefinite' ? null : startDate,
             durationType === 'finite' ? endDate : null,
