@@ -1061,21 +1061,40 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const fetchEnrollments = async () => {
     try {
       setEnrollmentsLoading(true)
-      const response = await fetch(`${apiUrl}/api/members/enrollments`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      // Enrollments are already included in profile data from /api/members/me
+      // Combine enrollments from current user and all family members
+      const allEnrollments: any[] = []
+      
+      // Add current user's enrollments
+      if (profileData?.enrollments && Array.isArray(profileData.enrollments)) {
+        profileData.enrollments.forEach((enrollment: any) => {
+          allEnrollments.push({
+            ...enrollment,
+            member_id: profileData.id,
+            member_first_name: profileData.firstName || profileData.first_name,
+            member_last_name: profileData.lastName || profileData.last_name
+          })
+        })
+      }
+      
+      // Add family members' enrollments
+      members.forEach((member) => {
+        if (member.enrollments && Array.isArray(member.enrollments) && member.id !== profileData?.id) {
+          member.enrollments.forEach((enrollment: any) => {
+            allEnrollments.push({
+              ...enrollment,
+              member_id: member.id,
+              member_first_name: member.firstName || member.first_name,
+              member_last_name: member.lastName || member.last_name
+            })
+          })
         }
       })
       
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Enrollments response:', data)
-        setEnrollments(data.enrollments || [])
-      } else {
-        console.error('Failed to fetch enrollments:', response.status, response.statusText)
-      }
+      console.log('Combined enrollments:', allEnrollments)
+      setEnrollments(allEnrollments)
     } catch (error) {
-      console.error('Error fetching enrollments:', error)
+      console.error('Error processing enrollments:', error)
     } finally {
       setEnrollmentsLoading(false)
     }
