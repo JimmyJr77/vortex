@@ -1200,11 +1200,18 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   }
 
 
-  // Filter classes based on search and category
+  // Filter classes based on search and category/class selection
   const filteredClasses = classes.filter(program => {
-    // Category filter
+    // Category/Class filter - handle both category ID and program ID
     if (selectedCategoryFilter !== 'all') {
-      // Match by categoryId (handle both number and string comparisons)
+      // Check if selectedCategoryFilter is a program ID (if it matches a program ID, show only that program)
+      const matchingProgram = classes.find(p => p.id === selectedCategoryFilter)
+      if (matchingProgram) {
+        // Filter to show only this specific program
+        return program.id === selectedCategoryFilter
+      }
+      
+      // Otherwise, treat it as a category ID
       if (program.categoryId != null) {
         if (program.categoryId !== selectedCategoryFilter && String(program.categoryId) !== String(selectedCategoryFilter)) {
           // Also check categoryDisplayName as fallback
@@ -1228,14 +1235,24 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       }
     }
     
-    // Search filter
+    // Search filter - search through all class details
     if (classSearchQuery.trim()) {
       const query = classSearchQuery.toLowerCase()
+      const programCategory = categories.find(c => 
+        c.id === program.categoryId || 
+        c.displayName === program.categoryDisplayName ||
+        c.name === program.categoryName
+      )
       const searchableText = [
         program.displayName,
         program.name,
         program.description || '',
-        program.skillRequirements || ''
+        program.skillRequirements || '',
+        program.categoryDisplayName || '',
+        program.categoryName || '',
+        programCategory?.displayName || '',
+        programCategory?.name || '',
+        program.skillLevel || ''
       ].join(' ').toLowerCase()
       
       return searchableText.includes(query)
@@ -1755,100 +1772,136 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
                         type="text"
-                        placeholder="Search classes by name, description, or requirements..."
+                        placeholder="Search classes by name, description, requirements, category..."
                         value={classSearchQuery}
                         onChange={(e) => setClassSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Category</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Category or Class</label>
                       <select
                         value={selectedCategoryFilter === 'all' ? 'all' : String(selectedCategoryFilter)}
-                        onChange={(e) => setSelectedCategoryFilter(e.target.value === 'all' ? 'all' : parseInt(e.target.value, 10))}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          setSelectedCategoryFilter(value === 'all' ? 'all' : parseInt(value, 10))
+                        }}
                         className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
                       >
                         <option value="all">All Categories</option>
                         {categories.map(cat => (
-                          <option key={cat.id} value={String(cat.id)}>{cat.displayName}</option>
+                          <option key={`cat_${cat.id}`} value={String(cat.id)}>{cat.displayName}</option>
                         ))}
+                        <option disabled className="border-t border-gray-300 my-1">──────────────</option>
+                        {(() => {
+                          // Group programs by category
+                          const groupedByCategory = classes.reduce((acc, program) => {
+                            let categoryName = 'Uncategorized'
+                            if (program.categoryDisplayName) {
+                              categoryName = program.categoryDisplayName
+                            } else if (program.categoryName) {
+                              categoryName = program.categoryName
+                            }
+                            if (!acc[categoryName]) {
+                              acc[categoryName] = []
+                            }
+                            acc[categoryName].push(program)
+                            return acc
+                          }, {} as Record<string, Program[]>)
+                          
+                          const sortedCategories = Object.keys(groupedByCategory).sort()
+                          const result: JSX.Element[] = []
+                          
+                          sortedCategories.forEach(categoryName => {
+                            const categoryPrograms = groupedByCategory[categoryName].sort((a, b) => {
+                              // Sort by display name
+                              return a.displayName.localeCompare(b.displayName)
+                            })
+                            result.push(
+                              <optgroup key={categoryName} label={categoryName}>
+                                {categoryPrograms.map(program => (
+                                  <option key={program.id} value={String(program.id)}>
+                                    {program.displayName}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            )
+                          })
+                          
+                          return result
+                        })()}
                       </select>
                     </div>
                   </div>
                 </div>
 
                 {/* Classes List */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
-                    Available Classes {filteredClasses.length > 0 && `(${filteredClasses.length} found)`}
-                  </h2>
-                  
+                <div className="space-y-6">
                   {classesLoading ? (
-                    <div className="text-center py-12 text-gray-600">Loading classes...</div>
+                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                      <div className="text-center py-12 text-gray-600">Loading classes...</div>
+                    </div>
                   ) : filteredClasses.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500">
-                      {classSearchQuery || selectedCategoryFilter !== 'all' 
-                        ? 'No classes found matching your search criteria'
-                        : 'No classes available at this time'}
+                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                      <div className="text-center py-12 text-gray-500">
+                        {classSearchQuery || selectedCategoryFilter !== 'all' 
+                          ? 'No classes found matching your search criteria'
+                          : 'No classes available at this time'}
+                      </div>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {filteredClasses.map((program) => {
-                        const programCategory = categories.find(c => 
-                          c.id === program.categoryId || 
-                          c.displayName === program.categoryDisplayName
-                        )
-                        return (
-                          <div key={program.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <h3 className="text-lg font-semibold text-black">{program.displayName}</h3>
-                                  {programCategory && (
-                                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                      {programCategory.displayName}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-700 mb-3">
-                                  {program.skillLevel && (
-                                    <div>
-                                      <span className="font-medium text-gray-600">Skill Level:</span> {program.skillLevel.replace('_', ' ')}
-                                    </div>
-                                  )}
-                                  {(program.ageMin !== null || program.ageMax !== null) && (
-                                    <div>
-                                      <span className="font-medium text-gray-600">Age Range:</span>{' '}
-                                      {program.ageMin !== null ? program.ageMin : 'Any'} - {program.ageMax !== null ? program.ageMax : 'Any'}
-                                    </div>
-                                  )}
-                                  {program.skillRequirements && (
-                                    <div className="md:col-span-2">
-                                      <span className="font-medium text-gray-600">Requirements:</span> {program.skillRequirements}
-                                    </div>
-                                  )}
-                                  {program.description && (
-                                    <div className="md:col-span-2">
-                                      <span className="font-medium text-gray-600">Description:</span> {program.description}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              <button
-                                onClick={() => {
-                                  setSelectedClassForEnrollment(program)
-                                  setShowEnrollModal(true)
-                                }}
-                                className="flex items-center gap-2 px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium ml-4"
-                              >
-                                <UserPlus className="w-4 h-4" />
-                                Enroll
-                              </button>
-                            </div>
+                    filteredClasses.map((program) => {
+                      const programCategory = categories.find(c => 
+                        c.id === program.categoryId || 
+                        c.displayName === program.categoryDisplayName
+                      )
+                      return (
+                        <div key={program.id} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                          {/* Red top section with white text (title) */}
+                          <div className="bg-vortex-red p-4 md:p-6">
+                            <h3 className="text-2xl font-display font-bold text-white">
+                              {program.displayName}
+                            </h3>
                           </div>
-                        )
-                      })}
-                    </div>
+                          {/* White bottom section with black text (description/details) */}
+                          <div className="p-4 md:p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-black mb-4">
+                              {program.description && (
+                                <div className="md:col-span-2">
+                                  <span className="font-medium">Description:</span> {program.description}
+                                </div>
+                              )}
+                              {program.skillLevel && (
+                                <div>
+                                  <span className="font-medium">Skill Level:</span> {program.skillLevel.replace('_', ' ')}
+                                </div>
+                              )}
+                              {(program.ageMin !== null || program.ageMax !== null) && (
+                                <div>
+                                  <span className="font-medium">Age Range:</span>{' '}
+                                  {program.ageMin !== null ? program.ageMin : 'Any'} - {program.ageMax !== null ? program.ageMax : 'Any'}
+                                </div>
+                              )}
+                              {program.skillRequirements && (
+                                <div className="md:col-span-2">
+                                  <span className="font-medium">Requirements:</span> {program.skillRequirements}
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => {
+                                setSelectedClassForEnrollment(program)
+                                setShowEnrollModal(true)
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium transition-colors"
+                            >
+                              <UserPlus className="w-4 h-4" />
+                              Enroll
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })
                   )}
                 </div>
               </motion.div>
