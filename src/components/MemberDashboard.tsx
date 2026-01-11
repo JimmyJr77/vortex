@@ -1810,14 +1810,13 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                           }, {} as Record<string, Program[]>)
                           
                           const sortedCategories = Object.keys(groupedByCategory).sort()
-                          const result: React.ReactElement[] = []
                           
-                          sortedCategories.forEach(categoryName => {
+                          return sortedCategories.map(categoryName => {
                             const categoryPrograms = groupedByCategory[categoryName].sort((a, b) => {
                               // Sort by display name
                               return a.displayName.localeCompare(b.displayName)
                             })
-                            result.push(
+                            return (
                               <optgroup key={categoryName} label={categoryName}>
                                 {categoryPrograms.map(program => (
                                   <option key={program.id} value={String(program.id)}>
@@ -1827,8 +1826,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                               </optgroup>
                             )
                           })
-                          
-                          return result
                         })()}
                       </select>
                     </div>
