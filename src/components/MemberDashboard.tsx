@@ -200,82 +200,78 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       }
       
       setProfileData(member)
+      
+      // Convert current member to UnifiedMember format
+      const currentMember: UnifiedMember = {
+        id: member.id,
+        firstName: member.firstName || member.first_name,
+        lastName: member.lastName || member.last_name,
+        email: member.email,
+        phone: member.phone,
+        address: member.address,
+        dateOfBirth: member.dateOfBirth || member.date_of_birth,
+        age: member.age,
+        medicalNotes: member.medicalNotes || member.medical_notes,
+        internalFlags: member.internalFlags || member.internal_flags,
+        status: member.status || 'Active',
+        isActive: member.isActive !== undefined ? member.isActive : true,
+        familyIsActive: member.familyIsActive || member.family_is_active,
+        familyId: member.familyId || member.family_id,
+        familyName: member.familyName || member.family_name,
+        username: member.username,
+        roles: member.roles || [],
+        enrollments: member.enrollments || [],
+        createdAt: member.createdAt || member.created_at,
+        updatedAt: member.updatedAt || member.updated_at
+      }
+      
+      // Also set family members from the response
+      const membersList: UnifiedMember[] = [currentMember]
+      
+      if (data.familyMembers && Array.isArray(data.familyMembers)) {
+        // Convert to FamilyMember format
+        const convertedFamilyMembers = data.familyMembers.map((fm: any) => ({
+          id: fm.id,
+          first_name: fm.firstName || fm.first_name,
+          last_name: fm.lastName || fm.last_name,
+          email: fm.email,
+          phone: fm.phone,
+          date_of_birth: fm.dateOfBirth || fm.date_of_birth,
+          age: fm.age,
+          user_id: fm.id,
+          is_adult: fm.roles?.some((r: any) => typeof r === 'string' ? r === 'PARENT_GUARDIAN' : r.role === 'PARENT_GUARDIAN') || false
+        }))
+        setFamilyMembers(convertedFamilyMembers)
         
-        // Convert current member to UnifiedMember format
-        const currentMember: UnifiedMember = {
-          id: member.id,
-          firstName: member.firstName || member.first_name,
-          lastName: member.lastName || member.last_name,
-          email: member.email,
-          phone: member.phone,
-          address: member.address,
-          dateOfBirth: member.dateOfBirth || member.date_of_birth,
-          age: member.age,
-          medicalNotes: member.medicalNotes || member.medical_notes,
-          internalFlags: member.internalFlags || member.internal_flags,
-          status: member.status || 'Active',
-          isActive: member.isActive !== undefined ? member.isActive : true,
-          familyIsActive: member.familyIsActive || member.family_is_active,
-          familyId: member.familyId || member.family_id,
-          familyName: member.familyName || member.family_name,
-          username: member.username,
-          roles: member.roles || [],
-          enrollments: member.enrollments || [],
-          createdAt: member.createdAt || member.created_at,
-          updatedAt: member.updatedAt || member.updated_at
-        }
-        
-        // Also set family members from the response
-        const familyMembersList: FamilyMember[] = []
-        const membersList: UnifiedMember[] = [currentMember]
-        
-        if (data.familyMembers && Array.isArray(data.familyMembers)) {
-          // Convert to FamilyMember format
-          const convertedFamilyMembers = data.familyMembers.map((fm: any) => ({
+        // Convert family members to UnifiedMember format
+        data.familyMembers.forEach((fm: any) => {
+          const unifiedMember: UnifiedMember = {
             id: fm.id,
-            first_name: fm.firstName || fm.first_name,
-            last_name: fm.lastName || fm.last_name,
+            firstName: fm.firstName || fm.first_name,
+            lastName: fm.lastName || fm.last_name,
             email: fm.email,
             phone: fm.phone,
-            date_of_birth: fm.dateOfBirth || fm.date_of_birth,
+            address: fm.address,
+            dateOfBirth: fm.dateOfBirth || fm.date_of_birth,
             age: fm.age,
-            user_id: fm.id,
-            is_adult: fm.roles?.some((r: any) => typeof r === 'string' ? r === 'PARENT_GUARDIAN' : r.role === 'PARENT_GUARDIAN') || false
-          }))
-          setFamilyMembers(convertedFamilyMembers)
-          
-          // Convert family members to UnifiedMember format
-          data.familyMembers.forEach((fm: any) => {
-            const unifiedMember: UnifiedMember = {
-              id: fm.id,
-              firstName: fm.firstName || fm.first_name,
-              lastName: fm.lastName || fm.last_name,
-              email: fm.email,
-              phone: fm.phone,
-              address: fm.address,
-              dateOfBirth: fm.dateOfBirth || fm.date_of_birth,
-              age: fm.age,
-              medicalNotes: fm.medicalNotes || fm.medical_notes,
-              internalFlags: fm.internalFlags || fm.internal_flags,
-              status: fm.status || 'Active',
-              isActive: fm.isActive !== undefined ? fm.isActive : true,
-              familyIsActive: fm.familyIsActive || fm.family_is_active,
-              familyId: fm.familyId || fm.family_id,
-              familyName: fm.familyName || fm.family_name,
-              username: fm.username,
-              roles: fm.roles || [],
-              enrollments: fm.enrollments || [],
-              createdAt: fm.createdAt || fm.created_at,
-              updatedAt: fm.updatedAt || fm.updated_at
-            }
-            membersList.push(unifiedMember)
-          })
-        }
-        
-        setMembers(membersList)
-      } else {
-        setError('Failed to load profile data')
+            medicalNotes: fm.medicalNotes || fm.medical_notes,
+            internalFlags: fm.internalFlags || fm.internal_flags,
+            status: fm.status || 'Active',
+            isActive: fm.isActive !== undefined ? fm.isActive : true,
+            familyIsActive: fm.familyIsActive || fm.family_is_active,
+            familyId: fm.familyId || fm.family_id,
+            familyName: fm.familyName || fm.family_name,
+            username: fm.username,
+            roles: fm.roles || [],
+            enrollments: fm.enrollments || [],
+            createdAt: fm.createdAt || fm.created_at,
+            updatedAt: fm.updatedAt || fm.updated_at
+          }
+          membersList.push(unifiedMember)
+        })
       }
+      
+      setMembers(membersList)
     } catch (error) {
       console.error('Error fetching profile:', error)
       setError('Unable to connect to server')
