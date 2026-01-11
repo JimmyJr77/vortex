@@ -920,7 +920,12 @@ export const initDatabase = async () => {
     `)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_family ON family_guardian(family_id)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_user ON family_guardian(user_id)`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_member ON family_guardian(member_id)`)
+    try {
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_member ON family_guardian(member_id)`)
+    } catch (indexError) {
+      // Column might not exist in older schema versions, log warning and continue - this is non-fatal
+      console.warn('[initDatabase] Could not create index on family_guardian.member_id (column may not exist):', indexError.message)
+    }
     
     // Create member_program table (replaces athlete_program)
     await pool.query(`
