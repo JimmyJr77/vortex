@@ -58,29 +58,30 @@ interface UnifiedMember {
 }
 
 
-interface Category {
-  id: number
-  name: string
-  displayName: string
-  description?: string | null
-  archived: boolean
-}
+// Category and Program interfaces - disabled until backend provides member-accessible endpoints
+// interface Category {
+//   id: number
+//   name: string
+//   displayName: string
+//   description?: string | null
+//   archived: boolean
+// }
 
-interface Program {
-  id: number
-  categoryId?: number | null
-  categoryName?: string | null
-  categoryDisplayName?: string | null
-  name: string
-  displayName: string
-  skillLevel: string | null
-  ageMin: number | null
-  ageMax: number | null
-  description: string | null
-  skillRequirements: string | null
-  isActive: boolean
-  archived?: boolean
-}
+// interface Program {
+//   id: number
+//   categoryId?: number | null
+//   categoryName?: string | null
+//   categoryDisplayName?: string | null
+//   name: string
+//   displayName: string
+//   skillLevel: string | null
+//   ageMin: number | null
+//   ageMax: number | null
+//   description: string | null
+//   skillRequirements: string | null
+//   isActive: boolean
+//   archived?: boolean
+// }
 
 interface Event {
   id: string | number
