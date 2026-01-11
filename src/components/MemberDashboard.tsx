@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, Calendar, Search, Edit2, Save, X, UserPlus, CheckCircle, MapPin, Award, Users, Trophy } from 'lucide-react'
+import { LogOut, Home, Calendar, Search, Edit2, Save, X, UserPlus, CheckCircle, MapPin, Award, Users, Trophy, Eye } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import EnrollmentForm from './EnrollmentForm'
@@ -123,6 +123,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     } else if (activeTab === 'events') {
       fetchEvents()
       fetchEnrollments() // Need enrollments for filtering
+    } else if (activeTab === 'profile') {
+      fetchEnrollments() // Need enrollments to display on profile
     }
   }, [activeTab])
 
@@ -681,46 +683,22 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {/* Profile Information */}
+                {/* Profile Information - Matching Admin Format */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <div className="flex justify-between items-center mb-6">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                     <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
                       Your Profile
                     </h2>
-                    {!editingProfile ? (
-                      <button
+                    {!editingProfile && profileData && (
+                      <motion.button
                         onClick={() => setEditingProfile(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
+                        className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-green-600 text-white hover:bg-green-700"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                       >
                         <Edit2 className="w-4 h-4" />
-                        Edit
-                      </button>
-                    ) : (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={handleUpdateProfile}
-                          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                        >
-                          <Save className="w-4 h-4" />
-                          Save
-                        </button>
-                        <button
-                          onClick={() => {
-                            setEditingProfile(false)
-                            setProfileFormData({
-                              first_name: profileData?.first_name || '',
-                              last_name: profileData?.last_name || '',
-                              email: profileData?.email || '',
-                              phone: profileData?.phone || '',
-                              address: profileData?.address || ''
-                            })
-                          }}
-                          className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
-                        >
-                          <X className="w-4 h-4" />
-                          Cancel
-                        </button>
-                      </div>
+                        <span>Edit</span>
+                      </motion.button>
                     )}
                   </div>
 
@@ -728,78 +706,53 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     <div className="text-center py-12 text-gray-600">Loading profile...</div>
                   ) : error ? (
                     <div className="text-center py-12 text-red-600">{error}</div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
-                        {editingProfile ? (
-                          <input
-                            type="text"
-                            value={profileFormData.first_name || ''}
-                            onChange={(e) => setProfileFormData({ ...profileFormData, first_name: e.target.value })}
-                            className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                          />
-                        ) : (
-                          <p className="text-gray-900">{profileData?.firstName || profileData?.first_name || (profileData?.full_name ? profileData.full_name.split(' ')[0] : 'N/A')}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
-                        {editingProfile ? (
-                          <input
-                            type="text"
-                            value={profileFormData.last_name || ''}
-                            onChange={(e) => setProfileFormData({ ...profileFormData, last_name: e.target.value })}
-                            className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                          />
-                        ) : (
-                          <p className="text-gray-900">{profileData?.lastName || profileData?.last_name || (profileData?.full_name ? profileData.full_name.split(' ').slice(1).join(' ') : 'N/A')}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                        {editingProfile ? (
-                          <input
-                            type="email"
-                            value={profileFormData.email || ''}
-                            onChange={(e) => setProfileFormData({ ...profileFormData, email: e.target.value })}
-                            className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                          />
-                        ) : (
-                          <p className="text-gray-900">{profileData?.email || 'N/A'}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
-                        {editingProfile ? (
-                          <input
-                            type="tel"
-                            value={profileFormData.phone || ''}
-                            onChange={(e) => setProfileFormData({ ...profileFormData, phone: e.target.value })}
-                            className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                          />
-                        ) : (
-                          <p className="text-gray-900">{profileData?.phone || 'N/A'}</p>
-                        )}
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
-                        {editingProfile ? (
-                          <textarea
-                            value={profileFormData.address || ''}
-                            onChange={(e) => setProfileFormData({ ...profileFormData, address: e.target.value })}
-                            rows={3}
-                            className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                          />
-                        ) : (
-                          <p className="text-gray-900">{profileData?.address || 'N/A'}</p>
-                        )}
+                  ) : profileData ? (
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <div className="text-black font-semibold text-lg">
+                              {profileData.firstName || profileData.first_name || (profileData.full_name ? profileData.full_name.split(' ')[0] : '')} {profileData.lastName || profileData.last_name || (profileData.full_name ? profileData.full_name.split(' ').slice(1).join(' ') : '')}
+                            </div>
+                            <span className="px-2 py-1 rounded text-xs font-semibold bg-green-600 text-white">
+                              Active
+                            </span>
+                            {enrollments && enrollments.length > 0 && (
+                              <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-600 text-white">
+                                Athlete
+                              </span>
+                            )}
+                          </div>
+                          {profileData.email && (
+                            <div className="text-gray-600 text-sm mt-1">{profileData.email}</div>
+                          )}
+                          {profileData.phone && (
+                            <div className="text-gray-600 text-sm">{profileData.phone}</div>
+                          )}
+                          {profileData.age !== null && profileData.age !== undefined && (
+                            <div className="text-gray-600 text-sm">Age: {profileData.age}</div>
+                          )}
+                          <div className="text-gray-500 text-xs mt-1">
+                            Roles: {(profileData.roles && profileData.roles.length > 0) 
+                              ? (Array.isArray(profileData.roles) 
+                                  ? profileData.roles.map((r: any) => typeof r === 'string' ? r : r.role).join(', ')
+                                  : profileData.roles)
+                              : (profileData.role || 'No roles')} • Status: {profileData.status || 'Active'}
+                            {profileData.familyName && ` • Family: ${profileData.familyName}`}
+                            {profileData.familyId && ` (ID: ${profileData.familyId})`}
+                          </div>
+                          {enrollments && enrollments.length > 0 && (
+                            <div className="text-gray-500 text-xs mt-1">
+                              Enrolled in: {enrollments.map((e: any) => e.program_display_name || e.program_name || 'Unknown').join(', ')}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  )}
+                  ) : null}
                 </div>
 
-                {/* Family Members */}
+                {/* Family Members - Matching Admin Format */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
                     Family Members
@@ -809,96 +762,52 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     <div className="text-center py-8 text-gray-500">No family members found</div>
                   ) : (
                     <div className="space-y-4">
-                      {familyMembers.map((member) => (
-                        <div key={member.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                          {editingFamilyMemberId === member.id ? (
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <label className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
-                                  <input
-                                    type="text"
-                                    value={familyMemberFormData.first_name || ''}
-                                    onChange={(e) => setFamilyMemberFormData({ ...familyMemberFormData, first_name: e.target.value })}
-                                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
-                                  <input
-                                    type="text"
-                                    value={familyMemberFormData.last_name || ''}
-                                    onChange={(e) => setFamilyMemberFormData({ ...familyMemberFormData, last_name: e.target.value })}
-                                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                                  <input
-                                    type="email"
-                                    value={familyMemberFormData.email || ''}
-                                    onChange={(e) => setFamilyMemberFormData({ ...familyMemberFormData, email: e.target.value })}
-                                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
-                                  <input
-                                    type="tel"
-                                    value={familyMemberFormData.phone || ''}
-                                    onChange={(e) => setFamilyMemberFormData({ ...familyMemberFormData, phone: e.target.value })}
-                                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                                  />
-                                </div>
-                              </div>
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => handleUpdateFamilyMember(member.id)}
-                                  className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                                >
-                                  <Save className="w-4 h-4" />
-                                  Save
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setEditingFamilyMemberId(null)
-                                    setFamilyMemberFormData({})
-                                  }}
-                                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
-                                >
-                                  <X className="w-4 h-4" />
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="flex items-start justify-between">
+                      {familyMembers.map((member) => {
+                        // Get enrollments for this family member
+                        const memberEnrollments = enrollments.filter((e: any) => 
+                          (e.athlete_user_id === (member.user_id || member.id))
+                        )
+                        const hasEnrollments = memberEnrollments.length > 0
+                        const enrollmentStatus = hasEnrollments ? 'Athlete' : 'Non-Participant'
+                        
+                        return (
+                          <div 
+                            key={member.id} 
+                            className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                          >
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                               <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-black mb-2">
-                                  {member.first_name} {member.last_name}
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
-                                  {member.email && (
-                                    <div>
-                                      <span className="font-medium">Email:</span> {member.email}
-                                    </div>
-                                  )}
-                                  {member.phone && (
-                                    <div>
-                                      <span className="font-medium">Phone:</span> {member.phone}
-                                    </div>
-                                  )}
-                                  {member.date_of_birth && (
-                                    <div>
-                                      <span className="font-medium">Date of Birth:</span> {new Date(member.date_of_birth).toLocaleDateString()}
-                                    </div>
-                                  )}
-                                  {member.age && (
-                                    <div>
-                                      <span className="font-medium">Age:</span> {member.age}
-                                    </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="text-black font-semibold text-lg">
+                                    {member.first_name} {member.last_name}
+                                  </div>
+                                  <span className="px-2 py-1 rounded text-xs font-semibold bg-green-600 text-white">
+                                    Active
+                                  </span>
+                                  {hasEnrollments && (
+                                    <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-600 text-white">
+                                      {enrollmentStatus}
+                                    </span>
                                   )}
                                 </div>
+                                {member.email && (
+                                  <div className="text-gray-600 text-sm mt-1">{member.email}</div>
+                                )}
+                                {member.phone && (
+                                  <div className="text-gray-600 text-sm">{member.phone}</div>
+                                )}
+                                {member.age !== null && member.age !== undefined && (
+                                  <div className="text-gray-600 text-sm">Age: {member.age}</div>
+                                )}
+                                <div className="text-gray-500 text-xs mt-1">
+                                  Status: Active
+                                  {profileData?.familyName && ` • Family: ${profileData.familyName}`}
+                                </div>
+                                {hasEnrollments && (
+                                  <div className="text-gray-500 text-xs mt-1">
+                                    Enrolled in: {memberEnrollments.map((e: any) => e.program_display_name || e.program_name || 'Unknown').join(', ')}
+                                  </div>
+                                )}
                                 {member.marked_for_removal && (
                                   <div className="mt-2 text-sm text-yellow-600 font-medium">
                                     Marked for removal by administrator
@@ -907,28 +816,21 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                               </div>
                               {isAdult() && (
                                 <div className="flex gap-2">
-                                  <button
+                                  <motion.button
                                     onClick={() => startEditFamilyMember(member)}
-                                    className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
+                                    className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-green-600 text-white hover:bg-green-700"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                   >
                                     <Edit2 className="w-4 h-4" />
-                                    Edit
-                                  </button>
-                                  {!member.marked_for_removal && (
-                                    <button
-                                      onClick={() => handleMarkForRemoval(member.id)}
-                                      className="flex items-center gap-2 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white text-sm font-medium"
-                                    >
-                                      <X className="w-4 h-4" />
-                                      Mark for Removal
-                                    </button>
-                                  )}
+                                    <span>Edit</span>
+                                  </motion.button>
                                 </div>
                               )}
                             </div>
-                          )}
-                        </div>
-                      ))}
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
