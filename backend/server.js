@@ -6497,22 +6497,34 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       })
     }
     
-    // Get the current user's member record and family_id
-    const currentMemberResult = await pool.query(`
-      SELECT id, family_id FROM member WHERE id = $1
-    `, [userId])
+    // First, find the family for this app_user
+    // User can be linked to family via family.primary_user_id or family_guardian
+    let familyId = null
+    try {
+      const familyResult = await pool.query(`
+        SELECT f.id, f.family_name, f.primary_user_id
+        FROM family f
+        WHERE f.primary_user_id = $1 OR EXISTS (
+          SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+        )
+        LIMIT 1
+      `, [userId])
+      
+      if (familyResult.rows.length > 0) {
+        familyId = familyResult.rows[0].id
+      }
+    } catch (familyError) {
+      console.log('Family query failed (non-critical):', familyError.message)
+    }
     
-    if (currentMemberResult.rows.length === 0) {
+    if (!familyId) {
       return res.status(404).json({
         success: false,
-        message: 'Member not found'
+        message: 'Family not found for user'
       })
     }
     
-    const currentMember = currentMemberResult.rows[0]
-    const familyId = currentMember.family_id
-    
-    // Build query to get current user and their family members (same structure as admin endpoint)
+    // Build query to get all family members (same structure as admin endpoint)
     let query = `
       SELECT 
         m.id,
@@ -6543,16 +6555,16 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       FROM member m
       LEFT JOIN family f ON m.family_id = f.id
       WHERE m.is_active = TRUE
-        AND (m.id = $1 OR (m.family_id = $2 AND $2 IS NOT NULL))
+        AND m.family_id = $1
       ORDER BY m.last_name, m.first_name
     `
     
-    const result = await pool.query(query, [userId, familyId])
+    const result = await pool.query(query, [familyId])
     
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'Member not found'
+        message: 'No members found in family'
       })
     }
     
@@ -6653,14 +6665,39 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       updatedAt: row.updated_at
     }))
     
-    // Return current user as member, and all family members
-    const currentUser = members.find(m => m.id === parseInt(userId)) || members[0]
+    // Get the app_user's email to try to match to a member
+    let userEmail = null
+    try {
+      const userResult = await pool.query('SELECT email FROM app_user WHERE id = $1', [userId])
+      if (userResult.rows.length > 0) {
+        userEmail = userResult.rows[0].email
+      }
+    } catch (userError) {
+      console.log('User email query failed (non-critical):', userError.message)
+    }
+    
+    // Try to find the current user's member record by email (since app_user.id != member.id)
+    // If not found, use the first member in the family (typically the primary guardian)
+    let currentUser = null
+    if (userEmail) {
+      currentUser = members.find(m => m.email && m.email.toLowerCase() === userEmail.toLowerCase())
+    }
+    
+    // If no match by email, use the first member (typically the primary guardian)
+    if (!currentUser && members.length > 0) {
+      currentUser = members[0]
+    }
+    
+    // All other members are family members
+    const familyMembersList = currentUser && members.length > 1
+      ? members.filter(m => m.id !== currentUser.id)
+      : []
     
     res.json({
       success: true,
       member: currentUser,
       data: currentUser,
-      familyMembers: members.filter(m => m.id !== parseInt(userId))
+      familyMembers: familyMembersList
     })
   } catch (error) {
     console.error('Get member error:', error)
