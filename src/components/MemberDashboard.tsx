@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, Calendar, Search, Edit2, Save, X, UserPlus, CheckCircle, MapPin, Award, Users, Trophy, Eye } from 'lucide-react'
+import { LogOut, Home, Calendar, Search, Edit2, UserPlus, CheckCircle, MapPin, Award, Users, Trophy } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import EnrollmentForm from './EnrollmentForm'
@@ -74,11 +74,7 @@ interface Event {
 export default function MemberDashboard({ member: _member, onLogout, onReturnToWebsite }: MemberDashboardProps) {
   const [activeTab, setActiveTab] = useState<MemberTab>('profile')
   const [profileData, setProfileData] = useState<any>(null)
-  const [editingProfile, setEditingProfile] = useState(false)
-  const [profileFormData, setProfileFormData] = useState<any>({})
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([])
-  const [editingFamilyMemberId, setEditingFamilyMemberId] = useState<number | null>(null)
-  const [familyMemberFormData, setFamilyMemberFormData] = useState<Partial<FamilyMember>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
@@ -141,16 +137,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         const data = await response.json()
         const member = data.data || data.member
         setProfileData(member)
-        // Handle both full_name and first_name/last_name formats
-        const firstName = member.firstName || (member.full_name ? member.full_name.split(' ')[0] : '')
-        const lastName = member.lastName || (member.full_name ? member.full_name.split(' ').slice(1).join(' ') : '')
-        setProfileFormData({
-          first_name: firstName,
-          last_name: lastName,
-          email: member.email || '',
-          phone: member.phone || '',
-          address: member.address || ''
-        })
       } else {
         setError('Failed to load profile data')
       }
@@ -258,90 +244,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
-  const handleUpdateProfile = async () => {
-    try {
-      const response = await fetch(`${apiUrl}/api/members/me`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(profileFormData)
-      })
-      
-      if (response.ok) {
-        await fetchProfileData()
-        setEditingProfile(false)
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to update profile')
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error)
-      alert('Failed to update profile')
-    }
-  }
-
-  const handleUpdateFamilyMember = async (memberId: number) => {
-    if (!isAdult()) {
-      alert('Only adults can edit family member information')
-      return
-    }
-
-    try {
-      const response = await fetch(`${apiUrl}/api/members/family/${memberId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(familyMemberFormData)
-      })
-      
-      if (response.ok) {
-        await fetchFamilyMembers()
-        setEditingFamilyMemberId(null)
-        setFamilyMemberFormData({})
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to update family member')
-      }
-    } catch (error) {
-      console.error('Error updating family member:', error)
-      alert('Failed to update family member')
-    }
-  }
-
-  const handleMarkForRemoval = async (memberId: number) => {
-    if (!isAdult()) {
-      alert('Only adults can mark family members for removal')
-      return
-    }
-
-    if (!confirm('Are you sure you want to mark this family member for removal? This will notify the site administrator.')) {
-      return
-    }
-
-    try {
-      const response = await fetch(`${apiUrl}/api/members/family/${memberId}/mark-for-removal`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.ok) {
-        await fetchFamilyMembers()
-        alert('Family member marked for removal. The administrator will be notified.')
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to mark for removal')
-      }
-    } catch (error) {
-      console.error('Error marking for removal:', error)
-      alert('Failed to mark for removal')
-    }
-  }
 
   const fetchEnrollments = async () => {
     try {
@@ -398,19 +300,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
-  const startEditFamilyMember = (member: FamilyMember) => {
-    if (!isAdult()) {
-      alert('Only adults can edit family member information')
-      return
-    }
-    setEditingFamilyMemberId(member.id)
-    setFamilyMemberFormData({
-      first_name: member.first_name,
-      last_name: member.last_name,
-      email: member.email || '',
-      phone: member.phone || ''
-    })
-  }
 
   // Filter classes based on search and category
   const filteredClasses = classes.filter(program => {
@@ -689,9 +578,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
                       Your Profile
                     </h2>
-                    {!editingProfile && profileData && (
+                    {profileData && (
                       <motion.button
-                        onClick={() => setEditingProfile(true)}
+                        onClick={() => alert('Edit functionality coming soon - will use the same form as admin portal')}
                         className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-green-600 text-white hover:bg-green-700"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -817,7 +706,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                               {isAdult() && (
                                 <div className="flex gap-2">
                                   <motion.button
-                                    onClick={() => startEditFamilyMember(member)}
+                                    onClick={() => alert('Edit functionality coming soon - will use the same form as admin portal')}
                                     className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-green-600 text-white hover:bg-green-700"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
