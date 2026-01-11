@@ -932,6 +932,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   useEffect(() => {
     if (activeTab === 'classes') {
       fetchEnrollments()
+      fetchClasses()
+      fetchCategories()
     } else if (activeTab === 'events') {
       fetchEvents()
       fetchEnrollments() // Need enrollments for filtering
