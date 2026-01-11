@@ -52,14 +52,6 @@ export default function AdminEnrollments() {
   }>>([])
 
   const apiUrl = getApiUrl()
-
-  // Filtered data based on selected program
-  const enrollments = selectedProgram 
-    ? allEnrollments.filter(e => e.program_id === selectedProgram.id)
-    : allEnrollments
-  const classIterations = selectedProgram
-    ? allClassIterations.filter(iter => iter.programId === selectedProgram.id)
-    : allClassIterations
   
   // Check for admin token on component mount and warn if missing
   useEffect(() => {
