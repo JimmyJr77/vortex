@@ -6497,35 +6497,30 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       })
     }
     
-    // First, find the family for this app_user
-    // User can be linked to family via family.primary_user_id or family_guardian
-    let familyId = null
+    // First, get the app_user's email to find their member record
+    let userEmail = null
     try {
-      const familyResult = await pool.query(`
-        SELECT f.id, f.family_name, f.primary_user_id
-        FROM family f
-        WHERE f.primary_user_id = $1 OR EXISTS (
-          SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
-        )
-        LIMIT 1
-      `, [userId])
-      
-      if (familyResult.rows.length > 0) {
-        familyId = familyResult.rows[0].id
+      const userResult = await pool.query('SELECT email FROM app_user WHERE id = $1', [userId])
+      if (userResult.rows.length > 0) {
+        userEmail = userResult.rows[0].email
       }
-    } catch (familyError) {
-      console.log('Family query failed (non-critical):', familyError.message)
-    }
-    
-    if (!familyId) {
+    } catch (userError) {
+      console.log('User email query failed:', userError.message)
       return res.status(404).json({
         success: false,
-        message: 'Family not found for user'
+        message: 'User not found'
       })
     }
     
-    // Build query to get all family members (same structure as admin endpoint)
-    let query = `
+    if (!userEmail) {
+      return res.status(404).json({
+        success: false,
+        message: 'User email not found'
+      })
+    }
+    
+    // Find the member record for this user by matching email
+    const memberQuery = `
       SELECT 
         m.id,
         m.first_name,
@@ -6555,18 +6550,63 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       FROM member m
       LEFT JOIN family f ON m.family_id = f.id
       WHERE m.is_active = TRUE
-        AND m.family_id = $1
-      ORDER BY m.last_name, m.first_name
+        AND m.email = $1
+      LIMIT 1
     `
     
-    const result = await pool.query(query, [familyId])
+    const memberResult = await pool.query(memberQuery, [userEmail])
     
-    if (result.rows.length === 0) {
+    if (memberResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No members found in family'
+        message: 'Member record not found for user'
       })
     }
+    
+    const currentMemberRow = memberResult.rows[0]
+    const familyId = currentMemberRow.family_id
+    
+    // Get all family members if family exists, otherwise just return the single member
+    let allMembers = [currentMemberRow]
+    if (familyId) {
+      const familyQuery = `
+        SELECT 
+          m.id,
+          m.first_name,
+          m.last_name,
+          m.email,
+          m.phone,
+          m.address,
+          m.billing_street,
+          m.billing_city,
+          m.billing_state,
+          m.billing_zip,
+          m.date_of_birth,
+          m.medical_notes,
+          m.internal_flags,
+          m.status,
+          m.is_active,
+          m.family_is_active,
+          m.family_id,
+          m.username,
+          m.created_at,
+          m.updated_at,
+          f.family_name,
+          CASE WHEN m.date_of_birth IS NOT NULL 
+            THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
+            ELSE NULL 
+          END as age
+        FROM member m
+        LEFT JOIN family f ON m.family_id = f.id
+        WHERE m.is_active = TRUE
+          AND m.family_id = $1
+        ORDER BY m.last_name, m.first_name
+      `
+      const familyResult = await pool.query(familyQuery, [familyId])
+      allMembers = familyResult.rows
+    }
+    
+    const result = { rows: allMembers }
     
     // Get member IDs for fetching roles and enrollments
     const memberIds = result.rows.map(row => row.id)
@@ -6665,33 +6705,18 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       updatedAt: row.updated_at
     }))
     
-    // Get the app_user's email to try to match to a member
-    let userEmail = null
-    try {
-      const userResult = await pool.query('SELECT email FROM app_user WHERE id = $1', [userId])
-      if (userResult.rows.length > 0) {
-        userEmail = userResult.rows[0].email
-      }
-    } catch (userError) {
-      console.log('User email query failed (non-critical):', userError.message)
-    }
+    // Current user is the first member (the one we found by email, or first in family)
+    // Sort members so the current user (matching email) is first
+    members.sort((a, b) => {
+      if (a.email && a.email.toLowerCase() === userEmail.toLowerCase()) return -1
+      if (b.email && b.email.toLowerCase() === userEmail.toLowerCase()) return 1
+      return 0
+    })
     
-    // Try to find the current user's member record by email (since app_user.id != member.id)
-    // If not found, use the first member in the family (typically the primary guardian)
-    let currentUser = null
-    if (userEmail) {
-      currentUser = members.find(m => m.email && m.email.toLowerCase() === userEmail.toLowerCase())
-    }
+    const currentUser = members[0]
     
-    // If no match by email, use the first member (typically the primary guardian)
-    if (!currentUser && members.length > 0) {
-      currentUser = members[0]
-    }
-    
-    // All other members are family members
-    const familyMembersList = currentUser && members.length > 1
-      ? members.filter(m => m.id !== currentUser.id)
-      : []
+    // All other members are family members (if any)
+    const familyMembersList = members.length > 1 ? members.slice(1) : []
     
     res.json({
       success: true,
