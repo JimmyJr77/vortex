@@ -83,6 +83,7 @@ export default function AdminClasses() {
   const [showClassModal, setShowClassModal] = useState(false)
   const [selectedCategoryForClass, setSelectedCategoryForClass] = useState<number | null>(null)
   const [, setIterations] = useState<ClassIteration[]>([])
+  const [iterationStats, setIterationStats] = useState<Record<number, ClassIteration[]>>({})
 
   const fetchAllPrograms = async () => {
     try {
@@ -1532,13 +1533,13 @@ export default function AdminClasses() {
                                     <div className="mt-4 pt-4 border-t border-gray-200">
                                       <h5 className="text-sm font-semibold text-gray-700 mb-2">Current Iterations</h5>
                                       <div className="space-y-3">
-                                        {iterationStats[program.id].map((iteration) => {
+                                        {iterationStats[program.id].map((iteration: ClassIteration) => {
                                           const daysOfWeekNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
                                           
                                           // Get days for this iteration (from timeBlocks or legacy daysOfWeek)
                                           // daysOfWeek is stored as 0-6 format (Sunday=0, Monday=1, etc.)
                                           const iterationDays = iteration.timeBlocks && iteration.timeBlocks.length > 0
-                                            ? Array.from(new Set(iteration.timeBlocks.flatMap(tb => tb.daysOfWeek)))
+                                            ? Array.from(new Set(iteration.timeBlocks.flatMap((tb: TimeBlock) => tb.daysOfWeek)))
                                             : iteration.daysOfWeek || []
                                           
                                           return (
@@ -1554,7 +1555,7 @@ export default function AdminClasses() {
                                                 </span>
                                               </div>
                                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                                                {iterationDays.sort((a, b) => a - b).map((dayNum) => {
+                                                {iterationDays.sort((a: number, b: number) => a - b).map((dayNum: number) => {
                                                   const dayName = daysOfWeekNames[dayNum] || `Day ${dayNum}`
                                                   const dayKey = dayName.toLowerCase() as keyof typeof iteration.enrollmentCounts
                                                   const count = iteration.enrollmentCounts?.[dayKey] || 0

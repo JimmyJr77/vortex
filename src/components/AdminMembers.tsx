@@ -173,6 +173,8 @@ interface UnifiedMember {
     days_per_week: number
     selected_days: string[] | string
   }>
+  hasCompletedWaivers?: boolean
+  waiverCompletionDate?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -289,7 +291,7 @@ export default function AdminMembers() {
   const [viewingUnifiedMember, setViewingUnifiedMember] = useState<UnifiedMember | null>(null)
   const [viewingMemberFamilyData, setViewingMemberFamilyData] = useState<any>(null)
   const [showUnifiedMemberViewModal, setShowUnifiedMemberViewModal] = useState(false)
-  const [showUnifiedMemberEditModal, setShowUnifiedMemberEditModal] = useState(false)
+  const [, setShowUnifiedMemberEditModal] = useState(false)
   const [editingUnifiedMemberId, setEditingUnifiedMemberId] = useState<number | null>(null)
   
   // Archived user dialog state
