@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { LogOut, Home, Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
@@ -932,8 +932,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   useEffect(() => {
     if (activeTab === 'classes') {
       fetchEnrollments()
-      // fetchClasses() // Disabled - requires admin endpoints (401/403 errors)
-      // fetchCategories() // Disabled - requires admin endpoints (401/403 errors)
+      fetchClasses()
+      fetchCategories()
     } else if (activeTab === 'events') {
       fetchEvents()
       fetchEnrollments() // Need enrollments for filtering
