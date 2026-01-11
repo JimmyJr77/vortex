@@ -6479,80 +6479,139 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
     
-    // Get user from app_user table (check both app_user.role and user_role table)
-    const userResult = await pool.query(`
-      SELECT DISTINCT u.id, u.email, u.full_name, u.phone, u.role, u.username, u.is_active, u.created_at, u.address
-      FROM app_user u
-      LEFT JOIN user_role ur ON ur.user_id = u.id
-      WHERE u.id = $1 
-        AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
-             OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE'))
+    // Get member from unified member table (same as admin endpoint)
+    const memberResult = await pool.query(`
+      SELECT 
+        m.id,
+        m.first_name,
+        m.last_name,
+        m.email,
+        m.phone,
+        m.address,
+        m.billing_street,
+        m.billing_city,
+        m.billing_state,
+        m.billing_zip,
+        m.date_of_birth,
+        m.medical_notes,
+        m.internal_flags,
+        m.status,
+        m.is_active,
+        m.family_is_active,
+        m.family_id,
+        m.username,
+        m.created_at,
+        m.updated_at,
+        f.family_name,
+        CASE WHEN m.date_of_birth IS NOT NULL 
+          THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
+          ELSE NULL 
+        END as age
+      FROM member m
+      LEFT JOIN family f ON m.family_id = f.id
+      WHERE m.id = $1
     `, [userId])
 
-    if (userResult.rows.length === 0) {
+    if (memberResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Member not found'
       })
     }
 
-    const user = userResult.rows[0]
+    const member = memberResult.rows[0]
 
-    // Get user's family information (optional - allow if family table doesn't exist)
-    let familyResult = { rows: [] }
+    // Get roles - check if user_role table has member_id column
+    let rolesArray = []
     try {
-      familyResult = await pool.query(`
-        SELECT f.id, f.family_name, f.primary_user_id
-        FROM family f
-        WHERE f.primary_user_id = $1 OR EXISTS (
-          SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
+      const userRoleCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.columns 
+          WHERE table_schema = 'public' 
+          AND table_name = 'user_role'
+          AND column_name = 'member_id'
         )
-        LIMIT 1
-      `, [userId])
-    } catch (familyError) {
-      console.log('Family query failed (non-critical):', familyError.message)
-      // Continue without family data
-      familyResult = { rows: [] }
+      `)
+      
+      if (userRoleCheck.rows[0].exists) {
+        const rolesResult = await pool.query(`
+          SELECT role
+          FROM user_role
+          WHERE member_id = $1
+        `, [userId])
+        rolesArray = rolesResult.rows.map(r => ({ id: r.role, role: r.role }))
+      }
+    } catch (rolesError) {
+      // If roles query fails, continue with empty roles
+      console.log('Roles query failed (non-critical):', rolesError.message)
     }
 
-    // Get user's family members if they're a guardian
-    let familyMembers = []
-    if (user.role === 'PARENT_GUARDIAN' && familyResult.rows.length > 0) {
+    // If no roles found, try to get from app_user
+    if (rolesArray.length === 0) {
       try {
-        const membersResult = await pool.query(`
-          SELECT m.id, m.first_name, m.last_name, m.date_of_birth, m.status
-          FROM member m
-          WHERE m.family_id = $1 AND m.is_active = TRUE
-        `, [familyResult.rows[0].id])
-        familyMembers = membersResult.rows
-      } catch (memberError) {
-        console.log('Member query failed (non-critical):', memberError.message)
-        // Continue without member data
-        familyMembers = []
+        const appUserResult = await pool.query(`
+          SELECT role FROM app_user WHERE id = $1
+        `, [userId])
+        if (appUserResult.rows.length > 0 && appUserResult.rows[0].role) {
+          rolesArray = [{ id: appUserResult.rows[0].role, role: appUserResult.rows[0].role }]
+        }
+      } catch (appUserError) {
+        // Continue without roles
       }
     }
 
-    // Format member data for frontend
-    const fullName = user.full_name || ''
-    const nameParts = fullName.split(' ')
-    const memberData = {
-      id: user.id,
-      firstName: nameParts[0] || '',
-      lastName: nameParts.slice(1).join(' ') || '',
-      email: user.email || '',
-      phone: user.phone || null,
-      username: user.username || '',
-      role: user.role || '', // Primary role for backward compatibility
-      roles: allUserRoles, // All roles
-      familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
-      familyName: familyResult.rows.length > 0 ? familyResult.rows[0].family_name : null,
-      familyMembers: familyMembers.map(m => ({
-        id: m.id,
-        firstName: m.first_name || '',
-        lastName: m.last_name || '',
-        dateOfBirth: m.date_of_birth || null,
-        status: m.status || 'legacy'
+    // Get enrollments for this member
+    let enrollments = []
+    try {
+      const enrollmentsResult = await pool.query(`
+        SELECT 
+          mp.id,
+          mp.program_id,
+          COALESCE(p.display_name, '') as program_display_name,
+          mp.days_per_week,
+          mp.selected_days
+        FROM member_program mp
+        LEFT JOIN program p ON mp.program_id = p.id
+        WHERE mp.member_id = $1
+      `, [userId])
+      enrollments = enrollmentsResult.rows.map(e => ({
+        id: e.id,
+        program_id: e.program_id,
+        program_display_name: e.program_display_name,
+        days_per_week: e.days_per_week,
+        selected_days: Array.isArray(e.selected_days) ? e.selected_days : (e.selected_days ? (typeof e.selected_days === 'string' ? JSON.parse(e.selected_days) : []) : [])
       }))
+    } catch (enrollmentError) {
+      console.log('Enrollments query failed (non-critical):', enrollmentError.message)
+      enrollments = []
+    }
+
+    // Format member data for frontend (matching admin portal format)
+    const memberData = {
+      id: member.id,
+      firstName: member.first_name,
+      lastName: member.last_name,
+      email: member.email,
+      phone: member.phone,
+      address: member.address,
+      billingStreet: member.billing_street,
+      billingCity: member.billing_city,
+      billingState: member.billing_state,
+      billingZip: member.billing_zip,
+      dateOfBirth: member.date_of_birth,
+      age: member.age ? parseInt(member.age) : null,
+      medicalNotes: member.medical_notes,
+      internalFlags: member.internal_flags,
+      status: member.status || (enrollments.length > 0 ? 'athlete' : 'non-participant'),
+      isActive: member.is_active !== false,
+      familyIsActive: member.family_is_active,
+      familyId: member.family_id,
+      familyName: member.family_name,
+      username: member.username,
+      roles: rolesArray.length > 0 ? rolesArray : [],
+      enrollments: enrollments,
+      createdAt: member.created_at,
+      updatedAt: member.updated_at
     }
 
     res.json({
@@ -6713,7 +6772,7 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
             ) THEN (SELECT role FROM app_user WHERE id = m.id)
             ELSE 'MEMBER'
           END as role,
-          CASE WHEN f.primary_user_id = m.id OR f.primary_member_id = m.id THEN TRUE ELSE FALSE END as is_primary,
+          CASE WHEN f.primary_user_id = m.id THEN TRUE ELSE FALSE END as is_primary,
           CASE WHEN m.email IS NOT NULL OR EXISTS (
             SELECT 1 FROM app_user u WHERE u.id = m.id
           ) THEN TRUE ELSE FALSE END as is_adult,
@@ -6725,7 +6784,7 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
           m.id as user_id,
           FALSE as marked_for_removal
         FROM member m
-        LEFT JOIN family f ON f.primary_user_id = m.id OR f.primary_member_id = m.id
+        LEFT JOIN family f ON f.primary_user_id = m.id
         LEFT JOIN family_guardian fg ON fg.member_id = m.id OR fg.user_id = m.id
         WHERE m.family_id = $1 AND m.is_active = TRUE
       `, [familyId])
