@@ -1323,8 +1323,11 @@ export default function AdminMembers() {
           // Join existing family by username + password
           memberPayload.familyUsername = familyUsername
           memberPayload.familyPassword = familyPassword
+        } else {
+          // Orphan member (no family) - explicitly set familyId to null and don't include family fields
+          memberPayload.familyId = null
+          // Don't include familyName, familyUsername, or familyPassword for orphan members
         }
-        // Otherwise, no family (orphan member) - familyId stays null
         
         // Create member using unified endpoint
         const memberResponse = await adminApiRequest('/api/admin/members', {

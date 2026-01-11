@@ -1212,9 +1212,10 @@ const memberSchema = Joi.object({
     return helpers.error('any.custom', { message: 'Family password is required when joining by family username' })
   }
   
-  // Validation: If creating new family, must provide familyName, familyUsername, and familyPassword
-  if (!value.familyId && !value.familyUsername) {
-    // Creating new family
+  // Validation: If creating new family (familyName is provided), must provide familyName, familyUsername, and familyPassword
+  // If familyName is not provided and familyId is null, it's an orphan member (no family) - this is allowed
+  if (!value.familyId && !value.familyUsername && value.familyName !== undefined && value.familyName !== null && value.familyName !== '') {
+    // Creating new family - familyName is provided, so we need all family info
     if (!value.familyName || value.familyName.trim() === '') {
       return helpers.error('any.custom', { message: 'Family name is required when creating a new family' })
     }
