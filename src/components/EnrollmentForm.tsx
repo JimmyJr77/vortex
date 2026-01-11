@@ -85,10 +85,18 @@ export default function EnrollmentForm({
   const fetchIterations = async () => {
     try {
       setIterationsLoading(true)
-      const adminToken = isAdminMode ? localStorage.getItem('adminToken') : null
-      const response = await fetch(`${apiUrl}/api/admin/programs/${program.id}/iterations`, {
-        headers: adminToken ? {
-          'Authorization': `Bearer ${adminToken}`
+      // Use member endpoint for member mode, admin endpoint for admin mode
+      const endpoint = isAdminMode 
+        ? `/api/admin/programs/${program.id}/iterations`
+        : `/api/members/programs/${program.id}/iterations`
+      
+      const token = isAdminMode 
+        ? localStorage.getItem('adminToken')
+        : localStorage.getItem('vortex_member_token')
+      
+      const response = await fetch(`${apiUrl}${endpoint}`, {
+        headers: token ? {
+          'Authorization': `Bearer ${token}`
         } : {}
       })
       

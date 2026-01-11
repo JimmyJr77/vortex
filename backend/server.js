@@ -7626,6 +7626,107 @@ app.get('/api/members/categories', authenticateMember, async (req, res) => {
   }
 })
 
+// Get program iterations for members (member-accessible endpoint)
+app.get('/api/members/programs/:programId/iterations', authenticateMember, async (req, res) => {
+  try {
+    const { programId } = req.params
+    
+    // Ensure table exists (create if missing)
+    try {
+      await ensureClassIterationTable()
+    } catch (error) {
+      // If table creation fails, return empty array gracefully
+      console.warn('Could not ensure class_iteration table exists:', error.message)
+      return res.json({
+        success: true,
+        data: [],
+        warning: 'class_iteration table not available'
+      })
+    }
+    
+    let result
+    try {
+      result = await pool.query(`
+        SELECT 
+          id,
+          program_id as "programId",
+          iteration_number as "iterationNumber",
+          days_of_week as "daysOfWeek",
+          start_time as "startTime",
+          end_time as "endTime",
+          time_blocks as "timeBlocks",
+          duration_type as "durationType",
+          start_date as "startDate",
+          end_date as "endDate",
+          created_at as "createdAt",
+          updated_at as "updatedAt"
+        FROM class_iteration
+        WHERE program_id = $1
+        ORDER BY iteration_number ASC
+      `, [programId])
+    } catch (queryError) {
+      // If column doesn't exist, try to add it and retry
+      if (queryError.code === '42703' && queryError.message.includes('time_blocks')) {
+        console.log('time_blocks column missing, adding it now...')
+        try {
+          await pool.query(`
+            ALTER TABLE class_iteration ADD COLUMN IF NOT EXISTS time_blocks JSONB DEFAULT NULL
+          `)
+          console.log('✅ Added time_blocks column, retrying query...')
+          // Retry the query
+          result = await pool.query(`
+            SELECT 
+              id,
+              program_id as "programId",
+              iteration_number as "iterationNumber",
+              days_of_week as "daysOfWeek",
+              start_time as "startTime",
+              end_time as "endTime",
+              time_blocks as "timeBlocks",
+              duration_type as "durationType",
+              start_date as "startDate",
+              end_date as "endDate",
+              created_at as "createdAt",
+              updated_at as "updatedAt"
+            FROM class_iteration
+            WHERE program_id = $1
+            ORDER BY iteration_number ASC
+          `, [programId])
+        } catch (alterError) {
+          console.error('Error adding time_blocks column:', alterError)
+          return res.json({
+            success: true,
+            data: [],
+            warning: 'Could not add time_blocks column'
+          })
+        }
+      } else {
+        // If table doesn't exist, return empty array
+        if (queryError.message && (queryError.message.includes('does not exist') || (queryError.message.includes('relation') && queryError.message.includes('class_iteration')))) {
+          return res.json({
+            success: true,
+            data: [],
+            warning: 'class_iteration table not found'
+          })
+        }
+        throw queryError
+      }
+    }
+    
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Get program iterations error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
 // ========== EVENT ENDPOINTS ==========
 
 // Get all events (public endpoint for ReadBoard)
