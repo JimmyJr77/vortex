@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LogOut, Home, Calendar, Search, Edit2, UserPlus, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -1810,7 +1810,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                           }, {} as Record<string, Program[]>)
                           
                           const sortedCategories = Object.keys(groupedByCategory).sort()
-                          const result = []
+                          const result: React.ReactElement[] = []
                           
                           sortedCategories.forEach(categoryName => {
                             const categoryPrograms = groupedByCategory[categoryName].sort((a, b) => {
