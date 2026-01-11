@@ -934,8 +934,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   useEffect(() => {
     if (activeTab === 'classes') {
       fetchEnrollments()
-      fetchClasses()
-      fetchCategories()
+      // fetchClasses() // Disabled - requires admin endpoints (401/403 errors)
+      // fetchCategories() // Disabled - requires admin endpoints (401/403 errors)
     } else if (activeTab === 'events') {
       fetchEvents()
       fetchEnrollments() // Need enrollments for filtering
