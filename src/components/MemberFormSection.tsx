@@ -116,6 +116,21 @@ export default function MemberFormSection({
     }))
   }
   
+  // Helper function to format date for date input (yyyy-MM-dd)
+  const formatDateForInput = (date: string | null | undefined): string => {
+    if (!date) return ''
+    // If already in yyyy-MM-dd format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date
+    // Try to parse ISO date string and format as yyyy-MM-dd
+    try {
+      const d = new Date(date)
+      if (isNaN(d.getTime())) return ''
+      return d.toISOString().split('T')[0]
+    } catch {
+      return ''
+    }
+  }
+  
   // Calculate age from date of birth
   const calculateAge = (dateOfBirth: string): number | null => {
     if (!dateOfBirth) return null
@@ -469,7 +484,7 @@ export default function MemberFormSection({
                     </label>
                     <input
                       type="date"
-                      value={member.sections.personalData?.tempData?.dateOfBirth || member.dateOfBirth || ''}
+                      value={formatDateForInput(member.sections.personalData?.tempData?.dateOfBirth || member.dateOfBirth)}
                       onChange={(e) => {
                         onUpdateMember(member.id, (prev) => ({
                           ...prev,
@@ -546,7 +561,7 @@ export default function MemberFormSection({
                           </label>
                           <input
                             type="date"
-                            value={member.sections.personalData?.tempData?.injuryHistoryDate || member.injuryHistoryDate || ''}
+                            value={formatDateForInput(member.sections.personalData?.tempData?.injuryHistoryDate || member.injuryHistoryDate)}
                             onChange={(e) => {
                               onUpdateMember(member.id, (prev) => ({
                                 ...prev,
@@ -978,7 +993,7 @@ export default function MemberFormSection({
                       </label>
                       <input
                         type="date"
-                        value={member.waiverCompletionDate || new Date().toISOString().split('T')[0]}
+                        value={formatDateForInput(member.waiverCompletionDate) || new Date().toISOString().split('T')[0]}
                         onChange={(e) => {
                           onUpdateMember(member.id, (prev) => ({
                             ...prev,

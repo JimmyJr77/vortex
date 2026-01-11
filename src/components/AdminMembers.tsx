@@ -592,6 +592,21 @@ export default function AdminMembers() {
     return phone.replace(/\D/g, '')
   }
   
+  // Helper function to format date for date input (yyyy-MM-dd)
+  const formatDateForInput = (date: string | null | undefined): string => {
+    if (!date) return ''
+    // If already in yyyy-MM-dd format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date
+    // Try to parse ISO date string and format as yyyy-MM-dd
+    try {
+      const d = new Date(date)
+      if (isNaN(d.getTime())) return ''
+      return d.toISOString().split('T')[0]
+    } catch {
+      return ''
+    }
+  }
+
   // Helper function to format time since a date
   const formatTimeSince = (date: string | null | undefined): string => {
     if (!date) return 'Never'
@@ -3663,7 +3678,7 @@ export default function AdminMembers() {
                               <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth *</label>
                               <input
                                 type="date"
-                                value={member.dateOfBirth}
+                                value={formatDateForInput(member.dateOfBirth)}
                                 onChange={(e) => {
                                   const updated = [...editingFamilyMembers]
                                   updated[index].dateOfBirth = e.target.value
@@ -3788,7 +3803,7 @@ export default function AdminMembers() {
                           <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth</label>
                           <input
                             type="date"
-                            value={newFamilyMemberInEdit.dateOfBirth}
+                            value={formatDateForInput(newFamilyMemberInEdit.dateOfBirth)}
                             onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, dateOfBirth: e.target.value })}
                             className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
                           />
