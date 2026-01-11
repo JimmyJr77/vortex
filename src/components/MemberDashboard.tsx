@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react'
+import { LogOut, Home, Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
-import EnrollmentForm from './EnrollmentForm'
+// import EnrollmentForm from './EnrollmentForm' // Disabled until classes browsing is enabled
 
 interface MemberDashboardProps {
   member: any
@@ -184,13 +184,14 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   // Classes tab state
   const [enrollments, setEnrollments] = useState<any[]>([])
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false)
-  const [classes, setClasses] = useState<Program[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [classesLoading, setClassesLoading] = useState(false)
-  const [classSearchQuery, setClassSearchQuery] = useState('')
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<number | 'all'>('all')
-  const [showEnrollModal, setShowEnrollModal] = useState(false)
-  const [selectedClassForEnrollment, setSelectedClassForEnrollment] = useState<Program | null>(null)
+  // Classes/categories state - disabled until backend provides member-accessible endpoints
+  // const [classes, setClasses] = useState<Program[]>([])
+  // const [categories, setCategories] = useState<Category[]>([])
+  // const [classesLoading, setClassesLoading] = useState(false)
+  // const [classSearchQuery, setClassSearchQuery] = useState('')
+  // const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<number | 'all'>('all')
+  // const [showEnrollModal, setShowEnrollModal] = useState(false)
+  // const [selectedClassForEnrollment, setSelectedClassForEnrollment] = useState<Program | null>(null)
   
   // Events tab state
   const [events, setEvents] = useState<Event[]>([])
@@ -2471,48 +2472,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         )}
       </AnimatePresence>
 
-      {/* Enrollment Modal */}
-      {showEnrollModal && selectedClassForEnrollment && (
-        <EnrollmentForm
-          program={selectedClassForEnrollment}
-          familyMembers={familyMembers}
-          currentUserId={profileData?.id}
-          currentUserName={profileData ? `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || profileData.email : undefined}
-          onEnroll={async (enrollmentData) => {
-            try {
-              const response = await fetch(`${apiUrl}/api/members/enroll`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(enrollmentData)
-              })
-              
-              if (response.ok) {
-                const data = await response.json()
-                alert(data.message || 'Successfully enrolled in class!')
-                setShowEnrollModal(false)
-                setSelectedClassForEnrollment(null)
-                // Refresh enrollments and profile data
-                await fetchEnrollments()
-                await fetchProfileData()
-              } else {
-                const data = await response.json()
-                alert(data.message || 'Failed to enroll in class')
-              }
-            } catch (error) {
-              console.error('Error enrolling in class:', error)
-              alert('Failed to enroll in class. Please try again.')
-            }
-          }}
-          onCancel={() => {
-            setShowEnrollModal(false)
-            setSelectedClassForEnrollment(null)
-          }}
-          isOpen={showEnrollModal}
-        />
-      )}
+      {/* Enrollment Modal - Disabled until classes browsing is enabled */}
+      {/* {showEnrollModal && selectedClassForEnrollment && ( ... )} */}
     </div>
   )
 }
