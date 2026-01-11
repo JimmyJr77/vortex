@@ -875,32 +875,32 @@ export const initDatabase = async () => {
       ADD COLUMN IF NOT EXISTS family_password_hash TEXT
     `)
     
-    // Add unique constraint on family_username if column exists and constraint doesn't exist
+    // Try to add unique constraint, but ignore if it already exists or column doesn't exist
     try {
-      await pool.query(`
-        DO $$ 
-        BEGIN
-          IF NOT EXISTS (
-            SELECT 1 FROM pg_constraint 
-            WHERE conname = 'family_family_username_key'
-          ) THEN
-            ALTER TABLE family ADD CONSTRAINT family_family_username_key UNIQUE (family_username);
-          END IF;
-        END $$;
+      const constraintCheck = await pool.query(`
+        SELECT 1 FROM pg_constraint WHERE conname = 'family_family_username_key'
       `)
-    } catch (constraintError) {
-      // Constraint might already exist or column might not exist yet, ignore
-      console.warn('[initDatabase] Could not add unique constraint on family_username:', constraintError.message)
+      if (constraintCheck.rows.length === 0) {
+        try {
+          await pool.query(`ALTER TABLE family ADD CONSTRAINT family_family_username_key UNIQUE (family_username)`)
+        } catch (addConstraintError) {
+          // Constraint might fail if column doesn't exist or constraint exists in different form
+          console.warn('[initDatabase] Could not add unique constraint on family_username (may already exist):', addConstraintError.message)
+        }
+      }
+    } catch (checkError) {
+      // Ignore constraint check errors
+      console.warn('[initDatabase] Could not check unique constraint on family_username:', checkError.message)
     }
     
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_facility ON family(facility_id)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_name ON family(family_name)`)
     
-    // Create index on family_username only if column exists
+    // Create index on family_username (will fail gracefully if column doesn't exist)
     try {
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_username ON family(family_username) WHERE family_username IS NOT NULL`)
     } catch (indexError) {
-      // Column might not exist, log warning and continue
+      // Column might not exist, log warning and continue - this is non-fatal
       console.warn('[initDatabase] Could not create index on family_username (column may not exist):', indexError.message)
     }
     
