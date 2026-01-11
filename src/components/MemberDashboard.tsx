@@ -1673,144 +1673,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     </div>
                   )}
                 </div>
-
-                {/* Search and Filter Section */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
-                    Browse Classes
-                  </h2>
-                  <div className="space-y-4">
-                    {/* Search Bar */}
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Search classes by name, description, requirements, category..."
-                        value={classSearchQuery}
-                        onChange={(e) => setClassSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent"
-                      />
-                    </div>
-                    
-                    {/* Filter Dropdown */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Category or Class</label>
-                      <select
-                        value={selectedCategoryFilter === 'all' ? 'all' : String(selectedCategoryFilter)}
-                        onChange={(e) => {
-                          const value = e.target.value
-                          setSelectedCategoryFilter(value === 'all' ? 'all' : parseInt(value, 10))
-                        }}
-                        className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                      >
-                        <option value="all">All Categories</option>
-                        {categories.map(cat => (
-                          <option key={`cat_${cat.id}`} value={String(cat.id)}>{cat.displayName}</option>
-                        ))}
-                        <option disabled className="border-t border-gray-300 my-1">──────────────</option>
-                        {(() => {
-                          // Group programs by category
-                          const groupedByCategory = classes.reduce((acc, program) => {
-                            let categoryName = 'Uncategorized'
-                            if (program.categoryDisplayName) {
-                              categoryName = program.categoryDisplayName
-                            } else if (program.categoryName) {
-                              categoryName = program.categoryName
-                            }
-                            if (!acc[categoryName]) {
-                              acc[categoryName] = []
-                            }
-                            acc[categoryName].push(program)
-                            return acc
-                          }, {} as Record<string, Program[]>)
-                          
-                          const sortedCategories = Object.keys(groupedByCategory).sort()
-                          
-                          return sortedCategories.map(categoryName => {
-                            const categoryPrograms = groupedByCategory[categoryName].sort((a, b) => {
-                              return a.displayName.localeCompare(b.displayName)
-                            })
-                            return (
-                              <optgroup key={categoryName} label={categoryName}>
-                                {categoryPrograms.map(program => (
-                                  <option key={program.id} value={String(program.id)}>
-                                    {program.displayName}
-                                  </option>
-                                ))}
-                              </optgroup>
-                            )
-                          })
-                        })()}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Filtered Classes List */}
-                <div className="space-y-6">
-                  {classesLoading ? (
-                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                      <div className="text-center py-12 text-gray-600">Loading classes...</div>
-                    </div>
-                  ) : filteredClasses.length === 0 ? (
-                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                      <div className="text-center py-12 text-gray-500">
-                        {classSearchQuery || selectedCategoryFilter !== 'all' 
-                          ? 'No classes found matching your search criteria'
-                          : 'No classes available at this time'}
-                      </div>
-                    </div>
-                  ) : (
-                    filteredClasses.map((program) => {
-                      return (
-                        <div key={program.id} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                          {/* Red top section with white text (title) */}
-                          <div className="bg-vortex-red p-4 md:p-6">
-                            <h3 className="text-2xl font-display font-bold text-white">
-                              {program.displayName}
-                            </h3>
-                          </div>
-                          {/* White bottom section with black text (description/details) */}
-                          <div className="p-4 md:p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-black mb-4">
-                              {program.description && (
-                                <div className="md:col-span-2">
-                                  <span className="font-medium">Description:</span> {program.description}
-                                </div>
-                              )}
-                              {program.skillLevel && (
-                                <div>
-                                  <span className="font-medium">Skill Level:</span> {program.skillLevel.replace('_', ' ')}
-                                </div>
-                              )}
-                              {(program.ageMin !== null || program.ageMax !== null) && (
-                                <div>
-                                  <span className="font-medium">Age Range:</span>{' '}
-                                  {program.ageMin !== null ? program.ageMin : 'Any'} - {program.ageMax !== null ? program.ageMax : 'Any'}
-                                </div>
-                              )}
-                              {program.skillRequirements && (
-                                <div className="md:col-span-2">
-                                  <span className="font-medium">Requirements:</span> {program.skillRequirements}
-                                </div>
-                              )}
-                            </div>
-                            <button
-                              onClick={() => {
-                                setSelectedClassForEnrollment(program)
-                                setShowEnrollModal(true)
-                              }}
-                              className="flex items-center gap-2 px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium transition-colors"
-                            >
-                              <UserPlus className="w-4 h-4" />
-                              Enroll
-                            </button>
-                          </div>
-                        </div>
-                      )
-                    })
-                  )}
-                </div>
               </motion.div>
             )}
 
@@ -1823,15 +1685,17 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {enrollmentsLoading ? (
-                  <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                {/* Current Enrollments */}
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
+                    Current Enrollments
+                  </h2>
+                  
+                  {enrollmentsLoading ? (
                     <div className="text-center py-12 text-gray-600">Loading enrollments...</div>
-                  </div>
-                ) : enrollments.length === 0 ? (
-                  <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                    <div className="text-center py-12 text-gray-500">No enrollments yet.</div>
-                  </div>
-                ) : (
+                  ) : enrollments.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">No enrollments yet. Browse classes below to enroll.</div>
+                  ) : (
                   (() => {
                     // Group enrollments by program_id
                     const enrollmentsByProgram = enrollments.reduce((acc, enrollment) => {
@@ -1944,6 +1808,23 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     )
                   })()
                 )}
+                </div>
+
+                {/* Search and Filter Section - Disabled until backend supports member access to classes/categories */}
+                {/* Note: Classes/categories endpoints require admin access (401/403 errors) */}
+                {/* Uncomment when backend provides member-accessible endpoints */}
+                {/* 
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
+                    Browse Classes
+                  </h2>
+                  <div className="space-y-4">
+                    <div className="text-center py-8 text-gray-500">
+                      Class browsing requires backend updates to support member access to class information.
+                    </div>
+                  </div>
+                </div>
+                */}
               </motion.div>
             )}
 
