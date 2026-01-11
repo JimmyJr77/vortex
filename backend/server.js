@@ -1296,11 +1296,18 @@ const emergencyContactSchema = Joi.object({
 const updateMemberAthleteStatus = async (memberId) => {
   try {
     // Check if member has enrollments
-    const enrollmentCheck = await pool.query(`
-      SELECT COUNT(*) as count FROM member_program WHERE member_id = $1
-    `, [memberId])
-    
-    const hasEnrollments = parseInt(enrollmentCheck.rows[0]?.count || '0') > 0
+    let hasEnrollments = false
+    try {
+      const enrollmentCheck = await pool.query(`
+        SELECT COUNT(*) as count FROM member_program WHERE member_id = $1
+      `, [memberId])
+      
+      hasEnrollments = parseInt(enrollmentCheck.rows[0]?.count || '0') > 0
+    } catch (enrollmentError) {
+      // If member_program table doesn't exist, member has no enrollments
+      console.warn('[updateMemberAthleteStatus] member_program table may not exist:', enrollmentError.message)
+      hasEnrollments = false
+    }
     
     // Get waiver status
     const memberCheck = await pool.query(`
@@ -2477,28 +2484,34 @@ app.get('/api/admin/members', async (req, res) => {
     let enrollmentsMap = {}
     
     if (memberIds.length > 0) {
-      const enrollmentsQuery = `
-        SELECT 
-          mp.member_id,
-          json_agg(
-            jsonb_build_object(
-              'id', mp.id,
-              'program_id', mp.program_id,
-              'program_display_name', COALESCE(p.display_name, ''),
-              'days_per_week', mp.days_per_week,
-              'selected_days', mp.selected_days
-            )
-          ) as enrollments
-        FROM member_program mp
-        LEFT JOIN program p ON mp.program_id = p.id
-        WHERE mp.member_id = ANY($1::bigint[])
-        GROUP BY mp.member_id
-      `
-      const enrollmentsResult = await pool.query(enrollmentsQuery, [memberIds])
-      
-      enrollmentsResult.rows.forEach(row => {
-        enrollmentsMap[row.member_id] = row.enrollments || []
-      })
+      try {
+        const enrollmentsQuery = `
+          SELECT 
+            mp.member_id,
+            json_agg(
+              jsonb_build_object(
+                'id', mp.id,
+                'program_id', mp.program_id,
+                'program_display_name', COALESCE(p.display_name, ''),
+                'days_per_week', mp.days_per_week,
+                'selected_days', mp.selected_days
+              )
+            ) as enrollments
+          FROM member_program mp
+          LEFT JOIN program p ON mp.program_id = p.id
+          WHERE mp.member_id = ANY($1::bigint[])
+          GROUP BY mp.member_id
+        `
+        const enrollmentsResult = await pool.query(enrollmentsQuery, [memberIds])
+        
+        enrollmentsResult.rows.forEach(row => {
+          enrollmentsMap[row.member_id] = row.enrollments || []
+        })
+      } catch (enrollmentsError) {
+        // If member_program table doesn't exist, just continue with empty enrollments
+        console.warn('[GET /api/admin/members] Error fetching enrollments (member_program table may not exist):', enrollmentsError.message)
+        enrollmentsMap = {}
+      }
     }
     
     // Get roles separately if user_role has member_id
