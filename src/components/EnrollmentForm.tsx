@@ -85,7 +85,12 @@ export default function EnrollmentForm({
   const fetchIterations = async () => {
     try {
       setIterationsLoading(true)
-      const response = await fetch(`${apiUrl}/api/admin/programs/${program.id}/iterations`)
+      const adminToken = isAdminMode ? localStorage.getItem('adminToken') : null
+      const response = await fetch(`${apiUrl}/api/admin/programs/${program.id}/iterations`, {
+        headers: adminToken ? {
+          'Authorization': `Bearer ${adminToken}`
+        } : {}
+      })
       
       if (response.ok) {
         const data = await response.json()
