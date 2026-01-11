@@ -6474,13 +6474,46 @@ app.post('/api/members/login', async (req, res) => {
   }
 })
 
-// Get current member (protected endpoint)
+// Get current member and their family (protected endpoint) - uses same query structure as admin members
 app.get('/api/members/me', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
     
-    // Get member from unified member table (same as admin endpoint)
-    const memberResult = await pool.query(`
+    // Check if member table exists
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member'
+      )
+    `)
+    
+    const hasMemberTable = tableCheck.rows[0].exists
+    
+    if (!hasMemberTable) {
+      return res.status(404).json({
+        success: false,
+        message: 'Member table not found'
+      })
+    }
+    
+    // Get the current user's member record and family_id
+    const currentMemberResult = await pool.query(`
+      SELECT id, family_id FROM member WHERE id = $1
+    `, [userId])
+    
+    if (currentMemberResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found'
+      })
+    }
+    
+    const currentMember = currentMemberResult.rows[0]
+    const familyId = currentMember.family_id
+    
+    // Build query to get current user and their family members (same structure as admin endpoint)
+    let query = `
       SELECT 
         m.id,
         m.first_name,
@@ -6509,20 +6542,56 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
         END as age
       FROM member m
       LEFT JOIN family f ON m.family_id = f.id
-      WHERE m.id = $1
-    `, [userId])
-
-    if (memberResult.rows.length === 0) {
+      WHERE m.is_active = TRUE
+        AND (m.id = $1 OR (m.family_id = $2 AND $2 IS NOT NULL))
+      ORDER BY m.last_name, m.first_name
+    `
+    
+    const result = await pool.query(query, [userId, familyId])
+    
+    if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Member not found'
       })
     }
-
-    const member = memberResult.rows[0]
-
-    // Get roles - check if user_role table has member_id column
-    let rolesArray = []
+    
+    // Get member IDs for fetching roles and enrollments
+    const memberIds = result.rows.map(row => row.id)
+    
+    // Get enrollments (same as admin endpoint)
+    let enrollmentsMap = {}
+    if (memberIds.length > 0) {
+      try {
+        const enrollmentsQuery = `
+          SELECT 
+            mp.member_id,
+            json_agg(
+              jsonb_build_object(
+                'id', mp.id,
+                'program_id', mp.program_id,
+                'program_display_name', COALESCE(p.display_name, ''),
+                'days_per_week', mp.days_per_week,
+                'selected_days', mp.selected_days
+              )
+            ) as enrollments
+          FROM member_program mp
+          LEFT JOIN program p ON mp.program_id = p.id
+          WHERE mp.member_id = ANY($1::bigint[])
+          GROUP BY mp.member_id
+        `
+        const enrollmentsResult = await pool.query(enrollmentsQuery, [memberIds])
+        enrollmentsResult.rows.forEach(row => {
+          enrollmentsMap[row.member_id] = row.enrollments || []
+        })
+      } catch (enrollmentsError) {
+        console.log('Enrollments query failed (non-critical):', enrollmentsError.message)
+        enrollmentsMap = {}
+      }
+    }
+    
+    // Get roles (same as admin endpoint)
+    let rolesMap = {}
     try {
       const userRoleCheck = await pool.query(`
         SELECT EXISTS (
@@ -6533,91 +6602,65 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
         )
       `)
       
-      if (userRoleCheck.rows[0].exists) {
-        const rolesResult = await pool.query(`
-          SELECT role
+      if (userRoleCheck.rows[0].exists && memberIds.length > 0) {
+        const rolesQuery = `
+          SELECT 
+            member_id,
+            json_agg(
+              jsonb_build_object(
+                'id', role,
+                'role', role
+              )
+            ) as roles
           FROM user_role
-          WHERE member_id = $1
-        `, [userId])
-        rolesArray = rolesResult.rows.map(r => ({ id: r.role, role: r.role }))
+          WHERE member_id = ANY($1::bigint[])
+          GROUP BY member_id
+        `
+        const rolesResult = await pool.query(rolesQuery, [memberIds])
+        rolesResult.rows.forEach(row => {
+          rolesMap[row.member_id] = row.roles || []
+        })
       }
     } catch (rolesError) {
-      // If roles query fails, continue with empty roles
       console.log('Roles query failed (non-critical):', rolesError.message)
     }
-
-    // If no roles found, try to get from app_user
-    if (rolesArray.length === 0) {
-      try {
-        const appUserResult = await pool.query(`
-          SELECT role FROM app_user WHERE id = $1
-        `, [userId])
-        if (appUserResult.rows.length > 0 && appUserResult.rows[0].role) {
-          rolesArray = [{ id: appUserResult.rows[0].role, role: appUserResult.rows[0].role }]
-        }
-      } catch (appUserError) {
-        // Continue without roles
-      }
-    }
-
-    // Get enrollments for this member
-    let enrollments = []
-    try {
-      const enrollmentsResult = await pool.query(`
-        SELECT 
-          mp.id,
-          mp.program_id,
-          COALESCE(p.display_name, '') as program_display_name,
-          mp.days_per_week,
-          mp.selected_days
-        FROM member_program mp
-        LEFT JOIN program p ON mp.program_id = p.id
-        WHERE mp.member_id = $1
-      `, [userId])
-      enrollments = enrollmentsResult.rows.map(e => ({
-        id: e.id,
-        program_id: e.program_id,
-        program_display_name: e.program_display_name,
-        days_per_week: e.days_per_week,
-        selected_days: Array.isArray(e.selected_days) ? e.selected_days : (e.selected_days ? (typeof e.selected_days === 'string' ? JSON.parse(e.selected_days) : []) : [])
-      }))
-    } catch (enrollmentError) {
-      console.log('Enrollments query failed (non-critical):', enrollmentError.message)
-      enrollments = []
-    }
-
-    // Format member data for frontend (matching admin portal format)
-    const memberData = {
-      id: member.id,
-      firstName: member.first_name,
-      lastName: member.last_name,
-      email: member.email,
-      phone: member.phone,
-      address: member.address,
-      billingStreet: member.billing_street,
-      billingCity: member.billing_city,
-      billingState: member.billing_state,
-      billingZip: member.billing_zip,
-      dateOfBirth: member.date_of_birth,
-      age: member.age ? parseInt(member.age) : null,
-      medicalNotes: member.medical_notes,
-      internalFlags: member.internal_flags,
-      status: member.status || (enrollments.length > 0 ? 'athlete' : 'non-participant'),
-      isActive: member.is_active !== false,
-      familyIsActive: member.family_is_active,
-      familyId: member.family_id,
-      familyName: member.family_name,
-      username: member.username,
-      roles: rolesArray.length > 0 ? rolesArray : [],
-      enrollments: enrollments,
-      createdAt: member.created_at,
-      updatedAt: member.updated_at
-    }
-
+    
+    // Format members (same as admin endpoint)
+    const members = result.rows.map(row => ({
+      id: row.id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      email: row.email,
+      phone: row.phone,
+      address: row.address,
+      billingStreet: row.billing_street,
+      billingCity: row.billing_city,
+      billingState: row.billing_state,
+      billingZip: row.billing_zip,
+      dateOfBirth: row.date_of_birth,
+      age: row.age ? parseInt(row.age) : null,
+      medicalNotes: row.medical_notes,
+      internalFlags: row.internal_flags,
+      status: row.status,
+      isActive: row.is_active,
+      familyIsActive: row.family_is_active,
+      familyId: row.family_id,
+      familyName: row.family_name,
+      username: row.username,
+      roles: rolesMap[row.id] || [],
+      enrollments: enrollmentsMap[row.id] || [],
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }))
+    
+    // Return current user as member, and all family members
+    const currentUser = members.find(m => m.id === parseInt(userId)) || members[0]
+    
     res.json({
       success: true,
-      member: memberData,
-      data: memberData
+      member: currentUser,
+      data: currentUser,
+      familyMembers: members.filter(m => m.id !== parseInt(userId))
     })
   } catch (error) {
     console.error('Get member error:', error)

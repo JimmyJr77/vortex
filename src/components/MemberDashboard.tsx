@@ -108,7 +108,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
 
   useEffect(() => {
     fetchProfileData()
-    fetchFamilyMembers()
   }, [])
 
   useEffect(() => {
@@ -137,6 +136,21 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         const data = await response.json()
         const member = data.data || data.member
         setProfileData(member)
+        // Also set family members from the response
+        if (data.familyMembers && Array.isArray(data.familyMembers)) {
+          // Convert to FamilyMember format
+          setFamilyMembers(data.familyMembers.map((fm: any) => ({
+            id: fm.id,
+            first_name: fm.firstName || fm.first_name,
+            last_name: fm.lastName || fm.last_name,
+            email: fm.email,
+            phone: fm.phone,
+            date_of_birth: fm.dateOfBirth || fm.date_of_birth,
+            age: fm.age,
+            user_id: fm.id,
+            is_adult: fm.roles?.some((r: any) => typeof r === 'string' ? r === 'PARENT_GUARDIAN' : r.role === 'PARENT_GUARDIAN') || false
+          })))
+        }
       } else {
         setError('Failed to load profile data')
       }
@@ -145,23 +159,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       setError('Unable to connect to server')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const fetchFamilyMembers = async () => {
-    try {
-      const response = await fetch(`${apiUrl}/api/members/family`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        setFamilyMembers(data.familyMembers || [])
-      }
-    } catch (error) {
-      console.error('Error fetching family members:', error)
     }
   }
 
@@ -286,9 +283,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         alert(data.message || 'Successfully enrolled in class!')
         setShowEnrollModal(false)
         setSelectedClassForEnrollment(null)
-        // Refresh enrollments and family members
+        // Refresh enrollments and profile data (which includes family members)
         await fetchEnrollments()
-        await fetchFamilyMembers()
+        await fetchProfileData()
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to enroll in class')
