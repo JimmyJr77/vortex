@@ -1149,27 +1149,36 @@ export default function AdminMembers() {
       let familyPassword: string | null = null
       
       if (memberModalMode === 'new-family') {
-        // Create new family - validate family creation info
-        if (!familyCreationInfo.familyName || !familyCreationInfo.familyName.trim()) {
-          alert('Please enter a family name')
-          return
+        // Only require family creation info if there are multiple members
+        // Single members can be created without a family (as orphan members)
+        if (familyMembers.length > 1) {
+          // Create new family - validate family creation info
+          if (!familyCreationInfo.familyName || !familyCreationInfo.familyName.trim()) {
+            alert('Please enter a family name')
+            return
+          }
+          if (!familyCreationInfo.familyUsername || !familyCreationInfo.familyUsername.trim()) {
+            alert('Please enter a family username')
+            return
+          }
+          if (!familyCreationInfo.familyPassword || familyCreationInfo.familyPassword.length < 6) {
+            alert('Please enter a family password (minimum 6 characters)')
+            return
+          }
+          if (familyCreationInfo.familyPassword !== familyCreationInfo.familyPasswordConfirm) {
+            alert('Family passwords do not match')
+            return
+          }
+          
+          familyName = familyCreationInfo.familyName.trim()
+          familyUsername = familyCreationInfo.familyUsername.trim()
+          familyPassword = familyCreationInfo.familyPassword
+        } else {
+          // Single member - no family required, will be created as orphan member
+          familyName = null
+          familyUsername = null
+          familyPassword = null
         }
-        if (!familyCreationInfo.familyUsername || !familyCreationInfo.familyUsername.trim()) {
-          alert('Please enter a family username')
-          return
-        }
-        if (!familyCreationInfo.familyPassword || familyCreationInfo.familyPassword.length < 6) {
-          alert('Please enter a family password (minimum 6 characters)')
-          return
-        }
-        if (familyCreationInfo.familyPassword !== familyCreationInfo.familyPasswordConfirm) {
-          alert('Family passwords do not match')
-          return
-        }
-        
-        familyName = familyCreationInfo.familyName.trim()
-        familyUsername = familyCreationInfo.familyUsername.trim()
-        familyPassword = familyCreationInfo.familyPassword
       } else if (memberModalMode === 'existing-family' && selectedFamilyForMember) {
         // Join existing family - use existing family ID
         familyId = selectedFamilyForMember.id
@@ -1298,8 +1307,9 @@ export default function AdminMembers() {
         }
         
         // Add family information based on mode
-        if (memberModalMode === 'new-family' && member === familyMembers[0]) {
-          // First member creates the family
+        // Only create family if there are multiple members or if family info was provided
+        if (memberModalMode === 'new-family' && member === familyMembers[0] && familyName && familyUsername && familyPassword) {
+          // First member creates the family (only if family info was provided)
           memberPayload.familyName = familyName
           memberPayload.familyUsername = familyUsername
           memberPayload.familyPassword = familyPassword
