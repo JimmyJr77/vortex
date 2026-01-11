@@ -7987,6 +7987,66 @@ app.get('/api/admin/events/:id/log', async (req, res) => {
   }
 })
 
+// Admin endpoint to create member_program table if it doesn't exist
+app.post('/api/admin/create-member-program-table', authenticateAdmin, async (req, res) => {
+  try {
+    console.log('[Create member_program table] Request received')
+    
+    // Check if table already exists
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member_program'
+      )
+    `)
+    
+    if (tableCheck.rows[0].exists) {
+      return res.json({
+        success: true,
+        message: 'member_program table already exists',
+        tableExists: true
+      })
+    }
+    
+    // Create member_program table
+    await pool.query(`
+      CREATE TABLE member_program (
+        id                  BIGSERIAL PRIMARY KEY,
+        member_id           BIGINT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
+        program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+        iteration_id        BIGINT REFERENCES class_iteration(id) ON DELETE CASCADE,
+        days_per_week       INTEGER NOT NULL,
+        selected_days       JSONB,
+        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+        UNIQUE (member_id, program_id, iteration_id)
+      )
+    `)
+    console.log('[Create member_program table] Table created')
+    
+    // Create indexes
+    await pool.query(`CREATE INDEX idx_member_program_member ON member_program(member_id)`)
+    await pool.query(`CREATE INDEX idx_member_program_program ON member_program(program_id)`)
+    await pool.query(`CREATE INDEX idx_member_program_iteration ON member_program(iteration_id)`)
+    console.log('[Create member_program table] Indexes created')
+    
+    res.json({
+      success: true,
+      message: 'member_program table and indexes created successfully',
+      tableExists: false,
+      created: true
+    })
+  } catch (error) {
+    console.error('[Create member_program table] Error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error creating member_program table: ' + error.message,
+      error: process.env.NODE_ENV !== 'production' ? error.stack : undefined
+    })
+  }
+})
+
 // Seed events (admin endpoint - for initial setup)
 app.post('/api/admin/events/seed', async (req, res) => {
   try {
