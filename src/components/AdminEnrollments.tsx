@@ -214,7 +214,25 @@ export default function AdminEnrollments() {
             const data = await response.json()
             if (data.success) {
               const fetchedIterations = data.data || []
-              const iterations: ClassIteration[] = fetchedIterations.map((iteration: any) => ({
+              const iterations: ClassIteration[] = fetchedIterations.map((iteration: {
+                id: number
+                programId?: number
+                program_id?: number
+                iterationNumber?: number
+                iteration_number?: number
+                daysOfWeek?: number[]
+                days_of_week?: number[]
+                startTime?: string
+                start_time?: string
+                endTime?: string
+                end_time?: string
+                durationType?: string
+                duration_type?: string
+                startDate?: string | null
+                start_date?: string | null
+                endDate?: string | null
+                end_date?: string | null
+              }) => ({
                 id: iteration.id,
                 programId: iteration.programId || iteration.program_id || program.id,
                 iterationNumber: iteration.iterationNumber || iteration.iteration_number,
