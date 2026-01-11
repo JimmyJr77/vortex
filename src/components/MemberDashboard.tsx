@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, Calendar, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { LogOut, Home, Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
@@ -1572,7 +1572,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                                     Enrolled Members ({programEnrollments.length})
                                   </h4>
                                   <div className="space-y-2">
-                                    {programEnrollments.map((enrollment) => {
+                                    {programEnrollments.map((enrollment: any) => {
                                       // Find member - check familyMembers first, then check if it's the current user
                                       let member = familyMembers.find(fm => 
                                         (fm.user_id || fm.id) === enrollment.athlete_user_id
@@ -2279,22 +2279,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Enrollment Modal */}
-      {showEnrollModal && selectedClassForEnrollment && (
-        <EnrollmentForm
-          program={selectedClassForEnrollment}
-          familyMembers={familyMembers}
-          currentUserId={profileData?.id}
-          currentUserName={profileData ? `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || profileData.email : undefined}
-          onEnroll={handleEnrollInClass}
-          onCancel={() => {
-            setShowEnrollModal(false)
-            setSelectedClassForEnrollment(null)
-          }}
-          isOpen={showEnrollModal}
-        />
-      )}
     </div>
   )
 }
