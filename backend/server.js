@@ -5221,6 +5221,8 @@ app.get('/api/admin/members/:id', async (req, res) => {
           mp.iteration_id,
           mp.days_per_week,
           mp.selected_days,
+          mp.created_at,
+          mp.updated_at,
           p.display_name as program_display_name
         FROM member_program mp
         LEFT JOIN program p ON mp.program_id = p.id
@@ -5233,7 +5235,9 @@ app.get('/api/admin/members/:id', async (req, res) => {
         iterationId: e.iteration_id,
         daysPerWeek: e.days_per_week,
         selectedDays: e.selected_days,
-        programDisplayName: e.program_display_name
+        programDisplayName: e.program_display_name,
+        createdAt: e.created_at,
+        updatedAt: e.updated_at
       }))
     } catch (enrollmentsError) {
       console.warn('Error getting enrollments:', enrollmentsError.message)
@@ -9812,6 +9816,125 @@ app.delete('/api/admin/programs/:programId/iterations/:iterationId', async (req,
     })
   } catch (error) {
     console.error('Delete iteration error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
+// Get iterations with enrollment stats (enrollment counts per day)
+app.get('/api/admin/programs/:programId/iterations/stats', async (req, res) => {
+  try {
+    const { programId } = req.params
+    
+    // Ensure table exists (create if missing)
+    try {
+      await ensureClassIterationTable()
+    } catch (error) {
+      console.warn('Could not ensure class_iteration table exists:', error.message)
+      return res.json({
+        success: true,
+        data: [],
+        warning: 'class_iteration table not available'
+      })
+    }
+    
+    // Get all iterations for the program
+    let iterationsResult
+    try {
+      iterationsResult = await pool.query(`
+        SELECT 
+          id,
+          program_id as "programId",
+          iteration_number as "iterationNumber",
+          days_of_week as "daysOfWeek",
+          start_time as "startTime",
+          end_time as "endTime",
+          time_blocks as "timeBlocks",
+          duration_type as "durationType",
+          start_date as "startDate",
+          end_date as "endDate",
+          created_at as "createdAt",
+          updated_at as "updatedAt"
+        FROM class_iteration
+        WHERE program_id = $1
+        ORDER BY iteration_number ASC
+      `, [programId])
+    } catch (queryError) {
+      if (queryError.message && (queryError.message.includes('does not exist') || queryError.message.includes('relation') && queryError.message.includes('class_iteration'))) {
+        return res.json({
+          success: true,
+          data: [],
+          warning: 'class_iteration table not found'
+        })
+      }
+      throw queryError
+    }
+    
+    const iterations = iterationsResult.rows
+    
+    // Check if member_program table exists
+    const memberProgramTableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'member_program'
+      )
+    `)
+    
+    const hasMemberProgramTable = memberProgramTableCheck.rows[0].exists
+    
+    // For each iteration, get enrollment counts per day
+    const iterationsWithStats = await Promise.all(iterations.map(async (iteration) => {
+      const dayCounts = {
+        monday: 0,
+        tuesday: 0,
+        wednesday: 0,
+        thursday: 0,
+        friday: 0,
+        saturday: 0,
+        sunday: 0
+      }
+      
+      if (hasMemberProgramTable) {
+        try {
+          // Get all enrollments for this iteration
+          const enrollmentsResult = await pool.query(`
+            SELECT selected_days
+            FROM member_program
+            WHERE iteration_id = $1 AND selected_days IS NOT NULL
+          `, [iteration.id])
+          
+          // Count enrollments per day
+          enrollmentsResult.rows.forEach(row => {
+            if (row.selected_days && Array.isArray(row.selected_days)) {
+              row.selected_days.forEach(day => {
+                const dayLower = day.toLowerCase()
+                if (dayCounts.hasOwnProperty(dayLower)) {
+                  dayCounts[dayLower]++
+                }
+              })
+            }
+          })
+        } catch (enrollmentError) {
+          console.warn('Error fetching enrollment stats for iteration:', iteration.id, enrollmentError.message)
+        }
+      }
+      
+      return {
+        ...iteration,
+        enrollmentCounts: dayCounts
+      }
+    }))
+    
+    res.json({
+      success: true,
+      data: iterationsWithStats
+    })
+  } catch (error) {
+    console.error('Get iteration stats error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error',

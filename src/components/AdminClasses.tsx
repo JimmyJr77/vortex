@@ -51,6 +51,15 @@ interface ClassIteration {
   endDate?: string | null
   createdAt: string
   updatedAt: string
+  enrollmentCounts?: {
+    monday: number
+    tuesday: number
+    wednesday: number
+    thursday: number
+    friday: number
+    saturday: number
+    sunday: number
+  }
 }
 
 export default function AdminClasses() {
@@ -95,7 +104,10 @@ export default function AdminClasses() {
       ])
       
       if (activeData.success && archivedData.success) {
-        setPrograms([...activeData.data, ...archivedData.data])
+        const allPrograms = [...activeData.data, ...archivedData.data]
+        setPrograms(allPrograms)
+        // Fetch iteration stats for all programs
+        await fetchIterationStatsForPrograms(allPrograms.map(p => p.id))
       }
     } catch (error) {
       console.error('Error fetching programs:', error)
@@ -103,6 +115,28 @@ export default function AdminClasses() {
     } finally {
       setProgramsLoading(false)
     }
+  }
+
+  const fetchIterationStatsForPrograms = async (programIds: number[]) => {
+    const stats: Record<number, ClassIteration[]> = {}
+    
+    await Promise.all(
+      programIds.map(async (programId) => {
+        try {
+          const response = await adminApiRequest(`/api/admin/programs/${programId}/iterations/stats`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.success && data.data) {
+              stats[programId] = data.data
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching iteration stats for program ${programId}:`, error)
+        }
+      })
+    )
+    
+    setIterationStats(stats)
   }
 
   const fetchAllCategories = async () => {
@@ -1493,6 +1527,51 @@ export default function AdminClasses() {
                                       </div>
                                     )}
                                   </div>
+                                  {/* Iterations Overview */}
+                                  {iterationStats[program.id] && iterationStats[program.id].length > 0 && (
+                                    <div className="mt-4 pt-4 border-t border-gray-200">
+                                      <h5 className="text-sm font-semibold text-gray-700 mb-2">Current Iterations</h5>
+                                      <div className="space-y-3">
+                                        {iterationStats[program.id].map((iteration) => {
+                                          const daysOfWeekNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                                          
+                                          // Get days for this iteration (from timeBlocks or legacy daysOfWeek)
+                                          // daysOfWeek is stored as 0-6 format (Sunday=0, Monday=1, etc.)
+                                          const iterationDays = iteration.timeBlocks && iteration.timeBlocks.length > 0
+                                            ? Array.from(new Set(iteration.timeBlocks.flatMap(tb => tb.daysOfWeek)))
+                                            : iteration.daysOfWeek || []
+                                          
+                                          return (
+                                            <div key={iteration.id} className="bg-gray-50 rounded p-3 border border-gray-200">
+                                              <div className="flex items-center justify-between mb-2">
+                                                <span className="text-sm font-medium text-gray-700">
+                                                  Iteration {iteration.iterationNumber}
+                                                </span>
+                                                <span className="text-xs text-gray-500">
+                                                  {iteration.durationType === 'indefinite' ? 'Indefinite' :
+                                                   iteration.durationType === '3_month_block' ? `3-Month Block` :
+                                                   `Finite: ${iteration.startDate || 'TBD'} - ${iteration.endDate || 'TBD'}`}
+                                                </span>
+                                              </div>
+                                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                                {iterationDays.sort((a, b) => a - b).map((dayNum) => {
+                                                  const dayName = daysOfWeekNames[dayNum] || `Day ${dayNum}`
+                                                  const dayKey = dayName.toLowerCase() as keyof typeof iteration.enrollmentCounts
+                                                  const count = iteration.enrollmentCounts?.[dayKey] || 0
+                                                  return (
+                                                    <div key={dayNum} className="flex items-center justify-between bg-white px-2 py-1 rounded border border-gray-200">
+                                                      <span className="text-gray-600">{dayName}:</span>
+                                                      <span className="font-semibold text-gray-800">{count}</span>
+                                                    </div>
+                                                  )
+                                                })}
+                                              </div>
+                                            </div>
+                                          )
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="flex gap-2">
                                   <button

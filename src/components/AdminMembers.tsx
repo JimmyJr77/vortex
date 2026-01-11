@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Archive, X, ChevronDown, ChevronUp, UserPlus } from 'lucide-react'
+import { Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Edit2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 
@@ -284,6 +284,13 @@ export default function AdminMembers() {
   const [viewingMember, setViewingMember] = useState<{guardian: Guardian, family: Family} | null>(null)
   const [showMemberEditModal, setShowMemberEditModal] = useState(false)
   const [showMemberViewModal, setShowMemberViewModal] = useState(false)
+  
+  // Unified member view/edit state
+  const [viewingUnifiedMember, setViewingUnifiedMember] = useState<UnifiedMember | null>(null)
+  const [viewingMemberFamilyData, setViewingMemberFamilyData] = useState<any>(null)
+  const [showUnifiedMemberViewModal, setShowUnifiedMemberViewModal] = useState(false)
+  const [showUnifiedMemberEditModal, setShowUnifiedMemberEditModal] = useState(false)
+  const [editingUnifiedMemberId, setEditingUnifiedMemberId] = useState<number | null>(null)
   
   // Archived user dialog state
   const [showArchivedUserDialog, setShowArchivedUserDialog] = useState(false)
@@ -581,6 +588,49 @@ export default function AdminMembers() {
   
   const cleanPhoneNumber = (phone: string): string => {
     return phone.replace(/\D/g, '')
+  }
+  
+  // Helper function to format time since a date
+  const formatTimeSince = (date: string | null | undefined): string => {
+    if (!date) return 'Never'
+    try {
+      const enrollmentDate = new Date(date)
+      const now = new Date()
+      const diffMs = now.getTime() - enrollmentDate.getTime()
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+      const diffMonths = Math.floor(diffDays / 30)
+      const diffYears = Math.floor(diffDays / 365)
+      
+      if (diffYears > 0) {
+        return `${diffYears} year${diffYears !== 1 ? 's' : ''} ago`
+      } else if (diffMonths > 0) {
+        return `${diffMonths} month${diffMonths !== 1 ? 's' : ''} ago`
+      } else if (diffDays > 0) {
+        return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`
+      } else {
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+        if (diffHours > 0) {
+          return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`
+        } else {
+          const diffMinutes = Math.floor(diffMs / (1000 * 60))
+          return diffMinutes > 0 ? `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago` : 'Just now'
+        }
+      }
+    } catch (error) {
+      return 'Invalid date'
+    }
+  }
+  
+  // Helper function to get most recent enrollment date
+  const getMostRecentEnrollmentDate = (enrollments: Array<{ created_at?: string; createdAt?: string }>): string | null => {
+    if (!enrollments || enrollments.length === 0) return null
+    const dates = enrollments
+      .map(e => e.created_at || e.createdAt)
+      .filter(d => d != null)
+      .map(d => new Date(d!).getTime())
+    if (dates.length === 0) return null
+    const mostRecent = new Date(Math.max(...dates))
+    return mostRecent.toISOString()
   }
   
   // Helper function to populate form from family data
@@ -906,8 +956,10 @@ export default function AdminMembers() {
   }
   
   const handleSaveMemberEdit = async () => {
-    // Check if we're in unified modal edit mode
-    const isUnifiedModalEdit = unifiedModalMode === 'edit' && selectedFamilyForMember && !editingMember
+    // Check if we're in unified modal edit mode (with or without family)
+    const isUnifiedModalEdit = unifiedModalMode === 'edit' && !editingMember
+    const isUnifiedModalEditWithFamily = isUnifiedModalEdit && selectedFamilyForMember
+    const isUnifiedModalEditSingleMember = isUnifiedModalEdit && editingUnifiedMemberId && !selectedFamilyForMember
     
     if (!editingMember && !isUnifiedModalEdit) {
       console.error('handleSaveMemberEdit: No editingMember and not in unified modal edit mode')
@@ -915,8 +967,8 @@ export default function AdminMembers() {
     }
     
     try {
-      // Handle unified modal edit mode
-      if (isUnifiedModalEdit) {
+      // Handle unified modal edit mode (with family)
+      if (isUnifiedModalEditWithFamily) {
         if (!selectedFamilyForMember) {
           alert('No family selected')
           return
@@ -981,10 +1033,81 @@ export default function AdminMembers() {
         }
         
         await fetchFamilies()
+        await fetchMembers()
         setShowMemberModal(false)
         setUnifiedModalMode(null)
         setSelectedFamilyForMember(null)
+        setEditingUnifiedMemberId(null)
         alert('Family updated successfully!')
+        return
+      }
+      
+      // Handle unified modal edit mode (single member without family)
+      if (isUnifiedModalEditSingleMember && editingUnifiedMemberId) {
+        if (familyMembers.length === 0) {
+          alert('No member data to save')
+          return
+        }
+        
+        const member = familyMembers[0] // Single member
+        const firstName = member.sections.contactInfo.tempData.firstName ?? member.firstName
+        const lastName = member.sections.contactInfo.tempData.lastName ?? member.lastName
+        const email = member.sections.contactInfo.tempData.email ?? member.email
+        const phone = member.sections.contactInfo.tempData.phone ?? member.phone
+        const addressStreet = member.sections.contactInfo.tempData.addressStreet ?? member.addressStreet ?? ''
+        const addressCity = member.sections.contactInfo.tempData.addressCity ?? member.addressCity ?? ''
+        const addressState = member.sections.contactInfo.tempData.addressState ?? member.addressState ?? ''
+        const addressZip = member.sections.contactInfo.tempData.addressZip ?? member.addressZip ?? ''
+        const username = member.sections.loginSecurity.tempData.username ?? member.username
+        const password = member.sections.loginSecurity.tempData.password ?? member.password
+        const dateOfBirth = member.sections.personalData?.tempData?.dateOfBirth ?? member.dateOfBirth ?? ''
+        
+        // Get parent/guardian IDs if child
+        let parentGuardianIds: number[] | null = null
+        if (member.sections.parentGuardians?.tempData?.parentGuardians) {
+          parentGuardianIds = member.sections.parentGuardians.tempData.parentGuardians
+            .map((pg: { id: number }) => pg.id)
+            .filter((id: number) => id > 0)
+          if (parentGuardianIds.length === 0) parentGuardianIds = null
+        }
+        
+        // Get waiver status
+        const hasCompletedWaivers = member.sections.waivers?.tempData?.hasCompletedWaivers ?? member.hasCompletedWaivers ?? false
+        const waiverCompletionDate = member.sections.waivers?.tempData?.waiverCompletionDate ?? member.waiverCompletionDate ?? null
+        
+        // Update member using unified endpoint
+        const memberResponse = await adminApiRequest(`/api/admin/members/${editingUnifiedMemberId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            email: email || null,
+            phone: phone ? cleanPhoneNumber(phone) : null,
+            address: combineAddress(addressStreet, addressCity, addressState, addressZip) || null,
+            billingStreet: billingInfo.addressStreet || null,
+            billingCity: billingInfo.addressCity || null,
+            billingState: billingInfo.addressState || null,
+            billingZip: billingInfo.addressZip || null,
+            username: username || null,
+            ...(password && password !== 'vortex' && { password }),
+            dateOfBirth: dateOfBirth || null,
+            medicalNotes: member.medicalNotes || null,
+            parentGuardianIds,
+            hasCompletedWaivers,
+            waiverCompletionDate
+          })
+        })
+        
+        if (!memberResponse.ok) {
+          const data = await memberResponse.json()
+          throw new Error(data.message || 'Failed to update member')
+        }
+        
+        await fetchMembers()
+        setShowMemberModal(false)
+        setUnifiedModalMode(null)
+        setEditingUnifiedMemberId(null)
+        alert('Member updated successfully!')
         return
       }
       
@@ -2133,6 +2256,168 @@ export default function AdminMembers() {
     }
   }
   
+  // View unified member handler
+  const handleViewUnifiedMember = async (member: UnifiedMember) => {
+    try {
+      // Fetch full member data
+      const memberResponse = await adminApiRequest(`/api/admin/members/${member.id}`)
+      if (!memberResponse.ok) {
+        alert('Failed to fetch member data')
+        return
+      }
+      const memberData = await memberResponse.json()
+      
+      // If member has a family, fetch family data
+      let familyData = null
+      if (member.familyId) {
+        const familyResponse = await adminApiRequest(`/api/admin/families/${member.familyId}`)
+        if (familyResponse.ok) {
+          const familyResult = await familyResponse.json()
+          if (familyResult.success) {
+            familyData = familyResult.data
+          }
+        }
+      }
+      
+      setViewingUnifiedMember(memberData.success ? memberData.data : member)
+      setViewingMemberFamilyData(familyData)
+      setShowUnifiedMemberViewModal(true)
+    } catch (error) {
+      console.error('Error viewing member:', error)
+      alert('Failed to load member data')
+    }
+  }
+  
+  // Edit unified member handler
+  const handleEditUnifiedMember = async (member: UnifiedMember) => {
+    try {
+      setEditingUnifiedMemberId(member.id)
+      setUnifiedModalMode('edit')
+      setEditingFamilyId(member.familyId || null)
+      
+      // Fetch full member data
+      const memberResponse = await adminApiRequest(`/api/admin/members/${member.id}`)
+      if (!memberResponse.ok) {
+        alert('Failed to fetch member data')
+        return
+      }
+      const memberData = await memberResponse.json()
+      const fullMember = memberData.success ? memberData.data : member
+      
+      // If member has a family, fetch family data and populate form
+      if (member.familyId) {
+        const familyResponse = await adminApiRequest(`/api/admin/families/${member.familyId}`)
+        if (familyResponse.ok) {
+          const familyResult = await familyResponse.json()
+          if (familyResult.success) {
+            const family = familyResult.data
+            setSelectedFamilyForMember(family as Family)
+            await populateFormFromFamily(family as Family, member.id)
+          }
+        }
+      } else {
+        // Member has no family - populate with single member data
+        const addressParts = parseAddress(fullMember.address || '')
+        const populatedMember: FamilyMemberData = {
+          id: `member-${fullMember.id}`,
+          athleteId: fullMember.id,
+          userId: fullMember.id,
+          user_id: fullMember.id,
+          firstName: fullMember.firstName || '',
+          lastName: fullMember.lastName || '',
+          email: fullMember.email || '',
+          phone: fullMember.phone || '',
+          addressStreet: addressParts.street,
+          addressCity: addressParts.city,
+          addressState: addressParts.state,
+          addressZip: addressParts.zip,
+          username: fullMember.username || '',
+          password: 'vortex',
+          enrollments: fullMember.enrollments || [],
+          dateOfBirth: fullMember.dateOfBirth || '',
+          gender: '',
+          medicalNotes: fullMember.medicalNotes || '',
+          medicalConcerns: '',
+          injuryHistoryDate: '',
+          injuryHistoryBodyPart: '',
+          injuryHistoryNotes: '',
+          noInjuryHistory: true,
+          experience: '',
+          previousClasses: [],
+          isFinished: false,
+          isActive: fullMember.isActive,
+          parentGuardians: fullMember.parentGuardians || [],
+          hasCompletedWaivers: fullMember.hasCompletedWaivers || false,
+          waiverCompletionDate: fullMember.waiverCompletionDate || null,
+          sections: {
+            contactInfo: {
+              isExpanded: true,
+              tempData: {
+                firstName: fullMember.firstName || '',
+                lastName: fullMember.lastName || '',
+                email: fullMember.email || '',
+                phone: fullMember.phone || '',
+                addressStreet: addressParts.street,
+                addressCity: addressParts.city,
+                addressState: addressParts.state,
+                addressZip: addressParts.zip
+              }
+            },
+            loginSecurity: {
+              isExpanded: false,
+              tempData: {
+                username: fullMember.username || '',
+                password: 'vortex'
+              }
+            },
+            statusVerification: { isExpanded: false },
+            personalData: {
+              isExpanded: false,
+              tempData: {
+                dateOfBirth: fullMember.dateOfBirth || '',
+                gender: '',
+                medicalConcerns: '',
+                injuryHistoryDate: '',
+                injuryHistoryBodyPart: '',
+                injuryHistoryNotes: '',
+                noInjuryHistory: true
+              }
+            },
+            waivers: {
+              isExpanded: false,
+              tempData: {
+                hasCompletedWaivers: fullMember.hasCompletedWaivers || false,
+                waiverCompletionDate: fullMember.waiverCompletionDate || null
+              }
+            }
+          }
+        }
+        setFamilyMembers([populatedMember])
+        setExpandedFamilyMemberId(populatedMember.id)
+        
+        // Populate billing information from member data
+        const billingParts = parseAddress(fullMember.billingStreet && fullMember.billingCity 
+          ? `${fullMember.billingStreet}, ${fullMember.billingCity}, ${fullMember.billingState || ''} ${fullMember.billingZip || ''}`.trim()
+          : '')
+        setBillingInfo({
+          firstName: fullMember.firstName || '',
+          lastName: fullMember.lastName || '',
+          addressStreet: fullMember.billingStreet || billingParts.street || '',
+          addressCity: fullMember.billingCity || billingParts.city || '',
+          addressState: fullMember.billingState || billingParts.state || '',
+          addressZip: fullMember.billingZip || billingParts.zip || ''
+        })
+      }
+      
+      setShowMemberModal(true)
+      setMemberModalMode('new-family')
+      setShowUnifiedMemberEditModal(true)
+    } catch (error) {
+      console.error('Error editing member:', error)
+      alert('Failed to load member data')
+    }
+  }
+  
   // Effects
   useEffect(() => {
     fetchMembers()
@@ -2304,6 +2589,24 @@ export default function AdminMembers() {
                         </div>
                         <div className="flex gap-2">
                           <motion.button
+                            onClick={() => handleViewUnifiedMember(member)}
+                            className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-blue-600 text-white hover:bg-blue-700"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Eye className="w-4 h-4" />
+                            <span>View</span>
+                          </motion.button>
+                          <motion.button
+                            onClick={() => handleEditUnifiedMember(member)}
+                            className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-green-600 text-white hover:bg-green-700"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                            <span>Edit</span>
+                          </motion.button>
+                          <motion.button
                             onClick={() => handleArchiveMember(member.id, member.isActive)}
                             className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${
                               member.isActive
@@ -2364,9 +2667,10 @@ export default function AdminMembers() {
             >
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-display font-bold text-white">
-                  {memberModalMode === 'search' && 'Create Member - Search or New'}
-                  {memberModalMode === 'new-family' && 'Create New Family'}
-                  {memberModalMode === 'existing-family' && 'Add to Existing Family'}
+                  {unifiedModalMode === 'edit' && 'Edit Member'}
+                  {unifiedModalMode !== 'edit' && memberModalMode === 'search' && 'Create Member - Search or New'}
+                  {unifiedModalMode !== 'edit' && memberModalMode === 'new-family' && 'Create New Family'}
+                  {unifiedModalMode !== 'edit' && memberModalMode === 'existing-family' && 'Add to Existing Family'}
                 </h3>
                 <button
                   onClick={() => {
@@ -3759,6 +4063,375 @@ export default function AdminMembers() {
                   className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-semibold transition-colors"
                 >
                   Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Unified Member View Modal */}
+      <AnimatePresence>
+        {showUnifiedMemberViewModal && viewingUnifiedMember && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                setShowUnifiedMemberViewModal(false)
+                setViewingUnifiedMember(null)
+                setViewingMemberFamilyData(null)
+              }}
+            />
+            <motion.div
+              className="relative bg-gray-800 rounded-lg p-6 max-w-6xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-white">
+                  View Member: {viewingUnifiedMember.firstName} {viewingUnifiedMember.lastName}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowUnifiedMemberViewModal(false)
+                    setViewingUnifiedMember(null)
+                    setViewingMemberFamilyData(null)
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Family Information */}
+                {viewingUnifiedMember.familyId && (
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="text-lg font-semibold text-white mb-3">Family Information</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-sm font-semibold text-gray-300">Family Name:</span>
+                        <div className="text-white">{viewingUnifiedMember.familyName || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <span className="text-sm font-semibold text-gray-300">Family Username:</span>
+                        <div className="text-white">{viewingMemberFamilyData?.familyUsername || 'N/A'}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Member Basic Information */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="text-lg font-semibold text-white mb-3">Basic Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">First Name:</span>
+                      <div className="text-white">{viewingUnifiedMember.firstName}</div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Last Name:</span>
+                      <div className="text-white">{viewingUnifiedMember.lastName}</div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Email:</span>
+                      <div className="text-white">{viewingUnifiedMember.email || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Phone:</span>
+                      <div className="text-white">{viewingUnifiedMember.phone || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Username:</span>
+                      <div className="text-white">{viewingUnifiedMember.username || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
+                      <div className="text-white">
+                        {viewingUnifiedMember.dateOfBirth 
+                          ? new Date(viewingUnifiedMember.dateOfBirth).toLocaleDateString()
+                          : 'N/A'}
+                      </div>
+                    </div>
+                    {viewingUnifiedMember.age !== null && viewingUnifiedMember.age !== undefined && (
+                      <div>
+                        <span className="text-sm font-semibold text-gray-300">Age:</span>
+                        <div className="text-white">{viewingUnifiedMember.age}</div>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Address:</span>
+                      <div className="text-white">{viewingUnifiedMember.address || 'N/A'}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status and Roles */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="text-lg font-semibold text-white mb-3">Status and Roles</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Status:</span>
+                      <div className="mt-1">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          viewingUnifiedMember.isActive 
+                            ? 'bg-green-600 text-white' 
+                            : 'bg-gray-500 text-white'
+                        }`}>
+                          {viewingUnifiedMember.isActive ? 'Active' : 'Archived'}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Enrollment Status:</span>
+                      <div className="mt-1">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          viewingUnifiedMember.status === 'athlete' || viewingUnifiedMember.status === 'enrolled'
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-500 text-white'
+                        }`}>
+                          {viewingUnifiedMember.status || 'Non-Participant'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="md:col-span-2">
+                      <span className="text-sm font-semibold text-gray-300">Roles:</span>
+                      <div className="mt-1 flex flex-wrap gap-2">
+                        {viewingUnifiedMember.roles && viewingUnifiedMember.roles.length > 0 ? (
+                          viewingUnifiedMember.roles.map((role, idx) => (
+                            <span key={idx} className="px-2 py-1 rounded text-xs font-semibold bg-purple-600 text-white">
+                              {role.role}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-400 text-sm">No roles assigned</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Enrollments */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="text-lg font-semibold text-white mb-3">Active Enrollments</h4>
+                  {viewingUnifiedMember.enrollments && viewingUnifiedMember.enrollments.length > 0 ? (
+                    <div className="space-y-2">
+                      {viewingUnifiedMember.enrollments.map((enrollment: any) => {
+                        const selectedDaysArray = Array.isArray(enrollment.selected_days) 
+                          ? enrollment.selected_days 
+                          : (typeof enrollment.selected_days === 'string' 
+                              ? JSON.parse(enrollment.selected_days || '[]') 
+                              : [])
+                        const enrollmentDate = enrollment.createdAt || enrollment.created_at
+                        return (
+                          <div key={enrollment.id} className="bg-gray-600 p-3 rounded">
+                            <div className="text-white font-medium">
+                              {enrollment.program_display_name || enrollment.programDisplayName || 'Unknown Class'}
+                            </div>
+                            <div className="text-gray-400 text-sm mt-1">
+                              {enrollment.days_per_week || enrollment.daysPerWeek} day{(enrollment.days_per_week || enrollment.daysPerWeek) !== 1 ? 's' : ''}/week
+                              {selectedDaysArray.length > 0 && ` • ${selectedDaysArray.join(', ')}`}
+                            </div>
+                            {enrollmentDate && (
+                              <div className="text-gray-400 text-xs mt-1">
+                                Enrolled: {formatTimeSince(enrollmentDate)}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">No active enrollments</div>
+                  )}
+                  {viewingUnifiedMember.enrollments && viewingUnifiedMember.enrollments.length > 0 && (
+                    <div className="mt-3 text-sm text-gray-300">
+                      <span className="font-semibold">Last Enrollment:</span> {formatTimeSince(
+                        getMostRecentEnrollmentDate(viewingUnifiedMember.enrollments.map((e: any) => ({ 
+                          created_at: e.created_at, 
+                          createdAt: e.createdAt 
+                        })))
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Family Members */}
+                {viewingMemberFamilyData && viewingMemberFamilyData.members && viewingMemberFamilyData.members.length > 0 && (
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="text-lg font-semibold text-white mb-3">
+                      Family Members ({viewingMemberFamilyData.members.length})
+                    </h4>
+                    <div className="space-y-3">
+                      {viewingMemberFamilyData.members.map((familyMember: any) => {
+                        const isCurrentMember = familyMember.id === viewingUnifiedMember.id
+                        return (
+                          <div 
+                            key={familyMember.id} 
+                            className={`bg-gray-600 p-4 rounded ${isCurrentMember ? 'ring-2 ring-blue-500' : ''}`}
+                          >
+                            {isCurrentMember && (
+                              <div className="text-xs text-blue-400 font-semibold mb-2">(Current Member)</div>
+                            )}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <span className="text-sm font-semibold text-gray-300">Name:</span>
+                                <div className="text-white">{familyMember.firstName} {familyMember.lastName}</div>
+                              </div>
+                              {familyMember.email && (
+                                <div>
+                                  <span className="text-sm font-semibold text-gray-300">Email:</span>
+                                  <div className="text-white">{familyMember.email}</div>
+                                </div>
+                              )}
+                              {familyMember.phone && (
+                                <div>
+                                  <span className="text-sm font-semibold text-gray-300">Phone:</span>
+                                  <div className="text-white">{familyMember.phone}</div>
+                                </div>
+                              )}
+                              {familyMember.dateOfBirth && (
+                                <div>
+                                  <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
+                                  <div className="text-white">
+                                    {new Date(familyMember.dateOfBirth).toLocaleDateString()}
+                                  </div>
+                                </div>
+                              )}
+                              {familyMember.age !== null && familyMember.age !== undefined && (
+                                <div>
+                                  <span className="text-sm font-semibold text-gray-300">Age:</span>
+                                  <div className="text-white">{familyMember.age}</div>
+                                </div>
+                              )}
+                              <div>
+                                <span className="text-sm font-semibold text-gray-300">Status:</span>
+                                <div className="mt-1">
+                                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                    familyMember.isActive 
+                                      ? 'bg-green-600 text-white' 
+                                      : 'bg-gray-500 text-white'
+                                  }`}>
+                                    {familyMember.isActive ? 'Active' : 'Archived'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            {/* Note: Family member enrollments would need to be fetched separately */}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Additional Information */}
+                {(viewingUnifiedMember.medicalNotes || viewingUnifiedMember.internalFlags) && (
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="text-lg font-semibold text-white mb-3">Additional Information</h4>
+                    {viewingUnifiedMember.medicalNotes && (
+                      <div className="mb-3">
+                        <span className="text-sm font-semibold text-gray-300">Medical Notes:</span>
+                        <div className="text-white mt-1">{viewingUnifiedMember.medicalNotes}</div>
+                      </div>
+                    )}
+                    {viewingUnifiedMember.internalFlags && (
+                      <div>
+                        <span className="text-sm font-semibold text-gray-300">Internal Flags:</span>
+                        <div className="text-white mt-1">{viewingUnifiedMember.internalFlags}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Waiver Information */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="text-lg font-semibold text-white mb-3">Waiver Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Waivers Completed:</span>
+                      <div className="mt-1">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          viewingUnifiedMember.hasCompletedWaivers 
+                            ? 'bg-green-600 text-white' 
+                            : 'bg-red-600 text-white'
+                        }`}>
+                          {viewingUnifiedMember.hasCompletedWaivers ? 'Yes' : 'No'}
+                        </span>
+                      </div>
+                    </div>
+                    {viewingUnifiedMember.waiverCompletionDate && (
+                      <div>
+                        <span className="text-sm font-semibold text-gray-300">Completion Date:</span>
+                        <div className="text-white">
+                          {new Date(viewingUnifiedMember.waiverCompletionDate).toLocaleDateString()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowUnifiedMemberViewModal(false)
+                    setViewingUnifiedMember(null)
+                    setViewingMemberFamilyData(null)
+                  }}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={async () => {
+                    setShowUnifiedMemberViewModal(false)
+                    if (viewingUnifiedMember && viewingUnifiedMember.id) {
+                      // Find the member from the members list
+                      const memberFromList = members.find(m => m.id === viewingUnifiedMember.id)
+                      if (memberFromList) {
+                        await handleEditUnifiedMember(memberFromList)
+                      } else {
+                        // If not in list, create a UnifiedMember-like object from the viewing data
+                        const memberForEdit: UnifiedMember = {
+                          id: viewingUnifiedMember.id,
+                          firstName: viewingUnifiedMember.firstName || '',
+                          lastName: viewingUnifiedMember.lastName || '',
+                          email: viewingUnifiedMember.email || null,
+                          phone: viewingUnifiedMember.phone || null,
+                          address: viewingUnifiedMember.address || null,
+                          billingStreet: (viewingUnifiedMember as any).billingStreet || null,
+                          billingCity: (viewingUnifiedMember as any).billingCity || null,
+                          billingState: (viewingUnifiedMember as any).billingState || null,
+                          billingZip: (viewingUnifiedMember as any).billingZip || null,
+                          dateOfBirth: viewingUnifiedMember.dateOfBirth || null,
+                          age: viewingUnifiedMember.age || null,
+                          medicalNotes: viewingUnifiedMember.medicalNotes || null,
+                          internalFlags: (viewingUnifiedMember as any).internalFlags || null,
+                          status: viewingUnifiedMember.status || 'non-participant',
+                          isActive: viewingUnifiedMember.isActive,
+                          familyId: (viewingUnifiedMember as any).familyId || null,
+                          familyName: (viewingUnifiedMember as any).familyName || null,
+                          username: viewingUnifiedMember.username || null,
+                          roles: (viewingUnifiedMember as any).roles || [],
+                          enrollments: viewingUnifiedMember.enrollments || [],
+                          createdAt: (viewingUnifiedMember as any).createdAt || '',
+                          updatedAt: (viewingUnifiedMember as any).updatedAt || ''
+                        }
+                        await handleEditUnifiedMember(memberForEdit)
+                      }
+                    }
+                  }}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                >
+                  Edit Member
                 </button>
               </div>
             </motion.div>
