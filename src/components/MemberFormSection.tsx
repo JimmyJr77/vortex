@@ -35,7 +35,8 @@ type FamilyMemberData = {
     completed_date?: string | null
   }>
   isFinished: boolean
-  parentGuardianIds?: number[] // Array of parent/guardian member IDs (for children)
+  parentGuardianIds?: number[] // Legacy: Array of parent/guardian member IDs (for children) - deprecated, use parentGuardians
+  parentGuardians?: Array<{ id: number; relationship: string; relationshipOther?: string }> // Array of parent/guardian with relationships
   hasCompletedWaivers?: boolean // Waiver completion status
   waiverCompletionDate?: string | null // Date when waivers were completed
   sections: {
@@ -43,7 +44,7 @@ type FamilyMemberData = {
     loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
     statusVerification: { isExpanded: boolean }
     personalData?: { isExpanded: boolean; tempData: { dateOfBirth: string; gender: string; medicalConcerns: string; injuryHistoryDate: string; injuryHistoryBodyPart: string; injuryHistoryNotes: string; noInjuryHistory: boolean } }
-    parentGuardians?: { isExpanded: boolean; tempData: { parentGuardianIds: number[] } }
+    parentGuardians?: { isExpanded: boolean; tempData: { parentGuardians: Array<{ id: number; relationship: string; relationshipOther?: string }> } }
     waivers?: { isExpanded: boolean; tempData: { hasCompletedWaivers: boolean; waiverCompletionDate: string | null } }
     previousClasses?: { isExpanded: boolean; tempData: { experience: string } }
   }
@@ -69,6 +70,7 @@ interface MemberFormSectionProps {
   // New props for parent/guardian selection
   availableParentGuardians?: Array<{ id: number; firstName: string; lastName: string; email?: string; phone?: string }>
   onSearchParentGuardians?: (query: string) => void
+  allFamilyMembers?: FamilyMemberData[] // All family members in the form (for showing adult family members as guardians)
 }
 
 export default function MemberFormSection({
@@ -85,7 +87,8 @@ export default function MemberFormSection({
   generateUsername,
   formatPhoneNumber,
   availableParentGuardians = [],
-  onSearchParentGuardians
+  onSearchParentGuardians,
+  allFamilyMembers = []
 }: MemberFormSectionProps) {
   // Get member display name - use actual name if available, otherwise show placeholder
   const memberDisplayName = member.firstName || member.lastName 
@@ -132,12 +135,55 @@ export default function MemberFormSection({
     return age !== null && age < 18
   }
   
-  // Get parent/guardian IDs from member
-  const getParentGuardianIds = (): number[] => {
-    if (member.sections.parentGuardians?.tempData?.parentGuardianIds) {
-      return member.sections.parentGuardians.tempData.parentGuardianIds
+  // Get parent/guardians from member (with relationships)
+  const getParentGuardians = (): Array<{ id: number; relationship: string; relationshipOther?: string }> => {
+    if (member.sections.parentGuardians?.tempData?.parentGuardians) {
+      return member.sections.parentGuardians.tempData.parentGuardians
     }
-    return member.parentGuardianIds || []
+    // Legacy support: convert parentGuardianIds array to parentGuardians format
+    if (member.parentGuardianIds && member.parentGuardianIds.length > 0) {
+      return member.parentGuardianIds.map(id => ({ id, relationship: '' }))
+    }
+    return member.parentGuardians || []
+  }
+
+  // Get parent/guardian IDs (for backwards compatibility) - not currently used but kept for potential backwards compatibility
+  // const getParentGuardianIds = (): number[] => {
+  //   return getParentGuardians().map(pg => pg.id)
+  // }
+
+  // Get adult family members from the form (excluding current member)
+  // Use negative IDs as temporary identifiers for family members (will be mapped when submitting)
+  const getAdultFamilyMembers = (): Array<{ id: number; firstName: string; lastName: string; email: string; phone: string; isFamilyMember: boolean; familyMemberId: string }> => {
+    const adults: Array<{ id: number; firstName: string; lastName: string; email: string; phone: string; isFamilyMember: boolean; familyMemberId: string }> = []
+    
+    allFamilyMembers.forEach((fm, index) => {
+      if (fm.id === member.id) return // Skip current member
+      
+      const dob = fm.dateOfBirth || fm.sections.personalData?.tempData?.dateOfBirth
+      if (!dob) return // Can't determine age
+      
+      const age = calculateAge(dob)
+      if (age !== null && age >= 18) {
+        const firstName = fm.firstName || fm.sections.contactInfo?.tempData?.firstName || ''
+        const lastName = fm.lastName || fm.sections.contactInfo?.tempData?.lastName || ''
+        if (firstName || lastName) {
+          // Use negative ID as temporary identifier for family members
+          // Will be mapped to actual member IDs when submitting
+          adults.push({
+            id: -(index + 1), // Negative ID to distinguish from database IDs
+            firstName,
+            lastName,
+            email: fm.email || fm.sections.contactInfo?.tempData?.email || '',
+            phone: fm.phone || fm.sections.contactInfo?.tempData?.phone || '',
+            isFamilyMember: true,
+            familyMemberId: fm.id
+          })
+        }
+      }
+    })
+    
+    return adults
   }
 
   // Handle contact info changes with username generation
@@ -582,23 +628,154 @@ export default function MemberFormSection({
             )}
           </div>
 
-          {/* 4. Parent/Guardian Selection (for children) */}
-          {isChild() && (
+          {/* Warning for first member if under 18 */}
+          {memberIndex === 0 && isChild() && (
+            <div className="mb-4 border-2 border-red-600 rounded bg-red-900/20">
+              <div className="p-4 bg-gray-800">
+                <div className="space-y-4">
+                  <div className="bg-red-900/30 p-4 rounded border border-red-600">
+                    <h5 className="text-lg font-semibold text-red-300 mb-2">
+                      ⚠️ Age Requirement
+                    </h5>
+                    <p className="text-sm text-red-200">
+                      Your birthdate indicates you are under 18 years old. Members under 18 must register under an existing parent or guardian account. Please have your parent or guardian create an account first, then add you as a family member.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 3b. Parent/Guardian Selection (for children, but not first member) */}
+          {memberIndex > 0 && isChild() && (
             <div className="mb-4 border-2 border-yellow-600 rounded">
               <button
                 type="button"
                 onClick={() => onToggleSection(member.id, 'parentGuardians')}
                 className="w-full px-4 py-3 bg-yellow-700 hover:bg-yellow-600 text-white font-semibold flex justify-between items-center rounded-t"
               >
-                <span>4. Parent/Guardian Selection <span className="text-red-400">* (Required for children)</span></span>
+                <span>3b. Parent/Guardian Selection <span className="text-red-400">* (Required for children)</span></span>
                 <span>{member.sections.parentGuardians?.isExpanded ? '−' : '+'}</span>
               </button>
               {member.sections.parentGuardians?.isExpanded && (
                 <div className="p-4 bg-gray-800">
                   <div className="space-y-4">
+                    {/* Adult Family Members Section */}
+                    {(() => {
+                      const adultFamilyMembers = getAdultFamilyMembers()
+                      return adultFamilyMembers.length > 0 && (
                     <div>
                       <label className="block text-sm font-semibold text-gray-300 mb-2">
-                        Search for Parent/Guardian (must be 18+)
+                            Select from Family Members (18+)
+                          </label>
+                          <div className="space-y-2">
+                            {adultFamilyMembers.map((familyMember) => {
+                              const selectedGuardian = getParentGuardians().find(pg => pg.id === familyMember.id)
+                              const isSelected = !!selectedGuardian
+                              return (
+                                <div key={familyMember.id} className="space-y-2">
+                                  <div
+                                    onClick={() => {
+                                      const currentGuardians = getParentGuardians()
+                                      let newGuardians: Array<{ id: number; relationship: string; relationshipOther?: string }>
+                                      
+                                      if (isSelected) {
+                                        // Remove if already selected
+                                        newGuardians = currentGuardians.filter(pg => pg.id !== familyMember.id)
+                                      } else {
+                                        // Add with empty relationship (will require selection)
+                                        newGuardians = [...currentGuardians, { id: familyMember.id, relationship: '' }]
+                                      }
+                                      
+                                      updateSectionTempData('parentGuardians', { parentGuardians: newGuardians })
+                                      onUpdateMember(member.id, (prev) => ({
+                                        ...prev,
+                                        parentGuardians: newGuardians
+                                      }))
+                                    }}
+                                    className={`p-3 rounded cursor-pointer transition-colors ${
+                                      isSelected 
+                                        ? 'bg-green-700 hover:bg-green-600 border-2 border-green-500' 
+                                        : 'bg-gray-600 hover:bg-gray-500 border-2 border-transparent'
+                                    }`}
+                                  >
+                                    <div className="font-semibold text-white">
+                                      {familyMember.firstName} {familyMember.lastName}
+                                      {isSelected && <span className="ml-2 text-green-300">✓ Selected</span>}
+                                    </div>
+                                    {familyMember.email && (
+                                      <div className="text-sm text-gray-300">{familyMember.email}</div>
+                                    )}
+                                    {familyMember.phone && (
+                                      <div className="text-sm text-gray-300">{familyMember.phone}</div>
+                                    )}
+                                  </div>
+                                  {isSelected && (
+                                    <div className="ml-4 mb-2 space-y-2">
+                                      <label className="block text-xs font-semibold text-gray-300">
+                                        Relationship *
+                                      </label>
+                                      <select
+                                        value={selectedGuardian?.relationship || ''}
+                                        onChange={(e) => {
+                                          const currentGuardians = getParentGuardians()
+                                          const updatedGuardians = currentGuardians.map(pg => 
+                                            pg.id === familyMember.id 
+                                              ? { ...pg, relationship: e.target.value, relationshipOther: e.target.value !== 'Other legal guardian' ? undefined : pg.relationshipOther }
+                                              : pg
+                                          )
+                                          updateSectionTempData('parentGuardians', { parentGuardians: updatedGuardians })
+                                          onUpdateMember(member.id, (prev) => ({
+                                            ...prev,
+                                            parentGuardians: updatedGuardians
+                                          }))
+                                        }}
+                                        className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                        required
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <option value="">Select relationship...</option>
+                                        <option value="Mother">Mother</option>
+                                        <option value="Father">Father</option>
+                                        <option value="Other legal guardian">Other legal guardian</option>
+                                      </select>
+                                      {selectedGuardian?.relationship === 'Other legal guardian' && (
+                                        <input
+                                          type="text"
+                                          value={selectedGuardian?.relationshipOther || ''}
+                                          onChange={(e) => {
+                                            const currentGuardians = getParentGuardians()
+                                            const updatedGuardians = currentGuardians.map(pg => 
+                                              pg.id === familyMember.id 
+                                                ? { ...pg, relationshipOther: e.target.value }
+                                                : pg
+                                            )
+                                            updateSectionTempData('parentGuardians', { parentGuardians: updatedGuardians })
+                                            onUpdateMember(member.id, (prev) => ({
+                                              ...prev,
+                                              parentGuardians: updatedGuardians
+                                            }))
+                                          }}
+                                          placeholder="Specify relationship..."
+                                          className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                          required
+                                          onClick={(e) => e.stopPropagation()}
+                                        />
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })()}
+
+                    {/* Search for Additional Guardians */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        Search for Additional Parent/Guardian (must be 18+)
                       </label>
                       <input
                         type="text"
@@ -614,21 +791,28 @@ export default function MemberFormSection({
                       {availableParentGuardians.length > 0 && (
                         <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
                           {availableParentGuardians.map((parent) => {
-                            const isSelected = getParentGuardianIds().includes(parent.id)
+                            const selectedGuardian = getParentGuardians().find(pg => pg.id === parent.id)
+                            const isSelected = !!selectedGuardian
                             return (
+                              <div key={parent.id} className="space-y-2">
                               <div
-                                key={parent.id}
                                 onClick={() => {
-                                  const currentIds = getParentGuardianIds()
-                                  const newIds = isSelected
-                                    ? currentIds.filter(id => id !== parent.id)
-                                    : [...currentIds, parent.id]
-                                  
+                                    const currentGuardians = getParentGuardians()
+                                    let newGuardians: Array<{ id: number; relationship: string; relationshipOther?: string }>
+                                    
+                                    if (isSelected) {
+                                      // Remove if already selected
+                                      newGuardians = currentGuardians.filter(pg => pg.id !== parent.id)
+                                    } else {
+                                      // Add with empty relationship (will require selection)
+                                      newGuardians = [...currentGuardians, { id: parent.id, relationship: '' }]
+                                    }
+                                    
+                                    updateSectionTempData('parentGuardians', { parentGuardians: newGuardians })
                                   onUpdateMember(member.id, (prev) => ({
                                     ...prev,
-                                    parentGuardianIds: newIds
+                                      parentGuardians: newGuardians
                                   }))
-                                  updateSectionTempData('parentGuardians', { parentGuardianIds: newIds })
                                 }}
                                 className={`p-3 rounded cursor-pointer transition-colors ${
                                   isSelected 
@@ -645,6 +829,61 @@ export default function MemberFormSection({
                                 )}
                                 {parent.phone && (
                                   <div className="text-sm text-gray-300">{parent.phone}</div>
+                                  )}
+                                </div>
+                                {isSelected && (
+                                  <div className="ml-4 mb-2 space-y-2">
+                                    <label className="block text-xs font-semibold text-gray-300">
+                                      Relationship *
+                                    </label>
+                                    <select
+                                      value={selectedGuardian?.relationship || ''}
+                                      onChange={(e) => {
+                                        const currentGuardians = getParentGuardians()
+                                        const updatedGuardians = currentGuardians.map(pg => 
+                                          pg.id === parent.id 
+                                            ? { ...pg, relationship: e.target.value, relationshipOther: e.target.value !== 'Other legal guardian' ? undefined : pg.relationshipOther }
+                                            : pg
+                                        )
+                                        updateSectionTempData('parentGuardians', { parentGuardians: updatedGuardians })
+                                        onUpdateMember(member.id, (prev) => ({
+                                          ...prev,
+                                          parentGuardians: updatedGuardians
+                                        }))
+                                      }}
+                                      className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                      required
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <option value="">Select relationship...</option>
+                                      <option value="Mother">Mother</option>
+                                      <option value="Father">Father</option>
+                                      <option value="Other legal guardian">Other legal guardian</option>
+                                    </select>
+                                    {selectedGuardian?.relationship === 'Other legal guardian' && (
+                                      <input
+                                        type="text"
+                                        value={selectedGuardian?.relationshipOther || ''}
+                                        onChange={(e) => {
+                                          const currentGuardians = getParentGuardians()
+                                          const updatedGuardians = currentGuardians.map(pg => 
+                                            pg.id === parent.id 
+                                              ? { ...pg, relationshipOther: e.target.value }
+                                              : pg
+                                          )
+                                          updateSectionTempData('parentGuardians', { parentGuardians: updatedGuardians })
+                                          onUpdateMember(member.id, (prev) => ({
+                                            ...prev,
+                                            parentGuardians: updatedGuardians
+                                          }))
+                                        }}
+                                        placeholder="Specify relationship..."
+                                        className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                        required
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             )
@@ -652,17 +891,24 @@ export default function MemberFormSection({
                         </div>
                       )}
                     </div>
-                    {getParentGuardianIds().length > 0 && (
+
+                    {/* Summary */}
+                    {getParentGuardians().length > 0 && (
                       <div className="bg-green-900/30 p-3 rounded border border-green-600">
                         <p className="text-sm text-green-300 font-semibold mb-2">
-                          Selected Parent/Guardian(s): {getParentGuardianIds().length}
+                          Selected Parent/Guardian(s): {getParentGuardians().length}
                         </p>
+                        {getParentGuardians().some(pg => !pg.relationship) && (
+                          <p className="text-xs text-yellow-300">
+                            ⚠️ Please select a relationship for all selected guardians
+                          </p>
+                        )}
                       </div>
                     )}
-                    {isChild() && getParentGuardianIds().length === 0 && (
+                    {isChild() && (getParentGuardians().length === 0 || getParentGuardians().some(pg => !pg.relationship)) && (
                       <div className="bg-red-900/30 p-3 rounded border border-red-600">
                         <p className="text-sm text-red-300">
-                          ⚠️ Children under 18 must have at least one parent/guardian selected
+                          ⚠️ Children under 18 must have at least one parent/guardian with a relationship selected
                         </p>
                       </div>
                     )}
@@ -672,7 +918,7 @@ export default function MemberFormSection({
                       type="button"
                       onClick={() => onSectionContinue(member.id, 'parentGuardians')}
                       className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
-                      disabled={getParentGuardianIds().length === 0}
+                      disabled={getParentGuardians().length === 0 || getParentGuardians().some(pg => !pg.relationship || (pg.relationship === 'Other legal guardian' && !pg.relationshipOther))}
                     >
                       Continue
                     </button>

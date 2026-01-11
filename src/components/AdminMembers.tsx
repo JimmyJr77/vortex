@@ -128,14 +128,15 @@ type FamilyMemberData = {
   }>
   isFinished: boolean
   isActive?: boolean
-  parentGuardianIds?: number[] // Array of parent/guardian member IDs (for children)
+  parentGuardianIds?: number[] // Legacy: Array of parent/guardian member IDs (for children) - deprecated, use parentGuardians
+  parentGuardians?: Array<{ id: number; relationship: string; relationshipOther?: string }> // Array of parent/guardian with relationships
   hasCompletedWaivers?: boolean // Waiver completion status
   waiverCompletionDate?: string | null // Date when waivers were completed
   sections: {
     contactInfo: { isExpanded: boolean; tempData: { firstName: string; lastName: string; email: string; phone: string; addressStreet: string; addressCity: string; addressState: string; addressZip: string } }
     loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
     personalData?: { isExpanded: boolean; tempData: { dateOfBirth: string; gender: string; medicalConcerns: string; injuryHistoryDate: string; injuryHistoryBodyPart: string; injuryHistoryNotes: string; noInjuryHistory: boolean } }
-    parentGuardians?: { isExpanded: boolean; tempData: { parentGuardianIds: number[] } }
+    parentGuardians?: { isExpanded: boolean; tempData: { parentGuardians: Array<{ id: number; relationship: string; relationshipOther?: string }> } }
     waivers?: { isExpanded: boolean; tempData: { hasCompletedWaivers: boolean; waiverCompletionDate: string | null } }
     statusVerification: { isExpanded: boolean }
     previousClasses?: { isExpanded: boolean; tempData: { experience: string } }
@@ -1226,10 +1227,17 @@ export default function AdminMembers() {
         }
         
         // Get parent/guardian IDs from member data (if set via UI)
+        // Support both new parentGuardians structure (with relationships) and legacy parentGuardianIds
         if (isChild) {
-          parentGuardianIds = member.parentGuardianIds || 
-            member.sections.parentGuardians?.tempData?.parentGuardianIds || 
-            []
+          if (member.sections.parentGuardians?.tempData?.parentGuardians) {
+            // New structure: extract IDs from parentGuardians array
+            parentGuardianIds = member.sections.parentGuardians.tempData.parentGuardians
+              .map((pg: { id: number; relationship: string; relationshipOther?: string }) => pg.id)
+              .filter((id: number) => id > 0) // Filter out negative IDs (family members) for now - will be mapped later
+          } else {
+            // Legacy structure (from top-level parentGuardianIds)
+            parentGuardianIds = member.parentGuardianIds || []
+          }
         }
         
         // Get date of birth from member or section tempData
@@ -1434,7 +1442,16 @@ export default function AdminMembers() {
         }
         
         if (isChild) {
-          const parentIds = member.parentGuardianIds || member.sections.parentGuardians?.tempData?.parentGuardianIds || []
+          let parentIds: number[] = []
+          if (member.sections.parentGuardians?.tempData?.parentGuardians) {
+            // New structure
+            parentIds = member.sections.parentGuardians.tempData.parentGuardians
+              .map((pg: { id: number; relationship: string; relationshipOther?: string }) => pg.id)
+              .filter((id: number) => id > 0)
+          } else {
+            // Legacy structure (from top-level parentGuardianIds)
+            parentIds = member.parentGuardianIds || []
+          }
           if (parentIds.length === 0) {
             alert(`Children under 18 must have at least one parent/guardian. Please select parent/guardian for ${member.sections.contactInfo.tempData.firstName} ${member.sections.contactInfo.tempData.lastName}`)
             return
@@ -1459,10 +1476,17 @@ export default function AdminMembers() {
         }
         
         // Get parent/guardian IDs from member data (if set via UI)
+        // Support both new parentGuardians structure (with relationships) and legacy parentGuardianIds
         if (isChild) {
-          parentGuardianIds = member.parentGuardianIds || 
-            member.sections.parentGuardians?.tempData?.parentGuardianIds || 
-            []
+          if (member.sections.parentGuardians?.tempData?.parentGuardians) {
+            // New structure: extract IDs from parentGuardians array
+            parentGuardianIds = member.sections.parentGuardians.tempData.parentGuardians
+              .map((pg: { id: number; relationship: string; relationshipOther?: string }) => pg.id)
+              .filter((id: number) => id > 0) // Filter out negative IDs (family members) for now - will be mapped later
+          } else {
+            // Legacy structure (from top-level parentGuardianIds)
+            parentGuardianIds = member.parentGuardianIds || []
+          }
         }
         
         // Get date of birth from member or section tempData
@@ -1611,7 +1635,7 @@ export default function AdminMembers() {
       contactInfo: { isExpanded: true, tempData: { firstName: '', lastName: '', email: '', phone: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' } },
       loginSecurity: { isExpanded: false, tempData: { username: '', password: 'vortex' } },
       personalData: { isExpanded: false, tempData: { dateOfBirth: '', gender: '', medicalConcerns: '', injuryHistoryDate: '', injuryHistoryBodyPart: '', injuryHistoryNotes: '', noInjuryHistory: false } },
-      parentGuardians: { isExpanded: false, tempData: { parentGuardianIds: [] } },
+      parentGuardians: { isExpanded: false, tempData: { parentGuardians: [] } },
       waivers: { isExpanded: false, tempData: { hasCompletedWaivers: false, waiverCompletionDate: null } },
       statusVerification: { isExpanded: false },
       previousClasses: { isExpanded: false, tempData: { experience: '' } }
@@ -1691,7 +1715,7 @@ export default function AdminMembers() {
               contactInfo: { ...sectionData, isExpanded: false },
               loginSecurity: { ...member.sections.loginSecurity, isExpanded: true },
               personalData: member.sections.personalData || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory } },
-              parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds: member.parentGuardianIds || [] } },
+              parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians: member.parentGuardians || (member.parentGuardianIds ? member.parentGuardianIds.map(id => ({ id, relationship: '' })) : []) } },
               waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } },
               previousClasses: member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
             }
@@ -1722,7 +1746,7 @@ export default function AdminMembers() {
             sections: {
               ...member.sections,
               personalData: { ...(member.sections.personalData || { isExpanded: false, tempData: personalData }), isExpanded: false },
-              parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds: member.parentGuardianIds || [] } },
+              parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians: member.parentGuardians || (member.parentGuardianIds ? member.parentGuardianIds.map(id => ({ id, relationship: '' })) : []) } },
               waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } },
               previousClasses: member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
             }
@@ -1750,13 +1774,19 @@ export default function AdminMembers() {
           
           return updatedMember
         } else if (section === 'parentGuardians') {
-          const parentGuardianIds = member.sections.parentGuardians?.tempData?.parentGuardianIds || member.parentGuardianIds || []
+          // Extract parentGuardians from tempData, or convert from legacy parentGuardianIds
+          let parentGuardians = member.sections.parentGuardians?.tempData?.parentGuardians || []
+          if (parentGuardians.length === 0 && member.parentGuardianIds) {
+            // Legacy: convert parentGuardianIds to parentGuardians format
+            parentGuardians = member.parentGuardianIds.map((id: number) => ({ id, relationship: '' }))
+          }
           return {
             ...member,
-            parentGuardianIds,
+            parentGuardians,
+            parentGuardianIds: parentGuardians.map(pg => pg.id), // Keep for backwards compatibility
             sections: {
               ...member.sections,
-              parentGuardians: { ...(member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds } }), isExpanded: false },
+              parentGuardians: { ...(member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians: [] } }), isExpanded: false, tempData: { parentGuardians } },
               waivers: { ...(member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }), isExpanded: true }
             }
           }
@@ -1968,7 +1998,13 @@ export default function AdminMembers() {
             }
           }
         } else if (section === 'parentGuardians') {
-          const sectionData = member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardianIds: member.parentGuardianIds || [] } }
+          // Support both new and legacy structures
+          let parentGuardians = member.sections.parentGuardians?.tempData?.parentGuardians || []
+          if (parentGuardians.length === 0 && member.parentGuardianIds) {
+            // Legacy: convert parentGuardianIds to parentGuardians format
+            parentGuardians = member.parentGuardianIds.map((id: number) => ({ id, relationship: '' }))
+          }
+          const sectionData = member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians } }
           return {
             ...member,
             sections: {
@@ -2519,6 +2555,7 @@ export default function AdminMembers() {
                       formatPhoneNumber={formatPhoneNumber}
                       availableParentGuardians={availableParentGuardians}
                       onSearchParentGuardians={searchParentGuardians}
+                      allFamilyMembers={familyMembers}
                     />
                   ))}
 
@@ -2688,6 +2725,7 @@ export default function AdminMembers() {
                       formatPhoneNumber={formatPhoneNumber}
                       availableParentGuardians={availableParentGuardians}
                       onSearchParentGuardians={searchParentGuardians}
+                      allFamilyMembers={familyMembers}
                     />
                   ))}
 
