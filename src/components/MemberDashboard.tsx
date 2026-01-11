@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, Calendar, Search, Edit2, UserPlus, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { LogOut, Home, Calendar, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
-import EnrollmentForm from './EnrollmentForm'
 import MemberFormSection from './MemberFormSection'
 
 interface MemberDashboardProps {
@@ -57,30 +56,6 @@ interface UnifiedMember {
   updatedAt?: string
 }
 
-interface Category {
-  id: number
-  name: string
-  displayName: string
-  description?: string | null
-  archived: boolean
-}
-
-interface Program {
-  id: number // Database column: id
-  category?: string // Legacy enum value - kept for backward compatibility, use categoryId instead
-  categoryId?: number | null // Foreign key to program_categories table - SINGLE SOURCE OF TRUTH
-  categoryName?: string | null // From database join with program_categories.name
-  categoryDisplayName?: string | null // From database join with program_categories.display_name - SINGLE SOURCE OF TRUTH
-  name: string // Database column: name
-  displayName: string // Database column: display_name
-  skillLevel: string | null // Database column: skill_level (enum value from database)
-  ageMin: number | null // Database column: age_min
-  ageMax: number | null // Database column: age_max
-  description: string | null // Database column: description
-  skillRequirements: string | null // Database column: skill_requirements
-  isActive: boolean // Database column: is_active
-  archived?: boolean // Database column: archived
-}
 
 interface Event {
   id: string | number
@@ -182,15 +157,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   }>>([])
   
   // Classes tab state
-  const [classes, setClasses] = useState<Program[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [classSearchQuery, setClassSearchQuery] = useState('')
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<number | 'all'>('all')
-  const [showEnrollModal, setShowEnrollModal] = useState(false)
-  const [selectedClassForEnrollment, setSelectedClassForEnrollment] = useState<Program | null>(null)
   const [enrollments, setEnrollments] = useState<any[]>([])
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false)
-  const [classesLoading, setClassesLoading] = useState(false)
   
   // Events tab state
   const [events, setEvents] = useState<Event[]>([])
@@ -931,8 +899,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
 
   useEffect(() => {
     if (activeTab === 'classes') {
-      fetchClasses()
-      fetchCategories()
       fetchEnrollments()
     } else if (activeTab === 'events') {
       fetchEvents()
@@ -1064,60 +1030,6 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
-  const fetchClasses = async () => {
-    try {
-      setClassesLoading(true)
-      // Try with member token first
-      let response = token ? await fetch(`${apiUrl}/api/admin/programs?archived=false`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      }) : await fetch(`${apiUrl}/api/admin/programs?archived=false`)
-      
-      if (response.ok) {
-        const data = await response.json()
-        // Filter out archived classes and only show active ones
-        const programs = data.programs || data.data || []
-        setClasses(programs.filter((p: Program) => !p.archived && p.isActive))
-      } else {
-        // If admin endpoint fails, the backend requires admin access
-        // For now, set empty array and show error message in UI
-        console.warn('Cannot fetch classes: Backend requires admin access. Member endpoints needed.')
-        setClasses([])
-      }
-    } catch (error) {
-      console.error('Error fetching classes:', error)
-      setClasses([])
-    } finally {
-      setClassesLoading(false)
-    }
-  }
-
-  const fetchCategories = async () => {
-    try {
-      // Try with member token first
-      let response = token ? await fetch(`${apiUrl}/api/admin/categories?archived=false`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      }) : await fetch(`${apiUrl}/api/admin/categories?archived=false`)
-      
-      if (response.ok) {
-        const data = await response.json()
-        // Filter out archived categories
-        const categories = data.categories || data.data || []
-        setCategories(categories.filter((c: Category) => !c.archived))
-      } else {
-        // If admin endpoint fails, the backend requires admin access
-        // For now, set empty array
-        console.warn('Cannot fetch categories: Backend requires admin access. Member endpoints needed.')
-        setCategories([])
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-      setCategories([])
-    }
-  }
 
   const fetchEvents = async () => {
     try {
@@ -1166,102 +1078,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
-  const handleEnrollInClass = async (enrollmentData: {
-    programId: number
-    familyMemberId: number
-    daysPerWeek: number
-    selectedDays: string[]
-  }) => {
-    try {
-      const response = await fetch(`${apiUrl}/api/members/enroll`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(enrollmentData)
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        alert(data.message || 'Successfully enrolled in class!')
-        setShowEnrollModal(false)
-        setSelectedClassForEnrollment(null)
-        // Refresh enrollments and profile data (which includes family members)
-        await fetchEnrollments()
-        await fetchProfileData()
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to enroll in class')
-        throw new Error(data.message || 'Failed to enroll in class')
-      }
-    } catch (error) {
-      console.error('Error enrolling in class:', error)
-      throw error
-    }
-  }
 
 
-  // Filter classes based on search and category/class selection
-  const filteredClasses = classes.filter(program => {
-    // Category/Class filter - handle both category ID and program ID
-    if (selectedCategoryFilter !== 'all') {
-      // Check if selectedCategoryFilter is a program ID (if it matches a program ID, show only that program)
-      const matchingProgram = classes.find(p => p.id === selectedCategoryFilter)
-      if (matchingProgram) {
-        // Filter to show only this specific program
-        return program.id === selectedCategoryFilter
-      }
-      
-      // Otherwise, treat it as a category ID
-      if (program.categoryId != null) {
-        if (program.categoryId !== selectedCategoryFilter && String(program.categoryId) !== String(selectedCategoryFilter)) {
-          // Also check categoryDisplayName as fallback
-          const selectedCategory = categories.find(c => c.id === selectedCategoryFilter)
-          if (selectedCategory) {
-            if (program.categoryDisplayName !== selectedCategory.displayName) {
-              return false
-            }
-          } else {
-            return false
-          }
-        }
-      } else {
-        // If categoryId is null, try to match by categoryDisplayName
-        const selectedCategory = categories.find(c => c.id === selectedCategoryFilter)
-        if (selectedCategory && program.categoryDisplayName !== selectedCategory.displayName) {
-          return false
-        } else if (!selectedCategory) {
-          return false
-        }
-      }
-    }
-    
-    // Search filter - search through all class details
-    if (classSearchQuery.trim()) {
-      const query = classSearchQuery.toLowerCase()
-      const programCategory = categories.find(c => 
-        c.id === program.categoryId || 
-        c.displayName === program.categoryDisplayName ||
-        c.name === program.categoryName
-      )
-      const searchableText = [
-        program.displayName,
-        program.name,
-        program.description || '',
-        program.skillRequirements || '',
-        program.categoryDisplayName || '',
-        program.categoryName || '',
-        programCategory?.displayName || '',
-        programCategory?.name || '',
-        program.skillLevel || ''
-      ].join(' ').toLowerCase()
-      
-      return searchableText.includes(query)
-    }
-    
-    return true
-  })
 
   // Helper function to check if an event should be shown based on tags and family member enrollments
   const isEventRelevant = (event: Event): boolean => {
@@ -1281,11 +1099,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     )
     const enrolledClassIds = relevantEnrollments.map(e => e.program_id).filter((id): id is number => id !== null && id !== undefined)
     
-    // Get classes for enrolled programs to check categories
-    const enrolledClasses = classes.filter(c => enrolledClassIds.includes(c.id))
-    const enrolledCategoryIds = enrolledClasses
-      .map(c => c.categoryId)
-      .filter((id): id is number => id !== null && id !== undefined)
+    // For now, we can't get category IDs from classes since we don't fetch them
+    // This function will need to be updated when we can fetch classes
+    const enrolledCategoryIds: number[] = []
 
     // Check if current user is a parent
     // Check if user has PARENT_GUARDIAN role (support both single role and multiple roles)
@@ -1721,8 +1537,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     // Get unique programs from enrollments and sort by member's enrollments first
                     const programIds = Object.keys(enrollmentsByProgram).map(Number)
                     const sortedProgramIds = programIds.sort((a, b) => {
-                      const aHasCurrentUser = enrollmentsByProgram[a].some(e => e.athlete_user_id === profileData?.id)
-                      const bHasCurrentUser = enrollmentsByProgram[b].some(e => e.athlete_user_id === profileData?.id)
+                      const aHasCurrentUser = enrollmentsByProgram[a].some((e: any) => e.athlete_user_id === profileData?.id)
+                      const bHasCurrentUser = enrollmentsByProgram[b].some((e: any) => e.athlete_user_id === profileData?.id)
                       
                       // Programs with current user enrollments come first
                       if (aHasCurrentUser && !bHasCurrentUser) return -1
