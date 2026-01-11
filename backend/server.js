@@ -1630,10 +1630,83 @@ const authenticateAdmin = async (req, res, next) => {
       })
     }
     
-    // CRITICAL SECURITY: Verify admin exists and has OWNER_ADMIN role in app_user table
+    // CRITICAL SECURITY: Verify admin exists and has OWNER_ADMIN role
     // IMPORTANT: This checks the SPECIFIC user's role only - NOT family relationships
     // Even if an admin is in a family, ONLY the admin user themselves can access admin portal
     // Family members (spouse, children, etc.) will NOT have access even if they share the same family
+    
+    // Check token email to determine which table to check first
+    // If token has email, we can match more accurately
+    const tokenEmail = decoded.email
+    
+    // First, try to find admin by ID AND email (if email is in token) for more accurate matching
+    // This prevents ID collisions between app_user and admins tables
+    if (tokenEmail) {
+      // Try app_user table first (preferred)
+      try {
+        const appUserCheck = await pool.query(`
+          SELECT 
+            au.id, 
+            au.email, 
+            au.is_active, 
+            au.role,
+            au.facility_id,
+            COALESCE(
+              EXISTS(
+                SELECT 1 FROM app_user_role ur 
+                WHERE ur.user_id = au.id 
+                AND ur.role = 'OWNER_ADMIN'
+              ),
+              false
+            ) as has_owner_admin_role
+          FROM app_user au
+          WHERE au.id = $1 AND au.email = $2
+        `, [adminId, tokenEmail])
+        
+        if (appUserCheck.rows.length > 0) {
+          const user = appUserCheck.rows[0]
+          const isOwnerAdmin = user.role === 'OWNER_ADMIN' || user.has_owner_admin_role === true
+          
+          if (isOwnerAdmin && user.is_active) {
+            req.adminId = user.id
+            req.adminEmail = user.email
+            req.isAdmin = true
+            console.log('[ADMIN AUTH] Authenticated admin (app_user table, matched by ID and email):', { 
+              adminId: user.id, 
+              email: user.email,
+              role: user.role,
+              facilityId: user.facility_id
+            })
+            return next()
+          }
+        }
+      } catch (appUserError) {
+        console.error('[ADMIN AUTH] Error checking app_user table (ID+email):', appUserError.message)
+      }
+      
+      // Try legacy admins table with ID and email match
+      try {
+        const adminCheck = await pool.query(`
+          SELECT id, email, is_master
+          FROM admins
+          WHERE id = $1 AND email = $2
+        `, [adminId, tokenEmail])
+        
+        if (adminCheck.rows.length > 0) {
+          const admin = adminCheck.rows[0]
+          req.adminId = admin.id
+          req.adminEmail = admin.email
+          req.isAdmin = true
+          console.log('[ADMIN AUTH] Authenticated admin (legacy admins table, matched by ID and email):', { adminId: admin.id, email: admin.email })
+          return next()
+        }
+      } catch (adminsError) {
+        console.error('[ADMIN AUTH] Error checking admins table (ID+email):', adminsError.message)
+      }
+    }
+    
+    // Fallback: Check by ID only (for tokens without email)
+    // Try app_user table first (preferred)
     try {
       const appUserCheck = await pool.query(`
         SELECT 
@@ -1656,10 +1729,6 @@ const authenticateAdmin = async (req, res, next) => {
       
       if (appUserCheck.rows.length > 0) {
         const user = appUserCheck.rows[0]
-        
-        // SECURITY: Verify THIS SPECIFIC USER (by ID) has OWNER_ADMIN role
-        // This is checked against the exact user ID from the token, not family relationships
-        // Family members will have different user IDs and different roles, so they will be denied
         const isOwnerAdmin = user.role === 'OWNER_ADMIN' || user.has_owner_admin_role === true
         
         if (!isOwnerAdmin) {
@@ -1683,29 +1752,10 @@ const authenticateAdmin = async (req, res, next) => {
           })
         }
         
-        // SECURITY: Additional verification - ensure we're authenticating the exact user from token
-        // This double-check prevents any potential token manipulation or ID mismatch
-        // CRITICAL: We verify the SPECIFIC user ID from token matches the database record
-        // Family members will have different IDs, so they cannot access admin portal
-        // Note: We query WHERE au.id = $1 with adminId, so they should match, but this is defensive programming
-        if (String(user.id) !== String(adminId)) {
-          console.error('[ADMIN AUTH] SECURITY WARNING: User ID mismatch!', {
-            tokenAdminId: adminId,
-            tokenAdminIdType: typeof adminId,
-            dbUserId: user.id,
-            dbUserIdType: typeof user.id,
-            email: user.email
-          })
-          return res.status(401).json({ 
-            success: false, 
-            message: 'Authentication verification failed' 
-          })
-        }
-        
         req.adminId = user.id
         req.adminEmail = user.email
         req.isAdmin = true
-        console.log('[ADMIN AUTH] Authenticated admin (specific user only):', { 
+        console.log('[ADMIN AUTH] Authenticated admin (app_user table, ID only):', { 
           adminId: user.id, 
           email: user.email,
           role: user.role,
@@ -1714,7 +1764,7 @@ const authenticateAdmin = async (req, res, next) => {
         return next()
       }
     } catch (appUserError) {
-      console.error('[ADMIN AUTH] Error checking app_user table:', appUserError.message)
+      console.error('[ADMIN AUTH] Error checking app_user table (ID only):', appUserError.message)
       // Continue to fallback check
     }
     
@@ -1731,11 +1781,11 @@ const authenticateAdmin = async (req, res, next) => {
         req.adminId = admin.id
         req.adminEmail = admin.email
         req.isAdmin = true
-        console.log('[ADMIN AUTH] Authenticated via legacy admins table:', { adminId: admin.id, email: admin.email })
+        console.log('[ADMIN AUTH] Authenticated admin (legacy admins table, ID only):', { adminId: admin.id, email: admin.email })
         return next()
       }
     } catch (adminsError) {
-      console.error('[ADMIN AUTH] Error checking admins table:', adminsError.message)
+      console.error('[ADMIN AUTH] Error checking admins table (ID only):', adminsError.message)
     }
     
     console.log('[ADMIN AUTH] Admin not found in app_user or admins table:', { adminId })
