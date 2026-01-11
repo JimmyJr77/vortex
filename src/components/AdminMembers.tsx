@@ -1364,7 +1364,21 @@ export default function AdminMembers() {
       alert('Member(s) created successfully!')
     } catch (error) {
       console.error('Error creating member:', error)
-      alert(error instanceof Error ? error.message : 'Failed to create member')
+      
+      // Provide more helpful error messages
+      let errorMessage = 'Failed to create member'
+      
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        errorMessage = 'Network error: Unable to connect to server. This may be due to:\n' +
+          '• CORS configuration issue\n' +
+          '• Server is down or unreachable\n' +
+          '• Network connectivity problem\n\n' +
+          'Please check your connection and try again. If the problem persists, contact support.'
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
     }
   }
   
