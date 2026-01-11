@@ -825,18 +825,11 @@ export const initDatabase = async () => {
     `)
     
     // Add unique constraint for email (only when email is not null)
+    // Use CREATE INDEX IF NOT EXISTS (PostgreSQL 9.5+)
     await pool.query(`
-      DO $$ 
-      BEGIN
-        IF NOT EXISTS (
-          SELECT 1 FROM pg_constraint 
-          WHERE conname = 'member_facility_email_unique'
-        ) THEN
-          CREATE UNIQUE INDEX member_facility_email_unique 
-          ON member(facility_id, email) 
-          WHERE email IS NOT NULL;
-        END IF;
-      END $$;
+      CREATE UNIQUE INDEX IF NOT EXISTS member_facility_email_unique 
+      ON member(facility_id, email) 
+      WHERE email IS NOT NULL
     `)
     
     // Create parent_guardian_authority table for legal authority
@@ -2629,7 +2622,6 @@ app.get('/api/admin/athletes', async (req, res) => {
           m.medical_notes,
           m.internal_flags,
           m.family_id,
-          m.user_id,
           CASE WHEN m.date_of_birth IS NOT NULL 
             THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
             ELSE NULL 
@@ -2651,7 +2643,6 @@ app.get('/api/admin/athletes', async (req, res) => {
           m.medical_notes,
           m.internal_flags,
           m.family_id,
-          m.user_id,
           CASE WHEN m.date_of_birth IS NOT NULL 
             THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
             ELSE NULL 
@@ -2707,8 +2698,8 @@ app.get('/api/admin/athletes', async (req, res) => {
       medical_notes: row.medical_notes,
       internal_flags: row.internal_flags,
       family_id: row.family_id,
-      user_id: row.user_id,
-      linked_user_id: row.user_id, // For backward compatibility
+      // Note: member table doesn't have user_id - it's a unified table
+      // user_id and linked_user_id removed (no longer needed)
       family_name: row.family_name,
       enrollments: enrollmentsMap[row.id] || []
     }))
