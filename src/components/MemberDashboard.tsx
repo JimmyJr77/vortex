@@ -109,6 +109,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [viewingMember, setViewingMember] = useState<UnifiedMember | null>(null)
+  const [viewingMemberFamilyData, setViewingMemberFamilyData] = useState<any>(null)
   const [showViewModal, setShowViewModal] = useState(false)
   const [editingMember, setEditingMember] = useState<UnifiedMember | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -134,11 +135,75 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const apiUrl = getApiUrl()
   const token = localStorage.getItem('vortex_member_token')
 
+  // Helper function to format time since a date
+  const formatTimeSince = (date: string | null | undefined): string => {
+    if (!date) return 'Never'
+    try {
+      const enrollmentDate = new Date(date)
+      const now = new Date()
+      const diffMs = now.getTime() - enrollmentDate.getTime()
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+      const diffMonths = Math.floor(diffDays / 30)
+      const diffYears = Math.floor(diffDays / 365)
+      
+      if (diffYears > 0) {
+        return `${diffYears} year${diffYears !== 1 ? 's' : ''} ago`
+      } else if (diffMonths > 0) {
+        return `${diffMonths} month${diffMonths !== 1 ? 's' : ''} ago`
+      } else if (diffDays > 0) {
+        return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`
+      } else {
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+        if (diffHours > 0) {
+          return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`
+        } else {
+          const diffMinutes = Math.floor(diffMs / (1000 * 60))
+          return diffMinutes > 0 ? `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago` : 'Just now'
+        }
+      }
+    } catch (error) {
+      return 'Invalid date'
+    }
+  }
+  
+  // Helper function to get most recent enrollment date
+  const getMostRecentEnrollmentDate = (enrollments: Array<{ created_at?: string; createdAt?: string }>): string | null => {
+    if (!enrollments || enrollments.length === 0) return null
+    const dates = enrollments
+      .map(e => e.created_at || e.createdAt)
+      .filter(d => d != null)
+      .map(d => new Date(d!).getTime())
+    if (dates.length === 0) return null
+    const mostRecent = new Date(Math.max(...dates))
+    return mostRecent.toISOString()
+  }
+
   // Check if current member is an adult (can edit family members)
   const isAdult = () => {
     // Check if user has PARENT_GUARDIAN role (support both single role and multiple roles)
     const roles = profileData?.roles || (profileData?.role ? [profileData.role] : [])
     return roles.includes('PARENT_GUARDIAN')
+  }
+
+  // Handle view member - similar to AdminMembers
+  const handleViewMember = async (member: UnifiedMember) => {
+    try {
+      // Use the member from the list directly (data already fetched)
+      setViewingMember(member)
+      
+      // If member has a family, set family data from existing members
+      if (member.familyId && members.length > 1) {
+        const familyMembersList = members.filter(m => m.familyId === member.familyId)
+        setViewingMemberFamilyData({ members: familyMembersList })
+      } else {
+        setViewingMemberFamilyData(null)
+      }
+      
+      setShowViewModal(true)
+    } catch (error) {
+      console.error('Error viewing member:', error)
+      alert('Failed to load member data')
+    }
   }
 
   useEffect(() => {
@@ -752,10 +817,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                               </div>
                               <div className="flex gap-2">
                                 <motion.button
-                                  onClick={() => {
-                                    setViewingMember(member)
-                                    setShowViewModal(true)
-                                  }}
+                                  onClick={() => handleViewMember(member)}
                                   className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-blue-600 text-white hover:bg-blue-700"
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
@@ -1158,7 +1220,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         </div>
       </div>
 
-      {/* View Member Modal */}
+      {/* View Member Modal - Matching AdminMembers */}
       <AnimatePresence>
         {showViewModal && viewingMember && (
           <motion.div
@@ -1172,74 +1234,291 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
               onClick={() => {
                 setShowViewModal(false)
                 setViewingMember(null)
+                setViewingMemberFamilyData(null)
               }}
             />
             <motion.div
-              className="relative bg-white rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-gray-800 rounded-lg p-6 max-w-6xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-black">
-                  Member Details
+                <h3 className="text-2xl font-display font-bold text-white">
+                  View Member: {viewingMember.firstName} {viewingMember.lastName}
                 </h3>
                 <button
                   onClick={() => {
                     setShowViewModal(false)
                     setViewingMember(null)
+                    setViewingMemberFamilyData(null)
                   }}
-                  className="text-gray-400 hover:text-black"
+                  className="text-gray-400 hover:text-white"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-2">Name</h4>
-                  <p className="text-black">{viewingMember.firstName} {viewingMember.lastName}</p>
-                </div>
-                {viewingMember.email && (
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-2">Email</h4>
-                    <p className="text-black">{viewingMember.email}</p>
+
+              <div className="space-y-6">
+                {/* Family Information */}
+                {viewingMember.familyId && (
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="text-lg font-semibold text-white mb-3">Family Information</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-sm font-semibold text-gray-300">Family Name:</span>
+                        <div className="text-white">{viewingMember.familyName || 'N/A'}</div>
+                      </div>
+                    </div>
                   </div>
                 )}
-                {viewingMember.phone && (
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-2">Phone</h4>
-                    <p className="text-black">{viewingMember.phone}</p>
+
+                {/* Member Basic Information */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="text-lg font-semibold text-white mb-3">Basic Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">First Name:</span>
+                      <div className="text-white">{viewingMember.firstName}</div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Last Name:</span>
+                      <div className="text-white">{viewingMember.lastName}</div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Email:</span>
+                      <div className="text-white">{viewingMember.email || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Phone:</span>
+                      <div className="text-white">{viewingMember.phone || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Username:</span>
+                      <div className="text-white">{viewingMember.username || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
+                      <div className="text-white">
+                        {viewingMember.dateOfBirth 
+                          ? new Date(viewingMember.dateOfBirth).toLocaleDateString()
+                          : 'N/A'}
+                      </div>
+                    </div>
+                    {viewingMember.age !== null && viewingMember.age !== undefined && (
+                      <div>
+                        <span className="text-sm font-semibold text-gray-300">Age:</span>
+                        <div className="text-white">{viewingMember.age}</div>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Address:</span>
+                      <div className="text-white">{viewingMember.address || 'N/A'}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status and Roles */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="text-lg font-semibold text-white mb-3">Status and Roles</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Status:</span>
+                      <div className="mt-1">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          viewingMember.isActive 
+                            ? 'bg-green-600 text-white' 
+                            : 'bg-gray-500 text-white'
+                        }`}>
+                          {viewingMember.isActive ? 'Active' : 'Archived'}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-300">Enrollment Status:</span>
+                      <div className="mt-1">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          viewingMember.status === 'athlete' || viewingMember.status === 'enrolled'
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-500 text-white'
+                        }`}>
+                          {viewingMember.status || 'Non-Participant'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="md:col-span-2">
+                      <span className="text-sm font-semibold text-gray-300">Roles:</span>
+                      <div className="mt-1 flex flex-wrap gap-2">
+                        {viewingMember.roles && viewingMember.roles.length > 0 ? (
+                          viewingMember.roles.map((role, idx) => (
+                            <span key={idx} className="px-2 py-1 rounded text-xs font-semibold bg-purple-600 text-white">
+                              {typeof role === 'string' ? role : role.role}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-400 text-sm">No roles assigned</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Enrollments */}
+                <div className="bg-gray-700 p-4 rounded">
+                  <h4 className="text-lg font-semibold text-white mb-3">Active Enrollments</h4>
+                  {viewingMember.enrollments && viewingMember.enrollments.length > 0 ? (
+                    <div className="space-y-2">
+                      {viewingMember.enrollments.map((enrollment: any) => {
+                        const selectedDaysArray = Array.isArray(enrollment.selected_days) 
+                          ? enrollment.selected_days 
+                          : (typeof enrollment.selected_days === 'string' 
+                              ? JSON.parse(enrollment.selected_days || '[]') 
+                              : [])
+                        const enrollmentDate = enrollment.createdAt || enrollment.created_at
+                        return (
+                          <div key={enrollment.id} className="bg-gray-600 p-3 rounded">
+                            <div className="text-white font-medium">
+                              {enrollment.program_display_name || enrollment.programDisplayName || 'Unknown Class'}
+                            </div>
+                            <div className="text-gray-400 text-sm mt-1">
+                              {enrollment.days_per_week || enrollment.daysPerWeek} day{(enrollment.days_per_week || enrollment.daysPerWeek) !== 1 ? 's' : ''}/week
+                              {selectedDaysArray.length > 0 && ` • ${selectedDaysArray.join(', ')}`}
+                            </div>
+                            {enrollmentDate && (
+                              <div className="text-gray-400 text-xs mt-1">
+                                Enrolled: {formatTimeSince(enrollmentDate)}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">No active enrollments</div>
+                  )}
+                  {viewingMember.enrollments && viewingMember.enrollments.length > 0 && (
+                    <div className="mt-3 text-sm text-gray-300">
+                      <span className="font-semibold">Last Enrollment:</span> {formatTimeSince(
+                        getMostRecentEnrollmentDate(viewingMember.enrollments.map((e: any) => ({ 
+                          created_at: e.created_at, 
+                          createdAt: e.createdAt 
+                        })))
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Family Members */}
+                {viewingMemberFamilyData && viewingMemberFamilyData.members && viewingMemberFamilyData.members.length > 0 && (
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="text-lg font-semibold text-white mb-3">
+                      Family Members ({viewingMemberFamilyData.members.length})
+                    </h4>
+                    <div className="space-y-3">
+                      {viewingMemberFamilyData.members.map((familyMember: any) => {
+                        const isCurrentMember = familyMember.id === viewingMember.id
+                        return (
+                          <div 
+                            key={familyMember.id} 
+                            className={`bg-gray-600 p-4 rounded ${isCurrentMember ? 'ring-2 ring-blue-500' : ''}`}
+                          >
+                            {isCurrentMember && (
+                              <div className="text-xs text-blue-400 font-semibold mb-2">(Current Member)</div>
+                            )}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <span className="text-sm font-semibold text-gray-300">Name:</span>
+                                <div className="text-white">{familyMember.firstName} {familyMember.lastName}</div>
+                              </div>
+                              {familyMember.email && (
+                                <div>
+                                  <span className="text-sm font-semibold text-gray-300">Email:</span>
+                                  <div className="text-white">{familyMember.email}</div>
+                                </div>
+                              )}
+                              {familyMember.phone && (
+                                <div>
+                                  <span className="text-sm font-semibold text-gray-300">Phone:</span>
+                                  <div className="text-white">{familyMember.phone}</div>
+                                </div>
+                              )}
+                              {familyMember.dateOfBirth && (
+                                <div>
+                                  <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
+                                  <div className="text-white">
+                                    {new Date(familyMember.dateOfBirth).toLocaleDateString()}
+                                  </div>
+                                </div>
+                              )}
+                              {familyMember.age !== null && familyMember.age !== undefined && (
+                                <div>
+                                  <span className="text-sm font-semibold text-gray-300">Age:</span>
+                                  <div className="text-white">{familyMember.age}</div>
+                                </div>
+                              )}
+                              <div>
+                                <span className="text-sm font-semibold text-gray-300">Status:</span>
+                                <div className="mt-1">
+                                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                    familyMember.isActive 
+                                      ? 'bg-green-600 text-white' 
+                                      : 'bg-gray-500 text-white'
+                                  }`}>
+                                    {familyMember.isActive ? 'Active' : 'Archived'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
                 )}
-                {viewingMember.age !== null && viewingMember.age !== undefined && (
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-2">Age</h4>
-                    <p className="text-black">{viewingMember.age}</p>
+
+                {/* Additional Information */}
+                {(viewingMember.medicalNotes || viewingMember.internalFlags) && (
+                  <div className="bg-gray-700 p-4 rounded">
+                    <h4 className="text-lg font-semibold text-white mb-3">Additional Information</h4>
+                    {viewingMember.medicalNotes && (
+                      <div className="mb-3">
+                        <span className="text-sm font-semibold text-gray-300">Medical Notes:</span>
+                        <div className="text-white mt-1">{viewingMember.medicalNotes}</div>
+                      </div>
+                    )}
+                    {viewingMember.internalFlags && (
+                      <div>
+                        <span className="text-sm font-semibold text-gray-300">Internal Flags:</span>
+                        <div className="text-white mt-1">{viewingMember.internalFlags}</div>
+                      </div>
+                    )}
                   </div>
                 )}
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-2">Status</h4>
-                  <p className="text-black">{viewingMember.status}</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-2">Roles</h4>
-                  <p className="text-black">
-                    {Array.isArray(viewingMember.roles)
-                      ? viewingMember.roles.map(r => typeof r === 'string' ? r : r.role).join(', ')
-                      : 'No roles'}
-                  </p>
-                </div>
-                {viewingMember.enrollments && viewingMember.enrollments.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-2">Enrollments</h4>
-                    <ul className="list-disc list-inside text-black">
-                      {viewingMember.enrollments.map((e, idx) => (
-                        <li key={idx}>{e.program_display_name}</li>
-                      ))}
-                    </ul>
-                  </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowViewModal(false)
+                    setViewingMember(null)
+                    setViewingMemberFamilyData(null)
+                  }}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                >
+                  Close
+                </button>
+                {(isAdult() || viewingMember.id === profileData?.id) && (
+                  <button
+                    onClick={() => {
+                      setShowViewModal(false)
+                      setEditingMember(viewingMember)
+                      setShowEditModal(true)
+                    }}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Edit Member
+                  </button>
                 )}
               </div>
             </motion.div>
