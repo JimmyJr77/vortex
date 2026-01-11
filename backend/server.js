@@ -867,16 +867,42 @@ export const initDatabase = async () => {
         updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_facility ON family(facility_id)`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_username ON family(family_username) WHERE family_username IS NOT NULL`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_name ON family(family_name)`)
     
-    // Migrate existing data: Add new columns if they don't exist
+    // Migrate existing data: Add new columns if they don't exist (must be before index creation)
     await pool.query(`
       ALTER TABLE family 
-      ADD COLUMN IF NOT EXISTS family_username TEXT UNIQUE,
+      ADD COLUMN IF NOT EXISTS family_username TEXT,
       ADD COLUMN IF NOT EXISTS family_password_hash TEXT
     `)
+    
+    // Add unique constraint on family_username if column exists and constraint doesn't exist
+    try {
+      await pool.query(`
+        DO $$ 
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint 
+            WHERE conname = 'family_family_username_key'
+          ) THEN
+            ALTER TABLE family ADD CONSTRAINT family_family_username_key UNIQUE (family_username);
+          END IF;
+        END $$;
+      `)
+    } catch (constraintError) {
+      // Constraint might already exist or column might not exist yet, ignore
+      console.warn('[initDatabase] Could not add unique constraint on family_username:', constraintError.message)
+    }
+    
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_facility ON family(facility_id)`)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_name ON family(family_name)`)
+    
+    // Create index on family_username only if column exists
+    try {
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_username ON family(family_username) WHERE family_username IS NOT NULL`)
+    } catch (indexError) {
+      // Column might not exist, log warning and continue
+      console.warn('[initDatabase] Could not create index on family_username (column may not exist):', indexError.message)
+    }
     
     // Remove primary_user_id/primary_member_id if they exist (keep for backward compatibility but don't use)
     // Note: These columns may still exist from old schema but will be ignored
