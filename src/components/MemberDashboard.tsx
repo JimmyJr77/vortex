@@ -1069,7 +1069,10 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       
       if (response.ok) {
         const data = await response.json()
+        console.log('Enrollments response:', data)
         setEnrollments(data.enrollments || [])
+      } else {
+        console.error('Failed to fetch enrollments:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('Error fetching enrollments:', error)
@@ -1095,7 +1098,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     
     // Get enrollments for selected family members
     const relevantEnrollments = enrollments.filter(e => 
-      familyMemberIds.includes(e.athlete_user_id)
+      familyMemberIds.includes(e.member_id)
     )
     const enrolledClassIds = relevantEnrollments.map(e => e.program_id).filter((id): id is number => id !== null && id !== undefined)
     
@@ -1537,8 +1540,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     // Get unique programs from enrollments and sort by member's enrollments first
                     const programIds = Object.keys(enrollmentsByProgram).map(Number)
                     const sortedProgramIds = programIds.sort((a, b) => {
-                      const aHasCurrentUser = enrollmentsByProgram[a].some((e: any) => e.athlete_user_id === profileData?.id)
-                      const bHasCurrentUser = enrollmentsByProgram[b].some((e: any) => e.athlete_user_id === profileData?.id)
+                      const aHasCurrentUser = enrollmentsByProgram[a].some((e: any) => e.member_id === profileData?.id)
+                      const bHasCurrentUser = enrollmentsByProgram[b].some((e: any) => e.member_id === profileData?.id)
                       
                       // Programs with current user enrollments come first
                       if (aHasCurrentUser && !bHasCurrentUser) return -1
@@ -1574,12 +1577,13 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                                   <div className="space-y-2">
                                     {programEnrollments.map((enrollment: any) => {
                                       // Find member - check familyMembers first, then check if it's the current user
+                                      // enrollment.member_id is the member table ID
                                       let member = familyMembers.find(fm => 
-                                        (fm.user_id || fm.id) === enrollment.athlete_user_id
+                                        fm.id === enrollment.member_id
                                       )
                                       
                                       // If not found in familyMembers, check if it's the current user
-                                      if (!member && enrollment.athlete_user_id === profileData?.id) {
+                                      if (!member && enrollment.member_id === profileData?.id) {
                                         member = {
                                           id: profileData.id,
                                           first_name: profileData.firstName || '',
@@ -1588,14 +1592,14 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                                         }
                                       }
                                       
-                                      // Fallback to athlete name from enrollment if available
+                                      // Fallback to member name from enrollment if available
                                       const memberName = member 
                                         ? `${member.first_name || ''} ${member.last_name || ''}`.trim() || 'You'
-                                        : (enrollment.athlete_first_name && enrollment.athlete_last_name
-                                            ? `${enrollment.athlete_first_name} ${enrollment.athlete_last_name}`
+                                        : (enrollment.member_first_name && enrollment.member_last_name
+                                            ? `${enrollment.member_first_name} ${enrollment.member_last_name}`
                                             : 'Unknown Member')
                                       
-                                      const isCurrentUser = enrollment.athlete_user_id === profileData?.id
+                                      const isCurrentUser = enrollment.member_id === profileData?.id
                                       const selectedDaysArray = Array.isArray(enrollment.selected_days) 
                                         ? enrollment.selected_days 
                                         : (typeof enrollment.selected_days === 'string' 
