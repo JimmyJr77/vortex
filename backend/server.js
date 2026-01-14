@@ -2675,6 +2675,20 @@ app.post('/api/admin/members/fix-missing-app-users', async (req, res) => {
       return age >= 18
     }
     
+    // First, get diagnostic info about all members
+    const allMembersCheck = await pool.query(`
+      SELECT 
+        m.id,
+        m.first_name,
+        m.last_name,
+        m.email,
+        m.username,
+        m.password_hash IS NOT NULL as has_password,
+        EXISTS(SELECT 1 FROM app_user au WHERE au.id = m.id) as has_app_user
+      FROM member m
+      ORDER BY m.id
+    `)
+    
     // Find members that have email or username AND password_hash but no app_user record
     const membersResult = await pool.query(`
       SELECT 
@@ -2698,12 +2712,27 @@ app.post('/api/admin/members/fix-missing-app-users', async (req, res) => {
       ORDER BY m.id
     `)
     
+    // Build diagnostic info
+    const diagnostics = allMembersCheck.rows.map(m => ({
+      id: m.id,
+      name: `${m.first_name} ${m.last_name}`,
+      email: m.email || null,
+      username: m.username || null,
+      hasPassword: m.has_password,
+      hasAppUser: m.has_app_user,
+      reason: !m.email && !m.username ? 'No email or username' :
+              !m.has_password ? 'No password_hash' :
+              m.has_app_user ? 'Already has app_user' :
+              'Needs fix'
+    }))
+    
     if (membersResult.rows.length === 0) {
       return res.json({
         success: true,
         message: 'No members found that need app_user records',
         fixed: 0,
-        errors: 0
+        errors: 0,
+        diagnostics: diagnostics
       })
     }
     
@@ -2782,7 +2811,8 @@ app.post('/api/admin/members/fix-missing-app-users', async (req, res) => {
       fixed,
       errors,
       total: membersResult.rows.length,
-      errorsList: errorsList.length > 0 ? errorsList : undefined
+      errorsList: errorsList.length > 0 ? errorsList : undefined,
+      diagnostics: diagnostics
     })
   } catch (error) {
     console.error('[Fix App Users] Error:', error)

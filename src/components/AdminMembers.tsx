@@ -419,7 +419,32 @@ export default function AdminMembers() {
       const data = await response.json()
       
       if (data.success) {
-        alert(`✅ Success!\n\nFixed: ${data.fixed} member(s)\nErrors: ${data.errors}\n\nMembers should now be able to log in!`)
+        let message = `✅ Success!\n\nFixed: ${data.fixed} member(s)\nErrors: ${data.errors}`
+        
+        // Show diagnostic info if available
+        if (data.diagnostics && data.diagnostics.length > 0) {
+          const needsFix = data.diagnostics.filter((d: any) => d.reason === 'Needs fix')
+          const alreadyHas = data.diagnostics.filter((d: any) => d.reason === 'Already has app_user')
+          const noPassword = data.diagnostics.filter((d: any) => d.reason === 'No password_hash')
+          const noCredentials = data.diagnostics.filter((d: any) => d.reason === 'No email or username')
+          
+          message += `\n\n📊 Diagnostic Info:`
+          if (needsFix.length > 0) {
+            message += `\n  • ${needsFix.length} member(s) need fixing: ${needsFix.map((d: any) => d.name).join(', ')}`
+          }
+          if (alreadyHas.length > 0) {
+            message += `\n  • ${alreadyHas.length} member(s) already have app_user: ${alreadyHas.map((d: any) => d.name).join(', ')}`
+          }
+          if (noPassword.length > 0) {
+            message += `\n  • ${noPassword.length} member(s) missing password: ${noPassword.map((d: any) => d.name).join(', ')}`
+          }
+          if (noCredentials.length > 0) {
+            message += `\n  • ${noCredentials.length} member(s) missing email/username: ${noCredentials.map((d: any) => d.name).join(', ')}`
+          }
+        }
+        
+        message += `\n\nMembers should now be able to log in!`
+        alert(message)
       } else {
         alert(`❌ Error: ${data.message || 'Unknown error'}`)
       }
