@@ -2656,6 +2656,144 @@ app.get('/api/admin/members', async (req, res) => {
   }
 })
 
+// Fix missing app_user records for members (admin endpoint)
+// This creates app_user records for members that have login credentials but are missing app_user records
+app.post('/api/admin/members/fix-missing-app-users', async (req, res) => {
+  try {
+    console.log('[POST /api/admin/members/fix-missing-app-users] Fixing missing app_user records...')
+    
+    // Helper to check if person is adult (18+)
+    function isAdult(dateOfBirth) {
+      if (!dateOfBirth) return true
+      const today = new Date()
+      const birthDate = new Date(dateOfBirth)
+      let age = today.getFullYear() - birthDate.getFullYear()
+      const monthDiff = today.getMonth() - birthDate.getMonth()
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--
+      }
+      return age >= 18
+    }
+    
+    // Find members that have email or username AND password_hash but no app_user record
+    const membersResult = await pool.query(`
+      SELECT 
+        m.id,
+        m.first_name,
+        m.last_name,
+        m.email,
+        m.username,
+        m.phone,
+        m.password_hash,
+        m.date_of_birth,
+        m.is_active,
+        m.facility_id,
+        m.address
+      FROM member m
+      WHERE (m.email IS NOT NULL OR m.username IS NOT NULL)
+        AND m.password_hash IS NOT NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM app_user au WHERE au.id = m.id
+        )
+      ORDER BY m.id
+    `)
+    
+    if (membersResult.rows.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No members found that need app_user records',
+        fixed: 0,
+        errors: 0
+      })
+    }
+    
+    // Get facility_id
+    let facilityId = null
+    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
+    if (facilityResult.rows.length > 0) {
+      facilityId = facilityResult.rows[0].id
+    }
+    
+    let fixed = 0
+    let errors = 0
+    const errorsList = []
+    
+    for (const member of membersResult.rows) {
+      try {
+        const fullName = `${member.first_name} ${member.last_name}`.trim()
+        const isChild = member.date_of_birth && !isAdult(member.date_of_birth)
+        const role = isChild ? 'ATHLETE' : 'PARENT_GUARDIAN'
+        
+        // Check if app_user with this ID already exists (shouldn't happen, but check anyway)
+        const existingCheck = await pool.query('SELECT id FROM app_user WHERE id = $1', [member.id])
+        if (existingCheck.rows.length > 0) {
+          console.log(`[Fix App Users] Member ${member.id} (${fullName}) already has app_user record, skipping`)
+          continue
+        }
+        
+        // Check if email/username conflict with existing app_user
+        let conflictCheck = null
+        if (member.email) {
+          conflictCheck = await pool.query('SELECT id, email FROM app_user WHERE email = $1 AND id != $2', [member.email, member.id])
+        } else if (member.username) {
+          conflictCheck = await pool.query('SELECT id, username FROM app_user WHERE LOWER(username) = LOWER($1) AND id != $2', [member.username, member.id])
+        }
+        
+        if (conflictCheck && conflictCheck.rows.length > 0) {
+          const errorMsg = `Member ${member.id} (${fullName}) has email/username conflict with app_user ${conflictCheck.rows[0].id}`
+          console.log(`[Fix App Users] ${errorMsg}`)
+          errorsList.push(errorMsg)
+          continue
+        }
+        
+        // Create app_user record
+        await pool.query(`
+          INSERT INTO app_user (
+            id, full_name, email, phone, username, password_hash,
+            role, is_active, facility_id, address, created_at, updated_at
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+        `, [
+          member.id,
+          fullName,
+          member.email || null,
+          member.phone || null,
+          member.username || null,
+          member.password_hash,
+          role,
+          member.is_active,
+          member.facility_id || facilityId,
+          member.address || null
+        ])
+        
+        console.log(`[Fix App Users] Created app_user for member ${member.id}: ${fullName} (${member.email || member.username}) - Role: ${role}`)
+        fixed++
+      } catch (error) {
+        const errorMsg = `Error creating app_user for member ${member.id} (${member.first_name} ${member.last_name}): ${error.message}`
+        console.error(`[Fix App Users] ${errorMsg}`)
+        errorsList.push(errorMsg)
+        errors++
+      }
+    }
+    
+    return res.json({
+      success: true,
+      message: `Fixed ${fixed} member(s), ${errors} error(s)`,
+      fixed,
+      errors,
+      total: membersResult.rows.length,
+      errorsList: errorsList.length > 0 ? errorsList : undefined
+    })
+  } catch (error) {
+    console.error('[Fix App Users] Error:', error)
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+})
+
 // Get all athletes (admin endpoint) - backward compatibility wrapper for /api/admin/members
 // This endpoint returns members in the format expected by legacy code that uses "athletes"
 app.get('/api/admin/athletes', async (req, res) => {
@@ -5491,6 +5629,74 @@ app.post('/api/admin/members', async (req, res) => {
       member.age = null
     }
     
+    // Create or update corresponding app_user record if member has login credentials
+    // This is required for member portal login (/api/members/login)
+    if ((member.email || member.username) && memberPasswordHash) {
+      try {
+        const fullName = `${value.firstName} ${value.lastName}`.trim()
+        const memberRole = isChild ? 'ATHLETE' : 'PARENT_GUARDIAN'
+        
+        // Check if app_user already exists with this ID
+        const existingAppUser = await client.query('SELECT id FROM app_user WHERE id = $1', [member.id])
+        
+        if (existingAppUser.rows.length > 0) {
+          // Update existing app_user
+          await client.query(`
+            UPDATE app_user
+            SET 
+              full_name = $1,
+              email = $2,
+              phone = $3,
+              username = $4,
+              password_hash = $5,
+              role = $6,
+              is_active = $7,
+              facility_id = $8,
+              address = $9,
+              updated_at = NOW()
+            WHERE id = $10
+          `, [
+            fullName,
+            member.email || null,
+            member.phone || null,
+            member.username || null,
+            memberPasswordHash,
+            memberRole,
+            member.is_active,
+            facilityId,
+            value.address || null,
+            member.id
+          ])
+          console.log(`[POST /api/admin/members] Updated app_user record for member ${member.id}`)
+        } else {
+          // Create new app_user with same ID as member
+          await client.query(`
+            INSERT INTO app_user (
+              id, full_name, email, phone, username, password_hash,
+              role, is_active, facility_id, address, created_at, updated_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+          `, [
+            member.id,
+            fullName,
+            member.email || null,
+            member.phone || null,
+            member.username || null,
+            memberPasswordHash,
+            memberRole,
+            member.is_active,
+            facilityId,
+            value.address || null
+          ])
+          console.log(`[POST /api/admin/members] Created app_user record for member ${member.id}`)
+        }
+      } catch (appUserError) {
+        // Log error but don't fail member creation
+        console.error('[POST /api/admin/members] Error creating/updating app_user:', appUserError.message)
+        console.error('Member was created but app_user sync failed. Member login may not work.')
+      }
+    }
+    
     // Update parent/guardian authority table (keep for relationship metadata)
     if (parentGuardianIds.length > 0) {
       for (const parentId of parentGuardianIds) {
@@ -5716,6 +5922,99 @@ app.put('/api/admin/members/:id', async (req, res) => {
       SET ${updates.join(', ')}
       WHERE id = $${paramCount}
     `, params)
+    
+    // Sync app_user record if login credentials are present
+    // Get updated member data to check for email/username/password
+    const updatedMemberCheck = await client.query('SELECT email, username, password_hash, first_name, last_name, phone, is_active, facility_id, address FROM member WHERE id = $1', [id])
+    if (updatedMemberCheck.rows.length > 0) {
+      const updatedMemberData = updatedMemberCheck.rows[0]
+      const hasLoginCredentials = (updatedMemberData.email || updatedMemberData.username) && updatedMemberData.password_hash
+      
+      if (hasLoginCredentials) {
+        try {
+          const fullName = `${value.firstName !== undefined ? value.firstName : updatedMemberData.first_name} ${value.lastName !== undefined ? value.lastName : updatedMemberData.last_name}`.trim()
+          const memberEmail = value.email !== undefined ? (value.email || null) : updatedMemberData.email
+          const memberUsername = value.username !== undefined ? (value.username || null) : updatedMemberData.username
+          const memberPhone = value.phone !== undefined ? (value.phone || null) : updatedMemberData.phone
+          const memberPasswordHash = value.password !== undefined && value.password ? await bcrypt.hash(value.password, 10) : updatedMemberData.password_hash
+          const memberIsActive = value.isActive !== undefined ? value.isActive : updatedMemberData.is_active
+          
+          // Determine role (check if child)
+          let memberRole = 'PARENT_GUARDIAN'
+          if (value.dateOfBirth !== undefined || existingMember.date_of_birth) {
+            const dob = value.dateOfBirth || existingMember.date_of_birth
+            if (dob && !isAdult(dob)) {
+              memberRole = 'ATHLETE'
+            }
+          }
+          
+          // Get facility_id
+          let memberFacilityId = null
+          const facilityCheck = await client.query('SELECT id FROM facility LIMIT 1')
+          if (facilityCheck.rows.length > 0) {
+            memberFacilityId = facilityCheck.rows[0].id
+          }
+          
+          // Check if app_user exists
+          const existingAppUser = await client.query('SELECT id FROM app_user WHERE id = $1', [id])
+          
+          if (existingAppUser.rows.length > 0) {
+            // Update existing app_user
+            await client.query(`
+              UPDATE app_user
+              SET 
+                full_name = $1,
+                email = $2,
+                phone = $3,
+                username = $4,
+                password_hash = $5,
+                role = $6,
+                is_active = $7,
+                facility_id = $8,
+                address = $9,
+                updated_at = NOW()
+              WHERE id = $10
+            `, [
+              fullName,
+              memberEmail,
+              memberPhone,
+              memberUsername,
+              memberPasswordHash,
+              memberRole,
+              memberIsActive,
+              memberFacilityId,
+              value.address !== undefined ? (value.address || null) : updatedMemberData.address,
+              id
+            ])
+            console.log(`[PUT /api/admin/members] Updated app_user record for member ${id}`)
+          } else {
+            // Create new app_user
+            await client.query(`
+              INSERT INTO app_user (
+                id, full_name, email, phone, username, password_hash,
+                role, is_active, facility_id, address, created_at, updated_at
+              )
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+            `, [
+              id,
+              fullName,
+              memberEmail,
+              memberPhone,
+              memberUsername,
+              memberPasswordHash,
+              memberRole,
+              memberIsActive,
+              memberFacilityId,
+              value.address !== undefined ? (value.address || null) : updatedMemberData.address
+            ])
+            console.log(`[PUT /api/admin/members] Created app_user record for member ${id}`)
+          }
+        } catch (appUserError) {
+          // Log error but don't fail member update
+          console.error('[PUT /api/admin/members] Error syncing app_user:', appUserError.message)
+        }
+      }
+    }
     
     // Update parent/guardian authority table if parentGuardianIds changed
     if (value.parentGuardianIds !== undefined) {

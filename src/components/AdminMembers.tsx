@@ -185,6 +185,7 @@ export default function AdminMembers() {
   const [membersLoading, setMembersLoading] = useState(false)
   const [memberSearchQuery, setMemberSearchQuery] = useState('')
   const [showArchivedMembers, setShowArchivedMembers] = useState(false)
+  const [fixingAppUsers, setFixingAppUsers] = useState(false)
   
   // Delete confirmation state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
@@ -402,6 +403,33 @@ export default function AdminMembers() {
       setMembersLoading(false)
     }
   }, [memberSearchQuery, showArchivedMembers])
+  
+  // Fix missing app_user records
+  const fixMissingAppUsers = useCallback(async () => {
+    if (!confirm('This will create app_user records for members that have login credentials but are missing app_user records. This will allow them to log into the member portal. Continue?')) {
+      return
+    }
+    
+    setFixingAppUsers(true)
+    try {
+      const response = await adminApiRequest('/api/admin/members/fix-missing-app-users', {
+        method: 'POST'
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        alert(`✅ Success!\n\nFixed: ${data.fixed} member(s)\nErrors: ${data.errors}\n\nMembers should now be able to log in!`)
+      } else {
+        alert(`❌ Error: ${data.message || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error fixing app users:', error)
+      alert(`❌ Error: ${error instanceof Error ? error.message : 'Failed to fix app users'}`)
+    } finally {
+      setFixingAppUsers(false)
+    }
+  }, [])
   
   // Fetch functions
   const fetchFamilies = useCallback(async () => {
@@ -2537,6 +2565,15 @@ export default function AdminMembers() {
               >
                 <UserPlus className="w-4 h-4" />
                 <span>Create Member</span>
+              </motion.button>
+              <motion.button
+                onClick={fixMissingAppUsers}
+                disabled={fixingAppUsers}
+                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={{ scale: fixingAppUsers ? 1 : 1.05 }}
+                whileTap={{ scale: fixingAppUsers ? 1 : 0.95 }}
+              >
+                <span>{fixingAppUsers ? 'Fixing...' : 'Fix Login Issues'}</span>
               </motion.button>
             </div>
           </div>
