@@ -1280,9 +1280,9 @@ const memberUpdateSchema = Joi.object({
   parentGuardianIds: Joi.array().items(Joi.number().integer()).optional().allow(null),
   hasCompletedWaivers: Joi.boolean().optional(),
   waiverCompletionDate: Joi.date().optional().allow(null),
-  medicalNotes: Joi.string().max(2000).optional().allow('', null),
-  medicalConcerns: Joi.string().max(2000).optional().allow('', null),
-  gender: Joi.string().max(50).optional().allow('', null),
+  medicalNotes: Joi.string().max(2000).optional().allow(null, ''),
+  medicalConcerns: Joi.string().max(2000).optional().allow(null, ''),
+  gender: Joi.string().max(50).optional().allow(null, ''),
   internalFlags: Joi.string().max(500).optional().allow('', null),
   address: Joi.string().max(500).optional().allow(null, ''),
   billingStreet: Joi.string().max(200).optional().allow(null, ''),
@@ -5811,9 +5811,11 @@ app.put('/api/admin/members/:id', async (req, res) => {
     await client.query('BEGIN')
     
     const { id } = req.params
-    const { error, value } = memberUpdateSchema.validate(req.body)
+    const { error, value } = memberUpdateSchema.validate(req.body, { abortEarly: false })
     if (error) {
       await client.query('ROLLBACK')
+      console.error('[PUT /api/admin/members/:id] Validation error:', error.details)
+      console.error('[PUT /api/admin/members/:id] Request body:', JSON.stringify(req.body, null, 2))
       return res.status(400).json({
         success: false,
         message: 'Validation error',

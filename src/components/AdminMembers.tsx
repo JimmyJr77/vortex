@@ -1136,28 +1136,35 @@ export default function AdminMembers() {
         const waiverCompletionDate = member.sections.waivers?.tempData?.waiverCompletionDate ?? member.waiverCompletionDate ?? null
         
         // Update member using unified endpoint
+        const updatePayload: any = {
+          firstName,
+          lastName,
+          email: email || null,
+          phone: phone ? cleanPhoneNumber(phone) : null,
+          address: combineAddress(addressStreet, addressCity, addressState, addressZip) || null,
+          billingStreet: billingInfo.addressStreet || null,
+          billingCity: billingInfo.addressCity || null,
+          billingState: billingInfo.addressState || null,
+          billingZip: billingInfo.addressZip || null,
+          username: username || null,
+          dateOfBirth: dateOfBirth || null,
+          medicalNotes: member.medicalNotes || null,
+          parentGuardianIds,
+          hasCompletedWaivers,
+          waiverCompletionDate
+        }
+        
+        // Only include gender and medicalConcerns if they have values, otherwise set to null
+        updatePayload.gender = (gender && gender.trim() !== '') ? gender.trim() : null
+        updatePayload.medicalConcerns = (medicalConcerns && medicalConcerns.trim() !== '') ? medicalConcerns.trim() : null
+        
+        if (password && password !== 'vortex') {
+          updatePayload.password = password
+        }
+        
         const memberResponse = await adminApiRequest(`/api/admin/members/${editingUnifiedMemberId}`, {
           method: 'PUT',
-          body: JSON.stringify({
-            firstName,
-            lastName,
-            email: email || null,
-            phone: phone ? cleanPhoneNumber(phone) : null,
-            address: combineAddress(addressStreet, addressCity, addressState, addressZip) || null,
-            billingStreet: billingInfo.addressStreet || null,
-            billingCity: billingInfo.addressCity || null,
-            billingState: billingInfo.addressState || null,
-            billingZip: billingInfo.addressZip || null,
-            username: username || null,
-            ...(password && password !== 'vortex' && { password }),
-            dateOfBirth: dateOfBirth || null,
-            gender: gender || null,
-            medicalConcerns: medicalConcerns || null,
-            medicalNotes: member.medicalNotes || null,
-            parentGuardianIds,
-            hasCompletedWaivers,
-            waiverCompletionDate
-          })
+          body: JSON.stringify(updatePayload)
         })
         
         if (!memberResponse.ok) {
