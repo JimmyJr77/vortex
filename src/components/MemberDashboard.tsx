@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 import EnrollmentForm from './EnrollmentForm'
-import { formatDateForDisplay, formatTimestampDate } from '../utils/dateUtils'
+import { formatDateForDisplay } from '../utils/dateUtils'
 
 interface MemberDashboardProps {
   member: any

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Edit2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
-import { formatDateForInput, formatDateForDisplay, formatTimestampDate, calculateAge, isAdult, getTodayDateString } from '../utils/dateUtils'
+import { formatDateForInput, formatDateForDisplay, formatTimestampDate, calculateAge, isAdult } from '../utils/dateUtils'
 
 // Member-related interfaces
 interface EmergencyContact {
@@ -1218,7 +1218,6 @@ export default function AdminMembers() {
           // Enrollment is now managed separately through the Enrollments tab or member portal
           // No enrollment saving during member edit
         } else {
-          const age = calculateAge(member.dateOfBirth)
           const isAdultMember = isAdult(member.dateOfBirth)
           
           let userId = null
@@ -3719,7 +3718,6 @@ export default function AdminMembers() {
                               />
                             </div>
                             {(() => {
-                              const age = calculateAge(member.dateOfBirth)
                               const isAdultMember = isAdult(member.dateOfBirth)
                               
                               return (
@@ -3837,7 +3835,6 @@ export default function AdminMembers() {
                           />
                         </div>
                         {(() => {
-                          const age = calculateAge(newFamilyMemberInEdit.dateOfBirth)
                           const isAdultMember = isAdult(newFamilyMemberInEdit.dateOfBirth)
                           const existingAddresses = Array.from(new Set([
                             combineAddress(editingMemberData.addressStreet, editingMemberData.addressCity, editingMemberData.addressState, editingMemberData.addressZip),
