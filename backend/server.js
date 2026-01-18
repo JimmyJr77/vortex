@@ -797,7 +797,11 @@ export const initDatabase = async () => {
         
         -- Medical notes (for all members, not just athletes)
         medical_notes       TEXT,
+        medical_concerns    TEXT,
         internal_flags      TEXT,
+        
+        -- Personal information
+        gender              TEXT,
         
         -- Metadata
         created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -822,6 +826,11 @@ export const initDatabase = async () => {
       ADD COLUMN IF NOT EXISTS parent_guardian_ids BIGINT[] DEFAULT '{}',
       ADD COLUMN IF NOT EXISTS has_completed_waivers BOOLEAN DEFAULT FALSE,
       ADD COLUMN IF NOT EXISTS waiver_completion_date TIMESTAMPTZ
+    `)
+    await pool.query(`
+      ALTER TABLE member
+      ADD COLUMN IF NOT EXISTS gender TEXT,
+      ADD COLUMN IF NOT EXISTS medical_concerns TEXT
     `)
     
     // Add unique constraint for email (only when email is not null)
@@ -1272,6 +1281,8 @@ const memberUpdateSchema = Joi.object({
   hasCompletedWaivers: Joi.boolean().optional(),
   waiverCompletionDate: Joi.date().optional().allow(null),
   medicalNotes: Joi.string().max(2000).optional().allow('', null),
+  medicalConcerns: Joi.string().max(2000).optional().allow('', null),
+  gender: Joi.string().max(50).optional().allow('', null),
   internalFlags: Joi.string().max(500).optional().allow('', null),
   address: Joi.string().max(500).optional().allow(null, ''),
   billingStreet: Joi.string().max(200).optional().allow(null, ''),
@@ -5904,6 +5915,16 @@ app.put('/api/admin/members/:id', async (req, res) => {
       updates.push(`medical_notes = $${paramCount}`)
       params.push(value.medicalNotes || null)
     }
+    if (value.medicalConcerns !== undefined) {
+      paramCount++
+      updates.push(`medical_concerns = $${paramCount}`)
+      params.push(value.medicalConcerns || null)
+    }
+    if (value.gender !== undefined) {
+      paramCount++
+      updates.push(`gender = $${paramCount}`)
+      params.push(value.gender || null)
+    }
     if (value.internalFlags !== undefined) {
       paramCount++
       updates.push(`internal_flags = $${paramCount}`)
@@ -6136,6 +6157,8 @@ app.put('/api/admin/members/:id', async (req, res) => {
         waiverCompletionDate: updatedMember.waiver_completion_date,
         status: updatedMember.status,
         isActive: updatedMember.is_active,
+        gender: updatedMember.gender,
+        medicalConcerns: updatedMember.medical_concerns,
         medicalNotes: updatedMember.medical_notes,
         internalFlags: updatedMember.internal_flags,
         createdAt: updatedMember.created_at,

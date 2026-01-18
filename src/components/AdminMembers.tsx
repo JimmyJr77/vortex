@@ -1119,6 +1119,8 @@ export default function AdminMembers() {
         const username = member.sections.loginSecurity.tempData.username ?? member.username
         const password = member.sections.loginSecurity.tempData.password ?? member.password
         const dateOfBirth = member.sections.personalData?.tempData?.dateOfBirth ?? member.dateOfBirth ?? ''
+        const gender = member.sections.personalData?.tempData?.gender ?? member.gender ?? ''
+        const medicalConcerns = member.sections.personalData?.tempData?.medicalConcerns ?? member.medicalConcerns ?? ''
         
         // Get parent/guardian IDs if child
         let parentGuardianIds: number[] | null = null
@@ -1149,6 +1151,8 @@ export default function AdminMembers() {
             username: username || null,
             ...(password && password !== 'vortex' && { password }),
             dateOfBirth: dateOfBirth || null,
+            gender: gender || null,
+            medicalConcerns: medicalConcerns || null,
             medicalNotes: member.medicalNotes || null,
             parentGuardianIds,
             hasCompletedWaivers,
