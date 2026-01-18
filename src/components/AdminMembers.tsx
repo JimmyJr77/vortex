@@ -1169,7 +1169,12 @@ export default function AdminMembers() {
         
         if (!memberResponse.ok) {
           const data = await memberResponse.json()
-          throw new Error(data.message || 'Failed to update member')
+          const errorMessage = data.errors && data.errors.length > 0 
+            ? `Validation error: ${data.errors.join(', ')}`
+            : (data.message || 'Failed to update member')
+          console.error('[handleSaveMemberEdit] Validation errors:', data.errors)
+          console.error('[handleSaveMemberEdit] Request payload:', updatePayload)
+          throw new Error(errorMessage)
         }
         
         await fetchMembers()
