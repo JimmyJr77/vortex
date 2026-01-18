@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Edit2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
+import { formatDateForInput, formatDateForDisplay, formatTimestampDate, calculateAge, isAdult, getTodayDateString } from '../utils/dateUtils'
 
 // Member-related interfaces
 interface EmergencyContact {
@@ -645,20 +646,7 @@ export default function AdminMembers() {
     return phone.replace(/\D/g, '')
   }
   
-  // Helper function to format date for date input (yyyy-MM-dd)
-  const formatDateForInput = (date: string | null | undefined): string => {
-    if (!date) return ''
-    // If already in yyyy-MM-dd format, return as is
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date
-    // Try to parse ISO date string and format as yyyy-MM-dd
-    try {
-      const d = new Date(date)
-      if (isNaN(d.getTime())) return ''
-      return d.toISOString().split('T')[0]
-    } catch {
-      return ''
-    }
-  }
+  // formatDateForInput is now imported from dateUtils
 
   // Helper function to format time since a date
   const formatTimeSince = (date: string | null | undefined): string => {
@@ -1214,9 +1202,7 @@ export default function AdminMembers() {
             })
           })
           
-          const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
-          const today = new Date()
-          const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
+          const age = calculateAge(member.dateOfBirth)
           if (age !== null && age >= 18 && member.userId) {
             await adminApiRequest(`/api/admin/users/${member.userId}`, {
               method: 'PUT',
@@ -1232,13 +1218,11 @@ export default function AdminMembers() {
           // Enrollment is now managed separately through the Enrollments tab or member portal
           // No enrollment saving during member edit
         } else {
-          const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
-          const today = new Date()
-          const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
-          const isAdult = age !== null && age >= 18
+          const age = calculateAge(member.dateOfBirth)
+          const isAdultMember = isAdult(member.dateOfBirth)
           
           let userId = null
-          if (isAdult) {
+          if (isAdultMember) {
             const userResponse = await adminApiRequest('/api/admin/users', {
               method: 'POST',
               body: JSON.stringify({
@@ -1416,15 +1400,11 @@ export default function AdminMembers() {
       
       // Create all members using the unified endpoint
       for (const member of familyMembers) {
-        const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+        const age = calculateAge(member.dateOfBirth)
         let isChild = false
         let parentGuardianIds: number[] = []
         
-        if (birthDate) {
-        const today = new Date()
-          const age = today.getFullYear() - birthDate.getFullYear() - 
-            (today.getMonth() < birthDate.getMonth() || 
-             (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+        if (age !== null) {
           isChild = age < 18
         }
         
@@ -1651,13 +1631,9 @@ export default function AdminMembers() {
         }
         
         // Check if member is a child and validate parent/guardian IDs
-        const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+        const age = calculateAge(member.dateOfBirth)
         let isChild = false
-        if (birthDate) {
-          const today = new Date()
-          const age = today.getFullYear() - birthDate.getFullYear() - 
-            (today.getMonth() < birthDate.getMonth() || 
-             (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+        if (age !== null) {
           isChild = age < 18
         }
         
@@ -1683,15 +1659,11 @@ export default function AdminMembers() {
       
       // Create members using unified endpoint
       for (const member of familyMembers) {
-        const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
+        const age = calculateAge(member.dateOfBirth)
         let isChild = false
         let parentGuardianIds: number[] = []
         
-        if (birthDate) {
-        const today = new Date()
-          const age = today.getFullYear() - birthDate.getFullYear() - 
-            (today.getMonth() < birthDate.getMonth() || 
-             (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+        if (age !== null) {
           isChild = age < 18
         }
         
@@ -1974,13 +1946,9 @@ export default function AdminMembers() {
           
           // Check if child - if so, expand parent/guardian section next, otherwise expand waivers
           if (personalData.dateOfBirth) {
-            const birthDateObj = new Date(personalData.dateOfBirth)
-            const today = new Date()
-            const age = today.getFullYear() - birthDateObj.getFullYear() - 
-              (today.getMonth() < birthDateObj.getMonth() || 
-               (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate()) ? 1 : 0)
+            const age = calculateAge(personalData.dateOfBirth)
             
-            if (age < 18) {
+            if (age !== null && age < 18) {
               // Child - expand parent/guardian section
               updatedMember.sections.parentGuardians = { ...updatedMember.sections.parentGuardians, isExpanded: true }
             } else {
@@ -3293,7 +3261,7 @@ export default function AdminMembers() {
                     {selectedFamilyForView.family_name && (
                       <div>Family Name: {selectedFamilyForView.family_name}</div>
                     )}
-                    <div>Created: {new Date(selectedFamilyForView.created_at).toLocaleDateString()}</div>
+                    <div>Created: {formatTimestampDate(selectedFamilyForView.created_at)}</div>
                   </div>
                 </div>
 
@@ -3360,7 +3328,7 @@ export default function AdminMembers() {
                             </button>
                           </div>
                           <div className="text-gray-300 text-sm mt-1">
-                            Date of Birth: {new Date(athlete.date_of_birth).toLocaleDateString()}
+                            Date of Birth: {formatDateForDisplay(athlete.date_of_birth)}
                             {athlete.age !== undefined && ` (Age ${athlete.age})`}
                           </div>
                           {athlete.medical_notes && (
@@ -3450,7 +3418,7 @@ export default function AdminMembers() {
                     {viewingMember.family.family_name && (
                       <div>Family Name: {viewingMember.family.family_name}</div>
                     )}
-                    <div>Created: {new Date(viewingMember.family.created_at).toLocaleDateString()}</div>
+                    <div>Created: {formatTimestampDate(viewingMember.family.created_at)}</div>
                   </div>
                 </div>
 
@@ -3494,7 +3462,7 @@ export default function AdminMembers() {
                                 })()}
                               </div>
                               <div className="text-gray-300 text-sm mt-1">
-                                Date of Birth: {athlete.date_of_birth ? new Date(athlete.date_of_birth).toLocaleDateString() : 'N/A'}
+                                Date of Birth: {athlete.date_of_birth ? formatDateForDisplay(athlete.date_of_birth) : 'N/A'}
                                 {athlete.age !== undefined && ` (Age ${athlete.age})`}
                               </div>
                             </div>
@@ -3751,14 +3719,12 @@ export default function AdminMembers() {
                               />
                             </div>
                             {(() => {
-                              const birthDate = member.dateOfBirth ? new Date(member.dateOfBirth) : null
-                              const today = new Date()
-                              const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
-                              const isAdult = age !== null && age >= 18
+                              const age = calculateAge(member.dateOfBirth)
+                              const isAdultMember = isAdult(member.dateOfBirth)
                               
                               return (
                                 <>
-                                  {isAdult && (
+                                  {isAdultMember && (
                                     <>
                                       <div>
                                         <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
@@ -3871,10 +3837,8 @@ export default function AdminMembers() {
                           />
                         </div>
                         {(() => {
-                          const birthDate = newFamilyMemberInEdit.dateOfBirth ? new Date(newFamilyMemberInEdit.dateOfBirth) : null
-                          const today = new Date()
-                          const age = birthDate ? today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0) : null
-                          const isAdult = age !== null && age >= 18
+                          const age = calculateAge(newFamilyMemberInEdit.dateOfBirth)
+                          const isAdultMember = isAdult(newFamilyMemberInEdit.dateOfBirth)
                           const existingAddresses = Array.from(new Set([
                             combineAddress(editingMemberData.addressStreet, editingMemberData.addressCity, editingMemberData.addressState, editingMemberData.addressZip),
                             ...editingFamilyMembers.map(() => '').filter(Boolean)
@@ -3882,7 +3846,7 @@ export default function AdminMembers() {
                           
                           return (
                             <>
-                              {isAdult && (
+                              {isAdultMember && (
                                 <>
                                   <div>
                                     <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
@@ -3967,10 +3931,8 @@ export default function AdminMembers() {
                                 alert('Please fill in first name, last name, and date of birth')
                                 return
                               }
-                              const birthDate = new Date(newFamilyMemberInEdit.dateOfBirth)
-                              const today = new Date()
-                              const age = today.getFullYear() - birthDate.getFullYear() - (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
-                              if (age >= 18 && (!newFamilyMemberInEdit.email || !newFamilyMemberInEdit.username)) {
+                              const age = calculateAge(newFamilyMemberInEdit.dateOfBirth)
+                              if (age !== null && age >= 18 && (!newFamilyMemberInEdit.email || !newFamilyMemberInEdit.username)) {
                                 alert('Adults must have email and username')
                                 return
                               }
@@ -4235,7 +4197,7 @@ export default function AdminMembers() {
                       <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
                       <div className="text-white">
                         {viewingUnifiedMember.dateOfBirth 
-                          ? new Date(viewingUnifiedMember.dateOfBirth).toLocaleDateString()
+                          ? formatDateForDisplay(viewingUnifiedMember.dateOfBirth)
                           : 'N/A'}
                       </div>
                     </div>
@@ -4380,7 +4342,7 @@ export default function AdminMembers() {
                                 <div>
                                   <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
                                   <div className="text-white">
-                                    {new Date(familyMember.dateOfBirth).toLocaleDateString()}
+                                    {formatDateForDisplay(familyMember.dateOfBirth)}
                                   </div>
                                 </div>
                               )}
@@ -4450,7 +4412,7 @@ export default function AdminMembers() {
                       <div>
                         <span className="text-sm font-semibold text-gray-300">Completion Date:</span>
                         <div className="text-white">
-                          {new Date(viewingUnifiedMember.waiverCompletionDate).toLocaleDateString()}
+                          {formatTimestampDate(viewingUnifiedMember.waiverCompletionDate)}
                         </div>
                       </div>
                     )}

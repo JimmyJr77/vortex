@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { X, ChevronDown, ChevronUp, Clock } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
+import { formatDateForDisplay } from '../utils/dateUtils'
 
 interface Program {
   id: number
@@ -536,10 +537,10 @@ export default function EnrollmentForm({
               {selectedIteration.durationType !== 'indefinite' && (
                 <div className="text-xs text-gray-500 mt-1">
                   {selectedIteration.durationType === '3_month_block' && selectedIteration.startDate && (
-                    <>3-Month Block starting {new Date(selectedIteration.startDate).toLocaleDateString()}</>
+                    <>3-Month Block starting {formatDateForDisplay(selectedIteration.startDate)}</>
                   )}
                   {selectedIteration.durationType === 'finite' && selectedIteration.startDate && selectedIteration.endDate && (
-                    <>{new Date(selectedIteration.startDate).toLocaleDateString()} - {new Date(selectedIteration.endDate).toLocaleDateString()}</>
+                    <>{formatDateForDisplay(selectedIteration.startDate)} - {formatDateForDisplay(selectedIteration.endDate)}</>
                   )}
                 </div>
               )}

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 import EnrollmentForm from './EnrollmentForm'
+import { formatDateForDisplay, formatTimestampDate } from '../utils/dateUtils'
 
 interface MemberDashboardProps {
   member: any
@@ -1326,12 +1327,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   })
 
   const formatDate = (date: Date | string) => {
-    const d = date instanceof Date ? date : new Date(date)
-    return d.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
-    })
+    const dateStr = date instanceof Date ? date.toISOString().split('T')[0] : date
+    return formatDateForDisplay(dateStr)
   }
 
   const formatDateRange = (start: Date | string, end?: Date | string) => {
@@ -2271,7 +2268,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                       <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
                       <div className="text-white">
                         {viewingMember.dateOfBirth 
-                          ? new Date(viewingMember.dateOfBirth).toLocaleDateString()
+                          ? formatDateForDisplay(viewingMember.dateOfBirth)
                           : 'N/A'}
                       </div>
                     </div>
@@ -2416,7 +2413,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                                 <div>
                                   <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
                                   <div className="text-white">
-                                    {new Date(familyMember.dateOfBirth).toLocaleDateString()}
+                                    {formatDateForDisplay(familyMember.dateOfBirth)}
                                   </div>
                                 </div>
                               )}

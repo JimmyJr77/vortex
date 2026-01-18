@@ -3,6 +3,7 @@ import { UserPlus, Users } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import EnrollmentForm from './EnrollmentForm'
 import ClassDropdown, { type Program } from './ClassDropdown'
+import { formatDateForDisplay } from '../utils/dateUtils'
 
 // Program interface is now imported from ClassDropdown
 
@@ -372,13 +373,13 @@ export default function AdminEnrollments() {
                 durationText = 'Indefinite'
               } else if (iteration.durationType === '3_month_block') {
                 durationText = iteration.startDate 
-                  ? `3-Month Block starting ${new Date(iteration.startDate).toLocaleDateString()}`
+                  ? `3-Month Block starting ${formatDateForDisplay(iteration.startDate)}`
                   : '3-Month Block'
               } else if (iteration.durationType === 'finite') {
                 if (iteration.startDate && iteration.endDate) {
-                  durationText = `${new Date(iteration.startDate).toLocaleDateString()} - ${new Date(iteration.endDate).toLocaleDateString()}`
+                  durationText = `${formatDateForDisplay(iteration.startDate)} - ${formatDateForDisplay(iteration.endDate)}`
                 } else if (iteration.startDate) {
-                  durationText = `Starting ${new Date(iteration.startDate).toLocaleDateString()}`
+                  durationText = `Starting ${formatDateForDisplay(iteration.startDate)}`
                 } else {
                   durationText = 'Finite duration'
                 }

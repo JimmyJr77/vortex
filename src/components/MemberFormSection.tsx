@@ -1,4 +1,5 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
+import { formatDateForInput, calculateAge, getTodayDateString, formatTimestampDate } from '../utils/dateUtils'
 
 type FamilyMemberData = {
   id: string
@@ -116,32 +117,7 @@ export default function MemberFormSection({
     }))
   }
   
-  // Helper function to format date for date input (yyyy-MM-dd)
-  const formatDateForInput = (date: string | null | undefined): string => {
-    if (!date) return ''
-    // If already in yyyy-MM-dd format, return as is
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date
-    // Try to parse ISO date string and format as yyyy-MM-dd
-    try {
-      const d = new Date(date)
-      if (isNaN(d.getTime())) return ''
-      return d.toISOString().split('T')[0]
-    } catch {
-      return ''
-    }
-  }
-  
-  // Calculate age from date of birth
-  const calculateAge = (dateOfBirth: string): number | null => {
-    if (!dateOfBirth) return null
-    const birthDate = new Date(dateOfBirth)
-    if (isNaN(birthDate.getTime())) return null
-    const today = new Date()
-    const age = today.getFullYear() - birthDate.getFullYear() - 
-      (today.getMonth() < birthDate.getMonth() || 
-       (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
-    return age
-  }
+  // formatDateForInput, calculateAge, and getTodayDateString are now imported from dateUtils
   
   // Check if member is a child (< 18)
   const isChild = (): boolean => {
@@ -493,7 +469,7 @@ export default function MemberFormSection({
                         updateSectionTempData('personalData', { dateOfBirth: e.target.value })
                       }}
                       className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
-                      max={new Date().toISOString().split('T')[0]} // Can't be in the future
+                      max={getTodayDateString()} // Can't be in the future
                       required
                     />
                     {member.dateOfBirth && calculateAge(member.dateOfBirth) !== null && (
@@ -972,11 +948,11 @@ export default function MemberFormSection({
                           onUpdateMember(member.id, (prev) => ({
                             ...prev,
                             hasCompletedWaivers: e.target.checked,
-                            waiverCompletionDate: e.target.checked ? new Date().toISOString().split('T')[0] : null
+                            waiverCompletionDate: e.target.checked ? getTodayDateString() : null
                           }))
                           updateSectionTempData('waivers', {
                             hasCompletedWaivers: e.target.checked,
-                            waiverCompletionDate: e.target.checked ? new Date().toISOString().split('T')[0] : null
+                            waiverCompletionDate: e.target.checked ? getTodayDateString() : null
                           })
                         }}
                         className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
@@ -993,7 +969,7 @@ export default function MemberFormSection({
                       </label>
                       <input
                         type="date"
-                        value={formatDateForInput(member.waiverCompletionDate) || new Date().toISOString().split('T')[0]}
+                        value={formatDateForInput(member.waiverCompletionDate) || getTodayDateString()}
                         onChange={(e) => {
                           onUpdateMember(member.id, (prev) => ({
                             ...prev,
@@ -1224,7 +1200,7 @@ export default function MemberFormSection({
                             </div>
                             {previousClass.completed_date && (
                               <div className="text-gray-400 text-sm mt-1">
-                                Completed: {new Date(previousClass.completed_date).toLocaleDateString()}
+                                Completed: {formatTimestampDate(previousClass.completed_date)}
                               </div>
                             )}
                           </div>
