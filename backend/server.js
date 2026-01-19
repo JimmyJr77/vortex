@@ -5811,6 +5811,8 @@ app.put('/api/admin/members/:id', async (req, res) => {
     await client.query('BEGIN')
     
     const { id } = req.params
+    console.log(`[PUT /api/admin/members/:id] Updating member ${id}`)
+    console.log(`[PUT /api/admin/members/:id] Request body:`, JSON.stringify(req.body, null, 2))
     const { error, value } = memberUpdateSchema.validate(req.body, { abortEarly: false })
     if (error) {
       await client.query('ROLLBACK')
@@ -5970,11 +5972,16 @@ app.put('/api/admin/members/:id', async (req, res) => {
     paramCount++
     params.push(id)
     
+    console.log(`[PUT /api/admin/members/:id] Update query:`, `UPDATE member SET ${updates.join(', ')} WHERE id = $${paramCount}`)
+    console.log(`[PUT /api/admin/members/:id] Update params:`, params)
+    
     await client.query(`
       UPDATE member 
       SET ${updates.join(', ')}
       WHERE id = $${paramCount}
     `, params)
+    
+    console.log(`[PUT /api/admin/members/:id] Update successful`)
     
     // Sync app_user record if login credentials are present
     // Get updated member data to check for email/username/password
