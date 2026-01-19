@@ -830,7 +830,12 @@ export const initDatabase = async () => {
     await pool.query(`
       ALTER TABLE member
       ADD COLUMN IF NOT EXISTS gender TEXT,
-      ADD COLUMN IF NOT EXISTS medical_concerns TEXT
+      ADD COLUMN IF NOT EXISTS medical_concerns TEXT,
+      ADD COLUMN IF NOT EXISTS injury_history_date DATE,
+      ADD COLUMN IF NOT EXISTS injury_history_body_part TEXT,
+      ADD COLUMN IF NOT EXISTS injury_history_notes TEXT,
+      ADD COLUMN IF NOT EXISTS no_injury_history BOOLEAN DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS experience TEXT
     `)
     
     // Add unique constraint for email (only when email is not null)
@@ -1214,7 +1219,34 @@ const memberSchema = Joi.object({
   
   // Medical and internal notes
   medicalNotes: Joi.string().max(2000).optional().allow('', null),
+  medicalConcerns: Joi.string().max(2000).optional().allow('', null),
   internalFlags: Joi.string().max(500).optional().allow('', null),
+  
+  // Personal information
+  gender: Joi.string().max(50).optional().allow(null, ''),
+  
+  // Injury history
+  injuryHistoryDate: Joi.alternatives().try(
+    Joi.date(),
+    Joi.string().allow('', null).custom((value, helpers) => {
+      if (!value || value.trim() === '') {
+        return null
+      }
+      const date = new Date(value)
+      if (isNaN(date.getTime())) {
+        return helpers.error('any.invalid', { message: 'injuryHistoryDate must be a valid date' })
+      }
+      return date
+    })
+  ).optional().allow(null, '').messages({
+    'any.invalid': 'injuryHistoryDate must be a valid date'
+  }),
+  injuryHistoryBodyPart: Joi.string().max(200).optional().allow('', null),
+  injuryHistoryNotes: Joi.string().max(2000).optional().allow('', null),
+  noInjuryHistory: Joi.boolean().optional().default(false),
+  
+  // Experience
+  experience: Joi.string().max(5000).optional().allow('', null),
   
   // Address
   address: Joi.string().max(500).optional().allow(null, ''),
@@ -1225,7 +1257,16 @@ const memberSchema = Joi.object({
   
   // Authentication (optional - children don't need login)
   username: Joi.string().max(50).optional().allow(null, ''),
-  password: Joi.string().min(6).optional().allow(null, '')
+  password: Joi.string().min(6).optional().allow(null, ''),
+  
+  // Parent/Guardian relationships (array of objects with id, relationship, relationshipOther)
+  parentGuardians: Joi.array().items(
+    Joi.object({
+      id: Joi.number().integer().required(),
+      relationship: Joi.string().max(100).optional().allow('', null),
+      relationshipOther: Joi.string().max(200).optional().allow('', null)
+    })
+  ).optional().allow(null)
 }).custom((value, helpers) => {
   // Validation: If child (< 18), must have parentGuardianIds
   if (value.dateOfBirth) {
@@ -1275,9 +1316,37 @@ const memberUpdateSchema = Joi.object({
     Joi.date(),
     Joi.string().allow('', null)
   ).optional().allow(null, ''),
+  gender: Joi.string().max(50).optional().allow(null, ''),
+  medicalConcerns: Joi.string().max(2000).optional().allow('', null),
+  injuryHistoryDate: Joi.alternatives().try(
+    Joi.date(),
+    Joi.string().allow('', null).custom((value, helpers) => {
+      if (!value || value.trim() === '') {
+        return null
+      }
+      const date = new Date(value)
+      if (isNaN(date.getTime())) {
+        return helpers.error('any.invalid', { message: 'injuryHistoryDate must be a valid date' })
+      }
+      return date
+    })
+  ).optional().allow(null, '').messages({
+    'any.invalid': 'injuryHistoryDate must be a valid date'
+  }),
+  injuryHistoryBodyPart: Joi.string().max(200).optional().allow('', null),
+  injuryHistoryNotes: Joi.string().max(2000).optional().allow('', null),
+  noInjuryHistory: Joi.boolean().optional(),
+  experience: Joi.string().max(5000).optional().allow('', null),
   username: Joi.string().max(50).optional().allow(null, ''),
   password: Joi.string().min(6).optional().allow(null, ''),
   parentGuardianIds: Joi.array().items(Joi.number().integer()).optional().allow(null),
+  parentGuardians: Joi.array().items(
+    Joi.object({
+      id: Joi.number().integer().required(),
+      relationship: Joi.string().max(100).optional().allow('', null),
+      relationshipOther: Joi.string().max(200).optional().allow('', null)
+    })
+  ).optional().allow(null),
   hasCompletedWaivers: Joi.boolean().optional(),
   waiverCompletionDate: Joi.date().optional().allow(null),
   medicalNotes: Joi.string().max(2000).optional().allow(null, ''),
@@ -5593,7 +5662,20 @@ app.post('/api/admin/members', async (req, res) => {
     
     // Validate parent/guardian IDs if child (< 18)
     const isChild = value.dateOfBirth && !isAdult(value.dateOfBirth)
-    let parentGuardianIds = value.parentGuardianIds || []
+    
+    // Support both new parentGuardians structure (with relationships) and legacy parentGuardianIds
+    let parentGuardianIds = []
+    let parentGuardians = value.parentGuardians || []
+    
+    if (parentGuardians.length > 0) {
+      // New structure: extract IDs from parentGuardians array
+      parentGuardianIds = parentGuardians.map(pg => pg.id).filter(id => id > 0) // Filter out negative IDs (family members)
+    } else {
+      // Legacy structure: use parentGuardianIds directly
+      parentGuardianIds = value.parentGuardianIds || []
+      // Convert to parentGuardians format for consistency
+      parentGuardians = parentGuardianIds.map(id => ({ id, relationship: null, relationshipOther: null }))
+    }
     
     if (isChild) {
       if (!parentGuardianIds || parentGuardianIds.length === 0) {
@@ -5628,9 +5710,11 @@ app.post('/api/admin/members', async (req, res) => {
         date_of_birth, username, password_hash,
         address, billing_street, billing_city, billing_state, billing_zip,
         parent_guardian_ids, has_completed_waivers, waiver_completion_date,
-        medical_notes, internal_flags, status, is_active
+        medical_notes, medical_concerns, internal_flags,
+        gender, injury_history_date, injury_history_body_part, injury_history_notes, no_injury_history,
+        experience, status, is_active
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 'legacy', TRUE)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, 'legacy', TRUE)
       RETURNING *
     `
     
@@ -5653,7 +5737,14 @@ app.post('/api/admin/members', async (req, res) => {
       value.hasCompletedWaivers || false,
       value.hasCompletedWaivers && value.waiverCompletionDate ? value.waiverCompletionDate : null,
       value.medicalNotes || null,
-      value.internalFlags || null
+      value.medicalConcerns || null,
+      value.internalFlags || null,
+      value.gender || null,
+      value.injuryHistoryDate && value.injuryHistoryDate !== '' ? value.injuryHistoryDate : null,
+      value.injuryHistoryBodyPart || null,
+      value.injuryHistoryNotes || null,
+      value.noInjuryHistory || false,
+      value.experience || null
     ]
     
     const memberResult = await client.query(insertQuery, insertParams)
@@ -5738,8 +5829,31 @@ app.post('/api/admin/members', async (req, res) => {
       }
     }
     
-    // Update parent/guardian authority table (keep for relationship metadata)
-    if (parentGuardianIds.length > 0) {
+    // Update parent/guardian authority table (save relationship metadata)
+    if (parentGuardians.length > 0) {
+      for (const pg of parentGuardians) {
+        // Only process if ID is positive (negative IDs are temporary family member IDs)
+        if (pg.id > 0) {
+          try {
+            await client.query(`
+              INSERT INTO parent_guardian_authority (parent_member_id, child_member_id, has_legal_authority, relationship, notes)
+              VALUES ($1, $2, TRUE, $3, $4)
+              ON CONFLICT (parent_member_id, child_member_id) DO UPDATE
+              SET has_legal_authority = TRUE, relationship = $3, notes = $4, updated_at = NOW()
+            `, [
+              pg.id, 
+              member.id, 
+              pg.relationship || null,
+              pg.relationshipOther || null
+            ])
+          } catch (pgError) {
+            // Table might not exist, that's okay - we're using parent_guardian_ids array
+            console.warn('Error updating parent_guardian_authority:', pgError.message)
+          }
+        }
+      }
+    } else if (parentGuardianIds.length > 0) {
+      // Legacy: only IDs provided, save without relationship info
       for (const parentId of parentGuardianIds) {
         try {
           await client.query(`
@@ -5959,6 +6073,31 @@ app.put('/api/admin/members/:id', async (req, res) => {
       updates.push(`billing_zip = $${paramCount}`)
       params.push(value.billingZip || null)
     }
+    if (value.injuryHistoryDate !== undefined) {
+      paramCount++
+      updates.push(`injury_history_date = $${paramCount}`)
+      params.push(value.injuryHistoryDate && value.injuryHistoryDate !== '' ? value.injuryHistoryDate : null)
+    }
+    if (value.injuryHistoryBodyPart !== undefined) {
+      paramCount++
+      updates.push(`injury_history_body_part = $${paramCount}`)
+      params.push(value.injuryHistoryBodyPart || null)
+    }
+    if (value.injuryHistoryNotes !== undefined) {
+      paramCount++
+      updates.push(`injury_history_notes = $${paramCount}`)
+      params.push(value.injuryHistoryNotes || null)
+    }
+    if (value.noInjuryHistory !== undefined) {
+      paramCount++
+      updates.push(`no_injury_history = $${paramCount}`)
+      params.push(value.noInjuryHistory || false)
+    }
+    if (value.experience !== undefined) {
+      paramCount++
+      updates.push(`experience = $${paramCount}`)
+      params.push(value.experience || null)
+    }
     
     if (updates.length === 0) {
       await client.query('ROLLBACK')
@@ -6076,16 +6215,29 @@ app.put('/api/admin/members/:id', async (req, res) => {
       }
     }
     
-    // Update parent/guardian authority table if parentGuardianIds changed
-    if (value.parentGuardianIds !== undefined) {
+    // Update parent/guardian authority table if parentGuardianIds or parentGuardians changed
+    if (value.parentGuardianIds !== undefined || value.parentGuardians !== undefined) {
       // Delete existing relationships
       try {
         await client.query(`
           DELETE FROM parent_guardian_authority WHERE child_member_id = $1
         `, [id])
         
-        // Add new relationships
-        if (value.parentGuardianIds && value.parentGuardianIds.length > 0) {
+        // Use parentGuardians if provided (with relationships), otherwise use parentGuardianIds
+        if (value.parentGuardians && value.parentGuardians.length > 0) {
+          // New structure: save with relationships
+          for (const pg of value.parentGuardians) {
+            if (pg.id > 0) { // Only process positive IDs
+              await client.query(`
+                INSERT INTO parent_guardian_authority (parent_member_id, child_member_id, has_legal_authority, relationship, notes)
+                VALUES ($1, $2, TRUE, $3, $4)
+                ON CONFLICT (parent_member_id, child_member_id) DO UPDATE
+                SET has_legal_authority = TRUE, relationship = $3, notes = $4, updated_at = NOW()
+              `, [pg.id, id, pg.relationship || null, pg.relationshipOther || null])
+            }
+          }
+        } else if (value.parentGuardianIds && value.parentGuardianIds.length > 0) {
+          // Legacy structure: only IDs provided
           for (const parentId of value.parentGuardianIds) {
             await client.query(`
               INSERT INTO parent_guardian_authority (parent_member_id, child_member_id, has_legal_authority)

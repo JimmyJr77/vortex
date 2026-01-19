@@ -1444,11 +1444,32 @@ export default function AdminMembers() {
         // Get date of birth from member or section tempData
         const dateOfBirth = member.dateOfBirth || member.sections.personalData?.tempData?.dateOfBirth || null
         
+        // Get personal data from member or section tempData
+        const gender = member.gender || member.sections.personalData?.tempData?.gender || null
+        const medicalConcerns = member.medicalConcerns || member.sections.personalData?.tempData?.medicalConcerns || null
+        const injuryHistoryDate = member.injuryHistoryDate || member.sections.personalData?.tempData?.injuryHistoryDate || null
+        const injuryHistoryBodyPart = member.injuryHistoryBodyPart || member.sections.personalData?.tempData?.injuryHistoryBodyPart || null
+        const injuryHistoryNotes = member.injuryHistoryNotes || member.sections.personalData?.tempData?.injuryHistoryNotes || null
+        const noInjuryHistory = member.noInjuryHistory !== undefined 
+          ? member.noInjuryHistory 
+          : (member.sections.personalData?.tempData?.noInjuryHistory || false)
+        
+        // Get experience from member or section tempData
+        const experience = member.experience || member.sections.previousClasses?.tempData?.experience || null
+        
         // Get waiver status from member or section tempData
         const hasCompletedWaivers = member.hasCompletedWaivers !== undefined 
           ? member.hasCompletedWaivers 
           : (member.sections.waivers?.tempData?.hasCompletedWaivers || false)
         const waiverCompletionDate = member.waiverCompletionDate || member.sections.waivers?.tempData?.waiverCompletionDate || null
+        
+        // Get parent/guardians with relationships
+        let parentGuardians: Array<{ id: number; relationship: string; relationshipOther?: string }> | null = null
+        if (member.sections.parentGuardians?.tempData?.parentGuardians) {
+          // New structure: use parentGuardians with relationships
+          parentGuardians = member.sections.parentGuardians.tempData.parentGuardians
+            .filter((pg: { id: number; relationship: string; relationshipOther?: string }) => pg.id > 0) // Filter out negative IDs (family members) for now
+        }
         
         // Build member creation payload
         const memberPayload: {
@@ -1469,10 +1490,18 @@ export default function AdminMembers() {
           billingState?: string | null
           billingZip?: string | null
           medicalNotes?: string | null
+          medicalConcerns?: string | null
           internalFlags: null
+          gender?: string | null
+          injuryHistoryDate?: string | null
+          injuryHistoryBodyPart?: string | null
+          injuryHistoryNotes?: string | null
+          noInjuryHistory?: boolean
+          experience?: string | null
           hasCompletedWaivers: boolean
           waiverCompletionDate: string | null
-          parentGuardianIds: number[] | null
+          parentGuardianIds?: number[] | null
+          parentGuardians?: Array<{ id: number; relationship: string; relationshipOther?: string }> | null
         } = {
           firstName: member.sections.contactInfo.tempData.firstName,
           lastName: member.sections.contactInfo.tempData.lastName,
@@ -1492,10 +1521,18 @@ export default function AdminMembers() {
           billingState: billingInfo.addressState || null,
           billingZip: billingInfo.addressZip || null,
           medicalNotes: member.medicalNotes || null,
+          medicalConcerns: medicalConcerns || null,
           internalFlags: null,
+          gender: gender || null,
+          injuryHistoryDate: injuryHistoryDate || null,
+          injuryHistoryBodyPart: injuryHistoryBodyPart || null,
+          injuryHistoryNotes: injuryHistoryNotes || null,
+          noInjuryHistory: noInjuryHistory,
+          experience: experience || null,
           hasCompletedWaivers,
           waiverCompletionDate,
-          parentGuardianIds: parentGuardianIds.length > 0 ? parentGuardianIds : null
+          parentGuardianIds: parentGuardianIds.length > 0 ? parentGuardianIds : null,
+          parentGuardians: parentGuardians && parentGuardians.length > 0 ? parentGuardians : null
         }
         
         // Add family information based on mode
@@ -1703,11 +1740,32 @@ export default function AdminMembers() {
         // Get date of birth from member or section tempData
         const dateOfBirth = member.dateOfBirth || member.sections.personalData?.tempData?.dateOfBirth || null
         
+        // Get personal data from member or section tempData
+        const gender = member.gender || member.sections.personalData?.tempData?.gender || null
+        const medicalConcerns = member.medicalConcerns || member.sections.personalData?.tempData?.medicalConcerns || null
+        const injuryHistoryDate = member.injuryHistoryDate || member.sections.personalData?.tempData?.injuryHistoryDate || null
+        const injuryHistoryBodyPart = member.injuryHistoryBodyPart || member.sections.personalData?.tempData?.injuryHistoryBodyPart || null
+        const injuryHistoryNotes = member.injuryHistoryNotes || member.sections.personalData?.tempData?.injuryHistoryNotes || null
+        const noInjuryHistory = member.noInjuryHistory !== undefined 
+          ? member.noInjuryHistory 
+          : (member.sections.personalData?.tempData?.noInjuryHistory || false)
+        
+        // Get experience from member or section tempData
+        const experience = member.experience || member.sections.previousClasses?.tempData?.experience || null
+        
         // Get waiver status from member or section tempData
         const hasCompletedWaivers = member.hasCompletedWaivers !== undefined 
           ? member.hasCompletedWaivers 
           : (member.sections.waivers?.tempData?.hasCompletedWaivers || false)
         const waiverCompletionDate = member.waiverCompletionDate || member.sections.waivers?.tempData?.waiverCompletionDate || null
+        
+        // Get parent/guardians with relationships
+        let parentGuardians: Array<{ id: number; relationship: string; relationshipOther?: string }> | null = null
+        if (member.sections.parentGuardians?.tempData?.parentGuardians) {
+          // New structure: use parentGuardians with relationships
+          parentGuardians = member.sections.parentGuardians.tempData.parentGuardians
+            .filter((pg: { id: number; relationship: string; relationshipOther?: string }) => pg.id > 0) // Filter out negative IDs (family members) for now
+        }
         
         // Build member creation payload
         const memberPayload: {
@@ -1726,10 +1784,18 @@ export default function AdminMembers() {
           billingState?: string | null
           billingZip?: string | null
           medicalNotes?: string | null
+          medicalConcerns?: string | null
           internalFlags: null
+          gender?: string | null
+          injuryHistoryDate?: string | null
+          injuryHistoryBodyPart?: string | null
+          injuryHistoryNotes?: string | null
+          noInjuryHistory?: boolean
+          experience?: string | null
           hasCompletedWaivers: boolean
           waiverCompletionDate: string | null
-          parentGuardianIds: number[] | null
+          parentGuardianIds?: number[] | null
+          parentGuardians?: Array<{ id: number; relationship: string; relationshipOther?: string }> | null
         } = {
           familyId: familyId,
           familyPassword: familyJoinInfo.familyPassword,
@@ -1751,10 +1817,18 @@ export default function AdminMembers() {
           billingState: billingInfo.addressState || null,
           billingZip: billingInfo.addressZip || null,
           medicalNotes: member.medicalNotes || null,
+          medicalConcerns: medicalConcerns || null,
           internalFlags: null,
+          gender: gender || null,
+          injuryHistoryDate: injuryHistoryDate || null,
+          injuryHistoryBodyPart: injuryHistoryBodyPart || null,
+          injuryHistoryNotes: injuryHistoryNotes || null,
+          noInjuryHistory: noInjuryHistory,
+          experience: experience || null,
           hasCompletedWaivers,
           waiverCompletionDate,
-          parentGuardianIds: parentGuardianIds.length > 0 ? parentGuardianIds : null
+          parentGuardianIds: parentGuardianIds.length > 0 ? parentGuardianIds : null,
+          parentGuardians: parentGuardians && parentGuardians.length > 0 ? parentGuardians : null
         }
         
         // Create member using unified endpoint
