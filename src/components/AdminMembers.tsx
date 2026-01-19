@@ -1158,6 +1158,10 @@ export default function AdminMembers() {
         updatePayload.gender = (gender && gender.trim() !== '') ? gender.trim() : null
         updatePayload.medicalConcerns = (medicalConcerns && medicalConcerns.trim() !== '') ? medicalConcerns.trim() : null
         
+        console.log('[handleSaveMemberEdit] Gender value:', gender, '->', updatePayload.gender)
+        console.log('[handleSaveMemberEdit] MedicalConcerns value:', medicalConcerns, '->', updatePayload.medicalConcerns)
+        console.log('[handleSaveMemberEdit] Full update payload:', updatePayload)
+        
         if (password && password !== 'vortex') {
           updatePayload.password = password
         }
