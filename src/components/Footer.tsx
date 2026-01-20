@@ -103,12 +103,14 @@ const Footer = ({ onContactClick, onLoginClick, onMemberLoginClick }: FooterProp
                   </li>
                 ))}
                 <li>
-                  <button
-                    onClick={onContactClick}
+                  <a
+                    href="https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgId=557920"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
                   >
                     Login
-                  </button>
+                  </a>
                 </li>
                 {onMemberLoginClick && (
                   <li>

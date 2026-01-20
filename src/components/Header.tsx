@@ -80,16 +80,18 @@ const Header = ({ onContactClick, onMemberLoginClick, onAdminLoginClick, member,
               >
                 Member Portal
               </motion.button>
-            ) : onMemberLoginClick ? (
-              <motion.button
-                onClick={onMemberLoginClick}
-                className="bg-gray-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-600 hover:scale-105 hover:shadow-lg"
+            ) : (
+              <motion.a
+                href="https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgId=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gray-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-600 hover:scale-105 hover:shadow-lg inline-block"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Login
-              </motion.button>
-            ) : null}
+              </motion.a>
+            )}
 
             {/* Hamburger Menu Button */}
             <button
@@ -130,16 +132,16 @@ const Header = ({ onContactClick, onMemberLoginClick, onAdminLoginClick, member,
             
             {/* Login Links */}
             <div className="space-y-3">
-              {onMemberLoginClick && !member && (
-                <button
-                  onClick={() => {
-                    onMemberLoginClick()
-                    setIsMenuOpen(false)
-                  }}
+              {!member && (
+                <a
+                  href="https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgId=557920"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMenuOpen(false)}
                   className="block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium"
                 >
                   Member Login
-                </button>
+                </a>
               )}
               {onAdminLoginClick && (
                 <button
