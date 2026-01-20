@@ -126,7 +126,6 @@ function App() {
     <div className="min-h-screen bg-white">
       <Header 
         onContactClick={handleContactClick}
-        onMemberLoginClick={() => setIsMemberLoginOpen(true)}
         onAdminLoginClick={() => setIsLoginOpen(true)}
         member={member}
         onMemberDashboardClick={() => setShowMemberDashboard(true)}

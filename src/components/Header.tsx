@@ -5,13 +5,12 @@ import { Link, useLocation } from 'react-router-dom'
 
 interface HeaderProps {
   onContactClick: () => void
-  onMemberLoginClick?: () => void
   onAdminLoginClick?: () => void
   member?: any
   onMemberDashboardClick?: () => void
 }
 
-const Header = ({ onContactClick, onMemberLoginClick, onAdminLoginClick, member, onMemberDashboardClick }: HeaderProps) => {
+const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
 
