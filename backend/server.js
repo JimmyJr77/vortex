@@ -2545,12 +2545,21 @@ app.get('/api/admin/members', async (req, res) => {
           m.billing_zip,
           m.date_of_birth,
           m.medical_notes,
+          m.medical_concerns,
+          m.gender,
+          m.injury_history_date,
+          m.injury_history_body_part,
+          m.injury_history_notes,
+          m.no_injury_history,
+          m.experience,
           m.internal_flags,
           m.status,
           m.is_active,
           m.family_is_active,
           m.family_id,
           m.username,
+          m.has_completed_waivers,
+          m.waiver_completion_date,
           m.created_at,
           m.updated_at,
           f.family_name,
@@ -2706,6 +2715,13 @@ app.get('/api/admin/members', async (req, res) => {
         dateOfBirth: row.date_of_birth,
         age: row.age ? parseInt(row.age) : null,
         medicalNotes: row.medical_notes,
+        medicalConcerns: row.medical_concerns,
+        gender: row.gender,
+        injuryHistoryDate: row.injury_history_date,
+        injuryHistoryBodyPart: row.injury_history_body_part,
+        injuryHistoryNotes: row.injury_history_notes,
+        noInjuryHistory: row.no_injury_history || false,
+        experience: row.experience,
         internalFlags: row.internal_flags,
         status: row.status,
         isActive: row.is_active,
@@ -2713,8 +2729,10 @@ app.get('/api/admin/members', async (req, res) => {
         familyId: row.family_id,
         familyName: row.family_name,
         username: row.username,
-      roles: rolesMap[row.id] || [],
-      enrollments: enrollmentsMap[row.id] || [],
+        hasCompletedWaivers: row.has_completed_waivers || false,
+        waiverCompletionDate: row.waiver_completion_date,
+        roles: rolesMap[row.id] || [],
+        enrollments: enrollmentsMap[row.id] || [],
         createdAt: row.created_at,
         updatedAt: row.updated_at
       }))
@@ -6122,100 +6140,7 @@ app.put('/api/admin/members/:id', async (req, res) => {
     
     console.log(`[PUT /api/admin/members/:id] Update successful`)
     
-    // Sync app_user record if login credentials are present
-    // Get updated member data to check for email/username/password
-    const updatedMemberCheck = await client.query('SELECT email, username, password_hash, first_name, last_name, phone, is_active, facility_id, address FROM member WHERE id = $1', [id])
-    if (updatedMemberCheck.rows.length > 0) {
-      const updatedMemberData = updatedMemberCheck.rows[0]
-      const hasLoginCredentials = (updatedMemberData.email || updatedMemberData.username) && updatedMemberData.password_hash
-      
-      if (hasLoginCredentials) {
-        try {
-          const fullName = `${value.firstName !== undefined ? value.firstName : updatedMemberData.first_name} ${value.lastName !== undefined ? value.lastName : updatedMemberData.last_name}`.trim()
-          const memberEmail = value.email !== undefined ? (value.email || null) : updatedMemberData.email
-          const memberUsername = value.username !== undefined ? (value.username || null) : updatedMemberData.username
-          const memberPhone = value.phone !== undefined ? (value.phone || null) : updatedMemberData.phone
-          const memberPasswordHash = value.password !== undefined && value.password ? await bcrypt.hash(value.password, 10) : updatedMemberData.password_hash
-          const memberIsActive = value.isActive !== undefined ? value.isActive : updatedMemberData.is_active
-          
-          // Determine role (check if child)
-          let memberRole = 'PARENT_GUARDIAN'
-          if (value.dateOfBirth !== undefined || existingMember.date_of_birth) {
-            const dob = value.dateOfBirth || existingMember.date_of_birth
-            if (dob && !isAdult(dob)) {
-              memberRole = 'ATHLETE'
-            }
-          }
-          
-          // Get facility_id
-          let memberFacilityId = null
-          const facilityCheck = await client.query('SELECT id FROM facility LIMIT 1')
-          if (facilityCheck.rows.length > 0) {
-            memberFacilityId = facilityCheck.rows[0].id
-          }
-          
-          // Check if app_user exists
-          const existingAppUser = await client.query('SELECT id FROM app_user WHERE id = $1', [id])
-          
-          if (existingAppUser.rows.length > 0) {
-            // Update existing app_user
-            await client.query(`
-              UPDATE app_user
-              SET 
-                full_name = $1,
-                email = $2,
-                phone = $3,
-                username = $4,
-                password_hash = $5,
-                role = $6,
-                is_active = $7,
-                facility_id = $8,
-                address = $9,
-                updated_at = NOW()
-              WHERE id = $10
-            `, [
-              fullName,
-              memberEmail,
-              memberPhone,
-              memberUsername,
-              memberPasswordHash,
-              memberRole,
-              memberIsActive,
-              memberFacilityId,
-              value.address !== undefined ? (value.address || null) : updatedMemberData.address,
-              id
-            ])
-            console.log(`[PUT /api/admin/members] Updated app_user record for member ${id}`)
-          } else {
-            // Create new app_user
-            await client.query(`
-              INSERT INTO app_user (
-                id, full_name, email, phone, username, password_hash,
-                role, is_active, facility_id, address, created_at, updated_at
-              )
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
-            `, [
-              id,
-              fullName,
-              memberEmail,
-              memberPhone,
-              memberUsername,
-              memberPasswordHash,
-              memberRole,
-              memberIsActive,
-              memberFacilityId,
-              value.address !== undefined ? (value.address || null) : updatedMemberData.address
-            ])
-            console.log(`[PUT /api/admin/members] Created app_user record for member ${id}`)
-          }
-        } catch (appUserError) {
-          // Log error but don't fail member update
-          console.error('[PUT /api/admin/members] Error syncing app_user:', appUserError.message)
-        }
-      }
-    }
-    
-    // Update parent/guardian authority table if parentGuardianIds or parentGuardians changed
+    // Update parent/guardian authority table BEFORE app_user sync (to avoid transaction abort issues)
     if (value.parentGuardianIds !== undefined || value.parentGuardians !== undefined) {
       // Delete existing relationships
       try {
@@ -6248,8 +6173,150 @@ app.put('/api/admin/members/:id', async (req, res) => {
           }
         }
       } catch (pgError) {
-        // Table might not exist, that's okay
-        console.warn('Error updating parent_guardian_authority:', pgError.message)
+        // Table might not exist, that's okay - use savepoint to prevent transaction abort
+        try {
+          await client.query('SAVEPOINT before_pg_authority')
+          console.warn('Error updating parent_guardian_authority:', pgError.message)
+          await client.query('ROLLBACK TO SAVEPOINT before_pg_authority')
+        } catch (spError) {
+          console.warn('Error handling parent_guardian_authority error:', spError.message)
+        }
+      }
+    }
+    
+    // Sync app_user record if login credentials are present
+    // Get updated member data to check for email/username/password
+    const updatedMemberCheck = await client.query('SELECT email, username, password_hash, first_name, last_name, phone, is_active, facility_id, address FROM member WHERE id = $1', [id])
+    if (updatedMemberCheck.rows.length > 0) {
+      const updatedMemberData = updatedMemberCheck.rows[0]
+      const hasLoginCredentials = (updatedMemberData.email || updatedMemberData.username) && updatedMemberData.password_hash
+      
+      if (hasLoginCredentials) {
+        // Use savepoint to prevent app_user sync errors from aborting the transaction
+        await client.query('SAVEPOINT before_app_user_sync')
+        try {
+          const fullName = `${value.firstName !== undefined ? value.firstName : updatedMemberData.first_name} ${value.lastName !== undefined ? value.lastName : updatedMemberData.last_name}`.trim()
+          const memberEmail = value.email !== undefined ? (value.email || null) : updatedMemberData.email
+          const memberUsername = value.username !== undefined ? (value.username || null) : updatedMemberData.username
+          const memberPhone = value.phone !== undefined ? (value.phone || null) : updatedMemberData.phone
+          const memberPasswordHash = value.password !== undefined && value.password ? await bcrypt.hash(value.password, 10) : updatedMemberData.password_hash
+          const memberIsActive = value.isActive !== undefined ? value.isActive : updatedMemberData.is_active
+          
+          // Determine role (check if child)
+          let memberRole = 'PARENT_GUARDIAN'
+          if (value.dateOfBirth !== undefined || existingMember.date_of_birth) {
+            const dob = value.dateOfBirth || existingMember.date_of_birth
+            if (dob && !isAdult(dob)) {
+              memberRole = 'ATHLETE'
+            }
+          }
+          
+          // Get facility_id
+          let memberFacilityId = null
+          const facilityCheck = await client.query('SELECT id FROM facility LIMIT 1')
+          if (facilityCheck.rows.length > 0) {
+            memberFacilityId = facilityCheck.rows[0].id
+          }
+          
+          // Check if app_user exists (by checking if member.id exists in app_user table)
+          const existingAppUser = await client.query('SELECT id FROM app_user WHERE id = $1', [id])
+          
+          if (existingAppUser.rows.length > 0) {
+            // EDIT MODE: app_user exists, so this is an edit
+            // Allow duplicate email - just update whatever email is provided
+            await client.query(`
+              UPDATE app_user
+              SET 
+                full_name = $1,
+                email = $2,
+                phone = $3,
+                username = $4,
+                password_hash = $5,
+                role = $6,
+                is_active = $7,
+                facility_id = $8,
+                address = $9,
+                updated_at = NOW()
+              WHERE id = $10
+            `, [
+              fullName,
+              memberEmail,
+              memberPhone,
+              memberUsername,
+              memberPasswordHash,
+              memberRole,
+              memberIsActive,
+              memberFacilityId,
+              value.address !== undefined ? (value.address || null) : updatedMemberData.address,
+              id
+            ])
+            console.log(`[PUT /api/admin/members] Updated app_user record for member ${id} (edit mode - email update allowed)`)
+          } else {
+            // NEW USER MODE: app_user doesn't exist, so this is a new user
+            // Check for duplicate email before creating
+            if (memberEmail) {
+              const emailCheck = await client.query('SELECT id FROM app_user WHERE email = $1 AND facility_id = $2', [memberEmail, memberFacilityId])
+              if (emailCheck.rows.length > 0) {
+                // Email already exists for another user - skip app_user creation
+                console.warn(`[PUT /api/admin/members] Email ${memberEmail} already exists for another app_user, skipping app_user creation for new member ${id}`)
+              } else {
+                // Email is available, create new app_user
+                await client.query(`
+                  INSERT INTO app_user (
+                    id, full_name, email, phone, username, password_hash,
+                    role, is_active, facility_id, address, created_at, updated_at
+                  )
+                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+                `, [
+                  id,
+                  fullName,
+                  memberEmail,
+                  memberPhone,
+                  memberUsername,
+                  memberPasswordHash,
+                  memberRole,
+                  memberIsActive,
+                  memberFacilityId,
+                  value.address !== undefined ? (value.address || null) : updatedMemberData.address
+                ])
+                console.log(`[PUT /api/admin/members] Created app_user record for member ${id} (new user mode)`)
+              }
+            } else {
+              // No email provided, create app_user without email
+              await client.query(`
+                INSERT INTO app_user (
+                  id, full_name, phone, username, password_hash,
+                  role, is_active, facility_id, address, created_at, updated_at
+                )
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+              `, [
+                id,
+                fullName,
+                memberPhone,
+                memberUsername,
+                memberPasswordHash,
+                memberRole,
+                memberIsActive,
+                memberFacilityId,
+                value.address !== undefined ? (value.address || null) : updatedMemberData.address
+              ])
+              console.log(`[PUT /api/admin/members] Created app_user record for member ${id} (new user mode, no email)`)
+            }
+          }
+          // Release savepoint on success
+          await client.query('RELEASE SAVEPOINT before_app_user_sync')
+        } catch (appUserError) {
+          // Log error but don't fail member update
+          // Rollback to savepoint to continue transaction
+          try {
+            await client.query('ROLLBACK TO SAVEPOINT before_app_user_sync')
+            console.error('[PUT /api/admin/members] Error syncing app_user (rolled back to savepoint):', appUserError.message)
+          } catch (spError) {
+            // If rollback fails, the transaction is already aborted - we need to rollback the whole transaction
+            console.error('[PUT /api/admin/members] Error rolling back to savepoint, transaction may be aborted:', spError.message)
+            throw spError
+          }
+        }
       }
     }
     

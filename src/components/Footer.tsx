@@ -4,9 +4,10 @@ import { Mail, Phone, MapPin, Instagram, Facebook, Twitter, ArrowUp } from 'luci
 interface FooterProps {
   onContactClick: () => void
   onLoginClick?: () => void
+  onMemberLoginClick?: () => void
 }
 
-const Footer = ({ onContactClick, onLoginClick }: FooterProps) => {
+const Footer = ({ onContactClick, onLoginClick, onMemberLoginClick }: FooterProps) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -109,6 +110,16 @@ const Footer = ({ onContactClick, onLoginClick }: FooterProps) => {
                     Login
                   </button>
                 </li>
+                {onMemberLoginClick && (
+                  <li>
+                    <button
+                      onClick={onMemberLoginClick}
+                      className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
+                    >
+                      Beta Login
+                    </button>
+                  </li>
+                )}
                 {onLoginClick && (
                   <li>
                     <button

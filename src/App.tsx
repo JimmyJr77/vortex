@@ -176,6 +176,7 @@ function App() {
       <Footer 
         onContactClick={handleContactClick} 
         onLoginClick={() => setIsLoginOpen(true)}
+        onMemberLoginClick={() => setIsMemberLoginOpen(true)}
       />
       
       {/* Opening Popup - shows on first visit */}
