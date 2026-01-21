@@ -180,18 +180,14 @@ const ReadBoard = () => {
               classes: [
                 { name: 'Tornadoes', discipline: 'gymnastics' },
                 { name: 'Cyclones', discipline: 'gymnastics' },
-                { name: 'Vortex A4 Elite', discipline: 'gymnastics' },
-                { name: 'Tornadoes', discipline: 'athleticism' },
-                { name: 'Cyclones', discipline: 'athleticism' }
+                { name: 'Vortex A4 Elite', discipline: 'gymnastics' }
               ] 
             },
             { 
               time: '7:00 PM - 8:30 PM', 
               classes: [
                 { name: 'Cyclones', discipline: 'gymnastics' },
-                { name: 'Vortex A4 Elite', discipline: 'gymnastics' },
-                { name: 'Vortex Elite', discipline: 'athleticism' },
-                { name: 'Typhoons (Adult Gymnastics)', discipline: 'other' }
+                { name: 'Vortex A4 Elite', discipline: 'gymnastics' }
               ] 
             }
           ]
@@ -446,7 +442,64 @@ const ReadBoard = () => {
     }
   }
 
+  type ProgramType = 'developmental' | 'gymnastics' | 'athletics-fitness' | 'ninja' | 'adult' | 'homeschool'
+
+  const getProgramType = (name: string, discipline: ScheduledClass['discipline']): ProgramType => {
+    // Developmental classes
+    if (name === 'Dust Devils (Mommy & Me)' || name === 'Dust Devils' || name === 'Little Twisters') {
+      return 'developmental'
+    }
+    
+    // Homeschool
+    if (name === 'Hurricane Academy') {
+      return 'homeschool'
+    }
+    
+    // Adult classes
+    if (name.includes('Typhoons') || name.includes('Adult')) {
+      return 'adult'
+    }
+    
+    // Ninja classes
+    if (discipline === 'ninja') {
+      return 'ninja'
+    }
+    
+    // Athletics & Fitness (includes athleticism accelerator)
+    if (discipline === 'athleticism') {
+      return 'athletics-fitness'
+    }
+    
+    // Gymnastics
+    if (discipline === 'gymnastics') {
+      return 'gymnastics'
+    }
+    
+    // Default fallback
+    return 'gymnastics'
+  }
+
+  const getProgramColor = (programType: ProgramType) => {
+    switch (programType) {
+      case 'developmental':
+        return 'bg-blue-500 text-white'
+      case 'gymnastics':
+        return 'bg-gray-500 text-white'
+      case 'athletics-fitness':
+        return 'bg-vortex-red text-white'
+      case 'ninja':
+        return 'bg-black text-white'
+      case 'adult':
+        return 'bg-purple-500 text-white'
+      case 'homeschool':
+        return 'bg-green-600 text-white'
+      default:
+        return 'bg-gray-200 text-gray-700'
+    }
+  }
+
   const getDisciplineColor = (discipline: ScheduledClass['discipline']) => {
+    // This function is kept for backward compatibility but we'll use getProgramColor instead
     switch (discipline) {
       case 'gymnastics':
         return 'bg-gray-500 text-white'
@@ -761,9 +814,63 @@ const ReadBoard = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-12 text-center">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-8 text-center">
               {months[selectedMonth]} <span className="text-vortex-red">Schedule</span>
             </h2>
+            
+            {/* Color Code Key */}
+            <div className="max-w-5xl mx-auto mb-8">
+              <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border-2 border-gray-200">
+                <h3 className="text-xl font-display font-bold text-black mb-4">Program Color Code</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 rounded bg-blue-500"></div>
+                    <span className="text-sm font-medium text-gray-700">Developmental</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 rounded bg-gray-500"></div>
+                    <span className="text-sm font-medium text-gray-700">Gymnastics</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 rounded bg-vortex-red"></div>
+                    <span className="text-sm font-medium text-gray-700">Athletics & Fitness</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 rounded bg-black"></div>
+                    <span className="text-sm font-medium text-gray-700">Ninja</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 rounded bg-purple-500"></div>
+                    <span className="text-sm font-medium text-gray-700">Adult</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 rounded bg-green-600"></div>
+                    <span className="text-sm font-medium text-gray-700">Homeschool</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Note about Athleticism Accelerator and Ninja */}
+            {(months[selectedMonth] === 'February') && (
+              <div className="max-w-5xl mx-auto mb-8">
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-yellow-700">
+                        <strong>Note:</strong> Athleticism Accelerator and Ninja programs will kick off at the end of February.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {(() => {
               const currentSchedule = monthlySchedules.find(s => s.month === months[selectedMonth])
               
@@ -804,14 +911,17 @@ const ReadBoard = () => {
                             </div>
                             <div className="flex-1">
                               <div className="flex flex-wrap gap-2">
-                                {timeSlot.classes.map((scheduledClass, classIndex) => (
-                                  <span
-                                    key={classIndex}
-                                    className={`inline-block px-4 py-2 rounded-lg font-medium text-sm ${getDisciplineColor(scheduledClass.discipline)}`}
-                                  >
-                                    {formatClassName(scheduledClass.name, scheduledClass.discipline)}
-                                  </span>
-                                ))}
+                                {timeSlot.classes.map((scheduledClass, classIndex) => {
+                                  const programType = getProgramType(scheduledClass.name, scheduledClass.discipline)
+                                  return (
+                                    <span
+                                      key={classIndex}
+                                      className={`inline-block px-4 py-2 rounded-lg font-medium text-sm ${getProgramColor(programType)}`}
+                                    >
+                                      {formatClassName(scheduledClass.name, scheduledClass.discipline)}
+                                    </span>
+                                  )
+                                })}
                               </div>
                             </div>
                           </div>
