@@ -60,10 +60,13 @@ interface MonthlySchedule {
 
 type TabType = 'classes' | 'schedule' | 'calendar'
 
+type ScheduleView = 'day' | 'class'
+
 const ReadBoard = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedMonth, setSelectedMonth] = useState(0) // 0 = January, 11 = December
   const [activeTab, setActiveTab] = useState<TabType>('classes')
+  const [scheduleView, setScheduleView] = useState<ScheduleView>('day')
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -123,6 +126,23 @@ const ReadBoard = () => {
             { 
               time: '7:00 PM - 8:30 PM', 
               classes: [{ name: 'Typhoons (Adult)', discipline: 'gymnastics' }] 
+            }
+          ]
+        },
+        {
+          day: 'Tuesday & Thursday',
+          timeSlots: [
+            { 
+              time: '5:00 PM - 6:30 PM', 
+              classes: [{ name: 'Tornadoes', discipline: 'ninja' }] 
+            },
+            { 
+              time: '6:30 PM - 8:00 PM', 
+              classes: [{ name: 'Cyclones', discipline: 'ninja' }] 
+            },
+            { 
+              time: '8:00 PM - 9:30 PM', 
+              classes: [{ name: 'Vortex Elite', discipline: 'ninja' }] 
             }
           ]
         },
@@ -202,6 +222,23 @@ const ReadBoard = () => {
             { 
               time: '7:00 PM - 8:30 PM', 
               classes: [{ name: 'Typhoons (Adult)', discipline: 'gymnastics' }] 
+            }
+          ]
+        },
+        {
+          day: 'Tuesday & Thursday',
+          timeSlots: [
+            { 
+              time: '5:00 PM - 6:30 PM', 
+              classes: [{ name: 'Tornadoes', discipline: 'ninja' }] 
+            },
+            { 
+              time: '6:30 PM - 8:00 PM', 
+              classes: [{ name: 'Cyclones', discipline: 'ninja' }] 
+            },
+            { 
+              time: '8:00 PM - 9:30 PM', 
+              classes: [{ name: 'Vortex Elite', discipline: 'ninja' }] 
             }
           ]
         },
@@ -614,6 +651,62 @@ const ReadBoard = () => {
     }
   }
 
+  // Transform schedule from day-based to class-based
+  const transformScheduleByClass = (schedule: DaySchedule[]) => {
+    interface ClassSchedule {
+      name: string
+      discipline: ScheduledClass['discipline']
+      programType: ProgramType
+      partialMonth?: boolean
+      sessions: Array<{
+        day: string
+        time: string
+      }>
+    }
+
+    const classMap = new Map<string, ClassSchedule>()
+
+    // Iterate through all days and time slots
+    schedule.forEach((daySchedule) => {
+      daySchedule.timeSlots.forEach((timeSlot) => {
+        timeSlot.classes.forEach((scheduledClass) => {
+          const key = `${scheduledClass.name}-${scheduledClass.discipline}`
+          const programType = getProgramType(scheduledClass.name, scheduledClass.discipline)
+          
+          if (!classMap.has(key)) {
+            classMap.set(key, {
+              name: scheduledClass.name,
+              discipline: scheduledClass.discipline,
+              programType,
+              partialMonth: scheduledClass.partialMonth,
+              sessions: []
+            })
+          }
+          
+          const classSchedule = classMap.get(key)!
+          classSchedule.sessions.push({
+            day: daySchedule.day,
+            time: timeSlot.time
+          })
+        })
+      })
+    })
+
+    // Convert map to array and organize by category
+    const classes = Array.from(classMap.values())
+    
+    // Category order: Developmental, Gymnastics, Ninja, Athletics & Fitness, Homeschool, Adult
+    const categoryOrder: ProgramType[] = ['developmental', 'gymnastics', 'ninja', 'athletics-fitness', 'homeschool', 'adult']
+    
+    // Group by category
+    const groupedByCategory = categoryOrder.map(category => ({
+      category,
+      classes: classes.filter(c => c.programType === category).sort((a, b) => a.name.localeCompare(b.name))
+    })).filter(group => group.classes.length > 0)
+
+    return groupedByCategory
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -763,39 +856,6 @@ const ReadBoard = () => {
 
       {activeTab === 'schedule' && (
         <>
-          {/* Month Selector */}
-          <section className="section-padding bg-gray-50">
-        <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-8 text-center">
-              Monthly <span className="text-vortex-red">Schedule</span>
-            </h2>
-            <div className="flex flex-wrap justify-center gap-3 mb-12 max-w-4xl mx-auto">
-              {months.map((month, index) => (
-                <motion.button
-                  key={month}
-                  onClick={() => setSelectedMonth(index)}
-                  className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
-                    selectedMonth === index
-                      ? 'bg-vortex-red text-white shadow-lg scale-105'
-                      : 'bg-white text-gray-700 hover:bg-gray-100 border-2 border-gray-200'
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {month}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Class Schedule */}
       <section className="section-padding bg-white">
         <div className="container-custom">
@@ -805,9 +865,25 @@ const ReadBoard = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-8 text-center">
-              {months[selectedMonth]} <span className="text-vortex-red">Schedule</span>
-            </h2>
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <button
+                onClick={() => setSelectedMonth((selectedMonth - 1 + 12) % 12)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Previous month"
+              >
+                <ChevronLeft className="w-6 h-6 text-vortex-red" />
+              </button>
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-black text-center">
+                {months[selectedMonth]} <span className="text-vortex-red">Schedule</span>
+              </h2>
+              <button
+                onClick={() => setSelectedMonth((selectedMonth + 1) % 12)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Next month"
+              >
+                <ChevronRight className="w-6 h-6 text-vortex-red" />
+              </button>
+            </div>
             
             {/* Color Code Key */}
             <div className="max-w-5xl mx-auto mb-8">
@@ -862,6 +938,32 @@ const ReadBoard = () => {
               </div>
             )}
 
+            {/* View Toggle */}
+            <div className="max-w-5xl mx-auto mb-8 flex justify-center">
+              <div className="inline-flex rounded-lg border-2 border-gray-200 bg-white p-1">
+                <button
+                  onClick={() => setScheduleView('day')}
+                  className={`px-6 py-2 rounded-md font-semibold text-sm transition-all duration-300 ${
+                    scheduleView === 'day'
+                      ? 'bg-vortex-red text-white shadow-md'
+                      : 'text-gray-700 hover:text-vortex-red'
+                  }`}
+                >
+                  View by Day
+                </button>
+                <button
+                  onClick={() => setScheduleView('class')}
+                  className={`px-6 py-2 rounded-md font-semibold text-sm transition-all duration-300 ${
+                    scheduleView === 'class'
+                      ? 'bg-vortex-red text-white shadow-md'
+                      : 'text-gray-700 hover:text-vortex-red'
+                  }`}
+                >
+                  View by Class
+                </button>
+              </div>
+            </div>
+
             {(() => {
               const currentSchedule = monthlySchedules.find(s => s.month === months[selectedMonth])
               
@@ -875,6 +977,73 @@ const ReadBoard = () => {
                 )
               }
 
+              if (scheduleView === 'class') {
+                // Render by class view
+                const classBasedSchedule = transformScheduleByClass(currentSchedule.schedule)
+                const categoryNames: Record<ProgramType, string> = {
+                  'developmental': 'Developmental',
+                  'gymnastics': 'Gymnastics',
+                  'ninja': 'Ninja',
+                  'athletics-fitness': 'Athletics & Fitness',
+                  'homeschool': 'Homeschool',
+                  'adult': 'Adult'
+                }
+
+                return (
+                  <div className="space-y-8 max-w-5xl mx-auto">
+                    {classBasedSchedule.map((categoryGroup, categoryIndex) => (
+                      <motion.div
+                        key={categoryGroup.category}
+                        className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 md:p-8 border-2 border-gray-200"
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: categoryIndex * 0.1, duration: 0.6 }}
+                        viewport={{ once: true }}
+                      >
+                        <h3 className="text-2xl font-display font-bold text-vortex-red mb-6">
+                          {categoryNames[categoryGroup.category]}
+                        </h3>
+                        <div className="space-y-6">
+                          {categoryGroup.classes.map((classItem, classIndex) => {
+                            const hasPartialMonth = classItem.partialMonth === true
+                            return (
+                              <div
+                                key={classIndex}
+                                className={`p-4 bg-white rounded-lg border border-gray-200 ${
+                                  hasPartialMonth ? 'border-2 border-dashed border-black' : ''
+                                }`}
+                              >
+                                <div className="flex items-center mb-3">
+                                  <span
+                                    className={`inline-block px-4 py-2 rounded-lg font-semibold text-sm ${getProgramColor(classItem.programType)}`}
+                                  >
+                                    {formatClassName(classItem.name, classItem.discipline)}
+                                  </span>
+                                </div>
+                                <div className="space-y-2 ml-2">
+                                  {classItem.sessions.map((session, sessionIndex) => (
+                                    <div
+                                      key={sessionIndex}
+                                      className="flex items-center text-gray-700"
+                                    >
+                                      <Calendar className="w-4 h-4 text-vortex-red mr-2 flex-shrink-0" />
+                                      <span className="font-medium mr-3">{session.day}</span>
+                                      <Clock className="w-4 h-4 text-vortex-red mr-2 flex-shrink-0" />
+                                      <span>{session.time}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )
+              }
+
+              // Render by day view (original)
               return (
                 <div className="space-y-6 max-w-5xl mx-auto">
                   {currentSchedule.schedule.map((daySchedule, dayIndex) => (
