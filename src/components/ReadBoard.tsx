@@ -25,12 +25,16 @@ interface Event {
   address?: string // Address with map link capability
 }
 
+interface ClassDescription {
+  name: string
+  description: string
+}
+
 interface ClassGroup {
   category: string
-  subcategories: {
-    name: string
-    classes: string[]
-  }[]
+  categoryDescription?: string
+  classes: ClassDescription[]
+  tenets?: string[] // For Athleticism Accelerator
 }
 
 interface ScheduledClass {
@@ -229,74 +233,99 @@ const ReadBoard = () => {
   const classGroupings: ClassGroup[] = [
     {
       category: 'Early Development Gymnastics & Athleticism',
-      subcategories: [
+      categoryDescription: 'This category is designed to build the movement foundation every child needs before specialization. Classes emphasize body awareness, balance, coordination, listening skills, and confidence through guided play and structured exploration. The goal is not performance — it\'s building a lifelong relationship with movement.',
+      classes: [
         {
-          name: '',
-          classes: [
-            'Dust Devils — Mommy & Me',
-            'Little Twisters — Preschool & Early Stage'
-          ]
+          name: 'Dust Devils — Mommy & Me',
+          description: 'A parent-assisted class that introduces toddlers to movement in a safe, playful environment. Children develop balance, coordination, spatial awareness, and comfort in a gym setting while strengthening the parent-child bond.'
+        },
+        {
+          name: 'Little Twisters — Preschool & Early Stage Development',
+          description: 'Focuses on independence, following instruction, and foundational gymnastics skills. Children improve coordination, strength, flexibility, and social interaction through age-appropriate challenges and obstacle-based learning.'
         }
       ]
     },
     {
       category: 'Gymnastics',
-      subcategories: [
+      categoryDescription: 'Our gymnastics track builds strength, flexibility, discipline, and technical skill through progressive instruction. Athletes learn how to control their bodies in space, manage risk safely, and develop mental focus — skills that translate to all sports and life.',
+      classes: [
         {
-          name: '',
-          classes: [
-            'Tornadoes — Beginner',
-            'Cyclones — Intermediate',
-            'Vortex A4 Elite — Advanced'
-          ]
+          name: 'Tornadoes — Beginner',
+          description: 'Introduces fundamental gymnastics skills such as rolls, cartwheels, handstands, bridges, and basic tumbling. Emphasis is on safe technique, confidence, flexibility, and learning how to train in a structured environment.'
+        },
+        {
+          name: 'Cyclones — Intermediate',
+          description: 'Athletes refine technique and begin linking skills together. Training focuses on strength, power, flexibility, consistency, and developing confidence in more advanced movements.'
+        },
+        {
+          name: 'Vortex A4 Elite — Advanced',
+          description: 'High-level training for committed athletes. Focus includes advanced tumbling, strength, precision, mental toughness, and performance readiness in a disciplined, goal-oriented setting.'
         }
       ]
     },
     {
       category: 'Vortex Ninja Classes',
-      subcategories: [
+      categoryDescription: 'Ninja classes develop functional strength, agility, grip, coordination, and problem-solving through obstacle-based movement. This track is ideal for athletes who thrive on challenge, creativity, and dynamic movement.',
+      classes: [
         {
-          name: '',
-          classes: [
-            'Tornadoes — Beginner',
-            'Cyclones — Intermediate',
-            'Vortex Elite — Advanced'
-          ]
+          name: 'Tornadoes — Beginner',
+          description: 'Introduces climbing, swinging, jumping, and balance obstacles. Athletes build confidence, grip strength, coordination, and basic obstacle technique.'
+        },
+        {
+          name: 'Cyclones — Intermediate',
+          description: 'Focus shifts to efficiency, speed, and sequencing obstacles. Athletes learn how to move smoothly, conserve energy, and complete more complex challenges.'
+        },
+        {
+          name: 'Vortex Elite — Advanced',
+          description: 'Advanced obstacle training emphasizing endurance, strength, strategy, and mental resilience. Athletes are challenged to perform under pressure and adapt to high-difficulty obstacles.'
         }
       ]
     },
     {
       category: 'Athleticism Accelerator',
-      subcategories: [
+      categoryDescription: 'This program develops complete athletes, not sport-specific specialists. It is built around the 8 Tenets of Athleticism, ensuring athletes move better, perform better, and reduce injury risk across all sports.',
+      tenets: [
+        'Balance & Control – Ability to control the body in static and dynamic positions',
+        'Coordination – Efficient integration of limbs, timing, and movement patterns',
+        'Speed & Acceleration – Linear speed, first-step quickness, and reaction',
+        'Agility & Change of Direction – Stopping, starting, cutting, and re-accelerating safely',
+        'Strength – Age-appropriate foundational and functional strength',
+        'Power – Explosive force production through jumping, throwing, and sprinting',
+        'Mobility & Flexibility – Healthy joint ranges that support performance and injury prevention',
+        'Kinematic Awareness – Understanding where the body is in space during dynamic movements'
+      ],
+      classes: [
         {
-          name: '',
-          classes: [
-            'Tornadoes — Beginner',
-            'Cyclones — Intermediate',
-            'Vortex Elite — Advanced'
-          ]
+          name: 'Tornadoes — Beginner',
+          description: 'Builds foundational athletic skills such as running mechanics, jumping, landing, balance, and coordination. Athletes are introduced to all 8 tenets in an age-appropriate way.'
+        },
+        {
+          name: 'Cyclones — Intermediate',
+          description: 'Focuses on speed, agility, strength development, and efficient movement. Athletes begin refining technique, improving power output, and learning how to train with intent.'
+        },
+        {
+          name: 'Vortex Elite — Advanced',
+          description: 'Advanced performance training emphasizing explosive power, acceleration/deceleration, rotational strength, and sport-transferable movement patterns. Athletes train with purpose and accountability.'
         }
       ]
     },
     {
-      category: 'Adult Training Track Fitness & Acrobatics',
-      subcategories: [
+      category: 'Adult Training Track – Fitness & Acrobatics',
+      categoryDescription: 'Designed for adults seeking strength, mobility, conditioning, and body control in a scalable, supportive environment. No prior gymnastics or acrobatics experience required.',
+      classes: [
         {
-          name: '',
-          classes: [
-            'Typhoons — Adult Fitness'
-          ]
+          name: 'Typhoons — Adult Fitness',
+          description: 'Blends functional fitness, strength training, mobility work, and introductory acrobatics. Ideal for improving overall fitness, coordination, and confidence.'
         }
       ]
     },
     {
       category: 'Hurricane Academy (Homeschool)',
-      subcategories: [
+      categoryDescription: 'A daytime training program that integrates physical development with structure, discipline, and confidence-building — designed to complement homeschool schedules.',
+      classes: [
         {
-          name: '',
-          classes: [
-            'All Levels'
-          ]
+          name: 'All Levels',
+          description: 'Students receive age- and skill-appropriate training across gymnastics, athleticism, and movement education while building focus, strength, and self-confidence.'
         }
       ]
     }
@@ -642,28 +671,41 @@ const ReadBoard = () => {
                   transition={{ delay: groupIndex * 0.1, duration: 0.6 }}
                   viewport={{ once: true }}
                 >
-                  <h3 className="text-2xl font-display font-bold text-vortex-red mb-6">
+                  <h3 className="text-2xl font-display font-bold text-vortex-red mb-4">
                     {group.category}
                   </h3>
+                  {group.categoryDescription && (
+                    <p className="text-gray-700 mb-6 leading-relaxed">
+                      {group.categoryDescription}
+                    </p>
+                  )}
+                  {group.tenets && group.tenets.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="text-lg font-semibold text-black mb-3">
+                        The 8 Tenets of Athleticism:
+                      </h4>
+                      <ul className="space-y-2 ml-4">
+                        {group.tenets.map((tenet, tenetIndex) => (
+                          <li
+                            key={tenetIndex}
+                            className="flex items-start space-x-3 text-gray-700"
+                          >
+                            <Zap className="w-4 h-4 text-vortex-red flex-shrink-0 mt-1" />
+                            <span>{tenet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <div className="space-y-6">
-                    {group.subcategories.map((subcategory, subIndex) => (
-                      <div key={subIndex}>
-                        {subcategory.name && (
-                          <h4 className="text-lg font-semibold text-black mb-3">
-                            {subcategory.name}
-                          </h4>
-                        )}
-                        <ul className="space-y-2 ml-4">
-                          {subcategory.classes.map((className, classIndex) => (
-                            <li
-                              key={classIndex}
-                              className="flex items-start space-x-3 text-gray-700"
-                            >
-                              <Zap className="w-4 h-4 text-vortex-red flex-shrink-0 mt-1" />
-                              <span>{className}</span>
-                            </li>
-                          ))}
-                        </ul>
+                    {group.classes.map((classItem, classIndex) => (
+                      <div key={classIndex} className="border-l-4 border-vortex-red pl-4">
+                        <h4 className="text-lg font-semibold text-black mb-2">
+                          {classItem.name}
+                        </h4>
+                        <p className="text-gray-700 leading-relaxed">
+                          {classItem.description}
+                        </p>
                       </div>
                     ))}
                   </div>
