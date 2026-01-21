@@ -1,11 +1,23 @@
 import { motion } from 'framer-motion'
 import { Zap, Target, TrendingUp, Shield, Users, ArrowRight, CheckCircle } from 'lucide-react'
+import { useRef, useEffect } from 'react'
 
 interface AthleticismAcceleratorProps {
   onSignUpClick: () => void
 }
 
 const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) => {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (video) {
+      video.play().catch((error) => {
+        console.error('Video play error:', error)
+      })
+    }
+  }, [])
+
   const tenets = [
     { 
       name: 'Strength', 
@@ -80,19 +92,31 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black pt-20">
         {/* Video Background */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 z-0">
           <video
+            ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
+            style={{ zIndex: 0, minWidth: '100%', minHeight: '100%' }}
+            onError={(e) => {
+              console.error('Video loading error:', e)
+            }}
+            onLoadedData={() => {
+              console.log('Video loaded successfully')
+            }}
           >
-            <source src="/shuttle_drill_1.mov" type="video/quicktime" />
-            <source src="/shuttle_drill_1.mov" type="video/mp4" />
+            <source src="/shuttle_drill_1.mp4" type="video/mp4" />
+            {/* Fallback for browsers that don't support video */}
+            Your browser does not support the video tag.
           </video>
           {/* Dark Overlay for Text Readability */}
-          <div className="absolute inset-0 bg-black/60"></div>
+          <div className="absolute inset-0 bg-black/60 z-0"></div>
+          {/* Fallback gradient background if video fails to load */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black z-0"></div>
         </div>
 
         <div className="container-custom relative z-10 text-center">
