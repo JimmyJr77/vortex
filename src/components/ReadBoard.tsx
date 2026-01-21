@@ -40,6 +40,7 @@ interface ClassGroup {
 interface ScheduledClass {
   name: string
   discipline: 'gymnastics' | 'ninja' | 'athleticism' | 'other'
+  partialMonth?: boolean // Indicates class is not offered all month
 }
 
 interface ScheduleTimeSlot {
@@ -172,7 +173,8 @@ const ReadBoard = () => {
               time: '4:00 PM - 5:30 PM', 
               classes: [
                 { name: 'Tornadoes', discipline: 'gymnastics' },
-                { name: 'Cyclones', discipline: 'gymnastics' }
+                { name: 'Cyclones', discipline: 'gymnastics' },
+                { name: 'Tornadoes', discipline: 'athleticism', partialMonth: true }
               ] 
             },
             { 
@@ -180,14 +182,16 @@ const ReadBoard = () => {
               classes: [
                 { name: 'Tornadoes', discipline: 'gymnastics' },
                 { name: 'Cyclones', discipline: 'gymnastics' },
-                { name: 'Vortex A4 Elite', discipline: 'gymnastics' }
+                { name: 'Vortex A4 Elite', discipline: 'gymnastics' },
+                { name: 'Cyclones', discipline: 'athleticism', partialMonth: true }
               ] 
             },
             { 
               time: '7:00 PM - 8:30 PM', 
               classes: [
                 { name: 'Cyclones', discipline: 'gymnastics' },
-                { name: 'Vortex A4 Elite', discipline: 'gymnastics' }
+                { name: 'Vortex A4 Elite', discipline: 'gymnastics' },
+                { name: 'Vortex Elite', discipline: 'athleticism', partialMonth: true }
               ] 
             }
           ]
@@ -498,19 +502,6 @@ const ReadBoard = () => {
     }
   }
 
-  const getDisciplineColor = (discipline: ScheduledClass['discipline']) => {
-    // This function is kept for backward compatibility but we'll use getProgramColor instead
-    switch (discipline) {
-      case 'gymnastics':
-        return 'bg-gray-500 text-white'
-      case 'ninja':
-        return 'bg-black text-white'
-      case 'athleticism':
-        return 'bg-vortex-red text-white'
-      default:
-        return 'bg-gray-200 text-gray-700'
-    }
-  }
 
   // Image Slider Component
   const ImageSlider = ({ images }: { images: string[] }) => {
@@ -863,7 +854,7 @@ const ReadBoard = () => {
                     </div>
                     <div className="ml-3">
                       <p className="text-sm text-yellow-700">
-                        <strong>Note:</strong> Athleticism Accelerator and Ninja programs will kick off at the end of February.
+                        <strong>Note:</strong> Athleticism Accelerator and Ninja programs will kick off at the end of February. Classes with a black dashed border indicate they are not offered all month and will begin at the end of February.
                       </p>
                     </div>
                   </div>
@@ -913,10 +904,13 @@ const ReadBoard = () => {
                               <div className="flex flex-wrap gap-2">
                                 {timeSlot.classes.map((scheduledClass, classIndex) => {
                                   const programType = getProgramType(scheduledClass.name, scheduledClass.discipline)
+                                  const hasPartialMonth = scheduledClass.partialMonth === true
                                   return (
                                     <span
                                       key={classIndex}
-                                      className={`inline-block px-4 py-2 rounded-lg font-medium text-sm ${getProgramColor(programType)}`}
+                                      className={`inline-block px-4 py-2 rounded-lg font-medium text-sm ${getProgramColor(programType)} ${
+                                        hasPartialMonth ? 'border-2 border-dashed border-black' : ''
+                                      }`}
                                     >
                                       {formatClassName(scheduledClass.name, scheduledClass.discipline)}
                                     </span>
