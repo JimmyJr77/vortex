@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
+import { formatDateForInput, formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 
 interface DateTimeEntry {
   date: Date
@@ -166,23 +167,35 @@ const EventsView = ({
   showArchived?: boolean
   error?: string | null
 }) => {
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
-    })
+  const formatDate = (date: Date | string) => {
+    // Convert Date to YYYY-MM-DD string for dateUtils
+    if (date instanceof Date) {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return formatDateForDisplay(`${year}-${month}-${day}`)
+    }
+    return formatDateForDisplay(date)
   }
 
-  const formatDateRange = (start: Date, end?: Date) => {
-    if (!end || start.getTime() === end.getTime()) {
-      return formatDate(start)
+  const formatDateRange = (start: Date | string, end?: Date | string) => {
+    const startStr = start instanceof Date 
+      ? `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`
+      : start
+    const endStr = end instanceof Date
+      ? `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`
+      : end
+    
+    if (!endStr || startStr === endStr) {
+      return formatDateForDisplay(startStr)
     }
-    return `${formatDate(start)} - ${formatDate(end)}`
+    return `${formatDateForDisplay(startStr)} - ${formatDateForDisplay(endStr)}`
   }
 
   const formatDateTimeEntry = (entry: DateTimeEntry) => {
-    const dateStr = formatDate(entry.date)
+    const dateStr = entry.date instanceof Date
+      ? formatDateForDisplay(`${entry.date.getFullYear()}-${String(entry.date.getMonth() + 1).padStart(2, '0')}-${String(entry.date.getDate()).padStart(2, '0')}`)
+      : formatDateForDisplay(entry.date)
     
     if (entry.allDay) {
       return `${dateStr}: All Day Event`
@@ -226,10 +239,15 @@ const EventsView = ({
     return searchableText.includes(query)
   }).sort((a, b) => {
     // Handle cases where startDate might not be a valid Date object
+    // Use parseDateOnly to avoid timezone issues
     try {
-      const aTime = a.startDate instanceof Date ? a.startDate.getTime() : new Date(a.startDate).getTime()
-      const bTime = b.startDate instanceof Date ? b.startDate.getTime() : new Date(b.startDate).getTime()
-      return aTime - bTime
+      const aDate = a.startDate instanceof Date 
+        ? a.startDate 
+        : (parseDateOnly(a.startDate) || new Date(a.startDate))
+      const bDate = b.startDate instanceof Date 
+        ? b.startDate 
+        : (parseDateOnly(b.startDate) || new Date(b.startDate))
+      return aDate.getTime() - bDate.getTime()
     } catch {
       return 0
     }
@@ -529,24 +547,31 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       const data = await response.json()
       
       if (data.success && data.data && Array.isArray(data.data)) {
-        // Helper function to parse date strings in local timezone
+        // Helper function to parse date strings using dateUtils for consistent timezone handling
         const parseLocalDate = (dateValue: string | Date | number | null | undefined): Date => {
           if (!dateValue) return new Date()
-          if (dateValue instanceof Date) return dateValue
+          if (dateValue instanceof Date) {
+            // Convert Date to YYYY-MM-DD and parse with dateUtils to avoid timezone issues
+            const dateStr = `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, '0')}-${String(dateValue.getDate()).padStart(2, '0')}`
+            const parsed = parseDateOnly(dateStr)
+            return parsed || dateValue
+          }
           
           // If it's already a Date object (from backend), use it
           if (typeof dateValue === 'object' && dateValue !== null && 'getTime' in dateValue) {
-            return new Date(dateValue as Date)
+            const dateObj = dateValue as Date
+            const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`
+            const parsed = parseDateOnly(dateStr)
+            return parsed || new Date(dateObj)
           }
           
-          // If it's a string, parse it in local timezone
+          // If it's a string, use dateUtils to parse it in local timezone
           if (typeof dateValue === 'string') {
-            // Handle ISO strings (YYYY-MM-DDTHH:mm:ss.sssZ) by extracting just the date part
-            const dateStr = dateValue.split('T')[0] // Get YYYY-MM-DD part
-            const [year, month, day] = dateStr.split('-').map(Number)
-            return new Date(year, month - 1, day)
+            const parsed = parseDateOnly(dateValue)
+            return parsed || new Date(dateValue)
           }
           
+          // Fallback for numbers or other types
           return new Date(dateValue)
         }
         
@@ -638,26 +663,33 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       
       const method = editingEventId ? 'PUT' : 'POST'
       
-      // Helper function to convert Date to YYYY-MM-DD string
-      const formatDateOnly = (date: Date | undefined): string | undefined => {
-        if (!date) return undefined
-        const year = date.getFullYear()
-        const month = String(date.getMonth() + 1).padStart(2, '0')
-        const day = String(date.getDate()).padStart(2, '0')
-        return `${year}-${month}-${day}`
-      }
-      
-      // Convert dates to date-only strings to avoid timezone issues
-      const datesAndTimesFormatted = (eventFormData.datesAndTimes || []).map(entry => ({
-        ...entry,
-        date: formatDateOnly(entry.date instanceof Date ? entry.date : new Date(entry.date)) || formatDateOnly(new Date())
-      }))
+      // Convert dates to date-only strings using dateUtils to avoid timezone issues
+      const datesAndTimesFormatted = (eventFormData.datesAndTimes || []).map(entry => {
+        let dateStr: string
+        if (entry.date instanceof Date) {
+          dateStr = formatDateForInput(`${entry.date.getFullYear()}-${String(entry.date.getMonth() + 1).padStart(2, '0')}-${String(entry.date.getDate()).padStart(2, '0')}`)
+        } else {
+          dateStr = formatDateForInput(entry.date)
+        }
+        return {
+          ...entry,
+          date: dateStr || formatDateForInput(new Date().toISOString().split('T')[0])
+        }
+      })
       
       // If checkbox is checked, use short description as long description
       const dataToSubmit = {
         ...eventFormData,
-        startDate: formatDateOnly(eventFormData.startDate instanceof Date ? eventFormData.startDate : new Date(eventFormData.startDate || new Date())),
-        endDate: eventFormData.endDate ? formatDateOnly(eventFormData.endDate instanceof Date ? eventFormData.endDate : new Date(eventFormData.endDate)) : undefined,
+        startDate: eventFormData.startDate 
+          ? formatDateForInput(eventFormData.startDate instanceof Date 
+              ? `${eventFormData.startDate.getFullYear()}-${String(eventFormData.startDate.getMonth() + 1).padStart(2, '0')}-${String(eventFormData.startDate.getDate()).padStart(2, '0')}`
+              : eventFormData.startDate)
+          : formatDateForInput(new Date().toISOString().split('T')[0]),
+        endDate: eventFormData.endDate 
+          ? formatDateForInput(eventFormData.endDate instanceof Date
+              ? `${eventFormData.endDate.getFullYear()}-${String(eventFormData.endDate.getMonth() + 1).padStart(2, '0')}-${String(eventFormData.endDate.getDate()).padStart(2, '0')}`
+              : eventFormData.endDate)
+          : undefined,
         datesAndTimes: datesAndTimesFormatted,
         longDescription: useShortAsLong ? eventFormData.shortDescription : eventFormData.longDescription,
         // Include admin info for edit tracking (only for updates)
@@ -1230,20 +1262,17 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                   <label className="block text-sm font-semibold text-gray-300 mb-2">Start Date *</label>
                   <input
                     type="date"
-                    value={eventFormData.startDate ? (() => {
-                      const date = eventFormData.startDate instanceof Date ? eventFormData.startDate : new Date(eventFormData.startDate)
-                      const year = date.getFullYear()
-                      const month = String(date.getMonth() + 1).padStart(2, '0')
-                      const day = String(date.getDate()).padStart(2, '0')
-                      return `${year}-${month}-${day}`
-                    })() : ''}
+                    value={eventFormData.startDate 
+                      ? formatDateForInput(eventFormData.startDate instanceof Date
+                          ? `${eventFormData.startDate.getFullYear()}-${String(eventFormData.startDate.getMonth() + 1).padStart(2, '0')}-${String(eventFormData.startDate.getDate()).padStart(2, '0')}`
+                          : eventFormData.startDate)
+                      : ''}
                     onChange={(e) => {
-                      // Create date in local timezone to avoid timezone shift
+                      // Parse date as local date to avoid timezone shift
                       const dateValue = e.target.value
                       if (dateValue) {
-                        const [year, month, day] = dateValue.split('-').map(Number)
-                        const localDate = new Date(year, month - 1, day)
-                        setEventFormData({ ...eventFormData, startDate: localDate })
+                        const parsed = parseDateOnly(dateValue)
+                        setEventFormData({ ...eventFormData, startDate: parsed || new Date() })
                       }
                     }}
                     className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
@@ -1254,20 +1283,17 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                   <label className="block text-sm font-semibold text-gray-300 mb-2">End Date (Optional)</label>
                   <input
                     type="date"
-                    value={eventFormData.endDate ? (() => {
-                      const date = eventFormData.endDate instanceof Date ? eventFormData.endDate : new Date(eventFormData.endDate)
-                      const year = date.getFullYear()
-                      const month = String(date.getMonth() + 1).padStart(2, '0')
-                      const day = String(date.getDate()).padStart(2, '0')
-                      return `${year}-${month}-${day}`
-                    })() : ''}
+                    value={eventFormData.endDate 
+                      ? formatDateForInput(eventFormData.endDate instanceof Date
+                          ? `${eventFormData.endDate.getFullYear()}-${String(eventFormData.endDate.getMonth() + 1).padStart(2, '0')}-${String(eventFormData.endDate.getDate()).padStart(2, '0')}`
+                          : eventFormData.endDate)
+                      : ''}
                     onChange={(e) => {
-                      // Create date in local timezone to avoid timezone shift
+                      // Parse date as local date to avoid timezone shift
                       const dateValue = e.target.value
                       if (dateValue) {
-                        const [year, month, day] = dateValue.split('-').map(Number)
-                        const localDate = new Date(year, month - 1, day)
-                        setEventFormData({ ...eventFormData, endDate: localDate })
+                        const parsed = parseDateOnly(dateValue)
+                        setEventFormData({ ...eventFormData, endDate: parsed || undefined })
                       } else {
                         setEventFormData({ ...eventFormData, endDate: undefined })
                       }
@@ -1455,21 +1481,18 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                           <label className="text-xs text-gray-400 mb-1">Date</label>
                           <input
                             type="date"
-                            value={entry.date ? (() => {
-                              const date = entry.date instanceof Date ? entry.date : new Date(entry.date)
-                              const year = date.getFullYear()
-                              const month = String(date.getMonth() + 1).padStart(2, '0')
-                              const day = String(date.getDate()).padStart(2, '0')
-                              return `${year}-${month}-${day}`
-                            })() : ''}
+                            value={entry.date 
+                              ? formatDateForInput(entry.date instanceof Date
+                                  ? `${entry.date.getFullYear()}-${String(entry.date.getMonth() + 1).padStart(2, '0')}-${String(entry.date.getDate()).padStart(2, '0')}`
+                                  : entry.date)
+                              : ''}
                             onChange={(e) => {
-                              // Create date in local timezone to avoid timezone shift
+                              // Parse date using dateUtils to avoid timezone shift
                               const dateValue = e.target.value
                               const updated = [...(eventFormData.datesAndTimes || [])]
                               if (dateValue) {
-                                const [year, month, day] = dateValue.split('-').map(Number)
-                                const localDate = new Date(year, month - 1, day)
-                                updated[index] = { ...updated[index], date: localDate }
+                                const parsed = parseDateOnly(dateValue)
+                                updated[index] = { ...updated[index], date: parsed || new Date() }
                               } else {
                                 updated[index] = { ...updated[index], date: new Date() }
                               }

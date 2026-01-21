@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 import EnrollmentForm from './EnrollmentForm'
-import { formatDateForDisplay } from '../utils/dateUtils'
+import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 
 interface MemberDashboardProps {
   member: any
@@ -527,11 +527,13 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
           
           // Check if child - if so, expand parent/guardian section next, otherwise expand waivers
           if (personalData.dateOfBirth) {
-            const birthDateObj = new Date(personalData.dateOfBirth)
-            const today = new Date()
-            const age = today.getFullYear() - birthDateObj.getFullYear() - 
-              (today.getMonth() < birthDateObj.getMonth() || 
-               (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate()) ? 1 : 0)
+            // Use dateUtils for consistent date handling
+            const birthDateObj = parseDateOnly(personalData.dateOfBirth)
+            if (birthDateObj) {
+              const today = new Date()
+              const age = today.getFullYear() - birthDateObj.getFullYear() - 
+                (today.getMonth() < birthDateObj.getMonth() || 
+                 (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate()) ? 1 : 0)
             
             if (age < 18) {
               updatedMember.sections.parentGuardians = { ...updatedMember.sections.parentGuardians, isExpanded: true }
@@ -1077,12 +1079,16 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         // Filter out archived events - handle both response formats
         const eventsList = data.events || data.data || data || []
         const activeEvents = eventsList.filter((e: Event) => !e.archived)
-        // Convert date strings to Date objects
-        const eventsWithDates = activeEvents.map((e: Event) => ({
-          ...e,
-          startDate: new Date(e.startDate),
-          endDate: e.endDate ? new Date(e.endDate) : undefined
-        }))
+        // Convert date strings to Date objects using dateUtils to avoid timezone issues
+        const eventsWithDates = activeEvents.map((e: Event) => {
+          const startDate = parseDateOnly(e.startDate)
+          const endDate = e.endDate ? parseDateOnly(e.endDate) : undefined
+          return {
+            ...e,
+            startDate: startDate || new Date(e.startDate), // Fallback if parsing fails
+            endDate: endDate || (e.endDate ? new Date(e.endDate) : undefined)
+          }
+        })
         setEvents(eventsWithDates)
       }
     } catch (error) {
@@ -1318,8 +1324,15 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     return true
   }).sort((a, b) => {
     try {
-      const aTime = a.startDate instanceof Date ? a.startDate.getTime() : new Date(a.startDate).getTime()
-      const bTime = b.startDate instanceof Date ? b.startDate.getTime() : new Date(b.startDate).getTime()
+      // Use parseDateOnly to avoid timezone issues
+      const aDate = a.startDate instanceof Date 
+        ? a.startDate 
+        : (parseDateOnly(a.startDate) || new Date(a.startDate))
+      const bDate = b.startDate instanceof Date 
+        ? b.startDate 
+        : (parseDateOnly(b.startDate) || new Date(b.startDate))
+      const aTime = aDate.getTime()
+      const bTime = bDate.getTime()
       return aTime - bTime
     } catch {
       return 0
@@ -1327,15 +1340,28 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   })
 
   const formatDate = (date: Date | string) => {
-    const dateStr = date instanceof Date ? date.toISOString().split('T')[0] : date
-    return formatDateForDisplay(dateStr)
+    // Convert Date to YYYY-MM-DD string for dateUtils
+    if (date instanceof Date) {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return formatDateForDisplay(`${year}-${month}-${day}`)
+    }
+    return formatDateForDisplay(date)
   }
 
   const formatDateRange = (start: Date | string, end?: Date | string) => {
-    if (!end || (start instanceof Date ? start.getTime() : new Date(start).getTime()) === (end instanceof Date ? end.getTime() : new Date(end).getTime())) {
-      return formatDate(start)
+    const startStr = start instanceof Date 
+      ? `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`
+      : start
+    const endStr = end instanceof Date
+      ? `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`
+      : end
+    
+    if (!endStr || startStr === endStr) {
+      return formatDateForDisplay(startStr)
     }
-    return `${formatDate(start)} - ${formatDate(end)}`
+    return `${formatDateForDisplay(startStr)} - ${formatDateForDisplay(endStr)}`
   }
 
   const getEventIcon = (type?: Event['type']) => {

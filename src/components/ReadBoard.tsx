@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, Users, Award, Trophy, Zap, CheckCircle, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { getApiUrl } from '../utils/api'
+import { parseDateOnly, formatDateForDisplay, formatDateShort } from '../utils/dateUtils'
 
 interface DateTimeEntry {
   date: Date // Single date for this entry
@@ -244,15 +245,15 @@ const ReadBoard = () => {
           timeSlots: [
             { 
               time: '5:00 PM - 6:30 PM', 
-              classes: [{ name: 'Tornadoes', discipline: 'ninja' }] 
+              classes: [{ name: 'Tornadoes', discipline: 'ninja', partialMonth: true }] 
             },
             { 
               time: '6:30 PM - 8:00 PM', 
-              classes: [{ name: 'Cyclones', discipline: 'ninja' }] 
+              classes: [{ name: 'Cyclones', discipline: 'ninja', partialMonth: true }] 
             },
             { 
               time: '8:00 PM - 9:30 PM', 
-              classes: [{ name: 'Vortex Elite', discipline: 'ninja' }] 
+              classes: [{ name: 'Vortex Elite', discipline: 'ninja', partialMonth: true }] 
             }
           ]
         },
@@ -401,20 +402,28 @@ const ReadBoard = () => {
         const data = await response.json()
         
         if (data.success) {
-          // Convert date strings to Date objects and parse JSON fields
-          const events = data.data.map((event: any) => ({
-            ...event,
-            startDate: new Date(event.startDate),
-            endDate: event.endDate ? new Date(event.endDate) : undefined,
-            datesAndTimes: Array.isArray(event.datesAndTimes) 
-              ? event.datesAndTimes.map((dt: any) => ({
-                  ...dt,
-                  date: new Date(dt.date)
-                }))
-              : [],
-            keyDetails: Array.isArray(event.keyDetails) ? event.keyDetails : [],
-            images: Array.isArray(event.images) ? event.images : []
-          }))
+          // Convert date strings to Date objects using dateUtils to avoid timezone issues
+          const events = data.data.map((event: any) => {
+            const startDate = parseDateOnly(event.startDate)
+            const endDate = event.endDate ? parseDateOnly(event.endDate) : undefined
+            
+            return {
+              ...event,
+              startDate: startDate || new Date(event.startDate), // Fallback if parsing fails
+              endDate: endDate || (event.endDate ? new Date(event.endDate) : undefined),
+              datesAndTimes: Array.isArray(event.datesAndTimes) 
+                ? event.datesAndTimes.map((dt: any) => {
+                    const parsedDate = parseDateOnly(dt.date)
+                    return {
+                      ...dt,
+                      date: parsedDate || new Date(dt.date) // Fallback if parsing fails
+                    }
+                  })
+                : [],
+              keyDetails: Array.isArray(event.keyDetails) ? event.keyDetails : [],
+              images: Array.isArray(event.images) ? event.images : []
+            }
+          })
           setAllEvents(events)
         }
       } catch (error) {
@@ -453,23 +462,36 @@ const ReadBoard = () => {
     return searchableText.includes(query)
   })
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
-    })
+  const formatDate = (date: Date | string) => {
+    // Use dateUtils for consistent date formatting
+    if (date instanceof Date) {
+      // Convert Date to YYYY-MM-DD string for dateUtils
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return formatDateForDisplay(`${year}-${month}-${day}`)
+    }
+    return formatDateForDisplay(date)
   }
 
-  const formatDateRange = (start: Date, end?: Date) => {
-    if (!end || start.getTime() === end.getTime()) {
-      return formatDate(start)
+  const formatDateRange = (start: Date | string, end?: Date | string) => {
+    const startStr = start instanceof Date 
+      ? `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`
+      : start
+    const endStr = end instanceof Date
+      ? `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`
+      : end
+    
+    if (!endStr || startStr === endStr) {
+      return formatDateForDisplay(startStr)
     }
-    return `${formatDate(start)} - ${formatDate(end)}`
+    return `${formatDateForDisplay(startStr)} - ${formatDateForDisplay(endStr)}`
   }
 
   const formatDateTimeEntry = (entry: DateTimeEntry) => {
-    const dateStr = formatDate(entry.date)
+    const dateStr = entry.date instanceof Date
+      ? formatDateForDisplay(`${entry.date.getFullYear()}-${String(entry.date.getMonth() + 1).padStart(2, '0')}-${String(entry.date.getDate()).padStart(2, '0')}`)
+      : formatDateForDisplay(entry.date)
     
     if (entry.allDay) {
       return `${dateStr}: All Day Event`
@@ -1020,12 +1042,13 @@ const ReadBoard = () => {
                         <div className="space-y-6">
                           {categoryGroup.classes.map((classItem, classIndex) => {
                             const hasPartialMonth = classItem.partialMonth === true
+                            const borderColor = hasPartialMonth 
+                              ? (classItem.programType === 'ninja' ? 'border-2 border-dashed border-red-500' : 'border-2 border-dashed border-black')
+                              : 'border border-gray-200'
                             return (
                               <div
                                 key={classIndex}
-                                className={`p-4 bg-white rounded-lg border border-gray-200 ${
-                                  hasPartialMonth ? 'border-2 border-dashed border-black' : ''
-                                }`}
+                                className={`p-4 bg-white rounded-lg ${borderColor}`}
                               >
                                 <div className="flex items-center mb-3">
                                   <span
@@ -1088,12 +1111,13 @@ const ReadBoard = () => {
                                 {timeSlot.classes.map((scheduledClass, classIndex) => {
                                   const programType = getProgramType(scheduledClass.name, scheduledClass.discipline)
                                   const hasPartialMonth = scheduledClass.partialMonth === true
+                                  const borderColor = hasPartialMonth 
+                                    ? (programType === 'ninja' ? 'border-2 border-dashed border-red-500' : 'border-2 border-dashed border-black')
+                                    : ''
                                   return (
                                     <span
                                       key={classIndex}
-                                      className={`inline-block px-4 py-2 rounded-lg font-medium text-sm ${getProgramColor(programType)} ${
-                                        hasPartialMonth ? 'border-2 border-dashed border-black' : ''
-                                      }`}
+                                      className={`inline-block px-4 py-2 rounded-lg font-medium text-sm ${getProgramColor(programType)} ${borderColor}`}
                                     >
                                       {formatClassName(scheduledClass.name, scheduledClass.discipline)}
                                     </span>
