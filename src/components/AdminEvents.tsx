@@ -155,7 +155,9 @@ const EventsView = ({
   onDelete,
   onArchive,
   showArchived,
-  error
+  error,
+  eventView,
+  onEventViewChange
 }: { 
   events: Event[]
   loading: boolean
@@ -166,6 +168,8 @@ const EventsView = ({
   onArchive: (id: string | number, archived: boolean) => void
   showArchived?: boolean
   error?: string | null
+  eventView: 'upcoming' | 'past'
+  onEventViewChange: (view: 'upcoming' | 'past') => void
 }) => {
   const formatDateRange = (start: Date | string, end?: Date | string) => {
     const startStr = start instanceof Date 
@@ -213,7 +217,32 @@ const EventsView = ({
   }
 
   // Filter events based on search query
-  const filteredEvents = events.filter(event => {
+  // Separate events into past and upcoming based on today's date
+  const today = new Date()
+  today.setHours(0, 0, 0, 0) // Set to start of day for accurate comparison
+  
+  const upcomingEvents = events.filter(event => {
+    const eventEndDate = event.endDate || event.startDate
+    const eventEnd = eventEndDate instanceof Date 
+      ? new Date(eventEndDate)
+      : new Date(eventEndDate)
+    eventEnd.setHours(0, 0, 0, 0)
+    return eventEnd >= today
+  })
+
+  const pastEvents = events.filter(event => {
+    const eventEndDate = event.endDate || event.startDate
+    const eventEnd = eventEndDate instanceof Date 
+      ? new Date(eventEndDate)
+      : new Date(eventEndDate)
+    eventEnd.setHours(0, 0, 0, 0)
+    return eventEnd < today
+  })
+
+  // Get events based on current view (upcoming or past)
+  const currentEvents = eventView === 'upcoming' ? upcomingEvents : pastEvents
+
+  const filteredEvents = currentEvents.filter(event => {
     if (!searchQuery.trim()) return true
     
     const query = searchQuery.toLowerCase()
@@ -236,7 +265,10 @@ const EventsView = ({
       const bDate = b.startDate instanceof Date 
         ? b.startDate 
         : (parseDateOnly(b.startDate) || new Date(b.startDate))
-      return aDate.getTime() - bDate.getTime()
+      const aTime = aDate.getTime()
+      const bTime = bDate.getTime()
+      // Sort upcoming events ascending, past events descending (newest first)
+      return eventView === 'upcoming' ? aTime - bTime : bTime - aTime
     } catch {
       return 0
     }
@@ -279,14 +311,37 @@ const EventsView = ({
 
       {/* Calendar of Events */}
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-        <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
-          Calendar of Events {events.length > 0 && `(${events.length} total)`}
-        </h2>
+        {/* Event View Toggle - Rotator Style */}
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <button
+            onClick={() => onEventViewChange(eventView === 'upcoming' ? 'past' : 'upcoming')}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label="Previous view"
+          >
+            <ChevronLeft className="w-6 h-6 text-vortex-red" />
+          </button>
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-black text-center">
+            Calendar of <span className="text-vortex-red">
+              {eventView === 'upcoming' ? 'Upcoming' : 'Past'} Events
+            </span>
+          </h2>
+          <button
+            onClick={() => onEventViewChange(eventView === 'upcoming' ? 'past' : 'upcoming')}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label="Next view"
+          >
+            <ChevronRight className="w-6 h-6 text-vortex-red" />
+          </button>
+        </div>
         
         {filteredEvents.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-xl text-gray-600">
-              {searchQuery ? `No events found matching "${searchQuery}"` : `No events at this time. (Total events in database: ${events.length})`}
+              {searchQuery 
+                ? `No events found matching "${searchQuery}"` 
+                : eventView === 'upcoming' 
+                  ? `No upcoming events at this time. (Total events in database: ${events.length})`
+                  : 'No past events found.'}
             </p>
           </div>
         ) : (
@@ -361,7 +416,11 @@ const EventsView = ({
         {filteredEvents.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-xl text-gray-600">
-              {searchQuery ? `No events found matching "${searchQuery}"` : 'No events at this time.'}
+              {searchQuery 
+                ? `No events found matching "${searchQuery}"` 
+                : eventView === 'upcoming' 
+                  ? 'No upcoming events at this time.'
+                  : 'No past events found.'}
             </p>
           </div>
         ) : (
@@ -497,6 +556,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
   const [error, setError] = useState<string | null>(null)
   const [events, setEvents] = useState<Event[]>([])
   const [eventsLoading, setEventsLoading] = useState(false)
+  const [eventView, setEventView] = useState<'upcoming' | 'past'>('upcoming') // Toggle between past and upcoming events
   const [showEventForm, setShowEventForm] = useState(false)
   const [editingEventId, setEditingEventId] = useState<string | number | null>(null)
   const [eventFormData, setEventFormData] = useState<Partial<Event>>({
@@ -1171,6 +1231,8 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
           </div>
         </div>
         <EventsView
+          eventView={eventView}
+          onEventViewChange={setEventView}
           events={showArchivedEvents ? events.filter(e => e.archived) : events.filter(e => !e.archived)}
           loading={eventsLoading}
           searchQuery={eventSearchQuery}

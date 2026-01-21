@@ -199,6 +199,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const [eventsLoading, setEventsLoading] = useState(false)
   const [showAllEvents, setShowAllEvents] = useState(true)
   const [selectedFamilyMembersForFilter, setSelectedFamilyMembersForFilter] = useState<number[]>([])
+  const [eventView, setEventView] = useState<'upcoming' | 'past'>('upcoming') // Toggle between past and upcoming events
 
   const apiUrl = getApiUrl()
   const token = localStorage.getItem('vortex_member_token')
@@ -1308,8 +1309,33 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
+  // Separate events into past and upcoming based on today's date
+  const today = new Date()
+  today.setHours(0, 0, 0, 0) // Set to start of day for accurate comparison
+  
+  const upcomingEvents = events.filter(event => {
+    const eventEndDate = event.endDate || event.startDate
+    const eventEnd = eventEndDate instanceof Date 
+      ? new Date(eventEndDate)
+      : (parseDateOnly(eventEndDate) || new Date(eventEndDate))
+    eventEnd.setHours(0, 0, 0, 0)
+    return eventEnd >= today
+  })
+
+  const pastEvents = events.filter(event => {
+    const eventEndDate = event.endDate || event.startDate
+    const eventEnd = eventEndDate instanceof Date 
+      ? new Date(eventEndDate)
+      : (parseDateOnly(eventEndDate) || new Date(eventEndDate))
+    eventEnd.setHours(0, 0, 0, 0)
+    return eventEnd < today
+  })
+
+  // Get events based on current view (upcoming or past)
+  const currentEvents = eventView === 'upcoming' ? upcomingEvents : pastEvents
+
   // Filter events based on search and relevance
-  const filteredEvents = events.filter(event => {
+  const filteredEvents = currentEvents.filter(event => {
     // Search filter
     if (eventSearchQuery.trim()) {
       const query = eventSearchQuery.toLowerCase()
@@ -1342,7 +1368,8 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         : (parseDateOnly(b.startDate) || new Date(b.startDate))
       const aTime = aDate.getTime()
       const bTime = bDate.getTime()
-      return aTime - bTime
+      // Sort upcoming events ascending, past events descending
+      return eventView === 'upcoming' ? aTime - bTime : bTime - aTime
     } catch {
       return 0
     }
@@ -2079,9 +2106,28 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
 
                 {/* Calendar of Events */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
-                    Calendar of Events {events.length > 0 && `(${events.length} total)`}
-                  </h2>
+                  {/* Event View Toggle - Rotator Style */}
+                  <div className="flex items-center justify-center gap-4 mb-6">
+                    <button
+                      onClick={() => setEventView(eventView === 'upcoming' ? 'past' : 'upcoming')}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      aria-label="Previous view"
+                    >
+                      <ChevronLeft className="w-6 h-6 text-vortex-red" />
+                    </button>
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black text-center">
+                      Calendar of <span className="text-vortex-red">
+                        {eventView === 'upcoming' ? 'Upcoming' : 'Past'} Events
+                      </span>
+                    </h2>
+                    <button
+                      onClick={() => setEventView(eventView === 'upcoming' ? 'past' : 'upcoming')}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      aria-label="Next view"
+                    >
+                      <ChevronRight className="w-6 h-6 text-vortex-red" />
+                    </button>
+                  </div>
                   
                   {eventsLoading ? (
                     <div className="text-center py-12 text-gray-600">Loading events...</div>
@@ -2089,7 +2135,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     <div className="text-center py-12 text-gray-500">
                       {eventSearchQuery 
                         ? `No events found matching "${eventSearchQuery}"`
-                        : `No events at this time. (Total events in database: ${events.length})`}
+                        : eventView === 'upcoming' 
+                          ? `No upcoming events at this time. (Total events in database: ${events.length})`
+                          : 'No past events found.'}
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -2131,7 +2179,9 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     <div className="text-center py-12 text-gray-500">
                       {eventSearchQuery 
                         ? `No events found matching "${eventSearchQuery}"`
-                        : 'No events at this time.'}
+                        : eventView === 'upcoming' 
+                          ? 'No upcoming events at this time.'
+                          : 'No past events found.'}
                     </div>
                   ) : (
                     <div className="space-y-6">

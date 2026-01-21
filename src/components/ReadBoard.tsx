@@ -68,6 +68,7 @@ const ReadBoard = () => {
   const [selectedMonth, setSelectedMonth] = useState(0) // 0 = January, 11 = December
   const [activeTab, setActiveTab] = useState<TabType>('classes')
   const [scheduleView, setScheduleView] = useState<ScheduleView>('day')
+  const [eventView, setEventView] = useState<'upcoming' | 'past'>('upcoming') // Toggle between past and upcoming events
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -127,23 +128,6 @@ const ReadBoard = () => {
             { 
               time: '7:00 PM - 8:30 PM', 
               classes: [{ name: 'Typhoons (Adult)', discipline: 'gymnastics' }] 
-            }
-          ]
-        },
-        {
-          day: 'Tuesday & Thursday',
-          timeSlots: [
-            { 
-              time: '5:00 PM - 6:30 PM', 
-              classes: [{ name: 'Tornadoes', discipline: 'ninja' }] 
-            },
-            { 
-              time: '6:30 PM - 8:00 PM', 
-              classes: [{ name: 'Cyclones', discipline: 'ninja' }] 
-            },
-            { 
-              time: '8:00 PM - 9:30 PM', 
-              classes: [{ name: 'Vortex Elite', discipline: 'ninja' }] 
             }
           ]
         },
@@ -437,17 +421,29 @@ const ReadBoard = () => {
     fetchEvents()
   }, [])
 
-  // Filter out events more than 1 week in the past
-  const oneWeekAgo = new Date()
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+  // Separate events into past and upcoming based on today's date
+  const today = new Date()
+  today.setHours(0, 0, 0, 0) // Set to start of day for accurate comparison
   
   const upcomingEvents = allEvents.filter(event => {
     const eventEndDate = event.endDate || event.startDate
-    return eventEndDate >= oneWeekAgo
+    const eventEnd = new Date(eventEndDate)
+    eventEnd.setHours(0, 0, 0, 0)
+    return eventEnd >= today
   }).sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
 
+  const pastEvents = allEvents.filter(event => {
+    const eventEndDate = event.endDate || event.startDate
+    const eventEnd = new Date(eventEndDate)
+    eventEnd.setHours(0, 0, 0, 0)
+    return eventEnd < today
+  }).sort((a, b) => b.startDate.getTime() - a.startDate.getTime()) // Sort past events newest first
+
+  // Get events based on current view (upcoming or past)
+  const currentEvents = eventView === 'upcoming' ? upcomingEvents : pastEvents
+
   // Filter events based on search query - searches across all event fields
-  const filteredEvents = upcomingEvents.filter(event => {
+  const filteredEvents = currentEvents.filter(event => {
     if (!searchQuery.trim()) return true
     
     const query = searchQuery.toLowerCase()
@@ -1162,9 +1158,28 @@ const ReadBoard = () => {
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-12 text-center">
-                  Calendar of <span className="text-vortex-red">Events</span>
-                </h2>
+                {/* Event View Toggle - Rotator Style */}
+                <div className="flex items-center justify-center gap-4 mb-12">
+                  <button
+                    onClick={() => setEventView(eventView === 'upcoming' ? 'past' : 'upcoming')}
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    aria-label="Previous view"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-vortex-red" />
+                  </button>
+                  <h2 className="text-4xl md:text-5xl font-display font-bold text-black text-center">
+                    Calendar of <span className="text-vortex-red">
+                      {eventView === 'upcoming' ? 'Upcoming' : 'Past'} Events
+                    </span>
+                  </h2>
+                  <button
+                    onClick={() => setEventView(eventView === 'upcoming' ? 'past' : 'upcoming')}
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    aria-label="Next view"
+                  >
+                    <ChevronRight className="w-6 h-6 text-vortex-red" />
+                  </button>
+                </div>
                 
                 {eventsLoading ? (
                   <div className="text-center py-12">
@@ -1236,7 +1251,11 @@ const ReadBoard = () => {
                 ) : filteredEvents.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-xl text-gray-600">
-                      {searchQuery ? `No events found matching "${searchQuery}"` : 'No upcoming events at this time.'}
+                      {searchQuery 
+                        ? `No events found matching "${searchQuery}"` 
+                        : eventView === 'upcoming' 
+                          ? 'No upcoming events at this time.' 
+                          : 'No past events found.'}
                     </p>
                   </div>
                 ) : (
