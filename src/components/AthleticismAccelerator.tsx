@@ -136,8 +136,8 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        {/* Video Element - Bottom layer, no background colors */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20" style={{ backgroundColor: 'transparent' }}>
+        {/* Video Element - Bottom layer */}
         <video
           ref={videoRef}
           autoPlay
@@ -145,57 +145,103 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
           muted
           playsInline
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover z-0"
+          className="absolute inset-0 w-full h-full object-cover"
           style={{ 
             position: 'absolute',
             top: 0,
             left: 0,
             width: '100%',
             height: '100%',
+            minWidth: '100%',
+            minHeight: '100%',
             objectFit: 'cover',
             zIndex: 0,
             display: 'block',
             pointerEvents: 'none',
-            backgroundColor: 'transparent'
+            backgroundColor: '#000000'
           }}
-            onError={(e) => {
-              console.error('Video loading error:', e)
-              const video = e.currentTarget as HTMLVideoElement
-              console.error('Video error details:', {
-                code: video.error?.code,
-                message: video.error?.message,
-                networkState: video.networkState,
-                readyState: video.readyState,
-                src: video.currentSrc || video.src,
-                videoWidth: video.videoWidth,
-                videoHeight: video.videoHeight
-              })
-            }}
-            onLoadedData={() => {
-              console.log('Video loaded successfully')
-              const video = videoRef.current
-              if (video) {
-                console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight)
-                console.log('Video currentSrc:', video.currentSrc)
-                console.log('Video is playing:', !video.paused)
+          onError={(e) => {
+            console.error('❌ Video loading error:', e)
+            const video = e.currentTarget as HTMLVideoElement
+            console.error('Video error details:', {
+              code: video.error?.code,
+              message: video.error?.message,
+              networkState: video.networkState,
+              readyState: video.readyState,
+              src: video.currentSrc || video.src,
+              videoWidth: video.videoWidth,
+              videoHeight: video.videoHeight,
+              paused: video.paused,
+              ended: video.ended
+            })
+            // Show error visually
+            if (video.parentElement) {
+              video.parentElement.style.backgroundColor = '#ff0000'
+            }
+          }}
+          onLoadStart={() => {
+            console.log('🔄 Video load started')
+          }}
+          onProgress={() => {
+            const video = videoRef.current
+            if (video && video.buffered.length > 0) {
+              const bufferedEnd = video.buffered.end(video.buffered.length - 1)
+              const duration = video.duration
+              if (duration > 0) {
+                console.log(`📊 Video buffered: ${((bufferedEnd / duration) * 100).toFixed(1)}%`)
               }
-            }}
-            onCanPlay={() => {
-              console.log('Video can play')
-            }}
-            onLoadedMetadata={() => {
-              console.log('Video metadata loaded')
-            }}
-            onPlaying={() => {
-              console.log('Video is now playing')
-            }}
-          >
-            <source src="/shuttle_drill_1.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+            }
+          }}
+          onLoadedData={() => {
+            console.log('✅ Video loaded successfully')
+            const video = videoRef.current
+            if (video) {
+              console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight)
+              console.log('Video currentSrc:', video.currentSrc)
+              console.log('Video is playing:', !video.paused)
+              console.log('Video duration:', video.duration)
+              // Force play
+              video.play().catch(err => {
+                console.error('Failed to play after load:', err)
+              })
+            }
+          }}
+          onCanPlay={() => {
+            console.log('▶️ Video can play')
+            const video = videoRef.current
+            if (video && video.paused) {
+              video.play().catch(err => {
+                console.error('Failed to play on canPlay:', err)
+              })
+            }
+          }}
+          onLoadedMetadata={() => {
+            console.log('📋 Video metadata loaded')
+            const video = videoRef.current
+            if (video) {
+              console.log('Video duration:', video.duration, 'seconds')
+              console.log('Video size:', video.videoWidth, 'x', video.videoHeight)
+            }
+          }}
+          onPlaying={() => {
+            console.log('🎬 Video is now playing')
+          }}
+          onPause={() => {
+            console.log('⏸️ Video paused')
+          }}
+          onStalled={() => {
+            console.warn('⚠️ Video stalled')
+          }}
+          onWaiting={() => {
+            console.warn('⏳ Video waiting for data')
+          }}
+        >
+          <source src="/shuttle_drill_1.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
 
-        {/* Dark Overlay for Text Readability - Above video */}
-        <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none"></div>
+        {/* Dark Overlay for Text Readability - Above video, reduced opacity */}
+        <div className="absolute inset-0 bg-black/40 z-[1] pointer-events-none"></div>
 
         {/* Content Container - Top Layer */}
         <div className="container-custom relative z-10 text-center">
