@@ -136,54 +136,71 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black pt-20">
-        {/* Fallback gradient background - Behind video */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black z-0"></div>
-        
-        {/* Video Element - Must be visible */}
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover z-[1]"
-          style={{ 
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            zIndex: 1
-          }}
-          onError={(e) => {
-            console.error('Video loading error:', e)
-            const video = e.currentTarget as HTMLVideoElement
-            console.error('Video error details:', {
-              code: video.error?.code,
-              message: video.error?.message,
-              networkState: video.networkState,
-              readyState: video.readyState
-            })
-          }}
-          onLoadedData={() => {
-            console.log('Video loaded successfully')
-          }}
-          onCanPlay={() => {
-            console.log('Video can play')
-          }}
-          onLoadedMetadata={() => {
-            console.log('Video metadata loaded')
-          }}
-        >
-          <source src="/shuttle_drill_1.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        {/* Video Background Container - Bottom layer */}
+        <div className="absolute inset-0 z-0">
+          {/* Fallback gradient background - Only visible if video fails to load */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black z-0"></div>
+          
+          {/* Video Element - Layer 1, above fallback */}
+          <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover z-[1]"
+            style={{ 
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              zIndex: 1,
+              display: 'block',
+              pointerEvents: 'none'
+            }}
+            onError={(e) => {
+              console.error('Video loading error:', e)
+              const video = e.currentTarget as HTMLVideoElement
+              console.error('Video error details:', {
+                code: video.error?.code,
+                message: video.error?.message,
+                networkState: video.networkState,
+                readyState: video.readyState,
+                src: video.currentSrc || video.src,
+                videoWidth: video.videoWidth,
+                videoHeight: video.videoHeight
+              })
+            }}
+            onLoadedData={() => {
+              console.log('Video loaded successfully')
+              const video = videoRef.current
+              if (video) {
+                console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight)
+                console.log('Video currentSrc:', video.currentSrc)
+                console.log('Video is playing:', !video.paused)
+              }
+            }}
+            onCanPlay={() => {
+              console.log('Video can play')
+            }}
+            onLoadedMetadata={() => {
+              console.log('Video metadata loaded')
+            }}
+            onPlaying={() => {
+              console.log('Video is now playing')
+            }}
+          >
+            <source src="/shuttle_drill_1.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
 
-        {/* Dark Overlay for Text Readability - Above video */}
-        <div className="absolute inset-0 bg-black/60 z-[2]"></div>
+        {/* Dark Overlay for Text Readability - Layer 2, above video, reduced opacity for better visibility */}
+        <div className="absolute inset-0 bg-black/50 z-[2] pointer-events-none"></div>
 
         {/* Content Container - Top Layer */}
         <div className="container-custom relative z-10 text-center">
