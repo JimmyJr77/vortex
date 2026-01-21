@@ -534,9 +534,12 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
               const age = today.getFullYear() - birthDateObj.getFullYear() - 
                 (today.getMonth() < birthDateObj.getMonth() || 
                  (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate()) ? 1 : 0)
-            
-            if (age < 18) {
-              updatedMember.sections.parentGuardians = { ...updatedMember.sections.parentGuardians, isExpanded: true }
+              
+              if (age < 18) {
+                updatedMember.sections.parentGuardians = { ...updatedMember.sections.parentGuardians, isExpanded: true }
+              } else {
+                updatedMember.sections.waivers = { ...updatedMember.sections.waivers, isExpanded: true }
+              }
             } else {
               updatedMember.sections.waivers = { ...updatedMember.sections.waivers, isExpanded: true }
             }
@@ -1081,8 +1084,14 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
         const activeEvents = eventsList.filter((e: Event) => !e.archived)
         // Convert date strings to Date objects using dateUtils to avoid timezone issues
         const eventsWithDates = activeEvents.map((e: Event) => {
-          const startDate = parseDateOnly(e.startDate)
-          const endDate = e.endDate ? parseDateOnly(e.endDate) : undefined
+          const startDateStr = e.startDate instanceof Date 
+            ? `${e.startDate.getFullYear()}-${String(e.startDate.getMonth() + 1).padStart(2, '0')}-${String(e.startDate.getDate()).padStart(2, '0')}`
+            : e.startDate
+          const endDateStr = e.endDate instanceof Date
+            ? `${e.endDate.getFullYear()}-${String(e.endDate.getMonth() + 1).padStart(2, '0')}-${String(e.endDate.getDate()).padStart(2, '0')}`
+            : e.endDate
+          const startDate = parseDateOnly(startDateStr)
+          const endDate = endDateStr ? parseDateOnly(endDateStr) : undefined
           return {
             ...e,
             startDate: startDate || new Date(e.startDate), // Fallback if parsing fails

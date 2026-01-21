@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, Users, Award, Trophy, Zap, CheckCircle, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { getApiUrl } from '../utils/api'
-import { parseDateOnly, formatDateForDisplay, formatDateShort } from '../utils/dateUtils'
+import { parseDateOnly, formatDateForDisplay } from '../utils/dateUtils'
 
 interface DateTimeEntry {
   date: Date // Single date for this entry
@@ -461,18 +461,6 @@ const ReadBoard = () => {
     
     return searchableText.includes(query)
   })
-
-  const formatDate = (date: Date | string) => {
-    // Use dateUtils for consistent date formatting
-    if (date instanceof Date) {
-      // Convert Date to YYYY-MM-DD string for dateUtils
-      const year = date.getFullYear()
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const day = String(date.getDate()).padStart(2, '0')
-      return formatDateForDisplay(`${year}-${month}-${day}`)
-    }
-    return formatDateForDisplay(date)
-  }
 
   const formatDateRange = (start: Date | string, end?: Date | string) => {
     const startStr = start instanceof Date 
