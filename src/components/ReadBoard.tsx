@@ -193,8 +193,7 @@ const ReadBoard = () => {
               time: '4:00 PM - 5:30 PM', 
               classes: [
                 { name: 'Tornadoes', discipline: 'gymnastics' },
-                { name: 'Cyclones', discipline: 'gymnastics' },
-                { name: 'Tornadoes', discipline: 'athleticism', partialMonth: true }
+                { name: 'Cyclones', discipline: 'gymnastics' }
               ] 
             },
             { 
@@ -202,16 +201,14 @@ const ReadBoard = () => {
               classes: [
                 { name: 'Tornadoes', discipline: 'gymnastics' },
                 { name: 'Cyclones', discipline: 'gymnastics' },
-                { name: 'Vortex A4 Elite', discipline: 'gymnastics' },
-                { name: 'Cyclones', discipline: 'athleticism', partialMonth: true }
+                { name: 'Vortex A4 Elite', discipline: 'gymnastics' }
               ] 
             },
             { 
               time: '7:00 PM - 8:30 PM', 
               classes: [
                 { name: 'Cyclones', discipline: 'gymnastics' },
-                { name: 'Vortex A4 Elite', discipline: 'gymnastics' },
-                { name: 'Vortex Elite', discipline: 'athleticism', partialMonth: true }
+                { name: 'Vortex A4 Elite', discipline: 'gymnastics' }
               ] 
             }
           ]
@@ -222,6 +219,23 @@ const ReadBoard = () => {
             { 
               time: '7:00 PM - 8:30 PM', 
               classes: [{ name: 'Typhoons (Adult)', discipline: 'gymnastics' }] 
+            }
+          ]
+        },
+        {
+          day: 'Monday, Wednesday & Friday',
+          timeSlots: [
+            { 
+              time: '4:00 PM - 5:30 PM', 
+              classes: [{ name: 'Tornadoes', discipline: 'athleticism', partialMonth: true }] 
+            },
+            { 
+              time: '5:30 PM - 7:00 PM', 
+              classes: [{ name: 'Cyclones', discipline: 'athleticism', partialMonth: true }] 
+            },
+            { 
+              time: '7:00 PM - 8:30 PM', 
+              classes: [{ name: 'Vortex Elite', discipline: 'athleticism', partialMonth: true }] 
             }
           ]
         },
@@ -506,7 +520,7 @@ const ReadBoard = () => {
       return 'ninja'
     }
     
-    // Athletics & Fitness (includes athleticism accelerator)
+    // Athleticism Accelerator
     if (discipline === 'athleticism') {
       return 'athletics-fitness'
     }
@@ -695,7 +709,7 @@ const ReadBoard = () => {
     // Convert map to array and organize by category
     const classes = Array.from(classMap.values())
     
-    // Category order: Developmental, Gymnastics, Ninja, Athletics & Fitness, Homeschool, Adult
+    // Category order: Developmental, Gymnastics, Ninja, Athleticism Accelerator, Homeschool, Adult
     const categoryOrder: ProgramType[] = ['developmental', 'gymnastics', 'ninja', 'athletics-fitness', 'homeschool', 'adult']
     
     // Group by category
@@ -900,7 +914,7 @@ const ReadBoard = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-6 h-6 rounded bg-vortex-red"></div>
-                    <span className="text-sm font-medium text-gray-700">Athletics & Fitness</span>
+                    <span className="text-sm font-medium text-gray-700">Athleticism Accelerator</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-6 h-6 rounded bg-black"></div>
@@ -984,7 +998,7 @@ const ReadBoard = () => {
                   'developmental': 'Developmental',
                   'gymnastics': 'Gymnastics',
                   'ninja': 'Ninja',
-                  'athletics-fitness': 'Athletics & Fitness',
+                  'athletics-fitness': 'Athleticism Accelerator',
                   'homeschool': 'Homeschool',
                   'adult': 'Adult'
                 }
