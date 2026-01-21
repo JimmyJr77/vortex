@@ -12,9 +12,27 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
   useEffect(() => {
     const video = videoRef.current
     if (video) {
+      // Ensure video plays and loops
       video.play().catch((error) => {
         console.error('Video play error:', error)
       })
+      
+      // Ensure loop is set programmatically as well
+      video.loop = true
+      
+      // Handle video loaded event
+      const handleLoadedData = () => {
+        console.log('Video loaded and ready')
+        video.play().catch((error) => {
+          console.error('Video play error after load:', error)
+        })
+      }
+      
+      video.addEventListener('loadeddata', handleLoadedData)
+      
+      return () => {
+        video.removeEventListener('loadeddata', handleLoadedData)
+      }
     }
   }, [])
 
@@ -91,9 +109,12 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black pt-20">
-        {/* Video Background */}
-        <div className="absolute inset-0">
-          {/* Video - Bottom layer */}
+        {/* Video Background Container - Bottom Layer */}
+        <div className="absolute inset-0 z-0">
+          {/* Fallback gradient background - Only shows if video fails */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
+          
+          {/* Video Element - Layer 1 */}
           <video
             ref={videoRef}
             autoPlay
@@ -101,25 +122,38 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
             muted
             playsInline
             preload="auto"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ zIndex: 1, minWidth: '100%', minHeight: '100%' }}
+            className="absolute top-1/2 left-1/2 w-auto h-full min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 object-cover"
+            style={{ zIndex: 1 }}
             onError={(e) => {
               console.error('Video loading error:', e)
+              const video = e.currentTarget as HTMLVideoElement
+              console.error('Video error details:', {
+                code: video.error?.code,
+                message: video.error?.message
+              })
             }}
             onLoadedData={() => {
               console.log('Video loaded successfully')
             }}
+            onCanPlay={() => {
+              console.log('Video can play')
+              const video = videoRef.current
+              if (video) {
+                video.play().catch((error) => {
+                  console.error('Autoplay prevented:', error)
+                })
+              }
+            }}
           >
             <source src="/shuttle_drill_1.mp4" type="video/mp4" />
-            {/* Fallback for browsers that don't support video */}
             Your browser does not support the video tag.
           </video>
-          {/* Dark Overlay for Text Readability - Above video */}
-          <div className="absolute inset-0 bg-black/60" style={{ zIndex: 2 }}></div>
-          {/* Fallback gradient background if video fails to load - Behind video */}
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" style={{ zIndex: 0 }}></div>
         </div>
 
+        {/* Dark Overlay for Text Readability - Layer 2 */}
+        <div className="absolute inset-0 bg-black/60 z-[2]"></div>
+
+        {/* Content Container - Top Layer */}
         <div className="container-custom relative z-10 text-center">
           <motion.h1
             className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
