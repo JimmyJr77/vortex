@@ -92,7 +92,8 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black pt-20">
         {/* Video Background */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0">
+          {/* Video - Bottom layer */}
           <video
             ref={videoRef}
             autoPlay
@@ -101,7 +102,7 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
             playsInline
             preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ zIndex: 0, minWidth: '100%', minHeight: '100%' }}
+            style={{ zIndex: 1, minWidth: '100%', minHeight: '100%' }}
             onError={(e) => {
               console.error('Video loading error:', e)
             }}
@@ -113,10 +114,10 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
             {/* Fallback for browsers that don't support video */}
             Your browser does not support the video tag.
           </video>
-          {/* Dark Overlay for Text Readability */}
-          <div className="absolute inset-0 bg-black/60 z-0"></div>
-          {/* Fallback gradient background if video fails to load */}
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black z-0"></div>
+          {/* Dark Overlay for Text Readability - Above video */}
+          <div className="absolute inset-0 bg-black/60" style={{ zIndex: 2 }}></div>
+          {/* Fallback gradient background if video fails to load - Behind video */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" style={{ zIndex: 0 }}></div>
         </div>
 
         <div className="container-custom relative z-10 text-center">
