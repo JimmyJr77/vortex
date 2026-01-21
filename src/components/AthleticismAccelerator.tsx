@@ -78,33 +78,21 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
-        {/* Animated Background Elements */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black pt-20">
+        {/* Video Background */}
         <div className="absolute inset-0">
-          <motion.div
-            className="absolute top-1/4 left-1/4 w-64 h-64 bg-vortex-red/20 rounded-full blur-3xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-          <motion.div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-vortex-red/10 rounded-full blur-3xl"
-            animate={{
-              scale: [1.2, 1, 1.2],
-              opacity: [0.2, 0.4, 0.2],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/shuttle_drill_1.mov" type="video/quicktime" />
+            <source src="/shuttle_drill_1.mov" type="video/mp4" />
+          </video>
+          {/* Dark Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-black/60"></div>
         </div>
 
         <div className="container-custom relative z-10 text-center">
