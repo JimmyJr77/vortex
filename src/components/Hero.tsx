@@ -1,9 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, X } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 const Hero = () => {
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
@@ -154,11 +155,47 @@ const Hero = () => {
     return () => clearInterval(interval)
   }, [rotatingTexts.length])
 
+  useEffect(() => {
+    const video = videoRef.current
+    if (video) {
+      video.loop = true
+      video.muted = true
+      video.play().catch(() => {})
+    }
+  }, [])
+
   const currentText = rotatingTexts[currentTextIndex]
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+      {/* Video Background */}
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover z-0"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          zIndex: 0,
+          display: 'block',
+          pointerEvents: 'none',
+        }}
+      >
+        <source src="/landing_video_small.mp4" type="video/mp4" />
+      </video>
+
+      {/* Dark Overlay for Text Readability */}
+      <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
+
       {/* Animated Background Elements */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 z-[1]">
         <motion.div
           className="absolute top-1/4 left-1/4 w-64 h-64 bg-vortex-red/20 rounded-full blur-3xl"
           animate={{
