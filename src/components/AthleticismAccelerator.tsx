@@ -135,8 +135,8 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20" style={{ backgroundColor: 'transparent' }}>
+      {/* Desktop: Full screen section with everything overlaid on video */}
+      <section className="hidden md:flex relative min-h-screen flex items-center justify-center overflow-hidden pt-20" style={{ backgroundColor: 'transparent' }}>
         {/* Video Element - Bottom layer */}
         <video
           ref={videoRef}
@@ -145,15 +145,13 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
           muted
           playsInline
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover z-0"
           style={{ 
             position: 'absolute',
             top: 0,
             left: 0,
             width: '100%',
             height: '100%',
-            minWidth: '100%',
-            minHeight: '100%',
             objectFit: 'cover',
             zIndex: 0,
             display: 'block',
@@ -174,33 +172,11 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
               paused: video.paused,
               ended: video.ended
             })
-            // Show error visually
-            if (video.parentElement) {
-              video.parentElement.style.backgroundColor = '#ff0000'
-            }
-          }}
-          onLoadStart={() => {
-            console.log('🔄 Video load started')
-          }}
-          onProgress={() => {
-            const video = videoRef.current
-            if (video && video.buffered.length > 0) {
-              const bufferedEnd = video.buffered.end(video.buffered.length - 1)
-              const duration = video.duration
-              if (duration > 0) {
-                console.log(`📊 Video buffered: ${((bufferedEnd / duration) * 100).toFixed(1)}%`)
-              }
-            }
           }}
           onLoadedData={() => {
             console.log('✅ Video loaded successfully')
             const video = videoRef.current
             if (video) {
-              console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight)
-              console.log('Video currentSrc:', video.currentSrc)
-              console.log('Video is playing:', !video.paused)
-              console.log('Video duration:', video.duration)
-              // Force play
               video.play().catch(err => {
                 console.error('Failed to play after load:', err)
               })
@@ -215,32 +191,12 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
               })
             }
           }}
-          onLoadedMetadata={() => {
-            console.log('📋 Video metadata loaded')
-            const video = videoRef.current
-            if (video) {
-              console.log('Video duration:', video.duration, 'seconds')
-              console.log('Video size:', video.videoWidth, 'x', video.videoHeight)
-            }
-          }}
-          onPlaying={() => {
-            console.log('🎬 Video is now playing')
-          }}
-          onPause={() => {
-            console.log('⏸️ Video paused')
-          }}
-          onStalled={() => {
-            console.warn('⚠️ Video stalled')
-          }}
-          onWaiting={() => {
-            console.warn('⏳ Video waiting for data')
-          }}
         >
           <source src="/shuttle_drill_1.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
-        {/* Dark Overlay for Text Readability - Above video, reduced opacity */}
+        {/* Dark Overlay for Text Readability */}
         <div className="absolute inset-0 bg-black/40 z-[1] pointer-events-none"></div>
 
         {/* Content Container - Top Layer */}
@@ -314,6 +270,108 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
               </div>
             </motion.div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Mobile: Video section with title only */}
+      <section className="md:hidden relative h-[60vh] flex items-center justify-center overflow-hidden pt-20">
+        {/* Video Background */}
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover z-0"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+            display: 'block',
+            pointerEvents: 'none',
+          }}
+        >
+          <source src="/shuttle_drill_1.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Dark Overlay for Text Readability */}
+        <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
+
+        <div className="container-custom relative z-10 w-full text-center">
+          <motion.h1
+            className="text-4xl sm:text-5xl font-display font-bold text-white mb-6 px-4"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            Unlock the Full Spectrum of{' '}
+            <span className="text-vortex-red">Athleticism</span>
+          </motion.h1>
+        </div>
+      </section>
+
+      {/* Mobile: Content section below video */}
+      <section className="md:hidden bg-gradient-to-br from-black via-gray-900 to-black py-12">
+        <div className="container-custom">
+          <div className="text-center">
+            <motion.p
+              className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+            >
+              Train Smarter. Move Better. Compete Stronger.
+            </motion.p>
+
+            <motion.div
+              className="flex flex-col items-center justify-center space-y-4 mb-8"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            >
+              <motion.button
+                onClick={onSignUpClick}
+                className="bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="flex items-center justify-center space-x-3">
+                  <span>Join the Accelerator</span>
+                  <ArrowRight className="w-5 h-5" />
+                </span>
+              </motion.button>
+
+              <motion.button
+                onClick={onSignUpClick}
+                className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 w-full max-w-xs"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Book an Assessment
+              </motion.button>
+            </motion.div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+              className="flex justify-center mt-8"
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+                <motion.div
+                  className="w-1 h-3 bg-vortex-red rounded-full mt-2"
+                  animate={{ y: [0, 12, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 

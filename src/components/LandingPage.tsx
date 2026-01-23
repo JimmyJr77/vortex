@@ -27,10 +27,6 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
 
   const faqs = [
     {
-      question: 'When does Vortex Athletics open?',
-      answer: 'We are opening our doors on November 30th, 2025. Join our waitlist to be notified as soon as registration opens!'
-    },
-    {
       question: 'Where are you located?',
       answer: 'Our facility is located at 4961 Tesla Dr, Ste E, Bowie, MD 20715. We serve athletes across central Maryland and beyond.'
     },
@@ -39,8 +35,12 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
       answer: 'We offer programs for athletes of all ages, from preschoolers (3-5 years) to adults. Our training is tailored to each age group\'s developmental needs.'
     },
     {
-      question: 'Do I need gymnastics experience?',
-      answer: 'No prior gymnastics experience is required! Our Athleticism Accelerator program is designed to benefit athletes from all sports backgrounds.'
+      question: 'Do I need gymnastics experience to register for gymnastics classes?',
+      answer: 'No prior gymnastics experience is required! Our programs will teach your athlete fundamentals, reinforce proper technique, and press toward advanced skills as the athlete progresses.'
+    },
+    {
+      question: 'Is Vortex solely a gymnastics studio?',
+      answer: 'No. We offer a lot more than just gymnastics. Vortex is a full athletic development studio. We recognize, however, that gymnastics are a core component to athleticism and incorporate tumbling and body awareness into our strength, condition, and fitness regimens.'
     },
     {
       question: 'What makes Vortex different from other gyms?',
@@ -49,10 +49,6 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
     {
       question: 'What programs do you offer?',
       answer: 'We offer competitive teams in Trampoline & Tumbling, Artistic Gymnastics, and Rhythmic Gymnastics, plus our Athleticism Accelerator program for cross-sport development, recreational classes, and private coaching.'
-    },
-    {
-      question: 'What technology do you use?',
-      answer: 'We utilize high-speed cameras, haptic feedback systems, timing gates, force plates, telemetry data, and AI analysis to provide measurable growth and full awareness of each athlete\'s development.'
     },
     {
       question: 'What is the "Fail your way to success" mindset?',

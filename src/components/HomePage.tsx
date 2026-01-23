@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { MapPin, Target, Zap, Trophy, Cpu, Brain } from 'lucide-react'
+import { MapPin, Target, Trophy, Brain } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
 import About from './About'
@@ -32,10 +32,6 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
 
   const faqs = [
     {
-      question: 'When does Vortex Athletics open?',
-      answer: 'We are opening our doors on November 30th, 2025. Join our waitlist to be notified as soon as registration opens!'
-    },
-    {
       question: 'Where are you located?',
       answer: 'Our facility is located at 4961 Tesla Dr, Ste E, Bowie, MD 20715. We serve athletes across central Maryland and beyond.'
     },
@@ -44,8 +40,12 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       answer: 'We offer programs for athletes of all ages, from preschoolers (3-5 years) to adults. Our training is tailored to each age group\'s developmental needs.'
     },
     {
-      question: 'Do I need gymnastics experience?',
-      answer: 'No prior gymnastics experience is required! Our Athleticism Accelerator program is designed to benefit athletes from all sports backgrounds.'
+      question: 'Do I need gymnastics experience to register for gymnastics classes?',
+      answer: 'No prior gymnastics experience is required! Our programs will teach your athlete fundamentals, reinforce proper technique, and press toward advanced skills as the athlete progresses.'
+    },
+    {
+      question: 'Is Vortex solely a gymnastics studio?',
+      answer: 'No. We offer a lot more than just gymnastics. Vortex is a full athletic development studio. We recognize, however, that gymnastics are a core component to athleticism and incorporate tumbling and body awareness into our strength, condition, and fitness regimens.'
     },
     {
       question: 'What makes Vortex different from other gyms?',
@@ -54,10 +54,6 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
     {
       question: 'What programs do you offer?',
       answer: 'We offer competitive teams in Trampoline & Tumbling, Artistic Gymnastics, and Rhythmic Gymnastics, plus our Athleticism Accelerator program for cross-sport development, recreational classes, and private coaching.'
-    },
-    {
-      question: 'What technology do you use?',
-      answer: 'We utilize high-speed cameras, haptic feedback systems, timing gates, force plates, telemetry data, and AI analysis to provide measurable growth and full awareness of each athlete\'s development.'
     },
     {
       question: 'What is the "Fail your way to success" mindset?',
@@ -302,57 +298,12 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       {/* Technology & Mindset Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {/* Technology */}
-            <motion.div
-              className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8"
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <div className="flex items-center space-x-3 mb-6">
-                <Cpu className="w-8 h-8 text-vortex-red" />
-                <h3 className="text-3xl font-display font-bold text-white">
-                  Technology Driven
-                </h3>
-              </div>
-              <p className="text-gray-300 mb-6 text-lg">
-                Technology driven to support full awareness & measurable growth
-              </p>
-              <ul className="space-y-3 text-gray-300">
-                <li className="flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-vortex-red" />
-                  <span>High Speed Cameras</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-vortex-red" />
-                  <span>Haptic Feedback</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-vortex-red" />
-                  <span>Timing Gates</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-vortex-red" />
-                  <span>Force Plates</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-vortex-red" />
-                  <span>Telemetry Data</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-vortex-red" />
-                  <span>AI Analysis</span>
-                </li>
-              </ul>
-            </motion.div>
-
+          <div className="max-w-2xl mx-auto mb-12">
             {/* Mindset */}
             <motion.div
               className="bg-gradient-to-br from-vortex-red/10 to-vortex-red/5 rounded-2xl p-8 border-2 border-vortex-red/20"
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >

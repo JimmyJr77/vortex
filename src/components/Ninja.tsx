@@ -76,8 +76,8 @@ const Ninja = ({ onSignUpClick }: NinjaProps) => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
+      {/* Desktop: Full screen section with everything overlaid */}
+      <section className="hidden md:flex relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <motion.div
@@ -176,6 +176,83 @@ const Ninja = ({ onSignUpClick }: NinjaProps) => {
               </div>
             </motion.div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Mobile: Hero section with title only */}
+      <section className="md:hidden relative h-[60vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
+        {/* Dark Overlay for Text Readability */}
+        <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
+        
+        <div className="container-custom relative z-10 text-center w-full">
+          <motion.h1
+            className="text-4xl sm:text-5xl font-display font-bold text-white mb-6 px-4"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            Train Like a <span className="text-vortex-red">Ninja.</span><br />
+            Perform Like an <span className="text-vortex-red">Athlete.</span>
+          </motion.h1>
+        </div>
+      </section>
+
+      {/* Mobile: Content section below hero */}
+      <section className="md:hidden bg-gradient-to-br from-black via-gray-900 to-black py-12">
+        <div className="container-custom">
+          <div className="text-center">
+            <motion.p
+              className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+            >
+              Where strength, agility, and skill meet science — powered by the Athleticism Accelerator™.
+            </motion.p>
+
+            <motion.div
+              className="flex flex-col items-center justify-center space-y-4 mb-8"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            >
+              <motion.button
+                onClick={onSignUpClick}
+                className="bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="flex items-center justify-center space-x-3">
+                  <span>Join a Class</span>
+                  <ArrowRight className="w-5 h-5" />
+                </span>
+              </motion.button>
+
+              <motion.button
+                onClick={onSignUpClick}
+                className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 w-full max-w-xs"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Take a Tour of the Rig
+              </motion.button>
+            </motion.div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+              className="flex justify-center mt-8"
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+                <motion.div
+                  className="w-1 h-3 bg-vortex-red rounded-full mt-2"
+                  animate={{ y: [0, 12, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
