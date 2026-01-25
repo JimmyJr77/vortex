@@ -169,6 +169,82 @@ cd backend
 - Efficient database queries
 - CDN ready
 
+## 🎥 Video Assets via Cloudflare R2 CDN
+
+Video assets (hero background videos) are hosted on Cloudflare R2 and served via CDN for optimal performance and reduced bandwidth costs.
+
+### Environment Variables
+
+Set the following environment variable in Vercel (or `.env.local` for local development):
+
+- `VITE_CDN_BASE_URL`: Base URL for CDN-hosted videos
+  - Example: `https://cdn.example.com/videos`
+  - If not set, videos will fall back to the `/public` folder
+
+### Uploading Videos to R2
+
+1. **Install AWS SDK** (required for upload script):
+   ```bash
+   npm install --save-dev @aws-sdk/client-s3
+   ```
+
+2. **Set R2 credentials** in your environment:
+   ```bash
+   export R2_ACCOUNT_ID="your-account-id"
+   export R2_ACCESS_KEY_ID="your-access-key"
+   export R2_SECRET_ACCESS_KEY="your-secret-key"
+   export R2_BUCKET="your-bucket-name"
+   export R2_ENDPOINT="https://<account-id>.r2.cloudflarestorage.com"
+   export CDN_BASE_URL="https://cdn.example.com/videos"  # Optional, for verification
+   ```
+
+3. **Run the upload script**:
+   ```bash
+   node scripts/upload-videos-to-r2.js
+   ```
+
+   The script will upload:
+   - `landing_page_hero.mp4` → `videos/landing_page_hero.mp4`
+   - `vald_sprints.mp4` → `videos/vald_sprints.mp4`
+   - `landing_page_hero.webp` (if exists) → `videos/landing_page_hero.webp`
+
+### Verifying CDN Setup
+
+1. **Check in Browser DevTools**:
+   - Open Network tab
+   - Filter by "Media" or search for `.mp4`
+   - Verify videos load from `cdn.example.com` (not from Vercel)
+   - Check `CF-Cache-Status` header:
+     - `HIT` = cached at edge (fast)
+     - `MISS` = fetched from origin (first request)
+
+2. **Verify Range Requests**:
+   - Videos should support HTTP Range requests for seeking/streaming
+   - Check `Accept-Ranges: bytes` header in response
+
+3. **Check CORS**:
+   - Ensure CORS headers are present
+   - Videos should load without CORS errors
+
+### Setup Documentation
+
+- **Quick Start**: See [docs/r2-quick-start.md](./docs/r2-quick-start.md) for step-by-step guide with your R2 credentials
+- **Full Setup**: See [docs/r2-cdn-setup.md](./docs/r2-cdn-setup.md) for detailed configuration options
+- **Next Steps**: See [R2_SETUP_COMPLETE.md](./R2_SETUP_COMPLETE.md) for a checklist of remaining tasks
+
+### Components
+
+- **`HeroBackgroundVideo`**: Progressive enhancement component for hero background videos
+  - Shows poster image immediately (LCP-friendly)
+  - Loads video only after client-side gating (reduced motion, network, viewport)
+  - Respects `prefers-reduced-motion` and network conditions
+  - Uses IntersectionObserver for lazy loading
+
+- **`CdnVideo`**: Lightweight component for CDN-hosted videos with controls
+  - IntersectionObserver for lazy loading
+  - Optional poster image
+  - Configurable video attributes
+
 ## 🤝 Contributing
 
 1. Fork the repository

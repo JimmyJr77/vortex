@@ -1,10 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, X } from 'lucide-react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import HeroBackgroundVideo from './HeroBackgroundVideo'
 
 const Hero = () => {
-  const videoRef = useRef<HTMLVideoElement>(null)
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
@@ -21,69 +21,6 @@ const Hero = () => {
     }
   }, [])
 
-  useEffect(() => {
-    // Handle video playback
-    const video = videoRef.current
-    if (video) {
-      console.log('Hero video element found:', video)
-      console.log('Hero video src:', video.currentSrc || video.src)
-      
-      // Set loop and muted programmatically
-      video.loop = true
-      video.muted = true
-      
-      // Try to play immediately
-      const playPromise = video.play()
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('Hero video playing successfully')
-          })
-          .catch((error) => {
-            console.error('Hero video play error:', error)
-          })
-      }
-      
-      // Handle various video events
-      const handleCanPlay = () => {
-        console.log('Hero video can play - attempting to play')
-        video.play().catch((error) => {
-          console.error('Play error on canPlay:', error)
-        })
-      }
-      
-      const handleLoadedData = () => {
-        console.log('Hero video loaded data')
-        video.play().catch((error) => {
-          console.error('Play error on loadedData:', error)
-        })
-      }
-      
-      const handleError = (e: Event) => {
-        console.error('❌ Hero video loading error:', e)
-        const videoEl = e.currentTarget as HTMLVideoElement
-        console.error('Hero video error details:', {
-          code: videoEl.error?.code,
-          message: videoEl.error?.message,
-          networkState: videoEl.networkState,
-          readyState: videoEl.readyState,
-          src: videoEl.currentSrc || videoEl.src,
-        })
-      }
-      
-      video.addEventListener('canplay', handleCanPlay)
-      video.addEventListener('loadeddata', handleLoadedData)
-      video.addEventListener('error', handleError)
-      
-      return () => {
-        video.removeEventListener('canplay', handleCanPlay)
-        video.removeEventListener('loadeddata', handleLoadedData)
-        video.removeEventListener('error', handleError)
-      }
-    } else {
-      console.error('Hero video ref is null')
-    }
-  }, [])
 
   const handleBannerClose = () => {
     localStorage.setItem('vortex-gymnastics-banner-dismissed', 'true')
@@ -225,60 +162,18 @@ const Hero = () => {
       {/* Desktop: Full screen section with everything overlaid on video */}
       <section className="hidden md:flex relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
         {/* Video Background */}
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover z-0"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            zIndex: 0,
-            display: 'block',
-            pointerEvents: 'none',
+        <HeroBackgroundVideo
+          videoFileName="landing_page_hero.mp4"
+          posterFileName="landing_page_hero.webp"
+          className="absolute inset-0 w-full h-full"
+          overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
+          onVideoReady={() => {
+            console.log('✅ Hero video ready')
           }}
-          onError={(e) => {
-            console.error('❌ Hero video loading error:', e)
-            const video = e.currentTarget as HTMLVideoElement
-            console.error('Hero video error details:', {
-              code: video.error?.code,
-              message: video.error?.message,
-              networkState: video.networkState,
-              readyState: video.readyState,
-              src: video.currentSrc || video.src,
-            })
+          onVideoError={(error) => {
+            console.error('❌ Hero video error:', error)
           }}
-          onLoadedData={() => {
-            console.log('✅ Hero video loaded successfully')
-            const video = videoRef.current
-            if (video) {
-              video.play().catch(err => {
-                console.error('Failed to play after load:', err)
-              })
-            }
-          }}
-          onCanPlay={() => {
-            console.log('▶️ Hero video can play')
-            const video = videoRef.current
-            if (video && video.paused) {
-              video.play().catch(err => {
-                console.error('Failed to play on canPlay:', err)
-              })
-            }
-          }}
-        >
-          <source src="/landing_page_hero.mp4" type="video/mp4" />
-        </video>
-
-        {/* Dark Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
+        />
 
         {/* Animated Background Elements */}
         <div className="absolute inset-0 z-[1]">
@@ -467,31 +362,18 @@ const Hero = () => {
       {/* Mobile: Video section with rotator only */}
       <section className="md:hidden relative h-[60vh] flex items-center justify-center overflow-hidden pt-20">
         {/* Video Background */}
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover z-0"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            zIndex: 0,
-            display: 'block',
-            pointerEvents: 'none',
+        <HeroBackgroundVideo
+          videoFileName="landing_page_hero.mp4"
+          posterFileName="landing_page_hero.webp"
+          className="absolute inset-0 w-full h-full"
+          overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
+          onVideoReady={() => {
+            console.log('✅ Hero video ready (mobile)')
           }}
-        >
-          <source src="/landing_page_hero.mp4" type="video/mp4" />
-        </video>
-
-        {/* Dark Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
+          onVideoError={(error) => {
+            console.error('❌ Hero video error (mobile):', error)
+          }}
+        />
 
         <div className="container-custom relative z-10 w-full">
           <div className="text-center">

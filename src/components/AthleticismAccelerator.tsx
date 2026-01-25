@@ -1,68 +1,12 @@
 import { motion } from 'framer-motion'
 import { Zap, Target, TrendingUp, Shield, Users, ArrowRight, CheckCircle } from 'lucide-react'
-import { useRef, useEffect } from 'react'
+import HeroBackgroundVideo from './HeroBackgroundVideo'
 
 interface AthleticismAcceleratorProps {
   onSignUpClick: () => void
 }
 
 const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) => {
-  const videoRef = useRef<HTMLVideoElement>(null)
-
-  useEffect(() => {
-    const video = videoRef.current
-    if (video) {
-      console.log('Video element found:', video)
-      console.log('Video src:', video.currentSrc || video.src)
-      
-      // Set loop programmatically
-      video.loop = true
-      video.muted = true
-      
-      // Try to play immediately
-      const playPromise = video.play()
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('Video playing successfully')
-          })
-          .catch((error) => {
-            console.error('Video play error:', error)
-          })
-      }
-      
-      // Handle various video events
-      const handleCanPlay = () => {
-        console.log('Video can play - attempting to play')
-        video.play().catch((error) => {
-          console.error('Play error on canPlay:', error)
-        })
-      }
-      
-      const handleLoadedData = () => {
-        console.log('Video loaded data')
-        video.play().catch((error) => {
-          console.error('Play error on loadedData:', error)
-        })
-      }
-      
-      const handleLoadedMetadata = () => {
-        console.log('Video metadata loaded')
-      }
-      
-      video.addEventListener('canplay', handleCanPlay)
-      video.addEventListener('loadeddata', handleLoadedData)
-      video.addEventListener('loadedmetadata', handleLoadedMetadata)
-      
-      return () => {
-        video.removeEventListener('canplay', handleCanPlay)
-        video.removeEventListener('loadeddata', handleLoadedData)
-        video.removeEventListener('loadedmetadata', handleLoadedMetadata)
-      }
-    } else {
-      console.error('Video ref is null')
-    }
-  }, [])
 
   const tenets = [
     { 
@@ -138,66 +82,17 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
       {/* Desktop: Full screen section with everything overlaid on video */}
       <section className="hidden md:flex relative min-h-screen flex items-center justify-center overflow-hidden pt-20" style={{ backgroundColor: 'transparent' }}>
         {/* Video Element - Bottom layer */}
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover z-0"
-          style={{ 
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            zIndex: 0,
-            display: 'block',
-            pointerEvents: 'none',
-            backgroundColor: '#000000'
+        <HeroBackgroundVideo
+          videoFileName="vald_sprints.mp4"
+          className="absolute inset-0 w-full h-full"
+          overlayClassName="absolute inset-0 bg-black/40 z-[1] pointer-events-none"
+          onVideoReady={() => {
+            console.log('✅ Vald sprints video ready')
           }}
-          onError={(e) => {
-            console.error('❌ Video loading error:', e)
-            const video = e.currentTarget as HTMLVideoElement
-            console.error('Video error details:', {
-              code: video.error?.code,
-              message: video.error?.message,
-              networkState: video.networkState,
-              readyState: video.readyState,
-              src: video.currentSrc || video.src,
-              videoWidth: video.videoWidth,
-              videoHeight: video.videoHeight,
-              paused: video.paused,
-              ended: video.ended
-            })
+          onVideoError={(error) => {
+            console.error('❌ Vald sprints video error:', error)
           }}
-          onLoadedData={() => {
-            console.log('✅ Video loaded successfully')
-            const video = videoRef.current
-            if (video) {
-              video.play().catch(err => {
-                console.error('Failed to play after load:', err)
-              })
-            }
-          }}
-          onCanPlay={() => {
-            console.log('▶️ Video can play')
-            const video = videoRef.current
-            if (video && video.paused) {
-              video.play().catch(err => {
-                console.error('Failed to play on canPlay:', err)
-              })
-            }
-          }}
-        >
-          <source src="/vald_sprints.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-
-        {/* Dark Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-black/40 z-[1] pointer-events-none"></div>
+        />
 
         {/* Content Container - Top Layer */}
         <div className="container-custom relative z-10 text-center">
@@ -276,32 +171,17 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
       {/* Mobile: Video section with title only */}
       <section className="md:hidden relative h-[60vh] flex items-center justify-center overflow-hidden pt-20">
         {/* Video Background */}
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover z-0"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            zIndex: 0,
-            display: 'block',
-            pointerEvents: 'none',
+        <HeroBackgroundVideo
+          videoFileName="vald_sprints.mp4"
+          className="absolute inset-0 w-full h-full"
+          overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
+          onVideoReady={() => {
+            console.log('✅ Vald sprints video ready (mobile)')
           }}
-        >
-          <source src="/vald_sprints.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-
-        {/* Dark Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
+          onVideoError={(error) => {
+            console.error('❌ Vald sprints video error (mobile):', error)
+          }}
+        />
 
         <div className="container-custom relative z-10 w-full text-center">
           <motion.h1
