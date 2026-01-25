@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef, useState } from 'react'
-import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, TrendingUp, Play, Shield, ChevronLeft, ChevronRight, Building2 } from 'lucide-react'
+import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, TrendingUp, Play, Shield, ChevronLeft, ChevronRight, Building2, Scale } from 'lucide-react'
 
 export default function ParallaxGym() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -13,21 +13,38 @@ export default function ParallaxGym() {
   const y1 = useTransform(scrollYProgress, [0, 1], ['-20%', '20%'])
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 1, 0.3])
   
+  // Map activity names to their background images
+  const activityImageMap: Record<string, string> = {
+    'Premium Facilities': '/gym_background.png',
+    'Gymnastics': '/gymnastics.jpeg',
+    'Trampoline': '/trampoline.jpeg',
+    'Tumbling & Flips': '/tumbling.jpeg',
+    'Ninja Training': '/ninja.jpeg',
+    'Strength Training': '/strength.jpeg',
+    'Plyometrics': '/plyometrics.jpeg',
+    'Speed Work': '/speed.jpeg',
+    'Agility Drills': '/agility.jpeg',
+    'Multi-Sport Training': '/multisport.jpeg',
+    'Balance': '/balance.jpeg',
+  }
 
   const activities = [
     { icon: Building2, name: 'Premium Facilities' },
     { icon: Activity, name: 'Gymnastics' },
-    { icon: Zap, name: 'Trampoline Skills' },
+    { icon: Zap, name: 'Trampoline' },
     { icon: Zap, name: 'Tumbling & Flips' },
     { icon: Shield, name: 'Ninja Training' },
     { icon: Dumbbell, name: 'Strength Training' },
     { icon: Flame, name: 'Plyometrics' },
-    { icon: Activity, name: 'Calisthenics' },
     { icon: Wind, name: 'Speed Work' },
     { icon: Gauge, name: 'Agility Drills' },
-    { icon: TrendingUp, name: 'Coordination Games' },
+    { icon: Scale, name: 'Balance' },
     { icon: Play, name: 'Multi-Sport Training' }
+    // Coordination Games temporarily hidden
   ]
+
+  // Get the current background image based on selected activity
+  const currentBackgroundImage = activityImageMap[activities[selectedActivity].name] || '/gym_background.png'
 
   return (
     <section 
@@ -39,15 +56,19 @@ export default function ParallaxGym() {
         className="absolute inset-0"
         style={{ y: y1 }}
       >
-        <div 
+        <motion.div 
+          key={selectedActivity}
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url(/gym_background.png)',
+            backgroundImage: `url(${currentBackgroundImage})`,
           }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
         >
           {/* Subtle overlay for text readability */}
           <div className="absolute inset-0 bg-black/20" />
-        </div>
+        </motion.div>
       </motion.div>
 
       {/* Overlay Gradient */}
@@ -128,7 +149,7 @@ export default function ParallaxGym() {
               {activities[selectedActivity].name === 'Gymnastics' && 
                 "The foundation of athletic excellence. Develops core tenets: Flexibility, Balance, Coordination, and Body Control. Elite body awareness translates directly to any sport."}
               
-              {activities[selectedActivity].name === 'Trampoline Skills' && 
+              {activities[selectedActivity].name === 'Trampoline' && 
                 "Develops aerial awareness, Coordination, and Balance while building explosive power. Athletes learn to control their body in space—essential for any dynamic sport."}
               
               {activities[selectedActivity].name === 'Tumbling & Flips' && 
@@ -143,17 +164,14 @@ export default function ParallaxGym() {
               {activities[selectedActivity].name === 'Plyometrics' && 
                 "Explosive power and Speed development. Jump training builds the elastic strength needed to generate maximum force quickly—critical for competitive athletes."}
               
-              {activities[selectedActivity].name === 'Calisthenics' && 
-                "Bodyweight mastery. Develops functional Strength, Flexibility, and Body Control through progressive movement patterns that build resilient, capable athletes."}
-              
               {activities[selectedActivity].name === 'Speed Work' && 
                 "Elite Speed and Explosiveness training. Perfect sprint mechanics and acceleration patterns develop the raw velocity needed to outperform the competition."}
               
               {activities[selectedActivity].name === 'Agility Drills' && 
                 "Sharpens Agility, Coordination, and Change of Direction. Pattern recognition and quick-twitch responses create unpredictable, unstoppable athletes."}
               
-              {activities[selectedActivity].name === 'Coordination Games' && 
-                "Develops multi-limb Coordination and Body Control through playful training. Athletes learn to move efficiently and instinctively—the mark of true athleticism."}
+              {activities[selectedActivity].name === 'Balance' && 
+                "Develops core stability and proprioception. Balance training enhances body control, reduces injury risk, and creates a foundation for all athletic movements."}
               
               {activities[selectedActivity].name === 'Multi-Sport Training' && 
                 "Transferable skill development across all athletic domains. Combines all 8 core tenets to create adaptable champions who excel regardless of sport."}

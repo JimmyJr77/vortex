@@ -70,7 +70,7 @@ const TrampolineTumbling = ({ onSignUpClick }: TrampolineTumblingProps) => {
   return (
     <div className="min-h-screen bg-white">
       {/* Desktop: Full screen section with everything overlaid */}
-      <section className="hidden md:flex relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
+      <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <motion.div
@@ -99,7 +99,7 @@ const TrampolineTumbling = ({ onSignUpClick }: TrampolineTumblingProps) => {
           />
         </div>
 
-        <div className="container-custom relative z-10 text-center">
+        <div className="container-custom relative z-10 flex items-center justify-center min-h-[calc(100vh-5rem)] text-center">
           <motion.h1
             className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
             initial={{ opacity: 0, y: 50 }}
@@ -174,11 +174,12 @@ const TrampolineTumbling = ({ onSignUpClick }: TrampolineTumblingProps) => {
       </section>
 
       {/* Mobile: Hero section with title only */}
-      <section className="md:hidden relative h-[60vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
+      <section className="md:hidden relative h-[60vh] w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20 block">
         {/* Dark Overlay for Text Readability */}
         <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
         
-        <div className="container-custom relative z-10 text-center w-full">
+        <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">
+          <div className="container-custom text-center w-full pointer-events-auto">
           <motion.h1
             className="text-4xl sm:text-5xl font-display font-bold text-white mb-6 px-4"
             initial={{ opacity: 0, y: 50 }}
@@ -189,6 +190,7 @@ const TrampolineTumbling = ({ onSignUpClick }: TrampolineTumblingProps) => {
             <br />
             <span className="text-vortex-red">Tumble Smarter.</span>
           </motion.h1>
+          </div>
         </div>
       </section>
 

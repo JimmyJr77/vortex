@@ -80,7 +80,7 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
   return (
     <div className="min-h-screen bg-white">
       {/* Desktop: Full screen section with everything overlaid on video */}
-      <section className="hidden md:flex relative min-h-screen flex items-center justify-center overflow-hidden pt-20" style={{ backgroundColor: 'transparent' }}>
+      <section className="hidden md:block relative min-h-screen w-full overflow-hidden pt-20" style={{ backgroundColor: 'transparent' }}>
         {/* Video Element - Bottom layer */}
         <HeroBackgroundVideo
           videoFileName="vald_sprints.mp4"
@@ -95,7 +95,7 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
         />
 
         {/* Content Container - Top Layer */}
-        <div className="container-custom relative z-10 text-center">
+        <div className="container-custom relative z-10 flex items-center justify-center min-h-[calc(100vh-5rem)] text-center">
           <motion.h1
             className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
             initial={{ opacity: 0, y: 50 }}
@@ -169,7 +169,7 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
       </section>
 
       {/* Mobile: Video section with title only */}
-      <section className="md:hidden relative h-[60vh] flex items-center justify-center overflow-hidden pt-20">
+      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
         {/* Video Background */}
         <HeroBackgroundVideo
           videoFileName="vald_sprints.mp4"
@@ -183,7 +183,8 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
           }}
         />
 
-        <div className="container-custom relative z-10 w-full text-center">
+        <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">
+          <div className="container-custom text-center w-full pointer-events-auto">
           <motion.h1
             className="text-4xl sm:text-5xl font-display font-bold text-white mb-6 px-4"
             initial={{ opacity: 0, y: 50 }}
@@ -193,6 +194,7 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
             Unlock the Full Spectrum of{' '}
             <span className="text-vortex-red">Athleticism</span>
           </motion.h1>
+          </div>
         </div>
       </section>
 
