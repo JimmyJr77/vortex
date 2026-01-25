@@ -21,6 +21,70 @@ const Hero = () => {
     }
   }, [])
 
+  useEffect(() => {
+    // Handle video playback
+    const video = videoRef.current
+    if (video) {
+      console.log('Hero video element found:', video)
+      console.log('Hero video src:', video.currentSrc || video.src)
+      
+      // Set loop and muted programmatically
+      video.loop = true
+      video.muted = true
+      
+      // Try to play immediately
+      const playPromise = video.play()
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('Hero video playing successfully')
+          })
+          .catch((error) => {
+            console.error('Hero video play error:', error)
+          })
+      }
+      
+      // Handle various video events
+      const handleCanPlay = () => {
+        console.log('Hero video can play - attempting to play')
+        video.play().catch((error) => {
+          console.error('Play error on canPlay:', error)
+        })
+      }
+      
+      const handleLoadedData = () => {
+        console.log('Hero video loaded data')
+        video.play().catch((error) => {
+          console.error('Play error on loadedData:', error)
+        })
+      }
+      
+      const handleError = (e: Event) => {
+        console.error('❌ Hero video loading error:', e)
+        const videoEl = e.currentTarget as HTMLVideoElement
+        console.error('Hero video error details:', {
+          code: videoEl.error?.code,
+          message: videoEl.error?.message,
+          networkState: videoEl.networkState,
+          readyState: videoEl.readyState,
+          src: videoEl.currentSrc || videoEl.src,
+        })
+      }
+      
+      video.addEventListener('canplay', handleCanPlay)
+      video.addEventListener('loadeddata', handleLoadedData)
+      video.addEventListener('error', handleError)
+      
+      return () => {
+        video.removeEventListener('canplay', handleCanPlay)
+        video.removeEventListener('loadeddata', handleLoadedData)
+        video.removeEventListener('error', handleError)
+      }
+    } else {
+      console.error('Hero video ref is null')
+    }
+  }, [])
+
   const handleBannerClose = () => {
     localStorage.setItem('vortex-gymnastics-banner-dismissed', 'true')
     setShowBanner(false)
@@ -155,15 +219,6 @@ const Hero = () => {
     return () => clearInterval(interval)
   }, [rotatingTexts.length])
 
-  useEffect(() => {
-    const video = videoRef.current
-    if (video) {
-      video.loop = true
-      video.muted = true
-      video.play().catch(() => {})
-    }
-  }, [])
-
   const currentText = rotatingTexts[currentTextIndex]
   return (
     <>
@@ -188,6 +243,35 @@ const Hero = () => {
             zIndex: 0,
             display: 'block',
             pointerEvents: 'none',
+          }}
+          onError={(e) => {
+            console.error('❌ Hero video loading error:', e)
+            const video = e.currentTarget as HTMLVideoElement
+            console.error('Hero video error details:', {
+              code: video.error?.code,
+              message: video.error?.message,
+              networkState: video.networkState,
+              readyState: video.readyState,
+              src: video.currentSrc || video.src,
+            })
+          }}
+          onLoadedData={() => {
+            console.log('✅ Hero video loaded successfully')
+            const video = videoRef.current
+            if (video) {
+              video.play().catch(err => {
+                console.error('Failed to play after load:', err)
+              })
+            }
+          }}
+          onCanPlay={() => {
+            console.log('▶️ Hero video can play')
+            const video = videoRef.current
+            if (video && video.paused) {
+              video.play().catch(err => {
+                console.error('Failed to play on canPlay:', err)
+              })
+            }
           }}
         >
           <source src="/landing_page_hero_1.mp4" type="video/mp4" />
