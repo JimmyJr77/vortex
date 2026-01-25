@@ -114,6 +114,12 @@ const filesToUpload = [
     contentType: 'video/mp4',
     description: 'Vald sprints video',
   },
+  {
+    localPath: join(__dirname, '..', 'public', 'short_hero.mp4'),
+    remotePath: 'videos/short_hero.mp4', // Organized in videos/ prefix
+    contentType: 'video/mp4',
+    description: 'Short hero background video',
+  },
   // Optional poster image
   {
     localPath: join(__dirname, '..', 'public', 'landing_page_hero.webp'),
