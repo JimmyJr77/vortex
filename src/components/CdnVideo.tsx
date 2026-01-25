@@ -39,7 +39,6 @@ const CdnVideo = ({
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
-  const [isInView, setIsInView] = useState(false)
 
   // Get CDN base URL from environment variable
   const getCdnBaseUrl = (): string => {
@@ -68,7 +67,6 @@ const CdnVideo = ({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setIsInView(true)
             setShouldLoadVideo(true)
             observer.disconnect()
           }
@@ -116,7 +114,7 @@ const CdnVideo = ({
       }
     }
 
-    const handleError = (e: Event) => {
+    const handleError = (_e: Event) => {
       const error = new Error(`Video loading failed: ${video.error?.message || 'Unknown error'}`)
       console.error('CdnVideo error:', error)
       onVideoError?.(error)

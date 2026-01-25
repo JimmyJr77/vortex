@@ -31,7 +31,6 @@ const HeroBackgroundVideo = ({
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
-  const [videoLoaded, setVideoLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const [posterError, setPosterError] = useState(false)
 
@@ -123,7 +122,6 @@ const HeroBackgroundVideo = ({
 
     // Handle video events
     const handleLoadedData = () => {
-      setVideoLoaded(true)
       // Fade in video after a short delay
       setTimeout(() => {
         setShowVideo(true)
@@ -143,7 +141,7 @@ const HeroBackgroundVideo = ({
       }
     }
 
-    const handleError = (e: Event) => {
+    const handleError = (_e: Event) => {
       const error = new Error(`Video loading failed: ${video.error?.message || 'Unknown error'}`)
       console.error('HeroBackgroundVideo error:', error)
       onVideoError?.(error)
