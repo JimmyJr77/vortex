@@ -190,7 +190,7 @@ const Hero = () => {
             pointerEvents: 'none',
           }}
         >
-          <source src="/landing_video_small.mp4" type="video/mp4" />
+          <source src="/landing_page_hero.mp4" type="video/mp4" />
         </video>
 
         {/* Dark Overlay for Text Readability */}
@@ -403,7 +403,7 @@ const Hero = () => {
             pointerEvents: 'none',
           }}
         >
-          <source src="/landing_video_small.mp4" type="video/mp4" />
+          <source src="/landing_page_hero.mp4" type="video/mp4" />
         </video>
 
         {/* Dark Overlay for Text Readability */}
