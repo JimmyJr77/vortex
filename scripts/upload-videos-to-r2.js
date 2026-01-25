@@ -126,6 +126,12 @@ const filesToUpload = [
     contentType: 'video/mp4',
     description: 'Artistic gymnastics hero video',
   },
+  {
+    localPath: join(__dirname, '..', 'public', 'rhythmic.mp4'),
+    remotePath: 'videos/rhythmic.mp4', // Organized in videos/ prefix
+    contentType: 'video/mp4',
+    description: 'Rhythmic gymnastics hero video',
+  },
   // Optional poster image
   {
     localPath: join(__dirname, '..', 'public', 'landing_page_hero.webp'),
