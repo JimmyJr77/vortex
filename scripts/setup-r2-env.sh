@@ -5,11 +5,15 @@
 
 echo "🔧 Setting up R2 environment variables..."
 
-# Your R2 credentials (from the information provided)
-R2_ACCOUNT_ID="2ba521e445c47efaa275b65fc9d1a196"
-R2_ENDPOINT="https://2ba521e445c47efaa275b65fc9d1a196.r2.cloudflarestorage.com"
-R2_ACCESS_KEY_ID="d7bae3a9f7b2dfc5ba2726ba68049bac"
-R2_SECRET_ACCESS_KEY="fcaebaa6c223aba359176cdc3c8504916a855aea4339a030bcb7673c9c00fa12"
+# Your R2 credentials - REPLACE WITH YOUR ACTUAL VALUES
+# Get these from Cloudflare Dashboard → My Profile → API Tokens
+# Create a new R2 token and copy the values below
+read -p "Enter your R2 Account ID: " R2_ACCOUNT_ID
+read -p "Enter your R2 Access Key ID: " R2_ACCESS_KEY_ID
+read -s -p "Enter your R2 Secret Access Key: " R2_SECRET_ACCESS_KEY
+echo "" # New line after hidden input
+
+R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 
 # Bucket name (you specified it's called "videos")
 R2_BUCKET="videos"

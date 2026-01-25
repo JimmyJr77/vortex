@@ -53,6 +53,12 @@ const HeroBackgroundVideo = ({
       : `/${posterFileName}`
     : undefined
 
+  // Debug logging (only in development)
+  if (import.meta.env.DEV) {
+    console.log('[HeroBackgroundVideo] CDN Base:', cdnBase || '(using public folder)')
+    console.log('[HeroBackgroundVideo] Video URL:', videoUrl)
+  }
+
   // Client-side gating: Check if we should load video
   useEffect(() => {
     // Only run on client
@@ -112,6 +118,7 @@ const HeroBackgroundVideo = ({
     if (!shouldLoadVideo || !videoRef.current) return
 
     const video = videoRef.current
+    let hasCalledReady = false // Prevent multiple calls to onVideoReady
 
     // Set video source
     const source = video.querySelector('source')
@@ -125,7 +132,10 @@ const HeroBackgroundVideo = ({
       // Fade in video after a short delay
       setTimeout(() => {
         setShowVideo(true)
-        onVideoReady?.()
+        if (!hasCalledReady) {
+          hasCalledReady = true
+          onVideoReady?.()
+        }
       }, 100)
     }
 
@@ -136,7 +146,9 @@ const HeroBackgroundVideo = ({
         playPromise.catch((error) => {
           console.warn('Video autoplay prevented:', error)
           // Video will still be ready, just not playing
-          handleLoadedData()
+          if (!hasCalledReady) {
+            handleLoadedData()
+          }
         })
       }
     }
@@ -156,7 +168,8 @@ const HeroBackgroundVideo = ({
       video.removeEventListener('canplay', handleCanPlay)
       video.removeEventListener('error', handleError)
     }
-  }, [shouldLoadVideo, videoUrl, onVideoReady, onVideoError])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldLoadVideo, videoUrl]) // Removed onVideoReady and onVideoError from deps to prevent infinite loop
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>

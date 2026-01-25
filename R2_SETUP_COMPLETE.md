@@ -145,10 +145,15 @@ This uploads:
 
 ## 🎯 Your R2 Information
 
-- **Account ID**: `2ba521e445c47efaa275b65fc9d1a196`
-- **S3 Endpoint**: `https://2ba521e445c47efaa275b65fc9d1a196.r2.cloudflarestorage.com`
-- **Access Key ID**: `d7bae3a9f7b2dfc5ba2726ba68049bac`
-- **Secret Access Key**: `fcaebaa6c223aba359176cdc3c8504916a855aea4339a030bcb7673c9c00fa12`
+⚠️ **IMPORTANT**: Get your R2 credentials from Cloudflare Dashboard:
 
-⚠️ Remember to rotate these credentials after setup!
+1. Go to Cloudflare Dashboard → **My Profile** → **API Tokens**
+2. Create a new R2 token with read/write permissions
+3. Copy the following values:
+   - **Account ID**: Found in R2 dashboard
+   - **S3 Endpoint**: `https://YOUR_ACCOUNT_ID.r2.cloudflarestorage.com`
+   - **Access Key ID**: From the API token you created
+   - **Secret Access Key**: From the API token you created
+
+⚠️ **Never commit credentials to git!** Store them in `.env.local` (which is gitignored) or in Vercel environment variables.
 

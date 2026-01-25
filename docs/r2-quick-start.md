@@ -4,12 +4,17 @@ This guide will help you quickly set up Cloudflare R2 for video hosting using yo
 
 ## Your R2 Information
 
-- **Account ID**: `2ba521e445c47efaa275b65fc9d1a196`
-- **S3 Endpoint**: `https://2ba521e445c47efaa275b65fc9d1a196.r2.cloudflarestorage.com`
-- **Access Key ID**: `d7bae3a9f7b2dfc5ba2726ba68049bac`
-- **Secret Access Key**: `fcaebaa6c223aba359176cdc3c8504916a855aea4339a030bcb7673c9c00fa12`
+⚠️ **IMPORTANT**: Replace the placeholders below with your actual R2 credentials from Cloudflare Dashboard.
 
-⚠️ **SECURITY WARNING**: These credentials have been shared. Consider rotating them after setup for security.
+- **Account ID**: `YOUR_ACCOUNT_ID` (get from Cloudflare Dashboard → R2)
+- **S3 Endpoint**: `https://YOUR_ACCOUNT_ID.r2.cloudflarestorage.com`
+- **Access Key ID**: `YOUR_ACCESS_KEY_ID` (create API token in Cloudflare)
+- **Secret Access Key**: `YOUR_SECRET_ACCESS_KEY` (create API token in Cloudflare)
+
+**To get your credentials:**
+1. Go to Cloudflare Dashboard → **My Profile** → **API Tokens**
+2. Create a new R2 token with read/write permissions
+3. Copy the Access Key ID and Secret Access Key
 
 ## Step 1: Create R2 Bucket
 
@@ -49,11 +54,11 @@ The script will prompt you for:
 Create `.env.local` file:
 
 ```bash
-# R2 Credentials
-R2_ACCOUNT_ID=2ba521e445c47efaa275b65fc9d1a196
-R2_ENDPOINT=https://2ba521e445c47efaa275b65fc9d1a196.r2.cloudflarestorage.com
-R2_ACCESS_KEY_ID=d7bae3a9f7b2dfc5ba2726ba68049bac
-R2_SECRET_ACCESS_KEY=fcaebaa6c223aba359176cdc3c8504916a855aea4339a030bcb7673c9c00fa12
+# R2 Credentials (replace with your actual values)
+R2_ACCOUNT_ID=YOUR_ACCOUNT_ID
+R2_ENDPOINT=https://YOUR_ACCOUNT_ID.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID=YOUR_ACCESS_KEY_ID
+R2_SECRET_ACCESS_KEY=YOUR_SECRET_ACCESS_KEY
 R2_BUCKET=videos
 
 # CDN URL (update with your actual domain)

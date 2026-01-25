@@ -203,8 +203,8 @@ const Hero = () => {
           />
         </div>
 
-        <div className="container-custom relative z-10">
-          <div className="text-center">
+        <div className="container-custom relative z-10 text-center">
+          <div>
             {/* Banner Notification - Only show if popup has been seen */}
             {showBanner && (
               <motion.div
