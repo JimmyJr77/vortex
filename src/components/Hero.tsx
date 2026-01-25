@@ -172,7 +172,7 @@ const Hero = () => {
       <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
         {/* Video Background */}
         <HeroBackgroundVideo
-          videoFileName="landing_page_hero.mp4"
+          videoFileName="short_hero.mp4"
           posterFileName="landing_page_hero.png"
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
@@ -368,7 +368,7 @@ const Hero = () => {
       <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
         {/* Video Background */}
         <HeroBackgroundVideo
-          videoFileName="landing_page_hero.mp4"
+          videoFileName="short_hero.mp4"
           posterFileName="landing_page_hero.png"
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
