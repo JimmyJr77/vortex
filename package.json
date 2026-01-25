@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run pull-lfs && tsc -b && vite build",
+    "pull-lfs": "bash scripts/pull-lfs.sh || echo 'Git LFS pull failed, continuing build'",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "vercel-build": "npm run pull-lfs && tsc -b && vite build"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
