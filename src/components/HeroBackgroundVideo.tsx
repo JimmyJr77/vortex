@@ -193,7 +193,14 @@ const HeroBackgroundVideo = ({
   }, [shouldLoadVideo, videoUrl, usePublicFolder]) // Include usePublicFolder to reload when fallback triggers
 
   return (
-    <div ref={containerRef} className={`relative ${className}`}>
+    <div 
+      ref={containerRef} 
+      className={className || 'relative'}
+      style={{
+        display: 'block',
+        position: className?.includes('absolute') ? 'absolute' : 'relative',
+      }}
+    >
       {/* Poster Image - Always shown first for LCP */}
       {posterUrl && !posterError && (
         <img

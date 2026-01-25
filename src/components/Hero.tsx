@@ -169,11 +169,11 @@ const Hero = () => {
   return (
     <>
       {/* Desktop: Full screen section with everything overlaid on video */}
-      <section className="hidden md:flex relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
+      <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
         {/* Video Background */}
         <HeroBackgroundVideo
           videoFileName="landing_page_hero.mp4"
-          posterFileName="landing_page_hero.webp"
+          posterFileName="landing_page_hero.png"
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={handleVideoReady}
@@ -208,7 +208,7 @@ const Hero = () => {
           />
         </div>
 
-        <div className="container-custom relative z-10 text-center">
+        <div className="container-custom relative z-10 flex items-center justify-center min-h-[calc(100vh-5rem)] text-center">
           <div>
             {/* Banner Notification - Only show if popup has been seen */}
             {showBanner && (
@@ -365,19 +365,19 @@ const Hero = () => {
       </section>
 
       {/* Mobile: Video section with rotator only */}
-      <section className="md:hidden relative h-[60vh] w-full flex items-center justify-center overflow-hidden pt-20">
+      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
         {/* Video Background */}
         <HeroBackgroundVideo
           videoFileName="landing_page_hero.mp4"
-          posterFileName="landing_page_hero.webp"
+          posterFileName="landing_page_hero.png"
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={handleVideoReady}
           onVideoError={handleVideoError}
         />
 
-        <div className="container-custom relative z-10 w-full">
-          <div className="text-center">
+        <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">
+          <div className="container-custom text-center w-full pointer-events-auto">
             {/* Banner Notification - Only show if popup has been seen */}
             {showBanner && (
               <motion.div
