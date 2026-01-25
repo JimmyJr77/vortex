@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 
 interface HeroBackgroundVideoProps {
   videoFileName: string
@@ -45,19 +45,24 @@ const HeroBackgroundVideo = ({
     return ''
   }
 
-  const cdnBase = getCdnBaseUrl()
-  const videoUrl = cdnBase ? `${cdnBase}/${videoFileName}` : `/${videoFileName}`
-  const posterUrl = posterFileName
-    ? cdnBase
-      ? `${cdnBase}/${posterFileName}`
-      : `/${posterFileName}`
-    : undefined
-
-  // Debug logging (only in development)
-  if (import.meta.env.DEV) {
-    console.log('[HeroBackgroundVideo] CDN Base:', cdnBase || '(using public folder)')
-    console.log('[HeroBackgroundVideo] Video URL:', videoUrl)
-  }
+  // Memoize URL calculations to prevent re-renders
+  const { cdnBase, videoUrl, posterUrl } = useMemo(() => {
+    const base = getCdnBaseUrl()
+    const vUrl = base ? `${base}/${videoFileName}` : `/${videoFileName}`
+    const pUrl = posterFileName
+      ? base
+        ? `${base}/${posterFileName}`
+        : `/${posterFileName}`
+      : undefined
+    
+    // Debug logging (only in development, only once)
+    if (import.meta.env.DEV) {
+      console.log('[HeroBackgroundVideo] CDN Base:', base || '(using public folder)')
+      console.log('[HeroBackgroundVideo] Video URL:', vUrl)
+    }
+    
+    return { cdnBase: base, videoUrl: vUrl, posterUrl: pUrl }
+  }, [videoFileName, posterFileName])
 
   // Client-side gating: Check if we should load video
   useEffect(() => {

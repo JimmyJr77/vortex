@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, X } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
@@ -156,23 +156,28 @@ const Hero = () => {
     return () => clearInterval(interval)
   }, [rotatingTexts.length])
 
+  // Memoize callbacks to prevent re-renders
+  const handleVideoReady = useCallback(() => {
+    console.log('✅ Hero video ready')
+  }, [])
+
+  const handleVideoError = useCallback((error: Error) => {
+    console.error('❌ Hero video error:', error)
+  }, [])
+
   const currentText = rotatingTexts[currentTextIndex]
   return (
     <>
       {/* Desktop: Full screen section with everything overlaid on video */}
-      <section className="hidden md:flex relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
+      <section className="hidden md:flex relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
         {/* Video Background */}
         <HeroBackgroundVideo
           videoFileName="landing_page_hero.mp4"
           posterFileName="landing_page_hero.webp"
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
-          onVideoReady={() => {
-            console.log('✅ Hero video ready')
-          }}
-          onVideoError={(error) => {
-            console.error('❌ Hero video error:', error)
-          }}
+          onVideoReady={handleVideoReady}
+          onVideoError={handleVideoError}
         />
 
         {/* Animated Background Elements */}
@@ -360,19 +365,15 @@ const Hero = () => {
       </section>
 
       {/* Mobile: Video section with rotator only */}
-      <section className="md:hidden relative h-[60vh] flex items-center justify-center overflow-hidden pt-20">
+      <section className="md:hidden relative h-[60vh] w-full flex items-center justify-center overflow-hidden pt-20">
         {/* Video Background */}
         <HeroBackgroundVideo
           videoFileName="landing_page_hero.mp4"
           posterFileName="landing_page_hero.webp"
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
-          onVideoReady={() => {
-            console.log('✅ Hero video ready (mobile)')
-          }}
-          onVideoError={(error) => {
-            console.error('❌ Hero video error (mobile):', error)
-          }}
+          onVideoReady={handleVideoReady}
+          onVideoError={handleVideoError}
         />
 
         <div className="container-custom relative z-10 w-full">
