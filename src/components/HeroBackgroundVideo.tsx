@@ -33,6 +33,7 @@ const HeroBackgroundVideo = ({
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const [posterError, setPosterError] = useState(false)
+  const [usePublicFolder, setUsePublicFolder] = useState(false)
 
   // Get CDN base URL from environment variable
   const getCdnBaseUrl = (): string => {
@@ -46,8 +47,9 @@ const HeroBackgroundVideo = ({
   }
 
   // Memoize URL calculations to prevent re-renders
+  // If CDN fails, fall back to public folder
   const { videoUrl, posterUrl } = useMemo(() => {
-    const base = getCdnBaseUrl()
+    const base = usePublicFolder ? '' : getCdnBaseUrl()
     const vUrl = base ? `${base}/${videoFileName}` : `/${videoFileName}`
     const pUrl = posterFileName
       ? base
@@ -62,7 +64,7 @@ const HeroBackgroundVideo = ({
     }
     
     return { videoUrl: vUrl, posterUrl: pUrl }
-  }, [videoFileName, posterFileName])
+  }, [videoFileName, posterFileName, usePublicFolder])
 
   // Client-side gating: Check if we should load video
   useEffect(() => {
@@ -118,7 +120,7 @@ const HeroBackgroundVideo = ({
     }
   }, [])
 
-  // Load video when shouldLoadVideo becomes true
+  // Load video when shouldLoadVideo becomes true or when falling back to public folder
   useEffect(() => {
     if (!shouldLoadVideo || !videoRef.current) return
 
@@ -161,6 +163,20 @@ const HeroBackgroundVideo = ({
     const handleError = (_e: Event) => {
       const error = new Error(`Video loading failed: ${video.error?.message || 'Unknown error'}`)
       console.error('HeroBackgroundVideo error:', error)
+      
+      // If CDN fails and we haven't already fallen back, try public folder
+      if (!usePublicFolder && getCdnBaseUrl()) {
+        console.warn('[HeroBackgroundVideo] CDN video failed, falling back to public folder')
+        setUsePublicFolder(true)
+        // Reload video with public folder URL
+        const source = video.querySelector('source')
+        if (source) {
+          source.src = `/${videoFileName}`
+          video.load()
+        }
+        return // Don't call onVideoError yet, try fallback first
+      }
+      
       onVideoError?.(error)
     }
 
@@ -174,7 +190,7 @@ const HeroBackgroundVideo = ({
       video.removeEventListener('error', handleError)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldLoadVideo, videoUrl]) // Removed onVideoReady and onVideoError from deps to prevent infinite loop
+  }, [shouldLoadVideo, videoUrl, usePublicFolder]) // Include usePublicFolder to reload when fallback triggers
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
@@ -195,7 +211,14 @@ const HeroBackgroundVideo = ({
             objectFit: 'cover',
             zIndex: 0,
           }}
-          onError={() => setPosterError(true)}
+          onError={() => {
+            setPosterError(true)
+            // If CDN fails, fall back to public folder
+            if (!usePublicFolder && getCdnBaseUrl()) {
+              console.warn('[HeroBackgroundVideo] CDN poster failed, falling back to public folder')
+              setUsePublicFolder(true)
+            }
+          }}
           loading="eager"
           fetchPriority="high"
         />
