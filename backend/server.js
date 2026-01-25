@@ -932,12 +932,21 @@ export const initDatabase = async () => {
         PRIMARY KEY (family_id, member_id, user_id)
       )
     `)
+    
+    // Add member_id column if it doesn't exist (for tables created before migration 005)
+    await pool.query(`
+      ALTER TABLE family_guardian 
+      ADD COLUMN IF NOT EXISTS member_id BIGINT REFERENCES member(id) ON DELETE CASCADE
+    `)
+    
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_family ON family_guardian(family_id)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_user ON family_guardian(user_id)`)
+    
+    // Create index on member_id (column should exist now after ALTER TABLE above)
     try {
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_member ON family_guardian(member_id)`)
     } catch (indexError) {
-      // Column might not exist in older schema versions, log warning and continue - this is non-fatal
+      // Column might still not exist in some edge cases, log warning and continue - this is non-fatal
       console.warn('[initDatabase] Could not create index on family_guardian.member_id (column may not exist):', indexError.message)
     }
     
