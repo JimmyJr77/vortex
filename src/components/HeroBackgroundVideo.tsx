@@ -46,7 +46,7 @@ const HeroBackgroundVideo = ({
   }
 
   // Memoize URL calculations to prevent re-renders
-  const { cdnBase, videoUrl, posterUrl } = useMemo(() => {
+  const { videoUrl, posterUrl } = useMemo(() => {
     const base = getCdnBaseUrl()
     const vUrl = base ? `${base}/${videoFileName}` : `/${videoFileName}`
     const pUrl = posterFileName
@@ -61,7 +61,7 @@ const HeroBackgroundVideo = ({
       console.log('[HeroBackgroundVideo] Video URL:', vUrl)
     }
     
-    return { cdnBase: base, videoUrl: vUrl, posterUrl: pUrl }
+    return { videoUrl: vUrl, posterUrl: pUrl }
   }, [videoFileName, posterFileName])
 
   // Client-side gating: Check if we should load video
