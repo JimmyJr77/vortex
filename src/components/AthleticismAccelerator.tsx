@@ -192,7 +192,7 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
             }
           }}
         >
-          <source src="/shuttle_drill.mp4" type="video/mp4" />
+          <source src="/vald_sprints.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
@@ -296,7 +296,7 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
             pointerEvents: 'none',
           }}
         >
-          <source src="/shuttle_drill.mp4" type="video/mp4" />
+          <source src="/vald_sprints.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
