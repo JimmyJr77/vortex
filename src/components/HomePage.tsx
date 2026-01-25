@@ -147,8 +147,9 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
         </div>
       </section>
 
-      <About onSignUpClick={onSignUpClick} />
       <ParallaxGym />
+
+      <About onSignUpClick={onSignUpClick} />
       <Programs />
       <Technology />
 
