@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useRef, useState } from 'react'
 import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, TrendingUp, Play, Shield, ChevronLeft, ChevronRight, Building2, Scale } from 'lucide-react'
 
@@ -44,7 +44,8 @@ export default function ParallaxGym() {
   ]
 
   // Get the current background image based on selected activity
-  const currentBackgroundImage = activityImageMap[activities[selectedActivity].name] || '/gym_background.png'
+  const currentActivityName = activities[selectedActivity]?.name || 'Premium Facilities'
+  const currentBackgroundImage = activityImageMap[currentActivityName] || '/gym_background.png'
 
   return (
     <section 
@@ -56,19 +57,22 @@ export default function ParallaxGym() {
         className="absolute inset-0"
         style={{ y: y1 }}
       >
-        <motion.div 
-          key={selectedActivity}
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${currentBackgroundImage})`,
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          {/* Subtle overlay for text readability */}
-          <div className="absolute inset-0 bg-black/20" />
-        </motion.div>
+        <AnimatePresence>
+          <motion.div 
+            key={currentBackgroundImage}
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url(${currentBackgroundImage})`,
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
+          >
+            {/* Subtle overlay for text readability */}
+            <div className="absolute inset-0 bg-black/20" />
+          </motion.div>
+        </AnimatePresence>
       </motion.div>
 
       {/* Overlay Gradient */}
