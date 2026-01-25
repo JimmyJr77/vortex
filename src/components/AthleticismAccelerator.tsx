@@ -84,6 +84,7 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
         {/* Video Element - Bottom layer */}
         <HeroBackgroundVideo
           videoFileName="vald_sprints.mp4"
+          posterFileName="landing_page_hero.png"
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/40 z-[1] pointer-events-none"
           onVideoReady={() => {
@@ -96,75 +97,77 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
 
         {/* Content Container - Top Layer */}
         <div className="container-custom relative z-10 flex items-center justify-center min-h-[calc(100vh-5rem)] text-center">
-          <motion.h1
-            className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            Unlock the Full Spectrum of{' '}
-            <span className="text-vortex-red">Athleticism</span>
-          </motion.h1>
-
-          <motion.p
-            className="text-2xl md:text-3xl text-gray-300 mb-12 max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-          >
-            Train Smarter. Move Better. Compete Stronger.
-          </motion.p>
-
-          <motion.div
-            className="flex flex-col items-center justify-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-          >
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
-              <motion.button
-                onClick={onSignUpClick}
-                className="bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="relative z-10 flex items-center space-x-3">
-                  <span>Join the Accelerator</span>
-                  <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                </span>
-                <motion.div
-                  className="absolute inset-0 bg-white/20"
-                  initial={{ x: '-100%' }}
-                  whileHover={{ x: '100%' }}
-                  transition={{ duration: 0.6 }}
-                />
-              </motion.button>
-
-              <motion.button
-                onClick={onSignUpClick}
-                className="border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Book an Assessment
-              </motion.button>
-            </div>
-
-            {/* Scroll Indicator */}
-            <motion.div
-              className="flex justify-center"
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
+          <div>
+            <motion.h1
+              className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
             >
-              <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-                <motion.div
-                  className="w-1 h-3 bg-vortex-red rounded-full mt-2"
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
+              Unlock the Full Spectrum of{' '}
+              <span className="text-vortex-red">Athleticism</span>
+            </motion.h1>
+
+            <motion.p
+              className="text-2xl md:text-3xl text-gray-300 mb-12 max-w-3xl mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+            >
+              Train Smarter. Move Better. Compete Stronger.
+            </motion.p>
+
+            <motion.div
+              className="flex flex-col items-center justify-center"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
+                <motion.button
+                  onClick={onSignUpClick}
+                  className="bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="relative z-10 flex items-center space-x-3">
+                    <span>Join the Accelerator</span>
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                  </span>
+                  <motion.div
+                    className="absolute inset-0 bg-white/20"
+                    initial={{ x: '-100%' }}
+                    whileHover={{ x: '100%' }}
+                    transition={{ duration: 0.6 }}
+                  />
+                </motion.button>
+
+                <motion.button
+                  onClick={onSignUpClick}
+                  className="border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Book an Assessment
+                </motion.button>
               </div>
+
+              {/* Scroll Indicator */}
+              <motion.div
+                className="flex justify-center"
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+                  <motion.div
+                    className="w-1 h-3 bg-vortex-red rounded-full mt-2"
+                    animate={{ y: [0, 12, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -173,6 +176,7 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
         {/* Video Background */}
         <HeroBackgroundVideo
           videoFileName="vald_sprints.mp4"
+          posterFileName="landing_page_hero.png"
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={() => {
