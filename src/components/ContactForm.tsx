@@ -56,12 +56,39 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
       return
     }
     
-    // Clean phone number - remove all non-digit characters except + at the start
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!formData.email.trim()) {
+      alert('Email address is required.')
+      setIsSubmitting(false)
+      return
+    }
+    if (!emailRegex.test(formData.email.trim())) {
+      alert('Please enter a valid email address.')
+      setIsSubmitting(false)
+      return
+    }
+    
+    // Clean phone number - remove all special characters like ()- and spaces
     let cleanPhone = formData.phone?.trim() || ''
     if (cleanPhone) {
+      // Remove all non-digit characters except + at the start
       cleanPhone = cleanPhone.replace(/[^\d+]/g, '')
       if (cleanPhone.startsWith('+')) {
         cleanPhone = '+' + cleanPhone.substring(1).replace(/\D/g, '')
+      }
+      
+      // Phone number validation - must be at least 10 digits (US format) or valid international format
+      const digitsOnly = cleanPhone.replace(/\D/g, '')
+      if (digitsOnly.length > 0 && digitsOnly.length < 10) {
+        alert('Phone number must be at least 10 digits long.')
+        setIsSubmitting(false)
+        return
+      }
+      if (digitsOnly.length > 15) {
+        alert('Phone number is too long. Maximum 15 digits allowed.')
+        setIsSubmitting(false)
+        return
       }
     }
     

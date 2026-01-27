@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, Save, X, ChevronDown, ChevronUp } from 'lucide-react'
+import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
 interface User {
@@ -10,11 +10,11 @@ interface User {
   email: string
   phone: string | null
   athlete_age: number | null
-  interests: string | null // Legacy field (string)
-  interests_array: string[] | null // New multi-select interests (array)
-  interest: string | null // Legacy single interest selection
-  class_types: string[] | null // Class types array
-  child_ages: number[] | null // New child ages array
+  interests: string | null
+  interests_array: string[] | null
+  interest: string | null
+  class_types: string[] | null
+  child_ages: number[] | null
   message: string | null
   created_at: string
   newsletter: boolean
@@ -22,6 +22,8 @@ interface User {
 }
 
 type FilterType = 'all' | 'newsletter' | 'interests'
+
+type SortableField = 'created_at' | 'last_name' | 'first_name' | 'email' | 'phone' | 'athlete_age'
 
 export default function AdminInquiries() {
   const [users, setUsers] = useState<User[]>([])
@@ -31,8 +33,10 @@ export default function AdminInquiries() {
   const [editData, setEditData] = useState<Partial<User>>({})
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [filter, setFilter] = useState<FilterType>('all')
-  const [showExportDialog, setShowExportDialog] = useState(false)
-  const [sortConfig, setSortConfig] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'created_at', direction: 'desc' })
+  const [sortConfig, setSortConfig] = useState<{ field: SortableField; direction: 'asc' | 'desc' }>({ 
+    field: 'created_at', 
+    direction: 'desc' 
+  })
 
   const fetchData = async () => {
     try {
@@ -62,22 +66,33 @@ export default function AdminInquiries() {
           email: string
           phone: string | null
           athlete_age: number | null
-          interests: string | null // Legacy field (string)
-          interests_array: string[] | null // New multi-select interests (array)
-          interest: string | null // Legacy single interest selection
-          class_types: string[] | null // Class types array
-          child_ages: number[] | null // New child ages array
+          interests: string | null
+          interests_array: string[] | null
+          interest: string | null
+          class_types: string[] | null
+          child_ages: number[] | null
           message: string | null
           created_at: string
         }
-        const newsletterEmails = new Set(newsData.data.map((sub: NewsletterSub) => sub.email))
+        const newsletterEmails = new Set((newsData.data || []).map((sub: NewsletterSub) => sub.email))
         
-        const combinedUsers = regData.data.map((user: RegistrationUser) => ({
+        const combinedUsers = (regData.data || []).map((user: RegistrationUser) => ({
           ...user,
           newsletter: newsletterEmails.has(user.email)
         }))
         
         setUsers(combinedUsers)
+      } else {
+        console.error('Failed to fetch inquiries:', {
+          registrations: regData,
+          newsletter: newsData
+        })
+        setUsers([])
+        if (!regData.success) {
+          setError(regData.message || 'Failed to load registrations')
+        } else if (!newsData.success) {
+          setError(newsData.message || 'Failed to load newsletter data')
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -108,18 +123,23 @@ export default function AdminInquiries() {
       return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue
     }
     
+    if (sortConfig.field === 'created_at') {
+      const aDate = new Date(aValue as string).getTime()
+      const bDate = new Date(bValue as string).getTime()
+      return sortConfig.direction === 'asc' ? aDate - bDate : bDate - aDate
+    }
+    
     return 0
   })
 
-  // Filter users based on filter selection
   const filteredUsers = sortedUsers.filter(user => {
     if (filter === 'all') return true
     if (filter === 'newsletter') return user.newsletter
-    if (filter === 'interests') return !!user.interests
+    if (filter === 'interests') return !!(user.interests || user.interests_array?.length)
     return true
   })
 
-  const handleSort = (field: string) => {
+  const handleSort = (field: SortableField) => {
     setSortConfig(prev => ({
       field,
       direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
@@ -172,7 +192,7 @@ export default function AdminInquiries() {
 
   const handleArchive = async (e: React.MouseEvent, id: number) => {
     e.stopPropagation()
-    if (!confirm('Archive this user?')) return
+    if (!confirm('Archive this inquiry?')) return
     
     try {
       const response = await adminApiRequest(`/api/admin/registrations/${id}`, {
@@ -184,60 +204,51 @@ export default function AdminInquiries() {
       }
     } catch (error) {
       console.error('Error archiving user:', error)
-      alert('Failed to archive user')
+      alert('Failed to archive inquiry')
     }
   }
 
-  const exportToCSV = (exportNewsletter: boolean, exportInterests: boolean) => {
-    const headers = ['Name', 'Email', 'Phone', 'Age', 'Interests', 'Newsletter', 'Date']
-    
-    const dataToExport = users.filter(user => {
-      if (exportNewsletter && exportInterests) return user.newsletter || !!user.interests
-      if (exportNewsletter) return user.newsletter
-      if (exportInterests) return !!user.interests
-      return true
-    })
-    
-    if (dataToExport.length === 0) {
-      alert('No users match the selected criteria')
-      return
+  const getSortIcon = (field: SortableField) => {
+    if (sortConfig.field !== field) {
+      return <ArrowUpDown className="w-3 h-3 ml-1 opacity-50" />
     }
+    return sortConfig.direction === 'asc' 
+      ? <ArrowUp className="w-3 h-3 ml-1" />
+      : <ArrowDown className="w-3 h-3 ml-1" />
+  }
 
-    const csv = [
-      headers.join(','),
-      ...dataToExport.map(user => [
-        `"${user.first_name} ${user.last_name}"`,
-        user.email,
-        user.phone || '',
-        user.athlete_age || '',
-        user.interests || '',
-        user.newsletter ? 'Yes' : 'No',
-        new Date(user.created_at).toLocaleDateString()
-      ].join(','))
-    ].join('\n')
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    })
+  }
 
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'vortex_roster.csv'
-    a.click()
-    URL.revokeObjectURL(url)
-    setShowExportDialog(false)
+  const formatInterests = (user: User) => {
+    if (user.interests_array && user.interests_array.length > 0) {
+      return user.interests_array.join(', ')
+    }
+    if (user.interests) {
+      return user.interests
+    }
+    return '-'
   }
 
   return (
-    <>
-      <motion.div
-        key="users"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3 }}
-        className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200"
-      >
-        <div className="mb-4 md:mb-6">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-4">
+    <motion.div
+      key="inquiries"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white rounded-lg shadow-lg border border-gray-200"
+    >
+      {/* Header */}
+      <div className="p-4 md:p-6 border-b border-gray-200">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
             Inquiries ({filteredUsers.length} of {users.length})
           </h2>
           <div className="flex flex-wrap gap-2">
@@ -249,7 +260,7 @@ export default function AdminInquiries() {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              All Users ({users.length})
+              All ({users.length})
             </button>
             <button
               onClick={() => setFilter('newsletter')}
@@ -269,357 +280,382 @@ export default function AdminInquiries() {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              Interested ({users.filter(u => u.interests).length})
+              Interested ({users.filter(u => u.interests || u.interests_array?.length).length})
             </button>
           </div>
         </div>
+      </div>
 
-        {error ? (
-          <div className="text-center py-12">
-            <div className="text-red-600 mb-4 font-semibold">Backend Connection Error</div>
-            <div className="text-gray-600 mb-4">{error}</div>
-            <button
-              onClick={fetchData}
-              className="bg-vortex-red hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
-            >
-              Retry
-            </button>
-          </div>
-        ) : loading ? (
-          <div className="text-center py-12 text-gray-600">Loading...</div>
-        ) : filteredUsers.length === 0 ? (
-          <div className="text-center py-12 text-gray-600">No users match the selected filter</div>
-        ) : (
-          <div className="space-y-2">
-            {/* Column Headers */}
-            <div className="hidden md:flex items-center bg-gray-100 rounded-t-lg border border-gray-200">
-              <button 
-                onClick={() => handleSort('created_at')}
-                className="px-3 py-3 flex-1 min-w-[80px] text-xs text-gray-700 font-semibold text-left hover:text-black transition-colors"
-              >
-                Date {sortConfig.field === 'created_at' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-              </button>
-              <button 
-                onClick={() => handleSort('last_name')}
-                className="px-3 py-3 flex-1 min-w-[100px] text-xs text-gray-700 font-semibold text-left hover:text-black transition-colors"
-              >
-                Last Name {sortConfig.field === 'last_name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-              </button>
-              <button 
-                onClick={() => handleSort('first_name')}
-                className="px-3 py-3 flex-1 min-w-[100px] text-xs text-gray-700 font-semibold text-left hover:text-black transition-colors"
-              >
-                First Name {sortConfig.field === 'first_name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-              </button>
-              <div className="px-3 py-3 w-12 md:w-16 text-xs text-gray-700 font-semibold text-center">Newsletter</div>
-              <div className="w-8"></div>
-              <div className="px-3 py-3 w-12 md:w-16 text-xs text-gray-700 font-semibold text-center">Interested</div>
-            </div>
-            {filteredUsers.map((user) => (
-              <div key={user.id} className="bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
-                {/* Header Row - Always Visible */}
-                <div 
-                  className="flex items-center cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => toggleExpand(user.id)}
-                >
-                  {/* Date */}
-                  <div className="px-3 py-3 flex-1 min-w-[80px] text-xs md:text-sm text-gray-600">
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </div>
-                  
-                  {/* Last Name */}
-                  <div className="px-3 py-3 flex-1 min-w-[100px] text-xs md:text-sm text-black font-medium">
-                    {user.last_name}
-                  </div>
-                  
-                  {/* First Name */}
-                  <div className="px-3 py-3 flex-1 min-w-[100px] text-xs md:text-sm text-black font-medium">
-                    {user.first_name}
-                  </div>
-          
-                  {/* Newsletter Checkmark */}
-                  <div className="px-3 py-3 w-12 md:w-16 text-center">
-                    {user.newsletter && (
-                      <span className="inline-flex items-center justify-center w-5 h-5 bg-green-600 rounded-full">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Spacer */}
-                  <div className="w-8"></div>
-                  
-                  {/* Interest Checkmark */}
-                  <div className="px-3 py-3 w-12 md:w-16 text-center">
-                    {user.interests && (
-                      <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-600 rounded-full">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Expand/Collapse Icon */}
-                  <div className="px-3 py-3">
-                    {expandedId === user.id ? (
-                      <ChevronUp className="w-5 h-5 text-gray-600" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-600" />
-                    )}
-                  </div>
-                </div>
-
-                {/* Expanded Details */}
-                <AnimatePresence>
-                  {expandedId === user.id && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-4 pb-4 pt-2 border-t border-gray-200">
-                        {editingId === user.id ? (
-                          // Edit Mode
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              <div>
-                                <label className="text-xs text-gray-600 block mb-1">First Name</label>
-                                <input
-                                  type="text"
-                                  value={editData.first_name || ''}
-                                  onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-600 block mb-1">Last Name</label>
-                                <input
-                                  type="text"
-                                  value={editData.last_name || ''}
-                                  onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-600 block mb-1">Email</label>
-                                <input
-                                  type="email"
-                                  value={editData.email || ''}
-                                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-600 block mb-1">Phone</label>
-                                <input
-                                  type="tel"
-                                  value={editData.phone || ''}
-                                  onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-600 block mb-1">Age</label>
-                                <input
-                                  type="number"
-                                  value={editData.athlete_age || ''}
-                                  onChange={(e) => setEditData({ ...editData, athlete_age: parseInt(e.target.value) })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-600 block mb-1">Interests (Multi-select, comma-separated)</label>
-                                <input
-                                  type="text"
-                                  value={editData.interests_array ? editData.interests_array.join(', ') : (editData.interests || '')}
-                                  onChange={(e) => {
-                                    const interestsList = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0)
-                                    setEditData({ 
-                                      ...editData, 
-                                      interests_array: interestsList.length > 0 ? interestsList : null,
-                                      interests: interestsList.length > 0 ? interestsList.join(', ') : null
-                                    })
-                                  }}
-                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
-                                  placeholder="Gymnastics (Artistic), Rhythmic Gymnastics, etc."
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-600 block mb-1">Class Types (comma-separated)</label>
-                                <input
-                                  type="text"
-                                  value={editData.class_types ? editData.class_types.join(', ') : ''}
-                                  onChange={(e) => {
-                                    const types = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0)
-                                    setEditData({ ...editData, class_types: types.length > 0 ? types : null })
-                                  }}
-                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
-                                  placeholder="Adult Classes, Child Classes"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-600 block mb-1">Child Ages (comma-separated)</label>
-                                <input
-                                  type="text"
-                                  value={editData.child_ages ? editData.child_ages.join(', ') : ''}
-                                  onChange={(e) => {
-                                    const ages = e.target.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
-                                    setEditData({ ...editData, child_ages: ages.length > 0 ? ages : null })
-                                  }}
-                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
-                                  placeholder="1, 2, 3, etc."
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-600 block mb-1">Interest (Legacy Single)</label>
-                                <input
-                                  type="text"
-                                  value={editData.interest || ''}
-                                  onChange={(e) => setEditData({ ...editData, interest: e.target.value })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-600 block mb-1">Interests (Legacy String)</label>
-                                <input
-                                  type="text"
-                                  value={editData.interests || ''}
-                                  onChange={(e) => setEditData({ ...editData, interests: e.target.value })}
-                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <label className="text-xs text-gray-600 block mb-1">Message</label>
-                              <textarea
-                                value={editData.message || ''}
-                                onChange={(e) => setEditData({ ...editData, message: e.target.value })}
-                                rows={3}
-                                className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 resize-none"
-                              />
-                            </div>
-                            <div className="flex gap-2 pt-2">
-                              <button
-                                onClick={saveEdit}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                              >
-                                <Save className="w-4 h-4" />
-                                Save
-                              </button>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setEditingId(null); setEditData({}) }}
-                                className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
-                              >
-                                <X className="w-4 h-4" />
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          // View Mode
-                          <div className="space-y-2 text-sm text-gray-700">
-                            <div><span className="text-gray-600 font-medium">Email:</span> {user.email}</div>
-                            <div><span className="text-gray-600 font-medium">Phone:</span> {user.phone || '-'}</div>
-                            <div><span className="text-gray-600 font-medium">Age:</span> {user.athlete_age || '-'}</div>
-                            {user.interests_array && user.interests_array.length > 0 && (
-                              <div><span className="text-gray-600 font-medium">Interests:</span> {user.interests_array.join(', ')}</div>
-                            )}
-                            {!user.interests_array && user.interests && (
-                              <div><span className="text-gray-600 font-medium">Interests (Legacy):</span> {user.interests}</div>
-                            )}
-                            {user.interest && <div><span className="text-gray-600 font-medium">Interest (Legacy Single):</span> {user.interest}</div>}
-                            {user.class_types && user.class_types.length > 0 && (
-                              <div><span className="text-gray-600 font-medium">Class Types:</span> {user.class_types.join(', ')}</div>
-                            )}
-                            {user.child_ages && user.child_ages.length > 0 && (
-                              <div><span className="text-gray-600 font-medium">Child Ages:</span> {user.child_ages.join(', ')}</div>
-                            )}
-                            {user.message && <div><span className="text-gray-600 font-medium">Comment/Question:</span> {user.message}</div>}
-                            <div className="flex gap-2 pt-3">
-                              <button
-                                onClick={(e) => startEdit(e, user)}
-                                className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium"
-                              >
-                                <Edit2 className="w-4 h-4" />
-                                Edit
-                              </button>
-                              <button
-                                onClick={(e) => handleArchive(e, user.id)}
-                                className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium"
-                              >
-                                <Archive className="w-4 h-4" />
-                                Archive
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ))}
-          </div>
-        )}
-      </motion.div>
-
-      {/* Export Dialog */}
-      <AnimatePresence>
-        {showExportDialog && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+      {/* Error State */}
+      {error && (
+        <div className="p-6 text-center">
+          <div className="text-red-600 mb-4 font-semibold">Backend Connection Error</div>
+          <div className="text-gray-600 mb-4">{error}</div>
+          <button
+            onClick={fetchData}
+            className="bg-vortex-red hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
           >
-            <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => setShowExportDialog(false)}
-            />
-            <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-xl"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-            >
-              <h3 className="text-2xl font-display font-bold text-white mb-4">Export Data</h3>
-              <p className="text-gray-400 mb-6">Select which data to export:</p>
-              <div className="space-y-3 mb-6">
-                <button
-                  onClick={() => exportToCSV(true, true)}
-                  className="w-full bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                >
-                  Export All
-                </button>
-                <button
-                  onClick={() => exportToCSV(true, false)}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                >
-                  Newsletter Only ({users.filter(u => u.newsletter).length})
-                </button>
-                <button
-                  onClick={() => exportToCSV(false, true)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                >
-                  Interested Only ({users.filter(u => u.interests).length})
-                </button>
-              </div>
-              <button
-                onClick={() => setShowExportDialog(false)}
-                className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
-              >
-                Cancel
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && !error && (
+        <div className="p-12 text-center text-gray-600">Loading...</div>
+      )}
+
+      {/* Empty State */}
+      {!loading && !error && filteredUsers.length === 0 && (
+        <div className="p-12 text-center text-gray-600">No inquiries match the selected filter</div>
+      )}
+
+      {/* Spreadsheet Table */}
+      {!loading && !error && filteredUsers.length > 0 && (
+        <div className="overflow-x-auto">
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full divide-y divide-gray-200">
+              {/* Fixed Header */}
+              <thead className="bg-gray-50 sticky top-0 z-10">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                    <button
+                      onClick={() => handleSort('created_at')}
+                      className="flex items-center hover:text-vortex-red transition-colors"
+                    >
+                      Date {getSortIcon('created_at')}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[120px]">
+                    <button
+                      onClick={() => handleSort('last_name')}
+                      className="flex items-center hover:text-vortex-red transition-colors"
+                    >
+                      Last Name {getSortIcon('last_name')}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[120px]">
+                    <button
+                      onClick={() => handleSort('first_name')}
+                      className="flex items-center hover:text-vortex-red transition-colors"
+                    >
+                      First Name {getSortIcon('first_name')}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[200px]">
+                    <button
+                      onClick={() => handleSort('email')}
+                      className="flex items-center hover:text-vortex-red transition-colors"
+                    >
+                      Email {getSortIcon('email')}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[130px]">
+                    <button
+                      onClick={() => handleSort('phone')}
+                      className="flex items-center hover:text-vortex-red transition-colors"
+                    >
+                      Phone {getSortIcon('phone')}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[80px]">
+                    <button
+                      onClick={() => handleSort('athlete_age')}
+                      className="flex items-center hover:text-vortex-red transition-colors"
+                    >
+                      Age {getSortIcon('athlete_age')}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[200px]">
+                    Interests
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[100px]">
+                    Class Types
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[80px]">
+                    Newsletter
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[100px]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              {/* Scrollable Body */}
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredUsers.map((user) => (
+                  <>
+                    <tr
+                      key={user.id}
+                      className={`hover:bg-gray-50 transition-colors cursor-pointer ${
+                        expandedId === user.id ? 'bg-blue-50' : ''
+                      }`}
+                      onClick={() => toggleExpand(user.id)}
+                    >
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                        {formatDate(user.created_at)}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">
+                        {user.last_name}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">
+                        {user.first_name}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
+                        <div className="max-w-[200px] truncate" title={user.email}>
+                          {user.email}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                        {user.phone || '-'}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 text-center">
+                        {user.athlete_age || '-'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
+                        <div className="max-w-[200px] truncate" title={formatInterests(user)}>
+                          {formatInterests(user)}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 text-center">
+                        {user.class_types && user.class_types.length > 0 ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {user.class_types.join(', ')}
+                          </span>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-center border-r border-gray-200">
+                        {user.newsletter ? (
+                          <span className="inline-flex items-center justify-center w-6 h-6 bg-green-600 rounded-full">
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {expandedId === user.id ? (
+                            <ChevronUp className="w-4 h-4 text-gray-600" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 text-gray-600" />
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    {/* Expanded Row */}
+                    <AnimatePresence>
+                      {expandedId === user.id && (
+                        <tr>
+                          <td colSpan={10} className="px-0 py-0">
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden bg-gray-50 border-t-2 border-vortex-red"
+                            >
+                              <div className="p-6">
+                                {editingId === user.id ? (
+                                  // Edit Mode
+                                  <div className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                      <div>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">First Name</label>
+                                        <input
+                                          type="text"
+                                          value={editData.first_name || ''}
+                                          onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Last Name</label>
+                                        <input
+                                          type="text"
+                                          value={editData.last_name || ''}
+                                          onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Email</label>
+                                        <input
+                                          type="email"
+                                          value={editData.email || ''}
+                                          onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Phone</label>
+                                        <input
+                                          type="tel"
+                                          value={editData.phone || ''}
+                                          onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Age</label>
+                                        <input
+                                          type="number"
+                                          value={editData.athlete_age || ''}
+                                          onChange={(e) => setEditData({ ...editData, athlete_age: parseInt(e.target.value) || null })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Interests (comma-separated)</label>
+                                        <input
+                                          type="text"
+                                          value={editData.interests_array ? editData.interests_array.join(', ') : (editData.interests || '')}
+                                          onChange={(e) => {
+                                            const interestsList = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0)
+                                            setEditData({ 
+                                              ...editData, 
+                                              interests_array: interestsList.length > 0 ? interestsList : null,
+                                              interests: interestsList.length > 0 ? interestsList.join(', ') : null
+                                            })
+                                          }}
+                                          className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                          placeholder="Gymnastics (Artistic), Rhythmic Gymnastics"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Class Types (comma-separated)</label>
+                                        <input
+                                          type="text"
+                                          value={editData.class_types ? editData.class_types.join(', ') : ''}
+                                          onChange={(e) => {
+                                            const types = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0)
+                                            setEditData({ ...editData, class_types: types.length > 0 ? types : null })
+                                          }}
+                                          className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                          placeholder="Adult Classes, Child Classes"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Child Ages (comma-separated)</label>
+                                        <input
+                                          type="text"
+                                          value={editData.child_ages ? editData.child_ages.join(', ') : ''}
+                                          onChange={(e) => {
+                                            const ages = e.target.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
+                                            setEditData({ ...editData, child_ages: ages.length > 0 ? ages : null })
+                                          }}
+                                          className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                          placeholder="1, 2, 3"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <label className="text-xs text-gray-600 block mb-1 font-semibold">Message/Comment</label>
+                                      <textarea
+                                        value={editData.message || ''}
+                                        onChange={(e) => setEditData({ ...editData, message: e.target.value })}
+                                        rows={3}
+                                        className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 resize-none focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                      />
+                                    </div>
+                                    <div className="flex gap-2 pt-2">
+                                      <button
+                                        onClick={saveEdit}
+                                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium transition-colors"
+                                      >
+                                        <Save className="w-4 h-4" />
+                                        Save
+                                      </button>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); setEditingId(null); setEditData({}) }}
+                                        className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium transition-colors"
+                                      >
+                                        <X className="w-4 h-4" />
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  // View Mode
+                                  <div className="space-y-3">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                                      <div>
+                                        <span className="text-gray-600 font-semibold">Email:</span>
+                                        <div className="text-gray-900 mt-1">{user.email}</div>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-600 font-semibold">Phone:</span>
+                                        <div className="text-gray-900 mt-1">{user.phone || '-'}</div>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-600 font-semibold">Age:</span>
+                                        <div className="text-gray-900 mt-1">{user.athlete_age || '-'}</div>
+                                      </div>
+                                      {user.interests_array && user.interests_array.length > 0 && (
+                                        <div className="md:col-span-2">
+                                          <span className="text-gray-600 font-semibold">Interests:</span>
+                                          <div className="text-gray-900 mt-1">{user.interests_array.join(', ')}</div>
+                                        </div>
+                                      )}
+                                      {!user.interests_array && user.interests && (
+                                        <div className="md:col-span-2">
+                                          <span className="text-gray-600 font-semibold">Interests (Legacy):</span>
+                                          <div className="text-gray-900 mt-1">{user.interests}</div>
+                                        </div>
+                                      )}
+                                      {user.class_types && user.class_types.length > 0 && (
+                                        <div>
+                                          <span className="text-gray-600 font-semibold">Class Types:</span>
+                                          <div className="text-gray-900 mt-1">{user.class_types.join(', ')}</div>
+                                        </div>
+                                      )}
+                                      {user.child_ages && user.child_ages.length > 0 && (
+                                        <div>
+                                          <span className="text-gray-600 font-semibold">Child Ages:</span>
+                                          <div className="text-gray-900 mt-1">{user.child_ages.join(', ')}</div>
+                                        </div>
+                                      )}
+                                      {user.message && (
+                                        <div className="md:col-span-3">
+                                          <span className="text-gray-600 font-semibold">Comment/Question:</span>
+                                          <div className="text-gray-900 mt-1 whitespace-pre-wrap">{user.message}</div>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="flex gap-2 pt-2 border-t border-gray-300">
+                                      <button
+                                        onClick={(e) => startEdit(e, user)}
+                                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium transition-colors"
+                                      >
+                                        <Edit2 className="w-4 h-4" />
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={(e) => handleArchive(e, user.id)}
+                                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium transition-colors"
+                                      >
+                                        <Archive className="w-4 h-4" />
+                                        Archive
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          </td>
+                        </tr>
+                      )}
+                    </AnimatePresence>
+                  </>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </motion.div>
   )
 }
-

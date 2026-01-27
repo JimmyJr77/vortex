@@ -182,6 +182,9 @@ export const initDatabase = async () => {
     await pool.query(`
       ALTER TABLE registrations ADD COLUMN IF NOT EXISTS child_ages INTEGER[]
     `)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE
+    `)
 
     // Newsletter subscribers table
     await pool.query(`
