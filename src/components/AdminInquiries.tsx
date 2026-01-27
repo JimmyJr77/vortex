@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown, Filter } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
 interface User {
@@ -37,6 +37,15 @@ export default function AdminInquiries() {
     field: 'created_at', 
     direction: 'desc' 
   })
+  const [ageFilter, setAgeFilter] = useState<number[]>([])
+  const [interestsFilter, setInterestsFilter] = useState<string[]>([])
+  const [classTypesFilter, setClassTypesFilter] = useState<string[]>([])
+  const [ageFilterOpen, setAgeFilterOpen] = useState(false)
+  const [interestsFilterOpen, setInterestsFilterOpen] = useState(false)
+  const [classTypesFilterOpen, setClassTypesFilterOpen] = useState(false)
+  const ageFilterRef = useRef<HTMLDivElement>(null)
+  const interestsFilterRef = useRef<HTMLDivElement>(null)
+  const classTypesFilterRef = useRef<HTMLDivElement>(null)
 
   const fetchData = async () => {
     try {
@@ -133,9 +142,40 @@ export default function AdminInquiries() {
   })
 
   const filteredUsers = sortedUsers.filter(user => {
-    if (filter === 'all') return true
-    if (filter === 'newsletter') return user.newsletter
-    if (filter === 'interests') return !!(user.interests || user.interests_array?.length)
+    // Apply main filter
+    if (filter === 'newsletter' && !user.newsletter) return false
+    if (filter === 'interests' && !user.interests && !user.interests_array?.length) return false
+
+    // Apply age filter
+    if (ageFilter.length > 0) {
+      const userAges = user.child_ages && user.child_ages.length > 0 
+        ? user.child_ages 
+        : (user.athlete_age ? [user.athlete_age] : [])
+      const hasMatchingAge = userAges.some(age => ageFilter.includes(age))
+      if (!hasMatchingAge) return false
+    }
+
+    // Apply interests filter
+    if (interestsFilter.length > 0) {
+      const userInterests = user.interests_array && user.interests_array.length > 0
+        ? user.interests_array
+        : (user.interests ? user.interests.split(',').map(i => i.trim()).filter(i => i) : [])
+      const hasMatchingInterest = userInterests.some(interest => 
+        interestsFilter.some(filterInterest => 
+          interest.toLowerCase().includes(filterInterest.toLowerCase()) || 
+          filterInterest.toLowerCase().includes(interest.toLowerCase())
+        )
+      )
+      if (!hasMatchingInterest) return false
+    }
+
+    // Apply class types filter
+    if (classTypesFilter.length > 0) {
+      const userClassTypes = user.class_types || []
+      const hasMatchingClassType = userClassTypes.some(type => classTypesFilter.includes(type))
+      if (!hasMatchingClassType) return false
+    }
+
     return true
   })
 
@@ -235,6 +275,72 @@ export default function AdminInquiries() {
     }
     return '-'
   }
+
+  const formatChildAges = (user: User) => {
+    if (user.child_ages && user.child_ages.length > 0) {
+      return user.child_ages.sort((a, b) => a - b).join(', ')
+    }
+    if (user.athlete_age) {
+      return user.athlete_age.toString()
+    }
+    return '-'
+  }
+
+  const getAllAges = (): number[] => {
+    const ages = new Set<number>()
+    users.forEach(user => {
+      if (user.child_ages && user.child_ages.length > 0) {
+        user.child_ages.forEach(age => ages.add(age))
+      } else if (user.athlete_age) {
+        ages.add(user.athlete_age)
+      }
+    })
+    return Array.from(ages).sort((a, b) => a - b)
+  }
+
+  const getAllInterests = (): string[] => {
+    const interests = new Set<string>()
+    users.forEach(user => {
+      if (user.interests_array && user.interests_array.length > 0) {
+        user.interests_array.forEach(interest => interests.add(interest))
+      } else if (user.interests) {
+        // Split legacy interests string by comma
+        user.interests.split(',').forEach(interest => {
+          const trimmed = interest.trim()
+          if (trimmed) interests.add(trimmed)
+        })
+      }
+    })
+    return Array.from(interests).sort()
+  }
+
+  const getAllClassTypes = (): string[] => {
+    const classTypes = new Set<string>()
+    users.forEach(user => {
+      if (user.class_types && user.class_types.length > 0) {
+        user.class_types.forEach(type => classTypes.add(type))
+      }
+    })
+    return Array.from(classTypes).sort()
+  }
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ageFilterRef.current && !ageFilterRef.current.contains(event.target as Node)) {
+        setAgeFilterOpen(false)
+      }
+      if (interestsFilterRef.current && !interestsFilterRef.current.contains(event.target as Node)) {
+        setInterestsFilterOpen(false)
+      }
+      if (classTypesFilterRef.current && !classTypesFilterRef.current.contains(event.target as Node)) {
+        setClassTypesFilterOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   return (
     <motion.div
@@ -358,19 +464,163 @@ export default function AdminInquiries() {
                       Phone {getSortIcon('phone')}
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[80px]">
-                    <button
-                      onClick={() => handleSort('athlete_age')}
-                      className="flex items-center hover:text-vortex-red transition-colors"
-                    >
-                      Age {getSortIcon('athlete_age')}
-                    </button>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[120px]">
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleSort('athlete_age')}
+                        className="flex items-center hover:text-vortex-red transition-colors"
+                      >
+                        Child Ages {getSortIcon('athlete_age')}
+                      </button>
+                      <div className="relative" ref={ageFilterRef}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setAgeFilterOpen(!ageFilterOpen)
+                          }}
+                          className={`p-1 rounded hover:bg-gray-200 transition-colors ${
+                            ageFilter.length > 0 ? 'text-vortex-red' : 'text-gray-400'
+                          }`}
+                          title="Filter by age"
+                        >
+                          <Filter className="w-3 h-3" />
+                        </button>
+                        {ageFilterOpen && (
+                          <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto min-w-[150px]">
+                            <div className="p-2">
+                              <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Age</div>
+                              {getAllAges().map(age => (
+                                <label key={age} className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={ageFilter.includes(age)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setAgeFilter([...ageFilter, age])
+                                      } else {
+                                        setAgeFilter(ageFilter.filter(a => a !== age))
+                                      }
+                                    }}
+                                    className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded"
+                                  />
+                                  <span className="text-sm text-gray-700">{age}</span>
+                                </label>
+                              ))}
+                              {ageFilter.length > 0 && (
+                                <button
+                                  onClick={() => setAgeFilter([])}
+                                  className="mt-2 w-full text-xs text-vortex-red hover:underline px-2"
+                                >
+                                  Clear filters
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[200px]">
-                    Interests
+                    <div className="flex items-center gap-1">
+                      <span>Interests</span>
+                      <div className="relative" ref={interestsFilterRef}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setInterestsFilterOpen(!interestsFilterOpen)
+                          }}
+                          className={`p-1 rounded hover:bg-gray-200 transition-colors ${
+                            interestsFilter.length > 0 ? 'text-vortex-red' : 'text-gray-400'
+                          }`}
+                          title="Filter by interests"
+                        >
+                          <Filter className="w-3 h-3" />
+                        </button>
+                        {interestsFilterOpen && (
+                          <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto min-w-[200px]">
+                            <div className="p-2">
+                              <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Interest</div>
+                              {getAllInterests().map(interest => (
+                                <label key={interest} className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={interestsFilter.includes(interest)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setInterestsFilter([...interestsFilter, interest])
+                                      } else {
+                                        setInterestsFilter(interestsFilter.filter(i => i !== interest))
+                                      }
+                                    }}
+                                    className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded"
+                                  />
+                                  <span className="text-sm text-gray-700 truncate">{interest}</span>
+                                </label>
+                              ))}
+                              {interestsFilter.length > 0 && (
+                                <button
+                                  onClick={() => setInterestsFilter([])}
+                                  className="mt-2 w-full text-xs text-vortex-red hover:underline px-2"
+                                >
+                                  Clear filters
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[100px]">
-                    Class Types
+                    <div className="flex items-center justify-center gap-1">
+                      <span>Class Types</span>
+                      <div className="relative" ref={classTypesFilterRef}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setClassTypesFilterOpen(!classTypesFilterOpen)
+                          }}
+                          className={`p-1 rounded hover:bg-gray-200 transition-colors ${
+                            classTypesFilter.length > 0 ? 'text-vortex-red' : 'text-gray-400'
+                          }`}
+                          title="Filter by class types"
+                        >
+                          <Filter className="w-3 h-3" />
+                        </button>
+                        {classTypesFilterOpen && (
+                          <div className="absolute top-full right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto min-w-[150px]">
+                            <div className="p-2">
+                              <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Class Type</div>
+                              {getAllClassTypes().map(classType => (
+                                <label key={classType} className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={classTypesFilter.includes(classType)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setClassTypesFilter([...classTypesFilter, classType])
+                                      } else {
+                                        setClassTypesFilter(classTypesFilter.filter(ct => ct !== classType))
+                                      }
+                                    }}
+                                    className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded"
+                                  />
+                                  <span className="text-sm text-gray-700">{classType}</span>
+                                </label>
+                              ))}
+                              {classTypesFilter.length > 0 && (
+                                <button
+                                  onClick={() => setClassTypesFilter([])}
+                                  className="mt-2 w-full text-xs text-vortex-red hover:underline px-2"
+                                >
+                                  Clear filters
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[80px]">
                     Newsletter
@@ -409,7 +659,7 @@ export default function AdminInquiries() {
                         {user.phone || '-'}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 text-center">
-                        {user.athlete_age || '-'}
+                        {formatChildAges(user)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
                         <div className="max-w-[200px] truncate" title={formatInterests(user)}>
@@ -418,9 +668,7 @@ export default function AdminInquiries() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 text-center">
                         {user.class_types && user.class_types.length > 0 ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {user.class_types.join(', ')}
-                          </span>
+                          user.class_types.join(', ')
                         ) : (
                           '-'
                         )}
@@ -500,12 +748,32 @@ export default function AdminInquiries() {
                                         />
                                       </div>
                                       <div>
-                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Age</label>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Child Ages (comma-separated, or single age for legacy)</label>
                                         <input
-                                          type="number"
-                                          value={editData.athlete_age || ''}
-                                          onChange={(e) => setEditData({ ...editData, athlete_age: parseInt(e.target.value) || null })}
+                                          type="text"
+                                          value={
+                                            editData.child_ages && editData.child_ages.length > 0
+                                              ? editData.child_ages.join(', ')
+                                              : (editData.athlete_age ? editData.athlete_age.toString() : '')
+                                          }
+                                          onChange={(e) => {
+                                            const ages = e.target.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
+                                            if (ages.length > 0) {
+                                              setEditData({ 
+                                                ...editData, 
+                                                child_ages: ages,
+                                                athlete_age: ages.length === 1 ? ages[0] : null // Set legacy age if single value
+                                              })
+                                            } else {
+                                              setEditData({ 
+                                                ...editData, 
+                                                child_ages: null,
+                                                athlete_age: null
+                                              })
+                                            }
+                                          }}
                                           className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                          placeholder="2, 4, 6 or 12"
                                         />
                                       </div>
                                       <div>
@@ -591,8 +859,8 @@ export default function AdminInquiries() {
                                         <div className="text-gray-900 mt-1">{user.phone || '-'}</div>
                                       </div>
                                       <div>
-                                        <span className="text-gray-600 font-semibold">Age:</span>
-                                        <div className="text-gray-900 mt-1">{user.athlete_age || '-'}</div>
+                                        <span className="text-gray-600 font-semibold">Child Ages:</span>
+                                        <div className="text-gray-900 mt-1">{formatChildAges(user)}</div>
                                       </div>
                                       {user.interests_array && user.interests_array.length > 0 && (
                                         <div className="md:col-span-2">
