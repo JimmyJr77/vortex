@@ -1084,6 +1084,7 @@ const registrationSchema = Joi.object({
     Joi.string().max(500) // Legacy field for backward compatibility (single string)
   ).optional().allow('', null, []),
   interest: Joi.string().max(100).optional().allow('', null), // Legacy single interest selection
+  classTypes: Joi.array().items(Joi.string().valid('Adult Classes', 'Child Classes')).optional().allow(null, []), // Class types array
   childAges: Joi.array().items(Joi.number().integer().min(1).max(18)).optional().allow(null, []), // New child ages array
   message: Joi.string().max(1000).optional().allow(''),
   newsletter: Joi.boolean().optional().default(false)
