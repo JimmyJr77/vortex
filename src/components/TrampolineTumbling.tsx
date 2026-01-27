@@ -7,7 +7,8 @@ interface TrampolineTumblingProps {
   onSignUpClick: () => void
 }
 
-const TrampolineTumbling = ({ onSignUpClick }: TrampolineTumblingProps) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblingProps) => {
   const skillsRec = [
     { skill: 'Safe Landings', detail: 'Mastering controlled landings and force absorption' },
     { skill: 'Shapes', detail: 'Hollow, arch, tuck, pike, straddle positions' },

@@ -61,11 +61,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
     }
   ]
 
-  const handleSignUp = () => {
-    if (onSignUpClick) {
-      onSignUpClick()
-    }
-  }
+  // handleSignUp removed - buttons now link directly to enrollment URL
 
   return (
     <>

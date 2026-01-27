@@ -19,7 +19,8 @@ interface NinjaProps {
   onSignUpClick: () => void
 }
 
-const Ninja = ({ onSignUpClick }: NinjaProps) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const Ninja = ({ onSignUpClick: _onSignUpClick }: NinjaProps) => {
   const tenets = [
     { name: 'Strength', description: 'Ability to exert force against resistance.' },
     { name: 'Explosiveness', description: 'Exert maximal force in minimal time.' },

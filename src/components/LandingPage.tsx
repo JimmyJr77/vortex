@@ -5,7 +5,8 @@ interface LandingPageProps {
   onSignUpClick: () => void
 }
 
-const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const LandingPage = ({ onSignUpClick: _onSignUpClick }: LandingPageProps) => {
   const tenets = [
     { name: 'Strength', description: 'Ability to exert force against resistance.' },
     { name: 'Explosiveness', description: 'Exert maximal force in minimal time.' },

@@ -19,7 +19,8 @@ interface RhythmicGymnasticsProps {
   onSignUpClick: () => void
 }
 
-const RhythmicGymnastics = ({ onSignUpClick }: RhythmicGymnasticsProps) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const RhythmicGymnastics = ({ onSignUpClick: _onSignUpClick }: RhythmicGymnasticsProps) => {
   const tenets = [
     { name: 'Strength', description: 'Ability to exert force against resistance.' },
     { name: 'Explosiveness', description: 'Exert maximal force in minimal time.' },

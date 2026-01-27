@@ -17,7 +17,8 @@ interface ArtisticGymnasticsProps {
   onSignUpClick: () => void
 }
 
-const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ArtisticGymnastics = ({ onSignUpClick: _onSignUpClick }: ArtisticGymnasticsProps) => {
   const tenets = [
     { name: 'Strength', description: 'Ability to exert force against resistance.' },
     { name: 'Explosiveness', description: 'Exert maximal force in minimal time.' },

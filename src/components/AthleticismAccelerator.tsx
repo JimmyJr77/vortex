@@ -6,7 +6,8 @@ interface AthleticismAcceleratorProps {
   onSignUpClick: () => void
 }
 
-const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAcceleratorProps) => {
 
   const tenets = [
     { 
