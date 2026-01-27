@@ -1080,8 +1080,8 @@ const registrationSchema = Joi.object({
   phone: Joi.string().max(20).optional().allow('', null),
   athleteAge: Joi.number().integer().min(5).max(18).optional().allow(null, ''),
   interests: Joi.alternatives().try(
-    Joi.string().max(500), // Legacy field for backward compatibility (single string)
-    Joi.array().items(Joi.string().max(100)) // New multi-select interests (array of strings)
+    Joi.array().items(Joi.string().max(100)), // New multi-select interests (array of strings) - check this first
+    Joi.string().max(500) // Legacy field for backward compatibility (single string)
   ).optional().allow('', null, []),
   interest: Joi.string().max(100).optional().allow('', null), // Legacy single interest selection
   childAges: Joi.array().items(Joi.number().integer().min(1).max(18)).optional().allow(null, []), // New child ages array
