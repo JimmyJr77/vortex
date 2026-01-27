@@ -131,9 +131,11 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
               transition={{ delay: 0.6, duration: 0.8 }}
             >
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
-                <motion.button
-                  onClick={onSignUpClick}
-                  className="bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
+                <motion.a
+                  href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -147,16 +149,18 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
                     whileHover={{ x: '100%' }}
                     transition={{ duration: 0.6 }}
                   />
-                </motion.button>
+                </motion.a>
 
-                <motion.button
-                  onClick={onSignUpClick}
-                  className="border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
+                <motion.a
+                  href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   Join the Team
-                </motion.button>
+                </motion.a>
               </div>
 
               {/* Scroll Indicator */}
@@ -228,9 +232,11 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
             >
-              <motion.button
-                onClick={onSignUpClick}
-                className="bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
+              <motion.a
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -238,16 +244,18 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
                   <span>Book a Trial Class</span>
                   <ArrowRight className="w-5 h-5" />
                 </span>
-              </motion.button>
+              </motion.a>
 
-              <motion.button
-                onClick={onSignUpClick}
-                className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 w-full max-w-xs"
+              <motion.a
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 w-full max-w-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Join the Team
-              </motion.button>
+              </motion.a>
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -477,14 +485,16 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
                   </motion.li>
                 ))}
               </ul>
-              <motion.button
-                onClick={onSignUpClick}
-                className="w-full bg-blue-600 text-white px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:bg-blue-700 hover:scale-105"
+              <motion.a
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block w-full bg-blue-600 text-white px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:bg-blue-700 hover:scale-105"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 Start Your Journey
-              </motion.button>
+              </motion.a>
             </motion.div>
 
             <motion.div
@@ -524,14 +534,16 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
                   </motion.li>
                 ))}
               </ul>
-              <motion.button
-                onClick={onSignUpClick}
-                className="w-full bg-vortex-red text-white px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:bg-red-700 hover:scale-105"
+              <motion.a
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block w-full bg-vortex-red text-white px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:bg-red-700 hover:scale-105"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 Join the Team
-              </motion.button>
+              </motion.a>
             </motion.div>
           </div>
         </div>
@@ -722,9 +734,11 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <motion.button
-                onClick={onSignUpClick}
-                className="bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 group"
+              <motion.a
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 group"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -732,16 +746,18 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
                   <span>Schedule an Assessment</span>
                   <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                 </span>
-              </motion.button>
+              </motion.a>
 
-              <motion.button
-                onClick={onSignUpClick}
-                className="border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
+              <motion.a
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 View Class Schedule
-              </motion.button>
+              </motion.a>
             </div>
 
             <p className="text-gray-400 text-sm mt-8">

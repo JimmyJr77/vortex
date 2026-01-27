@@ -118,14 +118,16 @@ const About = ({ onSignUpClick }: AboutProps) => {
           </p>
           
           {onSignUpClick && (
-            <motion.button
-              onClick={onSignUpClick}
-              className="border-2 border-vortex-red text-vortex-red px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block border-2 border-vortex-red text-vortex-red px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               Join the Transformation
-            </motion.button>
+            </motion.a>
           )}
         </motion.div>
 

@@ -159,10 +159,28 @@ export const initDatabase = async () => {
         phone VARCHAR(20),
         athlete_age INTEGER CHECK (athlete_age >= 5 AND athlete_age <= 18),
         interests TEXT,
+        interests_array TEXT[],
+        interest VARCHAR(100),
+        class_types TEXT[],
+        child_ages INTEGER[],
         message TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `)
+    
+    // Add new columns if they don't exist (for existing databases)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS interest VARCHAR(100)
+    `)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS interests_array TEXT[]
+    `)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS class_types TEXT[]
+    `)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS child_ages INTEGER[]
     `)
 
     // Newsletter subscribers table
@@ -1061,8 +1079,14 @@ const registrationSchema = Joi.object({
   email: Joi.string().email().required(),
   phone: Joi.string().max(20).optional().allow('', null),
   athleteAge: Joi.number().integer().min(5).max(18).optional().allow(null, ''),
-  interests: Joi.string().max(500).optional().allow(''),
-  message: Joi.string().max(1000).optional().allow('')
+  interests: Joi.alternatives().try(
+    Joi.string().max(500), // Legacy field for backward compatibility (single string)
+    Joi.array().items(Joi.string().max(100)) // New multi-select interests (array of strings)
+  ).optional().allow('', null, []),
+  interest: Joi.string().max(100).optional().allow('', null), // Legacy single interest selection
+  childAges: Joi.array().items(Joi.number().integer().min(1).max(18)).optional().allow(null, []), // New child ages array
+  message: Joi.string().max(1000).optional().allow(''),
+  newsletter: Joi.boolean().optional().default(false)
 })
 
 const newsletterSchema = Joi.object({
@@ -2291,11 +2315,25 @@ app.post('/api/registrations', async (req, res) => {
       })
     }
 
+    // Handle interests - can be array (new) or string (legacy)
+    let interestsString = null
+    let interestsArray = null
+    if (value.interests) {
+      if (Array.isArray(value.interests)) {
+        // New multi-select format
+        interestsArray = value.interests
+        interestsString = value.interests.join(', ') // Also store as string for compatibility
+      } else {
+        // Legacy string format
+        interestsString = value.interests
+      }
+    }
+
     // Insert registration
     const result = await pool.query(`
       INSERT INTO registrations 
-      (first_name, last_name, email, phone, athlete_age, interests, message)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, message)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING id
     `, [
       value.firstName,
@@ -2303,7 +2341,11 @@ app.post('/api/registrations', async (req, res) => {
       value.email,
       value.phone || null,
       value.athleteAge || null,
-      value.interests || null,
+      interestsString, // Legacy field for backward compatibility
+      interestsArray, // New multi-select interests array
+      value.interest || null, // Legacy single interest selection
+      value.classTypes && value.classTypes.length > 0 ? value.classTypes : null, // Class types array
+      value.childAges && value.childAges.length > 0 ? value.childAges : null, // New child ages array
       value.message || null
     ])
 
@@ -2420,13 +2462,28 @@ app.get('/api/admin/newsletter', async (req, res) => {
 app.put('/api/admin/registrations/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const { first_name, last_name, email, phone, athlete_age, interests, message } = req.body
+    const { first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, message } = req.body
+
+    // Handle interests - can be array or string
+    let interestsString = null
+    let interestsArrayValue = null
+    if (interests) {
+      if (Array.isArray(interests)) {
+        interestsArrayValue = interests
+        interestsString = interests.join(', ')
+      } else {
+        interestsString = interests
+      }
+    } else if (interests_array) {
+      interestsArrayValue = Array.isArray(interests_array) ? interests_array : null
+      interestsString = Array.isArray(interests_array) ? interests_array.join(', ') : null
+    }
 
     await pool.query(`
       UPDATE registrations 
-      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, message = $7
-      WHERE id = $8
-    `, [first_name, last_name, email, phone, athlete_age, interests, message, id])
+      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, interests_array = $7, interest = $8, class_types = $9, child_ages = $10, message = $11
+      WHERE id = $12
+    `, [first_name, last_name, email, phone, athlete_age, interestsString, interestsArrayValue, interest || null, class_types || null, child_ages || null, message, id])
 
     res.json({
       success: true,

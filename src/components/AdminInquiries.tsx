@@ -10,7 +10,11 @@ interface User {
   email: string
   phone: string | null
   athlete_age: number | null
-  interests: string | null
+  interests: string | null // Legacy field (string)
+  interests_array: string[] | null // New multi-select interests (array)
+  interest: string | null // Legacy single interest selection
+  class_types: string[] | null // Class types array
+  child_ages: number[] | null // New child ages array
   message: string | null
   created_at: string
   newsletter: boolean
@@ -58,7 +62,11 @@ export default function AdminInquiries() {
           email: string
           phone: string | null
           athlete_age: number | null
-          interests: string | null
+          interests: string | null // Legacy field (string)
+          interests_array: string[] | null // New multi-select interests (array)
+          interest: string | null // Legacy single interest selection
+          class_types: string[] | null // Class types array
+          child_ages: number[] | null // New child ages array
           message: string | null
           created_at: string
         }
@@ -133,6 +141,10 @@ export default function AdminInquiries() {
       phone: user.phone,
       athlete_age: user.athlete_age,
       interests: user.interests,
+      interests_array: user.interests_array,
+      interest: user.interest,
+      class_types: user.class_types,
+      child_ages: user.child_ages,
       message: user.message
     })
   }
@@ -421,7 +433,59 @@ export default function AdminInquiries() {
                                 />
                               </div>
                               <div>
-                                <label className="text-xs text-gray-600 block mb-1">Interests</label>
+                                <label className="text-xs text-gray-600 block mb-1">Interests (Multi-select, comma-separated)</label>
+                                <input
+                                  type="text"
+                                  value={editData.interests_array ? editData.interests_array.join(', ') : (editData.interests || '')}
+                                  onChange={(e) => {
+                                    const interestsList = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0)
+                                    setEditData({ 
+                                      ...editData, 
+                                      interests_array: interestsList.length > 0 ? interestsList : null,
+                                      interests: interestsList.length > 0 ? interestsList.join(', ') : null
+                                    })
+                                  }}
+                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
+                                  placeholder="Gymnastics (Artistic), Rhythmic Gymnastics, etc."
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-gray-600 block mb-1">Class Types (comma-separated)</label>
+                                <input
+                                  type="text"
+                                  value={editData.class_types ? editData.class_types.join(', ') : ''}
+                                  onChange={(e) => {
+                                    const types = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0)
+                                    setEditData({ ...editData, class_types: types.length > 0 ? types : null })
+                                  }}
+                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
+                                  placeholder="Adult Classes, Child Classes"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-gray-600 block mb-1">Child Ages (comma-separated)</label>
+                                <input
+                                  type="text"
+                                  value={editData.child_ages ? editData.child_ages.join(', ') : ''}
+                                  onChange={(e) => {
+                                    const ages = e.target.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
+                                    setEditData({ ...editData, child_ages: ages.length > 0 ? ages : null })
+                                  }}
+                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
+                                  placeholder="1, 2, 3, etc."
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-gray-600 block mb-1">Interest (Legacy Single)</label>
+                                <input
+                                  type="text"
+                                  value={editData.interest || ''}
+                                  onChange={(e) => setEditData({ ...editData, interest: e.target.value })}
+                                  className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-gray-600 block mb-1">Interests (Legacy String)</label>
                                 <input
                                   type="text"
                                   value={editData.interests || ''}
@@ -462,8 +526,20 @@ export default function AdminInquiries() {
                             <div><span className="text-gray-600 font-medium">Email:</span> {user.email}</div>
                             <div><span className="text-gray-600 font-medium">Phone:</span> {user.phone || '-'}</div>
                             <div><span className="text-gray-600 font-medium">Age:</span> {user.athlete_age || '-'}</div>
-                            <div><span className="text-gray-600 font-medium">Interests:</span> {user.interests || '-'}</div>
-                            {user.message && <div><span className="text-gray-600 font-medium">Additional Information or Questions:</span> {user.message}</div>}
+                            {user.interests_array && user.interests_array.length > 0 && (
+                              <div><span className="text-gray-600 font-medium">Interests:</span> {user.interests_array.join(', ')}</div>
+                            )}
+                            {!user.interests_array && user.interests && (
+                              <div><span className="text-gray-600 font-medium">Interests (Legacy):</span> {user.interests}</div>
+                            )}
+                            {user.interest && <div><span className="text-gray-600 font-medium">Interest (Legacy Single):</span> {user.interest}</div>}
+                            {user.class_types && user.class_types.length > 0 && (
+                              <div><span className="text-gray-600 font-medium">Class Types:</span> {user.class_types.join(', ')}</div>
+                            )}
+                            {user.child_ages && user.child_ages.length > 0 && (
+                              <div><span className="text-gray-600 font-medium">Child Ages:</span> {user.child_ages.join(', ')}</div>
+                            )}
+                            {user.message && <div><span className="text-gray-600 font-medium">Comment/Question:</span> {user.message}</div>}
                             <div className="flex gap-2 pt-3">
                               <button
                                 onClick={(e) => startEdit(e, user)}

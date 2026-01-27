@@ -141,9 +141,11 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.8 }}
           >
-            <motion.button
-              onClick={onSignUpClick}
-              className="bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-2xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-2xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -157,7 +159,7 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
                 whileHover={{ x: '100%' }}
                 transition={{ duration: 0.6 }}
               />
-            </motion.button>
+            </motion.a>
             <p className="text-gray-400 text-sm">
               Be the first to know when we open. Join our waitlist today!
             </p>
@@ -197,14 +199,16 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
             </p>
             
             {/* Secondary CTA */}
-            <motion.button
-              onClick={onSignUpClick}
-              className="border-2 border-vortex-red text-vortex-red px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block border-2 border-vortex-red text-vortex-red px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               Join the Transformation
-            </motion.button>
+            </motion.a>
           </motion.div>
         </div>
       </section>
@@ -272,14 +276,16 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <motion.button
-              onClick={onSignUpClick}
-              className="bg-vortex-red text-white px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105"
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-vortex-red text-white px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               Reserve Your Spot
-            </motion.button>
+            </motion.a>
           </motion.div>
         </div>
       </section>
@@ -339,14 +345,16 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <motion.button
-              onClick={onSignUpClick}
-              className="btn-primary"
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block btn-primary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               Start Your Journey
-            </motion.button>
+            </motion.a>
           </motion.div>
         </div>
       </section>
@@ -410,14 +418,16 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <motion.button
-              onClick={onSignUpClick}
-              className="btn-primary"
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block btn-primary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               Experience the Science
-            </motion.button>
+            </motion.a>
           </motion.div>
         </div>
       </section>
@@ -529,14 +539,16 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <motion.button
-              onClick={onSignUpClick}
-              className="btn-primary text-xl px-12 py-6"
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block btn-primary text-xl px-12 py-6"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               Join Our Programs
-            </motion.button>
+            </motion.a>
           </motion.div>
         </div>
       </section>
@@ -594,14 +606,16 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
             <p className="text-xl mb-8 text-red-100 max-w-2xl mx-auto">
               Join our waitlist today and be the first to experience the future of athletic development.
             </p>
-            <motion.button
-              onClick={onSignUpClick}
-              className="bg-white text-vortex-red px-12 py-6 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-gray-100 hover:scale-105 shadow-xl"
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-white text-vortex-red px-12 py-6 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-gray-100 hover:scale-105 shadow-xl"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               SIGN UP NOW - IT'S FREE!
-            </motion.button>
+            </motion.a>
           </motion.div>
         </div>
       </section>
@@ -634,14 +648,16 @@ const LandingPage = ({ onSignUpClick }: LandingPageProps) => {
             </div>
             
             {/* Final Sign-Up CTA */}
-            <motion.button
-              onClick={onSignUpClick}
-              className="bg-vortex-red text-white px-12 py-6 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105"
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-vortex-red text-white px-12 py-6 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               Reserve Your Spot Today
-            </motion.button>
+            </motion.a>
           </motion.div>
         </div>
       </section>

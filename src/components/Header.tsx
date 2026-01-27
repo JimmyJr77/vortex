@@ -92,14 +92,14 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
               </motion.button>
             ) : (
               <motion.a
-                href="https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgId=557920"
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-gray-700 text-white px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 hover:bg-gray-600 hover:scale-105 hover:shadow-lg inline-block flex-1 md:flex-none min-w-[80px] md:min-w-0 text-center"
+                className="bg-vortex-red text-white px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg inline-block flex-1 md:flex-none min-w-[80px] md:min-w-0 text-center"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Login
+                Enroll
               </motion.a>
             )}
 

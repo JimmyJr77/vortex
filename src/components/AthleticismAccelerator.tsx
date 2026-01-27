@@ -124,9 +124,11 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
               transition={{ delay: 0.6, duration: 0.8 }}
             >
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
-                <motion.button
-                  onClick={onSignUpClick}
-                  className="bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
+                <motion.a
+                  href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -140,16 +142,18 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
                     whileHover={{ x: '100%' }}
                     transition={{ duration: 0.6 }}
                   />
-                </motion.button>
+                </motion.a>
 
-                <motion.button
-                  onClick={onSignUpClick}
-                  className="border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
+                <motion.a
+                  href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   Book an Assessment
-                </motion.button>
+                </motion.a>
               </div>
 
               {/* Scroll Indicator */}
@@ -221,9 +225,11 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
             >
-              <motion.button
-                onClick={onSignUpClick}
-                className="bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
+              <motion.a
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -231,16 +237,18 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
                   <span>Join the Accelerator</span>
                   <ArrowRight className="w-5 h-5" />
                 </span>
-              </motion.button>
+              </motion.a>
 
-              <motion.button
-                onClick={onSignUpClick}
-                className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 w-full max-w-xs"
+              <motion.a
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 w-full max-w-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Book an Assessment
-              </motion.button>
+              </motion.a>
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -500,14 +508,16 @@ const AthleticismAccelerator = ({ onSignUpClick }: AthleticismAcceleratorProps) 
                 ))}
               </div>
 
-              <motion.button
-                onClick={onSignUpClick}
-                className="bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105 shadow-2xl"
+              <motion.a
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105 shadow-2xl"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Get Started Today
-              </motion.button>
+              </motion.a>
             </div>
           </motion.div>
         </div>
