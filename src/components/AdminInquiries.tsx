@@ -480,12 +480,7 @@ export default function AdminInquiries() {
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[120px]">
                     <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleSort('athlete_age')}
-                        className="flex items-center hover:text-vortex-red transition-colors"
-                      >
-                        Child Ages {getSortIcon('athlete_age')}
-                      </button>
+                      <span>Child Ages</span>
                       <div className="relative" ref={ageFilterRef}>
                         <button
                           onClick={(e) => {
