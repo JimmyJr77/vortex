@@ -2338,36 +2338,99 @@ app.post('/api/registrations', async (req, res) => {
     }
 
     // Insert registration
-    const result = await pool.query(`
-      INSERT INTO registrations 
-      (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, message)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-      RETURNING id
-    `, [
-      value.firstName,
-      value.lastName,
-      value.email,
-      value.phone || null,
-      value.athleteAge || null,
-      interestsString, // Legacy field for backward compatibility
-      interestsArray, // New multi-select interests array
-      value.interest || null, // Legacy single interest selection
-      value.classTypes && value.classTypes.length > 0 ? value.classTypes : null, // Class types array
-      value.childAges && value.childAges.length > 0 ? value.childAges : null, // New child ages array
-      value.message || null
-    ])
+    // Ensure columns exist before inserting (defensive check)
+    try {
+      const result = await pool.query(`
+        INSERT INTO registrations 
+        (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, message)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING id, created_at
+      `, [
+        value.firstName,
+        value.lastName,
+        value.email,
+        value.phone || null,
+        value.athleteAge || null,
+        interestsString, // Legacy field for backward compatibility
+        interestsArray, // New multi-select interests array
+        value.interest || null, // Legacy single interest selection
+        value.classTypes && value.classTypes.length > 0 ? value.classTypes : null, // Class types array
+        value.childAges && value.childAges.length > 0 ? value.childAges : null, // New child ages array
+        value.message || null
+      ])
 
-    res.json({
-      success: true,
-      message: 'Registration submitted successfully',
-      id: result.rows[0].id
-    })
+      console.log('✅ Registration inserted successfully:', {
+        id: result.rows[0].id,
+        email: value.email,
+        created_at: result.rows[0].created_at
+      })
+
+      res.json({
+        success: true,
+        message: 'Registration submitted successfully',
+        id: result.rows[0].id
+      })
+    } catch (insertError) {
+      // If column doesn't exist error, try to add it and retry
+      if (insertError.code === '42703' || (insertError.message && insertError.message.includes('column') && insertError.message.includes('does not exist'))) {
+        console.log('⚠️ Missing column detected, attempting to add columns...')
+        try {
+          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS interests_array TEXT[]`)
+          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS interest VARCHAR(100)`)
+          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS class_types TEXT[]`)
+          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS child_ages INTEGER[]`)
+          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE`)
+          
+          // Retry the insert
+          const result = await pool.query(`
+            INSERT INTO registrations 
+            (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, message)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            RETURNING id, created_at
+          `, [
+            value.firstName,
+            value.lastName,
+            value.email,
+            value.phone || null,
+            value.athleteAge || null,
+            interestsString,
+            interestsArray,
+            value.interest || null,
+            value.classTypes && value.classTypes.length > 0 ? value.classTypes : null,
+            value.childAges && value.childAges.length > 0 ? value.childAges : null,
+            value.message || null
+          ])
+          
+          console.log('✅ Registration inserted successfully after adding columns:', {
+            id: result.rows[0].id,
+            email: value.email
+          })
+          
+          res.json({
+            success: true,
+            message: 'Registration submitted successfully',
+            id: result.rows[0].id
+          })
+        } catch (retryError) {
+          throw retryError // Re-throw to be caught by outer catch
+        }
+      } else {
+        throw insertError // Re-throw other errors
+      }
+    }
 
   } catch (error) {
     console.error('Registration error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      constraint: error.constraint
+    })
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 })
