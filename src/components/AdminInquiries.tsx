@@ -171,7 +171,7 @@ export default function AdminInquiries() {
 
     // Apply class types filter
     if (classTypesFilter.length > 0) {
-      const userClassTypes = user.class_types || []
+      const userClassTypes = (user.class_types || []).map(formatClassType)
       const hasMatchingClassType = userClassTypes.some(type => classTypesFilter.includes(type))
       if (!hasMatchingClassType) return false
     }
@@ -286,6 +286,17 @@ export default function AdminInquiries() {
     return '-'
   }
 
+  const formatClassType = (classType: string): string => {
+    if (classType === 'Adult Classes') return 'Adult'
+    if (classType === 'Child Classes') return 'Child'
+    return classType
+  }
+
+  const formatClassTypes = (classTypes: string[] | null): string => {
+    if (!classTypes || classTypes.length === 0) return '-'
+    return classTypes.map(formatClassType).join(', ')
+  }
+
   const getAllAges = (): number[] => {
     const ages = new Set<number>()
     users.forEach(user => {
@@ -318,7 +329,10 @@ export default function AdminInquiries() {
     const classTypes = new Set<string>()
     users.forEach(user => {
       if (user.class_types && user.class_types.length > 0) {
-        user.class_types.forEach(type => classTypes.add(type))
+        user.class_types.forEach(type => {
+          const formatted = formatClassType(type)
+          classTypes.add(formatted)
+        })
       }
     })
     return Array.from(classTypes).sort()
@@ -667,11 +681,7 @@ export default function AdminInquiries() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 text-center">
-                        {user.class_types && user.class_types.length > 0 ? (
-                          user.class_types.join(', ')
-                        ) : (
-                          '-'
-                        )}
+                        {formatClassTypes(user.class_types)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-center border-r border-gray-200">
                         {user.newsletter ? (
@@ -877,7 +887,7 @@ export default function AdminInquiries() {
                                       {user.class_types && user.class_types.length > 0 && (
                                         <div>
                                           <span className="text-gray-600 font-semibold">Class Types:</span>
-                                          <div className="text-gray-900 mt-1">{user.class_types.join(', ')}</div>
+                                          <div className="text-gray-900 mt-1">{formatClassTypes(user.class_types)}</div>
                                         </div>
                                       )}
                                       {user.child_ages && user.child_ages.length > 0 && (
