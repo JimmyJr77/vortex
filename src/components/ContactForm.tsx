@@ -95,17 +95,29 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
     try {
       const apiUrl = getApiUrl()
       
-      const payload = {
+      const payload: any = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        phone: cleanPhone || undefined,
-        interests: selectedInterests.length > 0 ? selectedInterests : undefined,
-        classTypes: selectedClassTypes.length > 0 ? selectedClassTypes : undefined,
-        childAges: selectedAges.length > 0 ? selectedAges : undefined,
-        message: formData.message || undefined,
-        newsletter
       }
+      
+      // Only include optional fields if they have values
+      if (cleanPhone) {
+        payload.phone = cleanPhone
+      }
+      if (selectedInterests.length > 0) {
+        payload.interests = selectedInterests
+      }
+      if (selectedClassTypes.length > 0) {
+        payload.classTypes = selectedClassTypes
+      }
+      if (selectedAges.length > 0) {
+        payload.childAges = selectedAges
+      }
+      if (formData.message) {
+        payload.message = formData.message
+      }
+      payload.newsletter = newsletter
       
       let response: Response
       try {
