@@ -1085,10 +1085,10 @@ const registrationSchema = Joi.object({
   interests: Joi.alternatives().try(
     Joi.array().items(Joi.string().max(100)), // New multi-select interests (array of strings) - checked first
     Joi.string().max(500) // Legacy field for backward compatibility (single string)
-  ).optional().allow(null, []),
+  ).optional().allow(null),
   interest: Joi.string().max(100).optional().allow('', null), // Legacy single interest selection
-  classTypes: Joi.array().items(Joi.string().valid('Adult Classes', 'Child Classes')).optional().allow(null, []), // Class types array
-  childAges: Joi.array().items(Joi.number().integer().min(1).max(18)).optional().allow(null, []), // New child ages array
+  classTypes: Joi.array().items(Joi.string().valid('Adult Classes', 'Child Classes')).optional().allow(null), // Class types array
+  childAges: Joi.array().items(Joi.number().integer().min(1).max(18)).optional().allow(null), // New child ages array
   message: Joi.string().max(1000).optional().allow('', null),
   newsletter: Joi.boolean().optional().allow(null).default(false)
 })
