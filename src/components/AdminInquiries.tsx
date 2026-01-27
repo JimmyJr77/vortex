@@ -43,6 +43,9 @@ export default function AdminInquiries() {
   const [ageFilterOpen, setAgeFilterOpen] = useState(false)
   const [interestsFilterOpen, setInterestsFilterOpen] = useState(false)
   const [classTypesFilterOpen, setClassTypesFilterOpen] = useState(false)
+  const [ageFilterPosition, setAgeFilterPosition] = useState({ top: 0, left: 0 })
+  const [interestsFilterPosition, setInterestsFilterPosition] = useState({ top: 0, left: 0 })
+  const [classTypesFilterPosition, setClassTypesFilterPosition] = useState({ top: 0, right: 0 })
   const ageFilterRef = useRef<HTMLDivElement>(null)
   const interestsFilterRef = useRef<HTMLDivElement>(null)
   const classTypesFilterRef = useRef<HTMLDivElement>(null)
@@ -341,20 +344,23 @@ export default function AdminInquiries() {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (ageFilterRef.current && !ageFilterRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+      const isFilterPopup = (target as Element).closest('[data-filter-popup]')
+      
+      if (ageFilterOpen && ageFilterRef.current && !ageFilterRef.current.contains(target) && !isFilterPopup) {
         setAgeFilterOpen(false)
       }
-      if (interestsFilterRef.current && !interestsFilterRef.current.contains(event.target as Node)) {
+      if (interestsFilterOpen && interestsFilterRef.current && !interestsFilterRef.current.contains(target) && !isFilterPopup) {
         setInterestsFilterOpen(false)
       }
-      if (classTypesFilterRef.current && !classTypesFilterRef.current.contains(event.target as Node)) {
+      if (classTypesFilterOpen && classTypesFilterRef.current && !classTypesFilterRef.current.contains(target) && !isFilterPopup) {
         setClassTypesFilterOpen(false)
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [ageFilterOpen, interestsFilterOpen, classTypesFilterOpen])
 
   return (
     <motion.div
@@ -485,6 +491,10 @@ export default function AdminInquiries() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
+                            if (!ageFilterOpen && ageFilterRef.current) {
+                              const rect = ageFilterRef.current.getBoundingClientRect()
+                              setAgeFilterPosition({ top: rect.bottom + 4, left: rect.left })
+                            }
                             setAgeFilterOpen(!ageFilterOpen)
                           }}
                           className={`p-1 rounded hover:bg-gray-200 transition-colors ${
@@ -495,7 +505,11 @@ export default function AdminInquiries() {
                           <Filter className="w-3 h-3" />
                         </button>
                         {ageFilterOpen && (
-                          <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto min-w-[150px]">
+                          <div 
+                            data-filter-popup
+                            className="fixed bg-white border border-gray-300 rounded-lg shadow-xl z-[9999] max-h-60 overflow-y-auto min-w-[150px]"
+                            style={{ top: `${ageFilterPosition.top}px`, left: `${ageFilterPosition.left}px` }}
+                          >
                             <div className="p-2">
                               <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Age</div>
                               {getAllAges().map(age => (
@@ -536,6 +550,10 @@ export default function AdminInquiries() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
+                            if (!interestsFilterOpen && interestsFilterRef.current) {
+                              const rect = interestsFilterRef.current.getBoundingClientRect()
+                              setInterestsFilterPosition({ top: rect.bottom + 4, left: rect.left })
+                            }
                             setInterestsFilterOpen(!interestsFilterOpen)
                           }}
                           className={`p-1 rounded hover:bg-gray-200 transition-colors ${
@@ -546,7 +564,11 @@ export default function AdminInquiries() {
                           <Filter className="w-3 h-3" />
                         </button>
                         {interestsFilterOpen && (
-                          <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto min-w-[200px]">
+                          <div 
+                            data-filter-popup
+                            className="fixed bg-white border border-gray-300 rounded-lg shadow-xl z-[9999] max-h-60 overflow-y-auto min-w-[200px]"
+                            style={{ top: `${interestsFilterPosition.top}px`, left: `${interestsFilterPosition.left}px` }}
+                          >
                             <div className="p-2">
                               <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Interest</div>
                               {getAllInterests().map(interest => (
@@ -587,6 +609,10 @@ export default function AdminInquiries() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
+                            if (!classTypesFilterOpen && classTypesFilterRef.current) {
+                              const rect = classTypesFilterRef.current.getBoundingClientRect()
+                              setClassTypesFilterPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+                            }
                             setClassTypesFilterOpen(!classTypesFilterOpen)
                           }}
                           className={`p-1 rounded hover:bg-gray-200 transition-colors ${
@@ -597,7 +623,11 @@ export default function AdminInquiries() {
                           <Filter className="w-3 h-3" />
                         </button>
                         {classTypesFilterOpen && (
-                          <div className="absolute top-full right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto min-w-[150px]">
+                          <div 
+                            data-filter-popup
+                            className="fixed bg-white border border-gray-300 rounded-lg shadow-xl z-[9999] max-h-60 overflow-y-auto min-w-[150px]"
+                            style={{ top: `${classTypesFilterPosition.top}px`, right: `${classTypesFilterPosition.right}px` }}
+                          >
                             <div className="p-2">
                               <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Class Type</div>
                               {getAllClassTypes().map(classType => (
