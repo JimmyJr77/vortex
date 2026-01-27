@@ -447,7 +447,7 @@ export default function AdminInquiries() {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200">
                     <button
                       onClick={() => handleSort('created_at')}
-                      className="flex items-center hover:text-vortex-red transition-colors"
+                      className="flex items-center hover:text-vortex-red transition-colors text-xs font-semibold text-gray-700 uppercase tracking-wider"
                     >
                       Date {getSortIcon('created_at')}
                     </button>
@@ -455,7 +455,7 @@ export default function AdminInquiries() {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[120px]">
                     <button
                       onClick={() => handleSort('last_name')}
-                      className="flex items-center hover:text-vortex-red transition-colors"
+                      className="flex items-center hover:text-vortex-red transition-colors text-xs font-semibold text-gray-700 uppercase tracking-wider"
                     >
                       Last Name {getSortIcon('last_name')}
                     </button>
@@ -463,7 +463,7 @@ export default function AdminInquiries() {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[120px]">
                     <button
                       onClick={() => handleSort('first_name')}
-                      className="flex items-center hover:text-vortex-red transition-colors"
+                      className="flex items-center hover:text-vortex-red transition-colors text-xs font-semibold text-gray-700 uppercase tracking-wider"
                     >
                       First Name {getSortIcon('first_name')}
                     </button>
@@ -471,7 +471,7 @@ export default function AdminInquiries() {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[200px]">
                     <button
                       onClick={() => handleSort('email')}
-                      className="flex items-center hover:text-vortex-red transition-colors"
+                      className="flex items-center hover:text-vortex-red transition-colors text-xs font-semibold text-gray-700 uppercase tracking-wider"
                     >
                       Email {getSortIcon('email')}
                     </button>
@@ -479,14 +479,14 @@ export default function AdminInquiries() {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[130px]">
                     <button
                       onClick={() => handleSort('phone')}
-                      className="flex items-center hover:text-vortex-red transition-colors"
+                      className="flex items-center hover:text-vortex-red transition-colors text-xs font-semibold text-gray-700 uppercase tracking-wider"
                     >
                       Phone {getSortIcon('phone')}
                     </button>
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[120px]">
                     <div className="flex items-center gap-1">
-                      <span>Child Ages</span>
+                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Child Ages</span>
                       <div className="relative" ref={ageFilterRef}>
                         <button
                           onClick={(e) => {
@@ -545,7 +545,7 @@ export default function AdminInquiries() {
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[200px]">
                     <div className="flex items-center gap-1">
-                      <span>Interests</span>
+                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Interests</span>
                       <div className="relative" ref={interestsFilterRef}>
                         <button
                           onClick={(e) => {
@@ -602,9 +602,9 @@ export default function AdminInquiries() {
                       </div>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[100px]">
-                    <div className="flex items-center justify-center gap-1">
-                      <span>Class Types</span>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[100px]">
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Class Types</span>
                       <div className="relative" ref={classTypesFilterRef}>
                         <button
                           onClick={(e) => {
@@ -661,10 +661,10 @@ export default function AdminInquiries() {
                       </div>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[80px]">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[80px]">
                     Newsletter
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[100px]">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[100px]">
                     Actions
                   </th>
                 </tr>
