@@ -7,7 +7,7 @@ interface FooterProps {
   onMemberLoginClick?: () => void
 }
 
-const Footer = ({ onContactClick, onLoginClick, onMemberLoginClick }: FooterProps) => {
+const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginClick }: FooterProps) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }

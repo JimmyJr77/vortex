@@ -35,19 +35,20 @@ const HeroBackgroundVideo = ({
   const [posterError, setPosterError] = useState(false)
   const [usePublicFolder, setUsePublicFolder] = useState(false)
 
-  // Get CDN base URL from environment variable
+  // Get CDN base URL - use public folder for localhost (CDN often doesn't resolve locally)
   const getCdnBaseUrl = (): string => {
+    if (typeof window !== 'undefined') {
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      if (isLocalhost) return ''
+    }
     const cdnUrl = import.meta.env.VITE_CDN_BASE_URL
     if (cdnUrl) {
-      // Ensure no trailing slash
       return cdnUrl.endsWith('/') ? cdnUrl.slice(0, -1) : cdnUrl
     }
-    // Fallback to public folder for local development
     return ''
   }
 
-  // Memoize URL calculations to prevent re-renders
-  // If CDN fails, fall back to public folder
+  // Memoize URL calculations - use public folder if CDN failed or we're on localhost
   const { videoUrl, posterUrl } = useMemo(() => {
     const base = usePublicFolder ? '' : getCdnBaseUrl()
     const vUrl = base ? `${base}/${videoFileName}` : `/${videoFileName}`
@@ -56,13 +57,6 @@ const HeroBackgroundVideo = ({
         ? `${base}/${posterFileName}`
         : `/${posterFileName}`
       : undefined
-    
-    // Debug logging (only in development, only once)
-    if (import.meta.env.DEV) {
-      console.log('[HeroBackgroundVideo] CDN Base:', base || '(using public folder)')
-      console.log('[HeroBackgroundVideo] Video URL:', vUrl)
-    }
-    
     return { videoUrl: vUrl, posterUrl: pUrl }
   }, [videoFileName, posterFileName, usePublicFolder])
 
@@ -166,7 +160,6 @@ const HeroBackgroundVideo = ({
       
       // If CDN fails and we haven't already fallen back, try public folder
       if (!usePublicFolder && getCdnBaseUrl()) {
-        console.warn('[HeroBackgroundVideo] CDN video failed, falling back to public folder')
         setUsePublicFolder(true)
         // Reload video with public folder URL
         const source = video.querySelector('source')
@@ -220,9 +213,7 @@ const HeroBackgroundVideo = ({
           }}
           onError={() => {
             setPosterError(true)
-            // If CDN fails, fall back to public folder
             if (!usePublicFolder && getCdnBaseUrl()) {
-              console.warn('[HeroBackgroundVideo] CDN poster failed, falling back to public folder')
               setUsePublicFolder(true)
             }
           }}

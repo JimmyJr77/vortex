@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import HomePage from './components/HomePage'
-import LandingPage from './components/LandingPage'
 import AthleticismAccelerator from './components/AthleticismAccelerator'
 import TrampolineTumbling from './components/TrampolineTumbling'
 import ArtisticGymnastics from './components/ArtisticGymnastics'
@@ -123,7 +122,7 @@ function App() {
 
   // Otherwise show normal website
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
       <Header 
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
@@ -134,10 +133,6 @@ function App() {
         <Route 
           path="/" 
           element={<HomePage onSignUpClick={() => setIsContactFormOpen(true)} />} 
-        />
-        <Route 
-          path="/overview" 
-          element={<LandingPage onSignUpClick={handleContactClick} />} 
         />
         <Route 
           path="/athleticism-accelerator" 
