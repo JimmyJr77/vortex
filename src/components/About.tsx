@@ -72,7 +72,7 @@ const About = ({ onSignUpClick }: AboutProps) => {
             const isTechnologyDriven = feature.title === "Technology-Driven"
             const Content = (
               <motion.div
-                className="text-center p-6 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
+                className="text-center p-6 rounded-2xl bg-gray-200 hover:bg-gray-300 transition-colors duration-300"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}

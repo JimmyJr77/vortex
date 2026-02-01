@@ -69,7 +69,7 @@ const Technology = () => {
           {techFeatures.map((feature, index) => (
             <motion.div
               key={feature.title}
-              className="bg-gray-50 rounded-2xl p-8 text-center hover:bg-gray-100 transition-colors duration-300"
+              className="bg-gray-200 rounded-2xl p-8 text-center hover:bg-gray-300 transition-colors duration-300"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1, duration: 0.6 }}

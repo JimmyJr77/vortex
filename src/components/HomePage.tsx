@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { MapPin, Target, Trophy, Brain } from 'lucide-react'
+import { useState } from 'react'
+import { MapPin, Target, Brain } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
 import About from './About'
@@ -61,6 +62,35 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
     }
   ]
 
+  const videoLibrary = [
+    {
+      id: 'youtube',
+      platform: 'YouTube',
+      title: 'Vortex Athletics Highlights',
+      description:
+        'Fast-paced drills, athlete highlights, and training tips straight from our YouTube channel.',
+      embedUrl: 'https://www.youtube.com/embed?listType=user_uploads&list=VortexAthleticsUSA',
+      link: 'https://www.youtube.com/@VortexAthleticsUSA'
+    },
+    {
+      id: 'tiktok',
+      platform: 'TikTok',
+      title: 'Daily Training Snippets',
+      description:
+        'Short-form workouts, mindset cues, and progress reels coming soon to TikTok.',
+      link: 'https://www.tiktok.com/@vortexathleticsusa'
+    },
+    {
+      id: 'instagram',
+      platform: 'Instagram',
+      title: 'Reels of Athleticism',
+      description:
+        'Curated Instagram reels showing form, flexibility, and competitive glimpses.',
+      link: 'https://www.instagram.com/vortexathletics.usa/'
+    }
+  ]
+  const [selectedVideo, setSelectedVideo] = useState(videoLibrary[0])
+
   // handleSignUp removed - buttons now link directly to enrollment URL
 
   return (
@@ -68,7 +98,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       <Hero />
 
       {/* What We Offer Section */}
-      <section className="section-padding bg-gray-50">
+      <section className="section-padding bg-white">
         <div className="container-custom">
           <motion.div
             className="text-center mb-12"
@@ -86,7 +116,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
           </motion.div>
 
           <motion.div
-            className="bg-white rounded-2xl p-8 md:p-12 mb-12"
+            className="bg-white rounded-2xl p-8 md:p-12 mb-12 border border-vortex-red"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -142,6 +172,124 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
               </motion.a>
             </motion.div>
           )}
+        </div>
+      </section>
+
+      <section className="section-padding bg-gray-200 border-t border-b border-gray-300">
+        <div className="container-custom">
+          <motion.div
+            className="text-center mb-10"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true }}
+          >
+            <p className="uppercase tracking-[0.3em] text-sm text-gray-500 mb-2">
+              Vortex Video Library
+            </p>
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-black">
+              Watch our coaches and athletes in action
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto mt-3">
+              Binge curated training, highlight reels, and storytelling from YouTube, TikTok, and Instagram — all in one polished gallery.
+            </p>
+          </motion.div>
+
+          <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr] items-start">
+            <motion.div
+              className="relative overflow-hidden rounded-[2.5rem] bg-black/90 shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              viewport={{ once: true }}
+            >
+              <div className="relative aspect-video w-full">
+                {selectedVideo.embedUrl ? (
+                  <iframe
+                    className="absolute inset-0 w-full h-full"
+                    src={selectedVideo.embedUrl}
+                    title={`${selectedVideo.platform} preview`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="flex h-full flex-col items-center justify-center px-8 py-6 text-center text-white">
+                    <p className="text-xl font-semibold mb-4">Watch this video on {selectedVideo.platform}</p>
+                    <p className="text-sm text-white/80 mb-6">{selectedVideo.description}</p>
+                    <a
+                      href={selectedVideo.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center rounded-full border border-white/40 px-6 py-3 text-sm font-semibold transition hover:border-white hover:bg-white/10"
+                    >
+                      Open {selectedVideo.platform}
+                    </a>
+                  </div>
+                )}
+              </div>
+              <div className="border-t border-white/10 px-6 py-5 text-white/80">
+                <p className="text-sm uppercase tracking-wide text-white/70">
+                  Current source
+                </p>
+                <p className="text-lg font-semibold text-white">
+                  {selectedVideo.title}
+                </p>
+                <p className="text-sm text-white/60">
+                  {selectedVideo.description}
+                </p>
+                <a
+                  href={selectedVideo.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex text-sm font-semibold text-vortex-red underline"
+                >
+                  Open on {selectedVideo.platform}
+                </a>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="space-y-4"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              {videoLibrary.map((video) => {
+                const selected = selectedVideo.id === video.id
+                return (
+                  <button
+                    key={video.id}
+                    onClick={() => setSelectedVideo(video)}
+                    className={`flex w-full flex-col rounded-2xl px-6 py-5 text-left transition ${
+                      selected
+                        ? 'bg-white border border-vortex-red text-black shadow-xl -translate-x-1'
+                        : 'bg-white border border-gray-200 shadow-lg hover:translate-y-[-2px]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold uppercase tracking-[0.3em]">
+                        {video.platform}
+                      </p>
+                      <span
+                        className={`text-xs font-bold uppercase ${
+                          selected ? 'text-vortex-red' : 'text-gray-400'
+                        }`}
+                      >
+                        {selected ? 'Current' : 'Preview'}
+                      </span>
+                    </div>
+                    <h3 className="mt-3 text-2xl font-display font-bold text-black">
+                      {video.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-600">
+                      {video.description}
+                    </p>
+                  </button>
+                )
+              })}
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -225,7 +373,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       </section>
 
       {/* Physiological Emphasis Table */}
-      <section className="section-padding bg-gray-50">
+      <section className="section-padding bg-white">
         <div className="container-custom">
           <motion.div
             className="text-center mb-12"
@@ -301,10 +449,10 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       {/* Technology & Mindset Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
+          {/* Fail Your Way to Success mindset card */}
           <div className="max-w-2xl mx-auto mb-12">
-            {/* Mindset */}
             <motion.div
-              className="bg-gradient-to-br from-vortex-red/10 to-vortex-red/5 rounded-2xl p-8 border-2 border-vortex-red/20"
+              className="bg-gray-200 rounded-2xl p-8 border-2 border-vortex-red/20"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
@@ -325,58 +473,11 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
               </p>
             </motion.div>
           </div>
-
-          {/* Competition Programs */}
-          <motion.div
-            className="bg-gray-50 rounded-2xl p-8 md:p-12 mb-12"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <div className="flex items-center space-x-3 mb-6">
-              <Trophy className="w-8 h-8 text-vortex-red" />
-              <h3 className="text-3xl font-display font-bold text-black">
-                Competition Programs
-              </h3>
-            </div>
-            <p className="text-xl text-gray-700 mb-6">
-              Formal competitive teams in:
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {['Trampoline & Tumbling', 'Artistic Gymnastics', 'Rhythmic Gymnastics'].map((program) => (
-                <div key={program} className="bg-white rounded-lg p-6 text-center border-2 border-gray-200 hover:border-vortex-red transition-colors">
-                  <h4 className="text-xl font-bold text-black">{program}</h4>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {onSignUpClick && (
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block btn-primary text-xl px-12 py-6"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Join Our Programs
-              </motion.a>
-            </motion.div>
-          )}
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="section-padding bg-gray-50" id="faq">
+      <section className="section-padding bg-gray-200" id="faq">
         <div className="container-custom">
           <motion.div
             className="text-center mb-12"
@@ -423,10 +524,10 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
               viewport={{ once: true }}
             >
               <h3 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                Ready to Transform?
+                Ready to Perform?
               </h3>
               <p className="text-xl mb-8 text-red-100 max-w-2xl mx-auto">
-                Join our waitlist today and be the first to experience the future of athletic development.
+                Experience the future of athletic development.
               </p>
               <motion.a
                 href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
@@ -436,7 +537,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                SIGN UP NOW - IT'S FREE!
+                Enroll now
               </motion.a>
             </motion.div>
           )}

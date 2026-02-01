@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Clock, Users, Target, Dumbbell, DollarSign, BarChart3, Zap, CheckCircle } from 'lucide-react'
+import { Clock, Users, Target, Dumbbell, DollarSign, BarChart3, Zap, CheckCircle, Activity, GraduationCap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const Programs = () => {
@@ -12,11 +12,32 @@ const Programs = () => {
       color: "bg-vortex-red"
     },
     {
+      title: "Developmental Programs",
+      description: "Age-appropriate progressions for building foundational skills, coordination, and confidence. Structured development paths for young athletes.",
+      features: ["Age-Appropriate", "Foundational Skills", "Structured Progressions"],
+      icon: GraduationCap,
+      color: "bg-teal-600"
+    },
+    {
+      title: "Ninja Athlete",
+      description: "Dynamic movement, legitimate physical training, and difficult obstacles. Build agility, strength, and confidence through challenging ninja-style courses and progressions.",
+      features: ["Dynamic Movement", "Physical Training", "Difficult Obstacles"],
+      icon: Activity,
+      color: "bg-amber-600"
+    },
+    {
       title: "Athleticism Accelerator",
-      description: "Recreational classes focused on building foundational athleticism and body control through gymnastics, acrobatics, plyometrics, and speed & agility training.",
+      description: "Classes focused on building foundational athleticism and body control through gymnastics, acrobatics, plyometrics, and speed & agility training.",
       features: ["8 Core Tenets", "Cross-Training", "Body Control"],
-      icon: Dumbbell,
+      icon: Zap,
       color: "bg-blue-600"
+    },
+    {
+      title: "Strength & Fitness",
+      description: "Learn basic form, focus on specific muscle groups, Olympic lifts, functional fitness, and calisthenics. Structured programming for lasting strength and conditioning.",
+      features: ["Basic Form", "Olympic Lifts", "Functional Fitness", "Calisthenics"],
+      icon: Dumbbell,
+      color: "bg-slate-600"
     },
     {
       title: "Daytime Programs",
@@ -36,7 +57,7 @@ const Programs = () => {
 
 
   return (
-    <section id="programs" className="section-padding bg-gray-50">
+    <section id="programs" className="section-padding bg-gray-200 border-t border-b border-gray-300">
       <div className="container-custom">
         <motion.div
           className="text-center mb-16"
@@ -100,6 +121,11 @@ const Programs = () => {
                   </Link>
                 ) : program.title === "Competition Programs" ? (
                   <Link to="/trampoline-tumbling">
+                    {Content}
+                    {Features}
+                  </Link>
+                ) : program.title === "Ninja Athlete" ? (
+                  <Link to="/ninja">
                     {Content}
                     {Features}
                   </Link>

@@ -183,19 +183,21 @@ const Footer = ({ onContactClick, onLoginClick, onMemberLoginClick }: FooterProp
         >
           <div className="text-center">
             <h3 className="text-2xl font-display font-bold mb-4">
-              Ready to Transform?
+              Ready to Perform?
             </h3>
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Join the waitlist and be the first to experience the future of athletic development.
+              Experience the future of athletic development.
             </p>
-            <motion.button
-              onClick={onContactClick}
-              className="btn-primary"
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block btn-primary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Stay Informed
-            </motion.button>
+              Enroll now
+            </motion.a>
           </div>
         </motion.div>
 
