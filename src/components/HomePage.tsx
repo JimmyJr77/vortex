@@ -461,7 +461,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
                 <span>4961 Tesla Dr, Ste E, Bowie, MD 20715</span>
               </div>
               <a 
-                href="https://maps.google.com/?q=4961+Tesla+Dr+Ste+E+Bowie+MD+20715"
+                href="https://www.google.com/maps/place/Vortex+Athletics+and+Gymnastics/@38.9529792,-76.7165051,14z/data=!4m6!3m5!1s0x89b7ed0013e38567:0xd3ce87a1d2da30a5!8m2!3d38.9564345!4d-76.7076355!16s%2Fg%2F11mrrvn3bt?hl=en&entry=ttu"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-vortex-red hover:text-red-400 font-semibold transition-colors text-lg underline"
