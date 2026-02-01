@@ -7,11 +7,17 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-}
+  }
 
-body {
+  body {
     @apply font-sans text-gray-900 bg-white;
-}
+  }
+
+  /* Root needs non-static position for Framer Motion useScroll; full height so content is visible */
+  #root {
+    position: relative;
+    min-height: 100%;
+  }
 }
 
 @layer components {

@@ -7,7 +7,7 @@ export default function ParallaxGym() {
   const [selectedActivity, setSelectedActivity] = useState(0)
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start end', 'end start']
+    offset: ['start end', 'end start'],
   })
 
   const y1 = useTransform(scrollYProgress, [0, 1], ['-20%', '20%'])

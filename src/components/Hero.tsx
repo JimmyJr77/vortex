@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, X } from 'lucide-react'
+import { Zap, X, Play } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
@@ -10,6 +10,7 @@ const Hero = () => {
   const [touchEnd, setTouchEnd] = useState(0)
   const [isGymnasticsModalOpen, setIsGymnasticsModalOpen] = useState(false)
   const [showBanner, setShowBanner] = useState(false)
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
 
   useEffect(() => {
     // Check if popup has been seen and banner hasn't been dismissed
@@ -170,10 +171,12 @@ const Hero = () => {
     <>
       {/* Desktop: Full screen section with everything overlaid on video */}
       <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
-        {/* Video Background */}
+        {/* Background: image by default; video on Play Video click */}
         <HeroBackgroundVideo
           videoFileName="short_hero.mp4"
-          posterFileName="landing_page_hero.png"
+          posterFileName="main_hero_bg.png"
+          imageOnly
+          playRequested={isVideoPlaying}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={handleVideoReady}
@@ -290,7 +293,7 @@ const Hero = () => {
 
             {/* CTA Buttons */}
             <motion.div
-              className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8"
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-8 flex-wrap"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
@@ -323,6 +326,19 @@ const Hero = () => {
               >
                 Gymnastics Disciplines
               </motion.button>
+
+              {!isVideoPlaying && (
+                <motion.button
+                  onClick={() => setIsVideoPlaying(true)}
+                  className="inline-flex items-center gap-2 border-2 border-white bg-transparent text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-white/10 hover:scale-105"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  aria-label="Play video"
+                >
+                  <Play className="w-5 h-5 fill-white" />
+                  Play Video
+                </motion.button>
+              )}
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -366,10 +382,12 @@ const Hero = () => {
 
       {/* Mobile: Video section with rotator only */}
       <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
-        {/* Video Background */}
+        {/* Background: image by default; video on Play Video click */}
         <HeroBackgroundVideo
           videoFileName="short_hero.mp4"
-          posterFileName="landing_page_hero.png"
+          posterFileName="main_hero_bg.png"
+          imageOnly
+          playRequested={isVideoPlaying}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={handleVideoReady}
@@ -498,6 +516,19 @@ const Hero = () => {
               >
                 Gymnastics Disciplines
               </motion.button>
+
+              {!isVideoPlaying && (
+                <motion.button
+                  onClick={() => setIsVideoPlaying(true)}
+                  className="w-full max-w-xs inline-flex items-center justify-center gap-2 border-2 border-white bg-transparent text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-white/10 hover:scale-105"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  aria-label="Play video"
+                >
+                  <Play className="w-5 h-5 fill-white" />
+                  Play Video
+                </motion.button>
+              )}
             </motion.div>
 
             {/* Scroll Indicator */}

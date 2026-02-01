@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { 
   ArrowRight, 
   Target, 
@@ -9,7 +10,8 @@ import {
   Zap,
   CheckCircle,
   Trophy,
-  Activity
+  Activity,
+  Play
 } from 'lucide-react'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
@@ -19,6 +21,7 @@ interface ArtisticGymnasticsProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ArtisticGymnastics = ({ onSignUpClick: _onSignUpClick }: ArtisticGymnasticsProps) => {
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const tenets = [
     { name: 'Strength', description: 'Ability to exert force against resistance.' },
     { name: 'Explosiveness', description: 'Exert maximal force in minimal time.' },
@@ -62,10 +65,12 @@ const ArtisticGymnastics = ({ onSignUpClick: _onSignUpClick }: ArtisticGymnastic
     <div className="min-h-screen bg-white">
       {/* Desktop: Full screen section with everything overlaid */}
       <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
-        {/* Video Background */}
+        {/* Background: image by default; video on Play Video click */}
         <HeroBackgroundVideo
           videoFileName="artistic_gymnastics.mp4"
-          posterFileName="landing_page_hero.png"
+          posterFileName="main_hero_bg.png"
+          imageOnly
+          playRequested={isVideoPlaying}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={() => {
@@ -162,6 +167,19 @@ const ArtisticGymnastics = ({ onSignUpClick: _onSignUpClick }: ArtisticGymnastic
                 >
                   Join the Team
                 </motion.a>
+
+                {!isVideoPlaying && (
+                  <motion.button
+                    onClick={() => setIsVideoPlaying(true)}
+                    className="inline-flex items-center gap-2 border-2 border-white bg-transparent text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-white/10 hover:scale-105"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Play video"
+                  >
+                    <Play className="w-5 h-5 fill-white" />
+                    Play Video
+                  </motion.button>
+                )}
               </div>
 
               {/* Scroll Indicator */}
@@ -185,10 +203,12 @@ const ArtisticGymnastics = ({ onSignUpClick: _onSignUpClick }: ArtisticGymnastic
 
       {/* Mobile: Hero section with title only */}
       <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
-        {/* Video Background */}
+        {/* Background: image by default; video on Play Video click */}
         <HeroBackgroundVideo
           videoFileName="artistic_gymnastics.mp4"
-          posterFileName="landing_page_hero.png"
+          posterFileName="main_hero_bg.png"
+          imageOnly
+          playRequested={isVideoPlaying}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={() => {

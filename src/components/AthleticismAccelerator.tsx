@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { Zap, Target, TrendingUp, Shield, Users, ArrowRight, CheckCircle } from 'lucide-react'
+import { useState } from 'react'
+import { Zap, Target, TrendingUp, Shield, Users, ArrowRight, CheckCircle, Play } from 'lucide-react'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
 interface AthleticismAcceleratorProps {
@@ -8,7 +9,7 @@ interface AthleticismAcceleratorProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAcceleratorProps) => {
-
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const tenets = [
     { 
       name: 'Strength', 
@@ -82,10 +83,12 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
     <div className="min-h-screen bg-white">
       {/* Desktop: Full screen section with everything overlaid on video */}
       <section className="hidden md:block relative min-h-screen w-full overflow-hidden pt-20" style={{ backgroundColor: 'transparent' }}>
-        {/* Video Element - Bottom layer */}
+        {/* Background: image by default; video on Play Video click */}
         <HeroBackgroundVideo
           videoFileName="vald_sprints.mp4"
-          posterFileName="landing_page_hero.png"
+          posterFileName="main_hero_bg.png"
+          imageOnly
+          playRequested={isVideoPlaying}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/40 z-[1] pointer-events-none"
           onVideoReady={() => {
@@ -155,6 +158,19 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
                 >
                   Book an Assessment
                 </motion.a>
+
+                {!isVideoPlaying && (
+                  <motion.button
+                    onClick={() => setIsVideoPlaying(true)}
+                    className="inline-flex items-center gap-2 border-2 border-white bg-transparent text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-white/10 hover:scale-105"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Play video"
+                  >
+                    <Play className="w-5 h-5 fill-white" />
+                    Play Video
+                  </motion.button>
+                )}
               </div>
 
               {/* Scroll Indicator */}
@@ -178,10 +194,12 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
 
       {/* Mobile: Video section with title only */}
       <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
-        {/* Video Background */}
+        {/* Background: image by default; video on Play Video click */}
         <HeroBackgroundVideo
           videoFileName="vald_sprints.mp4"
-          posterFileName="landing_page_hero.png"
+          posterFileName="main_hero_bg.png"
+          imageOnly
+          playRequested={isVideoPlaying}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={() => {

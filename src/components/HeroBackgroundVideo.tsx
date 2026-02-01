@@ -5,6 +5,10 @@ interface HeroBackgroundVideoProps {
   posterFileName?: string
   className?: string
   overlayClassName?: string
+  /** When true, show only poster until playRequested is true; then load and play video. */
+  imageOnly?: boolean
+  /** When true (and imageOnly), load and play the video. */
+  playRequested?: boolean
   onVideoReady?: () => void
   onVideoError?: (error: Error) => void
 }
@@ -25,15 +29,25 @@ const HeroBackgroundVideo = ({
   posterFileName,
   className = '',
   overlayClassName = 'absolute inset-0 bg-black/50 z-[1] pointer-events-none',
+  imageOnly = false,
+  playRequested = false,
   onVideoReady,
   onVideoError,
 }: HeroBackgroundVideoProps) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const isMountedRef = useRef(true)
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const [posterError, setPosterError] = useState(false)
   const [usePublicFolder, setUsePublicFolder] = useState(false)
+
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   // Get CDN base URL - use public folder for localhost (CDN often doesn't resolve locally)
   const getCdnBaseUrl = (): string => {
@@ -60,8 +74,16 @@ const HeroBackgroundVideo = ({
     return { videoUrl: vUrl, posterUrl: pUrl }
   }, [videoFileName, posterFileName, usePublicFolder])
 
-  // Client-side gating: Check if we should load video
+  // When imageOnly + playRequested, load video on demand
   useEffect(() => {
+    if (imageOnly && playRequested) {
+      setShouldLoadVideo(true)
+    }
+  }, [imageOnly, playRequested])
+
+  // Client-side gating: Check if we should load video (only when not imageOnly)
+  useEffect(() => {
+    if (imageOnly) return
     // Only run on client
     if (typeof window === 'undefined') return
 
@@ -95,7 +117,7 @@ const HeroBackgroundVideo = ({
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && isMountedRef.current) {
             setShouldLoadVideo(true)
             observer.disconnect()
           }
@@ -112,7 +134,7 @@ const HeroBackgroundVideo = ({
     return () => {
       observer.disconnect()
     }
-  }, [])
+  }, [imageOnly])
 
   // Load video when shouldLoadVideo becomes true or when falling back to public folder
   useEffect(() => {
@@ -128,10 +150,10 @@ const HeroBackgroundVideo = ({
       video.load() // Trigger video load
     }
 
-    // Handle video events
+    // Handle video events (guard against updates after unmount)
     const handleLoadedData = () => {
-      // Fade in video after a short delay
       setTimeout(() => {
+        if (!isMountedRef.current) return
         setShowVideo(true)
         if (!hasCalledReady) {
           hasCalledReady = true
@@ -155,6 +177,7 @@ const HeroBackgroundVideo = ({
     }
 
     const handleError = (_e: Event) => {
+      if (!isMountedRef.current) return
       const error = new Error(`Video loading failed: ${video.error?.message || 'Unknown error'}`)
       console.error('HeroBackgroundVideo error:', error)
       
