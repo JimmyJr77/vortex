@@ -62,15 +62,11 @@ const HeroBackgroundVideo = ({
     return ''
   }
 
-  // Memoize URL calculations - use public folder if CDN failed or we're on localhost
+  // Poster always from app origin (public folder / deployed static assets). Video may use CDN in production.
   const { videoUrl, posterUrl } = useMemo(() => {
-    const base = usePublicFolder ? '' : getCdnBaseUrl()
-    const vUrl = base ? `${base}/${videoFileName}` : `/${videoFileName}`
-    const pUrl = posterFileName
-      ? base
-        ? `${base}/${posterFileName}`
-        : `/${posterFileName}`
-      : undefined
+    const videoBase = usePublicFolder ? '' : getCdnBaseUrl()
+    const vUrl = videoBase ? `${videoBase}/${videoFileName}` : `/${videoFileName}`
+    const pUrl = posterFileName ? `/${posterFileName}` : undefined
     return { videoUrl: vUrl, posterUrl: pUrl }
   }, [videoFileName, posterFileName, usePublicFolder])
 
