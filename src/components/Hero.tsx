@@ -11,7 +11,6 @@ const Hero = () => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
-  const [isGymnasticsModalOpen, setIsGymnasticsModalOpen] = useState(false)
   const [showBanner, setShowBanner] = useState(false)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
 
@@ -324,14 +323,15 @@ const Hero = () => {
                 </motion.button>
               </Link>
               
-              <motion.button
-                onClick={() => setIsGymnasticsModalOpen(true)}
-                className="btn-secondary group"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Gymnastics Disciplines
-              </motion.button>
+              <Link to="/gymnastics">
+                <motion.button
+                  className="btn-secondary group"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Gymnastics
+                </motion.button>
+              </Link>
 
               {!isVideoPlaying && (
                 <motion.button
@@ -518,14 +518,15 @@ const Hero = () => {
                 </motion.button>
               </Link>
               
-              <motion.button
-                onClick={() => setIsGymnasticsModalOpen(true)}
-                className="btn-secondary group w-full max-w-xs"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Gymnastics Disciplines
-              </motion.button>
+              <Link to="/gymnastics" className="w-full max-w-xs">
+                <motion.button
+                  className="btn-secondary group w-full"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Gymnastics
+                </motion.button>
+              </Link>
 
               {!isVideoPlaying && (
                 <motion.button
@@ -581,81 +582,6 @@ const Hero = () => {
       </section>
 
 
-      {/* Gymnastics Modal */}
-      <AnimatePresence>
-        {isGymnasticsModalOpen && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            {/* Backdrop */}
-            <motion.div
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsGymnasticsModalOpen(false)}
-            />
-
-            {/* Modal Content */}
-            <motion.div
-              className="relative bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl"
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", duration: 0.5 }}
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setIsGymnasticsModalOpen(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              {/* Modal Title */}
-              <h3 className="text-2xl font-display font-bold text-black mb-6 text-center">
-                Choose a Gymnastics Program
-              </h3>
-
-              {/* Options */}
-              <div>
-                <Link to="/artistic-gymnastics" onClick={() => setIsGymnasticsModalOpen(false)} className="block mb-5">
-                  <motion.button
-                    className="w-full btn-secondary text-left px-6 py-4"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Artistic Gymnastics
-                  </motion.button>
-                </Link>
-                
-                <Link to="/trampoline-tumbling" onClick={() => setIsGymnasticsModalOpen(false)} className="block mb-5">
-                  <motion.button
-                    className="w-full btn-secondary text-left px-6 py-4"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Trampoline & Tumbling
-                  </motion.button>
-                </Link>
-                
-                <Link to="/rhythmic-gymnastics" onClick={() => setIsGymnasticsModalOpen(false)} className="block">
-                  <motion.button
-                    className="w-full btn-secondary text-left px-6 py-4"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Rhythmic Gymnastics
-                  </motion.button>
-                </Link>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   )
 }

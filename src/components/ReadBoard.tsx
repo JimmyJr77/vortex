@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, Users, Award, Trophy, Zap, CheckCircle, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import { parseDateOnly, formatDateForDisplay } from '../utils/dateUtils'
 
@@ -64,11 +65,19 @@ type TabType = 'classes' | 'schedule' | 'calendar'
 type ScheduleView = 'day' | 'class'
 
 const ReadBoard = () => {
+  const location = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedMonth, setSelectedMonth] = useState(0) // 0 = January, 11 = December
   const [activeTab, setActiveTab] = useState<TabType>('classes')
   const [scheduleView, setScheduleView] = useState<ScheduleView>('day')
   const [eventView, setEventView] = useState<'upcoming' | 'past'>('upcoming') // Toggle between past and upcoming events
+
+  // Open Schedule tab when navigating to /read-board#schedule
+  useEffect(() => {
+    if (location.hash === '#schedule') {
+      setActiveTab('schedule')
+    }
+  }, [location.hash])
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',

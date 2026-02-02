@@ -16,10 +16,8 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
 
   const menuItems = [
     { name: 'Athleticism Accelerator', to: '/athleticism-accelerator' },
-    { name: 'Tramp & Tumble', to: '/trampoline-tumbling' },
-    { name: 'Artistic Gymnastics', to: '/artistic-gymnastics' },
-    { name: 'Rhythmic Gymnastics', to: '/rhythmic-gymnastics' },
-    { name: 'Ninja and Fitness', to: '/ninja' },
+    { name: 'Gymnastics', to: '/gymnastics' },
+    { name: 'Ninja Athlete & Fitness', to: '/ninja' },
   ]
 
   return (

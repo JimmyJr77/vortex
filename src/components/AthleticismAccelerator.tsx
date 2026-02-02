@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Zap, Target, TrendingUp, Shield, Users, ArrowRight, Play } from 'lucide-react'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
@@ -124,22 +125,18 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
                   href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-vortex-red text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
+                  className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className="relative z-10 flex items-center space-x-2">
-                    <span>Join the Accelerator</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                  </span>
-                  <motion.div
-                    className="absolute inset-0 bg-white/20"
-                    initial={{ x: '-100%' }}
-                    whileHover={{ x: '100%' }}
-                    transition={{ duration: 0.6 }}
-                  />
+                  Join the Accelerator
                 </motion.a>
-
+                <Link
+                  to="/read-board#schedule"
+                  className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
+                >
+                  View Class Schedule
+                </Link>
                 {!isVideoPlaying && (
                   <motion.button
                     onClick={() => setIsVideoPlaying(true)}
@@ -229,13 +226,18 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
                 href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
+                className="inline-flex items-center justify-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105 w-full max-w-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span>Join the Accelerator</span>
-                <ArrowRight className="w-5 h-5" />
+                Join the Accelerator
               </motion.a>
+              <Link
+                to="/read-board#schedule"
+                className="inline-flex items-center justify-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105 w-full max-w-xs"
+              >
+                View Class Schedule
+              </Link>
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -291,7 +293,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
             </h3>
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
               Whether your athlete is in Trampoline & Tumbling, Artistic Gymnastics, Rhythmic Gymnastics, 
-              or our recreational classes, the Athleticism Accelerator principles are woven throughout their 
+              or our developmental classes, the Athleticism Accelerator principles are woven throughout their 
               training. We ensure a holistic approach to athletic development – building strength while 
               training flexibility, developing speed while enhancing balance. No athlete leaves with 
               weak links in their athletic chain.
@@ -598,16 +600,24 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
               JOIN THE <span className="text-vortex-red">ACCELERATOR</span>
             </h2>
 
-            <motion.a
-              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105 shadow-2xl"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Get Started Today
-            </motion.a>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <motion.a
+                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Get Started Today
+              </motion.a>
+              <Link
+                to="/read-board#schedule"
+                className="inline-block border-2 border-vortex-red bg-transparent text-vortex-red px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
+              >
+                View Class Schedules
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>

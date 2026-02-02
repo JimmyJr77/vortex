@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { MapPin, Target, Brain, Info } from 'lucide-react'
+import { MapPin, Target, Brain, Info, Shield } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
 import About from './About'
@@ -35,7 +35,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
     },
     {
       question: 'What programs do you offer?',
-      answer: 'We offer competitive teams in Trampoline & Tumbling, Artistic Gymnastics, and Rhythmic Gymnastics, plus our Athleticism Accelerator program for cross-sport development, recreational classes, and private coaching.'
+      answer: 'We offer competitive teams in Trampoline & Tumbling, Artistic Gymnastics, and Rhythmic Gymnastics, plus our Athleticism Accelerator program for cross-sport development, developmental classes, and private coaching.'
     },
     {
       question: 'What is the "Fail your way to success" mindset?',
@@ -469,6 +469,50 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       </section>
 
       <Technology />
+
+      {/* Safety & Coaching Excellence */}
+      <section className="section-padding bg-gray-50">
+        <div className="container-custom">
+          <motion.div
+            className="max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <Shield className="w-12 h-12 text-vortex-red flex-shrink-0" />
+              <div>
+                <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-6">
+                  Safety & Coaching <span className="text-vortex-red">Excellence</span>
+                </h2>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-8 md:p-12 border-2 border-gray-200">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-bold text-black mb-3">Certified Excellence</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Our coaches are certified and trained in biomechanics, safe progressions, and youth development. They understand the science behind movement and how to keep athletes safe while pushing boundaries.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-black mb-3">Long-Term Body Care</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Warm-ups and cool-downs are designed around joint health and long-term athletic development. We prioritize consistency and form over difficulty, ensuring your athlete develops sustainably.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-black mb-3">Progressive Safety</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Every skill builds on the last. We don&apos;t rush progressions or skip steps — athletes master each level before advancing, reducing injury risk and building true competence.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Technology & Mindset Section */}
       <section className="section-padding bg-white">

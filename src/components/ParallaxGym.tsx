@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useRef, useState } from 'react'
-import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, Play, Shield, ChevronLeft, ChevronRight, Building2, Scale } from 'lucide-react'
+import { Activity, Zap, Gauge, Wind, Flame, Dumbbell, Play, Shield, ChevronLeft, ChevronRight, Building2, Scale, Footprints } from 'lucide-react'
 
 export default function ParallaxGym() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -34,7 +34,7 @@ export default function ParallaxGym() {
     { icon: Activity, name: 'Gymnastics' },
     { icon: Zap, name: 'Trampoline' },
     { icon: Zap, name: 'Tumbling & Flips' },
-    { icon: Shield, name: 'Ninja Training' },
+    { icon: Footprints, name: 'Ninja Training' },
     { icon: Flame, name: 'Plyometrics' },
     { icon: Wind, name: 'Speed Work' },
     { icon: Gauge, name: 'Agility Drills' },

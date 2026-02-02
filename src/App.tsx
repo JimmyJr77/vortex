@@ -6,6 +6,7 @@ import AthleticismAccelerator from './components/AthleticismAccelerator'
 import TrampolineTumbling from './components/TrampolineTumbling'
 import ArtisticGymnastics from './components/ArtisticGymnastics'
 import RhythmicGymnastics from './components/RhythmicGymnastics'
+import Gymnastics from './components/Gymnastics'
 import Ninja from './components/Ninja'
 import Value from './components/Value'
 import ReadBoard from './components/ReadBoard'
@@ -149,6 +150,10 @@ function App() {
         <Route 
           path="/rhythmic-gymnastics" 
           element={<RhythmicGymnastics onSignUpClick={handleContactClick} />} 
+        />
+        <Route 
+          path="/gymnastics" 
+          element={<Gymnastics onSignUpClick={handleContactClick} />} 
         />
         <Route 
           path="/ninja" 

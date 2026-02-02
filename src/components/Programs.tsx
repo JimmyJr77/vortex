@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Clock, Users, Target, Dumbbell, DollarSign, BarChart3, Zap, CheckCircle, Activity } from 'lucide-react'
+import { Clock, Users, Target, Dumbbell, DollarSign, BarChart3, Zap, CheckCircle, Footprints } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const Programs = () => {
@@ -19,7 +19,7 @@ const Programs = () => {
     {
       title: "Ninja Athlete",
       description: "Dynamic movement, legitimate physical training, and difficult obstacles. Build agility, strength, and confidence through challenging ninja-style courses and progressions.",
-      icon: Activity,
+      icon: Footprints,
       color: "bg-amber-600"
     },
     {
@@ -99,7 +99,7 @@ const Programs = () => {
                     {Content}
                   </Link>
                 ) : program.title === "Competitive Gymnastics" ? (
-                  <Link to="/trampoline-tumbling">
+                  <Link to="/gymnastics">
                     {Content}
                   </Link>
                 ) : program.title === "Ninja Athlete" ? (
