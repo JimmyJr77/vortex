@@ -65,7 +65,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
   // YouTube embed needs the channel's *uploads playlist ID* (starts with UU), not the handle.
   // How to get it: YouTube Studio → Settings → Channel → Advanced → copy "Channel ID" (UC...).
   // Replace the first two letters UC with UU and paste below (e.g. UCabc123 → UUabc123).
-  const youtubeUploadsPlaylistId = 'UU_YOUR_CHANNEL_UPLOADS_ID' // e.g. UU9CuvdOVfMPvKCiwdGKL3cQ
+  const youtubeUploadsPlaylistId = 'UUmKOL4DZ6EzdwH_TQ3yPikw' // UC → UU for uploads playlist
   const videoLibrary = [
     {
       id: 'youtube',
