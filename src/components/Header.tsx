@@ -23,13 +23,7 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
   ]
 
   return (
-    <motion.header 
-      className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm"
-      style={{ position: 'fixed' }}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6 }}
-    >
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm header-slide-in">
       <div className="container-custom">
         {/* Mobile Layout: Logo on top, buttons below */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between py-4 md:py-0 md:h-20">
@@ -177,7 +171,7 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
           </div>
         </motion.nav>
       </div>
-    </motion.header>
+    </header>
   )
 }
 

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MapPin, Target, Brain } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
@@ -82,8 +82,8 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       description:
         'Curated Instagram reels showing form, flexibility, and competitive glimpses.',
       link: 'https://www.instagram.com/vortexathletics.usa/',
-      // Post embed: paste a Post URL (Post → ⋮ → Embed → copy link). Replace with your post.
-      reelUrl: 'https://www.instagram.com/p/DTs3e-YjoEx6yHTnpmrHPBQou0HpgsOS9cicMM0/'
+      reelUrl: 'https://www.instagram.com/reel/DTs3e-YjoEx6yHTnpmrHPBQou0HpgsOS9cicMM0/',
+      disabled: true // Grey out until embed works
     },
     {
       id: 'tiktok',
@@ -96,6 +96,26 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
     }
   ]
   const [selectedVideo, setSelectedVideo] = useState(videoLibrary[0])
+
+  // Instagram: load embed.js once and process blockquotes when Instagram is selected (direct embed, no sandbox iframe)
+  useEffect(() => {
+    if (selectedVideo.id !== 'instagram' || !('reelUrl' in selectedVideo) || !selectedVideo.reelUrl) return
+    const run = () => {
+      if (typeof window !== 'undefined' && (window as any).instgrm?.Embeds?.process) {
+        (window as any).instgrm.Embeds.process()
+      }
+    }
+    const existing = document.querySelector('script[src="https://www.instagram.com/embed.js"]')
+    if (!existing) {
+      const script = document.createElement('script')
+      script.src = 'https://www.instagram.com/embed.js'
+      script.async = true
+      document.body.appendChild(script)
+      script.onload = run
+    } else {
+      run()
+    }
+  }, [selectedVideo])
 
   // handleSignUp removed - buttons now link directly to enrollment URL
 
@@ -219,12 +239,18 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
                     allowFullScreen
                   />
                 ) : 'reelUrl' in selectedVideo && selectedVideo.reelUrl ? (
-                  <iframe
-                    className="absolute inset-0 w-full h-full border-0 bg-black/80"
-                    title="Instagram embed"
-                    sandbox="allow-scripts allow-same-origin allow-popups"
-                    srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100%;background:#1a1a1a"><blockquote class="instagram-media" data-instgrm-permalink="${String(selectedVideo.reelUrl).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" data-instgrm-version="14"><a href="${String(selectedVideo.reelUrl).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">View on Instagram</a></blockquote><script async src="https://platform.instagram.com/en_US/embeds.js"><` + `/script></body></html>`}
-                  />
+                  <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/80 overflow-auto p-4">
+                    <blockquote
+                      className="instagram-media"
+                      data-instgrm-permalink={selectedVideo.reelUrl}
+                      data-instgrm-version="14"
+                      style={{ margin: '0 auto', maxWidth: 540, width: '100%' }}
+                    >
+                      <a href={selectedVideo.reelUrl} target="_blank" rel="noopener noreferrer">
+                        View on Instagram
+                      </a>
+                    </blockquote>
+                  </div>
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center px-8 py-6 text-center text-white">
                     <p className="text-xl font-semibold mb-4">Watch this video on {selectedVideo.platform}</p>
