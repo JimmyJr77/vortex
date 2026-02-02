@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { MapPin, Target, Brain, Info, Shield } from 'lucide-react'
+import { MapPin, Target, Info, Shield } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
 import About from './About'
@@ -451,7 +451,51 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       <Technology />
 
       {/* Safety & Coaching Excellence */}
-      <section className="section-padding bg-gray-50">
+      <section className="section-padding bg-vortex-red">
+        <div className="container-custom">
+          <motion.div
+            className="mx-auto max-w-4xl rounded-3xl border-2 border-gray-200 bg-white p-8 shadow-lg md:p-12"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <div className="flex items-start gap-4 mb-6">
+              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-vortex-red">
+                <Shield className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-display font-bold text-black md:text-4xl mb-2">
+                  Safety & Coaching <span className="text-vortex-red">Excellence</span>
+                </h2>
+              </div>
+            </div>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-xl font-bold text-black mb-3">Certified Excellence</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  Our coaches are certified and trained in biomechanics, safe progressions, and youth development. They understand the science behind movement and how to keep athletes safe while pushing boundaries.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-black mb-3">Long-Term Body Care</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  Warm-ups and cool-downs are designed around joint health and long-term athletic development. We prioritize consistency and form over difficulty, ensuring your athlete develops sustainably.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-black mb-3">Progressive Safety</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  Every skill builds on the last. We don&apos;t rush progressions or skip steps — athletes master each level before advancing, reducing injury risk and building true competence.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Fail Your Way to Success — quote on white background, no card */}
+      <section className="section-padding bg-white">
         <div className="container-custom">
           <motion.div
             className="max-w-4xl mx-auto"
@@ -460,65 +504,23 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <div className="flex items-start space-x-4 mb-6">
-              <Shield className="w-12 h-12 text-vortex-red flex-shrink-0" />
-              <div>
-                <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-6">
-                  Safety & Coaching <span className="text-vortex-red">Excellence</span>
-                </h2>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl p-8 md:p-12 border-2 border-gray-200">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-xl font-bold text-black mb-3">Certified Excellence</h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    Our coaches are certified and trained in biomechanics, safe progressions, and youth development. They understand the science behind movement and how to keep athletes safe while pushing boundaries.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-black mb-3">Long-Term Body Care</h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    Warm-ups and cool-downs are designed around joint health and long-term athletic development. We prioritize consistency and form over difficulty, ensuring your athlete develops sustainably.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-black mb-3">Progressive Safety</h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    Every skill builds on the last. We don&apos;t rush progressions or skip steps — athletes master each level before advancing, reducing injury risk and building true competence.
-                  </p>
-                </div>
-              </div>
+            <h3 className="text-2xl font-display font-bold text-black mb-6">
+              &ldquo;Fail Your Way to Success&rdquo;
+            </h3>
+            <p className="text-gray-700 text-lg leading-relaxed">
+              We teach children to find fun in overcoming adversity and achieving success through
+              a competitive edge. Our athletes are simultaneously pushed and cared for.
+            </p>
+
+            <div className="mt-12 pt-12 border-t border-gray-200">
+              <h3 className="text-2xl font-display font-bold text-black mb-4">
+                &ldquo;It&apos;s okay to lose. It&apos;s not okay to be okay with losing.&rdquo;
+              </h3>
+              <p className="text-gray-700 text-lg leading-relaxed">
+                Losing is part of growth—we accept it as feedback, not as fate. What we don&apos;t accept is settling. Our athletes learn to use every loss as fuel to get better, not as permission to stop caring.
+              </p>
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Technology & Mindset Section */}
-      <section className="section-padding bg-white">
-        <div className="container-custom">
-          {/* Fail Your Way to Success mindset card */}
-          <motion.div
-              className="bg-vortex-red rounded-2xl p-8 md:p-12 border-2 border-black/20 mb-12"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <div className="flex items-center space-x-3 mb-6">
-                <Brain className="w-8 h-8 text-white" />
-                <h3 className="text-3xl font-display font-bold text-white">
-                  "Fail Your Way to Success"
-                </h3>
-              </div>
-              <p className="text-white mb-6 text-lg leading-relaxed">
-                We teach children to find fun in overcoming adversity and achieving success through 
-                a competitive edge. Our athletes are simultaneously pushed and cared for.
-              </p>
-              <p className="text-white text-lg leading-relaxed">
-                This mindset cultivates resilience that fuels excellence in every aspect of life.
-              </p>
-            </motion.div>
         </div>
       </section>
 

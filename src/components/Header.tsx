@@ -63,14 +63,14 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
               Inquire
             </motion.button>
 
-            {/* Read Board Button */}
+            {/* Classes & Events Button */}
             <Link to="/read-board" className="flex-1 md:flex-none min-w-[80px] md:min-w-0">
               <motion.button
                 className="bg-white text-black px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg w-full"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Read Board
+                Classes & Events
               </motion.button>
             </Link>
 
