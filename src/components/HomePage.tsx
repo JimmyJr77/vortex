@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { MapPin, Target, Brain } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
@@ -76,14 +76,6 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       link: 'https://www.youtube.com/@VortexAthleticsUSA'
     },
     {
-      id: 'tiktok',
-      platform: 'TikTok',
-      title: 'Daily Training Snippets',
-      description:
-        'Short-form workouts, mindset cues, and progress reels coming soon to TikTok.',
-      link: 'https://www.tiktok.com/@vortexathleticsusa'
-    },
-    {
       id: 'instagram',
       platform: 'Instagram',
       title: 'Reels of Athleticism',
@@ -92,35 +84,18 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       link: 'https://www.instagram.com/vortexathletics.usa/',
       // Post embed: paste a Post URL (Post → ⋮ → Embed → copy link). Replace with your post.
       reelUrl: 'https://www.instagram.com/p/DTs3e-YjoEx6yHTnpmrHPBQou0HpgsOS9cicMM0/'
+    },
+    {
+      id: 'tiktok',
+      platform: 'TikTok',
+      title: 'Daily Training Snippets',
+      description:
+        'Short-form workouts, mindset cues, and progress reels coming soon to TikTok.',
+      link: 'https://www.tiktok.com/@vortexathleticsusa',
+      disabled: true // No account yet; grey out until available
     }
   ]
   const [selectedVideo, setSelectedVideo] = useState(videoLibrary[0])
-  const instagramEmbedRef = useRef<HTMLDivElement>(null)
-
-  // Load Instagram embed script and process blockquotes when Instagram (post/reel) is shown
-  useEffect(() => {
-    if (selectedVideo.id !== 'instagram' || !('reelUrl' in selectedVideo) || !selectedVideo.reelUrl) return
-
-    const run = () => {
-      if (typeof window !== 'undefined' && (window as any).instgrm?.Embeds?.process) {
-        (window as any).instgrm.Embeds.process()
-      }
-    }
-
-    if ((window as any).instgrm) {
-      run()
-      return
-    }
-
-    const script = document.createElement('script')
-    script.async = true
-    script.src = 'https://platform.instagram.com/en_US/embeds.js'
-    script.onload = run
-    document.body.appendChild(script)
-    return () => {
-      script.remove()
-    }
-  }, [selectedVideo])
 
   // handleSignUp removed - buttons now link directly to enrollment URL
 
@@ -244,20 +219,12 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
                     allowFullScreen
                   />
                 ) : 'reelUrl' in selectedVideo && selectedVideo.reelUrl ? (
-                  <div
-                    ref={instagramEmbedRef}
-                    className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/80 overflow-auto p-4"
-                  >
-                    <blockquote
-                      className="instagram-media min-w-0 max-w-full"
-                      data-instgrm-permalink={selectedVideo.reelUrl}
-                      data-instgrm-version="14"
-                    >
-                      <a href={selectedVideo.reelUrl} target="_blank" rel="noopener noreferrer">
-                        View on Instagram
-                      </a>
-                    </blockquote>
-                  </div>
+                  <iframe
+                    className="absolute inset-0 w-full h-full border-0 bg-black/80"
+                    title="Instagram embed"
+                    sandbox="allow-scripts allow-same-origin allow-popups"
+                    srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100%;background:#1a1a1a"><blockquote class="instagram-media" data-instgrm-permalink="${String(selectedVideo.reelUrl).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" data-instgrm-version="14"><a href="${String(selectedVideo.reelUrl).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">View on Instagram</a></blockquote><script async src="https://platform.instagram.com/en_US/embeds.js"><` + `/script></body></html>`}
+                  />
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center px-8 py-6 text-center text-white">
                     <p className="text-xl font-semibold mb-4">Watch this video on {selectedVideo.platform}</p>
@@ -303,14 +270,19 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
             >
               {videoLibrary.map((video) => {
                 const selected = selectedVideo.id === video.id
+                const disabled = 'disabled' in video && video.disabled
                 return (
                   <button
                     key={video.id}
-                    onClick={() => setSelectedVideo(video)}
+                    type="button"
+                    onClick={() => !disabled && setSelectedVideo(video)}
+                    disabled={disabled}
                     className={`flex w-full flex-col rounded-2xl px-6 py-5 text-left transition ${
-                      selected
-                        ? 'bg-white border border-vortex-red text-black shadow-xl -translate-x-1'
-                        : 'bg-white border border-gray-200 shadow-lg hover:translate-y-[-2px]'
+                      disabled
+                        ? 'cursor-not-allowed bg-gray-100 border border-gray-200 text-gray-400 opacity-75'
+                        : selected
+                          ? 'bg-white border border-vortex-red text-black shadow-xl -translate-x-1'
+                          : 'bg-white border border-gray-200 shadow-lg hover:translate-y-[-2px]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -319,13 +291,13 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
                       </p>
                       <span
                         className={`text-xs font-bold uppercase ${
-                          selected ? 'text-vortex-red' : 'text-gray-400'
+                          disabled ? 'text-gray-400' : selected ? 'text-vortex-red' : 'text-gray-400'
                         }`}
                       >
-                        {selected ? 'Current' : 'Preview'}
+                        {disabled ? 'Coming soon' : selected ? 'Current' : 'Preview'}
                       </span>
                     </div>
-                    <h3 className="mt-3 text-2xl font-display font-bold text-black">
+                    <h3 className={`mt-3 text-2xl font-display font-bold ${disabled ? 'text-gray-500' : 'text-black'}`}>
                       {video.title}
                     </h3>
                     <p className="mt-1 text-sm text-gray-600">
