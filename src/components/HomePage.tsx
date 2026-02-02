@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { MapPin, Target, Brain } from 'lucide-react'
+import { MapPin, Target, Brain, Info } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
 import About from './About'
@@ -12,25 +12,6 @@ interface HomePageProps {
 }
 
 const HomePage = ({ onSignUpClick }: HomePageProps) => {
-  const tenets = [
-    { name: 'Strength', description: 'Ability to exert force against resistance.' },
-    { name: 'Explosiveness', description: 'Exert maximal force in minimal time.' },
-    { name: 'Speed', description: 'Rapid execution of movement and reaction.' },
-    { name: 'Agility', description: 'Rapid direction changes with control.' },
-    { name: 'Flexibility', description: 'Range of motion and muscular elasticity.' },
-    { name: 'Balance', description: 'Maintain stability in static or dynamic movement.' },
-    { name: 'Coordination', description: 'Integrate multiple body parts for fluid motion.' },
-    { name: 'Kinematic Awareness', description: 'Precise understanding of where the body is in space.' },
-  ]
-
-  const physiologicalEmphasis = [
-    { category: 'Neural Activation', system: 'CNS, Reflex Arc', outcome: 'Faster motor unit recruitment, improved reaction' },
-    { category: 'Muscular Load', system: 'Muscle, Joint', outcome: 'Strength, hypertrophy, and stability gains' },
-    { category: 'Elastic Energy', system: 'Tendons, Fascia', outcome: 'Spring-like power and resilience' },
-    { category: 'Control & Stability', system: 'Core, Proprioceptors', outcome: 'Enhanced balance, posture, precision' },
-    { category: 'Movement Intelligence', system: 'Brain-Body Integration', outcome: 'Improved patterning, timing, and adaptation' },
-  ]
-
   const faqs = [
     {
       question: 'Where are you located?',
@@ -96,6 +77,62 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
     }
   ]
   const [selectedVideo, setSelectedVideo] = useState(videoLibrary[0])
+
+  type TriadTab = 'what' | 'how' | 'why'
+  const [triadTab, setTriadTab] = useState<TriadTab>('what')
+  type TriadItem = { name: string; meaning: string }
+  const triads: Record<
+    TriadTab,
+    { title: string; definition: string; whyItMatters: string; itemsLabel: string; items: TriadItem[] }
+  > = {
+    what: {
+      title: 'Athletic Tenets (WHAT we build)',
+      definition: 'The core performance qualities we develop—the outcomes athletes gain from training.',
+      whyItMatters: 'These define what improves: not just “working out,” but building specific athletic qualities.',
+      itemsLabel: 'Tenets we build',
+      items: [
+        { name: 'Strength', meaning: 'Ability to produce and resist force.' },
+        { name: 'Explosiveness', meaning: 'Power and quick, forceful movement.' },
+        { name: 'Speed', meaning: 'How fast the body can move.' },
+        { name: 'Agility', meaning: 'Quick change of direction and reaction.' },
+        { name: 'Flexibility', meaning: 'Range of motion and suppleness.' },
+        { name: 'Balance', meaning: 'Stability and control in static and dynamic positions.' },
+        { name: 'Coordination', meaning: 'Moving body parts together efficiently.' },
+        { name: 'Body Control', meaning: 'Precision and awareness of movement.' }
+      ]
+    },
+    how: {
+      title: 'Training Methodologies (HOW we train)',
+      definition: 'The tools we use to develop those qualities—how we apply stress and practice.',
+      whyItMatters: 'Different tools create different adaptations; method matters as much as effort.',
+      itemsLabel: 'Methodologies we use',
+      items: [
+        { name: 'Resistance & Calisthenics', meaning: 'Weights, bands, and bodyweight strength work.' },
+        { name: 'Plyometrics', meaning: 'Jumping and explosive drills that build power.' },
+        { name: 'Isometrics', meaning: 'Holding tension in one position to build strength and control.' },
+        { name: 'Eccentric / Negative Training', meaning: 'Controlled lengthening under load for resilience.' },
+        { name: 'Neural Training', meaning: 'Fast, reactive drills that sharpen reflexes and timing.' },
+        { name: 'Balance & Stability Work', meaning: 'Drills that challenge equilibrium and core control.' },
+        { name: 'Mobility & Flexibility Drills', meaning: 'Stretching and movement to improve range and recovery.' },
+        { name: 'Core & Body Control Work', meaning: 'Targeted work for midsection and movement precision.' }
+      ]
+    },
+    why: {
+      title: 'Physiological Emphasis (WHY it works)',
+      definition: 'The biological systems each class targets—so adaptation is intentional and safe.',
+      whyItMatters: 'Training the right system at the right time leads to smarter, safer progress.',
+      itemsLabel: 'Emphases we target',
+      items: [
+        { name: 'Neural Output & Readiness', meaning: 'Nervous system speed and reaction—how fast the body can fire.' },
+        { name: 'Force Capacity & Tissue Capacity', meaning: 'Muscle and tendon strength and durability.' },
+        { name: 'SSC & Stiffness (Elastic Energy)', meaning: 'Spring-like rebound and stored energy in movement.' },
+        { name: 'Control & Stability', meaning: 'Joint and postural control under load and motion.' },
+        { name: 'Movement Intelligence', meaning: 'Skill and pattern quality—doing the right thing at the right time.' }
+      ]
+    }
+  }
+  const triadTooltip =
+    'Every Vortex class balances athletic outcomes, training methods, and physiological intent—so athletes progress with purpose, not guesswork.'
 
   // Instagram: load embed.js once and process blockquotes when Instagram is selected (direct embed, no sandbox iframe)
   useEffect(() => {
@@ -163,19 +200,6 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
                 </div>
               ))}
             </div>
-          </motion.div>
-
-          {/* Supplement Section */}
-          <motion.div
-            className="bg-white rounded-2xl p-8 md:p-12 mb-12"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-lg md:text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto text-center">
-              Supplement football, basketball, soccer, wrestling, lacrosse and more through our Athleticism Accelerator programs. Supplement dance, cheer, acro, and gymnastics with focused tumbling and floor lessons from our international gymnast instructors and founders of A4 Gymnastics. Learn backflips, aerials, layouts, cartwheels, fulls, and more. Master the strength, technique, and body control needed to advance in your sport.
-            </p>
           </motion.div>
 
           {onSignUpClick && (
@@ -341,182 +365,136 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
 
       <About onSignUpClick={onSignUpClick} />
       <Programs />
-      <Technology />
 
-      {/* 8 Tenets Section */}
+      {/* How Vortex Classes Are Built — Triad Selector Card */}
       <section className="section-padding bg-white">
         <div className="container-custom">
           <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 50 }}
+            className="text-center mb-8"
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-4">
-              ATHLETICISM ACCELERATOR <span className="text-vortex-red">PROGRAM</span>
+              TRAINING <span className="text-4xl md:text-5xl text-vortex-red">PHILOSOPHY</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
-              Our Athleticism Accelerator focus means all training incorporates these core principles
-            </p>
-          </motion.div>
-
-          {/* Tenets Table */}
-          <motion.div
-            className="overflow-x-auto mb-12"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h3 className="text-2xl md:text-3xl font-display font-bold text-vortex-red mb-4 text-center">
-              8 Tenets of Athleticism
-            </h3>
-            <table className="w-full border-collapse bg-white rounded-xl overflow-hidden shadow-lg">
-              <thead>
-                <tr className="bg-black text-white">
-                  <th className="px-6 py-4 text-left font-bold text-lg">Tenet</th>
-                  <th className="px-6 py-4 text-left font-bold text-lg">Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tenets.map((tenet, index) => (
-                  <tr
-                    key={tenet.name}
-                    className={`border-b border-gray-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-vortex-red/5 transition-colors`}
-                  >
-                    <td className="px-6 py-4 font-semibold text-vortex-red">{tenet.name}</td>
-                    <td className="px-6 py-4 text-gray-700">{tenet.description}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </motion.div>
-
-          {onSignUpClick && (
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block btn-primary"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Start Your Journey
-              </motion.a>
-            </motion.div>
-          )}
-        </div>
-      </section>
-
-      {/* Physiological Emphasis Table */}
-      <section className="section-padding bg-white">
-        <div className="container-custom">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-4">
-              PHYSIOLOGICAL <span className="text-vortex-red">EMPHASIS</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-2">
-              Designed for: <span className="font-bold">Vortex Athletics | Athleticism Accelerator™</span>
-            </p>
             <p className="text-lg text-gray-600">
-              Purpose: Develop adaptable, resilient, and high-performance athletes through structured physical intelligence.
+              Every class is designed using three connected training lenses—so athletes build real, transferable athleticism.
             </p>
           </motion.div>
 
           <motion.div
-            className="overflow-x-auto mb-12"
-            initial={{ opacity: 0, y: 50 }}
+            className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden"
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <table className="w-full border-collapse bg-white rounded-xl overflow-hidden shadow-lg">
-              <thead>
-                <tr className="bg-black text-white">
-                  <th className="px-6 py-4 text-left font-bold text-lg">Category</th>
-                  <th className="px-6 py-4 text-left font-bold text-lg">System Targeted</th>
-                  <th className="px-6 py-4 text-left font-bold text-lg">Outcome</th>
-                </tr>
-              </thead>
-              <tbody>
-                {physiologicalEmphasis.map((item, index) => (
-                  <tr
-                    key={item.category}
-                    className={`border-b border-gray-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-vortex-red/5 transition-colors`}
-                  >
-                    <td className="px-6 py-4 font-semibold text-vortex-red">{item.category}</td>
-                    <td className="px-6 py-4 text-gray-700">{item.system}</td>
-                    <td className="px-6 py-4 text-gray-700">{item.outcome}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </motion.div>
+            {/* Tab buttons */}
+            <div className="flex border-b border-gray-200">
+              {(['what', 'how', 'why'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setTriadTab(tab)}
+                  className={`flex-1 py-4 px-4 text-sm font-semibold uppercase tracking-wider transition ${
+                    triadTab === tab
+                      ? 'bg-vortex-red text-white border-b-2 border-vortex-red'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {tab === 'what' ? 'What' : tab === 'how' ? 'How' : 'Why'}
+                </button>
+              ))}
+            </div>
 
-          {onSignUpClick && (
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block btn-primary"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Experience the Science
-              </motion.a>
-            </motion.div>
-          )}
+            {/* Card content */}
+            <div className="p-6 md:p-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={triadTab}
+                  initial={{ opacity: 0, x: 8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col gap-4"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="text-xl md:text-2xl font-display font-bold text-black">
+                      {triads[triadTab].title}
+                    </h3>
+                    <span
+                      className="flex-shrink-0 rounded-full p-1.5 text-gray-600 hover:text-gray-700 hover:bg-gray-100 cursor-help"
+                      title={triadTooltip}
+                      aria-label="More about how triads work together"
+                    >
+                      <Info className="w-5 h-5" />
+                    </span>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed">
+                    {triads[triadTab].definition}
+                  </p>
+                  <p className="text-sm font-medium text-vortex-red">
+                    Why it matters: {triads[triadTab].whyItMatters}
+                  </p>
+                  <div className="mt-2 pt-4 border-t border-gray-200">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-600 mb-3">
+                      {triads[triadTab].itemsLabel}
+                    </p>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                      {triads[triadTab].items.map((item, i) => (
+                        <li key={i} className="flex gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-vortex-red flex-shrink-0 mt-1.5" />
+                          <span>
+                            <strong className="text-gray-900">{item.name}</strong>
+                            <span className="text-gray-700"> — {item.meaning}</span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* One-line differentiator */}
+            <div className="border-t border-gray-200 bg-gray-200 px-6 md:px-8 py-4">
+              <p className="text-sm md:text-base text-gray-700 text-center font-medium italic">
+                Vortex classes aren&apos;t random workouts—they&apos;re structured to develop the right qualities, with the right tools, for the right reasons.
+              </p>
+            </div>
+          </motion.div>
         </div>
       </section>
+
+      <Technology />
 
       {/* Technology & Mindset Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
           {/* Fail Your Way to Success mindset card */}
-          <div className="max-w-2xl mx-auto mb-12">
-            <motion.div
-              className="bg-gray-200 rounded-2xl p-8 border-2 border-vortex-red/20"
+          <motion.div
+              className="bg-vortex-red rounded-2xl p-8 md:p-12 border-2 border-black/20 mb-12"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
               <div className="flex items-center space-x-3 mb-6">
-                <Brain className="w-8 h-8 text-vortex-red" />
-                <h3 className="text-3xl font-display font-bold text-black">
+                <Brain className="w-8 h-8 text-white" />
+                <h3 className="text-3xl font-display font-bold text-white">
                   "Fail Your Way to Success"
                 </h3>
               </div>
-              <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+              <p className="text-white mb-6 text-lg leading-relaxed">
                 We teach children to find fun in overcoming adversity and achieving success through 
                 a competitive edge. Our athletes are simultaneously pushed and cared for.
               </p>
-              <p className="text-gray-700 text-lg leading-relaxed">
+              <p className="text-white text-lg leading-relaxed">
                 This mindset cultivates resilience that fuels excellence in every aspect of life.
               </p>
             </motion.div>
-          </div>
         </div>
       </section>
 

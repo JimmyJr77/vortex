@@ -87,7 +87,7 @@ const Technology = () => {
 
         {/* Benefits Section */}
         <motion.div
-          className="bg-gradient-to-r from-vortex-red to-red-600 rounded-3xl p-12 text-white"
+          className="bg-black rounded-3xl p-12 text-white border border-vortex-red/30"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
