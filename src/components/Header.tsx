@@ -15,6 +15,7 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
   const location = useLocation()
 
   const menuItems = [
+    { name: 'Home', to: '/' },
     { name: 'Athleticism Accelerator', to: '/athleticism-accelerator' },
     { name: 'Gymnastics', to: '/gymnastics' },
     { name: 'Ninja Athlete & Fitness', to: '/ninja' },

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Zap, Target, TrendingUp, Shield, Users, ArrowRight, Play } from 'lucide-react'
+import { Zap, Target, TrendingUp, Shield, Users, Play } from 'lucide-react'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
 interface AthleticismAcceleratorProps {

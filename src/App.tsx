@@ -30,6 +30,11 @@ function App() {
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const location = useLocation()
 
+  // Scroll to top when navigating to a new page
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
+
   useEffect(() => {
     // Check if user is already logged in as admin
     const adminStatus = localStorage.getItem('vortex_admin')

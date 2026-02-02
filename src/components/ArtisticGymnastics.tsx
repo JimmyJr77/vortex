@@ -10,7 +10,8 @@ import {
   CheckCircle,
   Trophy,
   Activity,
-  Play
+  Play,
+  Shield
 } from 'lucide-react'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 

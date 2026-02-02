@@ -616,7 +616,7 @@ const Ninja = ({ onSignUpClick: _onSignUpClick }: NinjaProps) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Book a Trial Class
+                Join Now
               </motion.a>
 
               <Link
