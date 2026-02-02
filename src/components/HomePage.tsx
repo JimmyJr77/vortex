@@ -62,10 +62,9 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
     }
   ]
 
-  // YouTube embed needs the channel's *uploads playlist ID* (starts with UU), not the handle.
-  // How to get it: YouTube Studio → Settings → Channel → Advanced → copy "Channel ID" (UC...).
-  // Replace the first two letters UC with UU and paste below (e.g. UCabc123 → UUabc123).
-  const youtubeUploadsPlaylistId = 'UUmKOL4DZ6EzdwH_TQ3yPikw' // UC → UU for uploads playlist
+  // YouTube embed: channel uploads playlist ID (UU...) + optional first video ID so the player shows a video (avoids Error 153).
+  const youtubeUploadsPlaylistId = 'UUmKOL4DZ6EzdwH_TQ3yPikw'
+  const youtubeFirstVideoId = 'bvGYBIgc_H8' // Any video from your channel; update if needed
   const videoLibrary = [
     {
       id: 'youtube',
@@ -73,7 +72,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       title: 'Vortex Athletics Highlights',
       description:
         'Fast-paced drills, athlete highlights, and training tips straight from our YouTube channel.',
-      embedUrl: `https://www.youtube.com/embed/videoseries?list=${youtubeUploadsPlaylistId}`,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${youtubeFirstVideoId}?list=${youtubeUploadsPlaylistId}`,
       link: 'https://www.youtube.com/@VortexAthleticsUSA'
     },
     {
@@ -213,7 +212,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
                     className="absolute inset-0 w-full h-full"
                     src={selectedVideo.embedUrl}
                     title={`${selectedVideo.platform} preview`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                   />
                 ) : (
