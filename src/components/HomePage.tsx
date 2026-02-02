@@ -62,6 +62,10 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
     }
   ]
 
+  // YouTube embed needs the channel's *uploads playlist ID* (starts with UU), not the handle.
+  // How to get it: YouTube Studio → Settings → Channel → Advanced → copy "Channel ID" (UC...).
+  // Replace the first two letters UC with UU and paste below (e.g. UCabc123 → UUabc123).
+  const youtubeUploadsPlaylistId = 'UU_YOUR_CHANNEL_UPLOADS_ID' // e.g. UU9CuvdOVfMPvKCiwdGKL3cQ
   const videoLibrary = [
     {
       id: 'youtube',
@@ -69,7 +73,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       title: 'Vortex Athletics Highlights',
       description:
         'Fast-paced drills, athlete highlights, and training tips straight from our YouTube channel.',
-      embedUrl: 'https://www.youtube.com/embed?listType=user_uploads&list=VortexAthleticsUSA',
+      embedUrl: `https://www.youtube.com/embed/videoseries?list=${youtubeUploadsPlaylistId}`,
       link: 'https://www.youtube.com/@VortexAthleticsUSA'
     },
     {

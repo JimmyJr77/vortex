@@ -244,10 +244,10 @@ const Value = () => {
 
             <div className="text-center mt-8">
               <div className="text-lg text-gray-300 mb-2">
-                <span className="font-semibold text-vortex-red">Telemetry & Athlete Data:</span> $250 one-time fee (first child)
+                <span className="font-semibold text-vortex-red">Telemetry & Athlete Data:</span> $50 annually (first child)
               </div>
               <div className="text-lg text-gray-300 mb-2">
-                <span className="font-semibold text-vortex-red">Additional Children:</span> $125 one-time fee (50% discount)
+                <span className="font-semibold text-vortex-red">Additional Children:</span> $25 annually (50% discount)
               </div>
               <p className="text-gray-400 text-sm">
                 Lifetime access to advanced performance tracking, data analytics, and continuous development monitoring
@@ -377,9 +377,9 @@ const Value = () => {
                   <h4 className="text-xl font-bold text-black">Telemetry Fee Discount</h4>
                 </div>
                 <p className="text-center text-gray-800">
-                  <span className="font-semibold">First child:</span> $250 one-time fee
+                  <span className="font-semibold">First child:</span> $50 annually
                   <br />
-                  <span className="font-semibold text-vortex-red">Additional children:</span> $125 one-time fee (50% off)
+                  <span className="font-semibold text-vortex-red">Additional children:</span> $25 annually (50% off)
                 </p>
               </motion.div>
             </div>

@@ -1,55 +1,48 @@
 import { motion } from 'framer-motion'
-import { Clock, Users, Target, Dumbbell, DollarSign, BarChart3, Zap, CheckCircle, Activity, GraduationCap } from 'lucide-react'
+import { Clock, Users, Target, Dumbbell, DollarSign, BarChart3, Zap, CheckCircle, Activity } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const Programs = () => {
   const programs = [
     {
-      title: "Competition Programs",
-      description: "Formal competitive teams in multiple gymnastics disciplines including Tramp & Tumble, Acrobatics, Artistic, Rhythmic, and Aerobic Gymnastics.",
-      features: ["Elite Performance", "Technical Precision", "Competitive Mindset"],
+      title: "Competitive Gymnastics",
+      description: "Formal competitive teams in multiple gymnastics disciplines including Tramp & Tumble, Artistic, Rhythmic, and Aerobic Gymnastics.",
       icon: Target,
       color: "bg-vortex-red"
     },
     {
-      title: "Developmental Programs",
+      title: "Developmental Gymnastics",
       description: "Age-appropriate progressions for building foundational skills, coordination, and confidence. Structured development paths for young athletes.",
-      features: ["Age-Appropriate", "Foundational Skills", "Structured Progressions"],
-      icon: GraduationCap,
-      color: "bg-teal-600"
+      icon: Target,
+      color: "bg-amber-500"
     },
     {
       title: "Ninja Athlete",
       description: "Dynamic movement, legitimate physical training, and difficult obstacles. Build agility, strength, and confidence through challenging ninja-style courses and progressions.",
-      features: ["Dynamic Movement", "Physical Training", "Difficult Obstacles"],
       icon: Activity,
       color: "bg-amber-600"
     },
     {
       title: "Athleticism Accelerator",
       description: "Classes focused on building foundational athleticism and body control through gymnastics, acrobatics, plyometrics, and speed & agility training.",
-      features: ["8 Core Tenets", "Cross-Training", "Body Control"],
       icon: Zap,
       color: "bg-blue-600"
     },
     {
       title: "Strength & Fitness",
-      description: "Learn basic form, focus on specific muscle groups, Olympic lifts, functional fitness, and calisthenics. Structured programming for lasting strength and conditioning.",
-      features: ["Basic Form", "Olympic Lifts", "Functional Fitness", "Calisthenics"],
+      description: "From drop in functional fitness thrashings to full instruction foundational weight lifting. We structure a variety of classes to help develop lasting strength and conditioning.",
       icon: Dumbbell,
       color: "bg-slate-600"
     },
     {
       title: "Daytime Programs",
       description: "Specialized daytime classes for homeschooled children and students with flexible schedules, plus Mommy & Me and Adult Fitness programs.",
-      features: ["Flexible Scheduling", "All Ages", "Family Bonding"],
       icon: Clock,
       color: "bg-green-600"
     },
     {
       title: "Private Coaching",
       description: "Personalized skill development and supplemental training with individualized coaching using our advanced technology tools.",
-      features: ["One-on-One", "Custom Training", "Technology Integration"],
       icon: Users,
       color: "bg-purple-600"
     }
@@ -80,7 +73,7 @@ const Programs = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
           {programs.map((program, index) => {
             const Content = (
-              <div className="flex items-start space-x-4 mb-6">
+              <div className="flex items-start space-x-4">
                 <div className={`w-16 h-16 ${program.color} rounded-2xl flex items-center justify-center`}>
                   <program.icon className="w-8 h-8 text-white" />
                 </div>
@@ -88,19 +81,6 @@ const Programs = () => {
                   <h3 className="text-2xl font-bold text-black mb-2">{program.title}</h3>
                   <p className="text-gray-600 leading-relaxed">{program.description}</p>
                 </div>
-              </div>
-            )
-
-            const Features = (
-              <div className="flex flex-wrap gap-2">
-                {program.features.map((feature) => (
-                  <span
-                    key={feature}
-                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
-                  >
-                    {feature}
-                  </span>
-                ))}
               </div>
             )
 
@@ -117,22 +97,18 @@ const Programs = () => {
                 {program.title === "Athleticism Accelerator" ? (
                   <Link to="/athleticism-accelerator">
                     {Content}
-                    {Features}
                   </Link>
-                ) : program.title === "Competition Programs" ? (
+                ) : program.title === "Competitive Gymnastics" ? (
                   <Link to="/trampoline-tumbling">
                     {Content}
-                    {Features}
                   </Link>
                 ) : program.title === "Ninja Athlete" ? (
                   <Link to="/ninja">
                     {Content}
-                    {Features}
                   </Link>
                 ) : (
                   <>
                     {Content}
-                    {Features}
                   </>
                 )}
               </motion.div>
@@ -214,7 +190,7 @@ const Programs = () => {
             <div className="inline-flex items-center space-x-2 text-lg text-gray-300 mb-2">
               <CheckCircle className="w-5 h-5 text-vortex-red" />
               <span className="font-semibold text-vortex-red">Telemetry & Athlete Data:</span>
-              <span>$250 one-time fee</span>
+              <span>$50 annually</span>
             </div>
             <p className="text-gray-400 text-sm">
               Lifetime access to advanced performance tracking, data analytics, and continuous development monitoring
