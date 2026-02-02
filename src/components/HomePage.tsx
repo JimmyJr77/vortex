@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { MapPin, Target, Brain } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
@@ -89,10 +89,38 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
       title: 'Reels of Athleticism',
       description:
         'Curated Instagram reels showing form, flexibility, and competitive glimpses.',
-      link: 'https://www.instagram.com/vortexathletics.usa/'
+      link: 'https://www.instagram.com/vortexathletics.usa/',
+      // Post embed: paste a Post URL (Post → ⋮ → Embed → copy link). Replace with your post.
+      reelUrl: 'https://www.instagram.com/p/DTs3e-YjoEx6yHTnpmrHPBQou0HpgsOS9cicMM0/'
     }
   ]
   const [selectedVideo, setSelectedVideo] = useState(videoLibrary[0])
+  const instagramEmbedRef = useRef<HTMLDivElement>(null)
+
+  // Load Instagram embed script and process blockquotes when Instagram (post/reel) is shown
+  useEffect(() => {
+    if (selectedVideo.id !== 'instagram' || !('reelUrl' in selectedVideo) || !selectedVideo.reelUrl) return
+
+    const run = () => {
+      if (typeof window !== 'undefined' && (window as any).instgrm?.Embeds?.process) {
+        (window as any).instgrm.Embeds.process()
+      }
+    }
+
+    if ((window as any).instgrm) {
+      run()
+      return
+    }
+
+    const script = document.createElement('script')
+    script.async = true
+    script.src = 'https://platform.instagram.com/en_US/embeds.js'
+    script.onload = run
+    document.body.appendChild(script)
+    return () => {
+      script.remove()
+    }
+  }, [selectedVideo])
 
   // handleSignUp removed - buttons now link directly to enrollment URL
 
@@ -206,7 +234,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
               transition={{ duration: 0.7 }}
               viewport={{ once: true }}
             >
-              <div className="relative aspect-video w-full">
+              <div className="relative aspect-video w-full min-h-[400px]">
                 {selectedVideo.embedUrl ? (
                   <iframe
                     className="absolute inset-0 w-full h-full"
@@ -215,6 +243,21 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                   />
+                ) : 'reelUrl' in selectedVideo && selectedVideo.reelUrl ? (
+                  <div
+                    ref={instagramEmbedRef}
+                    className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/80 overflow-auto p-4"
+                  >
+                    <blockquote
+                      className="instagram-media min-w-0 max-w-full"
+                      data-instgrm-permalink={selectedVideo.reelUrl}
+                      data-instgrm-version="14"
+                    >
+                      <a href={selectedVideo.reelUrl} target="_blank" rel="noopener noreferrer">
+                        View on Instagram
+                      </a>
+                    </blockquote>
+                  </div>
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center px-8 py-6 text-center text-white">
                     <p className="text-xl font-semibold mb-4">Watch this video on {selectedVideo.platform}</p>
