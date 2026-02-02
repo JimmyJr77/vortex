@@ -238,7 +238,7 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {classCategories.map((category, index) => {
-              const Icon = 'icon' in category ? category.icon : Dumbbell
+              const Icon = ('icon' in category ? category.icon : Dumbbell) ?? Dumbbell
               return (
                 <motion.div
                   key={category.title}
@@ -328,7 +328,7 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
                 'Emphasis on movement quality',
                 'No ego lifting',
                 'Integration with athlete age, experience, and other training loads',
-              ].map((item, index) => (
+              ].map((item) => (
                 <li key={item} className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-vortex-red flex-shrink-0" />
                   <span className="text-gray-800">{item}</span>

@@ -12,7 +12,7 @@ const Hero = () => {
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
   const [showBanner, setShowBanner] = useState(false)
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
+  const [isVideoPlaying, _setIsVideoPlaying] = useState(false)
 
   useEffect(() => {
     // Check if popup has been seen and banner hasn't been dismissed
