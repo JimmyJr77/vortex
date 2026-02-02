@@ -97,7 +97,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
         />
 
         {/* Content Container - Top Layer */}
-        <div className="container-custom relative z-10 flex items-center justify-center min-h-[calc(100vh-5rem)] text-center">
+        <div className={`container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center ${isVideoPlaying ? 'items-end' : 'items-center'}`}>
           <div>
             <motion.h1
               className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
