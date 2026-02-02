@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { MapPin, Target, Brain, Info, Shield } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
@@ -133,26 +133,6 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
   }
   const triadTooltip =
     'Every Vortex class balances athletic outcomes, training methods, and physiological intent—so athletes progress with purpose, not guesswork.'
-
-  // Instagram: load embed.js once and process blockquotes when Instagram is selected (direct embed, no sandbox iframe)
-  useEffect(() => {
-    if (selectedVideo.id !== 'instagram' || !('reelUrl' in selectedVideo) || !selectedVideo.reelUrl) return
-    const run = () => {
-      if (typeof window !== 'undefined' && (window as any).instgrm?.Embeds?.process) {
-        (window as any).instgrm.Embeds.process()
-      }
-    }
-    const existing = document.querySelector('script[src="https://www.instagram.com/embed.js"]')
-    if (!existing) {
-      const script = document.createElement('script')
-      script.src = 'https://www.instagram.com/embed.js'
-      script.async = true
-      document.body.appendChild(script)
-      script.onload = run
-    } else {
-      run()
-    }
-  }, [selectedVideo])
 
   // handleSignUp removed - buttons now link directly to enrollment URL
 

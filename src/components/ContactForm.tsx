@@ -30,7 +30,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
     'Trampoline & Tumbling',
     'Ninja Athlete',
     'Athleticism Accelerator',
-    'Strength & Fitness',
+    'Strength & Conditioning',
     'Homeschool'
   ]
 

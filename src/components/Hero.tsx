@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, X, Play } from 'lucide-react'
+import { Zap, X } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
@@ -303,13 +303,13 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
             >
-              <Link to="/athleticism-accelerator">
+              <Link to="/gymnastics">
                 <motion.button
                   className="btn-secondary group"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Athleticism Accelerator
+                  Gymnastics
                 </motion.button>
               </Link>
               
@@ -323,28 +323,25 @@ const Hero = () => {
                 </motion.button>
               </Link>
               
-              <Link to="/gymnastics">
+              <Link to="/strength-conditioning">
                 <motion.button
                   className="btn-secondary group"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Gymnastics
+                  Fit & Flip
                 </motion.button>
               </Link>
-
-              {!isVideoPlaying && (
+              
+              <Link to="/athleticism-accelerator">
                 <motion.button
-                  onClick={() => setIsVideoPlaying(true)}
-                  className="inline-flex items-center gap-2 border-2 border-white bg-transparent text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-white/10 hover:scale-105"
+                  className="btn-secondary group"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  aria-label="Play video"
                 >
-                  <Play className="w-5 h-5 fill-white" />
-                  Play Video
+                  Athleticism Accelerator
                 </motion.button>
-              )}
+              </Link>
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -498,13 +495,13 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
             >
-              <Link to="/athleticism-accelerator" className="w-full max-w-xs">
+              <Link to="/gymnastics" className="w-full max-w-xs">
                 <motion.button
                   className="btn-secondary group w-full"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Athleticism Accelerator
+                  Gymnastics
                 </motion.button>
               </Link>
               
@@ -518,28 +515,25 @@ const Hero = () => {
                 </motion.button>
               </Link>
               
-              <Link to="/gymnastics" className="w-full max-w-xs">
+              <Link to="/strength-conditioning" className="w-full max-w-xs">
                 <motion.button
                   className="btn-secondary group w-full"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Gymnastics
+                  Fit & Flip
                 </motion.button>
               </Link>
-
-              {!isVideoPlaying && (
+              
+              <Link to="/athleticism-accelerator" className="w-full max-w-xs">
                 <motion.button
-                  onClick={() => setIsVideoPlaying(true)}
-                  className="w-full max-w-xs inline-flex items-center justify-center gap-2 border-2 border-white bg-transparent text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-white/10 hover:scale-105"
+                  className="btn-secondary group w-full"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  aria-label="Play video"
                 >
-                  <Play className="w-5 h-5 fill-white" />
-                  Play Video
+                  Athleticism Accelerator
                 </motion.button>
-              )}
+              </Link>
             </motion.div>
 
             {/* Scroll Indicator */}

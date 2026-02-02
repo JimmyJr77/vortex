@@ -6,8 +6,6 @@ import {
   Sparkles,
   Trophy,
   CheckCircle,
-  Music,
-  Zap,
   Heart,
   Play,
 } from 'lucide-react'
@@ -23,36 +21,6 @@ interface GymnasticsProps {
 const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const disciplines = [
-    {
-      id: 'artistic',
-      title: 'Artistic Gymnastics',
-      tagline: 'Master Movement. Build Strength. Elevate Artistry.',
-      description:
-        'The ultimate foundation of athletic mastery: combining grace, strength, flexibility, coordination, and control into a beautiful expression of human movement. Apparatus: vault, bars, beam, floor.',
-      to: '/artistic-gymnastics',
-      icon: Sparkles,
-      color: 'from-vortex-red to-red-800',
-    },
-    {
-      id: 'rhythmic',
-      title: 'Rhythmic Gymnastics',
-      tagline: 'Grace in Motion. Strength in Every Line.',
-      description:
-        'The perfect balance of athletic precision and artistic flow. Athletes learn choreography, flexibility, and apparatus control (ribbon, hoop, ball, clubs, rope) while developing strength and stability.',
-      to: '/rhythmic-gymnastics',
-      icon: Music,
-      color: 'from-purple-600 to-purple-900',
-    },
-    {
-      id: 'trampoline-tumbling',
-      title: 'Trampoline & Tumbling',
-      tagline: 'Bounce Higher. Land Stronger. Tumble Smarter.',
-      description:
-        'Mastering air awareness and body control through trampoline, tumbling, and double-mini. Progressive skill development from safe landings and shapes to routine construction and competition.',
-      to: '/trampoline-tumbling',
-      icon: Zap,
-      color: 'from-amber-600 to-amber-900',
-    },
     {
       id: 'aerobic',
       title: 'Aerobic Gymnastics',

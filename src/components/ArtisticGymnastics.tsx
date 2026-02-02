@@ -19,8 +19,7 @@ interface ArtisticGymnasticsProps {
   onSignUpClick: () => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ArtisticGymnastics = ({ onSignUpClick: _onSignUpClick }: ArtisticGymnasticsProps) => {
+const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const tenets = [
     { name: 'Strength', description: 'Ability to exert force against resistance.' },
@@ -168,6 +167,16 @@ const ArtisticGymnastics = ({ onSignUpClick: _onSignUpClick }: ArtisticGymnastic
                   Join the Team
                 </motion.a>
 
+                <motion.button
+                  type="button"
+                  onClick={onSignUpClick}
+                  className="inline-block border-2 border-vortex-red text-vortex-red px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Inquire
+                </motion.button>
+
                 {!isVideoPlaying && (
                   <motion.button
                     onClick={() => setIsVideoPlaying(true)}
@@ -277,6 +286,16 @@ const ArtisticGymnastics = ({ onSignUpClick: _onSignUpClick }: ArtisticGymnastic
               >
                 Join the Team
               </motion.a>
+
+              <motion.button
+                type="button"
+                onClick={onSignUpClick}
+                className="inline-block border-2 border-vortex-red text-vortex-red px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105 w-full max-w-xs"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Inquire
+              </motion.button>
             </motion.div>
 
             {/* Scroll Indicator */}

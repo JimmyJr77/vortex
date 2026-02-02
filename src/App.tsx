@@ -3,10 +3,8 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import HomePage from './components/HomePage'
 import AthleticismAccelerator from './components/AthleticismAccelerator'
-import TrampolineTumbling from './components/TrampolineTumbling'
-import ArtisticGymnastics from './components/ArtisticGymnastics'
-import RhythmicGymnastics from './components/RhythmicGymnastics'
 import Gymnastics from './components/Gymnastics'
+import StrengthFitness from './components/StrengthFitness'
 import Ninja from './components/Ninja'
 import Value from './components/Value'
 import ReadBoard from './components/ReadBoard'
@@ -145,20 +143,12 @@ function App() {
           element={<AthleticismAccelerator onSignUpClick={handleContactClick} />} 
         />
         <Route 
-          path="/trampoline-tumbling" 
-          element={<TrampolineTumbling onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/artistic-gymnastics" 
-          element={<ArtisticGymnastics onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/rhythmic-gymnastics" 
-          element={<RhythmicGymnastics onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
           path="/gymnastics" 
           element={<Gymnastics onSignUpClick={handleContactClick} />} 
+        />
+        <Route 
+          path="/strength-conditioning" 
+          element={<StrengthFitness onSignUpClick={handleContactClick} />} 
         />
         <Route 
           path="/ninja" 

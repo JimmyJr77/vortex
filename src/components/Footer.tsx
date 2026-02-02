@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Mail, Phone, MapPin, Instagram, Facebook, Twitter, ArrowUp } from 'lucide-react'
+import { Mail, Phone, MapPin, Instagram, ArrowUp } from 'lucide-react'
 
 interface FooterProps {
   onContactClick: () => void
@@ -13,13 +13,11 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
   }
 
   const quickLinks = [
-    { name: 'FAQ', href: '#faq' },
+    { name: 'FAQ', href: '/#faq' },
   ]
 
   const socialLinks = [
-    { name: 'Instagram', icon: Instagram, href: '#' },
-    { name: 'Facebook', icon: Facebook, href: '#' },
-    { name: 'Twitter', icon: Twitter, href: '#' },
+    { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/vortexathletics.usa/' },
   ]
 
   return (

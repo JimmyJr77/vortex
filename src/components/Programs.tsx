@@ -29,7 +29,7 @@ const Programs = () => {
       color: "bg-blue-600"
     },
     {
-      title: "Strength & Fitness",
+      title: "Strength & Conditioning",
       description: "From drop in functional fitness thrashings to full instruction foundational weight lifting. We structure a variety of classes to help develop lasting strength and conditioning.",
       icon: Dumbbell,
       color: "bg-slate-600"
@@ -106,8 +106,8 @@ const Programs = () => {
                   <Link to="/gymnastics">
                     {Content}
                   </Link>
-                ) : program.title === "Strength & Fitness" ? (
-                  <Link to="/athleticism-accelerator">
+                ) : program.title === "Strength & Conditioning" ? (
+                  <Link to="/strength-conditioning">
                     {Content}
                   </Link>
                 ) : program.title === "Ninja Athlete" ? (
