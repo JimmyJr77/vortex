@@ -13,6 +13,9 @@ import {
 } from 'lucide-react'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
+// Same YouTube video as home hero when "Play Video" is clicked
+const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
+
 interface GymnasticsProps {
   onSignUpClick?: () => void
 }
@@ -71,6 +74,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
           posterFileName="main_hero_bg.png"
           imageOnly
           playRequested={isVideoPlaying}
+          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={() => {}}
@@ -167,6 +171,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
           posterFileName="main_hero_bg.png"
           imageOnly
           playRequested={isVideoPlaying}
+          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={() => {}}

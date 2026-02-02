@@ -102,6 +102,14 @@ const Programs = () => {
                   <Link to="/gymnastics">
                     {Content}
                   </Link>
+                ) : program.title === "Developmental Gymnastics" ? (
+                  <Link to="/gymnastics">
+                    {Content}
+                  </Link>
+                ) : program.title === "Strength & Fitness" ? (
+                  <Link to="/athleticism-accelerator">
+                    {Content}
+                  </Link>
                 ) : program.title === "Ninja Athlete" ? (
                   <Link to="/ninja">
                     {Content}

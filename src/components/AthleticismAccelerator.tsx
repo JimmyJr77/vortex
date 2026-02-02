@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom'
 import { Zap, Target, TrendingUp, Shield, Users, Play } from 'lucide-react'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
+// Same YouTube video as home hero when "Play Video" is clicked
+const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
+
 interface AthleticismAcceleratorProps {
   onSignUpClick: () => void
 }
@@ -82,6 +85,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
           posterFileName="main_hero_bg.png"
           imageOnly
           playRequested={isVideoPlaying}
+          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/40 z-[1] pointer-events-none"
           onVideoReady={() => {
@@ -178,6 +182,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
           posterFileName="main_hero_bg.png"
           imageOnly
           playRequested={isVideoPlaying}
+          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={() => {
