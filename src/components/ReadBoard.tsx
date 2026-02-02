@@ -920,27 +920,27 @@ const ReadBoard = () => {
                 <h3 className="text-xl font-display font-bold text-black mb-4">Program Color Code</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 rounded bg-blue-500"></div>
+                    <div className="w-6 h-6 min-w-6 min-h-6 flex-shrink-0 rounded bg-blue-500" aria-hidden />
                     <span className="text-sm font-medium text-gray-700">Developmental</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 rounded bg-gray-500"></div>
+                    <div className="w-6 h-6 min-w-6 min-h-6 flex-shrink-0 rounded bg-gray-500" aria-hidden />
                     <span className="text-sm font-medium text-gray-700">Gymnastics</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 rounded bg-vortex-red"></div>
+                    <div className="w-6 h-6 min-w-6 min-h-6 flex-shrink-0 rounded bg-vortex-red" aria-hidden />
                     <span className="text-sm font-medium text-gray-700">Athleticism Accelerator</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 rounded bg-black"></div>
+                    <div className="w-6 h-6 min-w-6 min-h-6 flex-shrink-0 rounded bg-black" aria-hidden />
                     <span className="text-sm font-medium text-gray-700">Ninja</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 rounded bg-purple-500"></div>
+                    <div className="w-6 h-6 min-w-6 min-h-6 flex-shrink-0 rounded bg-purple-500" aria-hidden />
                     <span className="text-sm font-medium text-gray-700">Adult</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 rounded bg-green-600"></div>
+                    <div className="w-6 h-6 min-w-6 min-h-6 flex-shrink-0 rounded bg-green-600" aria-hidden />
                     <span className="text-sm font-medium text-gray-700">Homeschool</span>
                   </div>
                 </div>

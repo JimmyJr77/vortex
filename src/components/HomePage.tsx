@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { MapPin, Target, Info, Shield } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
@@ -563,34 +564,48 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
             ))}
           </div>
 
-          {onSignUpClick && (
+        </div>
+      </section>
+
+      {/* Ready to Perform — white background, no card; two buttons like Join the Accelerator */}
+      {onSignUpClick && (
+        <section className="section-padding bg-white">
+          <div className="container-custom">
             <motion.div
-              className="text-center bg-vortex-red rounded-2xl p-12 text-white"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              className="text-center"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                Ready to Perform?
-              </h3>
-              <p className="text-xl mb-8 text-red-100 max-w-2xl mx-auto">
+              <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 text-black">
+                Ready to <span className="text-vortex-red">Perform?</span>
+              </h2>
+              <p className="text-xl text-gray-700 mb-10 max-w-2xl mx-auto">
                 Experience the future of athletic development.
               </p>
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-white text-vortex-red px-12 py-6 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-gray-100 hover:scale-105 shadow-xl"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Enroll now
-              </motion.a>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <motion.a
+                  href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Enroll now
+                </motion.a>
+                <Link
+                  to="/read-board#schedule"
+                  className="inline-block border-2 border-vortex-red bg-transparent text-vortex-red px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
+                >
+                  View Class Schedules
+                </Link>
+              </div>
             </motion.div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Location Section */}
       <section className="section-padding bg-black text-white">
