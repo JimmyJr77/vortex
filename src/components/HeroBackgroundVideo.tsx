@@ -9,6 +9,8 @@ interface HeroBackgroundVideoProps {
   imageOnly?: boolean
   /** When true (and imageOnly), load and play the video. */
   playRequested?: boolean
+  /** When provided and playRequested, use this YouTube video ID as background instead of LFS video. */
+  youtubeVideoId?: string
   onVideoReady?: () => void
   onVideoError?: (error: Error) => void
 }
@@ -31,6 +33,7 @@ const HeroBackgroundVideo = ({
   overlayClassName = 'absolute inset-0 bg-black/50 z-[1] pointer-events-none',
   imageOnly = false,
   playRequested = false,
+  youtubeVideoId,
   onVideoReady,
   onVideoError,
 }: HeroBackgroundVideoProps) => {
@@ -70,12 +73,21 @@ const HeroBackgroundVideo = ({
     return { videoUrl: vUrl, posterUrl: pUrl }
   }, [videoFileName, posterFileName, usePublicFolder])
 
-  // When imageOnly + playRequested, load video on demand
+  // When imageOnly + playRequested, load video on demand (LFS only if no youtubeVideoId)
   useEffect(() => {
-    if (imageOnly && playRequested) {
+    if (imageOnly && playRequested && !youtubeVideoId) {
       setShouldLoadVideo(true)
     }
-  }, [imageOnly, playRequested])
+  }, [imageOnly, playRequested, youtubeVideoId])
+
+  // When using YouTube, signal ready and show it
+  const useYoutube = !!(imageOnly && playRequested && youtubeVideoId)
+  useEffect(() => {
+    if (useYoutube) {
+      setShowVideo(true)
+      onVideoReady?.()
+    }
+  }, [useYoutube, onVideoReady])
 
   // Client-side gating: Check if we should load video (only when not imageOnly)
   useEffect(() => {
@@ -219,7 +231,7 @@ const HeroBackgroundVideo = ({
           src={posterUrl}
           alt=""
           className={`absolute inset-0 w-full h-full object-cover z-0 transition-opacity duration-500 ${
-            showVideo ? 'opacity-0' : 'opacity-100'
+            showVideo || useYoutube ? 'opacity-0' : 'opacity-100'
           }`}
           style={{
             position: 'absolute',
@@ -242,7 +254,7 @@ const HeroBackgroundVideo = ({
       )}
 
       {/* Fallback gradient if no poster or poster failed */}
-      {(!posterUrl || posterError) && !showVideo && (
+      {(!posterUrl || posterError) && !showVideo && !useYoutube && (
         <div
           className="absolute inset-0 w-full h-full z-0 bg-gradient-to-br from-black via-gray-900 to-black"
           style={{
@@ -256,8 +268,22 @@ const HeroBackgroundVideo = ({
         />
       )}
 
-      {/* Video Element - Only loaded when shouldLoadVideo is true */}
-      {shouldLoadVideo && (
+      {/* YouTube background - when youtubeVideoId and playRequested */}
+      {useYoutube && youtubeVideoId && (
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&mute=1&loop=1&playlist=${youtubeVideoId}&controls=0&showinfo=0&rel=0&modestbranding=1`}
+            title="Hero background video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="absolute top-1/2 left-1/2 min-w-[100vw] min-h-[56.25vw] w-[177.78vh] h-[100vh] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ border: 0 }}
+          />
+        </div>
+      )}
+
+      {/* Video Element - Only loaded when shouldLoadVideo is true (LFS video) */}
+      {!useYoutube && shouldLoadVideo && (
         <video
           ref={videoRef}
           autoPlay

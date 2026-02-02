@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
+// YouTube video ID to play when "Play Video" is clicked (change this to your desired video)
+const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
+
 const Hero = () => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
@@ -171,12 +174,13 @@ const Hero = () => {
     <>
       {/* Desktop: Full screen section with everything overlaid on video */}
       <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
-        {/* Background: image by default; video on Play Video click */}
+        {/* Background: poster until Play Video; then YouTube video in background */}
         <HeroBackgroundVideo
           videoFileName="short_hero.mp4"
           posterFileName="main_hero_bg.png"
           imageOnly
           playRequested={isVideoPlaying}
+          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={handleVideoReady}
@@ -211,7 +215,7 @@ const Hero = () => {
           />
         </div>
 
-        <div className="container-custom relative z-10 flex items-center justify-center min-h-[calc(100vh-5rem)] text-center">
+        <div className={`container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center ${isVideoPlaying ? 'items-end' : 'items-center'}`}>
           <div>
             {/* Banner Notification - Only show if popup has been seen */}
             {showBanner && (
@@ -234,51 +238,53 @@ const Hero = () => {
               </motion.div>
             )}
 
-            {/* Main Headline with Rotating Text */}
-            <div 
-              className="relative h-96 flex items-center justify-center"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onWheel={handleWheel}
-            >
-              <AnimatePresence mode="wait">
-                <motion.h1
-                  key={currentTextIndex}
-                  className="text-6xl md:text-8xl font-display font-bold text-white mb-6 text-center"
-                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -50, scale: 0.9 }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                >
-                  {currentText.main}
-                  <br />
-                  <span className={currentText.middleColor}>{currentText.middle}</span>
-                  <br />
-                  <span className={currentText.bottomColor}>{currentText.bottom}</span>
-                </motion.h1>
-              </AnimatePresence>
-              
-              {/* Progress Indicators */}
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 cursor-pointer">
-                {rotatingTexts.map((_, index) => (
-                  <motion.div
-                    key={index}
-                    className={`w-2 h-2 rounded-full ${
-                      index === currentTextIndex ? 'bg-vortex-red' : 'bg-white/30'
-                    }`}
-                    animate={{
-                      scale: index === currentTextIndex ? 1.2 : 1,
-                      opacity: index === currentTextIndex ? 1 : 0.3
-                    }}
-                    transition={{ duration: 0.3 }}
-                    onClick={() => goToSlide(index)}
-                    whileHover={{ scale: 1.3 }}
-                    whileTap={{ scale: 0.9 }}
-                  />
-                ))}
+            {/* Main Headline with Rotating Text - hidden when video is playing */}
+            {!isVideoPlaying && (
+              <div 
+                className="relative h-96 flex items-center justify-center"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onWheel={handleWheel}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.h1
+                    key={currentTextIndex}
+                    className="text-6xl md:text-8xl font-display font-bold text-white mb-6 text-center"
+                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                  >
+                    {currentText.main}
+                    <br />
+                    <span className={currentText.middleColor}>{currentText.middle}</span>
+                    <br />
+                    <span className={currentText.bottomColor}>{currentText.bottom}</span>
+                  </motion.h1>
+                </AnimatePresence>
+                
+                {/* Progress Indicators */}
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 cursor-pointer">
+                  {rotatingTexts.map((_, index) => (
+                    <motion.div
+                      key={index}
+                      className={`w-2 h-2 rounded-full ${
+                        index === currentTextIndex ? 'bg-vortex-red' : 'bg-white/30'
+                      }`}
+                      animate={{
+                        scale: index === currentTextIndex ? 1.2 : 1,
+                        opacity: index === currentTextIndex ? 1 : 0.3
+                      }}
+                      transition={{ duration: 0.3 }}
+                      onClick={() => goToSlide(index)}
+                      whileHover={{ scale: 1.3 }}
+                      whileTap={{ scale: 0.9 }}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Subtitle */}
             <motion.p
@@ -382,12 +388,13 @@ const Hero = () => {
 
       {/* Mobile: Video section with rotator only */}
       <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
-        {/* Background: image by default; video on Play Video click */}
+        {/* Background: poster until Play Video; then YouTube video in background */}
         <HeroBackgroundVideo
           videoFileName="short_hero.mp4"
           posterFileName="main_hero_bg.png"
           imageOnly
           playRequested={isVideoPlaying}
+          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={handleVideoReady}
@@ -417,51 +424,53 @@ const Hero = () => {
               </motion.div>
             )}
 
-            {/* Main Headline with Rotating Text */}
-            <div 
-              className="relative h-64 flex items-center justify-center"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onWheel={handleWheel}
-            >
-              <AnimatePresence mode="wait">
-                <motion.h1
-                  key={currentTextIndex}
-                  className="text-4xl sm:text-5xl font-display font-bold text-white mb-6 text-center px-4"
-                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -50, scale: 0.9 }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                >
-                  {currentText.main}
-                  <br />
-                  <span className={currentText.middleColor}>{currentText.middle}</span>
-                  <br />
-                  <span className={currentText.bottomColor}>{currentText.bottom}</span>
-                </motion.h1>
-              </AnimatePresence>
-              
-              {/* Progress Indicators */}
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 cursor-pointer">
-                {rotatingTexts.map((_, index) => (
-                  <motion.div
-                    key={index}
-                    className={`w-2 h-2 rounded-full ${
-                      index === currentTextIndex ? 'bg-vortex-red' : 'bg-white/30'
-                    }`}
-                    animate={{
-                      scale: index === currentTextIndex ? 1.2 : 1,
-                      opacity: index === currentTextIndex ? 1 : 0.3
-                    }}
-                    transition={{ duration: 0.3 }}
-                    onClick={() => goToSlide(index)}
-                    whileHover={{ scale: 1.3 }}
-                    whileTap={{ scale: 0.9 }}
-                  />
-                ))}
+            {/* Main Headline with Rotating Text - hidden when video is playing */}
+            {!isVideoPlaying && (
+              <div 
+                className="relative h-64 flex items-center justify-center"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onWheel={handleWheel}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.h1
+                    key={currentTextIndex}
+                    className="text-4xl sm:text-5xl font-display font-bold text-white mb-6 text-center px-4"
+                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                  >
+                    {currentText.main}
+                    <br />
+                    <span className={currentText.middleColor}>{currentText.middle}</span>
+                    <br />
+                    <span className={currentText.bottomColor}>{currentText.bottom}</span>
+                  </motion.h1>
+                </AnimatePresence>
+                
+                {/* Progress Indicators */}
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 cursor-pointer">
+                  {rotatingTexts.map((_, index) => (
+                    <motion.div
+                      key={index}
+                      className={`w-2 h-2 rounded-full ${
+                        index === currentTextIndex ? 'bg-vortex-red' : 'bg-white/30'
+                      }`}
+                      animate={{
+                        scale: index === currentTextIndex ? 1.2 : 1,
+                        opacity: index === currentTextIndex ? 1 : 0.3
+                      }}
+                      transition={{ duration: 0.3 }}
+                      onClick={() => goToSlide(index)}
+                      whileHover={{ scale: 1.3 }}
+                      whileTap={{ scale: 0.9 }}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
