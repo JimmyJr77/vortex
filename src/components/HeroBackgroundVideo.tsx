@@ -11,6 +11,8 @@ interface HeroBackgroundVideoProps {
   playRequested?: boolean
   /** When provided and playRequested, use this YouTube video ID as background instead of LFS video. */
   youtubeVideoId?: string
+  /** When true, use compact sizing for mobile hero (60vh) - ensures video fits width on phone. */
+  compact?: boolean
   onVideoReady?: () => void
   onVideoError?: (error: Error) => void
 }
@@ -34,6 +36,7 @@ const HeroBackgroundVideo = ({
   imageOnly = false,
   playRequested = false,
   youtubeVideoId,
+  compact = false,
   onVideoReady,
   onVideoError,
 }: HeroBackgroundVideoProps) => {
@@ -276,7 +279,11 @@ const HeroBackgroundVideo = ({
             title="Hero background video"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            className="absolute top-1/2 left-1/2 min-w-[100vw] min-h-[56.25vw] w-[177.78vh] h-[100vh] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none ${
+              compact
+                ? 'min-w-full min-h-full w-[106.67vh] h-[60vh]'
+                : 'min-w-[100vw] min-h-[56.25vw] w-[177.78vh] h-[100vh]'
+            }`}
             style={{ border: 0 }}
           />
         </div>

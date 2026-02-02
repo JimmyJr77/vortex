@@ -29,12 +29,12 @@ export default function ParallaxGym() {
   }
 
   const activities = [
+    { icon: Dumbbell, name: 'Strength Training' },
     { icon: Building2, name: 'Premium Facilities' },
     { icon: Activity, name: 'Gymnastics' },
     { icon: Zap, name: 'Trampoline' },
     { icon: Zap, name: 'Tumbling & Flips' },
     { icon: Shield, name: 'Ninja Training' },
-    { icon: Dumbbell, name: 'Strength Training' },
     { icon: Flame, name: 'Plyometrics' },
     { icon: Wind, name: 'Speed Work' },
     { icon: Gauge, name: 'Agility Drills' },

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { Zap, Target, TrendingUp, Shield, Users, ArrowRight, CheckCircle, Play } from 'lucide-react'
+import { Zap, Target, TrendingUp, Shield, Users, ArrowRight, Play } from 'lucide-react'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
 interface AthleticismAcceleratorProps {
@@ -71,14 +71,6 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
     { icon: Users, title: 'Multi-Sport Transfer', description: 'Skills that enhance performance in any athletic discipline' },
   ]
 
-  const programDetails = [
-    'Small group or 1:1 sessions available',
-    'Comprehensive assessment required before enrollment',
-    'Monthly or seasonal packages available',
-    'Technology-integrated training with real-time feedback',
-    'AI-driven personalized progression plans',
-  ]
-
   return (
     <div className="min-h-screen bg-white">
       {/* Desktop: Full screen section with everything overlaid on video */}
@@ -132,13 +124,13 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
                   href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
+                  className="inline-flex items-center gap-2 bg-vortex-red text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className="relative z-10 flex items-center space-x-3">
+                  <span className="relative z-10 flex items-center space-x-2">
                     <span>Join the Accelerator</span>
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                   </span>
                   <motion.div
                     className="absolute inset-0 bg-white/20"
@@ -146,17 +138,6 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
                     whileHover={{ x: '100%' }}
                     transition={{ duration: 0.6 }}
                   />
-                </motion.a>
-
-                <motion.a
-                  href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Book an Assessment
                 </motion.a>
 
                 {!isVideoPlaying && (
@@ -248,25 +229,12 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
                 href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
+                className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="flex items-center justify-center space-x-3">
-                  <span>Join the Accelerator</span>
-                  <ArrowRight className="w-5 h-5" />
-                </span>
-              </motion.a>
-
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 w-full max-w-xs"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Book an Assessment
+                <span>Join the Accelerator</span>
+                <ArrowRight className="w-5 h-5" />
               </motion.a>
             </motion.div>
 
@@ -301,16 +269,18 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
             <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-6">
               THE ATHLETICISM <span className="text-vortex-red">ACCELERATOR</span>
             </h2>
+            <p className="text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed mb-6">
+              A multi-dimensional performance system built on our proprietary{' '}
+              <span className="font-bold text-vortex-red">8 Tenets of Athleticism</span> and delivered through{' '}
+              <span className="font-bold text-vortex-red">10 integrated training methodologies</span>.
+            </p>
             <p className="text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
-              A multi-dimensional performance program that builds the complete athlete through our 
-              proprietary <span className="font-bold text-vortex-red">8 Tenets of Athleticism</span>. 
-              Every session, regardless of class specialization, incorporates balanced training across 
-              all facets of athletic development – ensuring your athlete doesn't just train, but transforms.
+              Every session—regardless of class focus—is intentionally designed to develop strength, power, speed, coordination, mobility, and neuromotor control in parallel. By aligning force production, movement mechanics, and decision-making demands, we ensure athletes don't just train isolated skills—they adapt, connect, and transform as complete performers.
             </p>
           </motion.div>
 
           <motion.div
-            className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 md:p-12 mb-16"
+            className="bg-white border-2 border-vortex-red rounded-3xl p-8 md:p-12 mb-16"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -326,18 +296,21 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
               training flexibility, developing speed while enhancing balance. No athlete leaves with 
               weak links in their athletic chain.
             </p>
-            <p className="text-lg text-gray-700 leading-relaxed">
+            <p className="text-lg text-gray-700 leading-relaxed mb-6">
               Through biomechanics sensors, movement AI, and personalized programming, we track and adapt 
               training to maximize each athlete's potential across all eight tenets. This isn't just gymnastics 
               training – it's comprehensive athletic development that will make your child a better athlete, 
               regardless of their primary sport.
             </p>
+            <p className="text-lg text-gray-700 leading-relaxed">
+              But if you want your athlete to most fully excel in a focused training regimen geared toward athletic development, the Athletic Accelerator program is your go to training regimen. This is not a series of random workouts strung together into a program. This is a calculated and targeted development plan to get the most out of your athlete.
+            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* The 8 Tenets */}
-      <section className="section-padding bg-gray-50">
+      {/* Training Philosophy */}
+      <section className="section-padding bg-white">
         <div className="container-custom">
           <motion.div
             className="text-center mb-16"
@@ -347,9 +320,21 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-6">
-              THE 8 TENETS OF <span className="text-vortex-red">ATHLETICISM</span>
+              TRAINING <span className="text-vortex-red">PHILOSOPHY</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          </motion.div>
+
+          <motion.div
+            className="text-left mb-16"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h3 className="text-2xl md:text-3xl font-display font-bold text-black mb-4">
+              The 8 Tenets of <span className="text-vortex-red">Athleticism</span>
+            </h3>
+            <p className="text-lg text-gray-700 max-w-4xl">
               Each pillar represents a critical component of elite athletic performance
             </p>
           </motion.div>
@@ -358,7 +343,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
             {tenets.map((tenet, index) => (
               <motion.div
                 key={tenet.name}
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow"
+                className="bg-gray-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
@@ -390,16 +375,16 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
       <section className="section-padding bg-white">
         <div className="container-custom">
           <motion.div
-            className="text-center mb-16"
+            className="text-left mb-16"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-6">
-              TRAINING <span className="text-vortex-red">METHODOLOGIES</span>
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-4">
+              Training <span className="text-vortex-red">Methodologies</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg text-gray-700 max-w-4xl">
               Science-backed techniques measured, tracked, and adapted with AI-driven insights
             </p>
           </motion.div>
@@ -420,11 +405,118 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
               </motion.div>
             ))}
           </div>
+
+          {/* Physiological Emphasis */}
+          <motion.div
+            className="mt-20"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h3 className="text-2xl md:text-3xl font-display font-bold text-black mb-4">
+              Physiological <span className="text-vortex-red">Emphasis</span>
+            </h3>
+            <p className="text-lg text-gray-700 mb-12 max-w-4xl">
+              Physiological Emphasis describes the primary biological systems stressed by a drill or training block. 
+              It functions as a systems-level overlay across Tenets of Athleticism and Training Methodologies.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                {
+                  name: 'Neural Output & Readiness',
+                  systems: 'Central Nervous System, Reflex Arc',
+                  purpose: 'Maximize motor unit recruitment and firing speed',
+                  outcomes: ['Faster reaction time', 'Improved rate of force development', 'Enhanced movement intent and explosiveness'],
+                },
+                {
+                  name: 'Force Capacity & Tissue Capacity',
+                  systems: 'Muscle, Tendon, Joint',
+                  purpose: 'Build structural tolerance and force production capability',
+                  outcomes: ['Strength and hypertrophy', 'Joint integrity and durability', 'Improved force absorption and expression'],
+                },
+                {
+                  name: 'SSC & Stiffness (Elastic Energy)',
+                  systems: 'Tendons, Fascia, Muscle-Tendon Unit',
+                  purpose: 'Optimize stretch–shortening cycle efficiency',
+                  outcomes: ['Reactive power', 'Shorter ground contact times', 'Improved elastic resilience'],
+                },
+                {
+                  name: 'Control & Stability',
+                  systems: 'Core, Proprioceptors, Stabilizing Musculature',
+                  purpose: 'Maintain positional integrity under load and speed',
+                  outcomes: ['Balance and postural control', 'Precision in deceleration and landing', 'Reduced injury risk'],
+                },
+                {
+                  name: 'Perception–Action Skill (Movement Intelligence)',
+                  systems: 'Brain–Body Integration',
+                  purpose: 'Improve movement patterning and adaptability',
+                  outcomes: ['Better timing and coordination', 'Enhanced spatial awareness', 'Transferable athletic skill across sports'],
+                },
+                {
+                  name: 'Energy Systems & Repeatability',
+                  systems: 'Aerobic and Anaerobic Energy Pathways',
+                  purpose: 'Sustain movement quality over repeated efforts',
+                  outcomes: ['Improved work capacity', 'Faster recovery between actions', 'Consistent performance under fatigue'],
+                  optional: true,
+                },
+              ].map((item, index) => (
+                <motion.div
+                  key={item.name}
+                  className="bg-gray-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.08, duration: 0.5 }}
+                  viewport={{ once: true }}
+                >
+                  <div className="flex items-start gap-2 mb-3">
+                    <h4 className="text-lg font-bold text-vortex-red">
+                      {item.name}
+                    </h4>
+                    {item.optional && (
+                      <span className="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded">Optional</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">
+                    <span className="font-semibold">Systems:</span> {item.systems}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-3">
+                    <span className="font-semibold">Purpose:</span> {item.purpose}
+                  </p>
+                  <p className="text-sm text-gray-700 font-semibold mb-1">Outcomes:</p>
+                  <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+                    {item.outcomes.map((outcome) => (
+                      <li key={outcome}>{outcome}</li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Training System Summary */}
+          <motion.div
+            className="mt-20 bg-black rounded-3xl p-12 md:p-16 text-white"
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-6">
+              Regimen Development <span className="text-vortex-red">Philosophy</span>
+            </h3>
+            <div className="max-w-4xl text-lg text-gray-300 leading-relaxed">
+              <p>
+                At Vortex Athletics, we don't just run drills—we build athletes with purpose. Our training system is built on three connected layers: what we develop, how we train, and why it works. First, we focus on the core Tenets of Athleticism—strength, speed, agility, coordination, balance, flexibility, explosiveness, and body control—because these qualities form the foundation of success in every sport. Next, we apply the right training methodologies, such as resistance training, plyometrics, balance work, and mobility, to develop those qualities safely and progressively. Finally, every drill is chosen with a clear physiological emphasis, meaning we intentionally train the nervous system, muscles, tendons, and movement patterns that help athletes move faster, stronger, and with better control. This layered approach ensures athletes don't just work hard—they train smart, stay healthy, and build skills that transfer to any sport, now and in the future.
+              </p>
+            </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Benefits */}
-      <section className="section-padding bg-gray-50">
+      <section className="section-padding bg-gray-200">
         <div className="container-custom">
           <motion.div
             className="text-center mb-16"
@@ -478,25 +570,14 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-8 text-center">
-              GYMNASTICS-FUELED <span className="text-vortex-red">ATHLETICISM</span>
+              GYMNASTICS AS A <span className="text-vortex-red">DIFFERENTIATOR</span>
             </h2>
             <div className="max-w-4xl mx-auto space-y-6 text-lg text-gray-300 leading-relaxed">
               <p>
-                What sets Vortex apart is our unique approach: leveraging gymnastics expertise and apparatus 
-                to develop all-around athleticism. Through our Athleticism Accelerator, young athletes 
-                (regardless of sport) train using <span className="font-bold text-white">gymnastics-based methods</span> 
-                – tumbling exercises for coordination, ring and bar drills for upper-body and core strength, 
-                trampoline work for air awareness and lower-body power, and balance drills on beams for stability.
+                Gymnastics-informed athleticism at Vortex integrates traditional strength, speed, and conditioning with targeted gymnastics-based methods to enhance movement efficiency, neuromuscular control, and force application. This approach reinforces coordination, joint integrity, and spatial awareness—key determinants of how effectively athletes express strength, power, and speed under dynamic conditions.
               </p>
-              <p>
-                This approach builds exceptional body control, flexibility, and strength in ways that typical 
-                speed ladders or weight rooms cannot fully replicate. Research shows that gymnastics training 
-                at a young age leads to superior agility, balance, coordination, and strength, which collectively 
-                improve neuromuscular control and proprioception.
-              </p>
-              <p className="text-vortex-red font-bold text-xl pt-4">
-                Time spent on gymnastics drills makes children more aware of their body in space, more explosive 
-                in movement, and less prone to injury – benefits that carry over to any sport.
+              <p className="text-vortex-red font-bold text-xl">
+                This regimen will improve movement economy, reduce injury risk, and provide greater transfer of training to sport performance.
               </p>
             </div>
           </motion.div>
@@ -504,7 +585,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
       </section>
 
       {/* Join the Accelerator */}
-      <section className="section-padding bg-gradient-to-br from-gray-900 to-black text-white">
+      <section className="section-padding bg-white text-black">
         <div className="container-custom">
           <motion.div
             className="text-center"
@@ -513,31 +594,20 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-display font-bold mb-8">
+            <h2 className="text-4xl md:text-5xl font-display font-bold mb-10 text-black">
               JOIN THE <span className="text-vortex-red">ACCELERATOR</span>
             </h2>
 
-            <div className="max-w-2xl mx-auto mb-12">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                {programDetails.map((detail, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <CheckCircle className="w-6 h-6 text-vortex-red flex-shrink-0 mt-1" />
-                    <span className="text-gray-300 text-lg">{detail}</span>
-                  </div>
-                ))}
-              </div>
-
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105 shadow-2xl"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Get Started Today
-              </motion.a>
-            </div>
+            <motion.a
+              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105 shadow-2xl"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Get Started Today
+            </motion.a>
           </motion.div>
         </div>
       </section>

@@ -395,6 +395,7 @@ const Hero = () => {
           imageOnly
           playRequested={isVideoPlaying}
           youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
+          compact
           className="absolute inset-0 w-full h-full"
           overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
           onVideoReady={handleVideoReady}
