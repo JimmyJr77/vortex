@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
@@ -7,20 +6,64 @@ import {
   Trophy,
   CheckCircle,
   Heart,
-  Play,
+  Music,
+  Zap,
 } from 'lucide-react'
-import HeroBackgroundVideo from './HeroBackgroundVideo'
 
-// Same YouTube video as home hero when "Play Video" is clicked
-const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
+const HERO_IMAGES = [
+  '/campaign_early_dev_hero.jpg',
+  '/campaign_6-12_hero1.jpg',
+  '/campaign_6-12_hero2.jpg',
+  '/campaign_6-12_hero3.jpg',
+  '/campaign_6-12_hero4.jpg',
+  '/campaign_6-12_hero5.jpg',
+  '/campaign_6-12_hero6.jpg',
+  '/campaign_6-12_hero7.jpg',
+  '/campaign_6-12_hero8.jpg',
+  '/campaign_13-18_hero1.jpg',
+  '/campaign_13-18_hero2.jpg',
+  '/campaign_13-18_hero3.jpg',
+  '/campaign_13-18_hero4.jpg',
+  '/campaign_13-18_hero5.jpg',
+  '/campaign_13-18_hero6.jpg',
+]
 
 interface GymnasticsProps {
   onSignUpClick?: () => void
 }
 
 const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const disciplines = [
+    {
+      id: 'artistic',
+      title: 'Artistic Gymnastics',
+      tagline: 'Master Movement. Build Strength. Elevate Artistry.',
+      description:
+        'The ultimate foundation of athletic mastery: combining grace, strength, flexibility, coordination, and control into a beautiful expression of human movement. Apparatus: vault, bars, beam, floor.',
+      to: '/artistic-gymnastics',
+      icon: Sparkles,
+      color: 'from-vortex-red to-red-800',
+    },
+    {
+      id: 'rhythmic',
+      title: 'Rhythmic Gymnastics',
+      tagline: 'Grace in Motion. Strength in Every Line.',
+      description:
+        'The perfect balance of athletic precision and artistic flow. Athletes learn choreography, flexibility, and apparatus control (ribbon, hoop, ball, clubs, rope) while developing strength and stability.',
+      to: '/rhythmic-gymnastics',
+      icon: Music,
+      color: 'from-purple-600 to-purple-900',
+    },
+    {
+      id: 'trampoline-tumbling',
+      title: 'Trampoline & Tumbling',
+      tagline: 'Bounce Higher. Land Stronger. Tumble Smarter.',
+      description:
+        'Mastering air awareness and body control through trampoline, tumbling, and double-mini. Progressive skill development from safe landings and shapes to routine construction and competition.',
+      to: '/trampoline-tumbling',
+      icon: Zap,
+      color: 'from-amber-600 to-amber-900',
+    },
     {
       id: 'aerobic',
       title: 'Aerobic Gymnastics',
@@ -35,32 +78,31 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Desktop: Full screen section with everything overlaid */}
-      <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
-        <HeroBackgroundVideo
-          videoFileName="artistic_gymnastics.mp4"
-          posterFileName="main_hero_bg.png"
-          imageOnly
-          playRequested={isVideoPlaying}
-          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
-          className="absolute inset-0 w-full h-full"
-          overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
-          onVideoReady={() => {}}
-          onVideoError={() => {}}
-        />
-        <div className="absolute inset-0 z-[1]">
-          <motion.div
-            className="absolute top-1/4 left-1/4 w-64 h-64 bg-vortex-red/20 rounded-full blur-3xl"
-            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-vortex-red/10 rounded-full blur-3xl"
-            animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          />
+      {/* Desktop: Full screen section with scrolling hero images */}
+      <section className="hidden md:block relative min-h-screen w-full overflow-hidden pt-20">
+        {/* Scrolling images strip — nonstop steady scroll */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div
+            className="flex h-full gymnastics-hero-scroll"
+            style={{ width: `${HERO_IMAGES.length * 2 * 100}vw` }}
+          >
+            {[...HERO_IMAGES, ...HERO_IMAGES].map((src, i) => (
+              <div
+                key={`${src}-${i}`}
+                className="h-full flex-shrink-0"
+                style={{ width: '100vw', minWidth: '100vw' }}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </div>
-        <div className={`container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center ${isVideoPlaying ? 'items-end' : 'items-center'}`}>
+        <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
+        <div className="container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center items-center">
           <div>
             <motion.h1
               className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
@@ -101,18 +143,6 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
                 >
                   View Class Schedule
                 </Link>
-                {!isVideoPlaying && (
-                  <motion.button
-                    onClick={() => setIsVideoPlaying(true)}
-                    className="inline-flex items-center gap-2 border-2 border-white bg-transparent text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-white/10 hover:scale-105"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    aria-label="Play video"
-                  >
-                    <Play className="w-5 h-5 fill-white" />
-                    Play Video
-                  </motion.button>
-                )}
               </div>
               <motion.div
                 className="flex justify-center"
@@ -132,19 +162,29 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
         </div>
       </section>
 
-      {/* Mobile: Hero section with title only */}
+      {/* Mobile: Hero section with scrolling images */}
       <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
-        <HeroBackgroundVideo
-          videoFileName="artistic_gymnastics.mp4"
-          posterFileName="main_hero_bg.png"
-          imageOnly
-          playRequested={isVideoPlaying}
-          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
-          className="absolute inset-0 w-full h-full"
-          overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
-          onVideoReady={() => {}}
-          onVideoError={() => {}}
-        />
+        <div className="absolute inset-0 overflow-hidden">
+          <div
+            className="flex h-full gymnastics-hero-scroll"
+            style={{ width: `${HERO_IMAGES.length * 2 * 100}vw` }}
+          >
+            {[...HERO_IMAGES, ...HERO_IMAGES].map((src, i) => (
+              <div
+                key={`${src}-${i}-mobile`}
+                className="h-full flex-shrink-0"
+                style={{ width: '100vw', minWidth: '100vw' }}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
         <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">
           <div className="container-custom text-center w-full pointer-events-auto">
             <motion.h1
@@ -252,9 +292,9 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
             <motion.div
-              className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
+              className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col min-h-[420px]"
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
@@ -286,14 +326,14 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
                 href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block w-full bg-blue-600 text-white px-6 py-4 rounded-xl font-bold text-center transition-all duration-300 hover:bg-blue-700 hover:scale-[1.02]"
+                className="inline-block w-full mt-auto bg-blue-600 text-white px-6 py-4 rounded-xl font-bold text-center transition-all duration-300 hover:bg-blue-700 hover:scale-[1.02]"
               >
                 Start Your Journey
               </motion.a>
             </motion.div>
 
             <motion.div
-              className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
+              className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col min-h-[420px]"
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
@@ -325,12 +365,53 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
                 href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block w-full bg-vortex-red text-white px-6 py-4 rounded-xl font-bold text-center transition-all duration-300 hover:bg-red-700 hover:scale-[1.02]"
+                className="inline-block w-full mt-auto bg-vortex-red text-white px-6 py-4 rounded-xl font-bold text-center transition-all duration-300 hover:bg-red-700 hover:scale-[1.02]"
               >
                 Join the Team
               </motion.a>
             </motion.div>
           </div>
+
+          {/* General levels */}
+          <motion.div
+            className="mt-12 pt-8 border-t border-gray-300"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <p className="text-center text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">General Levels</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto">
+              <Link
+                to="/artistic-gymnastics-early"
+                className="w-full px-4 py-2.5 rounded-xl bg-amber-100 text-amber-900 font-semibold text-sm border-2 border-amber-300 hover:bg-amber-200 transition-colors text-left min-h-[70px] block"
+              >
+                <span className="block font-bold">Early Developmental</span>
+                <span className="block text-xs font-normal opacity-90">Dust Devils, Little Twisters</span>
+              </Link>
+              <Link
+                to="/artistic-gymnastics-6-12"
+                className="w-full px-4 py-2.5 rounded-xl bg-blue-100 text-blue-900 font-semibold text-sm border-2 border-blue-300 hover:bg-blue-200 transition-colors text-left min-h-[70px] block"
+              >
+                <span className="block font-bold">Beginner</span>
+                <span className="block text-xs font-normal opacity-90">Tornadoes</span>
+              </Link>
+              <Link
+                to="/artistic-gymnastics-6-12"
+                className="w-full px-4 py-2.5 rounded-xl bg-vortex-red/10 text-vortex-red font-semibold text-sm border-2 border-vortex-red/40 hover:bg-vortex-red/20 transition-colors text-left min-h-[70px] block"
+              >
+                <span className="block font-bold">Intermediate</span>
+                <span className="block text-xs font-normal opacity-90">Cyclones</span>
+              </Link>
+              <Link
+                to="/artistic-gymnastics-13-18"
+                className="w-full px-4 py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-sm border-2 border-gray-700 hover:bg-gray-800 transition-colors text-left min-h-[70px] block"
+              >
+                <span className="block font-bold">Advanced</span>
+                <span className="block text-xs font-normal opacity-90">Vortex A4 Elite</span>
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -352,13 +433,13 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick }: GymnasticsProps) => {
             </p>
           </motion.div>
         </div>
-        <div className="w-full px-4 md:px-6 lg:px-8 space-y-4">
+        <div className="w-full px-4 md:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-4">
           {disciplines.map((disc, index) => {
             const Icon = disc.icon
             const CardContent = (
               <motion.div
                 key={disc.id}
-                className={`bg-gradient-to-br ${disc.color} rounded-2xl p-6 md:p-8 text-white w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-lg hover:shadow-xl transition-shadow duration-300`}
+                className={`bg-gradient-to-br ${disc.color} rounded-2xl p-6 md:p-8 text-white w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-lg hover:shadow-xl transition-shadow duration-300 min-h-[220px]`}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}

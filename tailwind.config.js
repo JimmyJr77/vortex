@@ -15,11 +15,18 @@ export default {
         'sans': ['Inter', 'system-ui', 'sans-serif'],
         'display': ['Oswald', 'system-ui', 'sans-serif'],
       },
+      keyframes: {
+        'gymnastics-scroll': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
       animation: {
         'spin-slow': 'spin 3s linear infinite',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'bounce-slow': 'bounce 2s infinite',
-      }
+        'gymnastics-scroll': 'gymnastics-scroll 90s linear infinite',
+      },
     },
   },
   plugins: [],

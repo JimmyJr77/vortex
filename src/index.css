@@ -49,4 +49,14 @@
   .header-slide-in {
     animation: header-slide-in 0.6s ease-out forwards;
   }
+
+  /* Gymnastics hero: nonstop scrolling image strip (custom class to ensure it runs) */
+  @keyframes gymnastics-hero-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .gymnastics-hero-scroll {
+    animation: gymnastics-hero-scroll 60s linear infinite;
+    will-change: transform;
+  }
 }

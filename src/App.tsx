@@ -150,6 +150,18 @@ function App() {
           element={<Gymnastics onSignUpClick={handleContactClick} />} 
         />
         <Route 
+          path="/artistic-gymnastics-early" 
+          element={<ArtisticGymnasticsEarlyLanding onSignUpClick={handleContactClick} />} 
+        />
+        <Route 
+          path="/artistic-gymnastics-6-12" 
+          element={<ArtisticGymnasticsAges6to12Landing onSignUpClick={handleContactClick} />} 
+        />
+        <Route 
+          path="/artistic-gymnastics-13-18" 
+          element={<ArtisticGymnasticsAges13to18Landing onSignUpClick={handleContactClick} />} 
+        />
+        <Route 
           path="/campaigns/artistic-gymnastics-early" 
           element={<ArtisticGymnasticsEarlyLanding onSignUpClick={handleContactClick} />} 
         />
