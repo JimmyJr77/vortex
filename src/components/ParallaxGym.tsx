@@ -17,7 +17,7 @@ export default function ParallaxGym() {
   const activityImageMap: Record<string, string> = {
     'Premium Facilities': '/gym_background.png',
     'Gymnastics': '/gymnastics.jpeg',
-    'Trampoline': '/trampoline.jpeg',
+    'Trampoline': '/tramp_logo.png',
     'Tumbling & Flips': '/tumbling.jpeg',
     'Ninja Training': '/ninja.jpeg',
     'Strength Training': '/strength.jpeg',

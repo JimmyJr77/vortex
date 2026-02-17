@@ -4,6 +4,9 @@ import Header from './components/Header'
 import HomePage from './components/HomePage'
 import AthleticismAccelerator from './components/AthleticismAccelerator'
 import Gymnastics from './components/Gymnastics'
+import ArtisticGymnasticsEarlyLanding from './components/ArtisticGymnasticsEarlyLanding'
+import ArtisticGymnasticsAges6to12Landing from './components/ArtisticGymnasticsAges6to12Landing'
+import ArtisticGymnasticsAges13to18Landing from './components/ArtisticGymnasticsAges13to18Landing'
 import StrengthFitness from './components/StrengthFitness'
 import Ninja from './components/Ninja'
 import Value from './components/Value'
@@ -145,6 +148,18 @@ function App() {
         <Route 
           path="/gymnastics" 
           element={<Gymnastics onSignUpClick={handleContactClick} />} 
+        />
+        <Route 
+          path="/campaigns/artistic-gymnastics-early" 
+          element={<ArtisticGymnasticsEarlyLanding onSignUpClick={handleContactClick} />} 
+        />
+        <Route 
+          path="/campaigns/artistic-gymnastics-6-12" 
+          element={<ArtisticGymnasticsAges6to12Landing onSignUpClick={handleContactClick} />} 
+        />
+        <Route 
+          path="/campaigns/artistic-gymnastics-13-18" 
+          element={<ArtisticGymnasticsAges13to18Landing onSignUpClick={handleContactClick} />} 
         />
         <Route 
           path="/strength-conditioning" 
