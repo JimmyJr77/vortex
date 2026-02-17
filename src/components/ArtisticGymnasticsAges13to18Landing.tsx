@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 
 const HERO_IMAGES = [
@@ -10,8 +9,6 @@ const HERO_IMAGES = [
   '/campaign_13-18_hero5.jpg',
   '/campaign_13-18_hero6.jpg',
 ]
-
-const ROTATE_INTERVAL_MS = 5000
 
 interface ArtisticGymnasticsAges13to18LandingProps {
   onSignUpClick?: () => void
@@ -25,15 +22,6 @@ const JACKRABBIT_URL = 'https://app3.jackrabbitclass.com/regv2.asp?id=557920'
  * Theme: "Train With Purpose."
  */
 const ArtisticGymnasticsAges13to18Landing = ({ onSignUpClick }: ArtisticGymnasticsAges13to18LandingProps) => {
-  const [heroIndex, setHeroIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % HERO_IMAGES.length)
-    }, ROTATE_INTERVAL_MS)
-    return () => clearInterval(interval)
-  }, [])
-
   const elevatedFocus = [
     'Power development',
     'Advanced tumbling',
@@ -67,21 +55,23 @@ const ArtisticGymnasticsAges13to18Landing = ({ onSignUpClick }: ArtisticGymnasti
   return (
     <div className="min-h-screen bg-white">
       {/* HERO SECTION */}
-      <section className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
-        {/* Hero image rotator */}
-        <div className="absolute inset-0 w-full h-full">
-          {HERO_IMAGES.map((src, index) => (
-            <img
-              key={src}
-              src={src}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-              style={{
-                opacity: index === heroIndex ? 1 : 0,
-                zIndex: 0,
-              }}
-            />
-          ))}
+      <section className="relative min-h-screen w-full overflow-hidden pt-20">
+        {/* Scrolling images strip — same smooth scroll as /gymnastics hero */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div
+            className="flex h-full gymnastics-hero-scroll"
+            style={{ width: `${HERO_IMAGES.length * 2 * 100}vw` }}
+          >
+            {[...HERO_IMAGES, ...HERO_IMAGES].map((src, i) => (
+              <div
+                key={`${src}-${i}`}
+                className="h-full flex-shrink-0"
+                style={{ width: '100vw', minWidth: '100vw' }}
+              >
+                <img src={src} alt="" className="h-full w-full object-cover" />
+              </div>
+            ))}
+          </div>
         </div>
         <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
         <div className="absolute inset-0 z-[1]">
@@ -99,21 +89,13 @@ const ArtisticGymnasticsAges13to18Landing = ({ onSignUpClick }: ArtisticGymnasti
 
         <div className="container-custom relative z-10 flex min-h-[calc(100vh-5rem)] flex-col justify-center py-16 text-center">
           <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6"
+            className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-10 mx-auto max-w-4xl"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            Train With <span className="text-vortex-red">Purpose.</span>
-          </motion.h1>
-          <motion.p
-            className="mx-auto max-w-3xl text-xl md:text-2xl text-gray-300 leading-relaxed mb-10"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-          >
             Advanced artistic gymnastics training for athletes 13–18 who want real progression.
-          </motion.p>
+          </motion.h1>
           <motion.a
             href={JACKRABBIT_URL}
             target="_blank"

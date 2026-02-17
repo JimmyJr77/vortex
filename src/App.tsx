@@ -13,7 +13,6 @@ import Value from './components/Value'
 import ReadBoard from './components/ReadBoard'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
-import OpeningPopup from './components/OpeningPopup'
 import Login from './components/Login'
 import Admin from './components/Admin'
 import MemberLogin from './components/MemberLogin'
@@ -22,7 +21,6 @@ import { trackPageView, trackEngagement } from './utils/analytics'
 
 function App() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
-  const [isOpeningPopupOpen, setIsOpeningPopupOpen] = useState(false)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isMemberLoginOpen, setIsMemberLoginOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
@@ -63,14 +61,6 @@ function App() {
     // Track page view
     if (!adminStatus && !storedToken) {
       trackPageView(location.pathname)
-    }
-
-    // Show opening popup after a short delay (only if not admin/member and first visit)
-    if (!adminStatus && !storedToken) {
-      const timer = setTimeout(() => {
-        setIsOpeningPopupOpen(true)
-      }, 1000);
-      return () => clearTimeout(timer)
     }
   }, [location.pathname])
 
@@ -198,13 +188,6 @@ function App() {
         onContactClick={handleContactClick} 
         onLoginClick={() => setIsLoginOpen(true)}
         onMemberLoginClick={() => setIsMemberLoginOpen(true)}
-      />
-      
-      {/* Opening Popup - shows on first visit */}
-      <OpeningPopup
-        isOpen={isOpeningPopupOpen}
-        onClose={() => setIsOpeningPopupOpen(false)}
-        onSignUp={handleContactClick}
       />
 
       {/* Admin Login Modal */}

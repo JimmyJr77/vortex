@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 
 const HERO_IMAGES = [
@@ -13,8 +12,6 @@ const HERO_IMAGES = [
   '/campaign_6-12_hero8.jpg',
 ]
 
-const ROTATE_INTERVAL_MS = 5000
-
 interface ArtisticGymnasticsAges6to12LandingProps {
   onSignUpClick?: () => void
 }
@@ -27,15 +24,6 @@ const JACKRABBIT_URL = 'https://app3.jackrabbitclass.com/regv2.asp?id=557920'
  * Theme: "Build the Athlete. Build the Confidence."
  */
 const ArtisticGymnasticsAges6to12Landing = ({ onSignUpClick }: ArtisticGymnasticsAges6to12LandingProps) => {
-  const [heroIndex, setHeroIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % HERO_IMAGES.length)
-    }, ROTATE_INTERVAL_MS)
-    return () => clearInterval(interval)
-  }, [])
-
   const pathwayLevels = [
     {
       className: 'Tornadoes',
@@ -74,21 +62,23 @@ const ArtisticGymnasticsAges6to12Landing = ({ onSignUpClick }: ArtisticGymnastic
   return (
     <div className="min-h-screen bg-white">
       {/* HERO SECTION */}
-      <section className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
-        {/* Hero image rotator */}
-        <div className="absolute inset-0 w-full h-full">
-          {HERO_IMAGES.map((src, index) => (
-            <img
-              key={src}
-              src={src}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-              style={{
-                opacity: index === heroIndex ? 1 : 0,
-                zIndex: 0,
-              }}
-            />
-          ))}
+      <section className="relative min-h-screen w-full overflow-hidden pt-20">
+        {/* Scrolling images strip — same smooth scroll as /gymnastics hero */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div
+            className="flex h-full gymnastics-hero-scroll"
+            style={{ width: `${HERO_IMAGES.length * 2 * 100}vw` }}
+          >
+            {[...HERO_IMAGES, ...HERO_IMAGES].map((src, i) => (
+              <div
+                key={`${src}-${i}`}
+                className="h-full flex-shrink-0"
+                style={{ width: '100vw', minWidth: '100vw' }}
+              >
+                <img src={src} alt="" className="h-full w-full object-cover" />
+              </div>
+            ))}
+          </div>
         </div>
         <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
         <div className="absolute inset-0 z-[1]">
@@ -119,7 +109,7 @@ const ArtisticGymnasticsAges6to12Landing = ({ onSignUpClick }: ArtisticGymnastic
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
           >
-            Artistic & Rhythmic Gymnastics training for ages 6-12 — beginner through elite pathways.
+            Artistic & Rhythmic Gymnastics training for beginners through elite level athletes.
           </motion.p>
           <motion.a
             href={JACKRABBIT_URL}

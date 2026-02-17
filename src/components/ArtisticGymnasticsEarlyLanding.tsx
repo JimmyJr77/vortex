@@ -56,7 +56,7 @@ const ArtisticGymnasticsEarlyLanding = ({ onSignUpClick }: ArtisticGymnasticsEar
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
           >
-            Structured early development gymnastics for ages 2–5 — building balance, coordination, and courage from the very first class.
+            Structured early development gymnastics for ages 2–5, building balance, coordination, and courage from the very first class.
           </motion.p>
           <motion.a
             href={JACKRABBIT_URL}

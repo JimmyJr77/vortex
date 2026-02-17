@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, X } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
@@ -11,25 +10,8 @@ const Hero = () => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
-  const [showBanner, setShowBanner] = useState(false)
   const [isVideoPlaying, _setIsVideoPlaying] = useState(false)
 
-  useEffect(() => {
-    // Check if popup has been seen and banner hasn't been dismissed
-    const popupSeen = localStorage.getItem('vortex-gymnastics-classes-popup-seen')
-    const bannerDismissed = localStorage.getItem('vortex-gymnastics-banner-dismissed')
-    
-    if (popupSeen && !bannerDismissed) {
-      setShowBanner(true)
-    }
-  }, [])
-
-
-  const handleBannerClose = () => {
-    localStorage.setItem('vortex-gymnastics-banner-dismissed', 'true')
-    setShowBanner(false)
-  }
-  
   const rotatingTexts = [
     {
       main: "DON'T JUST",
@@ -216,27 +198,6 @@ const Hero = () => {
 
         <div className={`container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center ${isVideoPlaying ? 'items-end' : 'items-center'}`}>
           <div>
-            {/* Banner Notification - Only show if popup has been seen */}
-            {showBanner && (
-              <motion.div
-                className="inline-flex items-center space-x-2 bg-vortex-red text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 relative pr-10"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Zap className="w-4 h-4" />
-                <span>Gymnastics classes now open. Athleticism, Fitness, and Ninja classes will open in February</span>
-                <button
-                  onClick={handleBannerClose}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:text-gray-200 transition-colors p-1"
-                  aria-label="Close banner"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </motion.div>
-            )}
-
             {/* Main Headline with Rotating Text - hidden when video is playing */}
             {!isVideoPlaying && (
               <div 
@@ -401,27 +362,6 @@ const Hero = () => {
 
         <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">
           <div className="container-custom text-center w-full pointer-events-auto">
-            {/* Banner Notification - Only show if popup has been seen */}
-            {showBanner && (
-              <motion.div
-                className="inline-flex items-center space-x-2 bg-vortex-red text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 relative pr-10"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Zap className="w-4 h-4" />
-                <span>Gymnastics classes now open. Athleticism, Fitness, and Ninja classes will open in February</span>
-                <button
-                  onClick={handleBannerClose}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:text-gray-200 transition-colors p-1"
-                  aria-label="Close banner"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </motion.div>
-            )}
-
             {/* Main Headline with Rotating Text - hidden when video is playing */}
             {!isVideoPlaying && (
               <div 
