@@ -1,5 +1,30 @@
 import type { StubSiteConfig } from '../config/stubSites'
-import { HUB_URL } from '../config/stubSites'
+import { HUB_URL, STUB_SITES } from '../config/stubSites'
+
+const isLocalDevHost = (): boolean => {
+  if (typeof window === 'undefined') return false
+  const host = window.location.hostname
+  return host === 'localhost' || host === '127.0.0.1'
+}
+
+/** Production stub sport domain URL; localhost uses ?sport= for preview. */
+export function getStubSportSiteUrl(sportKey: string, path = '/'): string {
+  const entry = Object.values(STUB_SITES).find((s) => s.key === sportKey)
+  if (!entry) return '/'
+
+  const normalized = path.startsWith('/') ? path : `/${path}`
+
+  if (import.meta.env.DEV && isLocalDevHost()) {
+    if (normalized === '/') {
+      return `/?sport=${sportKey}`
+    }
+    const separator = normalized.includes('?') ? '&' : '?'
+    return `${normalized}${separator}sport=${sportKey}`
+  }
+
+  const base = `https://${entry.canonicalHost}`
+  return normalized === '/' ? `${base}/` : `${base}${normalized}`
+}
 
 export const getSportBrandName = (sportLabel: string): string =>
   `Vortex ${sportLabel}`

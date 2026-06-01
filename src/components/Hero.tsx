@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
-import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
+import HeroSportsMenu from './HeroSportsMenu'
 
 // YouTube video ID to play when "Play Video" is clicked (change this to your desired video)
 const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
@@ -280,41 +280,6 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Highlights
                 </motion.button>
               )}
-              <a
-                href={getGymnasticsSiteUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <motion.button
-                  type="button"
-                  className="btn-secondary group"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Gymnastics
-                </motion.button>
-              </a>
-              
-              <Link to="/ninja">
-                <motion.button
-                  className="btn-secondary group"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Vortex Ninja
-                </motion.button>
-              </Link>
-              
-              <Link to="/strength-conditioning">
-                <motion.button
-                  className="btn-secondary group"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Fit & Flip
-                </motion.button>
-              </Link>
-              
               <Link to="/athleticism-accelerator">
                 <motion.button
                   className="btn-secondary group"
@@ -324,6 +289,16 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Athleticism Accelerator
                 </motion.button>
               </Link>
+              <Link to="/strength-conditioning">
+                <motion.button
+                  className="btn-secondary group"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Fit & Flip
+                </motion.button>
+              </Link>
+              <HeroSportsMenu />
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -467,42 +442,6 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Highlights
                 </motion.button>
               )}
-              <a
-                href={getGymnasticsSiteUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full max-w-xs"
-              >
-                <motion.button
-                  type="button"
-                  className="btn-secondary group w-full"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Gymnastics
-                </motion.button>
-              </a>
-              
-              <Link to="/ninja" className="w-full max-w-xs">
-                <motion.button
-                  className="btn-secondary group w-full"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Vortex Ninja
-                </motion.button>
-              </Link>
-              
-              <Link to="/strength-conditioning" className="w-full max-w-xs">
-                <motion.button
-                  className="btn-secondary group w-full"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Fit & Flip
-                </motion.button>
-              </Link>
-              
               <Link to="/athleticism-accelerator" className="w-full max-w-xs">
                 <motion.button
                   className="btn-secondary group w-full"
@@ -512,6 +451,16 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Athleticism Accelerator
                 </motion.button>
               </Link>
+              <Link to="/strength-conditioning" className="w-full max-w-xs">
+                <motion.button
+                  className="btn-secondary group w-full"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Fit & Flip
+                </motion.button>
+              </Link>
+              <HeroSportsMenu fullWidth />
             </motion.div>
 
             {/* Scroll Indicator */}
