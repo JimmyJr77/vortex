@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
+import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 
 // YouTube video ID to play when "Play Video" is clicked (change this to your desired video)
 const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
@@ -279,15 +280,20 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Highlights
                 </motion.button>
               )}
-              <Link to="/gymnastics">
+              <a
+                href={getGymnasticsSiteUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <motion.button
+                  type="button"
                   className="btn-secondary group"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   Gymnastics
                 </motion.button>
-              </Link>
+              </a>
               
               <Link to="/ninja">
                 <motion.button
@@ -461,15 +467,21 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Highlights
                 </motion.button>
               )}
-              <Link to="/gymnastics" className="w-full max-w-xs">
+              <a
+                href={getGymnasticsSiteUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full max-w-xs"
+              >
                 <motion.button
+                  type="button"
                   className="btn-secondary group w-full"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   Gymnastics
                 </motion.button>
-              </Link>
+              </a>
               
               <Link to="/ninja" className="w-full max-w-xs">
                 <motion.button

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Clock, Users, Target, Dumbbell, DollarSign, BarChart3, Zap, CheckCircle, Footprints } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 
 const Programs = () => {
   const programs = [
@@ -99,13 +100,21 @@ const Programs = () => {
                     {Content}
                   </Link>
                 ) : program.title === "Competitive Gymnastics" ? (
-                  <Link to="/gymnastics">
+                  <a
+                    href={getGymnasticsSiteUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {Content}
-                  </Link>
+                  </a>
                 ) : program.title === "Developmental Gymnastics" ? (
-                  <Link to="/gymnastics">
+                  <a
+                    href={getGymnasticsSiteUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {Content}
-                  </Link>
+                  </a>
                 ) : program.title === "Strength & Conditioning" ? (
                   <Link to="/strength-conditioning">
                     {Content}

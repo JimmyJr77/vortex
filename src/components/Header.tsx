@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 
 interface HeaderProps {
   onContactClick: () => void
@@ -14,13 +15,23 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
 
-  const menuItems = [
+  const menuItems: {
+    name: string
+    to?: string
+    href?: string
+    external?: boolean
+  }[] = [
     { name: 'Home', to: '/' },
-    { name: 'Gymnastics', to: '/gymnastics' },
+    { name: 'Gymnastics', href: getGymnasticsSiteUrl(), external: true },
     { name: 'Vortex Ninja', to: '/ninja' },
     { name: 'Fit & Flip', to: '/strength-conditioning' },
     { name: 'Athleticism Accelerator', to: '/athleticism-accelerator' },
   ]
+
+  const linkClass = (active: boolean) =>
+    `block ${
+      active ? 'text-vortex-red' : 'text-white'
+    } hover:text-vortex-red transition-colors duration-300 font-medium`
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm header-slide-in">
@@ -118,18 +129,29 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
           transition={{ duration: 0.3 }}
         >
           <div className="py-4 space-y-4 border-t border-gray-800">
-            {menuItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.to}
-                onClick={() => setIsMenuOpen(false)}
-                className={`block ${
-                  location.pathname === item.to ? 'text-vortex-red' : 'text-white'
-                } hover:text-vortex-red transition-colors duration-300 font-medium`}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {menuItems.map((item) =>
+              item.external && item.href ? (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMenuOpen(false)}
+                  className={linkClass(false)}
+                >
+                  {item.name}
+                </a>
+              ) : (
+                <Link
+                  key={item.name}
+                  to={item.to!}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={linkClass(location.pathname === item.to)}
+                >
+                  {item.name}
+                </Link>
+              ),
+            )}
             
             {/* Divider Line */}
             <div className="border-t border-gray-700 my-4"></div>

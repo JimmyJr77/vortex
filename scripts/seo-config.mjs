@@ -4,18 +4,11 @@ export const HUB_ORIGIN = 'https://www.vortexathletics.com'
 
 export const HUB_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
-  { path: '/gymnastics', priority: '0.8', changefreq: 'weekly' },
   { path: '/ninja', priority: '0.8', changefreq: 'weekly' },
   { path: '/strength-conditioning', priority: '0.8', changefreq: 'weekly' },
   { path: '/athleticism-accelerator', priority: '0.8', changefreq: 'weekly' },
   { path: '/value', priority: '0.7', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
-  { path: '/artistic-gymnastics-early', priority: '0.7', changefreq: 'monthly' },
-  { path: '/artistic-gymnastics-6-12', priority: '0.7', changefreq: 'monthly' },
-  { path: '/artistic-gymnastics-13-18', priority: '0.7', changefreq: 'monthly' },
-  { path: '/campaigns/artistic-gymnastics-early', priority: '0.6', changefreq: 'monthly' },
-  { path: '/campaigns/artistic-gymnastics-6-12', priority: '0.6', changefreq: 'monthly' },
-  { path: '/campaigns/artistic-gymnastics-13-18', priority: '0.6', changefreq: 'monthly' },
 ]
 
 export const HUB_PRERENDER_PATHS = HUB_SITEMAP_ENTRIES.map((entry) => entry.path)

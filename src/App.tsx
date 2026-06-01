@@ -14,10 +14,6 @@ import HighlightsModal from './components/HighlightsModal'
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
 const HomePage = lazy(() => import('./components/HomePage'))
 const AthleticismAccelerator = lazy(() => import('./components/AthleticismAccelerator'))
-const Gymnastics = lazy(() => import('./components/Gymnastics'))
-const ArtisticGymnasticsEarlyLanding = lazy(() => import('./components/ArtisticGymnasticsEarlyLanding'))
-const ArtisticGymnasticsAges6to12Landing = lazy(() => import('./components/ArtisticGymnasticsAges6to12Landing'))
-const ArtisticGymnasticsAges13to18Landing = lazy(() => import('./components/ArtisticGymnasticsAges13to18Landing'))
 const StrengthFitness = lazy(() => import('./components/StrengthFitness'))
 const Ninja = lazy(() => import('./components/Ninja'))
 const Value = lazy(() => import('./components/Value'))
@@ -159,39 +155,6 @@ function App() {
           <Route 
             path="/athleticism-accelerator" 
             element={<AthleticismAccelerator onSignUpClick={handleContactClick} />} 
-          />
-          <Route 
-            path="/gymnastics" 
-            element={
-              <Gymnastics
-                onSignUpClick={handleContactClick}
-                onHighlightsClick={hasHighlights ? openHighlights : undefined}
-              />
-            } 
-          />
-          <Route 
-            path="/artistic-gymnastics-early" 
-            element={<ArtisticGymnasticsEarlyLanding onSignUpClick={handleContactClick} />} 
-          />
-          <Route 
-            path="/artistic-gymnastics-6-12" 
-            element={<ArtisticGymnasticsAges6to12Landing onSignUpClick={handleContactClick} />} 
-          />
-          <Route 
-            path="/artistic-gymnastics-13-18" 
-            element={<ArtisticGymnasticsAges13to18Landing onSignUpClick={handleContactClick} />} 
-          />
-          <Route 
-            path="/campaigns/artistic-gymnastics-early" 
-            element={<ArtisticGymnasticsEarlyLanding onSignUpClick={handleContactClick} />} 
-          />
-          <Route 
-            path="/campaigns/artistic-gymnastics-6-12" 
-            element={<ArtisticGymnasticsAges6to12Landing onSignUpClick={handleContactClick} />} 
-          />
-          <Route 
-            path="/campaigns/artistic-gymnastics-13-18" 
-            element={<ArtisticGymnasticsAges13to18Landing onSignUpClick={handleContactClick} />} 
           />
           <Route 
             path="/strength-conditioning" 

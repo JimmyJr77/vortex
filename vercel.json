@@ -1,5 +1,91 @@
 {
   "version": 2,
+  "redirects": [
+    {
+      "source": "/gymnastics",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/",
+      "permanent": true
+    },
+    {
+      "source": "/gymnastics",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/",
+      "permanent": true
+    },
+    {
+      "source": "/artistic-gymnastics-early",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-early",
+      "permanent": true
+    },
+    {
+      "source": "/artistic-gymnastics-early",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-early",
+      "permanent": true
+    },
+    {
+      "source": "/artistic-gymnastics-6-12",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-6-12",
+      "permanent": true
+    },
+    {
+      "source": "/artistic-gymnastics-6-12",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-6-12",
+      "permanent": true
+    },
+    {
+      "source": "/artistic-gymnastics-13-18",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-13-18",
+      "permanent": true
+    },
+    {
+      "source": "/artistic-gymnastics-13-18",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-13-18",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-early",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-early",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-early",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-early",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-6-12",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-6-12",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-6-12",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-6-12",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-13-18",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-13-18",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-13-18",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-13-18",
+      "permanent": true
+    }
+  ],
   "builds": [
     {
       "src": "package.json",

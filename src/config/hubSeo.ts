@@ -18,13 +18,6 @@ export const HUB_HOME_SEO: HubRouteSeo = {
 export const HUB_ROUTES: HubRouteSeo[] = [
   HUB_HOME_SEO,
   {
-    path: '/gymnastics',
-    title: 'Gymnastics Programs | Vortex Athletics',
-    description:
-      'Progressive gymnastics training for all ages at Vortex Athletics. Build strength, flexibility, discipline, and confidence through expert coaching.',
-    priority: 0.8,
-  },
-  {
     path: '/ninja',
     title: 'Vortex Ninja Programs | Vortex Athletics',
     description:
@@ -58,48 +51,6 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     description:
       'View upcoming classes, camps, and events at Vortex Athletics. Stay up to date on schedules and opportunities for your athlete.',
     priority: 0.8,
-  },
-  {
-    path: '/artistic-gymnastics-early',
-    title: 'Artistic Gymnastics Early Development | Vortex Athletics',
-    description:
-      'Early artistic gymnastics at Vortex Athletics. Foundational movement, confidence, and skill-building for young athletes.',
-    priority: 0.7,
-  },
-  {
-    path: '/artistic-gymnastics-6-12',
-    title: 'Artistic Gymnastics Ages 6-12 | Vortex Athletics',
-    description:
-      'Artistic gymnastics for ages 6-12 at Vortex Athletics. Progressive skill development with safe technique and structured training.',
-    priority: 0.7,
-  },
-  {
-    path: '/artistic-gymnastics-13-18',
-    title: 'Artistic Gymnastics Ages 13-18 | Vortex Athletics',
-    description:
-      'Artistic gymnastics for ages 13-18 at Vortex Athletics. Advanced training, strength, and performance readiness for committed athletes.',
-    priority: 0.7,
-  },
-  {
-    path: '/campaigns/artistic-gymnastics-early',
-    title: 'Artistic Gymnastics Early Development | Vortex Athletics',
-    description:
-      'Early artistic gymnastics at Vortex Athletics. Foundational movement, confidence, and skill-building for young athletes.',
-    priority: 0.6,
-  },
-  {
-    path: '/campaigns/artistic-gymnastics-6-12',
-    title: 'Artistic Gymnastics Ages 6-12 | Vortex Athletics',
-    description:
-      'Artistic gymnastics for ages 6-12 at Vortex Athletics. Progressive skill development with safe technique and structured training.',
-    priority: 0.6,
-  },
-  {
-    path: '/campaigns/artistic-gymnastics-13-18',
-    title: 'Artistic Gymnastics Ages 13-18 | Vortex Athletics',
-    description:
-      'Artistic gymnastics for ages 13-18 at Vortex Athletics. Advanced training, strength, and performance readiness for committed athletes.',
-    priority: 0.6,
   },
 ]
 
