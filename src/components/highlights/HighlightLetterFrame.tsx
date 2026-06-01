@@ -1,33 +1,21 @@
 import type { ReactNode } from 'react'
-import {
-  HIGHLIGHT_LETTER_WIDTH_PX,
-  resolveHighlightModalHeightPx,
-} from '../../utils/highlightLayout'
+import { HIGHLIGHT_LETTER_WIDTH_PX } from '../../utils/highlightLayout'
 
 interface HighlightLetterFrameProps {
   children: ReactNode
-  viewportHeightPx?: number
   className?: string
 }
 
 /**
- * Portal highlight viewport: full width of modal content, capped at letter width.
+ * Portal highlight content frame: letter width cap; height follows canvas.
+ * Scrolling is handled by HighlightsModal’s body region (not nested here).
  */
-const HighlightLetterFrame = ({
-  children,
-  viewportHeightPx,
-  className = '',
-}: HighlightLetterFrameProps) => {
-  const heightPx = resolveHighlightModalHeightPx(viewportHeightPx)
-
+const HighlightLetterFrame = ({ children, className = '' }: HighlightLetterFrameProps) => {
   return (
     <div className={`w-full min-w-0 ${className}`}>
       <div
-        className="w-full mx-auto rounded-lg border border-gray-200 bg-white overflow-y-auto overflow-x-hidden box-border"
-        style={{
-          maxWidth: HIGHLIGHT_LETTER_WIDTH_PX,
-          height: heightPx,
-        }}
+        className="w-full mx-auto rounded-lg border border-gray-200 bg-white box-border"
+        style={{ maxWidth: HIGHLIGHT_LETTER_WIDTH_PX }}
       >
         {children}
       </div>

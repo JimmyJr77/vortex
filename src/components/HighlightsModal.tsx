@@ -48,6 +48,21 @@ const HighlightsModal = ({
     }
   }, [index, highlights.length])
 
+  useEffect(() => {
+    if (!isOpen) return
+    const prevOverflow = document.body.style.overflow
+    const prevPaddingRight = document.body.style.paddingRight
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`
+    }
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.body.style.paddingRight = prevPaddingRight
+    }
+  }, [isOpen])
+
   if (highlights.length === 0) return null
 
   const current = highlights[index]
@@ -57,7 +72,7 @@ const HighlightsModal = ({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -71,7 +86,7 @@ const HighlightsModal = ({
           />
 
           <motion.div
-            className="relative bg-white rounded-3xl w-full max-w-[740px] max-h-[90vh] flex flex-col shadow-xl"
+            className="relative bg-white rounded-3xl w-full max-w-[740px] max-h-[90vh] flex flex-col overflow-hidden shadow-xl"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
@@ -96,7 +111,7 @@ const HighlightsModal = ({
               )}
             </div>
 
-            <div className="flex-1 min-h-0 relative min-w-0 overflow-hidden">
+            <div className="flex-1 min-h-0 relative min-w-0 flex flex-col">
               {hasMultiple && (
                 <>
                   <button
@@ -120,7 +135,7 @@ const HighlightsModal = ({
                 </>
               )}
 
-              <div className="h-full min-h-0 min-w-0 overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4">
+              <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain touch-pan-y px-4 sm:px-6 py-4 [-webkit-overflow-scrolling:touch]">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={current?.id ?? index}

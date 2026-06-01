@@ -1,6 +1,12 @@
 /** Copied for vortex-gymnastics.com — hub original: src/components/Gymnastics.tsx */
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import GymnasticsHeroRotatingText, {
+  GymnasticsHeroIndicators,
+  GYMNASTICS_HERO_SECTION_GAP,
+} from '../GymnasticsHeroRotatingText'
+import HeroScrollHint from '../HeroScrollHint'
+import { useGymnasticsHeroRotation } from '../useGymnasticsHeroRotation'
 import {
   ArrowRight,
   Sparkles,
@@ -38,6 +44,9 @@ const heroCtaClass =
   'inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105'
 
 const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: GymnasticsProps) => {
+  const { index: heroIndex, slide: heroSlide, slides: heroSlides, setIndex: setHeroIndex } =
+    useGymnasticsHeroRotation()
+
   const disciplines = [
     {
       id: 'artistic',
@@ -107,73 +116,62 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
           </div>
         </div>
         <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
-        <div className="container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center items-center">
-          <div>
-            <motion.h1
-              className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+        <div className="container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center px-4">
+          <div className="w-full max-w-4xl flex flex-col min-h-[calc(100vh-5rem)]">
+            <div
+              className={`flex flex-1 flex-col items-center justify-center min-h-0 w-full ${GYMNASTICS_HERO_SECTION_GAP}`}
             >
-              Gymnastics as the Foundation of <span className="text-vortex-red">Athleticism</span>
-            </motion.h1>
-            <motion.p
-              className="text-2xl md:text-3xl text-gray-300 mb-12 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            >
-              From Roman warriors to modern athletes, gymnastics remains the ultimate system for building strength, control, and movement intelligence.
-            </motion.p>
-            <motion.div
-              className="flex flex-col items-center justify-center"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-            >
-              <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
-                {onHighlightsClick && (
-                  <motion.button
-                    type="button"
-                    onClick={onHighlightsClick}
-                    className={`${heroCtaClass} border-2 border-white bg-white text-vortex-red hover:bg-white/90`}
+              <GymnasticsHeroRotatingText
+                slideIndex={heroIndex}
+                slide={heroSlide}
+                titleClassName="text-5xl md:text-7xl font-display font-bold text-white"
+                descriptionClassName="text-2xl md:text-3xl text-gray-300 max-w-3xl mx-auto px-2"
+              />
+              <GymnasticsHeroIndicators
+                slideIndex={heroIndex}
+                slideCount={heroSlides.length}
+                onSelectSlide={setHeroIndex}
+              />
+              <motion.div
+                className="flex flex-col items-center justify-center w-full"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+              >
+                <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                  {onHighlightsClick && (
+                    <motion.button
+                      type="button"
+                      onClick={onHighlightsClick}
+                      className={`${heroCtaClass} border-2 border-white bg-white text-vortex-red hover:bg-white/90`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Highlights
+                    </motion.button>
+                  )}
+                  <motion.a
+                    href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${heroCtaClass} border-2 border-vortex-red bg-transparent text-vortex-red hover:bg-vortex-red/10`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    Highlights
-                  </motion.button>
-                )}
-                <motion.a
-                  href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${heroCtaClass} border-2 border-vortex-red bg-transparent text-vortex-red hover:bg-vortex-red/10`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Enroll Now
-                </motion.a>
-                <Link
-                  to="/read-board#schedule"
-                  className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
-                >
-                  View Class Schedule
-                </Link>
-              </div>
-              <motion.div
-                className="flex justify-center"
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-                  <motion.div
-                    className="w-1 h-3 bg-vortex-red rounded-full mt-2"
-                    animate={{ y: [0, 12, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
+                    Enroll Now
+                  </motion.a>
+                  <Link
+                    to="/read-board#schedule"
+                    className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
+                  >
+                    View Class Schedule
+                  </Link>
                 </div>
               </motion.div>
-            </motion.div>
+            </div>
+            <div className="hidden md:flex shrink-0 justify-center pt-8 pb-10">
+              <HeroScrollHint />
+            </div>
           </div>
         </div>
       </section>
@@ -202,15 +200,13 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
         </div>
         <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
         <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">
-          <div className="container-custom text-center w-full pointer-events-auto">
-            <motion.h1
-              className="text-4xl sm:text-5xl font-display font-bold text-white mb-6 px-4"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              Gymnastics as the Foundation of <span className="text-vortex-red">Athleticism</span>
-            </motion.h1>
+          <div className="container-custom text-center w-full pointer-events-auto px-4">
+            <GymnasticsHeroRotatingText
+              slideIndex={heroIndex}
+              slide={heroSlide}
+              showDescription={false}
+              titleClassName="text-4xl sm:text-5xl font-display font-bold text-white"
+            />
           </div>
         </div>
       </section>
@@ -218,17 +214,20 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
       {/* Mobile: Content section below hero */}
       <section className="md:hidden bg-gradient-to-br from-black via-gray-900 to-black py-12">
         <div className="container-custom">
-          <div className="text-center">
-            <motion.p
-              className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-            >
-              From Roman warriors to modern athletes, gymnastics remains the ultimate system for building strength, control, and movement intelligence.
-            </motion.p>
+          <div className={`text-center flex flex-col items-center ${GYMNASTICS_HERO_SECTION_GAP}`}>
+            <GymnasticsHeroRotatingText
+              slideIndex={heroIndex}
+              slide={heroSlide}
+              showTitle={false}
+              descriptionClassName="text-xl text-gray-300 max-w-3xl mx-auto px-2"
+            />
+            <GymnasticsHeroIndicators
+              slideIndex={heroIndex}
+              slideCount={heroSlides.length}
+              onSelectSlide={setHeroIndex}
+            />
             <motion.div
-              className="flex flex-col items-center justify-center space-y-4 mb-8"
+              className="flex flex-col items-center justify-center space-y-4 w-full"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
@@ -261,19 +260,9 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                 View Class Schedule
               </Link>
             </motion.div>
-            <motion.div
-              className="flex justify-center mt-8"
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-                <motion.div
-                  className="w-1 h-3 bg-vortex-red rounded-full mt-2"
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              </div>
-            </motion.div>
+            <div className="md:hidden shrink-0 flex justify-center pt-8 pb-2">
+              <HeroScrollHint />
+            </div>
           </div>
         </div>
       </section>

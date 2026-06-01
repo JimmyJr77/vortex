@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { HUB_URL } from '../../utils/sportSite'
+import SportSiteHubMenuLogo from './SportSiteHubMenuLogo'
 
 export interface SportSiteMenuLinksProps {
   sportBrandName: string
@@ -13,6 +13,8 @@ export interface SportSiteMenuLinksProps {
   showMemberLogin?: boolean
   /** When false, omit sport home link and top divider (home lives in parent nav). */
   includeSportHome?: boolean
+  /** When false, parent renders {@link SportSiteHubMenuLogo} (e.g. gymnastics nav). */
+  includeHubLogo?: boolean
 }
 
 /**
@@ -28,6 +30,7 @@ const SportSiteMenuLinks = ({
   onInquireClick,
   showMemberLogin = true,
   includeSportHome = true,
+  includeHubLogo = true,
 }: SportSiteMenuLinksProps) => {
   const linkClass =
     'block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium'
@@ -62,16 +65,8 @@ const SportSiteMenuLinks = ({
         <button type="button" onClick={onInquireClick} className={linkClass}>
           Inquire
         </button>
-        <a
-          href={HUB_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={onNavigate}
-          className={linkClass}
-        >
-          vortexathletics.com
-        </a>
       </div>
+      {includeHubLogo && <SportSiteHubMenuLogo onNavigate={onNavigate} />}
     </>
   )
 }

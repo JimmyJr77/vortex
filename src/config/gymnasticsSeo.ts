@@ -2,6 +2,9 @@ import { buildCanonical, type SeoMeta } from '../utils/seo'
 
 export const GYMNASTICS_ORIGIN = 'https://vortex-gymnastics.com'
 
+/** Header wordmark on vortex-gymnastics.com (wide banner). */
+export const GYMNASTICS_HEADER_LOGO = '/vortex_gymnastics_logo.png'
+
 export interface GymnasticsRouteSeo {
   path: string
   title: string

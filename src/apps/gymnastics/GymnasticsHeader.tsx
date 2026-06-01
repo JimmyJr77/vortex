@@ -3,9 +3,11 @@ import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import SportSiteMenuLinks from '../../components/sport/SportSiteMenuLinks'
+import SportSiteHubMenuLogo from '../../components/sport/SportSiteHubMenuLogo'
 import { getSportBrandName, getSportHomeUrl } from '../../utils/sportSite'
 import type { StubSiteConfig } from '../../config/stubSites'
 import { STUB_SITES } from '../../config/stubSites'
+import { GYMNASTICS_HEADER_LOGO } from '../../config/gymnasticsSeo'
 
 const GYMNASTICS_CONFIG = STUB_SITES['vortex-gymnastics.com']
 
@@ -60,9 +62,9 @@ const GymnasticsHeader = ({
                 whileHover={{ scale: 1.05 }}
               >
                 <img
-                  src="/vortex_logo_1.png"
+                  src={GYMNASTICS_HEADER_LOGO}
                   alt="Vortex Gymnastics"
-                  className="h-12 md:h-16 w-auto"
+                  className="h-[3.75rem] sm:h-[4.125rem] md:h-[4.5rem] w-auto max-w-[min(100%,21rem)] sm:max-w-[30rem] object-contain object-left"
                 />
               </motion.div>
             </Link>
@@ -161,6 +163,7 @@ const GymnasticsHeader = ({
               sportBrandName={sportBrandName}
               sportHomeHref={sportHomeHref}
               includeSportHome={false}
+              includeHubLogo={false}
               onNavigate={closeMenu}
               onMemberLoginClick={() => {
                 onMemberLoginClick()
@@ -176,6 +179,7 @@ const GymnasticsHeader = ({
               }}
               showMemberLogin={!member}
             />
+            <SportSiteHubMenuLogo onNavigate={closeMenu} />
           </div>
         </motion.nav>
       </div>
