@@ -87,6 +87,11 @@ const AdminHighlights = () => {
           'Admin session expired or missing. Log out, then log in again from the site (Admin Login).',
         )
       }
+      if (res.status === 404 && data.message === 'Route not found') {
+        throw new Error(
+          'Highlights API is not available on the production backend. Redeploy the Render service (backend folder, latest main) and confirm GET /api/health returns apiFeatures.highlights: true.',
+        )
+      }
       if (!res.ok) throw new Error(data.message || 'Failed to load highlights')
       setHighlights(data.highlights ?? data.data ?? [])
     } catch (e) {

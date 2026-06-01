@@ -33,11 +33,36 @@ const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-produc
 const app = express()
 const PORT = process.env.PORT || 3001
 
+// Sport / gymnastics frontends (keep in sync with src/config/stubSites.ts)
+const SPORT_SITE_ORIGINS = [
+  'https://vortex-gymnastics.com',
+  'https://www.vortex-gymnastics.com',
+  'https://vortex-lacross.com',
+  'https://www.vortex-lacross.com',
+  'https://vortex-conditioning.com',
+  'https://www.vortex-conditioning.com',
+  'https://vortex-football.com',
+  'https://www.vortex-football.com',
+  'https://vortex-basketball.com',
+  'https://www.vortex-basketball.com',
+  'https://vortex-track.com',
+  'https://www.vortex-track.com',
+  'https://vortex-fit.com',
+  'https://www.vortex-fit.com',
+  'https://vortex-athlete.com',
+  'https://www.vortex-athlete.com',
+  'https://vortex-soccer.com',
+  'https://www.vortex-soccer.com',
+  'https://vortex-reps.com',
+  'https://www.vortex-reps.com',
+]
+
 // CORS configuration - must be before helmet
 const allowedOrigins = [
   'http://localhost:5173',
   'https://vortexathletics.com',
   'https://www.vortexathletics.com',
+  ...SPORT_SITE_ORIGINS,
   // Allow Vercel deployments (pattern matching)
   /^https:\/\/.*\.vercel\.app$/,
   // Allow from environment variable if set
@@ -2151,9 +2176,29 @@ app.use('/api/admin', async (req, res, next) => {
 
 // Routes
 
+const registeredRoutePaths = () => {
+  const paths = new Set()
+  if (!app._router?.stack) return paths
+  for (const layer of app._router.stack) {
+    if (layer.route?.path) {
+      paths.add(layer.route.path)
+    }
+  }
+  return paths
+}
+
+const hasRegisteredRoute = (path) => registeredRoutePaths().has(path)
+
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() })
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    apiFeatures: {
+      highlights: hasRegisteredRoute('/api/admin/highlights'),
+      publicHighlights: hasRegisteredRoute('/api/highlights'),
+    },
+  })
 })
 
 // Test endpoint to verify routing works
@@ -12433,6 +12478,11 @@ const startServer = async () => {
     console.log(`[Server ${workerId}] Total routes registered: ${routeCount}`)
     if (!enrollmentFound) {
       console.error(`[Server ${workerId}] ⚠️ WARNING: Enrollment endpoint NOT found in registered routes!`)
+    }
+    if (!hasRegisteredRoute('/api/admin/highlights')) {
+      console.error(`[Server ${workerId}] ⚠️ WARNING: Highlights admin API NOT registered — deploy latest backend/server.js`)
+    } else {
+      console.log(`[Server ${workerId}]   ✅ Highlights API registered (GET/POST /api/admin/highlights)`)
     }
   
   // Only start the HTTP server if not running as a migration script
