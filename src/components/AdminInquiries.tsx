@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Fragment } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown, Filter } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
@@ -19,6 +19,8 @@ interface User {
   created_at: string
   newsletter: boolean
   archived?: boolean
+  contacted?: boolean
+  admin_notes?: string | null
 }
 
 type FilterType = 'all' | 'newsletter' | 'interests'
@@ -43,6 +45,9 @@ export default function AdminInquiries() {
   const [ageFilterOpen, setAgeFilterOpen] = useState(false)
   const [interestsFilterOpen, setInterestsFilterOpen] = useState(false)
   const [classTypesFilterOpen, setClassTypesFilterOpen] = useState(false)
+  const [notesDraft, setNotesDraft] = useState<Record<number, string>>({})
+  const [savingNotesId, setSavingNotesId] = useState<number | null>(null)
+  const [togglingContactedId, setTogglingContactedId] = useState<number | null>(null)
   const [ageFilterPosition, setAgeFilterPosition] = useState({ top: 0, left: 0 })
   const [interestsFilterPosition, setInterestsFilterPosition] = useState({ top: 0, left: 0 })
   const [classTypesFilterPosition, setClassTypesFilterPosition] = useState({ top: 0, right: 0 })
@@ -85,6 +90,8 @@ export default function AdminInquiries() {
           child_ages: number[] | null
           message: string | null
           created_at: string
+          contacted?: boolean
+          admin_notes?: string | null
         }
         const newsletterEmails = new Set((newsData.data || []).map((sub: NewsletterSub) => sub.email))
         
@@ -190,8 +197,78 @@ export default function AdminInquiries() {
   }
 
   const toggleExpand = (id: number) => {
-    setExpandedId(expandedId === id ? null : id)
+    const nextId = expandedId === id ? null : id
+    setExpandedId(nextId)
     setEditingId(null)
+    if (nextId !== null) {
+      const user = users.find((u) => u.id === nextId)
+      if (user) {
+        setNotesDraft((prev) => ({
+          ...prev,
+          [nextId]: prev[nextId] ?? user.admin_notes ?? '',
+        }))
+      }
+    }
+  }
+
+  const buildRegistrationPayload = (user: User, overrides: Partial<User> = {}) => {
+    const merged = { ...user, ...overrides }
+    return {
+      first_name: merged.first_name,
+      last_name: merged.last_name,
+      email: merged.email,
+      phone: merged.phone,
+      athlete_age: merged.athlete_age,
+      interests: merged.interests,
+      interests_array: merged.interests_array,
+      interest: merged.interest,
+      class_types: merged.class_types,
+      child_ages: merged.child_ages,
+      message: merged.message,
+      contacted: !!merged.contacted,
+      admin_notes: merged.admin_notes ?? null,
+    }
+  }
+
+  const persistRegistration = async (user: User, overrides: Partial<User> = {}) => {
+    const response = await adminApiRequest(`/api/admin/registrations/${user.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(buildRegistrationPayload(user, overrides)),
+    })
+    if (!response.ok) {
+      throw new Error('Failed to update inquiry')
+    }
+    const merged = { ...user, ...overrides }
+    setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, ...merged } : u)))
+    return merged
+  }
+
+  const handleContactedToggle = async (e: React.ChangeEvent<HTMLInputElement>, user: User) => {
+    e.stopPropagation()
+    const contacted = e.target.checked
+    setTogglingContactedId(user.id)
+    try {
+      await persistRegistration(user, { contacted })
+    } catch (error) {
+      console.error('Error updating contacted status:', error)
+      alert('Failed to update contacted status')
+    } finally {
+      setTogglingContactedId(null)
+    }
+  }
+
+  const saveNotes = async (e: React.MouseEvent, user: User) => {
+    e.stopPropagation()
+    const admin_notes = notesDraft[user.id] ?? ''
+    setSavingNotesId(user.id)
+    try {
+      await persistRegistration(user, { admin_notes: admin_notes || null })
+    } catch (error) {
+      console.error('Error saving notes:', error)
+      alert('Failed to save notes')
+    } finally {
+      setSavingNotesId(null)
+    }
   }
 
   const startEdit = (e: React.MouseEvent, user: User) => {
@@ -208,25 +285,27 @@ export default function AdminInquiries() {
       interest: user.interest,
       class_types: user.class_types,
       child_ages: user.child_ages,
-      message: user.message
+      message: user.message,
+      contacted: user.contacted,
+      admin_notes: user.admin_notes,
     })
+    setNotesDraft((prev) => ({
+      ...prev,
+      [user.id]: user.admin_notes ?? '',
+    }))
   }
 
   const saveEdit = async (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!editingId) return
-    
+
+    const user = users.find((u) => u.id === editingId)
+    if (!user) return
+
     try {
-      const response = await adminApiRequest(`/api/admin/registrations/${editingId}`, {
-        method: 'PUT',
-        body: JSON.stringify(editData)
-      })
-      
-      if (response.ok) {
-        await fetchData()
-        setEditingId(null)
-        setEditData({})
-      }
+      await persistRegistration(user, editData)
+      setEditingId(null)
+      setEditData({})
     } catch (error) {
       console.error('Error updating user:', error)
       alert('Failed to update user')
@@ -444,6 +523,9 @@ export default function AdminInquiries() {
               {/* Fixed Header */}
               <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
+                  <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 w-12" title="Staff has contacted this inquiry">
+                    Contacted
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200">
                     <button
                       onClick={() => handleSort('created_at')}
@@ -672,14 +754,27 @@ export default function AdminInquiries() {
               {/* Scrollable Body */}
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
-                  <>
+                  <Fragment key={user.id}>
                     <tr
-                      key={user.id}
                       className={`hover:bg-gray-50 transition-colors cursor-pointer ${
-                        expandedId === user.id ? 'bg-blue-50' : ''
+                        expandedId === user.id ? 'bg-blue-50' : user.contacted ? 'bg-green-50/60' : ''
                       }`}
                       onClick={() => toggleExpand(user.id)}
                     >
+                      <td
+                        className="px-3 py-3 text-center border-r border-gray-200"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={!!user.contacted}
+                          disabled={togglingContactedId === user.id}
+                          onChange={(e) => handleContactedToggle(e, user)}
+                          className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded cursor-pointer disabled:opacity-50"
+                          title={user.contacted ? 'Mark as not contacted' : 'Mark as contacted'}
+                          aria-label={`${user.first_name} ${user.last_name} contacted`}
+                        />
+                      </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                         {formatDate(user.created_at)}
                       </td>
@@ -733,7 +828,7 @@ export default function AdminInquiries() {
                     <AnimatePresence>
                       {expandedId === user.id && (
                         <tr>
-                          <td colSpan={10} className="px-0 py-0">
+                          <td colSpan={11} className="px-0 py-0">
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
@@ -864,6 +959,25 @@ export default function AdminInquiries() {
                                         className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 resize-none focus:ring-2 focus:ring-vortex-red focus:border-transparent"
                                       />
                                     </div>
+                                    <div>
+                                      <label className="text-xs text-gray-600 block mb-1 font-semibold">Staff notes (follow-up &amp; conversations)</label>
+                                      <textarea
+                                        value={editData.admin_notes ?? ''}
+                                        onChange={(e) => setEditData({ ...editData, admin_notes: e.target.value })}
+                                        rows={4}
+                                        placeholder="Call back Tuesday, sent trial class info, etc."
+                                        className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 resize-none focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                      />
+                                    </div>
+                                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                                      <input
+                                        type="checkbox"
+                                        checked={!!editData.contacted}
+                                        onChange={(e) => setEditData({ ...editData, contacted: e.target.checked })}
+                                        className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded"
+                                      />
+                                      Contacted by staff
+                                    </label>
                                     <div className="flex gap-2 pt-2">
                                       <button
                                         onClick={saveEdit}
@@ -884,6 +998,39 @@ export default function AdminInquiries() {
                                 ) : (
                                   // View Mode
                                   <div className="space-y-3">
+                                    <div className="rounded-lg border border-gray-300 bg-white p-4">
+                                      <label className="text-xs text-gray-600 block mb-2 font-semibold uppercase tracking-wide">
+                                        Staff notes — follow-up &amp; conversations
+                                      </label>
+                                      <textarea
+                                        value={notesDraft[user.id] ?? user.admin_notes ?? ''}
+                                        onChange={(e) => {
+                                          e.stopPropagation()
+                                          setNotesDraft((prev) => ({
+                                            ...prev,
+                                            [user.id]: e.target.value,
+                                          }))
+                                        }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        rows={4}
+                                        placeholder="Track calls, emails, next steps, and conversation history..."
+                                        className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 resize-y focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                      />
+                                      <div className="flex items-center gap-3 mt-3">
+                                        <button
+                                          type="button"
+                                          onClick={(e) => saveNotes(e, user)}
+                                          disabled={savingNotesId === user.id}
+                                          className="flex items-center gap-2 px-4 py-2 bg-vortex-red hover:bg-red-700 disabled:opacity-60 rounded text-white text-sm font-medium transition-colors"
+                                        >
+                                          <Save className="w-4 h-4" />
+                                          {savingNotesId === user.id ? 'Saving...' : 'Save notes'}
+                                        </button>
+                                        <span className="text-xs text-gray-500">
+                                          {user.contacted ? 'Marked as contacted' : 'Not yet contacted'}
+                                        </span>
+                                      </div>
+                                    </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                                       <div>
                                         <span className="text-gray-600 font-semibold">Email:</span>
@@ -952,7 +1099,7 @@ export default function AdminInquiries() {
                         </tr>
                       )}
                     </AnimatePresence>
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>

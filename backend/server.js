@@ -217,6 +217,12 @@ export const initDatabase = async () => {
     await pool.query(`
       ALTER TABLE registrations ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE
     `)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS contacted BOOLEAN DEFAULT FALSE
+    `)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS admin_notes TEXT
+    `)
 
     // Newsletter subscribers table
     await pool.query(`
@@ -2696,7 +2702,34 @@ app.get('/api/admin/newsletter', async (req, res) => {
 app.put('/api/admin/registrations/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const { first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, message } = req.body
+    const {
+      first_name,
+      last_name,
+      email,
+      phone,
+      athlete_age,
+      interests,
+      interests_array,
+      interest,
+      class_types,
+      child_ages,
+      message,
+      contacted,
+      admin_notes,
+    } = req.body
+
+    const existingResult = await pool.query(
+      'SELECT contacted, admin_notes FROM registrations WHERE id = $1',
+      [id],
+    )
+    if (existingResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Registration not found' })
+    }
+    const existing = existingResult.rows[0]
+    const finalContacted =
+      contacted !== undefined ? !!contacted : !!existing.contacted
+    const finalAdminNotes =
+      admin_notes !== undefined ? admin_notes : existing.admin_notes
 
     // Handle interests - can be array or string
     let interestsString = null
@@ -2715,9 +2748,24 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
 
     await pool.query(`
       UPDATE registrations 
-      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, interests_array = $7, interest = $8, class_types = $9, child_ages = $10, message = $11
-      WHERE id = $12
-    `, [first_name, last_name, email, phone, athlete_age, interestsString, interestsArrayValue, interest || null, class_types || null, child_ages || null, message, id])
+      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, interests_array = $7, interest = $8, class_types = $9, child_ages = $10, message = $11, contacted = $12, admin_notes = $13, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $14
+    `, [
+      first_name,
+      last_name,
+      email,
+      phone,
+      athlete_age,
+      interestsString,
+      interestsArrayValue,
+      interest || null,
+      class_types || null,
+      child_ages || null,
+      message,
+      finalContacted,
+      finalAdminNotes,
+      id,
+    ])
 
     res.json({
       success: true,
