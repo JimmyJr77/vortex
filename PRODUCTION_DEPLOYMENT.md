@@ -61,12 +61,12 @@ The backend must have an `events` table with the following structure:
 
 ### Deploying Backend Changes
 
-1. Ensure all event routes are in `backend/server.js`
-2. Run database migrations to create the `events` table
-3. Seed initial events if needed using `backend/seed-events.js`
-4. Deploy to Render (or your production backend host)
-5. Verify endpoints are accessible:
+1. Ensure routes are in `backend/server.js`
+2. Deploy to Render with **Root Directory** = `backend` (see `backend/DEPLOY_HIGHLIGHTS.md` and `backend/render.yaml`)
+3. Verify deploy:
    ```bash
+   curl -s https://vortex-backend-qybl.onrender.com/api/health
+   # Expect buildId + apiFeatures.highlights: true for current builds
    curl https://vortex-backend-qybl.onrender.com/api/events
    ```
 

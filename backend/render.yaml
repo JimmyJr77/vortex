@@ -1,0 +1,13 @@
+# Render Blueprint — Web Service for Vortex API
+# Dashboard: New > Blueprint > connect repo, or set these on an existing service manually.
+services:
+  - type: web
+    name: vortex-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production

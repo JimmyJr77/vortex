@@ -30,6 +30,9 @@ if (fs.existsSync(envLocalPath)) {
 
 const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
 
+/** Bump when shipping backend features; visible on GET /api/health */
+const API_BUILD_ID = 'highlights-2026-06-01'
+
 const app = express()
 const PORT = process.env.PORT || 3001
 
@@ -2193,6 +2196,7 @@ const hasRegisteredRoute = (path) => registeredRoutePaths().has(path)
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
+    buildId: API_BUILD_ID,
     timestamp: new Date().toISOString(),
     apiFeatures: {
       highlights: hasRegisteredRoute('/api/admin/highlights'),
