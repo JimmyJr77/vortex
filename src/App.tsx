@@ -1,33 +1,54 @@
-import { useState, useEffect } from 'react'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
-import HomePage from './components/HomePage'
-import AthleticismAccelerator from './components/AthleticismAccelerator'
-import Gymnastics from './components/Gymnastics'
-import ArtisticGymnasticsEarlyLanding from './components/ArtisticGymnasticsEarlyLanding'
-import ArtisticGymnasticsAges6to12Landing from './components/ArtisticGymnasticsAges6to12Landing'
-import ArtisticGymnasticsAges13to18Landing from './components/ArtisticGymnasticsAges13to18Landing'
-import StrengthFitness from './components/StrengthFitness'
-import Ninja from './components/Ninja'
-import Value from './components/Value'
-import ReadBoard from './components/ReadBoard'
+import HubSeo from './components/HubSeo'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
 import Login from './components/Login'
-import Admin from './components/Admin'
 import MemberLogin from './components/MemberLogin'
-import MemberDashboard from './components/MemberDashboard'
 import { trackPageView, trackEngagement } from './utils/analytics'
+import { clearAdminSession, hasAdminSession } from './utils/api'
+import { useSiteHighlights } from './hooks/useSiteHighlights'
+import HighlightsModal from './components/HighlightsModal'
+
+// Lazy-load heavy routes and portals so dev server / first paint stay fast
+const HomePage = lazy(() => import('./components/HomePage'))
+const AthleticismAccelerator = lazy(() => import('./components/AthleticismAccelerator'))
+const Gymnastics = lazy(() => import('./components/Gymnastics'))
+const ArtisticGymnasticsEarlyLanding = lazy(() => import('./components/ArtisticGymnasticsEarlyLanding'))
+const ArtisticGymnasticsAges6to12Landing = lazy(() => import('./components/ArtisticGymnasticsAges6to12Landing'))
+const ArtisticGymnasticsAges13to18Landing = lazy(() => import('./components/ArtisticGymnasticsAges13to18Landing'))
+const StrengthFitness = lazy(() => import('./components/StrengthFitness'))
+const Ninja = lazy(() => import('./components/Ninja'))
+const Value = lazy(() => import('./components/Value'))
+const ReadBoard = lazy(() => import('./components/ReadBoard'))
+const Admin = lazy(() => import('./components/Admin'))
+const MemberDashboard = lazy(() => import('./components/MemberDashboard'))
+
+function PageLoader() {
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-red-600 border-t-transparent" />
+    </div>
+  )
+}
 
 function App() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isMemberLoginOpen, setIsMemberLoginOpen] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(() => hasAdminSession())
   const [member, setMember] = useState<any>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const location = useLocation()
+  const {
+    highlights,
+    isOpen: isHighlightsOpen,
+    open: openHighlights,
+    close: closeHighlights,
+    hasHighlights,
+  } = useSiteHighlights()
 
   // Scroll to top when navigating to a new page
   useEffect(() => {
@@ -35,11 +56,8 @@ function App() {
   }, [location.pathname])
 
   useEffect(() => {
-    // Check if user is already logged in as admin
-    const adminStatus = localStorage.getItem('vortex_admin')
-    if (adminStatus === 'true') {
-      setIsAdmin(true)
-    }
+    // Admin portal requires both flag and JWT (see Login.tsx)
+    setIsAdmin(hasAdminSession())
 
     // Check if member is already logged in
     const storedToken = localStorage.getItem('vortex_member_token')
@@ -59,7 +77,7 @@ function App() {
     }
 
     // Track page view
-    if (!adminStatus && !storedToken) {
+    if (!hasAdminSession() && !storedToken) {
       trackPageView(location.pathname)
     }
   }, [location.pathname])
@@ -74,11 +92,7 @@ function App() {
   }
 
   const handleLogout = () => {
-    // Clear all admin-related localStorage items
-    localStorage.removeItem('vortex_admin')
-    localStorage.removeItem('adminToken')
-    localStorage.removeItem('vortex-admin-info')
-    localStorage.removeItem('vortex-admin-id')
+    clearAdminSession()
     setIsAdmin(false)
     console.log('[Logout] All admin data cleared from localStorage')
   }
@@ -102,84 +116,101 @@ function App() {
   // If user is admin, show admin panel
   if (isAdmin) {
     return (
-      <Admin onLogout={handleLogout} />
+      <Suspense fallback={<PageLoader />}>
+        <Admin onLogout={handleLogout} />
+      </Suspense>
     )
   }
 
   // If member is logged in and wants to see dashboard, show member dashboard
   if (member && memberToken && showMemberDashboard) {
     return (
-      <MemberDashboard 
-        member={member} 
-        onLogout={handleMemberLogout}
-        onReturnToWebsite={() => setShowMemberDashboard(false)}
-      />
+      <Suspense fallback={<PageLoader />}>
+        <MemberDashboard 
+          member={member} 
+          onLogout={handleMemberLogout}
+          onReturnToWebsite={() => setShowMemberDashboard(false)}
+        />
+      </Suspense>
     )
   }
 
   // Otherwise show normal website
   return (
     <div className="min-h-screen bg-white relative">
+      <HubSeo />
       <Header 
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
         member={member}
         onMemberDashboardClick={() => setShowMemberDashboard(true)}
       />
-      <Routes>
-        <Route 
-          path="/" 
-          element={<HomePage onSignUpClick={() => setIsContactFormOpen(true)} />} 
-        />
-        <Route 
-          path="/athleticism-accelerator" 
-          element={<AthleticismAccelerator onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/gymnastics" 
-          element={<Gymnastics onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/artistic-gymnastics-early" 
-          element={<ArtisticGymnasticsEarlyLanding onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/artistic-gymnastics-6-12" 
-          element={<ArtisticGymnasticsAges6to12Landing onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/artistic-gymnastics-13-18" 
-          element={<ArtisticGymnasticsAges13to18Landing onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/campaigns/artistic-gymnastics-early" 
-          element={<ArtisticGymnasticsEarlyLanding onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/campaigns/artistic-gymnastics-6-12" 
-          element={<ArtisticGymnasticsAges6to12Landing onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/campaigns/artistic-gymnastics-13-18" 
-          element={<ArtisticGymnasticsAges13to18Landing onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/strength-conditioning" 
-          element={<StrengthFitness onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/ninja" 
-          element={<Ninja onSignUpClick={handleContactClick} />} 
-        />
-        <Route 
-          path="/value" 
-          element={<Value />} 
-        />
-        <Route 
-          path="/read-board" 
-          element={<ReadBoard />} 
-        />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <HomePage
+                onSignUpClick={() => setIsContactFormOpen(true)}
+                onHighlightsClick={hasHighlights ? openHighlights : undefined}
+              />
+            } 
+          />
+          <Route 
+            path="/athleticism-accelerator" 
+            element={<AthleticismAccelerator onSignUpClick={handleContactClick} />} 
+          />
+          <Route 
+            path="/gymnastics" 
+            element={
+              <Gymnastics
+                onSignUpClick={handleContactClick}
+                onHighlightsClick={hasHighlights ? openHighlights : undefined}
+              />
+            } 
+          />
+          <Route 
+            path="/artistic-gymnastics-early" 
+            element={<ArtisticGymnasticsEarlyLanding onSignUpClick={handleContactClick} />} 
+          />
+          <Route 
+            path="/artistic-gymnastics-6-12" 
+            element={<ArtisticGymnasticsAges6to12Landing onSignUpClick={handleContactClick} />} 
+          />
+          <Route 
+            path="/artistic-gymnastics-13-18" 
+            element={<ArtisticGymnasticsAges13to18Landing onSignUpClick={handleContactClick} />} 
+          />
+          <Route 
+            path="/campaigns/artistic-gymnastics-early" 
+            element={<ArtisticGymnasticsEarlyLanding onSignUpClick={handleContactClick} />} 
+          />
+          <Route 
+            path="/campaigns/artistic-gymnastics-6-12" 
+            element={<ArtisticGymnasticsAges6to12Landing onSignUpClick={handleContactClick} />} 
+          />
+          <Route 
+            path="/campaigns/artistic-gymnastics-13-18" 
+            element={<ArtisticGymnasticsAges13to18Landing onSignUpClick={handleContactClick} />} 
+          />
+          <Route 
+            path="/strength-conditioning" 
+            element={<StrengthFitness onSignUpClick={handleContactClick} />} 
+          />
+          <Route 
+            path="/ninja" 
+            element={<Ninja onSignUpClick={handleContactClick} />} 
+          />
+          <Route 
+            path="/value" 
+            element={<Value />} 
+          />
+          <Route 
+            path="/read-board" 
+            element={<ReadBoard />} 
+          />
+        </Routes>
+      </Suspense>
       <ContactForm
         isOpen={isContactFormOpen}
         onClose={() => setIsContactFormOpen(false)}
@@ -203,6 +234,14 @@ function App() {
         onClose={() => setIsMemberLoginOpen(false)}
         onSuccess={handleMemberLoginSuccess}
       />
+
+      {hasHighlights && (
+        <HighlightsModal
+          highlights={highlights}
+          isOpen={isHighlightsOpen}
+          onClose={closeHighlights}
+        />
+      )}
     </div>
   )
 }

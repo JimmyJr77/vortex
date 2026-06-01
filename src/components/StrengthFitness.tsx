@@ -145,58 +145,62 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
             </p>
           </motion.div>
 
-          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch">
             <motion.div
-              className="rounded-3xl border-2 border-vortex-red bg-black p-8 shadow-lg md:p-12"
+              className="rounded-3xl border-2 border-vortex-red bg-black p-8 shadow-lg md:p-12 flex flex-col"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl font-display font-bold text-white md:text-4xl mb-4">
-                Relationship to the Athleticism Accelerator
-              </h2>
-              <p className="text-xl font-semibold text-vortex-red mb-6">
-                &ldquo;Same DNA, Different Mission&rdquo;
-              </p>
-              <p className="text-lg text-gray-300 leading-relaxed mb-6">
-                Strength & Conditioning classes borrow principles from the Accelerator but are not designed to deliver full-spectrum athletic development on their own. The Athleticism Accelerator is the comprehensive, progressive system; Strength & Conditioning is modular, focused, and selectable.
-              </p>
-              <div className="flex flex-col gap-4 rounded-xl border-2 border-vortex-red bg-white p-6 md:flex-row md:items-center md:justify-around">
+              <div className="flex-1">
+                <h2 className="text-3xl font-display font-bold text-white md:text-4xl mb-4">
+                  Relationship to the Athleticism Accelerator
+                </h2>
+                <p className="text-xl font-semibold text-vortex-red mb-6">
+                  &ldquo;Same DNA, Different Mission&rdquo;
+                </p>
+                <p className="text-lg text-gray-300 leading-relaxed mb-6">
+                  Strength & Conditioning classes borrow principles from the Accelerator but are not designed to deliver full-spectrum athletic development on their own. The Athleticism Accelerator is the comprehensive, progressive system; Strength & Conditioning is modular, focused, and selectable.
+                </p>
+              </div>
+              <div className="flex flex-col gap-4 rounded-xl border-2 border-vortex-red bg-white p-6 md:flex-row md:items-center md:justify-around mt-auto min-h-[140px]">
                 <div className="flex items-center gap-3">
                   <Layers className="h-10 w-10 text-vortex-red flex-shrink-0" />
                   <div>
                     <p className="font-bold text-black">Accelerator</p>
-                    <p className="text-sm text-gray-600">Orchestra — full system</p>
+                    <p className="text-sm text-gray-600">Full program — complete athletic development</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Dumbbell className="h-10 w-10 text-vortex-red flex-shrink-0" />
                   <div>
                     <p className="font-bold text-black">Flip & Fit Classes</p>
-                    <p className="text-sm text-gray-600">Individual instruments — targeted tools</p>
+                    <p className="text-sm text-gray-600">Targeted modules — skill-specific training blocks</p>
                   </div>
                 </div>
               </div>
             </motion.div>
 
             <motion.div
-              className="rounded-3xl border-2 border-vortex-red bg-black p-8 shadow-lg md:p-12"
+              className="rounded-3xl border-2 border-vortex-red bg-black p-8 shadow-lg md:p-12 flex flex-col"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl font-display font-bold text-white md:text-4xl mb-4">
-                Relationship to Gymnastics Classes
-              </h2>
-              <p className="text-xl font-semibold text-vortex-red mb-6">
-                &ldquo;Group focus, private-level targeting&rdquo;
-              </p>
-              <p className="text-lg text-gray-300 leading-relaxed mb-6">
-                Flip & Fit classes work alongside our gymnastics and ninja programs by zeroing in on specific skills—back handsprings, flips, strength for bars, tumbling blocks—in a small-group setting. They are a cost-effective, focused alternative to one-on-one privates when your athlete is ready to develop specialized movements without the full price of individual coaching.
-              </p>
-              <div className="flex flex-col gap-4 rounded-xl border-2 border-vortex-red bg-white p-6 md:flex-row md:items-center md:justify-around">
+              <div className="flex-1">
+                <h2 className="text-3xl font-display font-bold text-white md:text-4xl mb-4">
+                  Relationship to Gymnastics Classes
+                </h2>
+                <p className="text-xl font-semibold text-vortex-red mb-6">
+                  &ldquo;Group focus, private-level targeting&rdquo;
+                </p>
+                <p className="text-lg text-gray-300 leading-relaxed mb-6">
+                  Flip & Fit classes work alongside our gymnastics and ninja programs by zeroing in on specific skills—back handsprings, flips, strength for bars, tumbling blocks—in a small-group setting. They are a cost-effective, focused alternative to one-on-one privates when your athlete is ready to develop specialized movements without the full price of individual coaching.
+                </p>
+              </div>
+              <div className="flex flex-col gap-4 rounded-xl border-2 border-vortex-red bg-white p-6 md:flex-row md:items-center md:justify-around mt-auto min-h-[140px]">
                 <div className="flex items-center gap-3">
                   <Activity className="h-10 w-10 text-vortex-red flex-shrink-0" />
                   <div>

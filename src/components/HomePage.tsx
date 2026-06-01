@@ -10,9 +10,10 @@ import Technology from './Technology'
 
 interface HomePageProps {
   onSignUpClick?: () => void
+  onHighlightsClick?: () => void
 }
 
-const HomePage = ({ onSignUpClick }: HomePageProps) => {
+const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
   const faqs = [
     {
       question: 'Where are you located?',
@@ -139,7 +140,7 @@ const HomePage = ({ onSignUpClick }: HomePageProps) => {
 
   return (
     <>
-      <Hero />
+      <Hero onHighlightsClick={onHighlightsClick} />
 
       {/* What We Offer Section */}
       <section className="section-padding bg-white">

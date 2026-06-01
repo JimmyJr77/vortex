@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LogOut } from 'lucide-react'
-import { adminApiRequest } from '../utils/api'
+import { adminApiRequest, clearAdminSession, getAdminToken } from '../utils/api'
 import AdminAdmins from './AdminAdmins'
 import AdminInquiries from './AdminInquiries'
 import AdminMembers from './AdminMembers'
@@ -9,6 +9,7 @@ import AdminClasses from './AdminClasses'
 import AdminEvents from './AdminEvents'
 import AdminAnalytics from './AdminAnalytics'
 import AdminEnrollments from './AdminEnrollments'
+import AdminHighlights from './AdminHighlights'
 
 interface AdminProps {
   onLogout: () => void
@@ -43,7 +44,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'enrollments'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'enrollments' | 'highlights'
 
 
 export default function Admin({ onLogout }: AdminProps) {
@@ -53,6 +54,12 @@ export default function Admin({ onLogout }: AdminProps) {
   const [categories, setCategories] = useState<Category[]>([])
 
   useEffect(() => {
+    if (!getAdminToken()) {
+      clearAdminSession()
+      onLogout()
+      return
+    }
+
     // Get admin info from localStorage (set during login)
     const storedAdmin = localStorage.getItem('vortex-admin-info')
     if (storedAdmin) {
@@ -70,7 +77,7 @@ export default function Admin({ onLogout }: AdminProps) {
       setAdminInfo(defaultAdmin)
       localStorage.setItem('vortex-admin-info', JSON.stringify(defaultAdmin))
     }
-  }, [])
+  }, [onLogout])
 
   useEffect(() => {
     if (activeTab === 'events') {
@@ -236,6 +243,23 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
+                onClick={() => setActiveTab('highlights')}
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'highlights'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Highlights
+                {activeTab === 'highlights' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab('events')}
                 className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'events'
@@ -285,6 +309,8 @@ export default function Admin({ onLogout }: AdminProps) {
               <AdminClasses />
             ) : activeTab === 'enrollments' ? (
               <AdminEnrollments />
+            ) : activeTab === 'highlights' ? (
+              <AdminHighlights />
             ) : activeTab === 'events' ? (
               <AdminEvents programs={programs} categories={categories} adminInfo={adminInfo} />
             ) : activeTab === 'admins' ? (

@@ -116,14 +116,18 @@ app.use(helmet({
 
 app.use(express.json({ limit: '10mb' }))
 
-// Rate limiting - skip OPTIONS requests (CORS preflight)
+// Rate limiting — higher cap in dev (React Strict Mode doubles effect fetches).
+const isProduction = process.env.NODE_ENV === 'production'
+const apiRateLimitMax =
+  Number(process.env.API_RATE_LIMIT_MAX) || (isProduction ? 1000 : 5000)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: apiRateLimitMax,
   message: 'Too many requests from this IP, please try again later.',
-  skip: (req) => req.method === 'OPTIONS' // Skip rate limiting for OPTIONS requests
+  skip: (req) => req.method === 'OPTIONS',
 })
 app.use('/api/', limiter)
+console.log(`🛡️ API rate limit: ${apiRateLimitMax} requests / 15 min`)
 
 // PostgreSQL Database setup
 const pool = new Pool({
@@ -287,6 +291,55 @@ export const initDatabase = async () => {
     `)
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_event_edit_log_created_at ON event_edit_log(created_at DESC)
+    `)
+
+    // Highlights table (admin-managed site popups)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS highlights (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('event', 'document', 'custom')),
+        event_id INTEGER REFERENCES events(id) ON DELETE SET NULL,
+        document_mime VARCHAR(100),
+        document_data TEXT,
+        custom_content JSONB,
+        site_keys JSONB NOT NULL DEFAULT '[]'::jsonb,
+        display_frequency VARCHAR(20) NOT NULL DEFAULT 'first_visit'
+          CHECK (display_frequency IN ('first_visit', 'every_visit', 'daily', 'weekly', 'never')),
+        published BOOLEAN NOT NULL DEFAULT FALSE,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        button_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+        button_label VARCHAR(100),
+        button_url TEXT,
+        button_text_above TEXT,
+        button_text_below TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    await pool.query(`
+      ALTER TABLE highlights ADD COLUMN IF NOT EXISTS button_enabled BOOLEAN NOT NULL DEFAULT FALSE
+    `)
+    await pool.query(`
+      ALTER TABLE highlights ADD COLUMN IF NOT EXISTS button_label VARCHAR(100)
+    `)
+    await pool.query(`
+      ALTER TABLE highlights ADD COLUMN IF NOT EXISTS button_url TEXT
+    `)
+    await pool.query(`
+      ALTER TABLE highlights ADD COLUMN IF NOT EXISTS button_text_above TEXT
+    `)
+    await pool.query(`
+      ALTER TABLE highlights ADD COLUMN IF NOT EXISTS button_text_below TEXT
+    `)
+    await pool.query(`
+      ALTER TABLE highlights ADD COLUMN IF NOT EXISTS modal_height_px INTEGER NOT NULL DEFAULT 881
+    `)
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_highlights_published ON highlights(published)
+    `)
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_highlights_sort_order ON highlights(sort_order)
     `)
 
     // Admins table
@@ -773,6 +826,8 @@ export const initDatabase = async () => {
 
     console.log('✅ Module 1 (Programs & Classes) initialized')
 
+    await ensureProgramCategoriesSchema()
+
     // ============================================================
     // MODULE 2: Unified Member Table (replaces app_user and athlete)
     // ============================================================
@@ -1130,6 +1185,65 @@ const eventSchema = Joi.object({
   tagAllParents: Joi.boolean().optional().default(false),
   tagBoosters: Joi.boolean().optional().default(false),
   tagVolunteers: Joi.boolean().optional().default(false)
+})
+
+const HIGHLIGHT_DOCUMENT_MAX_BYTES = 10 * 1024 * 1024
+
+const highlightCanvasSchema = Joi.object({
+  width: Joi.number().integer().min(200).max(2000).required(),
+  height: Joi.number().integer().min(200).max(2000).required(),
+  backgroundColor: Joi.string().max(50).required(),
+  elements: Joi.array().items(Joi.object({
+    id: Joi.string().required(),
+    type: Joi.string().valid('text', 'image', 'shape').required(),
+    x: Joi.number().required(),
+    y: Joi.number().required(),
+    w: Joi.number().required(),
+    h: Joi.number().required(),
+    zIndex: Joi.number().integer().required(),
+    text: Joi.string().max(10000).optional(),
+    fontSize: Joi.number().optional(),
+    color: Joi.string().max(50).optional(),
+    backgroundColor: Joi.string().max(50).optional(),
+    borderColor: Joi.string().max(50).optional(),
+    borderWidth: Joi.number().optional(),
+    src: Joi.string().max(15_000_000).optional(),
+    shape: Joi.string().valid('rect', 'circle', 'line').optional(),
+    fill: Joi.string().max(50).optional(),
+    stroke: Joi.string().max(50).optional(),
+    strokeWidth: Joi.number().optional(),
+    lineOrientation: Joi.string().valid('horizontal', 'vertical').optional(),
+  })).required(),
+})
+
+const highlightSchema = Joi.object({
+  title: Joi.string().min(1).max(255).required(),
+  contentType: Joi.string().valid('event', 'document', 'custom').required(),
+  eventId: Joi.number().integer().optional().allow(null),
+  documentMime: Joi.string().valid('application/pdf', 'image/png', 'image/jpeg', 'image/webp').optional().allow(null),
+  documentData: Joi.string().max(15_000_000).optional().allow(null, ''),
+  customContent: highlightCanvasSchema.optional().allow(null),
+  siteKeys: Joi.array().items(Joi.string().min(1).max(50)).min(1).required(),
+  displayFrequency: Joi.string().valid('first_visit', 'every_visit', 'daily', 'weekly', 'never').required(),
+  published: Joi.boolean().optional().default(false),
+  sortOrder: Joi.number().integer().optional().default(0),
+  buttonEnabled: Joi.boolean().optional().default(false),
+  buttonLabel: Joi.string().max(100).optional().allow(null, ''),
+  buttonUrl: Joi.string().max(2000).optional().allow(null, ''),
+  buttonTextAbove: Joi.string().max(5000).optional().allow(null, ''),
+  buttonTextBelow: Joi.string().max(5000).optional().allow(null, ''),
+})
+
+const highlightUpdateSchema = highlightSchema.fork(
+  ['title', 'contentType', 'siteKeys', 'displayFrequency'],
+  (field) => field.optional(),
+)
+
+const highlightReorderSchema = Joi.object({
+  items: Joi.array().items(Joi.object({
+    id: Joi.number().integer().required(),
+    sortOrder: Joi.number().integer().required(),
+  })).min(1).required(),
 })
 
 const adminLoginSchema = Joi.object({
@@ -8444,6 +8558,205 @@ app.get('/api/members/programs/:programId/iterations', authenticateMember, async
   }
 })
 
+// ========== HIGHLIGHT HELPERS ==========
+
+const parseEventJsonFields = (event) => {
+  let datesAndTimes = []
+  let keyDetails = []
+  let images = []
+  try {
+    datesAndTimes = typeof event.datesAndTimes === 'string'
+      ? JSON.parse(event.datesAndTimes)
+      : (event.datesAndTimes || [])
+    keyDetails = typeof event.keyDetails === 'string'
+      ? JSON.parse(event.keyDetails)
+      : (event.keyDetails || [])
+    images = typeof event.images === 'string'
+      ? JSON.parse(event.images)
+      : (event.images || [])
+  } catch (e) {
+    console.error('Error parsing event JSON fields:', e)
+  }
+  return {
+    datesAndTimes: Array.isArray(datesAndTimes) ? datesAndTimes : [],
+    keyDetails: Array.isArray(keyDetails) ? keyDetails : [],
+    images: Array.isArray(images) ? images : [],
+  }
+}
+
+const parseLocalEventDate = (dateStr) => {
+  if (!dateStr) return undefined
+  if (dateStr instanceof Date) return dateStr
+  const [year, month, day] = dateStr.split('T')[0].split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+const formatEventForHighlight = (event) => {
+  if (!event || !event.id) return null
+  const { datesAndTimes, keyDetails, images } = parseEventJsonFields(event)
+  return {
+    id: event.id,
+    eventName: event.eventName,
+    shortDescription: event.shortDescription,
+    longDescription: event.longDescription,
+    startDate: parseLocalEventDate(event.startDate),
+    endDate: event.endDate ? parseLocalEventDate(event.endDate) : undefined,
+    type: event.type,
+    address: event.address,
+    datesAndTimes: Array.isArray(datesAndTimes)
+      ? datesAndTimes.map((dt) => ({
+          ...dt,
+          date: parseLocalEventDate(dt.date),
+        }))
+      : [],
+    keyDetails,
+    images,
+  }
+}
+
+const mapHighlightRow = (row) => {
+  let siteKeys = []
+  let customContent = null
+  try {
+    siteKeys = typeof row.siteKeys === 'string' ? JSON.parse(row.siteKeys) : (row.siteKeys || [])
+    customContent = typeof row.customContent === 'string'
+      ? JSON.parse(row.customContent)
+      : (row.customContent || null)
+  } catch (e) {
+    console.error('Error parsing highlight JSON fields:', e)
+  }
+
+  const highlight = {
+    id: row.id,
+    title: row.title,
+    contentType: row.contentType,
+    eventId: row.eventId,
+    documentMime: row.documentMime,
+    documentData: row.documentData,
+    customContent,
+    siteKeys: Array.isArray(siteKeys) ? siteKeys : [],
+    displayFrequency: row.displayFrequency,
+    published: row.published,
+    sortOrder: row.sortOrder,
+    buttonEnabled: row.buttonEnabled ?? false,
+    buttonLabel: row.buttonLabel ?? null,
+    buttonUrl: row.buttonUrl ?? null,
+    buttonTextAbove: row.buttonTextAbove ?? null,
+    buttonTextBelow: row.buttonTextBelow ?? null,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  }
+
+  if (row.eventName !== undefined && row.eventName !== null) {
+    highlight.event = formatEventForHighlight({
+      id: row.eventId,
+      eventName: row.eventName,
+      shortDescription: row.shortDescription,
+      longDescription: row.longDescription,
+      startDate: row.startDate,
+      endDate: row.endDate,
+      type: row.type,
+      address: row.address,
+      datesAndTimes: row.datesAndTimes,
+      keyDetails: row.keyDetails,
+      images: row.images,
+    })
+  }
+
+  return highlight
+}
+
+const estimateBase64Bytes = (data) => {
+  if (!data || typeof data !== 'string') return 0
+  const base64 = data.includes(',') ? data.split(',')[1] : data
+  return Math.floor((base64.length * 3) / 4)
+}
+
+const validateHighlightButton = (value) => {
+  if (!value.buttonEnabled) {
+    return { error: null }
+  }
+  const url = (value.buttonUrl || '').trim()
+  if (!url) {
+    return { error: 'buttonUrl is required when action button is enabled' }
+  }
+  try {
+    const parsed = new URL(url)
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return { error: 'Button link must start with http:// or https://' }
+    }
+  } catch {
+    return { error: 'Button link must be a valid URL' }
+  }
+  return { error: null }
+}
+
+const validateHighlightContent = async (value, highlightId = null) => {
+  const { contentType, eventId, documentMime, documentData, customContent } = value
+
+  if (contentType === 'event') {
+    if (!eventId) {
+      return { error: 'eventId is required for event highlights' }
+    }
+    const eventCheck = await pool.query('SELECT id FROM events WHERE id = $1', [eventId])
+    if (eventCheck.rows.length === 0) {
+      return { error: 'Event not found' }
+    }
+  }
+
+  if (contentType === 'document') {
+    if (!documentMime || !documentData) {
+      return { error: 'documentMime and documentData are required for document highlights' }
+    }
+    const bytes = estimateBase64Bytes(documentData)
+    if (bytes > HIGHLIGHT_DOCUMENT_MAX_BYTES) {
+      return { error: `Document exceeds maximum size of ${HIGHLIGHT_DOCUMENT_MAX_BYTES / (1024 * 1024)}MB` }
+    }
+  }
+
+  if (contentType === 'custom') {
+    if (!customContent) {
+      return { error: 'customContent is required for custom highlights' }
+    }
+  }
+
+  return { error: null }
+}
+
+const HIGHLIGHT_SELECT = `
+  SELECT
+    h.id,
+    h.title,
+    h.content_type as "contentType",
+    h.event_id as "eventId",
+    h.document_mime as "documentMime",
+    h.document_data as "documentData",
+    h.custom_content as "customContent",
+    h.site_keys as "siteKeys",
+    h.display_frequency as "displayFrequency",
+    h.published,
+    h.sort_order as "sortOrder",
+    h.button_enabled as "buttonEnabled",
+    h.button_label as "buttonLabel",
+    h.button_url as "buttonUrl",
+    h.button_text_above as "buttonTextAbove",
+    h.button_text_below as "buttonTextBelow",
+    h.created_at as "createdAt",
+    h.updated_at as "updatedAt",
+    e.event_name as "eventName",
+    e.short_description as "shortDescription",
+    e.long_description as "longDescription",
+    e.start_date as "startDate",
+    e.end_date as "endDate",
+    e.type,
+    e.address,
+    e.dates_and_times as "datesAndTimes",
+    e.key_details as "keyDetails",
+    e.images
+  FROM highlights h
+  LEFT JOIN events e ON h.event_id = e.id
+`
+
 // ========== EVENT ENDPOINTS ==========
 
 // Get all events (public endpoint for ReadBoard)
@@ -9094,6 +9407,295 @@ app.get('/api/admin/events/:id/log', async (req, res) => {
   }
 })
 
+// ========== HIGHLIGHT ENDPOINTS ==========
+
+// Public: published highlights for a site
+app.get('/api/highlights', async (req, res) => {
+  try {
+    const site = typeof req.query.site === 'string' ? req.query.site.trim() : ''
+    if (!site) {
+      return res.status(400).json({ success: false, message: 'site query parameter is required' })
+    }
+
+    const result = await pool.query(
+      `${HIGHLIGHT_SELECT}
+       WHERE h.published = TRUE
+         AND h.site_keys @> $1::jsonb
+       ORDER BY h.sort_order ASC, h.updated_at DESC`,
+      [JSON.stringify([site])],
+    )
+
+    const highlights = result.rows.map(mapHighlightRow)
+    res.json({ success: true, highlights, data: highlights })
+  } catch (error) {
+    console.error('Get public highlights error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+// Admin: list all highlights
+app.get('/api/admin/highlights', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `${HIGHLIGHT_SELECT}
+       ORDER BY h.sort_order ASC, h.updated_at DESC`,
+    )
+    const highlights = result.rows.map(mapHighlightRow)
+    res.json({ success: true, highlights, data: highlights })
+  } catch (error) {
+    console.error('Get admin highlights error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+// Admin: create highlight
+app.post('/api/admin/highlights', async (req, res) => {
+  try {
+    const { error, value } = highlightSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({ success: false, message: error.details[0].message })
+    }
+
+    const contentError = await validateHighlightContent(value)
+    if (contentError.error) {
+      return res.status(400).json({ success: false, message: contentError.error })
+    }
+    const buttonError = validateHighlightButton(value)
+    if (buttonError.error) {
+      return res.status(400).json({ success: false, message: buttonError.error })
+    }
+
+    const buttonEnabled = value.buttonEnabled ?? false
+    const buttonUrl = buttonEnabled ? (value.buttonUrl || '').trim() : null
+    const buttonLabel = buttonEnabled
+      ? ((value.buttonLabel || '').trim() || 'Learn more')
+      : null
+    const buttonTextAbove = (value.buttonTextAbove || '').trim() || null
+    const buttonTextBelow = buttonEnabled
+      ? ((value.buttonTextBelow || '').trim() || null)
+      : null
+
+    const result = await pool.query(
+      `INSERT INTO highlights (
+        title, content_type, event_id, document_mime, document_data, custom_content,
+        site_keys, display_frequency, published, sort_order,
+        button_enabled, button_label, button_url, button_text_above, button_text_below
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      RETURNING id`,
+      [
+        value.title,
+        value.contentType,
+        value.contentType === 'event' ? value.eventId : null,
+        value.contentType === 'document' ? value.documentMime : null,
+        value.contentType === 'document' ? value.documentData : null,
+        value.contentType === 'custom' ? JSON.stringify(value.customContent) : null,
+        JSON.stringify(value.siteKeys),
+        value.displayFrequency,
+        value.published ?? false,
+        value.sortOrder ?? 0,
+        buttonEnabled,
+        buttonLabel,
+        buttonUrl,
+        buttonTextAbove,
+        buttonTextBelow,
+      ],
+    )
+
+    const created = await pool.query(
+      `${HIGHLIGHT_SELECT} WHERE h.id = $1`,
+      [result.rows[0].id],
+    )
+
+    res.status(201).json({
+      success: true,
+      message: 'Highlight created successfully',
+      data: mapHighlightRow(created.rows[0]),
+    })
+  } catch (error) {
+    console.error('Create highlight error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+// Admin: reorder highlights
+app.patch('/api/admin/highlights/reorder', async (req, res) => {
+  try {
+    const { error, value } = highlightReorderSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({ success: false, message: error.details[0].message })
+    }
+
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      for (const item of value.items) {
+        await client.query(
+          'UPDATE highlights SET sort_order = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+          [item.sortOrder, item.id],
+        )
+      }
+      await client.query('COMMIT')
+    } catch (txError) {
+      await client.query('ROLLBACK')
+      throw txError
+    } finally {
+      client.release()
+    }
+
+    res.json({ success: true, message: 'Highlights reordered successfully' })
+  } catch (error) {
+    console.error('Reorder highlights error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+// Admin: update highlight
+app.put('/api/admin/highlights/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { error, value } = highlightUpdateSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({ success: false, message: error.details[0].message })
+    }
+
+    const existing = await pool.query(
+      'SELECT * FROM highlights WHERE id = $1',
+      [id],
+    )
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Highlight not found' })
+    }
+
+    const merged = {
+      title: value.title ?? existing.rows[0].title,
+      contentType: value.contentType ?? existing.rows[0].content_type,
+      eventId: value.eventId !== undefined ? value.eventId : existing.rows[0].event_id,
+      documentMime: value.documentMime !== undefined ? value.documentMime : existing.rows[0].document_mime,
+      documentData: value.documentData !== undefined ? value.documentData : existing.rows[0].document_data,
+      customContent: value.customContent !== undefined
+        ? value.customContent
+        : (typeof existing.rows[0].custom_content === 'string'
+          ? JSON.parse(existing.rows[0].custom_content)
+          : existing.rows[0].custom_content),
+      siteKeys: value.siteKeys ?? (
+        typeof existing.rows[0].site_keys === 'string'
+          ? JSON.parse(existing.rows[0].site_keys)
+          : existing.rows[0].site_keys
+      ),
+      displayFrequency: value.displayFrequency ?? existing.rows[0].display_frequency,
+      published: value.published !== undefined ? value.published : existing.rows[0].published,
+      sortOrder: value.sortOrder !== undefined ? value.sortOrder : existing.rows[0].sort_order,
+      buttonEnabled: value.buttonEnabled !== undefined
+        ? value.buttonEnabled
+        : existing.rows[0].button_enabled,
+      buttonLabel: value.buttonLabel !== undefined
+        ? value.buttonLabel
+        : existing.rows[0].button_label,
+      buttonUrl: value.buttonUrl !== undefined
+        ? value.buttonUrl
+        : existing.rows[0].button_url,
+      buttonTextAbove: value.buttonTextAbove !== undefined
+        ? value.buttonTextAbove
+        : existing.rows[0].button_text_above,
+      buttonTextBelow: value.buttonTextBelow !== undefined
+        ? value.buttonTextBelow
+        : existing.rows[0].button_text_below,
+    }
+
+    const contentError = await validateHighlightContent(merged)
+    if (contentError.error) {
+      return res.status(400).json({ success: false, message: contentError.error })
+    }
+    const buttonError = validateHighlightButton(merged)
+    if (buttonError.error) {
+      return res.status(400).json({ success: false, message: buttonError.error })
+    }
+
+    const buttonEnabled = merged.buttonEnabled ?? false
+    const buttonUrl = buttonEnabled ? (merged.buttonUrl || '').trim() : null
+    const buttonLabel = buttonEnabled
+      ? ((merged.buttonLabel || '').trim() || 'Learn more')
+      : null
+    const buttonTextAbove = (merged.buttonTextAbove || '').trim() || null
+    const buttonTextBelow = buttonEnabled
+      ? ((merged.buttonTextBelow || '').trim() || null)
+      : null
+
+    await pool.query(
+      `UPDATE highlights SET
+        title = $1,
+        content_type = $2,
+        event_id = $3,
+        document_mime = $4,
+        document_data = $5,
+        custom_content = $6,
+        site_keys = $7,
+        display_frequency = $8,
+        published = $9,
+        sort_order = $10,
+        button_enabled = $11,
+        button_label = $12,
+        button_url = $13,
+        button_text_above = $14,
+        button_text_below = $15,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $16`,
+      [
+        merged.title,
+        merged.contentType,
+        merged.contentType === 'event' ? merged.eventId : null,
+        merged.contentType === 'document' ? merged.documentMime : null,
+        merged.contentType === 'document' ? merged.documentData : null,
+        merged.contentType === 'custom' ? JSON.stringify(merged.customContent) : null,
+        JSON.stringify(merged.siteKeys),
+        merged.displayFrequency,
+        merged.published,
+        merged.sortOrder,
+        buttonEnabled,
+        buttonLabel,
+        buttonUrl,
+        buttonTextAbove,
+        buttonTextBelow,
+        id,
+      ],
+    )
+
+    const updated = await pool.query(
+      `${HIGHLIGHT_SELECT} WHERE h.id = $1`,
+      [id],
+    )
+
+    res.json({
+      success: true,
+      message: 'Highlight updated successfully',
+      data: mapHighlightRow(updated.rows[0]),
+    })
+  } catch (error) {
+    console.error('Update highlight error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+// Admin: delete highlight
+app.delete('/api/admin/highlights/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const result = await pool.query(
+      'DELETE FROM highlights WHERE id = $1 RETURNING id',
+      [id],
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Highlight not found' })
+    }
+
+    res.json({ success: true, message: 'Highlight deleted successfully' })
+  } catch (error) {
+    console.error('Delete highlight error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
 // Admin endpoint to create member_program table if it doesn't exist
 app.post('/api/admin/create-member-program-table', authenticateAdmin, async (req, res) => {
   try {
@@ -9571,6 +10173,7 @@ app.post('/api/admin/admins', async (req, res) => {
 // Get all programs (admin endpoint)
 app.get('/api/admin/programs', async (req, res) => {
   try {
+    await ensureProgramCategoriesSchema()
     const { archived } = req.query
     let query = `
       SELECT 
@@ -10272,6 +10875,35 @@ app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
     })
   }
 })
+
+/** Ensures program_categories, skill_levels, and program.category_id/archived exist (local DB bootstrap). */
+const ensureProgramCategoriesSchema = async () => {
+  const migrationFiles = [
+    'add_categories_levels_tables.sql',
+    'add_category_description.sql',
+  ]
+
+  for (const file of migrationFiles) {
+    const migrationPath = path.join(__dirname, 'migrations', file)
+    if (!fs.existsSync(migrationPath)) {
+      console.warn(`[ensureProgramCategoriesSchema] Missing migration file: ${file}`)
+      continue
+    }
+
+    try {
+      await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+    } catch (err) {
+      // Idempotent migrations may warn on duplicates; rethrow missing-relation errors
+      if (err.code === '42P01') {
+        console.error(`[ensureProgramCategoriesSchema] ${file} failed:`, err.message)
+        throw err
+      }
+      console.warn(`[ensureProgramCategoriesSchema] ${file}:`, err.message)
+    }
+  }
+
+  console.log('✅ Program categories schema ensured')
+}
 
 // Helper function to ensure class_iteration table exists
 const ensureClassIterationTable = async () => {
@@ -11026,6 +11658,7 @@ app.get('/api/admin/programs/:programId/iterations/stats', async (req, res) => {
 // Get all categories (admin endpoint)
 app.get('/api/admin/categories', async (req, res) => {
   try {
+    await ensureProgramCategoriesSchema()
     const { archived } = req.query
     
     // Check if description column exists

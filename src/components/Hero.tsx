@@ -6,7 +6,11 @@ import HeroBackgroundVideo from './HeroBackgroundVideo'
 // YouTube video ID to play when "Play Video" is clicked (change this to your desired video)
 const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
 
-const Hero = () => {
+interface HeroProps {
+  onHighlightsClick?: () => void
+}
+
+const Hero = ({ onHighlightsClick }: HeroProps) => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
@@ -264,6 +268,17 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
             >
+              {onHighlightsClick && (
+                <motion.button
+                  type="button"
+                  onClick={onHighlightsClick}
+                  className="border-2 border-white bg-white text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-white/90"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Highlights
+                </motion.button>
+              )}
               <Link to="/gymnastics">
                 <motion.button
                   className="btn-secondary group"
@@ -435,6 +450,17 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
             >
+              {onHighlightsClick && (
+                <motion.button
+                  type="button"
+                  onClick={onHighlightsClick}
+                  className="w-full max-w-xs border-2 border-white bg-white text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-white/90"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Highlights
+                </motion.button>
+              )}
               <Link to="/gymnastics" className="w-full max-w-xs">
                 <motion.button
                   className="btn-secondary group w-full"

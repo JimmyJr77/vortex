@@ -1,11 +1,7 @@
 import { motion } from 'framer-motion'
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Zap, Target, TrendingUp, Shield, Users, Play } from 'lucide-react'
-import HeroBackgroundVideo from './HeroBackgroundVideo'
-
-// Same YouTube video as home hero when "Play Video" is clicked
-const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
+import { Zap, Target, TrendingUp, Shield, Users } from 'lucide-react'
+import HeroPosterBackground from './HeroPosterBackground'
 
 interface AthleticismAcceleratorProps {
   onSignUpClick: () => void
@@ -13,7 +9,6 @@ interface AthleticismAcceleratorProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAcceleratorProps) => {
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const tenets = [
     { 
       name: 'Strength', 
@@ -77,27 +72,12 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Desktop: Full screen section with everything overlaid on video */}
+      {/* Desktop: Full screen section with hero poster background */}
       <section className="hidden md:block relative min-h-screen w-full overflow-hidden pt-20" style={{ backgroundColor: 'transparent' }}>
-        {/* Background: image by default; video on Play Video click */}
-        <HeroBackgroundVideo
-          videoFileName="vald_sprints.mp4"
-          posterFileName="main_hero_bg.png"
-          imageOnly
-          playRequested={isVideoPlaying}
-          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
-          className="absolute inset-0 w-full h-full"
-          overlayClassName="absolute inset-0 bg-black/40 z-[1] pointer-events-none"
-          onVideoReady={() => {
-            console.log('✅ Vald sprints video ready')
-          }}
-          onVideoError={(error) => {
-            console.error('❌ Vald sprints video error:', error)
-          }}
-        />
+        <HeroPosterBackground overlayClassName="absolute inset-0 bg-black/40 z-[1] pointer-events-none" />
 
         {/* Content Container - Top Layer */}
-        <div className={`container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center ${isVideoPlaying ? 'items-end' : 'items-center'}`}>
+        <div className="container-custom relative z-10 flex justify-center items-center min-h-[calc(100vh-5rem)] text-center">
           <div>
             <motion.h1
               className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
@@ -141,18 +121,6 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
                 >
                   View Class Schedule
                 </Link>
-                {!isVideoPlaying && (
-                  <motion.button
-                    onClick={() => setIsVideoPlaying(true)}
-                    className="inline-flex items-center gap-2 border-2 border-white bg-transparent text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-white/10 hover:scale-105"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    aria-label="Play video"
-                  >
-                    <Play className="w-5 h-5 fill-white" />
-                    Play Video
-                  </motion.button>
-                )}
               </div>
 
               {/* Scroll Indicator */}
@@ -174,24 +142,9 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
         </div>
       </section>
 
-      {/* Mobile: Video section with title only */}
+      {/* Mobile: Hero section with title only */}
       <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
-        {/* Background: image by default; video on Play Video click */}
-        <HeroBackgroundVideo
-          videoFileName="vald_sprints.mp4"
-          posterFileName="main_hero_bg.png"
-          imageOnly
-          playRequested={isVideoPlaying}
-          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
-          className="absolute inset-0 w-full h-full"
-          overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
-          onVideoReady={() => {
-            console.log('✅ Vald sprints video ready (mobile)')
-          }}
-          onVideoError={(error) => {
-            console.error('❌ Vald sprints video error (mobile):', error)
-          }}
-        />
+        <HeroPosterBackground />
 
         <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">
           <div className="container-custom text-center w-full pointer-events-auto">
@@ -208,7 +161,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
         </div>
       </section>
 
-      {/* Mobile: Content section below video */}
+      {/* Mobile: Content section below hero */}
       <section className="md:hidden bg-gradient-to-br from-black via-gray-900 to-black py-12">
         <div className="container-custom">
           <div className="text-center">

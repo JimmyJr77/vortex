@@ -26,6 +26,22 @@ export const getAdminToken = (): string | null => {
   return localStorage.getItem('adminToken')
 }
 
+/** True when admin flag and token are both present (required for API calls). */
+export const hasAdminSession = (): boolean => {
+  return (
+    localStorage.getItem('vortex_admin') === 'true' &&
+    Boolean(localStorage.getItem('adminToken'))
+  )
+}
+
+/** Clear all admin auth keys (e.g. expired or missing token). */
+export const clearAdminSession = (): void => {
+  localStorage.removeItem('vortex_admin')
+  localStorage.removeItem('adminToken')
+  localStorage.removeItem('vortex-admin-info')
+  localStorage.removeItem('vortex-admin-id')
+}
+
 /**
  * Make an authenticated admin API request
  * Automatically includes the Authorization header with the admin token
@@ -46,9 +62,15 @@ export const adminApiRequest = async (
     headers['Authorization'] = `Bearer ${token}`
   }
   
-  return fetch(`${apiUrl}${endpoint}`, {
+  const response = await fetch(`${apiUrl}${endpoint}`, {
     ...options,
     headers,
   })
+
+  if (response.status === 401) {
+    console.warn('[adminApiRequest] 401 Unauthorized — admin session invalid or expired')
+  }
+
+  return response
 }
 

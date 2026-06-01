@@ -11,8 +11,98 @@
   ],
   "routes": [
     {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|mp4|mov|webm|ogg))",
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|mp4|mov|webm|ogg|xml))",
       "dest": "/$1"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "vortex-lacross.com" }],
+      "dest": "/_seo/vortex-lacross.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "www.vortex-lacross.com" }],
+      "dest": "/_seo/vortex-lacross.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "vortex-conditioning.com" }],
+      "dest": "/_seo/vortex-conditioning.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "www.vortex-conditioning.com" }],
+      "dest": "/_seo/vortex-conditioning.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "vortex-football.com" }],
+      "dest": "/_seo/vortex-football.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "www.vortex-football.com" }],
+      "dest": "/_seo/vortex-football.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "vortex-basketball.com" }],
+      "dest": "/_seo/vortex-basketball.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "www.vortex-basketball.com" }],
+      "dest": "/_seo/vortex-basketball.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "vortex-track.com" }],
+      "dest": "/_seo/vortex-track.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "www.vortex-track.com" }],
+      "dest": "/_seo/vortex-track.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "vortex-fit.com" }],
+      "dest": "/_seo/vortex-fit.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "www.vortex-fit.com" }],
+      "dest": "/_seo/vortex-fit.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "vortex-athlete.com" }],
+      "dest": "/_seo/vortex-athlete.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "www.vortex-athlete.com" }],
+      "dest": "/_seo/vortex-athlete.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "vortex-soccer.com" }],
+      "dest": "/_seo/vortex-soccer.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "www.vortex-soccer.com" }],
+      "dest": "/_seo/vortex-soccer.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "vortex-reps.com" }],
+      "dest": "/_seo/vortex-reps.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "www.vortex-reps.com" }],
+      "dest": "/_seo/vortex-reps.com.html"
     },
     {
       "src": "/(.*)",
@@ -20,4 +110,3 @@
     }
   ]
 }
-

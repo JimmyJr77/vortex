@@ -1,8 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
+import GymnasticsApp from './apps/gymnastics/GymnasticsApp.tsx'
+import ComingSoon from './components/stub/ComingSoon.tsx'
+import {
+  isStubPreviewOnNonStubHost,
+  resolveStubSite,
+} from './config/stubSites.ts'
 
 // Inject CDN preconnect link for performance
 const cdnBaseUrl = import.meta.env.VITE_CDN_BASE_URL
@@ -32,10 +39,39 @@ if (cdnBaseUrl) {
   }
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </StrictMode>,
-)
+// If the current domain is one of the vortex-<sport>.com stub sites, render the
+// lightweight "League Coming Soon" stub instead of the full Vortex Athletics app.
+const stubSite = resolveStubSite(window.location.hostname, window.location.search)
+const stubPreview = stubSite
+  ? isStubPreviewOnNonStubHost(window.location.hostname, window.location.search)
+  : false
+
+if (stubSite?.key === 'gymnastics') {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <HelmetProvider>
+        <BrowserRouter>
+          <GymnasticsApp isPreview={stubPreview} />
+        </BrowserRouter>
+      </HelmetProvider>
+    </StrictMode>,
+  )
+} else if (stubSite) {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <HelmetProvider>
+        <ComingSoon config={stubSite} isPreview={stubPreview} />
+      </HelmetProvider>
+    </StrictMode>,
+  )
+} else {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <HelmetProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </HelmetProvider>
+    </StrictMode>,
+  )
+}

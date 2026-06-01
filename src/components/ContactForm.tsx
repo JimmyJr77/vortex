@@ -6,9 +6,11 @@ import { getApiUrl } from '../utils/api'
 interface ContactFormProps {
   isOpen: boolean
   onClose: () => void
+  /** When set, modal title reflects the sport-specific inquiry (e.g. "Vortex Football"). */
+  sportLabel?: string
 }
 
-const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
+const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -344,7 +346,7 @@ const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-3xl font-display font-bold text-black">
-                    Inquire
+                    {sportLabel ? `Inquire — Vortex ${sportLabel}` : 'Inquire'}
                   </h2>
                   <p className="text-gray-600 mt-2">
                     Let us know how we can support! Ask any questions, provide comments or feedback, tell us about your interests, and stay informed! We will reach back out to you shortly.

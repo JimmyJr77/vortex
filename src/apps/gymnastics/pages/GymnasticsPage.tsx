@@ -1,3 +1,4 @@
+/** Copied for vortex-gymnastics.com — hub original: src/components/Gymnastics.tsx */
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import {
