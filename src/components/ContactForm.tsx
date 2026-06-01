@@ -1,8 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Phone, MapPin, Send } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { getApiUrl } from '../utils/api'
 import { TEAM_EMAIL } from '../config/contact'
+import { getAttributionPayload } from '../utils/utmCapture'
+import { getVisitorId, getSessionId } from '../utils/visitorId'
+import { getActiveConsent } from '../utils/consent'
+import { trackEvent } from '../utils/analyticsClient'
 
 interface ContactFormProps {
   isOpen: boolean
@@ -27,6 +31,14 @@ const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
+  useEffect(() => {
+    if (isOpen) {
+      trackEvent('inquiry_form_start', window.location.pathname, {
+        properties: { sport_label: sportLabel },
+      })
+    }
+  }, [isOpen, sportLabel])
+
   const interests = [
     'Gymnastics (Artistic)',
     'Rhythmic Gymnastics',
@@ -45,6 +57,9 @@ const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    trackEvent('inquiry_form_submit', window.location.pathname, {
+      properties: { sport_label: sportLabel },
+    })
     
     // Frontend validation
     if (formData.firstName.trim().length < 2) {
@@ -121,6 +136,12 @@ const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
         payload.message = formData.message
       }
       payload.newsletter = newsletter
+
+      const consent = getActiveConsent()
+      const attribution = getAttributionPayload()
+      payload.visitorId = getVisitorId(consent.analytics)
+      payload.sessionId = getSessionId(consent.analytics)
+      Object.assign(payload, attribution)
       
       let response: Response
       try {

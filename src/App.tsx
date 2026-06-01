@@ -7,7 +7,9 @@ import Footer from './components/Footer'
 import Login from './components/Login'
 import MemberLogin from './components/MemberLogin'
 import { trackPageView, trackEngagement } from './utils/analytics'
+import { captureUtmFromLocation } from './utils/utmCapture'
 import { clearAdminSession, hasAdminSession } from './utils/api'
+import CookieConsent from './components/CookieConsent'
 import { useSiteHighlights } from './hooks/useSiteHighlights'
 import HighlightsModal from './components/HighlightsModal'
 
@@ -72,10 +74,8 @@ function App() {
       }
     }
 
-    // Track page view
-    if (!hasAdminSession() && !storedToken) {
-      trackPageView(location.pathname)
-    }
+    captureUtmFromLocation()
+    trackPageView(location.pathname)
   }, [location.pathname])
 
   const handleContactClick = () => {
@@ -205,6 +205,7 @@ function App() {
           onClose={closeHighlights}
         />
       )}
+      <CookieConsent />
     </div>
   )
 }

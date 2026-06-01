@@ -7,6 +7,8 @@ import Footer from '../../components/Footer'
 import Login from '../../components/Login'
 import MemberLogin from '../../components/MemberLogin'
 import { trackPageView, trackEngagement } from '../../utils/analytics'
+import { captureUtmFromLocation } from '../../utils/utmCapture'
+import CookieConsent from '../../components/CookieConsent'
 import { setSportSiteContext } from '../../utils/sportSite'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
 import HighlightsModal from '../../components/HighlightsModal'
@@ -74,6 +76,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
       }
     }
 
+    captureUtmFromLocation()
     trackPageView(location.pathname, { googleAnalytics: !isPreview })
   }, [location.pathname, isPreview])
 
@@ -227,6 +230,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
           onClose={closeHighlights}
         />
       )}
+      {!isPreview && <CookieConsent />}
     </div>
   )
 }

@@ -14,6 +14,28 @@ const LINKER_DOMAINS = [
   ...STUB_HOSTS,
 ]
 
+/** Default deny until user consents (Consent Mode v2). */
+export const initGoogleAnalyticsConsent = () => {
+  if (typeof window.gtag !== 'function') return
+  window.gtag('consent', 'default', {
+    analytics_storage: 'denied',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    wait_for_update: 500,
+  })
+}
+
+export const updateGoogleConsent = (analytics: boolean, marketing: boolean) => {
+  if (typeof window.gtag !== 'function') return
+  window.gtag('consent', 'update', {
+    analytics_storage: analytics ? 'granted' : 'denied',
+    ad_storage: marketing ? 'granted' : 'denied',
+    ad_user_data: marketing ? 'granted' : 'denied',
+    ad_personalization: marketing ? 'granted' : 'denied',
+  })
+}
+
 /** Preserve client id when visitors move between Vortex domains (hub, gymnastics, stubs). */
 export const initGoogleAnalyticsLinker = () => {
   if (typeof window.gtag !== 'function') return
@@ -33,4 +55,12 @@ export const trackGooglePageView = (path: string) => {
   window.gtag('config', GA_MEASUREMENT_ID, {
     page_path: pagePath,
   })
+}
+
+export const trackGoogleEvent = (
+  eventName: string,
+  params?: Record<string, unknown>,
+) => {
+  if (typeof window.gtag !== 'function' || isPreviewNoIndex()) return
+  window.gtag('event', eventName, params ?? {})
 }

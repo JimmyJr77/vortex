@@ -10,6 +10,9 @@ import jwt from 'jsonwebtoken'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { initAnalyticsTables } from './analytics/initTables.js'
+import { registerAnalyticsRoutes } from './analytics/registerRoutes.js'
+import { applyRegistrationAttribution } from './analytics/adminHandlers.js'
 
 const { Pool } = pkg
 
@@ -223,6 +226,8 @@ export const initDatabase = async () => {
     await pool.query(`
       ALTER TABLE registrations ADD COLUMN IF NOT EXISTS admin_notes TEXT
     `)
+
+    await initAnalyticsTables(pool)
 
     // Newsletter subscribers table
     await pool.query(`
@@ -1179,7 +1184,16 @@ const registrationSchema = Joi.object({
   classTypes: Joi.array().items(Joi.string().valid('Adult Classes', 'Child Classes')).optional().allow(null), // Class types array
   childAges: Joi.array().items(Joi.number().integer().min(1).max(18)).optional().allow(null), // New child ages array
   message: Joi.string().max(1000).optional().allow('', null),
-  newsletter: Joi.boolean().optional().allow(null).default(false)
+  newsletter: Joi.boolean().optional().allow(null).default(false),
+  visitorId: Joi.string().max(64).optional().allow('', null),
+  sessionId: Joi.string().max(64).optional().allow('', null),
+  landingPage: Joi.string().max(500).optional().allow('', null),
+  hostname: Joi.string().max(255).optional().allow('', null),
+  utmSource: Joi.string().max(100).optional().allow('', null),
+  utmMedium: Joi.string().max(100).optional().allow('', null),
+  utmCampaign: Joi.string().max(100).optional().allow('', null),
+  utmContent: Joi.string().max(100).optional().allow('', null),
+  utmTerm: Joi.string().max(100).optional().allow('', null),
 })
 
 const newsletterSchema = Joi.object({
@@ -2183,6 +2197,9 @@ app.use('/api/admin', async (req, res, next) => {
   return authenticateAdmin(req, res, next)
 })
 
+// Analytics & consent (public + admin)
+registerAnalyticsRoutes(app, pool)
+
 // Routes
 
 const registeredRoutePaths = () => {
@@ -2528,8 +2545,15 @@ app.post('/api/registrations', async (req, res) => {
         value.message || null
       ])
 
+      const inquiryId = result.rows[0].id
+      try {
+        await applyRegistrationAttribution(pool, inquiryId, value)
+      } catch (attrErr) {
+        console.warn('[registrations] attribution attach failed:', attrErr.message)
+      }
+
       console.log('✅ Registration inserted successfully:', {
-        id: result.rows[0].id,
+        id: inquiryId,
         email: value.email,
         created_at: result.rows[0].created_at
       })
@@ -2537,7 +2561,7 @@ app.post('/api/registrations', async (req, res) => {
       res.json({
         success: true,
         message: 'Registration submitted successfully',
-        id: result.rows[0].id
+        id: inquiryId
       })
     } catch (insertError) {
       // If column doesn't exist error, try to add it and retry
@@ -2570,15 +2594,22 @@ app.post('/api/registrations', async (req, res) => {
             value.message || null
           ])
           
+          const inquiryId = result.rows[0].id
+          try {
+            await applyRegistrationAttribution(pool, inquiryId, value)
+          } catch (attrErr) {
+            console.warn('[registrations] attribution attach failed:', attrErr.message)
+          }
+
           console.log('✅ Registration inserted successfully after adding columns:', {
-            id: result.rows[0].id,
+            id: inquiryId,
             email: value.email
           })
           
           res.json({
             success: true,
             message: 'Registration submitted successfully',
-            id: result.rows[0].id
+            id: inquiryId
           })
         } catch (retryError) {
           throw retryError // Re-throw to be caught by outer catch
@@ -2730,6 +2761,11 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
       contacted !== undefined ? !!contacted : !!existing.contacted
     const finalAdminNotes =
       admin_notes !== undefined ? admin_notes : existing.admin_notes
+    const leadStatus = finalContacted ? 'contacted' : 'new'
+    const setFirstContacted =
+      finalContacted && !existing.contacted
+        ? new Date()
+        : null
 
     // Handle interests - can be array or string
     let interestsString = null
@@ -2748,8 +2784,8 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
 
     await pool.query(`
       UPDATE registrations 
-      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, interests_array = $7, interest = $8, class_types = $9, child_ages = $10, message = $11, contacted = $12, admin_notes = $13, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $14
+      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, interests_array = $7, interest = $8, class_types = $9, child_ages = $10, message = $11, contacted = $12, admin_notes = $13, lead_status = $14, first_contacted_at = COALESCE(first_contacted_at, $15), updated_at = CURRENT_TIMESTAMP
+      WHERE id = $16
     `, [
       first_name,
       last_name,
@@ -2764,6 +2800,8 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
       message,
       finalContacted,
       finalAdminNotes,
+      leadStatus,
+      setFirstContacted,
       id,
     ])
 

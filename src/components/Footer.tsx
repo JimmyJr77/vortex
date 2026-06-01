@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
 import { TEAM_EMAIL } from '../config/contact'
+import { trackEvent } from '../utils/analyticsClient'
 
 interface FooterProps {
   onContactClick: () => void
@@ -175,13 +176,28 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
                   <a
                     href={`mailto:${TEAM_EMAIL}`}
                     className="text-gray-300 hover:text-vortex-red transition-colors"
+                    onClick={() =>
+                      trackEvent('email_click', window.location.pathname, {
+                        properties: { target: 'footer' },
+                      })
+                    }
                   >
                     {TEAM_EMAIL}
                   </a>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="w-5 h-5 text-vortex-red" />
-                  <span className="text-gray-300">+1 (443) 422-4794</span>
+                  <a
+                    href="tel:+14434224794"
+                    className="text-gray-300 hover:text-vortex-red transition-colors"
+                    onClick={() =>
+                      trackEvent('phone_click', window.location.pathname, {
+                        properties: { target: 'footer' },
+                      })
+                    }
+                  >
+                    +1 (443) 422-4794
+                  </a>
                 </div>
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-vortex-red mt-1" />

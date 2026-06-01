@@ -3,6 +3,7 @@ import { Calendar, Clock, MapPin, Users, Award, Trophy, Zap, CheckCircle, Search
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
+import { trackEvent } from '../utils/analyticsClient'
 import { parseDateOnly, formatDateForDisplay } from '../utils/dateUtils'
 
 interface DateTimeEntry {
@@ -78,6 +79,14 @@ const ReadBoard = () => {
       setActiveTab('schedule')
     }
   }, [location.hash])
+
+  useEffect(() => {
+    if (activeTab === 'schedule') {
+      trackEvent('schedule_view', location.pathname, {
+        properties: { view: scheduleView },
+      })
+    }
+  }, [activeTab, scheduleView, location.pathname])
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',

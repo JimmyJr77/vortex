@@ -10,9 +10,21 @@ import {
   isStubPreviewOnNonStubHost,
   resolveStubSite,
 } from './config/stubSites.ts'
-import { initGoogleAnalyticsLinker } from './utils/googleAnalytics.ts'
+import {
+  initGoogleAnalyticsConsent,
+  initGoogleAnalyticsLinker,
+} from './utils/googleAnalytics.ts'
+import { captureUtmFromLocation } from './utils/utmCapture.ts'
+import { updateGoogleConsent } from './utils/googleAnalytics.ts'
+import { getStoredConsent } from './utils/consent.ts'
 
+initGoogleAnalyticsConsent()
 initGoogleAnalyticsLinker()
+captureUtmFromLocation()
+const storedConsent = getStoredConsent()
+if (storedConsent) {
+  updateGoogleConsent(storedConsent.analytics, storedConsent.marketing)
+}
 
 // Inject CDN preconnect link for performance
 const cdnBaseUrl = import.meta.env.VITE_CDN_BASE_URL

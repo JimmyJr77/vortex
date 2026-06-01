@@ -12,6 +12,13 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
+      gtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        wait_for_update: 500
+      });
       gtag('config', 'G-XDE178DQWY', { send_page_view: false });
     </script>
     <!-- CDN preconnect will be injected dynamically by main.tsx based on VITE_CDN_BASE_URL -->
