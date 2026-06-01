@@ -5,17 +5,21 @@ import { ChevronDown } from 'lucide-react'
 import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 import { getStubSportSiteUrl } from '../utils/sportSite'
 
-const SPORT_MENU_ITEMS = [
+type SportMenuItem =
+  | { label: string; to: string }
+  | { label: string; href: string; external: true }
+
+const SPORT_MENU_ITEMS: SportMenuItem[] = [
   {
     label: 'Gymnastics',
     href: getGymnasticsSiteUrl(),
-    external: true as const,
+    external: true,
   },
-  { label: 'Vortex Ninja', to: '/ninja' as const },
+  { label: 'Vortex Ninja', to: '/ninja' },
   {
     label: 'Basketball',
     href: getStubSportSiteUrl('basketball'),
-    external: true as const,
+    external: true,
   },
 ]
 

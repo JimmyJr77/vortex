@@ -11,7 +11,7 @@
     "pull-lfs": "bash scripts/pull-lfs.sh || echo 'Git LFS pull failed, continuing build'",
     "lint": "eslint .",
     "preview": "vite preview",
-    "vercel-build": "(command -v git-lfs >/dev/null 2>&1 || (apt-get update -qq && apt-get install -y git-lfs)) && npm run pull-lfs && npm run prebuild && tsc -b && vite build && npm run postbuild"
+    "vercel-build": "(command -v git-lfs >/dev/null 2>&1 || (apt-get update -qq && apt-get install -y git-lfs)) && npm run pull-lfs && npm run prebuild && tsc -b && vite build && (npx playwright install --with-deps chromium || npx playwright install chromium || true) && PRERENDER=true npm run postbuild"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",

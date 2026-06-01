@@ -9,9 +9,9 @@ export interface HubRouteSeo {
 
 export const HUB_HOME_SEO: HubRouteSeo = {
   path: '/',
-  title: 'Vortex Athletics - Transform Youth Athletes Into Champions',
+  title: 'Vortex Athletics | Youth Sports & Gymnastics, Bowie MD',
   description:
-    'Vortex Athletics is a premier youth athletic development center. Gymnastics, ninja, strength, athleticism programs, classes, events, and development-first coaching.',
+    'Gymnastics, ninja, and athletic training for kids and adults in Bowie, MD. Expert coaching and a modern facility. Book a free trial class.',
   priority: 1.0,
 }
 
@@ -19,37 +19,37 @@ export const HUB_ROUTES: HubRouteSeo[] = [
   HUB_HOME_SEO,
   {
     path: '/ninja',
-    title: 'Vortex Ninja Programs | Vortex Athletics',
+    title: 'Kids Ninja Classes in Bowie, MD | Vortex',
     description:
-      'Ninja obstacle training at Vortex Athletics. Develop agility, grip strength, coordination, and problem-solving through dynamic movement.',
+      'Ninja obstacle classes for kids in Bowie, MD. Build strength, agility, and confidence on warped walls and courses. Book a free trial.',
     priority: 0.8,
   },
   {
     path: '/strength-conditioning',
-    title: 'Fit & Flip Strength & Conditioning | Vortex Athletics',
+    title: 'Fit & Flip | Adult Fitness & Acrobatics, Bowie MD',
     description:
-      'Fit & Flip strength and conditioning at Vortex Athletics. Functional fitness, mobility, and acrobatics for adults and athletes.',
+      'Adult fitness, conditioning, and acrobatics in Bowie, MD. Functional strength and mobility for all levels. Try a class today.',
     priority: 0.8,
   },
   {
     path: '/athleticism-accelerator',
-    title: 'Athleticism Accelerator | Vortex Athletics',
+    title: 'Youth Athletic Training in Bowie | Vortex Accelerator',
     description:
-      'The Athleticism Accelerator builds complete athletes across eight tenets of athleticism: speed, power, coordination, and injury-resistant movement.',
+      'Sports performance training for young athletes in Bowie, MD. Build speed, power, and coordination across 8 tenets. Book an assessment.',
     priority: 0.8,
   },
   {
     path: '/value',
-    title: 'Our Value & Philosophy | Vortex Athletics',
+    title: 'Why Vortex Athletics | Development-First Coaching',
     description:
-      'Learn what makes Vortex Athletics different: development-first training, expert coaches, and programs built for long-term athlete success.',
+      'See what makes Vortex different: development-first training, expert coaches, and modern technology for athletes in Bowie, MD.',
     priority: 0.7,
   },
   {
     path: '/read-board',
-    title: 'Classes & Events | Vortex Athletics',
+    title: 'Classes, Camps & Events | Vortex Athletics Bowie',
     description:
-      'View upcoming classes, camps, and events at Vortex Athletics. Stay up to date on schedules and opportunities for your athlete.',
+      'See upcoming classes, camps, open gyms, and events at Vortex Athletics in Bowie, MD. Register your athlete today.',
     priority: 0.8,
   },
 ]

@@ -158,6 +158,10 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
   const currentText = rotatingTexts[currentTextIndex]
   return (
     <>
+      {/* Single keyword-focused H1 for SEO; visible hero text rotates below. */}
+      <h1 className="sr-only">
+        Youth Athletic Training &amp; Gymnastics in Bowie, MD
+      </h1>
       {/* Desktop: Full screen section with everything overlaid on video */}
       <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
         {/* Background: poster until Play Video; then YouTube video in background */}
@@ -213,7 +217,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                 onWheel={handleWheel}
               >
                 <AnimatePresence mode="wait">
-                  <motion.h1
+                  <motion.div
                     key={currentTextIndex}
                     className="text-6xl md:text-8xl font-display font-bold text-white mb-6 text-center"
                     initial={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -226,7 +230,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                     <span className={currentText.middleColor}>{currentText.middle}</span>
                     <br />
                     <span className={currentText.bottomColor}>{currentText.bottom}</span>
-                  </motion.h1>
+                  </motion.div>
                 </AnimatePresence>
                 
                 {/* Progress Indicators */}
@@ -368,7 +372,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                 onWheel={handleWheel}
               >
                 <AnimatePresence mode="wait">
-                  <motion.h1
+                  <motion.div
                     key={currentTextIndex}
                     className="text-4xl sm:text-5xl font-display font-bold text-white mb-6 text-center px-4"
                     initial={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -381,7 +385,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                     <span className={currentText.middleColor}>{currentText.middle}</span>
                     <br />
                     <span className={currentText.bottomColor}>{currentText.bottom}</span>
-                  </motion.h1>
+                  </motion.div>
                 </AnimatePresence>
                 
                 {/* Progress Indicators */}

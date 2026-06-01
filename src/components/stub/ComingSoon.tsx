@@ -7,6 +7,7 @@ import Login from '../Login'
 import MemberLogin from '../MemberLogin'
 import StubHeader from './StubHeader'
 import { getStubSeo, HUB_URL, type StubSiteConfig } from '../../config/stubSites'
+import { trackPageView } from '../../utils/analytics'
 import { setSportSiteContext } from '../../utils/sportSite'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
 import HighlightsModal from '../HighlightsModal'
@@ -82,6 +83,10 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
       }
     }
   }, [])
+
+  useEffect(() => {
+    trackPageView(window.location.pathname, { googleAnalytics: !isPreview })
+  }, [isPreview])
 
   const handleAdminLoginSuccess = () => {
     setIsAdmin(true)

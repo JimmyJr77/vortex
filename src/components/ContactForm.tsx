@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Phone, MapPin, Send } from 'lucide-react'
 import { useState } from 'react'
 import { getApiUrl } from '../utils/api'
+import { TEAM_EMAIL } from '../config/contact'
 
 interface ContactFormProps {
   isOpen: boolean
@@ -611,7 +612,12 @@ const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <Mail className="w-4 h-4" />
-                    <span>team.vortexathletics@gmail.com</span>
+                    <a
+                      href={`mailto:${TEAM_EMAIL}`}
+                      className="hover:text-vortex-red transition-colors"
+                    >
+                      {TEAM_EMAIL}
+                    </a>
                   </div>
                 </div>
               </div>

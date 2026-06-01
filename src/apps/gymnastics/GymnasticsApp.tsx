@@ -74,8 +74,8 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
       }
     }
 
-    trackPageView(location.pathname)
-  }, [location.pathname])
+    trackPageView(location.pathname, { googleAnalytics: !isPreview })
+  }, [location.pathname, isPreview])
 
   const handleContactClick = () => {
     trackEngagement('form_open', 'Contact Form', location.pathname)

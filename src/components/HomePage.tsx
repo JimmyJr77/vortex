@@ -7,6 +7,7 @@ import ParallaxGym from './ParallaxGym'
 import About from './About'
 import Programs from './Programs'
 import Technology from './Technology'
+import { HOME_FAQS } from '../config/faqs'
 
 interface HomePageProps {
   onSignUpClick?: () => void
@@ -14,36 +15,7 @@ interface HomePageProps {
 }
 
 const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
-  const faqs = [
-    {
-      question: 'Where are you located?',
-      answer: 'Our facility is located at 4961 Tesla Dr, Ste E, Bowie, MD 20715. We serve athletes across central Maryland and beyond.'
-    },
-    {
-      question: 'What ages do you serve?',
-      answer: 'We offer programs for athletes of all ages, from preschoolers (3-5 years) to adults. Our training is tailored to each age group\'s developmental needs.'
-    },
-    {
-      question: 'Do I need gymnastics experience to register for gymnastics classes?',
-      answer: 'No prior gymnastics experience is required! Our programs will teach your athlete fundamentals, reinforce proper technique, and press toward advanced skills as the athlete progresses.'
-    },
-    {
-      question: 'Is Vortex solely a gymnastics studio?',
-      answer: 'No. We offer a lot more than just gymnastics. Vortex is a full athletic development studio. We recognize, however, that gymnastics are a core component to athleticism and incorporate tumbling and body awareness into our strength, condition, and fitness regimens.'
-    },
-    {
-      question: 'What makes Vortex different from other gyms?',
-      answer: 'Vortex combines rigorous gymnastics training with cutting-edge technology (high-speed cameras, force plates, AI analysis) and a science-backed approach to develop all 8 tenets of athleticism. We focus on transforming athletes, not just training them.'
-    },
-    {
-      question: 'What programs do you offer?',
-      answer: 'We offer competitive teams in Trampoline & Tumbling, Artistic Gymnastics, and Rhythmic Gymnastics, plus our Athleticism Accelerator program for cross-sport development, developmental classes, and private coaching.'
-    },
-    {
-      question: 'What is the "Fail your way to success" mindset?',
-      answer: 'We teach children to find fun in overcoming adversity and achieving success through a competitive edge. Our athletes are simultaneously pushed and cared for, learning resilience that fuels excellence in every aspect of life.'
-    }
-  ]
+  const faqs = HOME_FAQS
 
   // YouTube embed: channel uploads playlist ID (UU...) + optional first video ID so the player shows a video (avoids Error 153).
   const youtubeUploadsPlaylistId = 'UUmKOL4DZ6EzdwH_TQ3yPikw'
@@ -243,6 +215,7 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
                     title={`${selectedVideo.platform} preview`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
+                    loading="lazy"
                   />
                 ) : 'reelUrl' in selectedVideo && selectedVideo.reelUrl ? (
                   <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/80 overflow-auto p-4">

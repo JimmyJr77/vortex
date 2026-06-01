@@ -18,17 +18,62 @@ export const SITE_NAME = 'Vortex Athletics'
 
 export const GYMNASTICS_ORIGIN = 'https://vortex-gymnastics.com'
 
-/** Full gymnastics site routes (vortex-gymnastics.com) */
+/**
+ * Indexable gymnastics routes (vortex-gymnastics.com) for the sitemap.
+ * `/gymnastics` (canonical -> `/`) and `/campaigns/*` (noindex duplicates) are
+ * intentionally excluded so only canonical URLs are submitted.
+ */
 export const GYMNASTICS_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
-  { path: '/gymnastics', priority: '0.9', changefreq: 'weekly' },
   { path: '/artistic-gymnastics-early', priority: '0.8', changefreq: 'monthly' },
   { path: '/artistic-gymnastics-6-12', priority: '0.8', changefreq: 'monthly' },
   { path: '/artistic-gymnastics-13-18', priority: '0.8', changefreq: 'monthly' },
-  { path: '/campaigns/artistic-gymnastics-early', priority: '0.7', changefreq: 'monthly' },
-  { path: '/campaigns/artistic-gymnastics-6-12', priority: '0.7', changefreq: 'monthly' },
-  { path: '/campaigns/artistic-gymnastics-13-18', priority: '0.7', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
+]
+
+/**
+ * Gymnastics routes to prerender for the vortex-gymnastics.com host.
+ * Excludes `/` and `/read-board` because those static files collide with the
+ * hub build (same dist output served to both domains); the client corrects
+ * those on the gymnastics domain. Excludes `/campaigns/*` (canonicalized /
+ * noindex duplicates). Rendered via the `?sport=gymnastics` host override.
+ */
+export const GYMNASTICS_PRERENDER_PATHS = [
+  '/gymnastics',
+  '/artistic-gymnastics-early',
+  '/artistic-gymnastics-6-12',
+  '/artistic-gymnastics-13-18',
+]
+
+/**
+ * Gymnastics routes whose paths collide with the hub build (`/`, `/read-board`).
+ * They are prerendered into dedicated `_gym/*` files and served to the
+ * vortex-gymnastics.com host via host-based rules in vercel.json. `outFile` is
+ * relative to dist/. Titles/descriptions must mirror src/config/gymnasticsSeo.ts.
+ */
+export const GYMNASTICS_OG_IMAGE = `${GYMNASTICS_ORIGIN}/vortex_gymnastics_logo.png`
+
+export const GYMNASTICS_HOST_PAGES = [
+  {
+    path: '/',
+    outFile: '_gym/index.html',
+    title: 'Gymnastics Classes in Bowie, MD | Vortex Gymnastics',
+    description:
+      'Gymnastics classes for all ages in Bowie, MD - preschool to competitive, taught by expert coaches. Book a free trial class today.',
+    canonical: GYMNASTICS_ORIGIN,
+    ogImage: GYMNASTICS_OG_IMAGE,
+    ogImageAlt: 'Vortex Gymnastics',
+  },
+  {
+    path: '/read-board',
+    outFile: '_gym/read-board.html',
+    title: 'Gymnastics Classes, Camps & Events | Bowie, MD',
+    description:
+      'Upcoming gymnastics classes, camps, and open gyms at Vortex Gymnastics in Bowie, MD. Register your athlete today.',
+    canonical: `${GYMNASTICS_ORIGIN}/read-board`,
+    ogImage: GYMNASTICS_OG_IMAGE,
+    ogImageAlt: 'Vortex Gymnastics',
+  },
 ]
 
 /** Coming-soon sport domains only (not vortex-gymnastics.com) */

@@ -97,10 +97,6 @@
   ],
   "routes": [
     {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|mp4|mov|webm|ogg|xml))",
-      "dest": "/$1"
-    },
-    {
       "src": "/",
       "has": [{ "type": "host", "value": "vortex-lacross.com" }],
       "dest": "/_seo/vortex-lacross.com.html"
@@ -189,6 +185,29 @@
       "src": "/",
       "has": [{ "type": "host", "value": "www.vortex-reps.com" }],
       "dest": "/_seo/vortex-reps.com.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
+      "dest": "/_gym/index.html"
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
+      "dest": "/_gym/index.html"
+    },
+    {
+      "src": "/read-board",
+      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
+      "dest": "/_gym/read-board.html"
+    },
+    {
+      "src": "/read-board",
+      "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
+      "dest": "/_gym/read-board.html"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",

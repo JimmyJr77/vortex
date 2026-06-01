@@ -7,6 +7,7 @@ export interface SeoMeta {
   description: string
   canonical: string
   ogImage?: string
+  ogImageAlt?: string
   robots?: string
 }
 

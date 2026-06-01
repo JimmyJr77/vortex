@@ -253,6 +253,7 @@ const HeroBackgroundVideo = ({
           }}
           loading="eager"
           fetchPriority="high"
+          decoding="async"
         />
       )}
 

@@ -1,3 +1,5 @@
+import { trackGooglePageView } from './googleAnalytics'
+
 interface PageView {
   path: string
   timestamp: number
@@ -27,7 +29,14 @@ const STORAGE_KEYS = {
   LAST_SESSION: 'vortex_last_session'
 }
 
-export const trackPageView = (path: string) => {
+export const trackPageView = (
+  path: string,
+  options?: { googleAnalytics?: boolean },
+) => {
+  if (options?.googleAnalytics !== false) {
+    trackGooglePageView(path)
+  }
+
   try {
     const pageView: PageView = {
       path,

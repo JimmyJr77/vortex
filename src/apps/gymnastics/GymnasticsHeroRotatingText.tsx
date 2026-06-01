@@ -63,7 +63,7 @@ const GymnasticsHeroRotatingText = ({
     {showTitle && (
       <div className="relative min-h-[4.5rem] sm:min-h-[5.5rem] md:min-h-[6.5rem] flex items-center justify-center">
         <AnimatePresence mode="wait">
-          <motion.h1
+          <motion.div
             key={`title-${slideIndex}`}
             className={titleClassName}
             initial={{ opacity: 0, y: 24 }}
@@ -79,7 +79,7 @@ const GymnasticsHeroRotatingText = ({
             ) : (
               slide.title
             )}
-          </motion.h1>
+          </motion.div>
         </AnimatePresence>
       </div>
     )}

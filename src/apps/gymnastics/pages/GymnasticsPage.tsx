@@ -7,6 +7,7 @@ import GymnasticsHeroRotatingText, {
 } from '../GymnasticsHeroRotatingText'
 import HeroScrollHint from '../HeroScrollHint'
 import { useGymnasticsHeroRotation } from '../useGymnasticsHeroRotation'
+import { GYMNASTICS_FAQS } from '../../../config/gymnasticsFaqs'
 import {
   ArrowRight,
   Sparkles,
@@ -92,6 +93,8 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Single keyword-focused H1 for SEO; hero title rotates visually below. */}
+      <h1 className="sr-only">Gymnastics Classes in Bowie, MD</h1>
       {/* Desktop: Full screen section with scrolling hero images */}
       <section className="hidden md:block relative min-h-screen w-full overflow-hidden pt-20">
         {/* Scrolling images strip — nonstop steady scroll */}
@@ -110,6 +113,9 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                   src={src}
                   alt=""
                   className="h-full w-full object-cover"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={i === 0 ? 'high' : 'auto'}
+                  decoding="async"
                 />
               </div>
             ))}
@@ -193,6 +199,9 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                   src={src}
                   alt=""
                   className="h-full w-full object-cover"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={i === 0 ? 'high' : 'auto'}
+                  decoding="async"
                 />
               </div>
             ))}
@@ -533,6 +542,35 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
               View Class Schedules
             </Link>
           </motion.div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="section-padding bg-gray-50">
+        <div className="container-custom max-w-3xl">
+          <motion.h2
+            className="text-4xl md:text-5xl font-display font-bold text-black mb-10 text-center"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            Frequently Asked <span className="text-vortex-red">Questions</span>
+          </motion.h2>
+          <div className="space-y-4">
+            {GYMNASTICS_FAQS.map((faq) => (
+              <details
+                key={faq.question}
+                className="group rounded-xl border border-gray-200 bg-white p-6"
+              >
+                <summary className="cursor-pointer list-none text-lg font-semibold text-black flex items-center justify-between">
+                  {faq.question}
+                  <ArrowRight className="w-5 h-5 text-vortex-red transition-transform duration-300 group-open:rotate-90" />
+                </summary>
+                <p className="mt-4 text-gray-700 leading-relaxed">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

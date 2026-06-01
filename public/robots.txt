@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /admin
+Disallow: /*?sport=
 
 Sitemap: https://www.vortexathletics.com/sitemap.xml
+Sitemap: https://vortex-gymnastics.com/sitemap-gymnastics.xml

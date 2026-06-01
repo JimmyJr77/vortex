@@ -29,6 +29,8 @@ const Ninja = ({ onSignUpClick: _onSignUpClick }: NinjaProps) => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Single keyword-focused H1 for SEO; visible hero headline is styled below. */}
+      <h1 className="sr-only">Kids Ninja Classes in Bowie, MD</h1>
       {/* Desktop: Full screen section with everything overlaid */}
       <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
         <HeroPosterBackground />
@@ -63,7 +65,7 @@ const Ninja = ({ onSignUpClick: _onSignUpClick }: NinjaProps) => {
 
         <div className="container-custom relative z-10 flex justify-center items-center min-h-[calc(100vh-5rem)] text-center">
           <div>
-            <motion.h1
+            <motion.div
               className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
@@ -71,7 +73,7 @@ const Ninja = ({ onSignUpClick: _onSignUpClick }: NinjaProps) => {
             >
               Train Like a <span className="text-vortex-red">Ninja.</span><br />
               Perform Like an <span className="text-vortex-red">Athlete.</span>
-            </motion.h1>
+            </motion.div>
 
             <motion.p
               className="text-2xl md:text-3xl text-gray-300 mb-12 max-w-3xl mx-auto"
@@ -133,7 +135,7 @@ const Ninja = ({ onSignUpClick: _onSignUpClick }: NinjaProps) => {
         
         <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">
           <div className="container-custom text-center w-full pointer-events-auto">
-          <motion.h1
+          <motion.div
             className="text-4xl sm:text-5xl font-display font-bold text-white mb-6 px-4"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -141,7 +143,7 @@ const Ninja = ({ onSignUpClick: _onSignUpClick }: NinjaProps) => {
           >
             Train Like a <span className="text-vortex-red">Ninja.</span><br />
             Perform Like an <span className="text-vortex-red">Athlete.</span>
-          </motion.h1>
+          </motion.div>
           </div>
         </div>
       </section>

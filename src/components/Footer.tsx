@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { Mail, Phone, MapPin, Instagram, ArrowUp } from 'lucide-react'
+import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
+import { TEAM_EMAIL } from '../config/contact'
 
 interface FooterProps {
   onContactClick: () => void
@@ -12,12 +13,27 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // Absolute URLs so the shared footer links correctly from both the hub
+  // (vortexathletics.com) and the gymnastics (vortex-gymnastics.com) apps.
   const quickLinks = [
-    { name: 'FAQ', href: '/#faq' },
+    { name: 'Gymnastics', href: 'https://vortex-gymnastics.com/' },
+    { name: 'Kids Ninja Classes', href: 'https://www.vortexathletics.com/ninja' },
+    {
+      name: 'Athleticism Accelerator',
+      href: 'https://www.vortexathletics.com/athleticism-accelerator',
+    },
+    { name: 'Fit & Flip', href: 'https://www.vortexathletics.com/strength-conditioning' },
+    { name: 'Classes & Events', href: 'https://www.vortexathletics.com/read-board' },
+    { name: 'FAQ', href: 'https://www.vortexathletics.com/#faq' },
   ]
 
   const socialLinks = [
     { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/vortexathletics.usa/' },
+    {
+      name: 'Facebook',
+      icon: Facebook,
+      href: 'https://www.facebook.com/profile.php?id=61585434675018',
+    },
   ]
 
   return (
@@ -64,6 +80,9 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
                   <a
                     key={social.name}
                     href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Vortex Athletics on ${social.name}`}
                     className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-vortex-red transition-colors duration-300"
                   >
                     <social.icon className="w-5 h-5" />
@@ -153,7 +172,12 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
               >
                 <div className="flex items-center space-x-3">
                   <Mail className="w-5 h-5 text-vortex-red" />
-                  <span className="text-gray-300">team.vortexathletics@gmail.com</span>
+                  <a
+                    href={`mailto:${TEAM_EMAIL}`}
+                    className="text-gray-300 hover:text-vortex-red transition-colors"
+                  >
+                    {TEAM_EMAIL}
+                  </a>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="w-5 h-5 text-vortex-red" />

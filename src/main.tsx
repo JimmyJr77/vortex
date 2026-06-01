@@ -10,6 +10,9 @@ import {
   isStubPreviewOnNonStubHost,
   resolveStubSite,
 } from './config/stubSites.ts'
+import { initGoogleAnalyticsLinker } from './utils/googleAnalytics.ts'
+
+initGoogleAnalyticsLinker()
 
 // Inject CDN preconnect link for performance
 const cdnBaseUrl = import.meta.env.VITE_CDN_BASE_URL
