@@ -164,42 +164,45 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
           </motion.p>
 
           <motion.div
-            className="flex flex-wrap items-start gap-4"
+            className="flex flex-wrap items-center gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
           >
-            <div className="flex flex-col items-start gap-2 max-w-lg">
-              <a
-                href={JACKRABBIT_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-red-900/50 hover:bg-red-700 hover:scale-[1.02] transition-all"
-              >
-                Register now
-                <ArrowRight className="w-5 h-5" />
-              </a>
-              <p className="text-xs md:text-sm text-gray-400 leading-relaxed">
-                {REGISTER_NOTE}
-              </p>
-            </div>
+            <a
+              href={JACKRABBIT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-red-900/50 hover:bg-red-700 hover:scale-[1.02] transition-all"
+            >
+              Register now
+              <ArrowRight className="w-5 h-5" />
+            </a>
             {onInquireClick && (
               <button
                 type="button"
                 onClick={onInquireClick}
-                className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shrink-0"
+                className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all"
               >
                 Ask a question
               </button>
             )}
           </motion.div>
+          <motion.p
+            className="mt-4 max-w-2xl text-xs md:text-sm text-gray-400 leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+          >
+            {REGISTER_NOTE}
+          </motion.p>
         </div>
       </section>
 
       {/* Flyer preview */}
-      <section className="py-12 md:py-16 bg-neutral-800 border-y border-neutral-700">
+      <section className="py-12 md:py-16 bg-white">
         <div className="container-custom">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-display font-black text-center uppercase mb-8 text-vortex-red">
             Official camp flyer
           </h2>
           <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
@@ -218,7 +221,7 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
               <figcaption className="sr-only">Summer camp flyer front</figcaption>
             </motion.figure>
             <motion.figure
-              className="rounded-xl overflow-hidden border-4 border-white shadow-2xl"
+              className="rounded-xl overflow-hidden border-4 border-neutral-200 shadow-2xl"
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
