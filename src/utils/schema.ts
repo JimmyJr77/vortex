@@ -9,6 +9,8 @@ import {
 } from '../config/contact'
 import { HOME_FAQS, type Faq } from '../config/faqs'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
+import { SUMMER_CAMP_2026_WEEKS } from '../apps/gymnastics/data/summerCamp2026'
+import { SUMMER_CAMP_FAQS } from '../config/summerCampFaqs'
 import { GYMNASTICS_ORIGIN } from '../config/gymnasticsSeo'
 import { buildCanonical, DEFAULT_OG_IMAGE, HUB_ORIGIN, SITE_NAME } from './seo'
 
@@ -124,6 +126,44 @@ export const serviceSchema = (params: {
   provider: { '@id': `${HUB_ORIGIN}/#organization` },
 })
 
+const JACKRABBIT_REGISTRATION_URL =
+  'https://app3.jackrabbitclass.com/regv2.asp?id=557920'
+
+export const eventSchema = (params: {
+  name: string
+  description: string
+  startDate: string
+  endDate: string
+  url: string
+  registrationUrl?: string
+  providerOrigin: string
+}): JsonLd => ({
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: params.name,
+  description: params.description,
+  startDate: params.startDate,
+  endDate: params.endDate,
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  url: params.url,
+  location: {
+    '@type': 'Place',
+    name: 'Vortex Gymnastics',
+    address: postalAddress(),
+  },
+  organizer: {
+    '@type': 'Organization',
+    name: 'Vortex Gymnastics',
+    url: rootUrl(params.providerOrigin),
+  },
+  offers: {
+    '@type': 'Offer',
+    url: params.registrationUrl ?? params.url,
+    availability: 'https://schema.org/InStock',
+  },
+})
+
 export const faqPageSchema = (faqs: Faq[]): JsonLd => ({
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -219,6 +259,32 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
   }
 
   const url = buildCanonical(origin, pathname)
+
+  if (pathname === '/summer-camp-26') {
+    schema.push(
+      breadcrumbSchema([
+        crumb(origin, 'Home', '/'),
+        crumb(origin, 'Summer Camp 2026', pathname),
+      ]),
+    )
+    schema.push(faqPageSchema(SUMMER_CAMP_FAQS))
+    for (const week of SUMMER_CAMP_2026_WEEKS) {
+      const [start, end] = week.dateRange.split('/')
+      schema.push(
+        eventSchema({
+          name: `Vortex Gymnastics Summer Camp 2026 — Week ${week.week}`,
+          description: `${week.dates}: ${week.activities.join(', ')}. Ages 6–14.`,
+          startDate: start,
+          endDate: end,
+          url,
+          registrationUrl: JACKRABBIT_REGISTRATION_URL,
+          providerOrigin: origin,
+        }),
+      )
+    }
+    return schema
+  }
+
   const programs: Record<string, { name: string; description: string }> = {
     '/artistic-gymnastics-early': {
       name: 'Preschool Gymnastics (Ages 2-5)',
@@ -234,11 +300,6 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
       name: 'Teen & Competitive Gymnastics (Ages 13-18)',
       description:
         'Advanced and competitive gymnastics for ages 13-18 in Bowie, MD. Strength, skills, and performance readiness.',
-    },
-    '/summer-camp-26': {
-      name: 'Gymnastics Summer Camp 2026 (Ages 6-14)',
-      description:
-        'Five-week summer camp at Vortex Gymnastics in Bowie, MD. Gymnastics, sports, dance, crafts, games, and movies for ages 6-14.',
     },
   }
   const program = programs[pathname]

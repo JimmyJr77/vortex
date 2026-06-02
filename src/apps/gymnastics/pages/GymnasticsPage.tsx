@@ -545,6 +545,31 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
         </div>
       </section>
 
+      {/* Summer camp promo */}
+      <section className="section-padding bg-vortex-red">
+        <div className="container-custom text-center">
+          <motion.h2
+            className="text-3xl md:text-4xl font-display font-bold text-white mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            Gymnastics Summer Camp 2026
+          </motion.h2>
+          <p className="text-red-100 text-lg max-w-2xl mx-auto mb-6">
+            Five themed weeks in Bowie, MD for ages 6–14 — gymnastics, sports, dance, crafts, and
+            more.
+          </p>
+          <Link
+            to="/summer-camp-26"
+            className="inline-flex items-center gap-2 bg-white text-vortex-red px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all"
+          >
+            View camp schedule & register
+            <ArrowRight className="w-5 h-5" />
+          </Link>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section id="faq" className="section-padding bg-gray-50">
         <div className="container-custom max-w-3xl">

@@ -8,6 +8,8 @@ export const GYMNASTICS_HEADER_LOGO = '/vortex_gymnastics_logo.png'
 /** Per-origin Open Graph image so gymnastics shares use gymnastics branding. */
 export const GYMNASTICS_OG_IMAGE = `${GYMNASTICS_ORIGIN}/vortex_gymnastics_logo.png`
 
+export const SUMMER_CAMP_2026_OG_IMAGE = `${GYMNASTICS_ORIGIN}/summer-camp-2026-flyer-front.png`
+
 export interface GymnasticsRouteSeo {
   path: string
   title: string
@@ -16,6 +18,8 @@ export interface GymnasticsRouteSeo {
   canonicalPath?: string
   /** Default robots for this route (preview override still takes precedence). */
   robots?: string
+  ogImage?: string
+  ogImageAlt?: string
 }
 
 export const GYMNASTICS_ROUTES: GymnasticsRouteSeo[] = [
@@ -87,6 +91,9 @@ export const GYMNASTICS_ROUTES: GymnasticsRouteSeo[] = [
     title: 'Gymnastics Summer Camp 2026 (Ages 6–14) | Bowie, MD',
     description:
       'Vortex Gymnastics Summer Camp 2026 in Bowie, MD for ages 6–14. Five themed weeks: gymnastics, sports, dance, crafts, games & movies. Register today.',
+    ogImage: SUMMER_CAMP_2026_OG_IMAGE,
+    ogImageAlt:
+      'Vortex Gymnastics Summer Camp 2026 flyer — five themed weeks, ages 6–14, Bowie MD',
   },
 ]
 
@@ -101,8 +108,8 @@ export const getGymnasticsSeoForPath = (
     title: route.title,
     description: route.description,
     canonical: buildCanonical(GYMNASTICS_ORIGIN, route.canonicalPath ?? route.path),
-    ogImage: GYMNASTICS_OG_IMAGE,
-    ogImageAlt: 'Vortex Gymnastics',
+    ogImage: route.ogImage ?? GYMNASTICS_OG_IMAGE,
+    ogImageAlt: route.ogImageAlt ?? 'Vortex Gymnastics',
     // Preview override (noindex) wins; otherwise use the route's own robots.
     robots: options?.robots ?? route.robots,
   }

@@ -84,6 +84,18 @@
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
       "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-13-18",
       "permanent": true
+    },
+    {
+      "source": "/summer-camp-26",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/summer-camp-26",
+      "permanent": true
+    },
+    {
+      "source": "/summer-camp-26",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/summer-camp-26",
+      "permanent": true
     }
   ],
   "builds": [

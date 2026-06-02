@@ -9,6 +9,7 @@ import {
   Star,
 } from 'lucide-react'
 import { SUMMER_CAMP_2026_WEEKS, SUMMER_CAMP_HIGHLIGHTS } from '../data/summerCamp2026'
+import { SUMMER_CAMP_FAQS } from '../../../config/summerCampFaqs'
 import { BUSINESS_NAP, GOOGLE_MAPS_URL, TEAM_EMAIL, TEAM_PHONE } from '../../../config/contact'
 
 const JACKRABBIT_URL = 'https://app3.jackrabbitclass.com/regv2.asp?id=557920'
@@ -116,7 +117,7 @@ function FloatingHeroStars({ className = '' }: { className?: string }) {
 
 const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPageProps) => {
   return (
-    <div className="min-h-screen bg-neutral-900 text-white">
+    <main className="min-h-screen bg-neutral-900 text-white">
       {/* Hero */}
       <section className="relative overflow-hidden pt-24 pb-16 md:pb-24">
         <div
@@ -159,8 +160,10 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Five action-packed weeks in Bowie, MD — gymnastics, sports, dance, crafts, games,
-            and movies. A new theme every week so campers stay moving, learning, and having fun.
+            Vortex Gymnastics Summer Camp 2026 in Bowie, MD serves campers ages 6–14 from Prince
+            George&apos;s County, Anne Arundel County, and surrounding areas. Five action-packed
+            weeks blend gymnastics, sports, dance, crafts, games, and movies — a new theme every
+            week so kids stay moving, learning, and having fun.
           </motion.p>
 
           <motion.div
@@ -215,6 +218,8 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
               <img
                 src="/summer-camp-2026-flyer-front.png"
                 alt="Vortex Gymnastics Summer Camp 2026 flyer — front with weekly themes"
+                width={793}
+                height={1024}
                 className="w-full h-auto"
                 loading="lazy"
               />
@@ -229,6 +234,8 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
               <img
                 src="/summer-camp-2026-flyer-back.png"
                 alt="Vortex Gymnastics Summer Camp 2026 flyer — back with activity illustrations"
+                width={791}
+                height={1024}
                 className="w-full h-auto"
                 loading="lazy"
               />
@@ -359,6 +366,29 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
         </div>
       </section>
 
+      {/* FAQ */}
+      <section id="faq" className="py-14 md:py-16 bg-neutral-100 text-neutral-900">
+        <div className="container-custom max-w-3xl">
+          <h2 className="text-3xl md:text-4xl font-display font-black text-center uppercase mb-8 text-vortex-red">
+            Camp FAQs
+          </h2>
+          <div className="space-y-4">
+            {SUMMER_CAMP_FAQS.map((faq) => (
+              <details
+                key={faq.question}
+                className="group rounded-xl border border-neutral-200 bg-white p-6"
+              >
+                <summary className="cursor-pointer list-none text-lg font-semibold text-black flex items-center justify-between gap-4">
+                  {faq.question}
+                  <ArrowRight className="w-5 h-5 text-vortex-red shrink-0 transition-transform duration-300 group-open:rotate-90" />
+                </summary>
+                <p className="mt-4 text-neutral-700 leading-relaxed">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Contact */}
       <section className="py-14 bg-black border-t border-neutral-800">
         <div className="container-custom">
@@ -401,7 +431,7 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
           </div>
         </div>
       </section>
-    </div>
+    </main>
   )
 }
 

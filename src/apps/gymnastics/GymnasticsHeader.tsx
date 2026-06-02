@@ -37,6 +37,7 @@ const GymnasticsHeader = ({
 
   const menuItems = [
     { name: sportBrandName, to: '/', isHome: true },
+    { name: 'Summer Camp 2026', to: '/summer-camp-26' },
     { name: 'Early Development', to: '/artistic-gymnastics-early' },
     { name: 'Ages 6-12', to: '/artistic-gymnastics-6-12' },
     { name: 'Ages 13-18', to: '/artistic-gymnastics-13-18' },
