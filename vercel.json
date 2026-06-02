@@ -108,6 +108,54 @@
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
       "destination": "https://vortex-gymnastics.com/acro-gymnastics",
       "permanent": true
+    },
+    {
+      "source": "/artistic-gymnastics",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/artistic-gymnastics",
+      "permanent": true
+    },
+    {
+      "source": "/artistic-gymnastics",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/artistic-gymnastics",
+      "permanent": true
+    },
+    {
+      "source": "/rhythmic-gymnastics",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/rhythmic-gymnastics",
+      "permanent": true
+    },
+    {
+      "source": "/rhythmic-gymnastics",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/rhythmic-gymnastics",
+      "permanent": true
+    },
+    {
+      "source": "/trampoline-tumbling",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/trampoline-tumbling",
+      "permanent": true
+    },
+    {
+      "source": "/trampoline-tumbling",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/trampoline-tumbling",
+      "permanent": true
+    },
+    {
+      "source": "/aerobic-gymnastics",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/aerobic-gymnastics",
+      "permanent": true
+    },
+    {
+      "source": "/aerobic-gymnastics",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/aerobic-gymnastics",
+      "permanent": true
     }
   ],
   "builds": [

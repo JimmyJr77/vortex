@@ -45,6 +45,7 @@ const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
     'Acrobatic Gymnastics (Acro)',
     'Rhythmic Gymnastics',
     'Trampoline & Tumbling',
+    'Aerobic Gymnastics',
     'Ninja Athlete',
     'Athleticism Accelerator',
     'Strength & Conditioning',

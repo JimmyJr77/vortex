@@ -28,6 +28,14 @@ const SummerCamp2026LandingPage = lazy(
   () => import('./pages/SummerCamp2026LandingPage'),
 )
 const AcroGymnasticsPage = lazy(() => import('./pages/AcroGymnasticsPage'))
+const ArtisticGymnasticsDisciplinePage = lazy(
+  () => import('./pages/ArtisticGymnasticsDisciplinePage'),
+)
+const RhythmicGymnasticsPage = lazy(() => import('./pages/RhythmicGymnasticsPage'))
+const TrampolineTumblingGymnasticsPage = lazy(
+  () => import('./pages/TrampolineTumblingGymnasticsPage'),
+)
+const AerobicGymnasticsPage = lazy(() => import('./pages/AerobicGymnasticsPage'))
 const MemberDashboard = lazy(() => import('../../components/MemberDashboard'))
 const Admin = lazy(() => import('../../components/Admin'))
 
@@ -214,6 +222,26 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
           <Route
             path="/acro-gymnastics"
             element={<AcroGymnasticsPage onSignUpClick={handleContactClick} />}
+          />
+          <Route
+            path="/artistic-gymnastics"
+            element={
+              <ArtisticGymnasticsDisciplinePage onSignUpClick={handleContactClick} />
+            }
+          />
+          <Route
+            path="/rhythmic-gymnastics"
+            element={<RhythmicGymnasticsPage onSignUpClick={handleContactClick} />}
+          />
+          <Route
+            path="/trampoline-tumbling"
+            element={
+              <TrampolineTumblingGymnasticsPage onSignUpClick={handleContactClick} />
+            }
+          />
+          <Route
+            path="/aerobic-gymnastics"
+            element={<AerobicGymnasticsPage onSignUpClick={handleContactClick} />}
           />
         </Routes>
       </Suspense>

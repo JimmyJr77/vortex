@@ -306,6 +306,26 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
       description:
         'Partner and group acrobatic gymnastics in Bowie, MD. Balances, lifts, dynamic skills, and teamwork for developing and competitive athletes.',
     },
+    '/artistic-gymnastics': {
+      name: 'Artistic Gymnastics',
+      description:
+        'Artistic gymnastics in Bowie, MD — vault, bars, beam, and floor with progressive training for all ages.',
+    },
+    '/rhythmic-gymnastics': {
+      name: 'Rhythmic Gymnastics',
+      description:
+        'Rhythmic gymnastics in Bowie, MD. Apparatus work, choreography, flexibility, and performance training.',
+    },
+    '/trampoline-tumbling': {
+      name: 'Trampoline & Tumbling',
+      description:
+        'Trampoline and tumbling in Bowie, MD. Air awareness, safe progressions, and routine development.',
+    },
+    '/aerobic-gymnastics': {
+      name: 'Aerobic Gymnastics',
+      description:
+        'Aerobic gymnastics in Bowie, MD. High-energy routines, dynamic strength, and performance training.',
+    },
   }
   const program = programs[pathname]
   if (program) {

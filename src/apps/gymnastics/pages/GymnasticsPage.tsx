@@ -99,7 +99,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
       tagline: 'Power. Precision. Performance.',
       description:
         'High-energy routines combining dynamic strength, flexibility, and continuous movement. Aerobic gymnastics builds cardiovascular fitness, coordination, and show-stopping group or individual performances.',
-      to: null,
+      to: '/aerobic-gymnastics',
       icon: Heart,
       color: 'from-rose-600 to-rose-900',
     },

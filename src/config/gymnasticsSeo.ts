@@ -93,6 +93,30 @@ export const GYMNASTICS_ROUTES: GymnasticsRouteSeo[] = [
       'Acrobatic gymnastics (Acro) classes in Bowie, MD. Partner balances, lifts, and dynamic skills for ages 6–18. Build trust, strength, and teamwork at Vortex Gymnastics.',
   },
   {
+    path: '/artistic-gymnastics',
+    title: 'Artistic Gymnastics in Bowie, MD | Vortex Gymnastics',
+    description:
+      'Artistic gymnastics in Bowie, MD — vault, bars, beam, and floor for all ages. Build strength, artistry, and body control at Vortex Gymnastics.',
+  },
+  {
+    path: '/rhythmic-gymnastics',
+    title: 'Rhythmic Gymnastics in Bowie, MD | Vortex Gymnastics',
+    description:
+      'Rhythmic gymnastics classes in Bowie, MD. Apparatus, choreography, flexibility, and artistry for developing athletes at Vortex Gymnastics.',
+  },
+  {
+    path: '/trampoline-tumbling',
+    title: 'Trampoline & Tumbling in Bowie, MD | Vortex Gymnastics',
+    description:
+      'Trampoline and tumbling classes in Bowie, MD. Air awareness, safe landings, and progressive skills from beginner to competitive at Vortex Gymnastics.',
+  },
+  {
+    path: '/aerobic-gymnastics',
+    title: 'Aerobic Gymnastics in Bowie, MD | Vortex Gymnastics',
+    description:
+      'Aerobic gymnastics in Bowie, MD. High-energy routines, dynamic strength, flexibility, and performance for individual and group athletes at Vortex Gymnastics.',
+  },
+  {
     path: '/summer-camp-26',
     title: 'Gymnastics Summer Camp 2026 (Ages 6–14) | Bowie, MD',
     description:

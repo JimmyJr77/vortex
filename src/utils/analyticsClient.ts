@@ -74,6 +74,7 @@ export const trackPageViewEvent = (path: string, options?: { googleAnalytics?: b
     '/acro-gymnastics',
     '/rhythmic-gymnastics',
     '/trampoline-tumbling',
+    '/aerobic-gymnastics',
   ]
   if (programPaths.some((p) => path === p || path.startsWith(`${p}/`))) {
     trackEvent('program_page_view', path, {
