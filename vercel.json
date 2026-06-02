@@ -96,6 +96,18 @@
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
       "destination": "https://vortex-gymnastics.com/summer-camp-26",
       "permanent": true
+    },
+    {
+      "source": "/acro-gymnastics",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/acro-gymnastics",
+      "permanent": true
+    },
+    {
+      "source": "/acro-gymnastics",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortex-gymnastics.com/acro-gymnastics",
+      "permanent": true
     }
   ],
   "builds": [

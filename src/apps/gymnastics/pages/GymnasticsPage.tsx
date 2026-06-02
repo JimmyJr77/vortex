@@ -16,6 +16,7 @@ import {
   Heart,
   Music,
   Zap,
+  Users,
 } from 'lucide-react'
 
 const HERO_IMAGES = [
@@ -61,6 +62,16 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
       to: '/artistic-gymnastics',
       icon: Sparkles,
       color: 'from-vortex-red to-red-800',
+    },
+    {
+      id: 'acro',
+      title: 'Acrobatic Gymnastics (Acro)',
+      tagline: 'Balance. Trust. Lift Together.',
+      description:
+        'Partner and group acrobatics combining balances, lifts, and dynamic skills. Athletes build trust, timing, flexibility, and strength while performing choreographed routines together.',
+      to: '/acro-gymnastics',
+      icon: Users,
+      color: 'from-cyan-600 to-teal-800',
     },
     {
       id: 'rhythmic',
@@ -318,7 +329,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
             viewport={{ once: true }}
           >
             <p className="text-center text-sm font-semibold text-gray-600 uppercase tracking-wide mb-6">General Levels</p>
-            <div className="grid grid-cols-2 gap-5 max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
               <Link
                 to="/artistic-gymnastics-early"
                 className="w-full px-6 py-5 rounded-2xl bg-amber-100 text-amber-900 font-semibold text-base border-2 border-amber-300 hover:bg-amber-200 transition-colors text-left min-h-[100px] flex flex-col justify-center block"
@@ -466,17 +477,16 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
               Gymnastics <span className="text-vortex-red">Disciplines</span>
             </h2>
             <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-              Explore our four competitive and developmental gymnastics programs. Each discipline develops the full athlete — strength, coordination, and artistry — through the Athleticism Accelerator.
+              Explore our competitive and developmental gymnastics programs — including Acro, Artistic, Rhythmic, Trampoline & Tumbling, and Aerobic. Each discipline develops the full athlete through the Athleticism Accelerator.
             </p>
           </motion.div>
         </div>
         <div className="w-full px-4 md:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-4">
           {disciplines.map((disc, index) => {
             const Icon = disc.icon
-            const CardContent = (
+            const card = (
               <motion.div
-                key={disc.id}
-                className={`bg-gradient-to-br ${disc.color} rounded-2xl p-6 md:p-8 text-white w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-lg hover:shadow-xl transition-shadow duration-300 min-h-[220px]`}
+                className={`bg-gradient-to-br ${disc.color} rounded-2xl p-6 md:p-8 text-white w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-lg hover:shadow-xl transition-shadow duration-300 min-h-[220px] h-full`}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
@@ -493,7 +503,16 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                   <p className="text-white/90 font-semibold mb-2">{disc.tagline}</p>
                   <p className="text-white/85 leading-relaxed text-sm md:text-base">{disc.description}</p>
                 </div>
-                <div className="flex-shrink-0">
+                <div className="flex flex-col sm:flex-row flex-shrink-0 gap-3">
+                  {disc.to && (
+                    <Link
+                      to={disc.to}
+                      className="inline-flex items-center justify-center gap-2 border-2 border-white/80 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-white/10 whitespace-nowrap"
+                    >
+                      Learn More
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  )}
                   <a
                     href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                     target="_blank"
@@ -506,7 +525,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                 </div>
               </motion.div>
             )
-            return CardContent
+            return <div key={disc.id}>{card}</div>
           })}
         </div>
       </section>

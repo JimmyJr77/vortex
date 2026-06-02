@@ -42,6 +42,7 @@ const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
 
   const interests = [
     'Gymnastics (Artistic)',
+    'Acrobatic Gymnastics (Acro)',
     'Rhythmic Gymnastics',
     'Trampoline & Tumbling',
     'Ninja Athlete',

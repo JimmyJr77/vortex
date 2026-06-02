@@ -27,6 +27,7 @@ const GymnasticsReadBoardPage = lazy(() => import('./pages/GymnasticsReadBoardPa
 const SummerCamp2026LandingPage = lazy(
   () => import('./pages/SummerCamp2026LandingPage'),
 )
+const AcroGymnasticsPage = lazy(() => import('./pages/AcroGymnasticsPage'))
 const MemberDashboard = lazy(() => import('../../components/MemberDashboard'))
 const Admin = lazy(() => import('../../components/Admin'))
 
@@ -209,6 +210,10 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
             element={
               <SummerCamp2026LandingPage onInquireClick={handleContactClick} />
             }
+          />
+          <Route
+            path="/acro-gymnastics"
+            element={<AcroGymnasticsPage onSignUpClick={handleContactClick} />}
           />
         </Routes>
       </Suspense>

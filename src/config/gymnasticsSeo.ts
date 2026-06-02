@@ -87,6 +87,12 @@ export const GYMNASTICS_ROUTES: GymnasticsRouteSeo[] = [
       'Upcoming gymnastics classes, camps, and open gyms at Vortex Gymnastics in Bowie, MD. Register your athlete today.',
   },
   {
+    path: '/acro-gymnastics',
+    title: 'Acrobatic Gymnastics (Acro) in Bowie, MD | Vortex Gymnastics',
+    description:
+      'Acrobatic gymnastics (Acro) classes in Bowie, MD. Partner balances, lifts, and dynamic skills for ages 6–18. Build trust, strength, and teamwork at Vortex Gymnastics.',
+  },
+  {
     path: '/summer-camp-26',
     title: 'Gymnastics Summer Camp 2026 (Ages 6–14) | Bowie, MD',
     description:

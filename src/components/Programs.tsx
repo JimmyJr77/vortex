@@ -7,7 +7,7 @@ const Programs = () => {
   const programs = [
     {
       title: "Competitive Gymnastics",
-      description: "Formal competitive teams in multiple gymnastics disciplines including Tramp & Tumble, Artistic, Rhythmic, and Aerobic Gymnastics.",
+      description: "Formal competitive teams in multiple gymnastics disciplines including Acro, Artistic, Rhythmic, Tramp & Tumble, and Aerobic Gymnastics.",
       icon: Target,
       color: "bg-vortex-red"
     },

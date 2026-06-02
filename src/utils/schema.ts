@@ -301,6 +301,11 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
       description:
         'Advanced and competitive gymnastics for ages 13-18 in Bowie, MD. Strength, skills, and performance readiness.',
     },
+    '/acro-gymnastics': {
+      name: 'Acrobatic Gymnastics (Acro)',
+      description:
+        'Partner and group acrobatic gymnastics in Bowie, MD. Balances, lifts, dynamic skills, and teamwork for developing and competitive athletes.',
+    },
   }
   const program = programs[pathname]
   if (program) {

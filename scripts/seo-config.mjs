@@ -30,6 +30,7 @@ export const GYMNASTICS_SITEMAP_ENTRIES = [
   { path: '/artistic-gymnastics-13-18', priority: '0.8', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
   { path: '/summer-camp-26', priority: '0.9', changefreq: 'weekly' },
+  { path: '/acro-gymnastics', priority: '0.8', changefreq: 'monthly' },
 ]
 
 /**
@@ -45,6 +46,7 @@ export const GYMNASTICS_PRERENDER_PATHS = [
   '/artistic-gymnastics-6-12',
   '/artistic-gymnastics-13-18',
   '/summer-camp-26',
+  '/acro-gymnastics',
 ]
 
 /**

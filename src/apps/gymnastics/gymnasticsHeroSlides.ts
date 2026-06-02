@@ -20,7 +20,7 @@ export const GYMNASTICS_HERO_SLIDES: GymnasticsHeroSlide[] = [
   {
     title: 'Foundational Gymnastics Training',
     description:
-      'Become a student in any or all gymnastic disciplines. Trampoline & Tumbling, Artistic Gymnastics, Rhythmic Gymnastics, Aerobic Gymnastics.',
+      'Become a student in any or all gymnastic disciplines. Acro, Artistic, Rhythmic, Trampoline & Tumbling, and Aerobic Gymnastics.',
   },
   {
     title: 'All Ages Welcome',
