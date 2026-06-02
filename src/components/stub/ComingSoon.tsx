@@ -148,7 +148,7 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
       />
 
       {/* Hero */}
-      <section className="relative bg-vortex-dark text-white overflow-hidden pt-32 pb-20 md:pt-40 md:pb-28">
+      <section className="relative bg-vortex-dark text-white overflow-hidden pt-below-site-header pb-20 md:pb-28">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-vortex-dark to-black opacity-95" />
         <div className="container-custom relative">
           <motion.div

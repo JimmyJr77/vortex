@@ -66,7 +66,7 @@ const RhythmicGymnastics = ({ onSignUpClick: _onSignUpClick }: RhythmicGymnastic
   return (
     <div className="min-h-screen bg-white">
       {/* Desktop: Full screen section with everything overlaid */}
-      <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
+      <section className="hidden md:block relative min-h-below-site-header w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header">
         {/* Background: image by default; video on Play Video click */}
         <HeroBackgroundVideo
           videoFileName="rhythmic.mp4"
@@ -111,7 +111,7 @@ const RhythmicGymnastics = ({ onSignUpClick: _onSignUpClick }: RhythmicGymnastic
           />
         </div>
 
-        <div className={`container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center ${isVideoPlaying ? 'items-end' : 'items-center'}`}>
+        <div className={`container-custom relative z-10 flex justify-center min-h-below-site-header text-center ${isVideoPlaying ? 'items-end' : 'items-center'}`}>
           <div>
             <motion.h1
               className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
@@ -204,7 +204,7 @@ const RhythmicGymnastics = ({ onSignUpClick: _onSignUpClick }: RhythmicGymnastic
       </section>
 
       {/* Mobile: Hero section with title only */}
-      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
+      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-below-site-header block">
         {/* Background: image by default; video on Play Video click */}
         <HeroBackgroundVideo
           videoFileName="rhythmic.mp4"

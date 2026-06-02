@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { useSiteHeaderHeight } from '../hooks/useSiteHeaderHeight'
 import { Link, useLocation } from 'react-router-dom'
 import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 
@@ -13,6 +14,8 @@ interface HeaderProps {
 
 const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
+  useSiteHeaderHeight(headerRef)
   const location = useLocation()
 
   const menuItems: {
@@ -34,7 +37,10 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
     } hover:text-vortex-red transition-colors duration-300 font-medium`
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm header-slide-in">
+    <header
+      ref={headerRef}
+      className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm header-slide-in"
+    >
       <div className="container-custom">
         {/* Mobile Layout: Logo on top, buttons below */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between py-4 md:py-0 md:h-20">

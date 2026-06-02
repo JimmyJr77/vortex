@@ -75,11 +75,11 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
       {/* Single keyword-focused H1 for SEO; visible hero headline is styled below. */}
       <h1 className="sr-only">Youth Athletic Training in Bowie, MD</h1>
       {/* Desktop: Full screen section with hero poster background */}
-      <section className="hidden md:block relative min-h-screen w-full overflow-hidden pt-20" style={{ backgroundColor: 'transparent' }}>
+      <section className="hidden md:block relative min-h-below-site-header w-full overflow-hidden pt-below-site-header" style={{ backgroundColor: 'transparent' }}>
         <HeroPosterBackground overlayClassName="absolute inset-0 bg-black/40 z-[1] pointer-events-none" />
 
         {/* Content Container - Top Layer */}
-        <div className="container-custom relative z-10 flex justify-center items-center min-h-[calc(100vh-5rem)] text-center">
+        <div className="container-custom relative z-10 flex justify-center items-center min-h-below-site-header text-center">
           <div>
             <motion.div
               className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
@@ -145,7 +145,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
       </section>
 
       {/* Mobile: Hero section with title only */}
-      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
+      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-below-site-header block">
         <HeroPosterBackground />
 
         <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">

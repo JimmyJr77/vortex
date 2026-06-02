@@ -52,13 +52,13 @@ const skillAreas = [
 const AcroGymnasticsPage = ({ onSignUpClick: _onSignUpClick }: AcroGymnasticsPageProps) => {
   return (
     <div className="min-h-screen bg-white">
-      <section className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-cyan-950 via-gray-900 to-black pt-20">
+      <section className="relative min-h-below-site-header w-full overflow-hidden bg-gradient-to-br from-cyan-950 via-gray-900 to-black pt-below-site-header">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-40"
           style={{ backgroundImage: 'url(/tumbling.jpeg)' }}
         />
         <div className="absolute inset-0 bg-black/55" />
-        <div className="container-custom relative z-10 flex min-h-[calc(100vh-5rem)] flex-col justify-center py-16 text-center">
+        <div className="container-custom relative z-10 flex min-h-below-site-header flex-col justify-center py-16 text-center">
           <motion.h1
             className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6"
             initial={{ opacity: 0, y: 40 }}

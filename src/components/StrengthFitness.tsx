@@ -68,7 +68,7 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
   return (
     <div className="min-h-screen bg-white">
       {/* Hero / Positioning Section - matches Gymnastics & Athleticism Accelerator style */}
-      <section className="relative min-h-screen w-full overflow-hidden pt-20">
+      <section className="relative min-h-below-site-header w-full overflow-hidden pt-below-site-header">
         <HeroBackgroundVideo
           videoFileName="artistic_gymnastics.mp4"
           posterFileName="main_hero_bg.png"
@@ -79,7 +79,7 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
           onVideoReady={() => {}}
           onVideoError={() => {}}
         />
-        <div className="container-custom relative z-10 flex min-h-[calc(100vh-5rem)] flex-col justify-center py-16 text-center">
+        <div className="container-custom relative z-10 flex min-h-below-site-header flex-col justify-center py-16 text-center">
           <motion.h1
             className="text-4xl font-display font-bold text-white md:text-6xl lg:text-7xl mb-6"
             initial={{ opacity: 0, y: 40 }}

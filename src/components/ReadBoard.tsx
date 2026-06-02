@@ -748,7 +748,7 @@ const ReadBoard = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <section className="bg-gradient-to-br from-black via-gray-900 to-black pt-32 pb-0">
+      <section className="bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header pb-0">
         <div className="container-custom">
           <motion.div
             className="text-center"

@@ -5,8 +5,14 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Updated at runtime by useSiteHeaderHeight; fallback clears tall mobile headers */
+    --site-header-height: 9.5rem;
+  }
+
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: var(--site-header-height);
   }
 
   body {
@@ -39,6 +45,14 @@
   
   .container-custom {
     @apply max-w-7xl mx-auto px-6 sm:px-8 lg:px-12;
+  }
+
+  .pt-below-site-header {
+    padding-top: var(--site-header-height);
+  }
+
+  .min-h-below-site-header {
+    min-height: calc(100vh - var(--site-header-height));
   }
 
   /* Header slide-in without Framer (avoids container position warning) */

@@ -63,7 +63,7 @@ const ArtisticGymnasticsAges6to12Landing = ({ onSignUpClick }: ArtisticGymnastic
   return (
     <div className="min-h-screen bg-white">
       {/* HERO SECTION */}
-      <section className="relative min-h-screen w-full overflow-hidden pt-20">
+      <section className="relative min-h-below-site-header w-full overflow-hidden pt-below-site-header">
         {/* Scrolling images strip — same smooth scroll as /gymnastics hero */}
         <div className="absolute inset-0 overflow-hidden">
           <div
@@ -95,7 +95,7 @@ const ArtisticGymnasticsAges6to12Landing = ({ onSignUpClick }: ArtisticGymnastic
           />
         </div>
 
-        <div className="container-custom relative z-10 flex min-h-[calc(100vh-5rem)] flex-col justify-center py-16 text-center">
+        <div className="container-custom relative z-10 flex min-h-below-site-header flex-col justify-center py-16 text-center">
           <motion.h1
             className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6"
             initial={{ opacity: 0, y: 40 }}

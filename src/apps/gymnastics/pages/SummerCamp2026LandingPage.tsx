@@ -119,7 +119,7 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
   return (
     <main className="min-h-screen bg-neutral-900 text-white">
       {/* Hero */}
-      <section className="relative overflow-hidden pt-24 pb-16 md:pb-24">
+      <section className="relative overflow-hidden pt-below-site-header pb-16 md:pb-24">
         <div
           className="absolute inset-0 opacity-[0.12]"
           style={{

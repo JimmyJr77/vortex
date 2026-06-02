@@ -110,7 +110,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
       {/* Single keyword-focused H1 for SEO; hero title rotates visually below. */}
       <h1 className="sr-only">Gymnastics Classes in Bowie, MD</h1>
       {/* Desktop: Full screen section with scrolling hero images */}
-      <section className="hidden md:block relative min-h-screen w-full overflow-hidden pt-20">
+      <section className="hidden md:block relative min-h-below-site-header w-full overflow-hidden pt-below-site-header">
         {/* Scrolling images strip — nonstop steady scroll */}
         <div className="absolute inset-0 overflow-hidden">
           <div
@@ -136,8 +136,8 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
           </div>
         </div>
         <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
-        <div className="container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center px-4">
-          <div className="w-full max-w-4xl flex flex-col min-h-[calc(100vh-5rem)]">
+        <div className="container-custom relative z-10 flex justify-center min-h-below-site-header text-center px-4">
+          <div className="w-full max-w-4xl flex flex-col min-h-below-site-header">
             <div
               className={`flex flex-1 flex-col items-center justify-center min-h-0 w-full ${GYMNASTICS_HERO_SECTION_GAP}`}
             >
@@ -200,7 +200,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
       </section>
 
       {/* Mobile: Hero section with scrolling images */}
-      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
+      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-below-site-header block">
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="flex h-full gymnastics-hero-scroll"

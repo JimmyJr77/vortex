@@ -163,7 +163,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
         Youth Athletic Training &amp; Gymnastics in Bowie, MD
       </h1>
       {/* Desktop: Full screen section with everything overlaid on video */}
-      <section className="hidden md:block relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
+      <section className="hidden md:block relative min-h-below-site-header w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header">
         {/* Background: poster until Play Video; then YouTube video in background */}
         <HeroBackgroundVideo
           videoFileName="short_hero.mp4"
@@ -205,7 +205,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
           />
         </div>
 
-        <div className={`container-custom relative z-10 flex justify-center min-h-[calc(100vh-5rem)] text-center ${isVideoPlaying ? 'items-end' : 'items-center'}`}>
+        <div className={`container-custom relative z-10 flex justify-center min-h-below-site-header text-center ${isVideoPlaying ? 'items-end' : 'items-center'}`}>
           <div>
             {/* Main Headline with Rotating Text - hidden when video is playing */}
             {!isVideoPlaying && (
@@ -345,7 +345,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
       </section>
 
       {/* Mobile: Video section with rotator only */}
-      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-20 block">
+      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-below-site-header block">
         {/* Background: poster until Play Video; then YouTube video in background */}
         <HeroBackgroundVideo
           videoFileName="short_hero.mp4"

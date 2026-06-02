@@ -92,7 +92,7 @@ const Value = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-20">
+      <section className="relative min-h-below-site-header flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <motion.div

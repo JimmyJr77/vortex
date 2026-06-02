@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { useSiteHeaderHeight } from '../../hooks/useSiteHeaderHeight'
 import { Link, useLocation } from 'react-router-dom'
 import SportSiteMenuLinks from '../../components/sport/SportSiteMenuLinks'
 import SportSiteHubMenuLogo from '../../components/sport/SportSiteHubMenuLogo'
@@ -31,6 +32,8 @@ const GymnasticsHeader = ({
   onMemberDashboardClick,
 }: GymnasticsHeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
+  useSiteHeaderHeight(headerRef)
   const location = useLocation()
   const sportBrandName = getSportBrandName(GYMNASTICS_CONFIG.sportLabel)
   const sportHomeHref = getSportHomeUrl(GYMNASTICS_CONFIG as StubSiteConfig)
@@ -53,7 +56,10 @@ const GymnasticsHeader = ({
   const closeMenu = () => setIsMenuOpen(false)
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm header-slide-in">
+    <header
+      ref={headerRef}
+      className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm header-slide-in"
+    >
       <div className="container-custom">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between py-4 md:py-0 md:h-20">
           <div className="flex items-center justify-between md:justify-start mb-4 md:mb-0">
