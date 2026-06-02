@@ -226,6 +226,9 @@ export const initDatabase = async () => {
     await pool.query(`
       ALTER TABLE registrations ADD COLUMN IF NOT EXISTS admin_notes TEXT
     `)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS follow_up BOOLEAN DEFAULT FALSE
+    `)
 
     await initAnalyticsTables(pool)
 
@@ -2747,10 +2750,11 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
       message,
       contacted,
       admin_notes,
+      follow_up,
     } = req.body
 
     const existingResult = await pool.query(
-      'SELECT contacted, admin_notes FROM registrations WHERE id = $1',
+      'SELECT contacted, admin_notes, follow_up FROM registrations WHERE id = $1',
       [id],
     )
     if (existingResult.rows.length === 0) {
@@ -2761,31 +2765,35 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
       contacted !== undefined ? !!contacted : !!existing.contacted
     const finalAdminNotes =
       admin_notes !== undefined ? admin_notes : existing.admin_notes
+    const finalFollowUp =
+      follow_up !== undefined ? !!follow_up : !!existing.follow_up
     const leadStatus = finalContacted ? 'contacted' : 'new'
     const setFirstContacted =
       finalContacted && !existing.contacted
         ? new Date()
         : null
 
-    // Handle interests - can be array or string
+    // Handle interests - can be array or string. Preserve interests_array when both
+    // are supplied so saving notes/status doesn't wipe a multi-select selection.
     let interestsString = null
     let interestsArrayValue = null
-    if (interests) {
-      if (Array.isArray(interests)) {
-        interestsArrayValue = interests
-        interestsString = interests.join(', ')
-      } else {
-        interestsString = interests
-      }
-    } else if (interests_array) {
-      interestsArrayValue = Array.isArray(interests_array) ? interests_array : null
-      interestsString = Array.isArray(interests_array) ? interests_array.join(', ') : null
+    if (Array.isArray(interests)) {
+      interestsArrayValue = interests
+      interestsString = interests.join(', ')
+    } else if (Array.isArray(interests_array)) {
+      interestsArrayValue = interests_array
+      interestsString =
+        typeof interests === 'string' && interests.length > 0
+          ? interests
+          : interests_array.join(', ')
+    } else if (typeof interests === 'string') {
+      interestsString = interests
     }
 
     await pool.query(`
       UPDATE registrations 
-      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, interests_array = $7, interest = $8, class_types = $9, child_ages = $10, message = $11, contacted = $12, admin_notes = $13, lead_status = $14, first_contacted_at = COALESCE(first_contacted_at, $15), updated_at = CURRENT_TIMESTAMP
-      WHERE id = $16
+      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, interests_array = $7, interest = $8, class_types = $9, child_ages = $10, message = $11, contacted = $12, admin_notes = $13, lead_status = $14, first_contacted_at = COALESCE(first_contacted_at, $15), follow_up = $16, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $17
     `, [
       first_name,
       last_name,
@@ -2802,6 +2810,7 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
       finalAdminNotes,
       leadStatus,
       setFirstContacted,
+      finalFollowUp,
       id,
     ])
 

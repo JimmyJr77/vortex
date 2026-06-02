@@ -15,7 +15,11 @@ const GymnasticsSeo = ({ isPreview = false }: GymnasticsSeoProps) => {
   )
   // Preload the first hero image (LCP) only on the gymnastics home route.
   const preloadImage =
-    pathname === '/' ? '/campaign_early_dev_hero.jpg' : undefined
+    pathname === '/'
+      ? '/campaign_early_dev_hero.jpg'
+      : pathname === '/summer-camp-26'
+        ? '/summer-camp-2026-flyer-front.png'
+        : undefined
   return (
     <SeoHead
       {...seo}

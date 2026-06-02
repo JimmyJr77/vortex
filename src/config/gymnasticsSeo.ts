@@ -82,6 +82,12 @@ export const GYMNASTICS_ROUTES: GymnasticsRouteSeo[] = [
     description:
       'Upcoming gymnastics classes, camps, and open gyms at Vortex Gymnastics in Bowie, MD. Register your athlete today.',
   },
+  {
+    path: '/summer-camp-26',
+    title: 'Gymnastics Summer Camp 2026 (Ages 8–14) | Bowie, MD',
+    description:
+      'Vortex Gymnastics Summer Camp 2026 in Bowie, MD for ages 8–14. Five themed weeks: gymnastics, sports, dance, crafts, games & movies. Register today.',
+  },
 ]
 
 const routeMap = new Map(GYMNASTICS_ROUTES.map((route) => [route.path, route]))

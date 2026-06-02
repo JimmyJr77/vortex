@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Mail, Phone, MapPin, Send } from 'lucide-react'
+import { X, Mail, Phone, MapPin, Send, Plus, Trash2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { getApiUrl } from '../utils/api'
 import { TEAM_EMAIL } from '../config/contact'
@@ -27,6 +27,7 @@ const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [selectedClassTypes, setSelectedClassTypes] = useState<string[]>([])
   const [selectedAges, setSelectedAges] = useState<number[]>([])
+  const [childAgeInput, setChildAgeInput] = useState('')
   const [newsletter, setNewsletter] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -296,6 +297,7 @@ const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
     setSelectedInterests([])
     setSelectedClassTypes([])
     setSelectedAges([])
+    setChildAgeInput('')
     setNewsletter(false)
   }
 
@@ -323,18 +325,25 @@ const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
       // If Child Classes is deselected, clear ages
       if (classType === 'Child Classes' && !newTypes.includes('Child Classes')) {
         setSelectedAges([])
+        setChildAgeInput('')
       }
       
       return newTypes
     })
   }
 
-  const handleAgeToggle = (age: number) => {
-    setSelectedAges(prev => 
-      prev.includes(age) 
-        ? prev.filter(a => a !== age)
-        : [...prev, age]
-    )
+  const handleAddChildAge = () => {
+    const age = parseInt(childAgeInput, 10)
+    if (Number.isNaN(age) || age < 1 || age > 18) {
+      alert('Please enter a valid age between 1 and 18.')
+      return
+    }
+    setSelectedAges((prev) => [...prev, age])
+    setChildAgeInput('')
+  }
+
+  const handleRemoveChildAge = (index: number) => {
+    setSelectedAges((prev) => prev.filter((_, i) => i !== index))
   }
 
   return (
@@ -518,25 +527,60 @@ const ContactForm = ({ isOpen, onClose, sportLabel }: ContactFormProps) => {
                   {/* Child Ages Section - Show if Child Classes is selected */}
                   {selectedClassTypes.includes('Child Classes') && (
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">
-                        Select Ages for Child Classes (1-18)
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Children&apos;s ages (1–18)
                       </label>
-                      <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
-                        {Array.from({ length: 18 }, (_, i) => i + 1).map((age) => (
-                          <label
-                            key={age}
-                            className="flex items-center justify-center p-2 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedAges.includes(age)}
-                              onChange={() => handleAgeToggle(age)}
-                              className="w-4 h-4 accent-vortex-red cursor-pointer"
-                            />
-                            <span className="ml-2 text-sm text-gray-700">{age}</span>
-                          </label>
-                        ))}
+                      <p className="text-sm text-gray-500 mb-3">
+                        Enter each child&apos;s age and add another row for additional children.
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <input
+                          type="number"
+                          min={1}
+                          max={18}
+                          value={childAgeInput}
+                          onChange={(e) => setChildAgeInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              handleAddChildAge()
+                            }
+                          }}
+                          className="w-24 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
+                          placeholder="Age"
+                          aria-label="Child age"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddChildAge}
+                          className="inline-flex items-center gap-2 px-4 py-3 border border-vortex-red text-vortex-red rounded-lg font-semibold text-sm hover:bg-vortex-red/5 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Add child
+                        </button>
                       </div>
+                      {selectedAges.length > 0 && (
+                        <ul className="space-y-2">
+                          {selectedAges.map((age, index) => (
+                            <li
+                              key={`${age}-${index}`}
+                              className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50"
+                            >
+                              <span className="text-gray-700 text-sm">
+                                Child {index + 1}: <strong>{age}</strong> years old
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveChildAge(index)}
+                                className="p-1.5 text-gray-500 hover:text-vortex-red rounded transition-colors"
+                                aria-label={`Remove child ${index + 1}`}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   )}
 

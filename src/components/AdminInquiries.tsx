@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, Fragment } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown, Filter } from 'lucide-react'
+import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown, Filter, Flag, Check } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
 interface User {
@@ -20,6 +20,7 @@ interface User {
   newsletter: boolean
   archived?: boolean
   contacted?: boolean
+  follow_up?: boolean
   admin_notes?: string | null
 }
 
@@ -47,7 +48,9 @@ export default function AdminInquiries() {
   const [classTypesFilterOpen, setClassTypesFilterOpen] = useState(false)
   const [notesDraft, setNotesDraft] = useState<Record<number, string>>({})
   const [savingNotesId, setSavingNotesId] = useState<number | null>(null)
+  const [savedNotesId, setSavedNotesId] = useState<number | null>(null)
   const [togglingContactedId, setTogglingContactedId] = useState<number | null>(null)
+  const [togglingFollowUpId, setTogglingFollowUpId] = useState<number | null>(null)
   const [ageFilterPosition, setAgeFilterPosition] = useState({ top: 0, left: 0 })
   const [interestsFilterPosition, setInterestsFilterPosition] = useState({ top: 0, left: 0 })
   const [classTypesFilterPosition, setClassTypesFilterPosition] = useState({ top: 0, right: 0 })
@@ -91,6 +94,7 @@ export default function AdminInquiries() {
           message: string | null
           created_at: string
           contacted?: boolean
+          follow_up?: boolean
           admin_notes?: string | null
         }
         const newsletterEmails = new Set((newsData.data || []).map((sub: NewsletterSub) => sub.email))
@@ -226,6 +230,7 @@ export default function AdminInquiries() {
       child_ages: merged.child_ages,
       message: merged.message,
       contacted: !!merged.contacted,
+      follow_up: !!merged.follow_up,
       admin_notes: merged.admin_notes ?? null,
     }
   }
@@ -243,9 +248,7 @@ export default function AdminInquiries() {
     return merged
   }
 
-  const handleContactedToggle = async (e: React.ChangeEvent<HTMLInputElement>, user: User) => {
-    e.stopPropagation()
-    const contacted = e.target.checked
+  const setContacted = async (user: User, contacted: boolean) => {
     setTogglingContactedId(user.id)
     try {
       await persistRegistration(user, { contacted })
@@ -257,12 +260,39 @@ export default function AdminInquiries() {
     }
   }
 
+  const setFollowUp = async (user: User, follow_up: boolean) => {
+    setTogglingFollowUpId(user.id)
+    try {
+      await persistRegistration(user, { follow_up })
+    } catch (error) {
+      console.error('Error updating follow-up status:', error)
+      alert('Failed to update follow-up status')
+    } finally {
+      setTogglingFollowUpId(null)
+    }
+  }
+
+  const handleContactedToggle = async (e: React.ChangeEvent<HTMLInputElement>, user: User) => {
+    e.stopPropagation()
+    await setContacted(user, e.target.checked)
+  }
+
+  const handleFollowUpToggle = async (e: React.ChangeEvent<HTMLInputElement>, user: User) => {
+    e.stopPropagation()
+    await setFollowUp(user, e.target.checked)
+  }
+
   const saveNotes = async (e: React.MouseEvent, user: User) => {
     e.stopPropagation()
     const admin_notes = notesDraft[user.id] ?? ''
     setSavingNotesId(user.id)
+    setSavedNotesId(null)
     try {
       await persistRegistration(user, { admin_notes: admin_notes || null })
+      setSavedNotesId(user.id)
+      setTimeout(() => {
+        setSavedNotesId((current) => (current === user.id ? null : current))
+      }, 2500)
     } catch (error) {
       console.error('Error saving notes:', error)
       alert('Failed to save notes')
@@ -287,6 +317,7 @@ export default function AdminInquiries() {
       child_ages: user.child_ages,
       message: user.message,
       contacted: user.contacted,
+      follow_up: user.follow_up,
       admin_notes: user.admin_notes,
     })
     setNotesDraft((prev) => ({
@@ -526,6 +557,9 @@ export default function AdminInquiries() {
                   <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 w-12" title="Staff has contacted this inquiry">
                     Contacted
                   </th>
+                  <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 w-12" title="Flagged for staff follow-up">
+                    Follow up
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200">
                     <button
                       onClick={() => handleSort('created_at')}
@@ -757,7 +791,13 @@ export default function AdminInquiries() {
                   <Fragment key={user.id}>
                     <tr
                       className={`hover:bg-gray-50 transition-colors cursor-pointer ${
-                        expandedId === user.id ? 'bg-blue-50' : user.contacted ? 'bg-green-50/60' : ''
+                        expandedId === user.id
+                          ? 'bg-blue-50'
+                          : user.follow_up
+                          ? 'bg-amber-50/70'
+                          : user.contacted
+                          ? 'bg-green-50/60'
+                          : ''
                       }`}
                       onClick={() => toggleExpand(user.id)}
                     >
@@ -773,6 +813,20 @@ export default function AdminInquiries() {
                           className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded cursor-pointer disabled:opacity-50"
                           title={user.contacted ? 'Mark as not contacted' : 'Mark as contacted'}
                           aria-label={`${user.first_name} ${user.last_name} contacted`}
+                        />
+                      </td>
+                      <td
+                        className="px-3 py-3 text-center border-r border-gray-200"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={!!user.follow_up}
+                          disabled={togglingFollowUpId === user.id}
+                          onChange={(e) => handleFollowUpToggle(e, user)}
+                          className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded cursor-pointer disabled:opacity-50"
+                          title={user.follow_up ? 'Remove follow-up flag' : 'Flag for follow-up'}
+                          aria-label={`${user.first_name} ${user.last_name} follow up`}
                         />
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
@@ -828,7 +882,7 @@ export default function AdminInquiries() {
                     <AnimatePresence>
                       {expandedId === user.id && (
                         <tr>
-                          <td colSpan={11} className="px-0 py-0">
+                          <td colSpan={12} className="px-0 py-0">
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
@@ -969,15 +1023,26 @@ export default function AdminInquiries() {
                                         className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 resize-none focus:ring-2 focus:ring-vortex-red focus:border-transparent"
                                       />
                                     </div>
-                                    <label className="flex items-center gap-2 text-sm text-gray-700">
-                                      <input
-                                        type="checkbox"
-                                        checked={!!editData.contacted}
-                                        onChange={(e) => setEditData({ ...editData, contacted: e.target.checked })}
-                                        className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded"
-                                      />
-                                      Contacted by staff
-                                    </label>
+                                    <div className="flex flex-wrap items-center gap-6">
+                                      <label className="flex items-center gap-2 text-sm text-gray-700">
+                                        <input
+                                          type="checkbox"
+                                          checked={!!editData.contacted}
+                                          onChange={(e) => setEditData({ ...editData, contacted: e.target.checked })}
+                                          className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded"
+                                        />
+                                        Contacted by staff
+                                      </label>
+                                      <label className="flex items-center gap-2 text-sm text-gray-700">
+                                        <input
+                                          type="checkbox"
+                                          checked={!!editData.follow_up}
+                                          onChange={(e) => setEditData({ ...editData, follow_up: e.target.checked })}
+                                          className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded"
+                                        />
+                                        Flag for follow-up
+                                      </label>
+                                    </div>
                                     <div className="flex gap-2 pt-2">
                                       <button
                                         onClick={saveEdit}
@@ -1016,7 +1081,7 @@ export default function AdminInquiries() {
                                         placeholder="Track calls, emails, next steps, and conversation history..."
                                         className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 resize-y focus:ring-2 focus:ring-vortex-red focus:border-transparent"
                                       />
-                                      <div className="flex items-center gap-3 mt-3">
+                                      <div className="flex flex-wrap items-center gap-3 mt-3">
                                         <button
                                           type="button"
                                           onClick={(e) => saveNotes(e, user)}
@@ -1026,9 +1091,40 @@ export default function AdminInquiries() {
                                           <Save className="w-4 h-4" />
                                           {savingNotesId === user.id ? 'Saving...' : 'Save notes'}
                                         </button>
-                                        <span className="text-xs text-gray-500">
-                                          {user.contacted ? 'Marked as contacted' : 'Not yet contacted'}
-                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={(e) => { e.stopPropagation(); setFollowUp(user, !user.follow_up) }}
+                                          disabled={togglingFollowUpId === user.id}
+                                          className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors disabled:opacity-60 ${
+                                            user.follow_up
+                                              ? 'bg-amber-500 hover:bg-amber-600 text-white'
+                                              : 'bg-white border border-amber-500 text-amber-700 hover:bg-amber-50'
+                                          }`}
+                                          title={user.follow_up ? 'Remove follow-up flag' : 'Flag this inquiry for follow-up'}
+                                        >
+                                          <Flag className="w-4 h-4" />
+                                          {user.follow_up ? 'Flagged for follow up' : 'Mark for follow up'}
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={(e) => { e.stopPropagation(); setContacted(user, !user.contacted) }}
+                                          disabled={togglingContactedId === user.id}
+                                          className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors disabled:opacity-60 ${
+                                            user.contacted
+                                              ? 'bg-green-600 hover:bg-green-700 text-white'
+                                              : 'bg-white border border-green-600 text-green-700 hover:bg-green-50'
+                                          }`}
+                                          title={user.contacted ? 'Mark as not contacted' : 'Mark as contacted'}
+                                        >
+                                          <Check className="w-4 h-4" />
+                                          {user.contacted ? 'Contacted' : 'Mark as contacted'}
+                                        </button>
+                                        {savedNotesId === user.id && (
+                                          <span className="flex items-center gap-1 text-xs font-medium text-green-700">
+                                            <Check className="w-4 h-4" />
+                                            Notes saved
+                                          </span>
+                                        )}
                                       </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">

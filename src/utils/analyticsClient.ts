@@ -70,6 +70,7 @@ export const trackPageViewEvent = (path: string, options?: { googleAnalytics?: b
     '/artistic-gymnastics-early',
     '/artistic-gymnastics-6-12',
     '/artistic-gymnastics-13-18',
+    '/summer-camp-26',
     '/rhythmic-gymnastics',
     '/trampoline-tumbling',
   ]

@@ -24,6 +24,9 @@ const ArtisticGymnasticsAges13to18LandingPage = lazy(
   () => import('./pages/ArtisticGymnasticsAges13to18LandingPage'),
 )
 const GymnasticsReadBoardPage = lazy(() => import('./pages/GymnasticsReadBoardPage'))
+const SummerCamp2026LandingPage = lazy(
+  () => import('./pages/SummerCamp2026LandingPage'),
+)
 const MemberDashboard = lazy(() => import('../../components/MemberDashboard'))
 const Admin = lazy(() => import('../../components/Admin'))
 
@@ -201,6 +204,12 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
             }
           />
           <Route path="/read-board" element={<GymnasticsReadBoardPage />} />
+          <Route
+            path="/summer-camp-26"
+            element={
+              <SummerCamp2026LandingPage onInquireClick={handleContactClick} />
+            }
+          />
         </Routes>
       </Suspense>
       <ContactForm
