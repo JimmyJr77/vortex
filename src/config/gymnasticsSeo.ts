@@ -84,9 +84,9 @@ export const GYMNASTICS_ROUTES: GymnasticsRouteSeo[] = [
   },
   {
     path: '/summer-camp-26',
-    title: 'Gymnastics Summer Camp 2026 (Ages 8–14) | Bowie, MD',
+    title: 'Gymnastics Summer Camp 2026 (Ages 6–14) | Bowie, MD',
     description:
-      'Vortex Gymnastics Summer Camp 2026 in Bowie, MD for ages 8–14. Five themed weeks: gymnastics, sports, dance, crafts, games & movies. Register today.',
+      'Vortex Gymnastics Summer Camp 2026 in Bowie, MD for ages 6–14. Five themed weeks: gymnastics, sports, dance, crafts, games & movies. Register today.',
   },
 ]
 

@@ -236,9 +236,9 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
         'Advanced and competitive gymnastics for ages 13-18 in Bowie, MD. Strength, skills, and performance readiness.',
     },
     '/summer-camp-26': {
-      name: 'Gymnastics Summer Camp 2026 (Ages 8-14)',
+      name: 'Gymnastics Summer Camp 2026 (Ages 6-14)',
       description:
-        'Five-week summer camp at Vortex Gymnastics in Bowie, MD. Gymnastics, sports, dance, crafts, games, and movies for ages 8-14.',
+        'Five-week summer camp at Vortex Gymnastics in Bowie, MD. Gymnastics, sports, dance, crafts, games, and movies for ages 6-14.',
     },
   }
   const program = programs[pathname]

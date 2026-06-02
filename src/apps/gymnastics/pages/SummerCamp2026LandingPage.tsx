@@ -53,23 +53,62 @@ const ACCENT_STYLES = {
 
 const STAR_COLORS = ['text-yellow-400', 'text-blue-500', 'text-vortex-red', 'text-emerald-500']
 
+const REGISTER_NOTE =
+  'When registering, do not attempt to select a class. Just register without a class and we will get ahold of you to finish the registration for camp. Thanks! We look forward to seeing your child.'
+
+const FLOATING_STARS: Array<{
+  top?: string
+  left?: string
+  right?: string
+  bottom?: string
+  size: string
+  color: string
+  duration: number
+  delay: number
+  drift: { x: number[]; y: number[] }
+}> = [
+  { top: '6%', left: '8%', size: 'w-5 h-5 md:w-7 md:h-7', color: STAR_COLORS[0], duration: 7, delay: 0, drift: { x: [0, 14, -10, 0], y: [0, -20, 12, 0] } },
+  { top: '18%', right: '10%', size: 'w-4 h-4 md:w-6 md:h-6', color: STAR_COLORS[1], duration: 8.5, delay: 0.4, drift: { x: [0, -16, 8, 0], y: [0, 14, -18, 0] } },
+  { top: '42%', left: '4%', size: 'w-6 h-6 md:w-8 md:h-8', color: STAR_COLORS[2], duration: 9, delay: 1, drift: { x: [0, 10, 18, 0], y: [0, 8, -14, 0] } },
+  { top: '55%', right: '6%', size: 'w-5 h-5 md:w-7 md:h-7', color: STAR_COLORS[3], duration: 6.5, delay: 0.2, drift: { x: [0, -12, -6, 0], y: [0, -10, 16, 0] } },
+  { top: '72%', left: '14%', size: 'w-4 h-4 md:w-5 md:h-5', color: STAR_COLORS[0], duration: 10, delay: 1.5, drift: { x: [0, 8, -14, 0], y: [0, 12, 6, 0] } },
+  { top: '28%', left: '42%', size: 'w-3 h-3 md:w-5 md:h-5', color: STAR_COLORS[1], duration: 7.5, delay: 0.8, drift: { x: [0, -8, 12, 0], y: [0, -16, -8, 0] } },
+  { top: '12%', right: '28%', size: 'w-5 h-5 md:w-6 md:h-6', color: STAR_COLORS[2], duration: 8, delay: 2, drift: { x: [0, 16, 4, 0], y: [0, 10, -12, 0] } },
+  { bottom: '14%', right: '22%', size: 'w-6 h-6 md:w-8 md:h-8', color: STAR_COLORS[3], duration: 9.5, delay: 0.6, drift: { x: [0, -10, 14, 0], y: [0, -8, 10, 0] } },
+]
+
 interface SummerCamp2026LandingPageProps {
   onInquireClick?: () => void
 }
 
-function DecorativeStars({ className = '' }: { className?: string }) {
+function FloatingHeroStars({ className = '' }: { className?: string }) {
   return (
-    <div className={`pointer-events-none select-none ${className}`} aria-hidden>
-      {[0, 1, 2, 3].map((i) => (
-        <Star
+    <div className={`absolute inset-0 overflow-hidden pointer-events-none select-none ${className}`} aria-hidden>
+      {FLOATING_STARS.map((star, i) => (
+        <motion.div
           key={i}
-          className={`absolute w-6 h-6 md:w-8 md:h-8 fill-current ${STAR_COLORS[i % STAR_COLORS.length]} opacity-90`}
+          className="absolute"
           style={{
-            top: `${10 + i * 22}%`,
-            left: `${5 + i * 18}%`,
-            transform: `rotate(${i * 18}deg)`,
+            top: star.top,
+            left: star.left,
+            right: star.right,
+            bottom: star.bottom,
           }}
-        />
+          animate={{
+            x: star.drift.x,
+            y: star.drift.y,
+            rotate: [0, 12, -8, 0],
+            opacity: [0.65, 0.95, 0.75, 0.65],
+          }}
+          transition={{
+            duration: star.duration,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: star.delay,
+          }}
+        >
+          <Star className={`${star.size} fill-current ${star.color}`} />
+        </motion.div>
       ))}
     </div>
   )
@@ -89,7 +128,7 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
         />
         <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-900 to-vortex-red/40" />
         <div className="absolute top-0 right-0 w-1/2 h-full bg-vortex-red/20 blur-3xl" />
-        <DecorativeStars className="absolute inset-0 hidden md:block" />
+        <FloatingHeroStars className="z-[1]" />
 
         <div className="container-custom relative z-10">
           <motion.p
@@ -110,7 +149,7 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
             <br />
             <span className="text-vortex-red drop-shadow-[0_3px_0_#000]">Summer Camp</span>
             <span className="block text-2xl md:text-4xl text-gray-300 font-bold mt-3 normal-case tracking-normal">
-              2026 · Ages 8–14
+              2026 · Ages 6–14
             </span>
           </motion.h1>
 
@@ -125,25 +164,30 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
           </motion.p>
 
           <motion.div
-            className="flex flex-wrap gap-4"
+            className="flex flex-wrap items-start gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
           >
-            <a
-              href={JACKRABBIT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-red-900/50 hover:bg-red-700 hover:scale-[1.02] transition-all"
-            >
-              Register now
-              <ArrowRight className="w-5 h-5" />
-            </a>
+            <div className="flex flex-col items-start gap-2 max-w-lg">
+              <a
+                href={JACKRABBIT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-red-900/50 hover:bg-red-700 hover:scale-[1.02] transition-all"
+              >
+                Register now
+                <ArrowRight className="w-5 h-5" />
+              </a>
+              <p className="text-xs md:text-sm text-gray-400 leading-relaxed">
+                {REGISTER_NOTE}
+              </p>
+            </div>
             {onInquireClick && (
               <button
                 type="button"
                 onClick={onInquireClick}
-                className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all"
+                className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shrink-0"
               >
                 Ask a question
               </button>
