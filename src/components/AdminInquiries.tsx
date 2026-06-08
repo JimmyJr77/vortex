@@ -48,7 +48,6 @@ export default function AdminInquiries() {
   const [classTypesFilterOpen, setClassTypesFilterOpen] = useState(false)
   const [notesDraft, setNotesDraft] = useState<Record<number, string>>({})
   const [savingNotesId, setSavingNotesId] = useState<number | null>(null)
-  const [savedNotesId, setSavedNotesId] = useState<number | null>(null)
   const [togglingContactedId, setTogglingContactedId] = useState<number | null>(null)
   const [togglingFollowUpId, setTogglingFollowUpId] = useState<number | null>(null)
   const [ageFilterPosition, setAgeFilterPosition] = useState({ top: 0, left: 0 })
@@ -286,19 +285,24 @@ export default function AdminInquiries() {
     e.stopPropagation()
     const admin_notes = notesDraft[user.id] ?? ''
     setSavingNotesId(user.id)
-    setSavedNotesId(null)
     try {
       await persistRegistration(user, { admin_notes: admin_notes || null })
-      setSavedNotesId(user.id)
-      setTimeout(() => {
-        setSavedNotesId((current) => (current === user.id ? null : current))
-      }, 2500)
+      setExpandedId(null)
     } catch (error) {
       console.error('Error saving notes:', error)
       alert('Failed to save notes')
     } finally {
       setSavingNotesId(null)
     }
+  }
+
+  const cancelNotes = (e: React.MouseEvent, user: User) => {
+    e.stopPropagation()
+    setNotesDraft((prev) => ({
+      ...prev,
+      [user.id]: user.admin_notes ?? '',
+    }))
+    setExpandedId(null)
   }
 
   const startEdit = (e: React.MouseEvent, user: User) => {
@@ -1093,6 +1097,15 @@ export default function AdminInquiries() {
                                         </button>
                                         <button
                                           type="button"
+                                          onClick={(e) => cancelNotes(e, user)}
+                                          disabled={savingNotesId === user.id}
+                                          className="flex items-center gap-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:opacity-60 rounded text-white text-sm font-medium transition-colors"
+                                        >
+                                          <X className="w-4 h-4" />
+                                          Cancel
+                                        </button>
+                                        <button
+                                          type="button"
                                           onClick={(e) => { e.stopPropagation(); setFollowUp(user, !user.follow_up) }}
                                           disabled={togglingFollowUpId === user.id}
                                           className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors disabled:opacity-60 ${
@@ -1119,12 +1132,6 @@ export default function AdminInquiries() {
                                           <Check className="w-4 h-4" />
                                           {user.contacted ? 'Contacted' : 'Mark as contacted'}
                                         </button>
-                                        {savedNotesId === user.id && (
-                                          <span className="flex items-center gap-1 text-xs font-medium text-green-700">
-                                            <Check className="w-4 h-4" />
-                                            Notes saved
-                                          </span>
-                                        )}
                                       </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
