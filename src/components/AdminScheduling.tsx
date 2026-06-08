@@ -1,0 +1,532 @@
+import { useCallback, useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Calendar, Clock, Loader2, Plus, X } from 'lucide-react'
+import AdminSchedulingCategories from './scheduling/AdminSchedulingCategories'
+import AdminSchedulingSignupFields from './scheduling/AdminSchedulingSignupFields'
+import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
+import {
+  adminDeleteSchedulingForm,
+  adminFetchSchedulingForm,
+  adminFetchSchedulingForms,
+  adminFetchSignups,
+  adminSaveSchedulingForm,
+  adminUpdateSignupFields,
+  adminUpdateSignupStatus,
+  type SchedulingFormDetail,
+  type SchedulingFormSummary,
+  type SchedulingSignup,
+} from '../utils/schedulingApi'
+import { mergeSignupFieldsForSave } from '../config/schedulingSignupFields'
+import { formatDateForInput } from '../utils/dateUtils'
+
+type Panel = 'settings' | 'categories' | 'slots' | 'signups'
+
+const emptyForm = (): Partial<SchedulingFormSummary> & { title: string } => ({
+  title: '',
+  description: '',
+  startDate: null,
+  endDate: null,
+  isActive: true,
+})
+
+const PANELS: { id: Panel; label: string }[] = [
+  { id: 'settings', label: 'Settings' },
+  { id: 'categories', label: 'Categories' },
+  { id: 'slots', label: 'Slots' },
+  { id: 'signups', label: 'Signups' },
+]
+
+const AdminScheduling = () => {
+  const [forms, setForms] = useState<SchedulingFormSummary[]>([])
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [detail, setDetail] = useState<SchedulingFormDetail | null>(null)
+  const [signups, setSignups] = useState<SchedulingSignup[]>([])
+  const [panel, setPanel] = useState<Panel>('settings')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [formDraft, setFormDraft] = useState(emptyForm())
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [signupFieldsDraft, setSignupFieldsDraft] = useState<string[]>([])
+  const [mandateWaiverDraft, setMandateWaiverDraft] = useState(false)
+  const [settingsSaved, setSettingsSaved] = useState(false)
+
+  const loadForms = useCallback(async () => {
+    const data = await adminFetchSchedulingForms()
+    setForms(data)
+    return data
+  }, [])
+
+  const loadDetail = useCallback(async (id: number) => {
+    const data = await adminFetchSchedulingForm(id)
+    setDetail(data)
+    setFormDraft({
+      title: data.title,
+      description: data.description,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      isActive: data.isActive,
+    })
+    setSignupFieldsDraft(data.signupFields)
+    setMandateWaiverDraft(data.mandateWaiver ?? false)
+    setSettingsSaved(false)
+  }, [])
+
+  const loadSignups = useCallback(async (formId: number) => {
+    const data = await adminFetchSignups(formId)
+    setSignups(data)
+  }, [])
+
+  useEffect(() => {
+    loadForms()
+      .then((data) => {
+        if (data.length > 0 && !selectedId) setSelectedId(data[0].id)
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [loadForms, selectedId])
+
+  useEffect(() => {
+    if (!selectedId) return
+    setLoading(true)
+    Promise.all([loadDetail(selectedId), loadSignups(selectedId)])
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [selectedId, loadDetail, loadSignups])
+
+  const refresh = async () => {
+    if (!selectedId) return
+    await loadDetail(selectedId)
+    await loadSignups(selectedId)
+    await loadForms()
+  }
+
+  const handleCreateForm = async () => {
+    setSaving(true)
+    setError(null)
+    try {
+      const created = await adminSaveSchedulingForm({ title: 'New scheduling form', isActive: false })
+      await loadForms()
+      setSelectedId(created.id)
+      setPanel('settings')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to create form')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleSaveSettings = async () => {
+    if (!selectedId) return
+    setSaving(true)
+    setError(null)
+    setSettingsSaved(false)
+    try {
+      const mergedFields = mergeSignupFieldsForSave(signupFieldsDraft, mandateWaiverDraft)
+      await Promise.all([
+        adminSaveSchedulingForm(formDraft, selectedId),
+        adminUpdateSignupFields(selectedId, mergedFields, mandateWaiverDraft),
+      ])
+      await refresh()
+      setSettingsSaved(true)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const openDeleteConfirm = () => {
+    if (!selectedId) return
+    setDeleteConfirmText('')
+    setDeleteConfirmOpen(true)
+  }
+
+  const closeDeleteConfirm = () => {
+    setDeleteConfirmOpen(false)
+    setDeleteConfirmText('')
+  }
+
+  const handleDeleteForm = async () => {
+    if (!selectedId || deleteConfirmText.trim() !== 'DELETE') return
+    setDeleting(true)
+    setError(null)
+    try {
+      await adminDeleteSchedulingForm(selectedId)
+      closeDeleteConfirm()
+      const data = await loadForms()
+      setSelectedId(data[0]?.id ?? null)
+      setDetail(null)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to delete form')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  if (loading && forms.length === 0) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-vortex-red" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="container-custom py-8">
+      <div className="flex flex-col lg:flex-row gap-6">
+        <aside className="lg:w-64 shrink-0">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-black">Forms</h2>
+            <button
+              type="button"
+              onClick={handleCreateForm}
+              disabled={saving}
+              className="p-2 rounded-lg bg-vortex-red text-white hover:bg-red-700"
+              title="New form"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="space-y-2">
+            {forms.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setSelectedId(f.id)}
+                className={`w-full text-left rounded-lg px-4 py-3 border transition-colors ${
+                  selectedId === f.id
+                    ? 'border-vortex-red bg-red-50 text-black font-semibold'
+                    : 'border-gray-200 hover:border-gray-400 text-gray-700'
+                }`}
+              >
+                {f.title}
+                {!f.isActive && <span className="text-xs text-gray-500 block">Inactive</span>}
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        <div className="flex-1 min-w-0">
+          {!selectedId || !detail ? (
+            <p className="text-gray-600">Create or select a scheduling form to manage.</p>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 pb-4">
+                {PANELS.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPanel(p.id)}
+                    className={`px-4 py-2 rounded-lg font-semibold ${
+                      panel === p.id ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              {error && (
+                <div className="mb-4 rounded-lg bg-red-50 border border-red-200 text-red-700 px-4 py-3 flex justify-between">
+                  <span>{error}</span>
+                  <button type="button" onClick={() => setError(null)}><X className="w-4 h-4" /></button>
+                </div>
+              )}
+
+              {panel === 'settings' && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10 max-w-2xl">
+                  <section className="space-y-4">
+                    <h3 className="text-lg font-bold text-black">Form details</h3>
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Title</label>
+                      <input
+                        value={formDraft.title}
+                        onChange={(e) => {
+                          setFormDraft((d) => ({ ...d, title: e.target.value }))
+                          setSettingsSaved(false)
+                        }}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Description</label>
+                      <textarea
+                        rows={3}
+                        value={formDraft.description || ''}
+                        onChange={(e) => {
+                          setFormDraft((d) => ({ ...d, description: e.target.value }))
+                          setSettingsSaved(false)
+                        }}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold mb-1">Start date</label>
+                        <input
+                          type="date"
+                          value={formatDateForInput(formDraft.startDate)}
+                          onChange={(e) => {
+                            setFormDraft((d) => ({ ...d, startDate: e.target.value || null }))
+                            setSettingsSaved(false)
+                          }}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold mb-1">End date</label>
+                        <input
+                          type="date"
+                          value={formatDateForInput(formDraft.endDate)}
+                          onChange={(e) => {
+                            setFormDraft((d) => ({ ...d, endDate: e.target.value || null }))
+                            setSettingsSaved(false)
+                          }}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                        />
+                      </div>
+                    </div>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={formDraft.isActive !== false}
+                        onChange={(e) => {
+                          setFormDraft((d) => ({ ...d, isActive: e.target.checked }))
+                          setSettingsSaved(false)
+                        }}
+                      />
+                      <span className="font-semibold">Active (visible on /scheduling)</span>
+                    </label>
+                  </section>
+
+                  <section className="border-t border-gray-200 pt-8">
+                    <h3 className="text-lg font-bold text-black mb-4">Signup fields</h3>
+                    <AdminSchedulingSignupFields
+                      selected={signupFieldsDraft}
+                      waiverEnabled={mandateWaiverDraft}
+                      onSelectedChange={(fields) => {
+                        setSignupFieldsDraft(fields)
+                        setSettingsSaved(false)
+                      }}
+                      onWaiverChange={(enabled) => {
+                        setMandateWaiverDraft(enabled)
+                        setSettingsSaved(false)
+                      }}
+                    />
+                  </section>
+
+                  <div className="flex flex-wrap items-center gap-3 border-t border-gray-200 pt-8">
+                    <button
+                      type="button"
+                      onClick={handleSaveSettings}
+                      disabled={saving}
+                      className="bg-vortex-red text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-60"
+                    >
+                      Save/Update Form
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openDeleteConfirm}
+                      className="border border-red-300 text-red-700 px-6 py-2 rounded-lg font-semibold hover:bg-red-50"
+                    >
+                      Delete form
+                    </button>
+                    {settingsSaved && <span className="text-green-600 text-sm font-medium">Saved</span>}
+                  </div>
+                </motion.div>
+              )}
+
+              {panel === 'categories' && (
+                <AdminSchedulingCategories onRefresh={refresh} />
+              )}
+
+              {panel === 'slots' && (
+                <AdminSchedulingSlots
+                  formId={selectedId}
+                  detail={detail}
+                  formStartDate={formDraft.startDate ?? null}
+                  formEndDate={formDraft.endDate ?? null}
+                  onRefresh={refresh}
+                />
+              )}
+
+              {panel === 'signups' && (
+                <div className="overflow-x-auto">
+                  {signups.length === 0 ? (
+                    <p className="text-gray-600 flex items-center gap-2"><Calendar className="w-4 h-4" /> No signups yet.</p>
+                  ) : (
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200 text-left text-gray-600">
+                          <th className="py-2 pr-4">Name</th>
+                          <th className="py-2 pr-4">Email</th>
+                          <th className="py-2 pr-4">Category</th>
+                          <th className="py-2 pr-4">Slot</th>
+                          <th className="py-2 pr-4">Status</th>
+                          <th className="py-2 pr-4">Position</th>
+                          <th className="py-2 pr-4">Confirm email</th>
+                          <th className="py-2 pr-4">Waiver email</th>
+                          <th className="py-2">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {signups.map((s) => (
+                          <tr key={s.id} className="border-b border-gray-100">
+                            <td className="py-3 pr-4">
+                              {s.firstName || String(s.responses.first_name || '')}{' '}
+                              {s.lastName || String(s.responses.last_name || '')}
+                            </td>
+                            <td className="py-3 pr-4">{s.email || String(s.responses.email || '')}</td>
+                            <td className="py-3 pr-4">{s.categoryName}</td>
+                            <td className="py-3 pr-4">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {s.slotLabel || '—'}
+                              </span>
+                            </td>
+                            <td className="py-3 pr-4 capitalize">
+                              {s.status === 'waitlisted' ? (
+                                <span className="text-amber-700">Waitlisted</span>
+                              ) : (
+                                s.status
+                              )}
+                            </td>
+                            <td className="py-3 pr-4 text-xs text-gray-700">
+                              {s.status === 'confirmed' && s.signupNumber != null && s.maxParticipants != null
+                                ? `#${s.signupNumber} of ${s.maxParticipants}`
+                                : s.status === 'waitlisted' && s.waitlistPosition != null
+                                  ? `Waitlist #${s.waitlistPosition}`
+                                  : '—'}
+                            </td>
+                            <td className="py-3 pr-4 text-xs">
+                              {s.confirmationEmailSentAt ? (
+                                <span className="text-green-700">Sent</span>
+                              ) : (
+                                <span className="text-gray-400">—</span>
+                              )}
+                            </td>
+                            <td className="py-3 pr-4 text-xs">
+                              {s.waiverEmailSentAt ? (
+                                <span className="text-green-700">Sent</span>
+                              ) : detail?.mandateWaiver ? (
+                                <span className="text-gray-400">—</span>
+                              ) : (
+                                <span className="text-gray-300">N/A</span>
+                              )}
+                            </td>
+                            <td className="py-3">
+                              <div className="flex items-center gap-3">
+                                {(s.status === 'confirmed' || s.status === 'waitlisted') && (
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      try {
+                                        await adminUpdateSignupStatus(s.id, 'cancelled')
+                                        await loadSignups(selectedId)
+                                        await loadDetail(selectedId)
+                                      } catch (e) {
+                                        alert(e instanceof Error ? e.message : 'Failed to cancel signup')
+                                      }
+                                    }}
+                                    className="text-red-600 text-xs font-semibold hover:text-red-800"
+                                  >
+                                    Cancel
+                                  </button>
+                                )}
+                                {s.status === 'cancelled' && (
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      try {
+                                        await adminUpdateSignupStatus(s.id, 'confirmed')
+                                        await loadSignups(selectedId)
+                                        await loadDetail(selectedId)
+                                      } catch (e) {
+                                        alert(e instanceof Error ? e.message : 'Failed to reconfirm signup')
+                                      }
+                                    }}
+                                    className="text-green-700 text-xs font-semibold hover:text-green-900"
+                                  >
+                                    Reconfirm
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {deleteConfirmOpen && selectedId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/75 flex items-center justify-center z-[200] p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+            >
+              <h2 className="text-2xl font-bold text-red-600 mb-4">Delete scheduling form</h2>
+              <p className="text-gray-700 mb-4">
+                Are you sure you want to delete{' '}
+                <strong>{formDraft.title || 'this form'}</strong>? It will be removed from the admin
+                portal and public scheduling page. Signups, slots, and other data will remain in the
+                database.
+              </p>
+              <p className="text-gray-600 mb-4 text-sm">
+                To confirm, type <strong>DELETE</strong> below:
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE to confirm"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500"
+                autoFocus
+              />
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleDeleteForm}
+                  disabled={deleteConfirmText.trim() !== 'DELETE' || deleting}
+                  className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                    deleteConfirmText.trim() === 'DELETE' && !deleting
+                      ? 'bg-red-600 hover:bg-red-700 text-white'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  {deleting ? 'Deleting…' : 'Delete form'}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeDeleteConfirm}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-semibold transition-colors disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+export default AdminScheduling

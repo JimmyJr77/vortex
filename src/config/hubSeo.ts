@@ -52,6 +52,13 @@ export const HUB_ROUTES: HubRouteSeo[] = [
       'See upcoming classes, camps, open gyms, and events at Vortex Athletics in Bowie, MD. Register your athlete today.',
     priority: 0.8,
   },
+  {
+    path: '/scheduling',
+    title: 'Scheduling Sign Up | Vortex Athletics Bowie',
+    description:
+      'Reserve your spot with Vortex Athletics scheduling sign up in Bowie, MD. Choose your category, day, and time.',
+    priority: 0.8,
+  },
 ]
 
 const routeMap = new Map(HUB_ROUTES.map((route) => [route.path, route]))

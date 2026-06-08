@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import { formatDateForInput, formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
+import { adminFetchSchedulingForms, type SchedulingFormSummary } from '../utils/schedulingApi'
+import EventAttachedSignup from './EventAttachedSignup'
 
 interface DateTimeEntry {
   date: Date
@@ -31,6 +33,8 @@ interface Event {
   tagAllParents?: boolean
   tagBoosters?: boolean
   tagVolunteers?: boolean
+  schedulingFormId?: number | null
+  schedulingFormTitle?: string | null
 }
 
 interface Program {
@@ -542,6 +546,10 @@ const EventsView = ({
                       </a>
                     </div>
                   )}
+
+                  {event.schedulingFormId != null && (
+                    <EventAttachedSignup formId={event.schedulingFormId} />
+                  )}
                 </div>
               )
             })}
@@ -575,14 +583,42 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     tagCategoryIds: [],
     tagAllParents: false,
     tagBoosters: false,
-    tagVolunteers: false
+    tagVolunteers: false,
+    schedulingFormId: null,
   })
+  const [schedulingForms, setSchedulingForms] = useState<SchedulingFormSummary[]>([])
+  const [schedulingFormsLoading, setSchedulingFormsLoading] = useState(false)
+  const [formAttachQuery, setFormAttachQuery] = useState('')
+  const [formAttachOpen, setFormAttachOpen] = useState(false)
+  const formAttachRef = useRef<HTMLDivElement>(null)
   const [eventSearchQuery, setEventSearchQuery] = useState('')
   const [useShortAsLong, setUseShortAsLong] = useState(true)
   const [showArchivedEvents, setShowArchivedEvents] = useState(false)
   const [showEditLog, setShowEditLog] = useState(false)
   const [editLog, setEditLog] = useState<Array<{ id: number; eventId: string | number; field: string; oldValue: string; newValue: string; changedBy: string; changedAt: string; adminName?: string; adminEmail?: string; createdAt?: string; changes?: Record<string, { oldValue: unknown; newValue: unknown }> }>>([])
   const [editLogLoading, setEditLogLoading] = useState(false)
+
+  const loadSchedulingForms = async () => {
+    try {
+      setSchedulingFormsLoading(true)
+      const forms = await adminFetchSchedulingForms()
+      setSchedulingForms(forms)
+    } catch (error) {
+      console.error('Error loading scheduling forms:', error)
+      setSchedulingForms([])
+    } finally {
+      setSchedulingFormsLoading(false)
+    }
+  }
+
+  const filteredSchedulingForms = schedulingForms.filter((form) => {
+    const q = formAttachQuery.trim().toLowerCase()
+    if (!q) return true
+    return (
+      form.title.toLowerCase().includes(q) ||
+      (form.description ?? '').toLowerCase().includes(q)
+    )
+  })
 
   const fetchEvents = async () => {
     try {
@@ -773,8 +809,11 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
           tagCategoryIds: [],
           tagAllParents: false,
           tagBoosters: false,
-          tagVolunteers: false
+          tagVolunteers: false,
+          schedulingFormId: null,
         })
+        setFormAttachQuery('')
+        setFormAttachOpen(false)
         setUseShortAsLong(true)
       } else {
         const data = await response.json()
@@ -810,8 +849,11 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       tagCategoryIds: event.tagCategoryIds || [],
       tagAllParents: event.tagAllParents || false,
       tagBoosters: event.tagBoosters || false,
-      tagVolunteers: event.tagVolunteers || false
+      tagVolunteers: event.tagVolunteers || false,
+      schedulingFormId: event.schedulingFormId ?? null,
     })
+    setFormAttachQuery(event.schedulingFormTitle ?? '')
+    setFormAttachOpen(false)
     setUseShortAsLong(shortMatchesLong)
     setShowEventForm(true)
   }
@@ -1170,6 +1212,23 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     fetchEvents()
   }, [])
 
+  useEffect(() => {
+    if (showEventForm) {
+      loadSchedulingForms()
+    }
+  }, [showEventForm])
+
+  useEffect(() => {
+    if (!formAttachOpen) return
+    const handleClickOutside = (event: MouseEvent) => {
+      if (formAttachRef.current && !formAttachRef.current.contains(event.target as Node)) {
+        setFormAttachOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [formAttachOpen])
+
   return (
     <>
       <motion.div
@@ -1216,8 +1275,11 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                   tagCategoryIds: [],
                   tagAllParents: false,
                   tagBoosters: false,
-                  tagVolunteers: false
+                  tagVolunteers: false,
+                  schedulingFormId: null,
                 })
+                setFormAttachQuery('')
+                setFormAttachOpen(false)
                 setUseShortAsLong(true)
                 setShowEventForm(true)
               }}
@@ -1860,6 +1922,74 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                       </button>
                     </div>
                   ))}
+                </div>
+
+                <div ref={formAttachRef} className="border-t border-gray-700 pt-4">
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Attach Form</label>
+                  <p className="text-xs text-gray-400 mb-2">
+                    Link a scheduling signup form to this event (optional).
+                  </p>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={formAttachQuery}
+                      placeholder="Search or select a form..."
+                      onFocus={() => setFormAttachOpen(true)}
+                      onChange={(e) => {
+                        setFormAttachQuery(e.target.value)
+                        setFormAttachOpen(true)
+                        setEventFormData((prev) => ({ ...prev, schedulingFormId: null }))
+                      }}
+                      className="w-full pl-10 pr-10 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    />
+                    {(eventFormData.schedulingFormId || formAttachQuery) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormAttachQuery('')
+                          setEventFormData((prev) => ({ ...prev, schedulingFormId: null }))
+                          setFormAttachOpen(false)
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        aria-label="Clear attached form"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                    {formAttachOpen && (
+                      <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                        {schedulingFormsLoading ? (
+                          <div className="px-3 py-2 text-sm text-gray-400">Loading forms...</div>
+                        ) : filteredSchedulingForms.length === 0 ? (
+                          <div className="px-3 py-2 text-sm text-gray-400">No forms found</div>
+                        ) : (
+                          filteredSchedulingForms.map((form) => (
+                            <button
+                              key={form.id}
+                              type="button"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => {
+                                setEventFormData((prev) => ({ ...prev, schedulingFormId: form.id }))
+                                setFormAttachQuery(form.title)
+                                setFormAttachOpen(false)
+                              }}
+                              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-600 ${
+                                eventFormData.schedulingFormId === form.id
+                                  ? 'bg-gray-600 text-white'
+                                  : 'text-gray-200'
+                              }`}
+                            >
+                              <span className="font-medium">{form.title}</span>
+                              {!form.isActive && (
+                                <span className="ml-2 text-xs text-gray-400">(inactive)</span>
+                              )}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex gap-2 pt-4">

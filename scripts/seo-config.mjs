@@ -9,6 +9,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/athleticism-accelerator', priority: '0.8', changefreq: 'weekly' },
   { path: '/value', priority: '0.7', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
+  { path: '/scheduling', priority: '0.8', changefreq: 'weekly' },
 ]
 
 export const HUB_PRERENDER_PATHS = HUB_SITEMAP_ENTRIES.map((entry) => entry.path)

@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
 import { trackEvent } from '../utils/analyticsClient'
 import { parseDateOnly, formatDateForDisplay } from '../utils/dateUtils'
+import EventAttachedSignup from './EventAttachedSignup'
 
 interface DateTimeEntry {
   date: Date // Single date for this entry
@@ -26,6 +27,8 @@ interface Event {
   keyDetails?: string[] // Key Details for Event Details section
   images?: string[] // Event images
   address?: string // Address with map link capability
+  schedulingFormId?: number | null
+  schedulingFormTitle?: string | null
 }
 
 interface ClassDescription {
@@ -1359,6 +1362,10 @@ const ReadBoard = () => {
                                 <span className="underline">{event.address}</span>
                               </a>
                             </div>
+                          )}
+
+                          {event.schedulingFormId != null && (
+                            <EventAttachedSignup formId={event.schedulingFormId} />
                           )}
                         </motion.div>
                       )

@@ -12,6 +12,8 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { initAnalyticsTables } from './analytics/initTables.js'
 import { registerAnalyticsRoutes } from './analytics/registerRoutes.js'
+import { initSchedulingTables } from './scheduling/initTables.js'
+import { registerSchedulingRoutes } from './scheduling/registerRoutes.js'
 import { applyRegistrationAttribution } from './analytics/adminHandlers.js'
 
 const { Pool } = pkg
@@ -34,7 +36,7 @@ if (fs.existsSync(envLocalPath)) {
 const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'highlights-2026-06-01'
+const API_BUILD_ID = 'scheduling-v2-2026-06-08'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -231,6 +233,7 @@ export const initDatabase = async () => {
     `)
 
     await initAnalyticsTables(pool)
+    await initSchedulingTables(pool)
 
     // Newsletter subscribers table
     await pool.query(`
@@ -291,6 +294,13 @@ export const initDatabase = async () => {
     // Add images column if it doesn't exist (for storing base64 image data)
     await pool.query(`
       ALTER TABLE events ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]'::jsonb
+    `)
+
+    await pool.query(`
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS scheduling_form_id BIGINT REFERENCES scheduling_form(id) ON DELETE SET NULL
+    `)
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_events_scheduling_form_id ON events(scheduling_form_id)
     `)
     
     // Create index for archived column
@@ -1235,7 +1245,8 @@ const eventSchema = Joi.object({
   tagCategoryIds: Joi.array().items(Joi.number().integer()).optional().allow(null),
   tagAllParents: Joi.boolean().optional().default(false),
   tagBoosters: Joi.boolean().optional().default(false),
-  tagVolunteers: Joi.boolean().optional().default(false)
+  tagVolunteers: Joi.boolean().optional().default(false),
+  schedulingFormId: Joi.number().integer().positive().optional().allow(null),
 })
 
 const HIGHLIGHT_DOCUMENT_MAX_BYTES = 10 * 1024 * 1024
@@ -2202,6 +2213,7 @@ app.use('/api/admin', async (req, res, next) => {
 
 // Analytics & consent (public + admin)
 registerAnalyticsRoutes(app, pool)
+registerSchedulingRoutes(app, pool)
 
 // Routes
 
@@ -8908,28 +8920,31 @@ app.get('/api/events', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
-        id,
-        event_name as "eventName",
-        short_description as "shortDescription",
-        long_description as "longDescription",
-        start_date as "startDate",
-        end_date as "endDate",
-        type,
-        address,
-        dates_and_times as "datesAndTimes",
-        key_details as "keyDetails",
-        images,
-        tag_type as "tagType",
-        tag_class_ids as "tagClassIds",
-        tag_category_ids as "tagCategoryIds",
-        tag_all_parents as "tagAllParents",
-        tag_boosters as "tagBoosters",
-        tag_volunteers as "tagVolunteers",
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-      FROM events
-      WHERE archived = FALSE OR archived IS NULL
-      ORDER BY start_date ASC, created_at DESC
+        e.id,
+        e.event_name as "eventName",
+        e.short_description as "shortDescription",
+        e.long_description as "longDescription",
+        e.start_date as "startDate",
+        e.end_date as "endDate",
+        e.type,
+        e.address,
+        e.dates_and_times as "datesAndTimes",
+        e.key_details as "keyDetails",
+        e.images,
+        e.tag_type as "tagType",
+        e.tag_class_ids as "tagClassIds",
+        e.tag_category_ids as "tagCategoryIds",
+        e.tag_all_parents as "tagAllParents",
+        e.tag_boosters as "tagBoosters",
+        e.tag_volunteers as "tagVolunteers",
+        e.scheduling_form_id as "schedulingFormId",
+        sf.title as "schedulingFormTitle",
+        e.created_at as "createdAt",
+        e.updated_at as "updatedAt"
+      FROM events e
+      LEFT JOIN scheduling_form sf ON sf.id = e.scheduling_form_id
+      WHERE e.archived = FALSE OR e.archived IS NULL
+      ORDER BY e.start_date ASC, e.created_at DESC
     `)
 
     // Convert date strings to Date objects and parse JSON fields
@@ -9045,28 +9060,31 @@ app.get('/api/admin/events', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
-        id,
-        event_name as "eventName",
-        short_description as "shortDescription",
-        long_description as "longDescription",
-        start_date as "startDate",
-        end_date as "endDate",
-        type,
-        address,
-        dates_and_times as "datesAndTimes",
-        key_details as "keyDetails",
-        images,
-        tag_type as "tagType",
-        tag_class_ids as "tagClassIds",
-        tag_category_ids as "tagCategoryIds",
-        tag_all_parents as "tagAllParents",
-        tag_boosters as "tagBoosters",
-        tag_volunteers as "tagVolunteers",
-        archived,
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-      FROM events
-      ORDER BY archived ASC, start_date ASC, created_at DESC
+        e.id,
+        e.event_name as "eventName",
+        e.short_description as "shortDescription",
+        e.long_description as "longDescription",
+        e.start_date as "startDate",
+        e.end_date as "endDate",
+        e.type,
+        e.address,
+        e.dates_and_times as "datesAndTimes",
+        e.key_details as "keyDetails",
+        e.images,
+        e.tag_type as "tagType",
+        e.tag_class_ids as "tagClassIds",
+        e.tag_category_ids as "tagCategoryIds",
+        e.tag_all_parents as "tagAllParents",
+        e.tag_boosters as "tagBoosters",
+        e.tag_volunteers as "tagVolunteers",
+        e.scheduling_form_id as "schedulingFormId",
+        sf.title as "schedulingFormTitle",
+        e.archived,
+        e.created_at as "createdAt",
+        e.updated_at as "updatedAt"
+      FROM events e
+      LEFT JOIN scheduling_form sf ON sf.id = e.scheduling_form_id
+      ORDER BY e.archived ASC, e.start_date ASC, e.created_at DESC
     `)
 
     // Convert date strings to Date objects and parse JSON fields
@@ -9150,8 +9168,8 @@ app.post('/api/admin/events', async (req, res) => {
     const result = await pool.query(`
       INSERT INTO events 
       (event_name, short_description, long_description, start_date, end_date, type, address, dates_and_times, key_details, images,
-       tag_type, tag_class_ids, tag_category_ids, tag_all_parents, tag_boosters, tag_volunteers)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+       tag_type, tag_class_ids, tag_category_ids, tag_all_parents, tag_boosters, tag_volunteers, scheduling_form_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
       RETURNING 
         id,
         event_name as "eventName",
@@ -9169,7 +9187,8 @@ app.post('/api/admin/events', async (req, res) => {
         tag_category_ids as "tagCategoryIds",
         tag_all_parents as "tagAllParents",
         tag_boosters as "tagBoosters",
-        tag_volunteers as "tagVolunteers"
+        tag_volunteers as "tagVolunteers",
+        scheduling_form_id as "schedulingFormId"
     `, [
       value.eventName,
       value.shortDescription,
@@ -9186,7 +9205,8 @@ app.post('/api/admin/events', async (req, res) => {
       value.tagCategoryIds && value.tagCategoryIds.length > 0 ? value.tagCategoryIds : null,
       value.tagAllParents || false,
       value.tagBoosters || false,
-      value.tagVolunteers || false
+      value.tagVolunteers || false,
+      value.schedulingFormId ?? null,
     ])
 
     const event = result.rows[0]
@@ -9268,7 +9288,8 @@ app.put('/api/admin/events/:id', async (req, res) => {
         address,
         dates_and_times,
         key_details,
-        images
+        images,
+        scheduling_form_id
       FROM events
       WHERE id = $1
     `, [id])
@@ -9358,6 +9379,9 @@ app.put('/api/admin/events/:id', async (req, res) => {
     if (JSON.stringify(currentImages) !== JSON.stringify(value.images || [])) {
       changes.images = { old: currentImages, new: value.images || [] }
     }
+    if (formatValue(currentEvent.scheduling_form_id) !== formatValue(value.schedulingFormId ?? null)) {
+      changes.schedulingFormId = { old: currentEvent.scheduling_form_id, new: value.schedulingFormId ?? null }
+    }
 
     // Update the event
     const result = await pool.query(`
@@ -9378,8 +9402,9 @@ app.put('/api/admin/events/:id', async (req, res) => {
           tag_all_parents = $14,
           tag_boosters = $15,
           tag_volunteers = $16,
+          scheduling_form_id = $17,
           updated_at = CURRENT_TIMESTAMP
-      WHERE id = $17
+      WHERE id = $18
       RETURNING 
         id,
         event_name as "eventName",
@@ -9397,7 +9422,8 @@ app.put('/api/admin/events/:id', async (req, res) => {
         tag_category_ids as "tagCategoryIds",
         tag_all_parents as "tagAllParents",
         tag_boosters as "tagBoosters",
-        tag_volunteers as "tagVolunteers"
+        tag_volunteers as "tagVolunteers",
+        scheduling_form_id as "schedulingFormId"
     `, [
       value.eventName,
       value.shortDescription,
@@ -9415,6 +9441,7 @@ app.put('/api/admin/events/:id', async (req, res) => {
       value.tagAllParents || false,
       value.tagBoosters || false,
       value.tagVolunteers || false,
+      value.schedulingFormId ?? null,
       id
     ])
 

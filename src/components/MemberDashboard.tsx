@@ -6,6 +6,7 @@ import { getApiUrl } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 import EnrollmentForm from './EnrollmentForm'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
+import EventAttachedSignup from './EventAttachedSignup'
 
 interface MemberDashboardProps {
   member: any
@@ -102,6 +103,8 @@ interface Event {
   tagAllParents?: boolean
   tagBoosters?: boolean
   tagVolunteers?: boolean
+  schedulingFormId?: number | null
+  schedulingFormTitle?: string | null
 }
 
 export default function MemberDashboard({ member: _member, onLogout, onReturnToWebsite }: MemberDashboardProps) {
@@ -2258,6 +2261,10 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                                   <span className="underline">{event.address}</span>
                                 </a>
                               </div>
+                            )}
+
+                            {event.schedulingFormId != null && (
+                              <EventAttachedSignup formId={event.schedulingFormId} />
                             )}
                           </div>
                         )

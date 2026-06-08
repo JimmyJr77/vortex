@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState, useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import Header from './components/Header'
 import HubSeo from './components/HubSeo'
 import ContactForm from './components/ContactForm'
@@ -20,6 +20,7 @@ const StrengthFitness = lazy(() => import('./components/StrengthFitness'))
 const Ninja = lazy(() => import('./components/Ninja'))
 const Value = lazy(() => import('./components/Value'))
 const ReadBoard = lazy(() => import('./components/ReadBoard'))
+const SchedulingPage = lazy(() => import('./components/SchedulingPage'))
 const Admin = lazy(() => import('./components/Admin'))
 const MemberDashboard = lazy(() => import('./components/MemberDashboard'))
 
@@ -172,6 +173,11 @@ function App() {
             path="/read-board" 
             element={<ReadBoard />} 
           />
+          <Route
+            path="/scheduling"
+            element={<SchedulingPage />}
+          />
+          <Route path="/schedule" element={<Navigate to="/scheduling" replace />} />
         </Routes>
       </Suspense>
       <ContactForm

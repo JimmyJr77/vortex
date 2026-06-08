@@ -10,6 +10,7 @@ import AdminEvents from './AdminEvents'
 import AdminAnalytics from './AdminAnalytics'
 import AdminEnrollments from './AdminEnrollments'
 import AdminHighlights from './AdminHighlights'
+import AdminScheduling from './AdminScheduling'
 
 interface AdminProps {
   onLogout: () => void
@@ -44,7 +45,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'enrollments' | 'highlights'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'enrollments' | 'highlights' | 'scheduling'
 
 
 export default function Admin({ onLogout }: AdminProps) {
@@ -277,6 +278,23 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
+                onClick={() => setActiveTab('scheduling')}
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'scheduling'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Scheduling
+                {activeTab === 'scheduling' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab('analytics')}
                 className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'analytics'
@@ -305,6 +323,8 @@ export default function Admin({ onLogout }: AdminProps) {
           <AnimatePresence mode="wait">
             {activeTab === 'analytics' ? (
               <AdminAnalytics />
+            ) : activeTab === 'scheduling' ? (
+              <AdminScheduling />
             ) : activeTab === 'classes' ? (
               <AdminClasses />
             ) : activeTab === 'enrollments' ? (
