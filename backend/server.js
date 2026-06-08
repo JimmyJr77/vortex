@@ -2239,6 +2239,8 @@ app.get('/api/health', (req, res) => {
     apiFeatures: {
       highlights: hasRegisteredRoute('/api/admin/highlights'),
       publicHighlights: hasRegisteredRoute('/api/highlights'),
+      scheduling: hasRegisteredRoute('/api/admin/scheduling/forms'),
+      publicScheduling: hasRegisteredRoute('/api/scheduling/forms'),
     },
   })
 })

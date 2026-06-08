@@ -155,6 +155,11 @@ export interface SlotBatchPayload {
 async function parseJson<T>(response: Response): Promise<T> {
   const data = await response.json()
   if (!response.ok || !data.success) {
+    if (response.status === 404) {
+      throw new Error(
+        'Scheduling API is not available on the server yet. Redeploy the Render backend (vortex-backend) from the latest main branch.',
+      )
+    }
     throw new Error(data.message || 'Request failed')
   }
   return data.data as T
