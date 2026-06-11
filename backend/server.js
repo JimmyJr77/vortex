@@ -21,6 +21,7 @@ import { registerNotesRoutes } from './notes/registerRoutes.js'
 import { registerDbQueryRoutes } from './dbQueries/registerRoutes.js'
 import { appendStaffNote } from './notes/handlers.js'
 import { setMemberSchools } from './schools/handlers.js'
+import { getEmailConfigSummary, isEmailConfigured, verifySmtpConnection } from './email/sendEmail.js'
 
 const { Pool } = pkg
 
@@ -42,7 +43,7 @@ if (fs.existsSync(envLocalPath)) {
 const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'scheduling-dates-fix-2026-06-11'
+const API_BUILD_ID = 'smtp-email-status-2026-06-11'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -2242,6 +2243,24 @@ app.use('/api/admin', async (req, res, next) => {
 registerAnalyticsRoutes(app, pool)
 registerSchedulingRoutes(app, pool)
 
+app.get('/api/admin/email/status', async (req, res) => {
+  try {
+    const config = getEmailConfigSummary()
+    const verify = config.configured ? await verifySmtpConnection() : { ok: false, error: null }
+    res.json({
+      success: true,
+      data: {
+        ...config,
+        smtpVerified: verify.ok,
+        smtpError: verify.error,
+      },
+    })
+  } catch (err) {
+    console.error('[admin] email status:', err)
+    res.status(500).json({ success: false, message: 'Failed to check email status' })
+  }
+})
+
 // Schools, notes, and DB query builder (admin)
 registerSchoolsRoutes(app, pool)
 registerNotesRoutes(app, pool)
@@ -2268,6 +2287,7 @@ app.get('/api/health', (req, res) => {
     status: 'OK',
     buildId: API_BUILD_ID,
     timestamp: new Date().toISOString(),
+    emailConfigured: isEmailConfigured(),
     apiFeatures: {
       highlights: hasRegisteredRoute('/api/admin/highlights'),
       publicHighlights: hasRegisteredRoute('/api/highlights'),
@@ -2276,6 +2296,7 @@ app.get('/api/health', (req, res) => {
       dbQueries: hasRegisteredRoute('/api/admin/db-queries/entities'),
       schools: hasRegisteredRoute('/api/admin/schools'),
       notes: hasRegisteredRoute('/api/admin/notes'),
+      adminEmailStatus: hasRegisteredRoute('/api/admin/email/status'),
     },
   })
 })

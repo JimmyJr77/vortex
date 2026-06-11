@@ -2,13 +2,29 @@ import nodemailer from 'nodemailer'
 
 let transporter = null
 
-function getTransporter() {
+function smtpUser() {
+  return (process.env.SMTP_USER || '').trim()
+}
+
+function smtpPass() {
+  return (process.env.SMTP_PASS || '').trim()
+}
+
+function maskEmail(email) {
+  const s = String(email || '').trim()
+  const at = s.indexOf('@')
+  if (at <= 1) return s ? '***' : ''
+  return `${s[0]}***${s.slice(at)}`
+}
+
+function getTransporter({ forceNew = false } = {}) {
+  if (forceNew) transporter = null
   if (transporter) return transporter
 
-  const host = process.env.SMTP_HOST || 'smtp.gmail.com'
+  const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim()
   const port = Number(process.env.SMTP_PORT || 587)
-  const user = process.env.SMTP_USER
-  const pass = process.env.SMTP_PASS
+  const user = smtpUser()
+  const pass = smtpPass()
 
   if (!user || !pass) {
     return null
@@ -25,26 +41,29 @@ function getTransporter() {
 }
 
 export function isEmailConfigured() {
-  return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS)
+  return Boolean(smtpUser() && smtpPass())
 }
 
 /** Map nodemailer/Gmail errors to a short admin-facing message (no secrets). */
 export function formatEmailError(err) {
   const msg = String(err?.message || err || '')
   const code = String(err?.code || '')
+  const responseCode = Number(err?.responseCode || 0)
 
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  if (!smtpUser() || !smtpPass()) {
     return 'Email is not configured on the server. Set SMTP_USER and SMTP_PASS in Render environment variables.'
   }
 
   if (
     code === 'EAUTH' ||
-    /535|BadCredentials|Username and Password not accepted/i.test(msg)
+    responseCode === 535 ||
+    /535|BadCredentials|Username and Password not accepted|Invalid login/i.test(msg)
   ) {
     return (
       'Gmail rejected the SMTP login. On Render, set SMTP_USER to the full sending address ' +
       '(e.g. team@vortexathletics.com) and SMTP_PASS to a Google App Password — not your normal ' +
-      'account password. Create one at https://myaccount.google.com/apppasswords (2-Step Verification required).'
+      'account password. Create one at https://myaccount.google.com/apppasswords (2-Step Verification required). ' +
+      'After updating env vars, redeploy the backend service.'
     )
   }
 
@@ -53,6 +72,35 @@ export function formatEmailError(err) {
   }
 
   return msg || 'Failed to send email'
+}
+
+export function getEmailConfigSummary() {
+  const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim()
+  const port = Number(process.env.SMTP_PORT || 587)
+  const user = smtpUser()
+  return {
+    configured: Boolean(user && smtpPass()),
+    smtpHost: host,
+    smtpPort: port,
+    smtpUser: user ? maskEmail(user) : null,
+    smtpFrom: (process.env.SMTP_FROM || user || '').trim()
+      ? maskEmail((process.env.SMTP_FROM || user).trim())
+      : null,
+  }
+}
+
+export async function verifySmtpConnection() {
+  const transport = getTransporter({ forceNew: true })
+  if (!transport) {
+    return { ok: false, error: formatEmailError(new Error('not configured')) }
+  }
+  try {
+    await transport.verify()
+    return { ok: true, error: null }
+  } catch (err) {
+    transporter = null
+    return { ok: false, error: formatEmailError(err) }
+  }
 }
 
 /**
@@ -64,7 +112,7 @@ export async function sendEmail({ to, subject, text, html }) {
     throw new Error(formatEmailError(new Error('not configured')))
   }
 
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER
+  const from = (process.env.SMTP_FROM || smtpUser()).trim()
 
   try {
     await transport.sendMail({
@@ -75,6 +123,9 @@ export async function sendEmail({ to, subject, text, html }) {
       html,
     })
   } catch (err) {
+    if (String(err?.code) === 'EAUTH' || Number(err?.responseCode) === 535) {
+      transporter = null
+    }
     const friendly = new Error(formatEmailError(err))
     friendly.cause = err
     throw friendly
