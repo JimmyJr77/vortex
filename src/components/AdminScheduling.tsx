@@ -379,18 +379,18 @@ const AdminScheduling = () => {
                   {signups.length === 0 ? (
                     <p className="text-gray-600 flex items-center gap-2"><Calendar className="w-4 h-4" /> No signups yet.</p>
                   ) : (
-                    <table className="w-max text-sm table-auto border-collapse">
+                    <table className="w-max max-w-none text-sm table-auto border-collapse [&_th]:whitespace-nowrap [&_td]:whitespace-nowrap [&_th]:align-top [&_td]:align-top">
                       <thead>
-                        <tr className="border-b border-gray-200 text-left text-gray-600 align-top">
-                          <th className="py-2 pr-4 align-top whitespace-nowrap">Name</th>
-                          <th className="py-2 pr-4 align-top whitespace-nowrap">Email</th>
-                          <th className="py-2 pr-4 align-top whitespace-nowrap">Category</th>
-                          <th className="py-2 pr-4 align-top">Slot</th>
-                          <th className="py-2 pr-4 align-top whitespace-nowrap">Status</th>
-                          <th className="py-2 pr-4 align-top whitespace-nowrap">Position</th>
-                          <th className="py-2 pr-4 align-top whitespace-nowrap">Confirm email</th>
-                          <th className="py-2 pr-4 align-top whitespace-nowrap">Waiver email</th>
-                          <th className="py-2 align-top whitespace-nowrap">Actions</th>
+                        <tr className="border-b border-gray-200 text-left text-gray-600">
+                          <th className="py-2 pr-4 w-0">Name</th>
+                          <th className="py-2 pr-4 w-0">Email</th>
+                          <th className="py-2 pr-4 w-0">Category</th>
+                          <th className="py-2 pr-4 w-0">Slot</th>
+                          <th className="py-2 pr-4 w-0">Status</th>
+                          <th className="py-2 pr-4 w-0">Position</th>
+                          <th className="py-2 pr-4 w-0">Confirm email</th>
+                          <th className="py-2 pr-4 w-0">Waiver email</th>
+                          <th className="py-2 w-0">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -401,47 +401,45 @@ const AdminScheduling = () => {
                             .filter(Boolean)
 
                           return (
-                          <tr key={s.id} className="border-b border-gray-100 align-top">
-                            <td className="py-3 pr-4 align-top whitespace-nowrap">
+                          <tr key={s.id} className="border-b border-gray-100">
+                            <td className="py-3 pr-4 w-0">
                               {s.firstName || String(s.responses.first_name || '')}{' '}
                               {s.lastName || String(s.responses.last_name || '')}
                             </td>
-                            <td className="py-3 pr-4 align-top whitespace-nowrap">{s.email || String(s.responses.email || '')}</td>
-                            <td className="py-3 pr-4 align-top whitespace-nowrap">{s.categoryName}</td>
-                            <td className="py-3 pr-4 align-top">
-                              <div className="flex items-start gap-1">
+                            <td className="py-3 pr-4 w-0">{s.email || String(s.responses.email || '')}</td>
+                            <td className="py-3 pr-4 w-0">{s.categoryName}</td>
+                            <td className="py-3 pr-4 w-0">
+                              <div className="inline-flex items-start gap-1">
                                 <Clock className="w-3 h-3 mt-0.5 shrink-0" />
-                                <div className="flex flex-col gap-0.5">
+                                <div className="inline-flex flex-col gap-0.5">
                                   {slotLines.map((line, lineIndex) => (
-                                    <span key={lineIndex} className="whitespace-nowrap">
-                                      {line}
-                                    </span>
+                                    <span key={lineIndex}>{line}</span>
                                   ))}
                                 </div>
                               </div>
                             </td>
-                            <td className="py-3 pr-4 align-top whitespace-nowrap capitalize">
+                            <td className="py-3 pr-4 w-0 capitalize">
                               {s.status === 'waitlisted' ? (
                                 <span className="text-amber-700">Waitlisted</span>
                               ) : (
                                 s.status
                               )}
                             </td>
-                            <td className="py-3 pr-4 align-top whitespace-nowrap text-xs text-gray-700">
+                            <td className="py-3 pr-4 w-0 text-xs text-gray-700">
                               {s.status === 'confirmed' && s.signupNumber != null && s.maxParticipants != null
                                 ? `#${s.signupNumber} of ${s.maxParticipants}`
                                 : s.status === 'waitlisted' && s.waitlistPosition != null
                                   ? `Waitlist #${s.waitlistPosition}`
                                   : '—'}
                             </td>
-                            <td className="py-3 pr-4 align-top whitespace-nowrap text-xs">
+                            <td className="py-3 pr-4 w-0 text-xs">
                               {s.confirmationEmailSentAt ? (
                                 <span className="text-green-700">Sent</span>
                               ) : (
                                 <span className="text-gray-400">—</span>
                               )}
                             </td>
-                            <td className="py-3 pr-4 align-top whitespace-nowrap text-xs">
+                            <td className="py-3 pr-4 w-0 text-xs">
                               {s.waiverEmailSentAt ? (
                                 <span className="text-green-700">Sent</span>
                               ) : detail?.mandateWaiver ? (
@@ -450,8 +448,8 @@ const AdminScheduling = () => {
                                 <span className="text-gray-300">N/A</span>
                               )}
                             </td>
-                            <td className="py-3 align-top whitespace-nowrap">
-                              <div className="flex items-start gap-3">
+                            <td className="py-3 w-0">
+                              <div className="inline-flex items-center gap-3 flex-nowrap">
                                 {(s.status === 'confirmed' || s.status === 'waitlisted') && (
                                   <button
                                     type="button"
