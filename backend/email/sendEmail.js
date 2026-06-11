@@ -74,18 +74,31 @@ export function formatEmailError(err) {
   return msg || 'Failed to send email'
 }
 
+function extractEmailAddress(value) {
+  const s = String(value || '').trim()
+  const bracketed = s.match(/<([^>]+)>/)
+  if (bracketed) return bracketed[1].trim()
+  return s
+}
+
 export function getEmailConfigSummary() {
   const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim()
   const port = Number(process.env.SMTP_PORT || 587)
   const user = smtpUser()
+  const pass = smtpPass()
+  const fromRaw = (process.env.SMTP_FROM || user || '').trim()
+  const fromEmail = extractEmailAddress(fromRaw)
   return {
-    configured: Boolean(user && smtpPass()),
+    configured: Boolean(user && pass),
     smtpHost: host,
     smtpPort: port,
     smtpUser: user ? maskEmail(user) : null,
-    smtpFrom: (process.env.SMTP_FROM || user || '').trim()
-      ? maskEmail((process.env.SMTP_FROM || user).trim())
-      : null,
+    smtpUserLooksValid: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user),
+    smtpPassLength: pass ? pass.length : 0,
+    smtpPassLooksLikeAppPassword: pass.length === 16,
+    smtpFrom: fromEmail ? maskEmail(fromEmail) : null,
+    smtpFromLooksValid: fromEmail ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromEmail) : false,
+    smtpFromHasDisplayName: fromRaw.includes('<') || fromRaw.includes('>'),
   }
 }
 
@@ -112,7 +125,7 @@ export async function sendEmail({ to, subject, text, html }) {
     throw new Error(formatEmailError(new Error('not configured')))
   }
 
-  const from = (process.env.SMTP_FROM || smtpUser()).trim()
+  const from = extractEmailAddress(process.env.SMTP_FROM || smtpUser())
 
   try {
     await transport.sendMail({
