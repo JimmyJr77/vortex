@@ -10,6 +10,12 @@ export function isValidDateInputValue(value: string | null | undefined): value i
   return Boolean(value && DATE_INPUT_RE.test(value))
 }
 
+/** Safe value for `<input type="date">` — never returns NaN or other invalid strings. */
+export function dateInputValue(date: string | null | undefined): string {
+  const formatted = formatDateForInput(date)
+  return isValidDateInputValue(formatted) ? formatted : ''
+}
+
 function toLocalDateParts(date: Date): { year: number; month: number; day: number } | null {
   if (Number.isNaN(date.getTime())) return null
   const year = date.getFullYear()

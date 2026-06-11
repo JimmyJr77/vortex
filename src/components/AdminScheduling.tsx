@@ -17,7 +17,7 @@ import {
   type SchedulingSignup,
 } from '../utils/schedulingApi'
 import { mergeSignupFieldsForSave } from '../config/schedulingSignupFields'
-import { formatDateForInput } from '../utils/dateUtils'
+import { dateInputValue } from '../utils/dateUtils'
 
 type Panel = 'settings' | 'categories' | 'slots' | 'signups'
 
@@ -62,11 +62,13 @@ const AdminScheduling = () => {
   const loadDetail = useCallback(async (id: number) => {
     const data = await adminFetchSchedulingForm(id)
     setDetail(data)
+    const startDate = dateInputValue(data.startDate) || null
+    const endDate = dateInputValue(data.endDate) || null
     setFormDraft({
       title: data.title,
       description: data.description,
-      startDate: formatDateForInput(data.startDate) || null,
-      endDate: formatDateForInput(data.endDate) || null,
+      startDate,
+      endDate,
       isActive: data.isActive,
     })
     setSignupFieldsDraft(data.signupFields)
@@ -131,13 +133,24 @@ const AdminScheduling = () => {
     setSaving(true)
     setError(null)
     setSettingsSaved(false)
+    const startDate = dateInputValue(formDraft.startDate) || null
+    const endDate = dateInputValue(formDraft.endDate) || null
+    const formPayload = { ...formDraft, startDate, endDate }
     try {
       const mergedFields = mergeSignupFieldsForSave(signupFieldsDraft, mandateWaiverDraft)
       await Promise.all([
-        adminSaveSchedulingForm(formDraft, selectedId),
+        adminSaveSchedulingForm(formPayload, selectedId),
         adminUpdateSignupFields(selectedId, mergedFields, mandateWaiverDraft),
       ])
-      await refresh()
+      // Keep the dates the user saved — production API may still return legacy strings.
+      setFormDraft((d) => ({ ...d, ...formPayload }))
+      setDetail((prev) => (prev ? { ...prev, startDate, endDate } : prev))
+      await loadSignups(selectedId)
+      await loadForms()
+      const data = await adminFetchSchedulingForm(selectedId)
+      setDetail({ ...data, startDate, endDate })
+      setSignupFieldsDraft(data.signupFields)
+      setMandateWaiverDraft(data.mandateWaiver ?? false)
       setSettingsSaved(true)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save')
@@ -276,7 +289,7 @@ const AdminScheduling = () => {
                         <label className="block text-sm font-semibold mb-1">Start date</label>
                         <input
                           type="date"
-                          value={formatDateForInput(formDraft.startDate)}
+                          value={dateInputValue(formDraft.startDate)}
                           onChange={(e) => {
                             setFormDraft((d) => ({ ...d, startDate: e.target.value || null }))
                             setSettingsSaved(false)
@@ -288,7 +301,7 @@ const AdminScheduling = () => {
                         <label className="block text-sm font-semibold mb-1">End date</label>
                         <input
                           type="date"
-                          value={formatDateForInput(formDraft.endDate)}
+                          value={dateInputValue(formDraft.endDate)}
                           onChange={(e) => {
                             setFormDraft((d) => ({ ...d, endDate: e.target.value || null }))
                             setSettingsSaved(false)

@@ -1,9 +1,8 @@
 import { adminApiRequest, getApiUrl } from './api'
-import { formatDateForInput } from './dateUtils'
+import { dateInputValue } from './dateUtils'
 
 function normalizeSchedulingDate(value: string | null | undefined): string | null {
-  if (!value) return null
-  const iso = formatDateForInput(value)
+  const iso = dateInputValue(value)
   return iso || null
 }
 
