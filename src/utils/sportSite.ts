@@ -1,5 +1,6 @@
 import type { StubSiteConfig } from '../config/stubSites'
 import { HUB_URL, STUB_SITES } from '../config/stubSites'
+import { appendCrossDomainConsentId } from './crossDomainConsent'
 
 const isLocalDevHost = (): boolean => {
   if (typeof window === 'undefined') return false
@@ -23,7 +24,8 @@ export function getStubSportSiteUrl(sportKey: string, path = '/'): string {
   }
 
   const base = `https://${entry.canonicalHost}`
-  return normalized === '/' ? `${base}/` : `${base}${normalized}`
+  const url = normalized === '/' ? `${base}/` : `${base}${normalized}`
+  return appendCrossDomainConsentId(url)
 }
 
 export const getSportBrandName = (sportLabel: string): string =>

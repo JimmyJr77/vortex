@@ -39,6 +39,14 @@ const consentSchema = Joi.object({
   policyVersion: Joi.string().max(20).optional(),
 })
 
+const consentSyncSchema = Joi.object({
+  consentId: Joi.string().max(64).required(),
+  analytics: Joi.boolean().required(),
+  marketing: Joi.boolean().required(),
+  policyVersion: Joi.string().max(20).optional(),
+  updatedAt: Joi.string().isoDate().required(),
+})
+
 export function createPublicAnalyticsHandlers(pool) {
   const ingestEvents = async (req, res) => {
     try {
@@ -140,5 +148,81 @@ export function createPublicAnalyticsHandlers(pool) {
     }
   }
 
-  return { ingestEvents, recordConsent }
+  const getConsentSync = async (req, res) => {
+    try {
+      const consentId = (req.params.consentId || '').slice(0, 64)
+      if (!consentId) {
+        return res.status(400).json({ success: false, message: 'consentId required' })
+      }
+
+      const { rows } = await pool.query(
+        `SELECT analytics, marketing, policy_version, updated_at
+         FROM consent_sync
+         WHERE consent_id = $1`,
+        [consentId],
+      )
+
+      if (!rows.length) {
+        return res.json({ success: true, consent: null })
+      }
+
+      const row = rows[0]
+      res.json({
+        success: true,
+        consent: {
+          necessary: true,
+          analytics: !!row.analytics,
+          marketing: !!row.marketing,
+          policyVersion: row.policy_version,
+          updatedAt: new Date(row.updated_at).toISOString(),
+        },
+      })
+    } catch (err) {
+      console.error('[consent/sync GET]', err)
+      res.status(500).json({ success: false, message: 'Internal server error' })
+    }
+  }
+
+  const putConsentSync = async (req, res) => {
+    try {
+      const { error, value } = consentSyncSchema.validate(req.body)
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          message: error.details.map((d) => d.message).join('; '),
+        })
+      }
+
+      const updatedAt = new Date(value.updatedAt)
+      if (Number.isNaN(updatedAt.getTime())) {
+        return res.status(400).json({ success: false, message: 'Invalid updatedAt' })
+      }
+
+      await pool.query(
+        `INSERT INTO consent_sync (
+          consent_id, analytics, marketing, policy_version, updated_at
+        ) VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (consent_id) DO UPDATE SET
+          analytics = EXCLUDED.analytics,
+          marketing = EXCLUDED.marketing,
+          policy_version = EXCLUDED.policy_version,
+          updated_at = EXCLUDED.updated_at
+        WHERE consent_sync.updated_at < EXCLUDED.updated_at`,
+        [
+          value.consentId,
+          value.analytics,
+          value.marketing,
+          value.policyVersion || ANALYTICS_POLICY_VERSION,
+          updatedAt,
+        ],
+      )
+
+      res.json({ success: true })
+    } catch (err) {
+      console.error('[consent/sync PUT]', err)
+      res.status(500).json({ success: false, message: 'Internal server error' })
+    }
+  }
+
+  return { ingestEvents, recordConsent, getConsentSync, putConsentSync }
 }

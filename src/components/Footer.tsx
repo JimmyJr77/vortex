@@ -2,6 +2,8 @@ import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
 import { TEAM_EMAIL } from '../config/contact'
 import { trackEvent } from '../utils/analyticsClient'
+import { getHubSiteUrl } from '../utils/crossDomainConsent'
+import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 import {
   NINJA_HOLD_TITLE,
   NINJA_PROGRAM_ON_HOLD,
@@ -22,19 +24,19 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
   // Absolute URLs so the shared footer links correctly from both the hub
   // (vortexathletics.com) and the gymnastics (vortex-gymnastics.com) apps.
   const quickLinks: { name: string; href: string; onHold?: boolean }[] = [
-    { name: 'Gymnastics', href: 'https://vortex-gymnastics.com/' },
+    { name: 'Gymnastics', href: getGymnasticsSiteUrl() },
     {
       name: 'Kids Ninja Classes',
-      href: 'https://www.vortexathletics.com/ninja',
+      href: getHubSiteUrl('/ninja'),
       onHold: NINJA_PROGRAM_ON_HOLD,
     },
     {
       name: 'Athleticism Accelerator',
-      href: 'https://www.vortexathletics.com/athleticism-accelerator',
+      href: getHubSiteUrl('/athleticism-accelerator'),
     },
-    { name: 'Fit & Flip', href: 'https://www.vortexathletics.com/strength-conditioning' },
-    { name: 'Classes & Events', href: 'https://www.vortexathletics.com/read-board' },
-    { name: 'FAQ', href: 'https://www.vortexathletics.com/#faq' },
+    { name: 'Fit & Flip', href: getHubSiteUrl('/strength-conditioning') },
+    { name: 'Classes & Events', href: getHubSiteUrl('/read-board') },
+    { name: 'FAQ', href: getHubSiteUrl('/#faq') },
   ]
 
   const socialLinks = [

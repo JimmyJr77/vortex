@@ -6,7 +6,8 @@ import ContactForm from '../ContactForm'
 import Login from '../Login'
 import MemberLogin from '../MemberLogin'
 import StubHeader from './StubHeader'
-import { getStubSeo, HUB_URL, type StubSiteConfig } from '../../config/stubSites'
+import { getStubSeo, type StubSiteConfig } from '../../config/stubSites'
+import { getHubSiteUrl } from '../../utils/crossDomainConsent'
 import { trackPageView } from '../../utils/analytics'
 import { setSportSiteContext } from '../../utils/sportSite'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
@@ -186,7 +187,7 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
                 </button>
               )}
               <a
-                href={HUB_URL}
+                href={getHubSiteUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-vortex-red text-white px-8 py-4 rounded-lg font-semibold text-base md:text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg inline-block"
@@ -249,7 +250,7 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
             events, and the full story behind how we develop athletes.
           </p>
           <a
-            href={HUB_URL}
+            href={getHubSiteUrl()}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-8 inline-block bg-vortex-red text-white px-8 py-4 rounded-lg font-semibold text-base md:text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg"
@@ -267,7 +268,7 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
             &copy; {new Date().getFullYear()} Vortex Athletics. All rights reserved.
           </p>
           <a
-            href={HUB_URL}
+            href={getHubSiteUrl()}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm hover:text-vortex-red transition-colors duration-300"

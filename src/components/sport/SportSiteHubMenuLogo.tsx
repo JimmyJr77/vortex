@@ -1,6 +1,6 @@
 import { NAV_MENU_DIVIDER_CLASS } from '../NavMenuDivider'
+import { getHubSiteUrl } from '../../utils/crossDomainConsent'
 import { HUB_HEADER_LOGO } from '../../utils/seo'
-import { HUB_URL } from '../../utils/sportSite'
 
 interface SportSiteHubMenuLogoProps {
   onNavigate?: () => void
@@ -14,7 +14,7 @@ const SportSiteHubMenuLogo = ({
 }: SportSiteHubMenuLogoProps) => (
   <div className={`flex justify-end pt-4 mt-2 ${NAV_MENU_DIVIDER_CLASS} ${className}`}>
     <a
-      href={HUB_URL}
+      href={getHubSiteUrl()}
       target="_blank"
       rel="noopener noreferrer"
       onClick={onNavigate}

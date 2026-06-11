@@ -288,14 +288,14 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
       <div className={`${sectionClass} text-center`}>
         <CheckCircle className={`w-12 h-12 mx-auto mb-4 ${isWaitlisted ? 'text-amber-600' : 'text-green-600'}`} />
         <h4 className="text-xl font-display font-bold text-black mb-2">
-          {isWaitlisted ? 'You&apos;re on the waitlist!' : 'You&apos;re signed up!'}
+          {isWaitlisted ? "You're on the waitlist!" : "You're signed up!"}
         </h4>
         {positionText && (
           <p className="text-lg font-semibold text-black mb-2">{positionText}</p>
         )}
         <p className="text-gray-600 text-sm">
           {isWaitlisted
-            ? 'We&apos;ll email you if a spot opens up. Check your inbox for details.'
+            ? "We'll email you if a spot opens up. Check your inbox for details."
             : 'Check your email for confirmation with your event details.'}
         </p>
         {mandateWaiver && (

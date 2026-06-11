@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { hasConsentChoice, saveConsent } from '../utils/consent'
+import { initCrossDomainConsent, saveConsent, shouldShowCookieConsent } from '../utils/consent'
 
 const CookieConsent = () => {
   const [visible, setVisible] = useState(false)
@@ -8,7 +8,13 @@ const CookieConsent = () => {
   const [marketing, setMarketing] = useState(false)
 
   useEffect(() => {
-    setVisible(!hasConsentChoice())
+    let active = true
+    initCrossDomainConsent().then(() => {
+      if (active) setVisible(shouldShowCookieConsent())
+    })
+    return () => {
+      active = false
+    }
   }, [])
 
   const acceptAll = async () => {

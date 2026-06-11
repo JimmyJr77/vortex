@@ -16,6 +16,8 @@ export function registerAnalyticsRoutes(app, pool) {
 
   app.post('/api/analytics/event', eventLimiter, publicHandlers.ingestEvents)
   app.post('/api/consent', eventLimiter, publicHandlers.recordConsent)
+  app.get('/api/consent/sync/:consentId', eventLimiter, publicHandlers.getConsentSync)
+  app.put('/api/consent/sync', eventLimiter, publicHandlers.putConsentSync)
 
   app.get('/api/admin/analytics/overview', admin.getOverview)
   app.get('/api/admin/analytics/traffic', admin.getTraffic)

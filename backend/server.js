@@ -42,7 +42,7 @@ if (fs.existsSync(envLocalPath)) {
 const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'scheduling-v2-2026-06-08'
+const API_BUILD_ID = 'admin-data-tools-2026-06-10'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -1201,9 +1201,6 @@ export const initDatabase = async () => {
     
     console.log('✅ Module 2 (Unified Member Table) initialized')
 
-    // Schools, notes, saved queries (+ idempotent backfills)
-    await initDbFeatureTables(pool)
-
     console.log('✅ Database tables initialized successfully')
   } catch (error) {
     console.error('❌ Database initialization error:', error)
@@ -2276,6 +2273,9 @@ app.get('/api/health', (req, res) => {
       publicHighlights: hasRegisteredRoute('/api/highlights'),
       scheduling: hasRegisteredRoute('/api/admin/scheduling/forms'),
       publicScheduling: hasRegisteredRoute('/api/scheduling/forms'),
+      dbQueries: hasRegisteredRoute('/api/admin/db-queries/entities'),
+      schools: hasRegisteredRoute('/api/admin/schools'),
+      notes: hasRegisteredRoute('/api/admin/notes'),
     },
   })
 })
@@ -12644,6 +12644,13 @@ const startServer = async () => {
   console.log(`[Server ${workerId}] Starting server initialization on worker ${workerId}...`)
   try {
     await initDatabase()
+    // Run after initDatabase so schools/notes/saved_query tables are created even when
+    // a late step in initDatabase fails (that function swallows errors and keeps going).
+    try {
+      await initDbFeatureTables(pool)
+    } catch (featureInitError) {
+      console.error(`[Server ${workerId}] DB feature tables init failed:`, featureInitError)
+    }
     console.log(`[Server ${workerId}] Database initialization complete`)
     
     // Log registered routes for debugging

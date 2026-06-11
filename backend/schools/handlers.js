@@ -83,7 +83,7 @@ export function createSchoolsHandlers(pool) {
           `
           INSERT INTO school (facility_id, name, level, location, is_verified, is_active)
           VALUES ($1, $2, $3, $4, TRUE, $5)
-          ON CONFLICT (facility_id, lower(name)) DO UPDATE
+          ON CONFLICT (facility_id, (lower(name))) DO UPDATE
             SET level = EXCLUDED.level, location = EXCLUDED.location, is_active = EXCLUDED.is_active
           RETURNING *
           `,
@@ -294,7 +294,7 @@ export async function setMemberSchools(pool, memberId, schoolIds = [], writeIn =
       `
       INSERT INTO school (facility_id, name, level, is_verified, is_active)
       VALUES ($1, $2, 'other', FALSE, TRUE)
-      ON CONFLICT (facility_id, lower(name)) DO NOTHING
+      ON CONFLICT (facility_id, (lower(name))) DO NOTHING
       RETURNING id
       `,
       [facilityId, name],

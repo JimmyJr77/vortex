@@ -13,6 +13,7 @@ import AdminHighlights from './AdminHighlights'
 import AdminScheduling from './AdminScheduling'
 import AdminDbQueries from './AdminDbQueries'
 import AdminSchools from './AdminSchools'
+import HorizontalScrollContainer from './HorizontalScrollContainer'
 
 interface AdminProps {
   onLogout: () => void
@@ -158,11 +159,14 @@ export default function Admin({ onLogout }: AdminProps) {
           </div>
 
           {/* Tabs */}
-          <div className="flex justify-center border-t border-gray-700">
-            <div className="flex space-x-1">
+          <HorizontalScrollContainer
+            className="border-t border-gray-700"
+            fadeFromClassName="from-gray-900"
+          >
+            <div className="flex w-max mx-auto space-x-1">
               <button
                 onClick={() => setActiveTab('admins')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'admins'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -179,7 +183,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('membership')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'membership'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -196,7 +200,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('users')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'users'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -213,7 +217,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('dbQueries')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'dbQueries'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -230,7 +234,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('schools')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'schools'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -247,7 +251,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('classes')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'classes'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -264,7 +268,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('enrollments')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'enrollments'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -281,7 +285,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('highlights')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'highlights'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -298,7 +302,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('events')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'events'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -315,7 +319,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('scheduling')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'scheduling'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -332,7 +336,7 @@ export default function Admin({ onLogout }: AdminProps) {
               </button>
               <button
                 onClick={() => setActiveTab('analytics')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'analytics'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
@@ -348,7 +352,7 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
             </div>
-          </div>
+          </HorizontalScrollContainer>
         </div>
       </div>
 

@@ -16,15 +16,22 @@ import {
 } from './utils/googleAnalytics.ts'
 import { captureUtmFromLocation } from './utils/utmCapture.ts'
 import { updateGoogleConsent } from './utils/googleAnalytics.ts'
-import { getStoredConsent } from './utils/consent.ts'
+import { captureConsentIdFromUrl } from './utils/crossDomainConsent.ts'
+import { getStoredConsent, initCrossDomainConsent } from './utils/consent.ts'
 
 initGoogleAnalyticsConsent()
 initGoogleAnalyticsLinker()
 captureUtmFromLocation()
+captureConsentIdFromUrl()
 const storedConsent = getStoredConsent()
 if (storedConsent) {
   updateGoogleConsent(storedConsent.analytics, storedConsent.marketing)
 }
+void initCrossDomainConsent().then((merged) => {
+  if (merged) {
+    updateGoogleConsent(merged.analytics, merged.marketing)
+  }
+})
 
 // Inject CDN preconnect link for performance
 const cdnBaseUrl = import.meta.env.VITE_CDN_BASE_URL

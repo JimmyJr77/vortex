@@ -92,6 +92,17 @@ export async function initAnalyticsTables(pool) {
   `)
 
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS consent_sync (
+      consent_id VARCHAR(64) PRIMARY KEY,
+      analytics BOOLEAN NOT NULL DEFAULT FALSE,
+      marketing BOOLEAN NOT NULL DEFAULT FALSE,
+      policy_version VARCHAR(20) NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `)
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS utm_attribution (
       id BIGSERIAL PRIMARY KEY,
       visitor_id VARCHAR(64),

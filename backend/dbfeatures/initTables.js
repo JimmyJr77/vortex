@@ -80,21 +80,37 @@ export async function initDbFeatureTables(pool) {
     const facilityRes = await pool.query('SELECT id FROM facility ORDER BY id LIMIT 1')
     const facilityId = facilityRes.rows[0]?.id ?? null
 
-    for (const [name, level, location] of SEED_SCHOOLS) {
-      await pool.query(
-        `
-        INSERT INTO school (facility_id, name, level, location, is_verified, is_active)
-        VALUES ($1, $2, $3, $4, TRUE, TRUE)
-        ON CONFLICT (facility_id, lower(name)) DO NOTHING
-        `,
-        [facilityId, name, level, location],
-      )
+    try {
+      for (const [name, level, location] of SEED_SCHOOLS) {
+        await pool.query(
+          `
+          INSERT INTO school (facility_id, name, level, location, is_verified, is_active)
+          VALUES ($1, $2, $3, $4, TRUE, TRUE)
+          ON CONFLICT (facility_id, (lower(name))) DO NOTHING
+          `,
+          [facilityId, name, level, location],
+        )
+      }
+    } catch (seedError) {
+      console.warn('[initDbFeatureTables] School seed skipped:', seedError.message)
     }
 
     // ── Backfills (idempotent) ──────────────────────────────────────────────
-    await backfillRegistrationMembers(pool)
-    await backfillNotesFromRegistrations(pool)
-    await backfillMemberSchoolsFromSignups(pool, facilityId)
+    try {
+      await backfillRegistrationMembers(pool)
+    } catch (err) {
+      console.warn('[initDbFeatureTables] Registration member backfill skipped:', err.message)
+    }
+    try {
+      await backfillNotesFromRegistrations(pool)
+    } catch (err) {
+      console.warn('[initDbFeatureTables] Notes backfill skipped:', err.message)
+    }
+    try {
+      await backfillMemberSchoolsFromSignups(pool, facilityId)
+    } catch (err) {
+      console.warn('[initDbFeatureTables] Member-school backfill skipped:', err.message)
+    }
 
     console.log('✅ DB feature tables (schools, notes, saved queries) initialized')
   } catch (error) {
@@ -186,7 +202,7 @@ async function backfillMemberSchoolsFromSignups(pool, facilityId) {
         `
         INSERT INTO school (facility_id, name, level, is_verified, is_active)
         VALUES ($1, $2, 'other', FALSE, TRUE)
-        ON CONFLICT (facility_id, lower(name)) DO NOTHING
+        ON CONFLICT (facility_id, (lower(name))) DO NOTHING
         RETURNING id
         `,
         [facilityId, schoolName],
