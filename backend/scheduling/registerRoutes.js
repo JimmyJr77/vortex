@@ -25,6 +25,7 @@ export function registerSchedulingRoutes(app, pool) {
 
   app.get('/api/admin/scheduling/categories', h.listCategories)
   app.post('/api/admin/scheduling/categories', h.createCategory)
+  app.put('/api/admin/scheduling/categories/:id', h.updateCategory)
   app.delete('/api/admin/scheduling/categories/:id', h.deleteCategory)
 
   app.post('/api/admin/scheduling/forms/:formId/slot-batches', h.createSlotBatch)

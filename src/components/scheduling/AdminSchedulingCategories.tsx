@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Pencil, Trash2, X } from 'lucide-react'
 import {
   adminCreateCategory,
   adminDeleteCategory,
   adminFetchAllCategories,
+  adminUpdateCategory,
   type SchedulingCategory,
 } from '../../utils/schedulingApi'
 
@@ -14,6 +15,8 @@ interface Props {
 const AdminSchedulingCategories = ({ onRefresh }: Props) => {
   const [categories, setCategories] = useState<SchedulingCategory[]>([])
   const [name, setName] = useState('')
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editName, setEditName] = useState('')
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -40,10 +43,34 @@ const AdminSchedulingCategories = ({ onRefresh }: Props) => {
     }
   }
 
+  const startEdit = (cat: SchedulingCategory) => {
+    setEditingId(cat.id)
+    setEditName(cat.name)
+  }
+
+  const cancelEdit = () => {
+    setEditingId(null)
+    setEditName('')
+  }
+
+  const handleSaveEdit = async () => {
+    if (editingId == null || !editName.trim()) return
+    setSaving(true)
+    try {
+      await adminUpdateCategory(editingId, editName.trim())
+      cancelEdit()
+      await loadCategories()
+      await onRefresh()
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const handleDelete = async (cat: SchedulingCategory) => {
     if (!confirm(`Delete "${cat.name}" globally? This removes it from all forms and deletes associated slots.`)) {
       return
     }
+    if (editingId === cat.id) cancelEdit()
     await adminDeleteCategory(cat.id)
     await loadCategories()
     await onRefresh()
@@ -80,16 +107,61 @@ const AdminSchedulingCategories = ({ onRefresh }: Props) => {
       ) : (
         <ul className="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden">
           {categories.map((cat) => (
-            <li key={cat.id} className="flex items-center justify-between px-4 py-3 bg-white">
-              <span className="font-semibold text-black">{cat.name}</span>
-              <button
-                type="button"
-                onClick={() => handleDelete(cat)}
-                className="text-red-600 hover:text-red-800 p-1"
-                aria-label={`Delete ${cat.name}`}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+            <li key={cat.id} className="flex items-center justify-between gap-3 px-4 py-3 bg-white">
+              {editingId === cat.id ? (
+                <>
+                  <input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveEdit()
+                      if (e.key === 'Escape') cancelEdit()
+                    }}
+                    autoFocus
+                    className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-black font-semibold"
+                  />
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleSaveEdit}
+                      disabled={saving || !editName.trim()}
+                      className="text-green-700 hover:text-green-900 px-2 py-1 text-sm font-semibold disabled:opacity-50"
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      className="text-gray-500 hover:text-gray-700 p-1"
+                      aria-label="Cancel edit"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold text-black">{cat.name}</span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => startEdit(cat)}
+                      className="text-gray-600 hover:text-black p-1"
+                      aria-label={`Edit ${cat.name}`}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(cat)}
+                      className="text-red-600 hover:text-red-800 p-1"
+                      aria-label={`Delete ${cat.name}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </>
+              )}
             </li>
           ))}
         </ul>

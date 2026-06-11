@@ -267,6 +267,14 @@ export async function adminCreateCategory(name: string): Promise<SchedulingCateg
   return parseJson(res)
 }
 
+export async function adminUpdateCategory(id: number, name: string): Promise<SchedulingCategory> {
+  const res = await adminApiRequest(`/api/admin/scheduling/categories/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ name }),
+  })
+  return parseJson(res)
+}
+
 export async function adminDeleteCategory(id: number): Promise<void> {
   await adminApiRequest(`/api/admin/scheduling/categories/${id}`, { method: 'DELETE' })
 }

@@ -998,6 +998,39 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async updateCategory(req, res) {
+      try {
+        const { error, value } = categorySchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const result = await pool.query(
+          `
+          UPDATE scheduling_category
+          SET name = $1,
+              sort_order = COALESCE($2, sort_order),
+              is_active = COALESCE($3, is_active),
+              updated_at = now()
+          WHERE id = $4
+          RETURNING *
+          `,
+          [
+            value.name,
+            value.sortOrder ?? null,
+            value.isActive,
+            req.params.id,
+          ],
+        )
+        if (result.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Category not found' })
+        }
+        res.json({ success: true, data: mapCategoryRow(result.rows[0]) })
+      } catch (err) {
+        console.error('[scheduling] updateCategory:', err)
+        res.status(500).json({ success: false, message: 'Failed to update category' })
+      }
+    },
+
     async deleteCategory(req, res) {
       try {
         await pool.query('DELETE FROM scheduling_category WHERE id = $1', [req.params.id])
