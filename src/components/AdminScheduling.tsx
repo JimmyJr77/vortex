@@ -65,8 +65,8 @@ const AdminScheduling = () => {
     setFormDraft({
       title: data.title,
       description: data.description,
-      startDate: data.startDate,
-      endDate: data.endDate,
+      startDate: formatDateForInput(data.startDate) || null,
+      endDate: formatDateForInput(data.endDate) || null,
       isActive: data.isActive,
     })
     setSignupFieldsDraft(data.signupFields)
@@ -91,9 +91,17 @@ const AdminScheduling = () => {
   useEffect(() => {
     if (!selectedId) return
     setLoading(true)
-    Promise.all([loadDetail(selectedId), loadSignups(selectedId)])
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
+    setError(null)
+    Promise.allSettled([loadDetail(selectedId), loadSignups(selectedId)]).then((results) => {
+      const failures = results
+        .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+        .map((r) => (r.reason instanceof Error ? r.reason.message : 'Failed to load scheduling data'))
+      if (failures.length === results.length) {
+        setError(failures[0])
+      } else if (failures.length > 0) {
+        setError(failures.join(' · '))
+      }
+    }).finally(() => setLoading(false))
   }, [selectedId, loadDetail, loadSignups])
 
   const refresh = async () => {
@@ -358,57 +366,69 @@ const AdminScheduling = () => {
                   {signups.length === 0 ? (
                     <p className="text-gray-600 flex items-center gap-2"><Calendar className="w-4 h-4" /> No signups yet.</p>
                   ) : (
-                    <table className="w-full text-sm">
+                    <table className="w-max text-sm table-auto border-collapse">
                       <thead>
-                        <tr className="border-b border-gray-200 text-left text-gray-600">
-                          <th className="py-2 pr-4">Name</th>
-                          <th className="py-2 pr-4">Email</th>
-                          <th className="py-2 pr-4">Category</th>
-                          <th className="py-2 pr-4">Slot</th>
-                          <th className="py-2 pr-4">Status</th>
-                          <th className="py-2 pr-4">Position</th>
-                          <th className="py-2 pr-4">Confirm email</th>
-                          <th className="py-2 pr-4">Waiver email</th>
-                          <th className="py-2">Actions</th>
+                        <tr className="border-b border-gray-200 text-left text-gray-600 align-top">
+                          <th className="py-2 pr-4 align-top whitespace-nowrap">Name</th>
+                          <th className="py-2 pr-4 align-top whitespace-nowrap">Email</th>
+                          <th className="py-2 pr-4 align-top whitespace-nowrap">Category</th>
+                          <th className="py-2 pr-4 align-top">Slot</th>
+                          <th className="py-2 pr-4 align-top whitespace-nowrap">Status</th>
+                          <th className="py-2 pr-4 align-top whitespace-nowrap">Position</th>
+                          <th className="py-2 pr-4 align-top whitespace-nowrap">Confirm email</th>
+                          <th className="py-2 pr-4 align-top whitespace-nowrap">Waiver email</th>
+                          <th className="py-2 align-top whitespace-nowrap">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {signups.map((s) => (
-                          <tr key={s.id} className="border-b border-gray-100">
-                            <td className="py-3 pr-4">
+                        {signups.map((s) => {
+                          const slotLines = (s.slotLabel || '—')
+                            .split(';')
+                            .map((line) => line.trim())
+                            .filter(Boolean)
+
+                          return (
+                          <tr key={s.id} className="border-b border-gray-100 align-top">
+                            <td className="py-3 pr-4 align-top whitespace-nowrap">
                               {s.firstName || String(s.responses.first_name || '')}{' '}
                               {s.lastName || String(s.responses.last_name || '')}
                             </td>
-                            <td className="py-3 pr-4">{s.email || String(s.responses.email || '')}</td>
-                            <td className="py-3 pr-4">{s.categoryName}</td>
-                            <td className="py-3 pr-4">
-                              <span className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {s.slotLabel || '—'}
-                              </span>
+                            <td className="py-3 pr-4 align-top whitespace-nowrap">{s.email || String(s.responses.email || '')}</td>
+                            <td className="py-3 pr-4 align-top whitespace-nowrap">{s.categoryName}</td>
+                            <td className="py-3 pr-4 align-top">
+                              <div className="flex items-start gap-1">
+                                <Clock className="w-3 h-3 mt-0.5 shrink-0" />
+                                <div className="flex flex-col gap-0.5">
+                                  {slotLines.map((line, lineIndex) => (
+                                    <span key={lineIndex} className="whitespace-nowrap">
+                                      {line}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
                             </td>
-                            <td className="py-3 pr-4 capitalize">
+                            <td className="py-3 pr-4 align-top whitespace-nowrap capitalize">
                               {s.status === 'waitlisted' ? (
                                 <span className="text-amber-700">Waitlisted</span>
                               ) : (
                                 s.status
                               )}
                             </td>
-                            <td className="py-3 pr-4 text-xs text-gray-700">
+                            <td className="py-3 pr-4 align-top whitespace-nowrap text-xs text-gray-700">
                               {s.status === 'confirmed' && s.signupNumber != null && s.maxParticipants != null
                                 ? `#${s.signupNumber} of ${s.maxParticipants}`
                                 : s.status === 'waitlisted' && s.waitlistPosition != null
                                   ? `Waitlist #${s.waitlistPosition}`
                                   : '—'}
                             </td>
-                            <td className="py-3 pr-4 text-xs">
+                            <td className="py-3 pr-4 align-top whitespace-nowrap text-xs">
                               {s.confirmationEmailSentAt ? (
                                 <span className="text-green-700">Sent</span>
                               ) : (
                                 <span className="text-gray-400">—</span>
                               )}
                             </td>
-                            <td className="py-3 pr-4 text-xs">
+                            <td className="py-3 pr-4 align-top whitespace-nowrap text-xs">
                               {s.waiverEmailSentAt ? (
                                 <span className="text-green-700">Sent</span>
                               ) : detail?.mandateWaiver ? (
@@ -417,8 +437,8 @@ const AdminScheduling = () => {
                                 <span className="text-gray-300">N/A</span>
                               )}
                             </td>
-                            <td className="py-3">
-                              <div className="flex items-center gap-3">
+                            <td className="py-3 align-top whitespace-nowrap">
+                              <div className="flex items-start gap-3">
                                 {(s.status === 'confirmed' || s.status === 'waitlisted') && (
                                   <button
                                     type="button"
@@ -456,7 +476,8 @@ const AdminScheduling = () => {
                               </div>
                             </td>
                           </tr>
-                        ))}
+                          )
+                        })}
                       </tbody>
                     </table>
                   )}

@@ -7,8 +7,18 @@ function formatTime(t) {
 }
 
 function formatDateOnly(value) {
-  if (!value) return null
-  return String(value).slice(0, 10)
+  if (value == null || value === '') return null
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) return null
+    const y = value.getUTCFullYear()
+    const m = String(value.getUTCMonth() + 1).padStart(2, '0')
+    const d = String(value.getUTCDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+  const s = String(value).trim()
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
+  return null
 }
 
 function buildSlotDisplayLabel(row) {

@@ -28,8 +28,18 @@ function formatTime(t) {
 }
 
 function formatDateOnly(value) {
-  if (!value) return null
-  return String(value).slice(0, 10)
+  if (value == null || value === '') return null
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) return null
+    const y = value.getUTCFullYear()
+    const m = String(value.getUTCMonth() + 1).padStart(2, '0')
+    const d = String(value.getUTCDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+  const s = String(value).trim()
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
+  return null
 }
 
 async function isFormLinkedToActiveEvent(pool, formId) {
@@ -856,8 +866,8 @@ export function createSchedulingHandlers(pool) {
           [
             value.title,
             value.description || null,
-            value.startDate || null,
-            value.endDate || null,
+            formatDateOnly(value.startDate),
+            formatDateOnly(value.endDate),
             value.isActive !== false,
             JSON.stringify([...DEFAULT_SIGNUP_FIELDS]),
           ],
@@ -886,8 +896,8 @@ export function createSchedulingHandlers(pool) {
           [
             value.title,
             value.description || null,
-            value.startDate || null,
-            value.endDate || null,
+            formatDateOnly(value.startDate),
+            formatDateOnly(value.endDate),
             value.isActive,
             req.params.id,
           ],

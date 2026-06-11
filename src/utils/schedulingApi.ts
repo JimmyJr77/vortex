@@ -1,4 +1,11 @@
 import { adminApiRequest, getApiUrl } from './api'
+import { formatDateForInput } from './dateUtils'
+
+function normalizeSchedulingDate(value: string | null | undefined): string | null {
+  if (!value) return null
+  const iso = formatDateForInput(value)
+  return iso || null
+}
 
 export interface SchedulingCategory {
   id: number
@@ -219,8 +226,8 @@ export async function adminSaveSchedulingForm(
       body: JSON.stringify({
         title: payload.title,
         description: payload.description,
-        startDate: payload.startDate,
-        endDate: payload.endDate,
+        startDate: normalizeSchedulingDate(payload.startDate),
+        endDate: normalizeSchedulingDate(payload.endDate),
         isActive: payload.isActive,
       }),
     },

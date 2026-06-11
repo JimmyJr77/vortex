@@ -21,8 +21,8 @@ export function parseDateOnly(dateString: string | null | undefined): Date | nul
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return null
     
-    // If it's an ISO string with time, extract just the date part and parse as local
-    if (dateString.includes('T')) {
+    // ISO datetime only (not weekday strings like "Tue Sep 01")
+    if (/^\d{4}-\d{2}-\d{2}T/.test(dateString)) {
       const [year, month, day] = dateString.split('T')[0].split('-').map(Number)
       return new Date(year, month - 1, day)
     }
