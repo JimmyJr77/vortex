@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Edit2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
+import MemberSchoolsNotes from './MemberSchoolsNotes'
 import { formatDateForInput, formatDateForDisplay, formatTimestampDate, calculateAge, isAdult } from '../utils/dateUtils'
 
 // Member-related interfaces
@@ -3117,6 +3118,12 @@ export default function AdminMembers() {
                       </div>
                     )}
                   </div>
+
+                  {unifiedModalMode === 'edit' && editingUnifiedMemberId && (
+                    <div className="bg-white rounded-lg p-4">
+                      <MemberSchoolsNotes memberId={editingUnifiedMemberId} />
+                    </div>
+                  )}
 
                   <div className="flex gap-2">
                         <button

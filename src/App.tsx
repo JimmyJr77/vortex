@@ -16,6 +16,7 @@ import HighlightsModal from './components/HighlightsModal'
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
 const HomePage = lazy(() => import('./components/HomePage'))
 const AthleticismAccelerator = lazy(() => import('./components/AthleticismAccelerator'))
+const SummerAthleticTraining = lazy(() => import('./components/SummerAthleticTraining'))
 const StrengthFitness = lazy(() => import('./components/StrengthFitness'))
 const Ninja = lazy(() => import('./components/Ninja'))
 const Value = lazy(() => import('./components/Value'))
@@ -156,6 +157,10 @@ function App() {
           <Route 
             path="/athleticism-accelerator" 
             element={<AthleticismAccelerator onSignUpClick={handleContactClick} />} 
+          />
+          <Route
+            path="/summer-athletic-training"
+            element={<SummerAthleticTraining />}
           />
           <Route 
             path="/strength-conditioning" 

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import NavMenuDivider from '../NavMenuDivider'
 import SportSiteHubMenuLogo from './SportSiteHubMenuLogo'
 
 export interface SportSiteMenuLinksProps {
@@ -50,7 +51,7 @@ const SportSiteMenuLinks = ({
       {includeSportHome && (
         <>
           {homeLink}
-          <div className="border-t border-gray-700 my-4" />
+          <NavMenuDivider className="my-4" />
         </>
       )}
       <div className="space-y-3">

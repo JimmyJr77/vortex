@@ -15,6 +15,12 @@ import { registerAnalyticsRoutes } from './analytics/registerRoutes.js'
 import { initSchedulingTables } from './scheduling/initTables.js'
 import { registerSchedulingRoutes } from './scheduling/registerRoutes.js'
 import { applyRegistrationAttribution } from './analytics/adminHandlers.js'
+import { initDbFeatureTables } from './dbfeatures/initTables.js'
+import { registerSchoolsRoutes } from './schools/registerRoutes.js'
+import { registerNotesRoutes } from './notes/registerRoutes.js'
+import { registerDbQueryRoutes } from './dbQueries/registerRoutes.js'
+import { appendStaffNote } from './notes/handlers.js'
+import { setMemberSchools } from './schools/handlers.js'
 
 const { Pool } = pkg
 
@@ -889,7 +895,8 @@ export const initDatabase = async () => {
       CREATE TABLE IF NOT EXISTS member (
         id                  BIGSERIAL PRIMARY KEY,
         facility_id         BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
-        family_id           BIGINT REFERENCES family(id) ON DELETE SET NULL,
+        -- FK added after family table exists (see below)
+        family_id           BIGINT,
         
         -- Identity
         first_name          TEXT NOT NULL,
@@ -1008,6 +1015,24 @@ export const initDatabase = async () => {
         created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
         updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
       )
+    `)
+
+    // Add member -> family FK after both tables exist.
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint
+          WHERE conname = 'member_family_id_fkey'
+        ) THEN
+          ALTER TABLE member
+          ADD CONSTRAINT member_family_id_fkey
+          FOREIGN KEY (family_id)
+          REFERENCES family(id)
+          ON DELETE SET NULL;
+        END IF;
+      END $$;
     `)
     
     // Migrate existing data: Add new columns if they don't exist (must be before index creation)
@@ -1175,6 +1200,9 @@ export const initDatabase = async () => {
     // These will be dropped after migration is complete
     
     console.log('✅ Module 2 (Unified Member Table) initialized')
+
+    // Schools, notes, saved queries (+ idempotent backfills)
+    await initDbFeatureTables(pool)
 
     console.log('✅ Database tables initialized successfully')
   } catch (error) {
@@ -1570,7 +1598,9 @@ const memberUpdateSchema = Joi.object({
   billingStreet: Joi.string().max(200).optional().allow(null, ''),
   billingCity: Joi.string().max(100).optional().allow(null, ''),
   billingState: Joi.string().max(50).optional().allow(null, ''),
-  billingZip: Joi.string().max(20).optional().allow(null, '')
+  billingZip: Joi.string().max(20).optional().allow(null, ''),
+  schoolIds: Joi.array().items(Joi.number().integer()).optional().allow(null),
+  schoolWriteIn: Joi.string().max(200).optional().allow('', null)
 })
 
 // Keep athleteUpdateSchema for backward compatibility
@@ -2215,6 +2245,11 @@ app.use('/api/admin', async (req, res, next) => {
 registerAnalyticsRoutes(app, pool)
 registerSchedulingRoutes(app, pool)
 
+// Schools, notes, and DB query builder (admin)
+registerSchoolsRoutes(app, pool)
+registerNotesRoutes(app, pool)
+registerDbQueryRoutes(app, pool)
+
 // Routes
 
 const registeredRoutePaths = () => {
@@ -2827,6 +2862,19 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
       finalFollowUp,
       id,
     ])
+
+    // Append an immutable staff note to the dated log when admin_notes changes.
+    if (
+      admin_notes !== undefined &&
+      String(finalAdminNotes || '').trim() &&
+      String(finalAdminNotes || '').trim() !== String(existing.admin_notes || '').trim()
+    ) {
+      try {
+        await appendStaffNote(pool, req, 'registration', id, finalAdminNotes, 'inquiry_admin_notes')
+      } catch (noteErr) {
+        console.error('[notes] append staff note on registration PUT:', noteErr)
+      }
+    }
 
     res.json({
       success: true,
@@ -6733,6 +6781,16 @@ app.put('/api/admin/members/:id', async (req, res) => {
     await updateMemberAthleteStatus(parseInt(id))
     
     await client.query('COMMIT')
+
+    // School links (many-to-many) + optional "Other" write-in. Done post-commit so
+    // a link failure never rolls back the member update.
+    if (value.schoolIds !== undefined || value.schoolWriteIn) {
+      try {
+        await setMemberSchools(pool, parseInt(id), value.schoolIds || [], value.schoolWriteIn || null)
+      } catch (schoolErr) {
+        console.error('[PUT /api/admin/members] Error updating school links:', schoolErr.message)
+      }
+    }
     
     // Re-fetch member with updated status
     const updatedMemberResult = await pool.query(`

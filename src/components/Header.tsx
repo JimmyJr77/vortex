@@ -3,7 +3,13 @@ import { Menu, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useSiteHeaderHeight } from '../hooks/useSiteHeaderHeight'
 import { Link, useLocation } from 'react-router-dom'
-import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
+import { HUB_NAV_MENU_ENTRIES } from '../config/hubNavMenu'
+import NavMenuDivider, { NAV_MENU_DIVIDER_CLASS } from './NavMenuDivider'
+import {
+  NINJA_HOLD_TITLE,
+  ninjaOnHoldNavClass,
+} from '../utils/ninjaProgram'
+import { HUB_HEADER_LOGO } from '../utils/seo'
 
 interface HeaderProps {
   onContactClick: () => void
@@ -17,19 +23,6 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
   const headerRef = useRef<HTMLElement>(null)
   useSiteHeaderHeight(headerRef)
   const location = useLocation()
-
-  const menuItems: {
-    name: string
-    to?: string
-    href?: string
-    external?: boolean
-  }[] = [
-    { name: 'Home', to: '/' },
-    { name: 'Gymnastics', href: getGymnasticsSiteUrl(), external: true },
-    { name: 'Vortex Ninja', to: '/ninja' },
-    { name: 'Fit & Flip', to: '/strength-conditioning' },
-    { name: 'Athleticism Accelerator', to: '/athleticism-accelerator' },
-  ]
 
   const linkClass = (active: boolean) =>
     `block ${
@@ -52,9 +45,9 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                 whileHover={{ scale: 1.05 }}
               >
                 <img 
-                  src="/vortex_logo_1.png" 
+                  src={HUB_HEADER_LOGO} 
                   alt="Vortex Athletics" 
-                  className="h-12 md:h-16 w-auto"
+                  className="h-10 md:h-12 w-auto"
                 />
               </motion.div>
             </Link>
@@ -134,33 +127,54 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
           }}
           transition={{ duration: 0.3 }}
         >
-          <div className="py-4 space-y-4 border-t border-gray-800">
-            {menuItems.map((item) =>
-              item.external && item.href ? (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setIsMenuOpen(false)}
-                  className={linkClass(false)}
-                >
-                  {item.name}
-                </a>
-              ) : (
+          <div className={`py-4 space-y-4 ${NAV_MENU_DIVIDER_CLASS}`}>
+            {HUB_NAV_MENU_ENTRIES.map((entry, index) => {
+              if (entry.kind === 'divider') {
+                return <NavMenuDivider key={`divider-${index}`} />
+              }
+
+              if ('onHold' in entry && entry.onHold) {
+                return (
+                  <span
+                    key={entry.label}
+                    aria-disabled="true"
+                    title={NINJA_HOLD_TITLE}
+                    className={ninjaOnHoldNavClass}
+                  >
+                    {entry.label}
+                    <span className="sr-only"> (on hold)</span>
+                  </span>
+                )
+              }
+
+              if ('href' in entry) {
+                return (
+                  <a
+                    key={entry.label}
+                    href={entry.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setIsMenuOpen(false)}
+                    className={linkClass(false)}
+                  >
+                    {entry.label}
+                  </a>
+                )
+              }
+
+              return (
                 <Link
-                  key={item.name}
-                  to={item.to!}
+                  key={entry.label}
+                  to={entry.to}
                   onClick={() => setIsMenuOpen(false)}
-                  className={linkClass(location.pathname === item.to)}
+                  className={linkClass(location.pathname === entry.to)}
                 >
-                  {item.name}
+                  {entry.label}
                 </Link>
-              ),
-            )}
+              )
+            })}
             
-            {/* Divider Line */}
-            <div className="border-t border-gray-700 my-4"></div>
+            <NavMenuDivider className="my-4" />
             
             {/* Login Links */}
             <div className="space-y-3">

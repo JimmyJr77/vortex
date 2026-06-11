@@ -2,6 +2,11 @@ import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
 import { TEAM_EMAIL } from '../config/contact'
 import { trackEvent } from '../utils/analyticsClient'
+import {
+  NINJA_HOLD_TITLE,
+  NINJA_PROGRAM_ON_HOLD,
+  ninjaOnHoldFooterLinkClass,
+} from '../utils/ninjaProgram'
 
 interface FooterProps {
   onContactClick: () => void
@@ -16,9 +21,13 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
 
   // Absolute URLs so the shared footer links correctly from both the hub
   // (vortexathletics.com) and the gymnastics (vortex-gymnastics.com) apps.
-  const quickLinks = [
+  const quickLinks: { name: string; href: string; onHold?: boolean }[] = [
     { name: 'Gymnastics', href: 'https://vortex-gymnastics.com/' },
-    { name: 'Kids Ninja Classes', href: 'https://www.vortexathletics.com/ninja' },
+    {
+      name: 'Kids Ninja Classes',
+      href: 'https://www.vortexathletics.com/ninja',
+      onHold: NINJA_PROGRAM_ON_HOLD,
+    },
     {
       name: 'Athleticism Accelerator',
       href: 'https://www.vortexathletics.com/athleticism-accelerator',
@@ -112,12 +121,23 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
               >
                 {quickLinks.map((link) => (
                   <li key={link.name}>
-                    <a
-                      href={link.href}
-                      className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
-                    >
-                      {link.name}
-                    </a>
+                    {link.onHold ? (
+                      <span
+                        aria-disabled="true"
+                        title={NINJA_HOLD_TITLE}
+                        className={ninjaOnHoldFooterLinkClass}
+                      >
+                        {link.name}
+                        <span className="sr-only"> (on hold)</span>
+                      </span>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
+                      >
+                        {link.name}
+                      </a>
+                    )}
                   </li>
                 ))}
                 <li>

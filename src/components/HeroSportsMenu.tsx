@@ -1,27 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
-import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
-import { getStubSportSiteUrl } from '../utils/sportSite'
-
-type SportMenuItem =
-  | { label: string; to: string }
-  | { label: string; href: string; external: true }
-
-const SPORT_MENU_ITEMS: SportMenuItem[] = [
-  {
-    label: 'Gymnastics',
-    href: getGymnasticsSiteUrl(),
-    external: true,
-  },
-  { label: 'Vortex Ninja', to: '/ninja' },
-  {
-    label: 'Basketball',
-    href: getStubSportSiteUrl('basketball'),
-    external: true,
-  },
-]
+import { HUB_NAV_MENU_ENTRIES } from '../config/hubNavMenu'
+import NavMenuDivider from './NavMenuDivider'
+import {
+  NINJA_HOLD_TITLE,
+  ninjaOnHoldMenuItemClass,
+} from '../utils/ninjaProgram'
 
 interface HeroSportsMenuProps {
   fullWidth?: boolean
@@ -30,6 +16,7 @@ interface HeroSportsMenuProps {
 const HeroSportsMenu = ({ fullWidth = false }: HeroSportsMenuProps) => {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const location = useLocation()
 
   useEffect(() => {
     if (!open) return
@@ -49,6 +36,9 @@ const HeroSportsMenu = ({ fullWidth = false }: HeroSportsMenuProps) => {
   const menuItemClass =
     'block w-full px-4 py-3 text-left text-white font-medium hover:bg-vortex-red/20 hover:text-vortex-red transition-colors'
 
+  const activeMenuItemClass =
+    'block w-full px-4 py-3 text-left text-vortex-red font-medium bg-vortex-red/10'
+
   return (
     <div ref={rootRef} className={`relative ${fullWidth ? 'w-full max-w-xs' : ''}`}>
       <motion.button
@@ -62,7 +52,7 @@ const HeroSportsMenu = ({ fullWidth = false }: HeroSportsMenuProps) => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        Sports
+        Vortex Athletics
         <ChevronDown
           className={`w-5 h-5 shrink-0 transition-transform duration-200 ${
             open ? 'rotate-180' : ''
@@ -75,40 +65,64 @@ const HeroSportsMenu = ({ fullWidth = false }: HeroSportsMenuProps) => {
         {open && (
           <motion.div
             role="menu"
-            aria-label="Choose a sport"
+            aria-label="Vortex Athletics programs and sports"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
             className={`absolute z-50 mt-2 overflow-hidden rounded-lg border border-white/20 bg-black/95 shadow-xl ${
-              fullWidth ? 'left-0 right-0' : 'left-1/2 min-w-[12rem] -translate-x-1/2'
+              fullWidth ? 'left-0 right-0' : 'left-1/2 min-w-[16rem] -translate-x-1/2'
             }`}
           >
-            {SPORT_MENU_ITEMS.map((item) =>
-              'to' in item ? (
+            {HUB_NAV_MENU_ENTRIES.map((entry, index) => {
+              if (entry.kind === 'divider') {
+                return <NavMenuDivider key={`divider-${index}`} />
+              }
+
+              if ('onHold' in entry && entry.onHold) {
+                return (
+                  <span
+                    key={entry.label}
+                    role="menuitem"
+                    aria-disabled="true"
+                    title={NINJA_HOLD_TITLE}
+                    className={ninjaOnHoldMenuItemClass}
+                  >
+                    {entry.label}
+                    <span className="sr-only"> (on hold)</span>
+                  </span>
+                )
+              }
+
+              if ('href' in entry) {
+                return (
+                  <a
+                    key={entry.label}
+                    href={entry.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    role="menuitem"
+                    className={menuItemClass}
+                    onClick={() => setOpen(false)}
+                  >
+                    {entry.label}
+                  </a>
+                )
+              }
+
+              const isActive = location.pathname === entry.to
+              return (
                 <Link
-                  key={item.label}
-                  to={item.to}
+                  key={entry.label}
+                  to={entry.to}
                   role="menuitem"
-                  className={menuItemClass}
+                  className={isActive ? activeMenuItemClass : menuItemClass}
                   onClick={() => setOpen(false)}
                 >
-                  {item.label}
+                  {entry.label}
                 </Link>
-              ) : (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  role="menuitem"
-                  className={menuItemClass}
-                  onClick={() => setOpen(false)}
-                >
-                  {item.label}
-                </a>
-              ),
-            )}
+              )
+            })}
           </motion.div>
         )}
       </AnimatePresence>

@@ -1,3 +1,5 @@
+import { NAV_MENU_DIVIDER_CLASS } from '../NavMenuDivider'
+import { HUB_HEADER_LOGO } from '../../utils/seo'
 import { HUB_URL } from '../../utils/sportSite'
 
 interface SportSiteHubMenuLogoProps {
@@ -10,7 +12,7 @@ const SportSiteHubMenuLogo = ({
   onNavigate,
   className = '',
 }: SportSiteHubMenuLogoProps) => (
-  <div className={`flex justify-end pt-4 mt-2 border-t border-gray-800 ${className}`}>
+  <div className={`flex justify-end pt-4 mt-2 ${NAV_MENU_DIVIDER_CLASS} ${className}`}>
     <a
       href={HUB_URL}
       target="_blank"
@@ -20,9 +22,9 @@ const SportSiteHubMenuLogo = ({
       aria-label="Vortex Athletics — vortexathletics.com"
     >
       <img
-        src="/vortex_logo_1.png"
+        src={HUB_HEADER_LOGO}
         alt="Vortex Athletics"
-        className="h-10 w-auto"
+        className="h-8 w-auto"
       />
     </a>
   </div>

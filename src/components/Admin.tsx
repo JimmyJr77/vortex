@@ -11,6 +11,8 @@ import AdminAnalytics from './AdminAnalytics'
 import AdminEnrollments from './AdminEnrollments'
 import AdminHighlights from './AdminHighlights'
 import AdminScheduling from './AdminScheduling'
+import AdminDbQueries from './AdminDbQueries'
+import AdminSchools from './AdminSchools'
 
 interface AdminProps {
   onLogout: () => void
@@ -45,7 +47,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'enrollments' | 'highlights' | 'scheduling'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'enrollments' | 'highlights' | 'scheduling' | 'dbQueries' | 'schools'
 
 
 export default function Admin({ onLogout }: AdminProps) {
@@ -210,6 +212,40 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
+                onClick={() => setActiveTab('dbQueries')}
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'dbQueries'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                DB Queries
+                {activeTab === 'dbQueries' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('schools')}
+                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'schools'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Schools
+                {activeTab === 'schools' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab('classes')}
                 className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'classes'
@@ -323,6 +359,10 @@ export default function Admin({ onLogout }: AdminProps) {
           <AnimatePresence mode="wait">
             {activeTab === 'analytics' ? (
               <AdminAnalytics />
+            ) : activeTab === 'dbQueries' ? (
+              <AdminDbQueries />
+            ) : activeTab === 'schools' ? (
+              <AdminSchools />
             ) : activeTab === 'scheduling' ? (
               <AdminScheduling />
             ) : activeTab === 'classes' ? (

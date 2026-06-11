@@ -7,6 +7,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/ninja', priority: '0.8', changefreq: 'weekly' },
   { path: '/strength-conditioning', priority: '0.8', changefreq: 'weekly' },
   { path: '/athleticism-accelerator', priority: '0.8', changefreq: 'weekly' },
+  { path: '/summer-athletic-training', priority: '0.9', changefreq: 'weekly' },
   { path: '/value', priority: '0.7', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
   { path: '/scheduling', priority: '0.8', changefreq: 'weekly' },

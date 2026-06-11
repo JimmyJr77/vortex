@@ -39,6 +39,13 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     priority: 0.8,
   },
   {
+    path: '/summer-athletic-training',
+    title: 'Middle & High School Summer Athletic Training | Vortex Athletics',
+    description:
+      "Join Vortex Athletics' Athleticism Accelerator summer training program for middle and high school athletes. Build speed, strength, agility, mobility, conditioning, and confidence. Free sessions available for students from select schools.",
+    priority: 0.9,
+  },
+  {
     path: '/value',
     title: 'Why Vortex Athletics | Development-First Coaching',
     description:

@@ -1,5 +1,7 @@
 export const HUB_ORIGIN = 'https://www.vortexathletics.com'
 export const SITE_NAME = 'Vortex Athletics'
+/** Header wordmark on vortexathletics.com and sport stub sites (not gymnastics). */
+export const HUB_HEADER_LOGO = '/vortex-athletics-logo.png'
 export const DEFAULT_OG_IMAGE = `${HUB_ORIGIN}/vortex_logo_1.png`
 
 export interface SeoMeta {

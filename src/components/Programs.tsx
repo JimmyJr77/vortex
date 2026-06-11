@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Clock, Users, Target, Dumbbell, DollarSign, BarChart3, Zap, CheckCircle, Footprints } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
+import { NINJA_HOLD_TITLE, NINJA_PROGRAM_ON_HOLD } from '../utils/ninjaProgram'
 
 const Programs = () => {
   const programs = [
@@ -85,15 +86,24 @@ const Programs = () => {
               </div>
             )
 
+            const isNinjaOnHold =
+              program.title === 'Ninja Athlete' && NINJA_PROGRAM_ON_HOLD
+
             return (
               <motion.div
                 key={program.title}
-                className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                className={`bg-white rounded-3xl p-8 shadow-lg transition-shadow duration-300 ${
+                  isNinjaOnHold
+                    ? 'opacity-60 cursor-not-allowed'
+                    : 'hover:shadow-xl cursor-pointer'
+                }`}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
                 viewport={{ once: true }}
-                whileHover={{ scale: 1.02 }}
+                whileHover={isNinjaOnHold ? undefined : { scale: 1.02 }}
+                title={isNinjaOnHold ? NINJA_HOLD_TITLE : undefined}
+                aria-disabled={isNinjaOnHold || undefined}
               >
                 {program.title === "Athleticism Accelerator" ? (
                   <Link to="/athleticism-accelerator">
@@ -119,7 +129,7 @@ const Programs = () => {
                   <Link to="/strength-conditioning">
                     {Content}
                   </Link>
-                ) : program.title === "Ninja Athlete" ? (
+                ) : program.title === "Ninja Athlete" && !NINJA_PROGRAM_ON_HOLD ? (
                   <Link to="/ninja">
                     {Content}
                   </Link>

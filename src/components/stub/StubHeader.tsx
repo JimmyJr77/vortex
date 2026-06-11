@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
+import { NAV_MENU_DIVIDER_CLASS } from '../NavMenuDivider'
 import SportSiteMenuLinks from '../sport/SportSiteMenuLinks'
 import type { StubSiteConfig } from '../../config/stubSites'
 import { getSportBrandName, getSportHomeUrl } from '../../utils/sportSite'
+import { HUB_HEADER_LOGO } from '../../utils/seo'
 
 interface StubHeaderProps {
   config: StubSiteConfig
@@ -35,9 +37,9 @@ const StubHeader = ({
                 whileHover={{ scale: 1.05 }}
               >
                 <img
-                  src="/vortex_logo_1.png"
+                  src={HUB_HEADER_LOGO}
                   alt={sportBrandName}
-                  className="h-12 md:h-16 w-auto"
+                  className="h-10 md:h-12 w-auto"
                 />
               </motion.div>
             </a>
@@ -82,7 +84,7 @@ const StubHeader = ({
           }}
           transition={{ duration: 0.3 }}
         >
-          <div className="py-4 space-y-4 border-t border-gray-800">
+          <div className={`py-4 space-y-4 ${NAV_MENU_DIVIDER_CLASS}`}>
             <SportSiteMenuLinks
               sportBrandName={sportBrandName}
               sportHomeHref={sportHomeHref}

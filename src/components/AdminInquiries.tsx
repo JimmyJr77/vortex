@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, Fragment } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown, Filter, Flag, Check } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
+import { notesApi, type Note } from '../utils/adminFeaturesApi'
 
 interface User {
   id: number
@@ -46,8 +47,10 @@ export default function AdminInquiries() {
   const [ageFilterOpen, setAgeFilterOpen] = useState(false)
   const [interestsFilterOpen, setInterestsFilterOpen] = useState(false)
   const [classTypesFilterOpen, setClassTypesFilterOpen] = useState(false)
-  const [notesDraft, setNotesDraft] = useState<Record<number, string>>({})
-  const [savingNotesId, setSavingNotesId] = useState<number | null>(null)
+  const [threadNotes, setThreadNotes] = useState<Record<number, Note[]>>({})
+  const [threadDraft, setThreadDraft] = useState<Record<number, string>>({})
+  const [loadingThreadId, setLoadingThreadId] = useState<number | null>(null)
+  const [addingThreadId, setAddingThreadId] = useState<number | null>(null)
   const [togglingContactedId, setTogglingContactedId] = useState<number | null>(null)
   const [togglingFollowUpId, setTogglingFollowUpId] = useState<number | null>(null)
   const [ageFilterPosition, setAgeFilterPosition] = useState({ top: 0, left: 0 })
@@ -204,13 +207,21 @@ export default function AdminInquiries() {
     setExpandedId(nextId)
     setEditingId(null)
     if (nextId !== null) {
-      const user = users.find((u) => u.id === nextId)
-      if (user) {
-        setNotesDraft((prev) => ({
-          ...prev,
-          [nextId]: prev[nextId] ?? user.admin_notes ?? '',
-        }))
-      }
+      void loadThread(nextId)
+    }
+  }
+
+  const loadThread = async (registrationId: number) => {
+    setLoadingThreadId(registrationId)
+    try {
+      const notes = await notesApi.list('registration', registrationId)
+      setThreadNotes((prev) => ({ ...prev, [registrationId]: notes }))
+      setThreadDraft((prev) => ({ ...prev, [registrationId]: prev[registrationId] ?? '' }))
+    } catch (err) {
+      console.error('Error loading inquiry note thread:', err)
+      setError('Failed to load notes thread')
+    } finally {
+      setLoadingThreadId(null)
     }
   }
 
@@ -281,28 +292,30 @@ export default function AdminInquiries() {
     await setFollowUp(user, e.target.checked)
   }
 
-  const saveNotes = async (e: React.MouseEvent, user: User) => {
+  const addStaffNote = async (e: React.MouseEvent, user: User) => {
     e.stopPropagation()
-    const admin_notes = notesDraft[user.id] ?? ''
-    setSavingNotesId(user.id)
+    const body = (threadDraft[user.id] || '').trim()
+    if (!body) return
+    setAddingThreadId(user.id)
     try {
-      await persistRegistration(user, { admin_notes: admin_notes || null })
-      setExpandedId(null)
+      const created = await notesApi.add({
+        subjectType: 'registration',
+        subjectId: user.id,
+        noteType: 'staff_note',
+        body,
+      })
+      setThreadNotes((prev) => ({
+        ...prev,
+        [user.id]: [created, ...(prev[user.id] || [])],
+      }))
+      setThreadDraft((prev) => ({ ...prev, [user.id]: '' }))
+      await persistRegistration(user, { admin_notes: body })
     } catch (error) {
-      console.error('Error saving notes:', error)
-      alert('Failed to save notes')
+      console.error('Error adding staff note:', error)
+      alert('Failed to add note')
     } finally {
-      setSavingNotesId(null)
+      setAddingThreadId(null)
     }
-  }
-
-  const cancelNotes = (e: React.MouseEvent, user: User) => {
-    e.stopPropagation()
-    setNotesDraft((prev) => ({
-      ...prev,
-      [user.id]: user.admin_notes ?? '',
-    }))
-    setExpandedId(null)
   }
 
   const startEdit = (e: React.MouseEvent, user: User) => {
@@ -324,10 +337,7 @@ export default function AdminInquiries() {
       follow_up: user.follow_up,
       admin_notes: user.admin_notes,
     })
-    setNotesDraft((prev) => ({
-      ...prev,
-      [user.id]: user.admin_notes ?? '',
-    }))
+    void loadThread(user.id)
   }
 
   const saveEdit = async (e: React.MouseEvent) => {
@@ -1071,38 +1081,42 @@ export default function AdminInquiries() {
                                       <label className="text-xs text-gray-600 block mb-2 font-semibold uppercase tracking-wide">
                                         Staff notes — follow-up &amp; conversations
                                       </label>
+                                      <div className="space-y-2 mb-3 max-h-48 overflow-y-auto">
+                                        {loadingThreadId === user.id ? (
+                                          <div className="text-sm text-gray-500">Loading notes…</div>
+                                        ) : (threadNotes[user.id] || []).length === 0 ? (
+                                          <div className="text-sm text-gray-400">No notes yet.</div>
+                                        ) : (
+                                          (threadNotes[user.id] || []).map((note) => (
+                                            <div key={note.id} className="rounded border border-gray-200 bg-gray-50 p-2">
+                                              <div className="text-sm text-gray-800 whitespace-pre-wrap">{note.body}</div>
+                                              <div className="text-xs text-gray-500 mt-1">
+                                                {note.noteType === 'user_comment' ? 'User comment' : 'Staff note'} · {note.authorName || note.authorEmail || 'Unknown'} · {formatDate(note.createdAt)}
+                                              </div>
+                                            </div>
+                                          ))
+                                        )}
+                                      </div>
                                       <textarea
-                                        value={notesDraft[user.id] ?? user.admin_notes ?? ''}
+                                        value={threadDraft[user.id] ?? ''}
                                         onChange={(e) => {
                                           e.stopPropagation()
-                                          setNotesDraft((prev) => ({
-                                            ...prev,
-                                            [user.id]: e.target.value,
-                                          }))
+                                          setThreadDraft((prev) => ({ ...prev, [user.id]: e.target.value }))
                                         }}
                                         onClick={(e) => e.stopPropagation()}
-                                        rows={4}
-                                        placeholder="Track calls, emails, next steps, and conversation history..."
+                                        rows={3}
+                                        placeholder="Add a new staff note..."
                                         className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 resize-y focus:ring-2 focus:ring-vortex-red focus:border-transparent"
                                       />
                                       <div className="flex flex-wrap items-center gap-3 mt-3">
                                         <button
                                           type="button"
-                                          onClick={(e) => saveNotes(e, user)}
-                                          disabled={savingNotesId === user.id}
+                                          onClick={(e) => addStaffNote(e, user)}
+                                          disabled={addingThreadId === user.id || !(threadDraft[user.id] || '').trim()}
                                           className="flex items-center gap-2 px-4 py-2 bg-vortex-red hover:bg-red-700 disabled:opacity-60 rounded text-white text-sm font-medium transition-colors"
                                         >
                                           <Save className="w-4 h-4" />
-                                          {savingNotesId === user.id ? 'Saving...' : 'Save notes'}
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={(e) => cancelNotes(e, user)}
-                                          disabled={savingNotesId === user.id}
-                                          className="flex items-center gap-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:opacity-60 rounded text-white text-sm font-medium transition-colors"
-                                        >
-                                          <X className="w-4 h-4" />
-                                          Cancel
+                                          {addingThreadId === user.id ? 'Adding...' : 'Add note'}
                                         </button>
                                         <button
                                           type="button"

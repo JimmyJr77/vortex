@@ -7,6 +7,9 @@ import HeroSportsMenu from './HeroSportsMenu'
 // YouTube video ID to play when "Play Video" is clicked (change this to your desired video)
 const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
 
+const summerTrainingHeroCtaClass =
+  'inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 hover:scale-105 border-2 border-yellow-400 bg-yellow-400 text-black hover:bg-yellow-300 hover:border-yellow-300 shadow-lg'
+
 interface HeroProps {
   onHighlightsClick?: () => void
 }
@@ -303,6 +306,9 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                 </motion.button>
               </Link>
               <HeroSportsMenu />
+              <Link to="/summer-athletic-training" className={summerTrainingHeroCtaClass}>
+                Summer Training
+              </Link>
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -465,6 +471,12 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                 </motion.button>
               </Link>
               <HeroSportsMenu fullWidth />
+              <Link
+                to="/summer-athletic-training"
+                className={`${summerTrainingHeroCtaClass} w-full max-w-xs`}
+              >
+                Summer Training
+              </Link>
             </motion.div>
 
             {/* Scroll Indicator */}

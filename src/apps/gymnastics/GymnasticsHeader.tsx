@@ -3,9 +3,10 @@ import { Menu, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useSiteHeaderHeight } from '../../hooks/useSiteHeaderHeight'
 import { Link, useLocation } from 'react-router-dom'
+import NavMenuDivider, { NAV_MENU_DIVIDER_CLASS } from '../../components/NavMenuDivider'
 import SportSiteMenuLinks from '../../components/sport/SportSiteMenuLinks'
 import SportSiteHubMenuLogo from '../../components/sport/SportSiteHubMenuLogo'
-import { getSportBrandName, getSportHomeUrl } from '../../utils/sportSite'
+import { getSportBrandName, getSportHomeUrl, HUB_URL } from '../../utils/sportSite'
 import type { StubSiteConfig } from '../../config/stubSites'
 import { STUB_SITES } from '../../config/stubSites'
 import { GYMNASTICS_HEADER_LOGO } from '../../config/gymnasticsSeo'
@@ -148,7 +149,18 @@ const GymnasticsHeader = ({
           }}
           transition={{ duration: 0.3 }}
         >
-          <div className="py-4 space-y-4 border-t border-gray-800">
+          <div className={`py-4 space-y-4 ${NAV_MENU_DIVIDER_CLASS}`}>
+            <a
+              href={HUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeMenu}
+              className="block text-white hover:text-vortex-red transition-colors duration-300 font-medium"
+            >
+              Vortex Athletics
+            </a>
+            <NavMenuDivider />
+
             {menuItems.map((item) => (
               <Link
                 key={item.name}
@@ -164,7 +176,7 @@ const GymnasticsHeader = ({
               </Link>
             ))}
 
-            <div className="border-t border-gray-700 my-4" />
+            <NavMenuDivider className="my-4" />
 
             <SportSiteMenuLinks
               sportBrandName={sportBrandName}

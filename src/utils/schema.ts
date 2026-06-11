@@ -194,6 +194,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     '/ninja': 'Kids Ninja Classes',
     '/strength-conditioning': 'Fit & Flip Adult Fitness',
     '/athleticism-accelerator': 'Athleticism Accelerator',
+    '/summer-athletic-training': 'Summer Athletic Training',
     '/value': 'Why Vortex',
     '/read-board': 'Classes & Events',
   }
@@ -221,6 +222,16 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
         name: 'Youth Athletic Training (Athleticism Accelerator)',
         description:
           'Sports-performance training for young athletes in Bowie, MD across eight tenets of athleticism: speed, power, coordination, and injury-resistant movement.',
+        url,
+      }),
+    )
+  }
+  if (pathname === '/summer-athletic-training') {
+    schema.push(
+      serviceSchema({
+        name: 'Middle & High School Summer Athletic Training (Athleticism Accelerator)',
+        description:
+          'Summer athletic development program for middle and high school athletes in Bowie, MD. Speed, strength, agility, mobility, conditioning, and performance testing. Free sessions available for students from select schools.',
         url,
       }),
     )
