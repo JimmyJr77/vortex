@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Calendar, Clock, Loader2, Plus, X } from 'lucide-react'
+import { Ban, Calendar, Check, Clock, Loader2, Mail, MailPlus, Plus, X } from 'lucide-react'
 import AdminSchedulingCategories from './scheduling/AdminSchedulingCategories'
 import AdminSchedulingSignupFields from './scheduling/AdminSchedulingSignupFields'
 import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
@@ -10,6 +10,7 @@ import {
   adminFetchSchedulingForms,
   adminFetchSignups,
   adminSaveSchedulingForm,
+  adminResendSignupEmail,
   adminUpdateSignupFields,
   adminUpdateSignupStatus,
   type SchedulingFormDetail,
@@ -52,6 +53,10 @@ const AdminScheduling = () => {
   const [signupFieldsDraft, setSignupFieldsDraft] = useState<string[]>([])
   const [mandateWaiverDraft, setMandateWaiverDraft] = useState(false)
   const [settingsSaved, setSettingsSaved] = useState(false)
+  const [signupActionId, setSignupActionId] = useState<number | null>(null)
+
+  const iconActionClass =
+    'p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none'
 
   const loadForms = useCallback(async () => {
     const data = await adminFetchSchedulingForms()
@@ -449,39 +454,103 @@ const AdminScheduling = () => {
                               )}
                             </td>
                             <td className="py-3 w-0">
-                              <div className="inline-flex items-center gap-3 flex-nowrap">
+                              <div className="inline-flex items-center gap-1 flex-nowrap">
                                 {(s.status === 'confirmed' || s.status === 'waitlisted') && (
                                   <button
                                     type="button"
+                                    title="Resend confirmation email"
+                                    disabled={signupActionId === s.id}
                                     onClick={async () => {
+                                      setSignupActionId(s.id)
                                       try {
-                                        await adminUpdateSignupStatus(s.id, 'cancelled')
-                                        await loadSignups(selectedId)
-                                        await loadDetail(selectedId)
+                                        const updated = await adminResendSignupEmail(s.id, 'confirmation')
+                                        setSignups((prev) =>
+                                          prev.map((row) => (row.id === s.id ? { ...row, ...updated } : row)),
+                                        )
                                       } catch (e) {
-                                        alert(e instanceof Error ? e.message : 'Failed to cancel signup')
+                                        alert(e instanceof Error ? e.message : 'Failed to resend confirmation email')
+                                      } finally {
+                                        setSignupActionId(null)
                                       }
                                     }}
-                                    className="text-red-600 text-xs font-semibold hover:text-red-800"
+                                    className={`${iconActionClass} text-blue-600 hover:text-blue-800`}
+                                    aria-label="Resend confirmation email"
                                   >
-                                    Cancel
+                                    <Mail className="w-4 h-4" />
+                                  </button>
+                                )}
+                                {detail?.mandateWaiver && (
+                                  <button
+                                    type="button"
+                                    title="Resend waiver email"
+                                    disabled={signupActionId === s.id}
+                                    onClick={async () => {
+                                      setSignupActionId(s.id)
+                                      try {
+                                        const updated = await adminResendSignupEmail(s.id, 'waiver')
+                                        setSignups((prev) =>
+                                          prev.map((row) => (row.id === s.id ? { ...row, ...updated } : row)),
+                                        )
+                                      } catch (e) {
+                                        alert(e instanceof Error ? e.message : 'Failed to resend waiver email')
+                                      } finally {
+                                        setSignupActionId(null)
+                                      }
+                                    }}
+                                    className={`${iconActionClass} text-indigo-600 hover:text-indigo-800`}
+                                    aria-label="Resend waiver email"
+                                  >
+                                    <MailPlus className="w-4 h-4" />
+                                  </button>
+                                )}
+                                {(s.status === 'confirmed' || s.status === 'waitlisted') && (
+                                  <button
+                                    type="button"
+                                    title="Cancel signup"
+                                    disabled={signupActionId === s.id}
+                                    onClick={async () => {
+                                      setSignupActionId(s.id)
+                                      try {
+                                        await adminUpdateSignupStatus(s.id, 'cancelled')
+                                        if (selectedId) {
+                                          await loadSignups(selectedId)
+                                          await loadDetail(selectedId)
+                                        }
+                                      } catch (e) {
+                                        alert(e instanceof Error ? e.message : 'Failed to cancel signup')
+                                      } finally {
+                                        setSignupActionId(null)
+                                      }
+                                    }}
+                                    className={`${iconActionClass} text-red-600 hover:text-red-800`}
+                                    aria-label="Cancel signup"
+                                  >
+                                    <Ban className="w-4 h-4" />
                                   </button>
                                 )}
                                 {s.status === 'cancelled' && (
                                   <button
                                     type="button"
+                                    title="Reconfirm signup"
+                                    disabled={signupActionId === s.id}
                                     onClick={async () => {
+                                      setSignupActionId(s.id)
                                       try {
                                         await adminUpdateSignupStatus(s.id, 'confirmed')
-                                        await loadSignups(selectedId)
-                                        await loadDetail(selectedId)
+                                        if (selectedId) {
+                                          await loadSignups(selectedId)
+                                          await loadDetail(selectedId)
+                                        }
                                       } catch (e) {
                                         alert(e instanceof Error ? e.message : 'Failed to reconfirm signup')
+                                      } finally {
+                                        setSignupActionId(null)
                                       }
                                     }}
-                                    className="text-green-700 text-xs font-semibold hover:text-green-900"
+                                    className={`${iconActionClass} text-green-700 hover:text-green-900`}
+                                    aria-label="Reconfirm signup"
                                   >
-                                    Reconfirm
+                                    <Check className="w-4 h-4" />
                                   </button>
                                 )}
                               </div>

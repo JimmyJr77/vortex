@@ -1517,6 +1517,101 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async resendSignupEmail(req, res) {
+      try {
+        const emailType = req.body?.emailType
+        if (!['confirmation', 'waiver'].includes(emailType)) {
+          return res.status(400).json({
+            success: false,
+            message: 'emailType must be confirmation or waiver',
+          })
+        }
+
+        const signupId = Number(req.params.id)
+        const ctx = await loadSignupContext(pool, signupId)
+        if (!ctx) {
+          return res.status(404).json({ success: false, message: 'Signup not found' })
+        }
+
+        const signup = ctx.signup
+
+        if (emailType === 'confirmation') {
+          if (signup.status === 'cancelled') {
+            return res.status(400).json({
+              success: false,
+              message: 'Cannot resend confirmation for a cancelled signup',
+            })
+          }
+          if (!ctx.registrantEmail) {
+            return res.status(400).json({ success: false, message: 'Registrant email is missing' })
+          }
+
+          const positions = await computeSignupPositions(pool, signup.slot_group_id, signup.id)
+          if (signup.status === 'waitlisted') {
+            await sendWaitlistEmail({
+              registrantFirstName: ctx.registrantFirstName,
+              registrantEmail: ctx.registrantEmail,
+              formTitle: ctx.formTitle,
+              categoryName: ctx.categoryName,
+              slotLabel: ctx.slotLabel,
+              waitlistPosition: positions.waitlistPosition,
+            })
+          } else {
+            await sendConfirmationEmail({
+              registrantFirstName: ctx.registrantFirstName,
+              registrantEmail: ctx.registrantEmail,
+              formTitle: ctx.formTitle,
+              categoryName: ctx.categoryName,
+              slotLabel: ctx.slotLabel,
+              signupNumber: positions.signupNumber,
+              maxParticipants: positions.maxParticipants,
+            })
+          }
+          await pool.query(
+            'UPDATE scheduling_signup SET confirmation_email_sent_at = now() WHERE id = $1',
+            [signupId],
+          )
+        } else {
+          if (!ctx.mandateWaiver) {
+            return res.status(400).json({
+              success: false,
+              message: 'Waiver is not mandated for this form',
+            })
+          }
+          if (!ctx.parentEmail) {
+            return res.status(400).json({ success: false, message: 'Parent email is missing' })
+          }
+          const responses =
+            signup.responses && Object.keys(signup.responses).length > 0
+              ? signup.responses
+              : signup.field_responses || {}
+          await sendWaiverEmail({
+            parentFirstName: ctx.parentFirstName,
+            parentEmail: ctx.parentEmail,
+            athleteFirstName: ctx.registrantFirstName,
+            athleteLastName: String(responses.last_name || signup.last_name || ''),
+            formTitle: ctx.formTitle,
+          })
+          await pool.query(
+            'UPDATE scheduling_signup SET waiver_email_sent_at = now() WHERE id = $1',
+            [signupId],
+          )
+        }
+
+        const refreshed = await pool.query('SELECT * FROM scheduling_signup WHERE id = $1', [signupId])
+        const positions = signup.slot_group_id
+          ? await computeSignupPositions(pool, signup.slot_group_id, signupId)
+          : {}
+        res.json({ success: true, data: mapSignupRow(refreshed.rows[0], positions) })
+      } catch (err) {
+        console.error('[scheduling] resendSignupEmail:', err)
+        res.status(500).json({
+          success: false,
+          message: err.message || 'Failed to resend email',
+        })
+      }
+    },
+
     async updateSlotGroupMax(req, res) {
       try {
         const maxParticipants = Number(req.body.maxParticipants)

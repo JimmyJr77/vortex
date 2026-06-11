@@ -36,6 +36,7 @@ export function registerSchedulingRoutes(app, pool) {
 
   app.get('/api/admin/scheduling/signups', h.listSignups)
   app.patch('/api/admin/scheduling/signups/:id', h.updateSignupStatus)
+  app.post('/api/admin/scheduling/signups/:id/resend-email', h.resendSignupEmail)
 
   console.log('✅ Scheduling routes registered')
 }

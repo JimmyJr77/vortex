@@ -336,6 +336,17 @@ export async function adminUpdateSignupStatus(
   return parseJson(res)
 }
 
+export async function adminResendSignupEmail(
+  id: number,
+  emailType: 'confirmation' | 'waiver',
+): Promise<SchedulingSignup> {
+  const res = await adminApiRequest(`/api/admin/scheduling/signups/${id}/resend-email`, {
+    method: 'POST',
+    body: JSON.stringify({ emailType }),
+  })
+  return parseJson(res)
+}
+
 export async function adminUpdateSlotGroupMax(
   id: number,
   maxParticipants: number,
