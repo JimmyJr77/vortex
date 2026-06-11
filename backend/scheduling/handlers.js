@@ -1604,8 +1604,8 @@ export function createSchedulingHandlers(pool) {
           : {}
         res.json({ success: true, data: mapSignupRow(refreshed.rows[0], positions) })
       } catch (err) {
-        console.error('[scheduling] resendSignupEmail:', err)
-        res.status(500).json({
+        console.error('[scheduling] resendSignupEmail:', err?.cause || err)
+        res.status(503).json({
           success: false,
           message: err.message || 'Failed to resend email',
         })
