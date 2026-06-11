@@ -3,30 +3,82 @@
  * These functions treat dates as calendar dates without timezone conversion
  */
 
+const DATE_INPUT_RE = /^\d{4}-\d{2}-\d{2}$/
+
+/** True when value is safe for `<input type="date">`. */
+export function isValidDateInputValue(value: string | null | undefined): value is string {
+  return Boolean(value && DATE_INPUT_RE.test(value))
+}
+
+function toLocalDateParts(date: Date): { year: number; month: number; day: number } | null {
+  if (Number.isNaN(date.getTime())) return null
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return null
+  return { year, month, day }
+}
+
+function formatLocalDateParts(parts: { year: number; month: number; day: number }): string {
+  return `${parts.year}-${String(parts.month).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`
+}
+
+/** Legacy API strings like "Wed Jul 01" / "Tue Sep 01" (no year). */
+function parseWeekdayMonthDayString(dateString: string): Date | null {
+  const match = dateString.trim().match(/^[A-Za-z]{3}\s+([A-Za-z]{3})\s+(\d{1,2})$/)
+  if (!match) return null
+
+  const [, monthName, dayStr] = match
+  const day = Number(dayStr)
+  if (!Number.isFinite(day)) return null
+
+  const now = new Date()
+  let year = now.getFullYear()
+  let candidate = new Date(`${monthName} ${day}, ${year}`)
+  if (Number.isNaN(candidate.getTime())) return null
+
+  // Prefer the nearest upcoming occurrence for scheduling-style dates.
+  const daysAgo = (now.getTime() - candidate.getTime()) / 86_400_000
+  if (daysAgo > 45) {
+    const nextYearCandidate = new Date(`${monthName} ${day}, ${year + 1}`)
+    if (!Number.isNaN(nextYearCandidate.getTime())) {
+      candidate = nextYearCandidate
+    }
+  }
+
+  return new Date(candidate.getFullYear(), candidate.getMonth(), candidate.getDate())
+}
+
 /**
  * Parse a date-only string (YYYY-MM-DD) as a local date, not UTC
  * This prevents the "off by one day" issue when displaying dates
  */
 export function parseDateOnly(dateString: string | null | undefined): Date | null {
   if (!dateString) return null
-  
+
+  const trimmed = String(dateString).trim()
+  if (!trimmed || trimmed.includes('NaN')) return null
+
   // If already in YYYY-MM-DD format, parse as local date
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    const [year, month, day] = dateString.split('-').map(Number)
+  if (DATE_INPUT_RE.test(trimmed)) {
+    const [year, month, day] = trimmed.split('-').map(Number)
     return new Date(year, month - 1, day)
   }
-  
+
+  const weekdayParsed = parseWeekdayMonthDayString(trimmed)
+  if (weekdayParsed) return weekdayParsed
+
   // Try to parse other formats
   try {
-    const date = new Date(dateString)
-    if (isNaN(date.getTime())) return null
-    
+    const date = new Date(trimmed)
+    if (Number.isNaN(date.getTime())) return null
+
     // ISO datetime only (not weekday strings like "Tue Sep 01")
-    if (/^\d{4}-\d{2}-\d{2}T/.test(dateString)) {
-      const [year, month, day] = dateString.split('T')[0].split('-').map(Number)
+    if (/^\d{4}-\d{2}-\d{2}T/.test(trimmed)) {
+      const [year, month, day] = trimmed.split('T')[0].split('-').map(Number)
       return new Date(year, month - 1, day)
     }
-    
+
     // For other formats, use the date but extract year/month/day to avoid timezone issues
     return new Date(date.getFullYear(), date.getMonth(), date.getDate())
   } catch {
@@ -40,19 +92,17 @@ export function parseDateOnly(dateString: string | null | undefined): Date | nul
  */
 export function formatDateForInput(date: string | null | undefined): string {
   if (!date) return ''
-  
-  // If already in YYYY-MM-DD format, return as is
-  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date
-  
-  // Parse as local date to avoid timezone issues
-  const parsed = parseDateOnly(date)
-  if (!parsed) return ''
-  
-  // Format as YYYY-MM-DD
-  const year = parsed.getFullYear()
-  const month = String(parsed.getMonth() + 1).padStart(2, '0')
-  const day = String(parsed.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+
+  const trimmed = String(date).trim()
+  if (!trimmed || trimmed.includes('NaN')) return ''
+  if (DATE_INPUT_RE.test(trimmed)) return trimmed
+
+  const parsed = parseDateOnly(trimmed)
+  const parts = parsed ? toLocalDateParts(parsed) : null
+  if (!parts) return ''
+
+  const result = formatLocalDateParts(parts)
+  return DATE_INPUT_RE.test(result) ? result : ''
 }
 
 /**
