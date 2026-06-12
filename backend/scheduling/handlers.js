@@ -38,6 +38,48 @@ import { expandSlotBatch } from './slotExpansion.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
+/** Cancelled signups keep history but must not block slot/group deletes. */
+async function detachCancelledSignupsForSlotGroup(groupId) {
+  await pool.query(
+    `
+    UPDATE scheduling_signup
+    SET slot_group_id = NULL, time_slot_id = NULL
+    WHERE slot_group_id = $1 AND status = 'cancelled'
+    `,
+    [groupId],
+  )
+}
+
+async function detachCancelledSignupsForTimeSlot(slotId, groupId) {
+  if (groupId) {
+    const sibling = await pool.query(
+      `SELECT id FROM scheduling_time_slot WHERE slot_group_id = $1 AND id <> $2 LIMIT 1`,
+      [groupId, slotId],
+    )
+    if (sibling.rows.length > 0) {
+      await pool.query(
+        `UPDATE scheduling_signup SET time_slot_id = $1 WHERE time_slot_id = $2 AND status = 'cancelled'`,
+        [sibling.rows[0].id, slotId],
+      )
+      return
+    }
+    await pool.query(
+      `
+      UPDATE scheduling_signup
+      SET time_slot_id = NULL, slot_group_id = NULL
+      WHERE time_slot_id = $1 AND status = 'cancelled'
+      `,
+      [slotId],
+    )
+    return
+  }
+
+  await pool.query(
+    `UPDATE scheduling_signup SET time_slot_id = NULL WHERE time_slot_id = $1 AND status = 'cancelled'`,
+    [slotId],
+  )
+}
+
 function formatTime(t) {
   if (!t) return null
   const s = String(t)
@@ -1512,17 +1554,18 @@ export function createSchedulingHandlers(pool) {
         const groupId = slotRes.rows[0].slot_group_id
         if (groupId) {
           const signupRes = await pool.query(
-            `SELECT COUNT(*)::int AS c FROM scheduling_signup WHERE slot_group_id = $1 AND status = 'confirmed'`,
+            `SELECT COUNT(*)::int AS c FROM scheduling_signup WHERE slot_group_id = $1 AND status IN ('confirmed', 'waitlisted')`,
             [groupId],
           )
           if (Number(signupRes.rows[0].c) > 0) {
             return res.status(409).json({
               success: false,
-              message: 'Cannot delete: confirmed signups exist for this schedule',
+              message: 'Cannot delete: active signups exist for this schedule',
             })
           }
         }
 
+        await detachCancelledSignupsForTimeSlot(req.params.id, groupId)
         await pool.query('DELETE FROM scheduling_time_slot WHERE id = $1', [req.params.id])
 
         if (groupId) {
@@ -1554,6 +1597,7 @@ export function createSchedulingHandlers(pool) {
             message: 'Cannot delete: active signups exist for this schedule',
           })
         }
+        await detachCancelledSignupsForSlotGroup(req.params.id)
         const result = await pool.query('DELETE FROM scheduling_slot_group WHERE id = $1 RETURNING id', [
           req.params.id,
         ])

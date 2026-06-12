@@ -249,6 +249,10 @@ export async function initSchedulingTables(pool) {
   `)
 
   await pool.query(`
+    ALTER TABLE scheduling_signup ALTER COLUMN time_slot_id DROP NOT NULL
+  `)
+
+  await pool.query(`
     ALTER TABLE scheduling_signup
     ADD COLUMN IF NOT EXISTS member_id BIGINT REFERENCES member(id) ON DELETE SET NULL
   `)
