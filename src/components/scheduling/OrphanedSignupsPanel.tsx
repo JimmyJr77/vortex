@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Loader2, UserPlus, X } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 import {
+  adminDeleteOrphanedSignup,
   adminFetchSchedulingForm,
   adminReEnrollOrphanedSignup,
   type SchedulingFormDetail,
@@ -44,6 +45,7 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
   const [slotGroupId, setSlotGroupId] = useState<number | null>(null)
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const activeForms = forms.filter((f) => f.isActive)
@@ -101,6 +103,27 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
     setError(null)
   }
 
+  const handleDelete = async (orphan: SchedulingOrphanedSignup) => {
+    const name = [orphan.firstName, orphan.lastName].filter(Boolean).join(' ') || 'this athlete'
+    if (
+      !confirm(
+        `Remove ${name} from the orphaned list? Their member profile will be kept; only this orphaned signup record is deleted.`,
+      )
+    ) {
+      return
+    }
+    setDeletingId(orphan.id)
+    setError(null)
+    try {
+      await adminDeleteOrphanedSignup(orphan.id)
+      await onRefresh()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to remove orphaned signup')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   const handleReEnroll = async () => {
     if (!reEnrollTarget || !targetFormId || !slotGroupId) return
     setSubmitting(true)
@@ -131,16 +154,16 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
             Athletes whose schedule was deleted. Re-enroll them in another slot when ready.
           </p>
         </div>
-        <div className="p-4 overflow-x-auto">
+        <div className="max-h-[50vh] overflow-y-auto overflow-x-auto">
           <table className="w-full text-sm align-top">
-            <thead>
+            <thead className="sticky top-0 z-10 bg-amber-50/95 backdrop-blur-sm">
               <tr className="text-left text-gray-600 border-b border-amber-100">
-                <th className="py-2 pr-3">Athlete</th>
+                <th className="py-2 px-4 pr-3">Athlete</th>
                 <th className="py-2 pr-3">Contact</th>
                 <th className="py-2 pr-3">Event form</th>
                 <th className="py-2 pr-3">Orphaned slot</th>
                 <th className="py-2 pr-3">Status at deletion</th>
-                <th className="py-2">Action</th>
+                <th className="py-2 px-4">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -149,7 +172,7 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
                 const dateRange = formatSnapshotDates(snapshot)
                 return (
                   <tr key={orphan.id} className="border-b border-amber-100/80">
-                    <td className="py-2 pr-3 font-medium text-black">
+                    <td className="py-2 px-4 pr-3 font-medium text-black">
                       {[orphan.firstName, orphan.lastName].filter(Boolean).join(' ') || '—'}
                     </td>
                     <td className="py-2 pr-3 text-gray-700">
@@ -173,15 +196,24 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
                         {statusLabel(orphan.statusAtOrphaning)}
                       </span>
                     </td>
-                    <td className="py-2">
-                      <button
-                        type="button"
-                        onClick={() => openReEnroll(orphan)}
-                        className="inline-flex items-center gap-1 text-sm text-blue-700 hover:text-blue-900 font-medium"
-                      >
-                        <UserPlus className="w-4 h-4" />
-                        Re-enroll
-                      </button>
+                    <td className="py-2 px-4">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => openReEnroll(orphan)}
+                          className="text-sm text-blue-700 hover:text-blue-900 font-medium"
+                        >
+                          Re-enroll
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(orphan)}
+                          disabled={deletingId === orphan.id}
+                          className="text-sm text-red-600 hover:text-red-800 font-medium disabled:opacity-50"
+                        >
+                          {deletingId === orphan.id ? 'Removing…' : 'Delete'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )
@@ -189,6 +221,9 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
             </tbody>
           </table>
         </div>
+        {error && !reEnrollTarget && (
+          <p className="px-4 pb-3 text-sm text-red-600">{error}</p>
+        )}
       </div>
 
       {reEnrollTarget && (

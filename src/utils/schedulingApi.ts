@@ -462,6 +462,16 @@ export async function adminReEnrollOrphanedSignup(
   return parseJson(res)
 }
 
+export async function adminDeleteOrphanedSignup(orphanId: number): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/scheduling/orphaned-signups/${orphanId}`, {
+    method: 'DELETE',
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Failed to remove orphaned signup')
+  }
+}
+
 export async function adminUpdateSignupStatus(
   id: number,
   status: 'confirmed' | 'cancelled',

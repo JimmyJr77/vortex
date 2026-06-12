@@ -2208,6 +2208,26 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async deleteOrphanedSignup(req, res) {
+      try {
+        const result = await pool.query(
+          `
+          DELETE FROM scheduling_signup
+          WHERE id = $1 AND orphaned_at IS NOT NULL AND re_enrolled_at IS NULL
+          RETURNING id, member_id
+          `,
+          [req.params.id],
+        )
+        if (result.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Orphaned signup not found' })
+        }
+        res.json({ success: true, message: 'Removed from orphaned list' })
+      } catch (err) {
+        console.error('[scheduling] deleteOrphanedSignup:', err)
+        res.status(500).json({ success: false, message: 'Failed to remove orphaned signup' })
+      }
+    },
+
     async reEnrollOrphanedSignup(req, res) {
       try {
         const targetFormId = Number(req.body.targetFormId)
