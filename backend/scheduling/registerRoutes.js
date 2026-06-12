@@ -47,6 +47,8 @@ export function registerSchedulingRoutes(app, pool) {
   app.delete('/api/admin/scheduling/slot-groups/:id', h.deleteSlotGroup)
 
   app.get('/api/admin/scheduling/signups', h.listSignups)
+  app.get('/api/admin/scheduling/orphaned-signups', h.listOrphanedSignups)
+  app.post('/api/admin/scheduling/orphaned-signups/:id/re-enroll', h.reEnrollOrphanedSignup)
   app.patch('/api/admin/scheduling/signups/:id', h.updateSignupStatus)
   app.post('/api/admin/scheduling/signups/:id/resend-email', h.resendSignupEmail)
   app.patch('/api/admin/scheduling/signups/:id/member-password', h.updateSignupMemberPassword)

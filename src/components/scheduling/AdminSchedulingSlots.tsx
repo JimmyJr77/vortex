@@ -12,12 +12,16 @@ import {
   type SlotBatchPayload,
 } from '../../utils/schedulingApi'
 import { formatDateForInput } from '../../utils/dateUtils'
+import OrphanedSignupsPanel from './OrphanedSignupsPanel'
+import type { SchedulingFormSummary, SchedulingOrphanedSignup } from '../../utils/schedulingApi'
 
 interface Props {
   formId: number
   detail: SchedulingFormDetail
   formStartDate: string | null
   formEndDate: string | null
+  orphanedSignups: SchedulingOrphanedSignup[]
+  forms: SchedulingFormSummary[]
   onRefresh: () => Promise<void>
 }
 
@@ -75,7 +79,15 @@ function payloadBase(
   }
 }
 
-const AdminSchedulingSlots = ({ formId, detail, formStartDate, formEndDate, onRefresh }: Props) => {
+const AdminSchedulingSlots = ({
+  formId,
+  detail,
+  formStartDate,
+  formEndDate,
+  orphanedSignups,
+  forms,
+  onRefresh,
+}: Props) => {
   const allCategories = detail.allCategories ?? detail.categories
   const formCategories = detail.categories
   const builderRef = useRef<HTMLDivElement>(null)
@@ -432,10 +444,10 @@ const AdminSchedulingSlots = ({ formId, detail, formStartDate, formEndDate, onRe
             resetBuilderForm()
             return
           }
-          setSaveError(
-            'Cannot change schedule while signups exist. Update capacity only, or cancel signups first.',
+          const proceed = confirm(
+            `${activeSignups} enrolled or waitlisted athlete(s) will move to Orphaned signups. Replace this schedule anyway?`,
           )
-          return
+          if (!proceed) return
         }
 
         await adminDeleteSlotGroup(editingSlotGroupId)
@@ -454,11 +466,10 @@ const AdminSchedulingSlots = ({ formId, detail, formStartDate, formEndDate, onRe
   const handleDeleteGroup = async (group: SchedulingSlotGroup) => {
     if (deletingRef.current) return
     const activeSignups = (group.signupCount ?? 0) + (group.waitlistCount ?? 0)
-    if (activeSignups > 0) {
-      setSaveError('Cannot delete: active signups exist for this schedule.')
-      return
-    }
-    const message = 'Delete this signup slot and all of its days/times?'
+    const message =
+      activeSignups > 0
+        ? `Delete this schedule? ${activeSignups} enrolled or waitlisted athlete(s) will move to Orphaned signups (cancelled signups are preserved too).`
+        : 'Delete this signup slot and all of its days/times? Any cancelled signups will move to Orphaned signups.'
     if (!confirm(message)) return
 
     deletingRef.current = true
@@ -917,6 +928,11 @@ const AdminSchedulingSlots = ({ formId, detail, formStartDate, formEndDate, onRe
         )
           })
         )}
+        <OrphanedSignupsPanel
+          orphanedSignups={orphanedSignups}
+          forms={forms}
+          onRefresh={onRefresh}
+        />
       </div>
     </div>
   )

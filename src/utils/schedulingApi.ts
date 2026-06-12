@@ -118,6 +118,37 @@ export interface SchedulingFormDetail extends SchedulingFormSummary {
   schedulePreview: SlotsByCategory['preview']
 }
 
+export interface SchedulingOrphanedSnapshot {
+  formTitle: string
+  categoryName: string
+  slotLabel: string
+  occurrences?: {
+    weekLetter?: string | null
+    dayOfWeek?: number | null
+    specificDate?: string | null
+    startTime?: string
+    endTime?: string
+    scheduleMode?: string
+  }[]
+  activeStart?: string | null
+  activeEnd?: string | null
+  slotGroupId: number
+}
+
+export interface SchedulingOrphanedSignup {
+  id: number
+  formId: number
+  formTitle: string
+  memberId?: number | null
+  firstName?: string
+  lastName?: string
+  email?: string
+  phone?: string | null
+  statusAtOrphaning: 'confirmed' | 'waitlisted' | 'cancelled'
+  orphanedAt: string
+  orphanedSnapshot: SchedulingOrphanedSnapshot
+}
+
 export interface SchedulingSignup {
   id: number
   formId: number
@@ -412,6 +443,22 @@ export async function adminDeleteSlotGroup(id: number): Promise<void> {
 export async function adminFetchSignups(formId?: number): Promise<SchedulingSignup[]> {
   const qs = formId ? `?formId=${formId}` : ''
   const res = await adminApiRequest(`/api/admin/scheduling/signups${qs}`)
+  return parseJson(res)
+}
+
+export async function adminFetchOrphanedSignups(formId: number): Promise<SchedulingOrphanedSignup[]> {
+  const res = await adminApiRequest(`/api/admin/scheduling/orphaned-signups?formId=${formId}`)
+  return parseJson(res)
+}
+
+export async function adminReEnrollOrphanedSignup(
+  orphanId: number,
+  payload: { targetFormId: number; categoryId: number | null; slotGroupId: number },
+): Promise<SchedulingSignup> {
+  const res = await adminApiRequest(`/api/admin/scheduling/orphaned-signups/${orphanId}/re-enroll`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
   return parseJson(res)
 }
 

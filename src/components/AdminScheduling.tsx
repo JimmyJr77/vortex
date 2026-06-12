@@ -9,6 +9,7 @@ import {
   adminFetchSchedulingForm,
   adminFetchSchedulingForms,
   adminFetchSignups,
+  adminFetchOrphanedSignups,
   adminSaveSchedulingForm,
   adminResendSignupEmail,
   adminUpdateSignupFields,
@@ -17,6 +18,7 @@ import {
   type SchedulingFormDetail,
   type SchedulingFormSummary,
   type SchedulingSignup,
+  type SchedulingOrphanedSignup,
 } from '../utils/schedulingApi'
 import { mergeSignupFieldsForSave } from '../config/schedulingSignupFields'
 import { dateInputValue } from '../utils/dateUtils'
@@ -46,6 +48,7 @@ const AdminScheduling = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [detail, setDetail] = useState<SchedulingFormDetail | null>(null)
   const [signups, setSignups] = useState<SchedulingSignup[]>([])
+  const [orphanedSignups, setOrphanedSignups] = useState<SchedulingOrphanedSignup[]>([])
   const [panel, setPanel] = useState<Panel>('settings')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -95,6 +98,11 @@ const AdminScheduling = () => {
     setSignups(data)
   }, [])
 
+  const loadOrphanedSignups = useCallback(async (formId: number) => {
+    const data = await adminFetchOrphanedSignups(formId)
+    setOrphanedSignups(data)
+  }, [])
+
   useEffect(() => {
     loadForms()
       .then((data) => {
@@ -108,7 +116,7 @@ const AdminScheduling = () => {
     if (!selectedId) return
     setLoading(true)
     setError(null)
-    Promise.allSettled([loadDetail(selectedId), loadSignups(selectedId)]).then((results) => {
+    Promise.allSettled([loadDetail(selectedId), loadSignups(selectedId), loadOrphanedSignups(selectedId)]).then((results) => {
       const failures = results
         .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
         .map((r) => (r.reason instanceof Error ? r.reason.message : 'Failed to load scheduling data'))
@@ -118,12 +126,13 @@ const AdminScheduling = () => {
         setError(failures.join(' · '))
       }
     }).finally(() => setLoading(false))
-  }, [selectedId, loadDetail, loadSignups])
+  }, [selectedId, loadDetail, loadSignups, loadOrphanedSignups])
 
   const refresh = async () => {
     if (!selectedId) return
     await loadDetail(selectedId)
     await loadSignups(selectedId)
+    await loadOrphanedSignups(selectedId)
     await loadForms()
   }
 
@@ -441,6 +450,8 @@ const AdminScheduling = () => {
                   detail={detail}
                   formStartDate={formDraft.startDate ?? null}
                   formEndDate={formDraft.endDate ?? null}
+                  orphanedSignups={orphanedSignups}
+                  forms={forms}
                   onRefresh={refresh}
                 />
               )}

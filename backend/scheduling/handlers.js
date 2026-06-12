@@ -38,33 +38,255 @@ import { expandSlotBatch } from './slotExpansion.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-/** Cancelled signups must not block slot/group deletes (FK on time_slot_id / slot_group_id). */
-async function clearCancelledSignupsForSlotGroup(groupId) {
-  await pool.query(
-    `DELETE FROM scheduling_signup WHERE slot_group_id = $1 AND status = 'cancelled'`,
+async function buildOrphanSnapshot(db, groupId) {
+  const groupRes = await db.query(
+    `
+    SELECT sg.*, f.title AS form_title, f.start_date AS form_start_date, f.end_date AS form_end_date,
+      c.name AS category_name
+    FROM scheduling_slot_group sg
+    JOIN scheduling_form f ON f.id = sg.form_id
+    LEFT JOIN scheduling_category c ON c.id = sg.category_id
+    WHERE sg.id = $1
+    `,
     [groupId],
+  )
+  if (groupRes.rows.length === 0) return null
+
+  const group = groupRes.rows[0]
+  const form = { start_date: group.form_start_date, end_date: group.form_end_date }
+  const slotsRes = await db.query(
+    `
+    SELECT * FROM scheduling_time_slot
+    WHERE slot_group_id = $1
+    ORDER BY week_letter NULLS LAST, day_of_week NULLS LAST, specific_date NULLS LAST, start_time, id
+    `,
+    [groupId],
+  )
+  const occurrences = slotsRes.rows
+  const dates = resolveSlotActiveDates(group, form)
+  return {
+    formTitle: group.form_title,
+    categoryName: group.category_name || 'No Category',
+    slotLabel: buildGroupDisplayLabel(occurrences),
+    occurrences: occurrences.map((row) => ({
+      weekLetter: row.week_letter || null,
+      dayOfWeek: row.day_of_week,
+      specificDate: formatDateOnly(row.specific_date),
+      startTime: formatTime(row.start_time),
+      endTime: formatTime(row.end_time),
+      scheduleMode: row.schedule_mode || 'day',
+    })),
+    activeStart: dates.activeStart,
+    activeEnd: dates.activeEnd,
+    slotGroupId: Number(groupId),
+  }
+}
+
+/** Move all signups on a group to orphaned state before slot/group delete. */
+async function orphanSignupsForSlotGroup(db, groupId) {
+  const snapshot = await buildOrphanSnapshot(db, groupId)
+  if (!snapshot) return
+
+  await db.query(
+    `
+    UPDATE scheduling_signup
+    SET
+      status_at_orphaning = status,
+      orphaned_snapshot = $2::jsonb,
+      orphaned_at = NOW(),
+      slot_group_id = NULL,
+      time_slot_id = NULL,
+      status = 'cancelled'
+    WHERE slot_group_id = $1 AND orphaned_at IS NULL
+    `,
+    [groupId, JSON.stringify(snapshot)],
   )
 }
 
-async function clearCancelledSignupsForTimeSlot(slotId, groupId) {
-  if (groupId) {
-    const sibling = await pool.query(
-      `SELECT id FROM scheduling_time_slot WHERE slot_group_id = $1 AND id <> $2 LIMIT 1`,
-      [groupId, slotId],
+async function insertSignupForMember(
+  client,
+  {
+    formId,
+    formRow,
+    signupCategoryId,
+    slotGroupId,
+    memberId,
+    responses,
+    firstOccurrenceId,
+    categoryName,
+    formTitle,
+    mandateWaiver,
+    groupDisplayLabel,
+    firstOccurrenceLabel,
+  },
+) {
+  const activeCount = await countActiveSignupsForMember(client, formId, memberId)
+  const maxSlots = formRow.max_slots_per_user != null ? Number(formRow.max_slots_per_user) : null
+  if (maxSlots != null && activeCount >= maxSlots) {
+    const err = new Error(
+      `Maximum of ${maxSlots} slot${maxSlots === 1 ? '' : 's'} reached for this form`,
     )
-    if (sibling.rows.length > 0) {
-      await pool.query(
-        `UPDATE scheduling_signup SET time_slot_id = $1 WHERE time_slot_id = $2 AND status = 'cancelled'`,
-        [sibling.rows[0].id, slotId],
-      )
-      return
+    err.code = 'MAX_SLOTS'
+    throw err
+  }
+
+  const lock = await client.query(
+    `
+    SELECT sg.max_participants,
+      (SELECT COUNT(*)::int FROM scheduling_signup s
+       WHERE s.slot_group_id = sg.id AND s.status = 'confirmed') AS signup_count
+    FROM scheduling_slot_group sg
+    WHERE sg.id = $1 AND sg.form_id = $2 AND sg.is_active = TRUE
+    FOR UPDATE OF sg
+    `,
+    [slotGroupId, formId],
+  )
+
+  if (lock.rows.length === 0) {
+    const err = new Error('Time slot not available')
+    err.code = 'SLOT_UNAVAILABLE'
+    throw err
+  }
+
+  const { max_participants, signup_count } = lock.rows[0]
+  const signupStatus =
+    Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
+
+  const insert = await client.query(
+    `
+    INSERT INTO scheduling_signup
+      (form_id, category_id, time_slot_id, slot_group_id, member_id,
+       first_name, last_name, email, phone, field_responses, responses, status)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    RETURNING *
+    `,
+    [
+      formId,
+      signupCategoryId,
+      firstOccurrenceId,
+      slotGroupId,
+      memberId,
+      responses.first_name || null,
+      responses.last_name || null,
+      responses.email || null,
+      responses.phone || null,
+      JSON.stringify(responses),
+      JSON.stringify(responses),
+      signupStatus,
+    ],
+  )
+
+  const signupId = insert.rows[0].id
+  const positions = await computeSignupPositions(client, slotGroupId, signupId)
+  const totalSlotsAfter = activeCount + 1
+  const pricing = computeMonthlyPricing(formRow, totalSlotsAfter)
+  positions.pricing = pricing
+
+  return {
+    signupRow: insert.rows[0],
+    signupId,
+    signupStatus,
+    positions,
+    pricing,
+    slotLabel: groupDisplayLabel || firstOccurrenceLabel || '',
+    categoryName,
+    formTitle,
+    mandateWaiver,
+    responses,
+  }
+}
+
+async function sendSignupNotificationEmails(pool, {
+  signupStatus,
+  signupId,
+  responses,
+  formTitle,
+  categoryName,
+  slotLabel,
+  positions,
+  pricing,
+  mandateWaiver,
+}) {
+  let confirmationEmailSentAt = null
+  let waiverEmailSentAt = null
+  const emailParams = {
+    registrantFirstName: String(responses.first_name || ''),
+    registrantEmail: String(responses.email || ''),
+    formTitle,
+    categoryName,
+    slotLabel,
+    pricing,
+  }
+
+  if (signupStatus === 'confirmed') {
+    try {
+      await sendConfirmationEmail({
+        ...emailParams,
+        signupNumber: positions.signupNumber,
+        maxParticipants: positions.maxParticipants,
+      })
+      confirmationEmailSentAt = new Date().toISOString()
+    } catch (emailErr) {
+      console.error('[scheduling] confirmation email failed:', emailErr.message)
+    }
+  } else {
+    try {
+      await sendWaitlistEmail({
+        ...emailParams,
+        waitlistPosition: positions.waitlistPosition,
+      })
+      confirmationEmailSentAt = new Date().toISOString()
+    } catch (emailErr) {
+      console.error('[scheduling] waitlist email failed:', emailErr.message)
     }
   }
 
-  await pool.query(
-    `DELETE FROM scheduling_signup WHERE time_slot_id = $1 AND status = 'cancelled'`,
-    [slotId],
-  )
+  if (mandateWaiver) {
+    try {
+      await sendWaiverEmail({
+        parentFirstName: String(responses.parent_first_name || ''),
+        parentEmail: String(responses.parent_email || ''),
+        athleteFirstName: String(responses.first_name || ''),
+        athleteLastName: String(responses.last_name || ''),
+        formTitle,
+      })
+      waiverEmailSentAt = new Date().toISOString()
+    } catch (emailErr) {
+      console.error('[scheduling] waiver email failed:', emailErr.message)
+    }
+  }
+
+  if (confirmationEmailSentAt || waiverEmailSentAt) {
+    await pool.query(
+      `
+      UPDATE scheduling_signup
+      SET confirmation_email_sent_at = COALESCE($1, confirmation_email_sent_at),
+          waiver_email_sent_at = COALESCE($2, waiver_email_sent_at)
+      WHERE id = $3
+      `,
+      [confirmationEmailSentAt, waiverEmailSentAt, signupId],
+    )
+  }
+}
+
+function mapOrphanedSignupRow(row) {
+  const responses = row.responses && Object.keys(row.responses).length > 0
+    ? row.responses
+    : row.field_responses || {}
+  const snapshot = row.orphaned_snapshot || {}
+  return {
+    id: Number(row.id),
+    formId: Number(row.form_id),
+    formTitle: row.form_title || snapshot.formTitle || '',
+    memberId: row.member_id != null ? Number(row.member_id) : null,
+    firstName: responses.first_name || row.first_name,
+    lastName: responses.last_name || row.last_name,
+    email: responses.email || row.email,
+    phone: responses.phone || row.phone,
+    statusAtOrphaning: row.status_at_orphaning,
+    orphanedAt: row.orphaned_at,
+    orphanedSnapshot: snapshot,
+  }
 }
 
 function formatTime(t) {
@@ -954,130 +1176,35 @@ export function createSchedulingHandlers(pool) {
             return res.status(400).json({ success: false, message: 'Could not resolve member account' })
           }
 
-          const activeCount = await countActiveSignupsForMember(client, value.formId, memberId)
-          const maxSlots = formRow.max_slots_per_user != null ? Number(formRow.max_slots_per_user) : null
-          if (maxSlots != null && activeCount >= maxSlots) {
-            await client.query('ROLLBACK')
-            return res.status(400).json({
-              success: false,
-              message: `You have reached the maximum of ${maxSlots} slot${maxSlots === 1 ? '' : 's'} for this form`,
-            })
-          }
-
-          const lock = await client.query(
-            `
-            SELECT sg.max_participants,
-              (SELECT COUNT(*)::int FROM scheduling_signup s
-               WHERE s.slot_group_id = sg.id AND s.status = 'confirmed') AS signup_count
-            FROM scheduling_slot_group sg
-            WHERE sg.id = $1 AND sg.form_id = $2 AND sg.is_active = TRUE
-            FOR UPDATE OF sg
-            `,
-            [value.slotGroupId, value.formId],
-          )
-
-          if (lock.rows.length === 0) {
-            await client.query('ROLLBACK')
-            return res.status(400).json({ success: false, message: 'Time slot not available' })
-          }
-
-          const { max_participants, signup_count } = lock.rows[0]
-          const signupStatus =
-            Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
-
-          const insert = await client.query(
-            `
-            INSERT INTO scheduling_signup
-              (form_id, category_id, time_slot_id, slot_group_id, member_id,
-               first_name, last_name, email, phone, field_responses, responses, status)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-            RETURNING *
-            `,
-            [
-              value.formId,
-              signupCategoryId,
-              firstOccurrence.id,
-              value.slotGroupId,
-              memberId,
-              responses.first_name || null,
-              responses.last_name || null,
-              responses.email || null,
-              responses.phone || null,
-              JSON.stringify(responses),
-              JSON.stringify(responses),
-              signupStatus,
-            ],
-          )
-
-          const signupId = insert.rows[0].id
-          const positions = await computeSignupPositions(client, value.slotGroupId, signupId)
-          const totalSlotsAfter = activeCount + 1
-          const pricing = computeMonthlyPricing(formRow, totalSlotsAfter)
-          positions.pricing = pricing
+          const signupResult = await insertSignupForMember(client, {
+            formId: value.formId,
+            formRow,
+            signupCategoryId,
+            slotGroupId: value.slotGroupId,
+            memberId,
+            responses,
+            firstOccurrenceId: firstOccurrence.id,
+            categoryName: category.name,
+            formTitle: detail.title,
+            mandateWaiver: detail.mandateWaiver,
+            groupDisplayLabel: group.displayLabel,
+            firstOccurrenceLabel: firstOccurrence.displayLabel,
+          })
 
           await client.query('COMMIT')
 
-          const slotLabel = group.displayLabel || firstOccurrence.displayLabel || ''
-          let confirmationEmailSentAt = null
-          let waiverEmailSentAt = null
-          const emailParams = {
-            registrantFirstName: String(responses.first_name || ''),
-            registrantEmail: String(responses.email || ''),
+          const { signupId, signupStatus, positions, pricing } = signupResult
+          await sendSignupNotificationEmails(pool, {
+            signupStatus,
+            signupId,
+            responses,
             formTitle: detail.title,
             categoryName: category.name,
-            slotLabel,
+            slotLabel: signupResult.slotLabel,
+            positions,
             pricing,
-          }
-
-          if (signupStatus === 'confirmed') {
-            try {
-              await sendConfirmationEmail({
-                ...emailParams,
-                signupNumber: positions.signupNumber,
-                maxParticipants: positions.maxParticipants,
-              })
-              confirmationEmailSentAt = new Date().toISOString()
-            } catch (emailErr) {
-              console.error('[scheduling] confirmation email failed:', emailErr.message)
-            }
-          } else {
-            try {
-              await sendWaitlistEmail({
-                ...emailParams,
-                waitlistPosition: positions.waitlistPosition,
-              })
-              confirmationEmailSentAt = new Date().toISOString()
-            } catch (emailErr) {
-              console.error('[scheduling] waitlist email failed:', emailErr.message)
-            }
-          }
-
-          if (detail.mandateWaiver) {
-            try {
-              await sendWaiverEmail({
-                parentFirstName: String(responses.parent_first_name || ''),
-                parentEmail: String(responses.parent_email || ''),
-                athleteFirstName: String(responses.first_name || ''),
-                athleteLastName: String(responses.last_name || ''),
-                formTitle: detail.title,
-              })
-              waiverEmailSentAt = new Date().toISOString()
-            } catch (emailErr) {
-              console.error('[scheduling] waiver email failed:', emailErr.message)
-            }
-          }
-
-          if (confirmationEmailSentAt || waiverEmailSentAt) {
-            await pool.query(
-              `
-              UPDATE scheduling_signup
-              SET confirmation_email_sent_at = COALESCE($1, confirmation_email_sent_at),
-                  waiver_email_sent_at = COALESCE($2, waiver_email_sent_at)
-              WHERE id = $3
-              `,
-              [confirmationEmailSentAt, waiverEmailSentAt, signupId],
-            )
-          }
+            mandateWaiver: detail.mandateWaiver,
+          })
 
           const refreshed = await pool.query('SELECT * FROM scheduling_signup WHERE id = $1', [signupId])
           const positionMessage = buildSignupPositionMessage({
@@ -1092,6 +1219,12 @@ export function createSchedulingHandlers(pool) {
           })
         } catch (txErr) {
           await client.query('ROLLBACK')
+          if (txErr.code === 'MAX_SLOTS') {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          if (txErr.code === 'SLOT_UNAVAILABLE') {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
           if (txErr.message?.includes('already exists')) {
             return res.status(400).json({ success: false, message: txErr.message })
           }
@@ -1540,19 +1673,25 @@ export function createSchedulingHandlers(pool) {
 
         const groupId = slotRes.rows[0].slot_group_id
         if (groupId) {
-          const signupRes = await pool.query(
-            `SELECT COUNT(*)::int AS c FROM scheduling_signup WHERE slot_group_id = $1 AND status IN ('confirmed', 'waitlisted')`,
+          const remainingBefore = await pool.query(
+            `SELECT COUNT(*)::int AS c FROM scheduling_time_slot WHERE slot_group_id = $1`,
             [groupId],
           )
-          if (Number(signupRes.rows[0].c) > 0) {
-            return res.status(409).json({
-              success: false,
-              message: 'Cannot delete: active signups exist for this schedule',
-            })
+          const isLastSlot = Number(remainingBefore.rows[0].c) <= 1
+          if (!isLastSlot) {
+            const signupRes = await pool.query(
+              `SELECT COUNT(*)::int AS c FROM scheduling_signup WHERE slot_group_id = $1 AND status IN ('confirmed', 'waitlisted')`,
+              [groupId],
+            )
+            if (Number(signupRes.rows[0].c) > 0) {
+              return res.status(409).json({
+                success: false,
+                message: 'Cannot delete: active signups exist for this schedule',
+              })
+            }
           }
         }
 
-        await clearCancelledSignupsForTimeSlot(req.params.id, groupId)
         await pool.query('DELETE FROM scheduling_time_slot WHERE id = $1', [req.params.id])
 
         if (groupId) {
@@ -1561,6 +1700,7 @@ export function createSchedulingHandlers(pool) {
             [groupId],
           )
           if (Number(remaining.rows[0].c) === 0) {
+            await orphanSignupsForSlotGroup(pool, groupId)
             await pool.query('DELETE FROM scheduling_slot_group WHERE id = $1', [groupId])
           }
         }
@@ -1574,17 +1714,7 @@ export function createSchedulingHandlers(pool) {
 
     async deleteSlotGroup(req, res) {
       try {
-        const signupRes = await pool.query(
-          `SELECT COUNT(*)::int AS c FROM scheduling_signup WHERE slot_group_id = $1 AND status IN ('confirmed', 'waitlisted')`,
-          [req.params.id],
-        )
-        if (Number(signupRes.rows[0].c) > 0) {
-          return res.status(409).json({
-            success: false,
-            message: 'Cannot delete: active signups exist for this schedule',
-          })
-        }
-        await clearCancelledSignupsForSlotGroup(req.params.id)
+        await orphanSignupsForSlotGroup(pool, req.params.id)
         const result = await pool.query('DELETE FROM scheduling_slot_group WHERE id = $1 RETURNING id', [
           req.params.id,
         ])
@@ -1604,16 +1734,13 @@ export function createSchedulingHandlers(pool) {
         if (!categoryId) {
           return res.status(400).json({ success: false, message: 'categoryId required' })
         }
-        await pool.query(
-          `
-          DELETE FROM scheduling_signup s
-          USING scheduling_slot_group sg
-          WHERE s.slot_group_id = sg.id
-            AND sg.form_id = $1 AND sg.category_id = $2
-            AND s.status = 'cancelled'
-          `,
+        const groupsRes = await pool.query(
+          'SELECT id FROM scheduling_slot_group WHERE form_id = $1 AND category_id = $2',
           [req.params.formId, categoryId],
         )
+        for (const row of groupsRes.rows) {
+          await orphanSignupsForSlotGroup(pool, row.id)
+        }
         await pool.query(
           'DELETE FROM scheduling_slot_group WHERE form_id = $1 AND category_id = $2',
           [req.params.formId, categoryId],
@@ -1629,7 +1756,7 @@ export function createSchedulingHandlers(pool) {
       try {
         const formId = req.query.formId ? Number(req.query.formId) : null
         const params = []
-        let where = '1=1'
+        let where = '1=1 AND s.orphaned_at IS NULL'
         if (formId) {
           params.push(formId)
           where += ` AND s.form_id = $${params.length}`
@@ -2053,6 +2180,198 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         console.error('[scheduling] updateSignupMemberPassword:', err)
         res.status(500).json({ success: false, message: err.message || 'Failed to update password' })
+      }
+    },
+
+    async listOrphanedSignups(req, res) {
+      try {
+        const formId = req.query.formId ? Number(req.query.formId) : null
+        if (!formId) {
+          return res.status(400).json({ success: false, message: 'formId required' })
+        }
+        const result = await pool.query(
+          `
+          SELECT s.*, f.title AS form_title
+          FROM scheduling_signup s
+          JOIN scheduling_form f ON f.id = s.form_id
+          WHERE s.form_id = $1
+            AND s.orphaned_at IS NOT NULL
+            AND s.re_enrolled_at IS NULL
+          ORDER BY s.orphaned_at DESC, s.id DESC
+          `,
+          [formId],
+        )
+        res.json({ success: true, data: result.rows.map(mapOrphanedSignupRow) })
+      } catch (err) {
+        console.error('[scheduling] listOrphanedSignups:', err)
+        res.status(500).json({ success: false, message: 'Failed to load orphaned signups' })
+      }
+    },
+
+    async reEnrollOrphanedSignup(req, res) {
+      try {
+        const targetFormId = Number(req.body.targetFormId)
+        const categoryId =
+          req.body.categoryId === null || req.body.categoryId === undefined
+            ? null
+            : Number(req.body.categoryId)
+        const slotGroupId = Number(req.body.slotGroupId)
+        if (!targetFormId || !slotGroupId) {
+          return res.status(400).json({ success: false, message: 'targetFormId and slotGroupId required' })
+        }
+
+        const client = await pool.connect()
+        let newSignupId = null
+        let signupStatus = null
+        let positions = null
+        let responses = null
+        let detail = null
+        let categoryName = ''
+        let slotLabel = ''
+        let mandateWaiver = false
+
+        try {
+          await client.query('BEGIN')
+
+          const orphanRes = await client.query(
+            `
+            SELECT * FROM scheduling_signup
+            WHERE id = $1 AND orphaned_at IS NOT NULL AND re_enrolled_at IS NULL
+            FOR UPDATE
+            `,
+            [req.params.id],
+          )
+          if (orphanRes.rows.length === 0) {
+            await client.query('ROLLBACK')
+            return res.status(404).json({ success: false, message: 'Orphaned signup not found' })
+          }
+          const orphan = orphanRes.rows[0]
+          responses =
+            orphan.responses && Object.keys(orphan.responses).length > 0
+              ? orphan.responses
+              : orphan.field_responses || {}
+
+          let memberId = orphan.member_id != null ? Number(orphan.member_id) : null
+          if (!memberId) {
+            const email = String(responses.email || orphan.email || '').trim()
+            if (email) {
+              const existingMember = await findMemberByEmail(client, email)
+              if (existingMember) memberId = Number(existingMember.id)
+            }
+          }
+          if (!memberId) {
+            await client.query('ROLLBACK')
+            return res.status(400).json({
+              success: false,
+              message: 'No member account linked to this signup. Create a member account first.',
+            })
+          }
+
+          const formRes = await client.query('SELECT * FROM scheduling_form WHERE id = $1', [targetFormId])
+          if (formRes.rows.length === 0 || formRes.rows[0].deleted_at || !formRes.rows[0].is_active) {
+            await client.query('ROLLBACK')
+            return res.status(404).json({ success: false, message: 'Target scheduling form not available' })
+          }
+          const formRow = formRes.rows[0]
+
+          detail = await loadFormDetail(client, targetFormId)
+          if (!detail) {
+            await client.query('ROLLBACK')
+            return res.status(404).json({ success: false, message: 'Target scheduling form not available' })
+          }
+
+          const signupCategoryId = categoryId
+          const group = detail.slotGroups.find((g) => g.id === slotGroupId)
+          if (!group) {
+            await client.query('ROLLBACK')
+            return res.status(400).json({ success: false, message: 'Invalid time slot group' })
+          }
+          if ((group.categoryId ?? null) !== signupCategoryId) {
+            await client.query('ROLLBACK')
+            return res.status(400).json({ success: false, message: 'Time slot does not match category' })
+          }
+
+          const category =
+            signupCategoryId != null
+              ? detail.categories.find((c) => c.id === signupCategoryId)
+              : { id: null, name: 'No Category' }
+          if (signupCategoryId != null && !category) {
+            await client.query('ROLLBACK')
+            return res.status(400).json({ success: false, message: 'Invalid category' })
+          }
+          categoryName = category.name
+          mandateWaiver = detail.mandateWaiver
+
+          const firstOccurrence = group.occurrences[0]
+          if (!firstOccurrence) {
+            await client.query('ROLLBACK')
+            return res.status(400).json({ success: false, message: 'Time slot has no schedule entries' })
+          }
+
+          const signupResult = await insertSignupForMember(client, {
+            formId: targetFormId,
+            formRow,
+            signupCategoryId,
+            slotGroupId,
+            memberId,
+            responses,
+            firstOccurrenceId: firstOccurrence.id,
+            categoryName,
+            formTitle: detail.title,
+            mandateWaiver,
+            groupDisplayLabel: group.displayLabel,
+            firstOccurrenceLabel: firstOccurrence.displayLabel,
+          })
+
+          newSignupId = signupResult.signupId
+          signupStatus = signupResult.signupStatus
+          positions = signupResult.positions
+          slotLabel = signupResult.slotLabel
+
+          await client.query(
+            `
+            UPDATE scheduling_signup
+            SET re_enrolled_at = NOW(), re_enrolled_signup_id = $1
+            WHERE id = $2
+            `,
+            [newSignupId, orphan.id],
+          )
+
+          await client.query('COMMIT')
+        } catch (txErr) {
+          await client.query('ROLLBACK')
+          if (txErr.code === 'MAX_SLOTS') {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          if (txErr.code === 'SLOT_UNAVAILABLE') {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          throw txErr
+        } finally {
+          client.release()
+        }
+
+        await sendSignupNotificationEmails(pool, {
+          signupStatus,
+          signupId: newSignupId,
+          responses,
+          formTitle: detail.title,
+          categoryName,
+          slotLabel,
+          positions,
+          pricing: positions.pricing,
+          mandateWaiver,
+        })
+
+        const refreshed = await pool.query('SELECT * FROM scheduling_signup WHERE id = $1', [newSignupId])
+        res.json({
+          success: true,
+          message: buildSignupPositionMessage({ status: signupStatus, ...positions }),
+          data: mapSignupRow(refreshed.rows[0], positions),
+        })
+      } catch (err) {
+        console.error('[scheduling] reEnrollOrphanedSignup:', err)
+        res.status(500).json({ success: false, message: err.message || 'Failed to re-enroll signup' })
       }
     },
   }
