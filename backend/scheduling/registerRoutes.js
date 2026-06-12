@@ -9,11 +9,23 @@ const signupLimiter = rateLimit({
   message: { success: false, message: 'Too many signup attempts' },
 })
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many attempts' },
+})
+
 export function registerSchedulingRoutes(app, pool) {
   const h = createSchedulingHandlers(pool)
 
   app.get('/api/scheduling/forms', h.listPublicForms)
   app.get('/api/scheduling/forms/:id', h.getPublicForm)
+  app.post('/api/scheduling/auth/check-email', authLimiter, h.checkEmail)
+  app.post('/api/scheduling/auth/login', authLimiter, h.authLogin)
+  app.post('/api/scheduling/auth/magic-link', authLimiter, h.authMagicLink)
+  app.post('/api/scheduling/auth/verify-token', authLimiter, h.authVerifyToken)
   app.post('/api/scheduling/signups', signupLimiter, h.createSignup)
 
   app.get('/api/admin/scheduling/forms', h.listAdminForms)
@@ -37,6 +49,7 @@ export function registerSchedulingRoutes(app, pool) {
   app.get('/api/admin/scheduling/signups', h.listSignups)
   app.patch('/api/admin/scheduling/signups/:id', h.updateSignupStatus)
   app.post('/api/admin/scheduling/signups/:id/resend-email', h.resendSignupEmail)
+  app.patch('/api/admin/scheduling/signups/:id/member-password', h.updateSignupMemberPassword)
 
   console.log('✅ Scheduling routes registered')
 }

@@ -6,10 +6,14 @@ import {
   type SchedulingSignupFieldDef,
 } from '../config/schedulingSignupFields'
 import {
+  checkSchedulingEmail,
   fetchPublicSchedulingForm,
   formatSchedulingOccurrenceLabel,
+  loginSchedulingAuth,
+  requestSchedulingMagicLink,
   schedulingHasMultipleWeeks,
   submitSchedulingSignup,
+  verifySchedulingAuthToken,
   type SchedulingFormCategory,
   type SchedulingFormDetail,
   type SchedulingSignup,
@@ -120,13 +124,27 @@ function SignupFieldInput({
   )
 }
 
+type IdentityPhase = 'pending' | 'email' | 'login' | 'ready'
+
+function formatMoney(amount: number) {
+  return `$${amount.toFixed(2)}`
+}
+
 interface Props {
   formId: number
   compact?: boolean
   fromEvent?: boolean
+  initialAuthToken?: string | null
+  initialEmail?: string | null
 }
 
-const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: Props) => {
+const SchedulingSignupEmbed = ({
+  formId,
+  compact = false,
+  fromEvent = false,
+  initialAuthToken = null,
+  initialEmail = null,
+}: Props) => {
   const [formDetail, setFormDetail] = useState<SchedulingFormDetail | null>(null)
   const [categoryId, setCategoryId] = useState<number | null | undefined>(undefined)
   const [slotGroupId, setSlotGroupId] = useState<number | null>(null)
@@ -137,6 +155,14 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [signupResult, setSignupResult] = useState<SchedulingSignup | null>(null)
+  const [identityPhase, setIdentityPhase] = useState<IdentityPhase>('pending')
+  const [accountEmail, setAccountEmail] = useState(initialEmail || '')
+  const [accountPassword, setAccountPassword] = useState('')
+  const [newAccountPassword, setNewAccountPassword] = useState('')
+  const [signupAuthToken, setSignupAuthToken] = useState<string | null>(null)
+  const [isNewUser, setIsNewUser] = useState(false)
+  const [magicLinkSent, setMagicLinkSent] = useState(false)
+  const [identityLoading, setIdentityLoading] = useState(false)
   const manualCategoryPickRef = useRef(false)
 
   useEffect(() => {
@@ -148,6 +174,13 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
     setSuccess(false)
     setSignupResult(null)
     setError(null)
+    setIdentityPhase('pending')
+    setSignupAuthToken(null)
+    setIsNewUser(false)
+    setAccountEmail(initialEmail || '')
+    setAccountPassword('')
+    setNewAccountPassword('')
+    setMagicLinkSent(false)
     fetchPublicSchedulingForm(formId, undefined, { fromEvent })
       .then((detail) => {
         setFormDetail(detail)
@@ -159,6 +192,20 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load form'))
       .finally(() => setLoading(false))
   }, [formId, fromEvent])
+
+  useEffect(() => {
+    if (!initialAuthToken || !initialEmail) return
+    setIdentityLoading(true)
+    verifySchedulingAuthToken(formId, initialEmail, initialAuthToken)
+      .then((session) => {
+        setSignupAuthToken(session.signupAuthToken)
+        setAccountEmail(session.email)
+        setIdentityPhase('ready')
+        setIsNewUser(false)
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : 'Invalid sign-in link'))
+      .finally(() => setIdentityLoading(false))
+  }, [formId, initialAuthToken, initialEmail])
 
   useEffect(() => {
     if (!manualCategoryPickRef.current || categoryId === undefined) return
@@ -215,29 +262,118 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
     manualCategoryPickRef.current = true
     setSlotGroupId(null)
     setCategoryId(catId)
+    if (!signupAuthToken) {
+      setIdentityPhase('pending')
+      setIsNewUser(false)
+      setMagicLinkSent(false)
+    }
+  }
+
+  const handleSlotSelect = (groupId: number) => {
+    setSlotGroupId(groupId)
+    if (!signupAuthToken && identityPhase !== 'ready') {
+      setIdentityPhase('email')
+      setIsNewUser(false)
+      setMagicLinkSent(false)
+    }
+  }
+
+  useEffect(() => {
+    if (slotGroupId == null || signupAuthToken || identityPhase === 'ready' || identityPhase === 'login') {
+      return
+    }
+    if (identityPhase === 'pending') {
+      setIdentityPhase('email')
+    }
+  }, [slotGroupId, signupAuthToken, identityPhase])
+
+  const handleEmailContinue = async () => {
+    const email = accountEmail.trim()
+    if (!email) {
+      setError('Enter your email address')
+      return
+    }
+    setIdentityLoading(true)
+    setError(null)
+    setMagicLinkSent(false)
+    try {
+      const check = await checkSchedulingEmail(formId, email)
+      if (check.exists) {
+        setIsNewUser(false)
+        setIdentityPhase('login')
+        if (!check.hasPassword) {
+          await requestSchedulingMagicLink(formId, email)
+          setMagicLinkSent(true)
+        }
+      } else {
+        setIsNewUser(true)
+        setIdentityPhase('ready')
+        setResponses((prev) => ({ ...prev, email }))
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to check email')
+    } finally {
+      setIdentityLoading(false)
+    }
+  }
+
+  const handleLogin = async () => {
+    setIdentityLoading(true)
+    setError(null)
+    try {
+      const session = await loginSchedulingAuth(formId, accountEmail.trim(), accountPassword)
+      setSignupAuthToken(session.signupAuthToken)
+      setIdentityPhase('ready')
+      setIsNewUser(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign in failed')
+    } finally {
+      setIdentityLoading(false)
+    }
+  }
+
+  const handleMagicLink = async () => {
+    setIdentityLoading(true)
+    setError(null)
+    try {
+      await requestSchedulingMagicLink(formId, accountEmail.trim())
+      setMagicLinkSent(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send link')
+    } finally {
+      setIdentityLoading(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formDetail || categoryId === undefined || !slotGroupId) return
+    if (identityPhase !== 'ready') return
     setSubmitting(true)
     setError(null)
     try {
       const payload: Record<string, string | boolean | number | string[]> = {}
-      for (const field of enabledFields) {
-        const raw = responses[field.key]
-        if (field.type === 'email_list') {
-          const list = (Array.isArray(raw) ? raw : []).map((s) => s.trim()).filter(Boolean)
-          if (list.length > 0) payload[field.key] = list
-        } else if (raw != null && String(raw).trim() !== '') {
-          payload[field.key] = field.type === 'number' ? Number(raw) : String(raw).trim()
+      if (isNewUser) {
+        for (const field of enabledFields) {
+          const raw = responses[field.key]
+          if (field.type === 'email_list') {
+            const list = (Array.isArray(raw) ? raw : []).map((s) => s.trim()).filter(Boolean)
+            if (list.length > 0) payload[field.key] = list
+          } else if (raw != null && String(raw).trim() !== '') {
+            payload[field.key] = field.type === 'number' ? Number(raw) : String(raw).trim()
+          }
+        }
+        if (!newAccountPassword || newAccountPassword.length < 6) {
+          throw new Error('Account password must be at least 6 characters')
         }
       }
       const result = await submitSchedulingSignup({
         formId: formDetail.id,
         categoryId,
         slotGroupId,
-        responses: payload,
+        responses: isNewUser ? payload : { email: accountEmail.trim() },
+        signupAuthToken: signupAuthToken || undefined,
+        password: isNewUser ? newAccountPassword : undefined,
       })
       setSignupResult(result)
       setSuccess(true)
@@ -252,10 +388,14 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
     ? 'bg-white rounded-xl border border-gray-200 p-4 shadow-sm'
     : 'bg-white rounded-2xl border border-gray-200 p-6 shadow-sm'
 
+  const slotSelected = categoryId !== undefined && slotGroupId !== null
+  const identityReady = identityPhase === 'ready'
   const showCategoryPick = bookableCategories.length > 1 && categoryId === undefined
-  const showSlotPick =
-    categoryId !== undefined && bookableGroups.length > 1 && slotGroupId === null
-  const showSignup = categoryId !== undefined && slotGroupId !== null
+  const showSlotPick = categoryId !== undefined && bookableGroups.length > 1 && slotGroupId === null
+  const showEmailStep = slotSelected && identityPhase === 'email'
+  const showLoginStep = slotSelected && identityPhase === 'login'
+  const showNewUserForm = slotSelected && identityReady && isNewUser
+  const showSubmit = slotSelected && identityReady
 
   const selectedCategoryName = useMemo(() => {
     if (categoryId === undefined || !formDetail) return null
@@ -302,6 +442,29 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
           <p className="text-gray-600 text-sm mt-2">
             Your parent or guardian will receive a separate waiver email.
           </p>
+        )}
+        {signupResult?.pricing?.hasPricing && (
+          <div className="mt-4 text-left rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800">
+            <p className="font-semibold text-black mb-2">Monthly cost summary</p>
+            {signupResult.categoryName && signupResult.slotLabel && (
+              <p className="mb-2 text-gray-600">
+                Slot: {signupResult.categoryName} — {signupResult.slotLabel}
+              </p>
+            )}
+            <ul className="space-y-1">
+              <li>Slots held: {signupResult.pricing.totalSlots}</li>
+              {signupResult.pricing.hasFreeSlots && (
+                <li>Free slots remaining: {signupResult.pricing.freeSlotsRemaining}</li>
+              )}
+              <li>Non-discounted total: {formatMoney(signupResult.pricing.nonDiscountedMonthly)}/mo</li>
+              {signupResult.pricing.discountMonthly > 0 && (
+                <li>Discount: -{formatMoney(signupResult.pricing.discountMonthly)}/mo</li>
+              )}
+              <li className="font-semibold text-black">
+                Your total: {formatMoney(signupResult.pricing.discountedMonthly)}/mo
+              </li>
+            </ul>
+          </div>
         )}
       </div>
     )
@@ -384,7 +547,7 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
                 <button
                   key={group.id}
                   type="button"
-                  onClick={() => setSlotGroupId(group.id)}
+                  onClick={() => handleSlotSelect(group.id)}
                   className={`text-left rounded-xl border-2 p-3 transition-all ${
                     slotGroupId === group.id
                       ? 'border-vortex-red bg-red-50'
@@ -420,7 +583,122 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
           </div>
         )}
 
-        {!categoryLoading && showSignup && (
+        {slotSelected && selectedGroup && !showCategoryPick && !showSlotPick && (
+          <div className={`${sectionClass} text-sm text-gray-700`}>
+            <span className="font-semibold text-black">Selected slot: </span>
+            {selectedCategoryName && <span>{selectedCategoryName} — </span>}
+            {selectedGroup.occurrences.map((occ) => (
+              <span key={occ.id} className="block sm:inline">
+                {formatSchedulingOccurrenceLabel(occ, {
+                  includeWeek: showWeekInLabels,
+                  formatTime: formatTimeLabel,
+                })}
+              </span>
+            ))}
+            {!signupAuthToken && identityPhase !== 'ready' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSlotGroupId(null)
+                  setIdentityPhase('pending')
+                }}
+                className="ml-0 sm:ml-3 mt-2 sm:mt-0 text-vortex-red font-semibold hover:underline block sm:inline"
+              >
+                Change slot
+              </button>
+            )}
+          </div>
+        )}
+
+        {showEmailStep && (
+          <div className={sectionClass}>
+            <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
+              Your email
+            </h4>
+            <p className="text-sm text-gray-600 mb-3">
+              Enter the email for your Vortex account. Returning members can sign in and skip the form.
+            </p>
+            <input
+              type="email"
+              required
+              value={accountEmail}
+              onChange={(e) => setAccountEmail(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-vortex-red outline-none"
+              placeholder="you@email.com"
+            />
+            <button
+              type="button"
+              disabled={identityLoading}
+              onClick={handleEmailContinue}
+              className="mt-4 inline-flex items-center gap-2 bg-vortex-red text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-60"
+            >
+              {identityLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              Continue
+            </button>
+          </div>
+        )}
+
+        {showLoginStep && (
+          <div className={sectionClass}>
+            <h4 className={`font-bold text-black mb-2 ${compact ? 'text-base' : 'text-xl'}`}>
+              Welcome back
+            </h4>
+            <p className="text-sm text-gray-600 mb-4">
+              Sign in as <span className="font-semibold text-black">{accountEmail}</span>
+            </p>
+            {magicLinkSent && (
+              <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-4">
+                Check your email for a sign-in link if you do not know your password.
+              </p>
+            )}
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+            <input
+              type="password"
+              value={accountPassword}
+              onChange={(e) => setAccountPassword(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-vortex-red outline-none mb-3"
+              autoComplete="current-password"
+            />
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                disabled={identityLoading}
+                onClick={handleLogin}
+                className="inline-flex items-center gap-2 bg-vortex-red text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-60"
+              >
+                {identityLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                Sign in
+              </button>
+              <button
+                type="button"
+                disabled={identityLoading}
+                onClick={handleMagicLink}
+                className="text-sm text-vortex-red font-semibold hover:underline"
+              >
+                Email me a sign-in link
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIdentityPhase('email')
+                  setAccountPassword('')
+                  setMagicLinkSent(false)
+                }}
+                className="text-sm text-gray-600 hover:underline"
+              >
+                Use a different email
+              </button>
+            </div>
+          </div>
+        )}
+
+        {slotSelected && identityReady && !isNewUser && (
+          <div className={`${sectionClass} text-sm text-green-800 bg-green-50 border border-green-200`}>
+            Signed in as <span className="font-semibold">{accountEmail}</span>.
+          </div>
+        )}
+
+        {!categoryLoading && showNewUserForm && (
           <div className={sectionClass}>
             <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
               Your information
@@ -444,6 +722,26 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
                   />
                 </div>
               ))}
+              <div>
+                <label htmlFor="signup-account-password" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Account password
+                  <span className="text-vortex-red ml-1">*</span>
+                </label>
+                <input
+                  id="signup-account-password"
+                  type="password"
+                  required
+                  minLength={6}
+                  value={newAccountPassword}
+                  onChange={(e) => setNewAccountPassword(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-vortex-red outline-none"
+                  autoComplete="new-password"
+                  placeholder="Create a password for your member account"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  You can complete your full profile later in the member portal.
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -455,7 +753,7 @@ const SchedulingSignupEmbed = ({ formId, compact = false, fromEvent = false }: P
           </div>
         )}
 
-        {!categoryLoading && showSignup && (
+        {!categoryLoading && showSubmit && (
           <button
             type="submit"
             disabled={submitting}

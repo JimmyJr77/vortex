@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Ban, Calendar, Check, Clock, Loader2, Mail, MailPlus, Plus, X } from 'lucide-react'
+import { Ban, Calendar, Check, Loader2, Mail, MailPlus, Plus, X } from 'lucide-react'
 import AdminSchedulingCategories from './scheduling/AdminSchedulingCategories'
 import AdminSchedulingSignupFields from './scheduling/AdminSchedulingSignupFields'
 import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
@@ -13,6 +13,7 @@ import {
   adminResendSignupEmail,
   adminUpdateSignupFields,
   adminUpdateSignupStatus,
+  adminUpdateSignupMemberPassword,
   type SchedulingFormDetail,
   type SchedulingFormSummary,
   type SchedulingSignup,
@@ -28,6 +29,9 @@ const emptyForm = (): Partial<SchedulingFormSummary> & { title: string } => ({
   startDate: null,
   endDate: null,
   isActive: true,
+  maxSlotsPerUser: null,
+  slotCostMonthlyCents: 0,
+  freeSlotsPerUser: 0,
 })
 
 const PANELS: { id: Panel; label: string }[] = [
@@ -54,6 +58,8 @@ const AdminScheduling = () => {
   const [mandateWaiverDraft, setMandateWaiverDraft] = useState(false)
   const [settingsSaved, setSettingsSaved] = useState(false)
   const [signupActionId, setSignupActionId] = useState<number | null>(null)
+  const [passwordDrafts, setPasswordDrafts] = useState<Record<number, string>>({})
+  const [passwordSavingId, setPasswordSavingId] = useState<number | null>(null)
 
   const iconActionClass =
     'p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none'
@@ -75,6 +81,9 @@ const AdminScheduling = () => {
       startDate,
       endDate,
       isActive: data.isActive,
+      maxSlotsPerUser: data.maxSlotsPerUser ?? null,
+      slotCostMonthlyCents: data.slotCostMonthlyCents ?? 0,
+      freeSlotsPerUser: data.freeSlotsPerUser ?? 0,
     })
     setSignupFieldsDraft(data.signupFields)
     setMandateWaiverDraft(data.mandateWaiver ?? false)
@@ -328,6 +337,63 @@ const AdminScheduling = () => {
                     </label>
                   </section>
 
+                  <section className="border-t border-gray-200 pt-8 space-y-4">
+                    <h3 className="text-lg font-bold text-black">Availability and Costs</h3>
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Max slots per user</label>
+                      <input
+                        type="number"
+                        min={1}
+                        placeholder="Unlimited"
+                        value={formDraft.maxSlotsPerUser ?? ''}
+                        onChange={(e) => {
+                          const v = e.target.value
+                          setFormDraft((d) => ({
+                            ...d,
+                            maxSlotsPerUser: v === '' ? null : Math.max(1, Number(v)),
+                          }))
+                          setSettingsSaved(false)
+                        }}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Leave empty for no limit on this form.</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Cost per slot per month ($)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        step={0.01}
+                        value={(formDraft.slotCostMonthlyCents ?? 0) / 100}
+                        onChange={(e) => {
+                          const dollars = Number(e.target.value) || 0
+                          setFormDraft((d) => ({
+                            ...d,
+                            slotCostMonthlyCents: Math.round(dollars * 100),
+                          }))
+                          setSettingsSaved(false)
+                        }}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Free slots per user</label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={formDraft.freeSlotsPerUser ?? 0}
+                        onChange={(e) => {
+                          setFormDraft((d) => ({
+                            ...d,
+                            freeSlotsPerUser: Math.max(0, Number(e.target.value) || 0),
+                          }))
+                          setSettingsSaved(false)
+                        }}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                      />
+                    </div>
+                  </section>
+
                   <section className="border-t border-gray-200 pt-8">
                     <h3 className="text-lg font-bold text-black mb-4">Signup fields</h3>
                     <AdminSchedulingSignupFields
@@ -389,6 +455,9 @@ const AdminScheduling = () => {
                         <tr className="border-b border-gray-200 text-left text-gray-600">
                           <th className="py-2 pr-4 w-0">Name</th>
                           <th className="py-2 pr-4 w-0">Email</th>
+                          <th className="py-2 pr-4 w-0">Account</th>
+                          <th className="py-2 pr-4 w-0">Password</th>
+                          <th className="py-2 pr-4 w-0">Total slots</th>
                           <th className="py-2 pr-4 w-0">Category</th>
                           <th className="py-2 pr-4 w-0">Slot</th>
                           <th className="py-2 pr-4 w-0">Status</th>
@@ -412,15 +481,68 @@ const AdminScheduling = () => {
                               {s.lastName || String(s.responses.last_name || '')}
                             </td>
                             <td className="py-3 pr-4 w-0">{s.email || String(s.responses.email || '')}</td>
+                            <td className="py-3 pr-4 w-0 text-xs">
+                              {s.memberId ? (
+                                <span>
+                                  #{s.memberId}
+                                  {s.profileComplete === false && (
+                                    <span className="ml-1 text-amber-700 font-medium">Incomplete</span>
+                                  )}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400">—</span>
+                              )}
+                            </td>
+                            <td className="py-3 pr-4 w-0">
+                              {s.memberId ? (
+                                <div className="flex items-center gap-1">
+                                  <input
+                                    type="password"
+                                    placeholder="New password"
+                                    value={passwordDrafts[s.id] ?? ''}
+                                    onChange={(e) =>
+                                      setPasswordDrafts((prev) => ({ ...prev, [s.id]: e.target.value }))
+                                    }
+                                    className="w-28 rounded border border-gray-300 px-2 py-1 text-xs"
+                                  />
+                                  <button
+                                    type="button"
+                                    disabled={
+                                      passwordSavingId === s.id ||
+                                      !(passwordDrafts[s.id]?.length >= 6)
+                                    }
+                                    onClick={async () => {
+                                      setPasswordSavingId(s.id)
+                                      try {
+                                        await adminUpdateSignupMemberPassword(
+                                          s.id,
+                                          passwordDrafts[s.id],
+                                        )
+                                        setPasswordDrafts((prev) => ({ ...prev, [s.id]: '' }))
+                                      } catch (e) {
+                                        alert(e instanceof Error ? e.message : 'Failed to save password')
+                                      } finally {
+                                        setPasswordSavingId(null)
+                                      }
+                                    }}
+                                    className="text-xs text-vortex-red font-semibold hover:underline disabled:opacity-40"
+                                  >
+                                    Save
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-gray-400 text-xs">—</span>
+                              )}
+                            </td>
+                            <td className="py-3 pr-4 w-0 text-xs font-medium">
+                              {s.totalSlotsForUser != null ? s.totalSlotsForUser : '—'}
+                            </td>
                             <td className="py-3 pr-4 w-0">{s.categoryName}</td>
                             <td className="py-3 pr-4 w-0">
-                              <div className="inline-flex items-start gap-1">
-                                <Clock className="w-3 h-3 mt-0.5 shrink-0" />
-                                <div className="inline-flex flex-col gap-0.5">
-                                  {slotLines.map((line, lineIndex) => (
-                                    <span key={lineIndex}>{line}</span>
-                                  ))}
-                                </div>
+                              <div className="inline-flex flex-col gap-0.5">
+                                {slotLines.map((line, lineIndex) => (
+                                  <span key={lineIndex}>{line}</span>
+                                ))}
                               </div>
                             </td>
                             <td className="py-3 pr-4 w-0 capitalize">

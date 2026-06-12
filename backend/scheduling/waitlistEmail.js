@@ -1,4 +1,5 @@
 import { sendEmail } from '../email/sendEmail.js'
+import { formatPricingEmailBlock } from './pricing.js'
 
 const TEAM_EMAIL = process.env.SMTP_FROM || process.env.SMTP_USER || 'team@vortexathletics.com'
 
@@ -18,6 +19,7 @@ function escapeHtml(str) {
  *   categoryName: string
  *   slotLabel: string
  *   waitlistPosition: number
+ *   pricing?: object | null
  * }} params
  */
 export async function sendWaitlistEmail({
@@ -27,10 +29,14 @@ export async function sendWaitlistEmail({
   categoryName,
   slotLabel,
   waitlistPosition,
+  pricing,
 }) {
   const firstName = registrantFirstName || 'there'
   const title = formTitle || 'your Vortex Athletics event'
   const subject = `You're on the waitlist for ${title} — Vortex Athletics`
+
+  const pricingBlock = formatPricingEmailBlock(pricing)
+  const pricingText = pricingBlock.text ? `\n\n${pricingBlock.text}\n` : ''
 
   const text = `Hi ${firstName},
 
@@ -42,7 +48,7 @@ You've signed up for:
 • Event: ${title}
 • Category: ${categoryName}
 • Time: ${slotLabel}
-
+${pricingText}
 We'll email you if a spot opens up. If you have questions, reply to this email or contact us at ${TEAM_EMAIL}.
 
 Vortex Athletics
@@ -60,6 +66,7 @@ ${TEAM_EMAIL}`
     <tr><td style="padding: 6px 12px 6px 0; color: #666;">Category</td><td><strong>${escapeHtml(categoryName)}</strong></td></tr>
     <tr><td style="padding: 6px 12px 6px 0; color: #666;">Time</td><td><strong>${escapeHtml(slotLabel)}</strong></td></tr>
   </table>
+  ${pricingBlock.html}
   <p>We'll email you if a spot opens up.</p>
   <p>Questions? Reply to this email or contact us at <a href="mailto:${escapeHtml(TEAM_EMAIL)}">${escapeHtml(TEAM_EMAIL)}</a>.</p>
   <p style="margin-top: 24px;"><strong>Vortex Athletics</strong></p>

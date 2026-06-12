@@ -22,6 +22,7 @@ import { registerDbQueryRoutes } from './dbQueries/registerRoutes.js'
 import { appendStaffNote } from './notes/handlers.js'
 import { setMemberSchools } from './schools/handlers.js'
 import { getEmailConfigSummary, isEmailConfigured, verifySmtpConnection } from './email/sendEmail.js'
+import { refreshMemberProfileComplete } from './members/createMemberStub.js'
 
 const { Pool } = pkg
 
@@ -971,7 +972,9 @@ export const initDatabase = async () => {
       ADD COLUMN IF NOT EXISTS injury_history_body_part TEXT,
       ADD COLUMN IF NOT EXISTS injury_history_notes TEXT,
       ADD COLUMN IF NOT EXISTS no_injury_history BOOLEAN DEFAULT FALSE,
-      ADD COLUMN IF NOT EXISTS experience TEXT
+      ADD COLUMN IF NOT EXISTS experience TEXT,
+      ADD COLUMN IF NOT EXISTS profile_complete BOOLEAN NOT NULL DEFAULT TRUE,
+      ADD COLUMN IF NOT EXISTS signup_source VARCHAR(32)
     `)
     
     // Add unique constraint for email (only when email is not null)
@@ -6208,9 +6211,9 @@ app.post('/api/admin/members', async (req, res) => {
         parent_guardian_ids, has_completed_waivers, waiver_completion_date,
         medical_notes, medical_concerns, internal_flags,
         gender, injury_history_date, injury_history_body_part, injury_history_notes, no_injury_history,
-        experience, status, is_active
+        experience, status, is_active, profile_complete, signup_source
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, 'legacy', TRUE)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, 'legacy', TRUE, TRUE, 'admin')
       RETURNING *
     `
     
@@ -7613,6 +7616,14 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
         m.family_is_active,
         m.family_id,
         m.username,
+        m.profile_complete,
+        m.signup_source,
+        m.gender,
+        m.medical_concerns,
+        m.injury_history_date,
+        m.injury_history_body_part,
+        m.injury_history_notes,
+        m.no_injury_history,
         m.created_at,
         m.updated_at,
         f.family_name,
@@ -7772,6 +7783,14 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       familyId: row.family_id,
       familyName: row.family_name,
       username: row.username,
+      profileComplete: row.profile_complete !== false,
+      signupSource: row.signup_source,
+      gender: row.gender,
+      medicalConcerns: row.medical_concerns,
+      injuryHistoryDate: row.injury_history_date,
+      injuryHistoryBodyPart: row.injury_history_body_part,
+      injuryHistoryNotes: row.injury_history_notes,
+      noInjuryHistory: row.no_injury_history,
       roles: rolesMap[row.id] || [],
       enrollments: enrollmentsMap[row.id] || [],
       createdAt: row.created_at,
@@ -8081,6 +8100,7 @@ app.put('/api/members/family/:id', authenticateMember, async (req, res) => {
           SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
           WHERE id = $${paramCount}
         `, updateValues)
+        await refreshMemberProfileComplete(pool, familyMemberId)
       }
     } else {
       // Update user (guardian)

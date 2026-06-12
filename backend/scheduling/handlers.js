@@ -1,9 +1,26 @@
 import Joi from 'joi'
+import {
+  countActiveSignupsForMember,
+  createMemberStub,
+  findMemberByEmail,
+  findMemberById,
+  updateMemberPassword,
+} from '../members/createMemberStub.js'
 import { sendConfirmationEmail } from './confirmationEmail.js'
 import { sendDemotionEmail } from './demotionEmail.js'
+import { sendMagicLinkEmail } from './magicLinkEmail.js'
 import { sendPromotionEmail } from './promotionEmail.js'
 import { sendWaitlistEmail } from './waitlistEmail.js'
 import { sendWaiverEmail } from './waiverEmail.js'
+import { computeMonthlyPricing } from './pricing.js'
+import {
+  generateMagicToken,
+  issueSignupAuthToken,
+  storeMagicToken,
+  verifyMagicToken,
+  verifyMemberPassword,
+  verifySignupAuthToken,
+} from './signupAuth.js'
 import {
   buildSignupPositionMessage,
   computeSignupPositions,
@@ -78,6 +95,9 @@ function mapFormRow(row) {
     signupFields: parseSignupFields(row),
     mandateWaiver: Boolean(row.mandate_waiver),
     isActive: row.is_active,
+    maxSlotsPerUser: row.max_slots_per_user != null ? Number(row.max_slots_per_user) : null,
+    slotCostMonthlyCents: Number(row.slot_cost_monthly_cents ?? 0),
+    freeSlotsPerUser: Number(row.free_slots_per_user ?? 0),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -302,6 +322,7 @@ function mapSignupRow(row, positions = {}) {
   return {
     id: Number(row.id),
     formId: Number(row.form_id),
+    memberId: row.member_id != null ? Number(row.member_id) : null,
     categoryId: row.category_id != null ? Number(row.category_id) : null,
     timeSlotId: row.time_slot_id != null ? Number(row.time_slot_id) : null,
     slotGroupId: row.slot_group_id != null ? Number(row.slot_group_id) : null,
@@ -314,6 +335,8 @@ function mapSignupRow(row, positions = {}) {
     signupNumber: positions.signupNumber ?? null,
     maxParticipants: positions.maxParticipants ?? null,
     waitlistPosition: positions.waitlistPosition ?? null,
+    totalSlotsForUser: row.total_slots_for_user != null ? Number(row.total_slots_for_user) : undefined,
+    profileComplete: row.profile_complete != null ? Boolean(row.profile_complete) : undefined,
     createdAt: row.created_at,
     categoryName: row.category_name || 'No Category',
     slotLabel: row.slot_label,
@@ -322,6 +345,7 @@ function mapSignupRow(row, positions = {}) {
     waiverEmailSentAt: row.waiver_email_sent_at || null,
     promotionEmailSentAt: row.promotion_email_sent_at || null,
     demotionEmailSentAt: row.demotion_email_sent_at || null,
+    pricing: positions.pricing ?? undefined,
   }
 }
 
@@ -513,6 +537,9 @@ const formSchema = Joi.object({
   startDate: Joi.alternatives().try(Joi.date().iso(), Joi.string().allow('')).allow(null).optional(),
   endDate: Joi.alternatives().try(Joi.date().iso(), Joi.string().allow('')).allow(null).optional(),
   isActive: Joi.boolean().optional(),
+  maxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
+  slotCostMonthlyCents: Joi.number().integer().min(0).optional(),
+  freeSlotsPerUser: Joi.number().integer().min(0).optional(),
 })
 
 const categorySchema = Joi.object({
@@ -580,7 +607,43 @@ const signupSchema = Joi.object({
   categoryId: Joi.number().integer().allow(null).optional(),
   slotGroupId: Joi.number().integer().required(),
   timeSlotId: Joi.number().integer().optional(),
-  responses: Joi.object().required(),
+  responses: Joi.object().default({}),
+  signupAuthToken: Joi.string().trim().optional(),
+  password: Joi.string().min(6).optional(),
+}).custom((val, helpers) => {
+  if (!val.signupAuthToken && !val.password) {
+    return helpers.error('any.custom', { message: 'Sign in or set an account password to continue' })
+  }
+  if (val.signupAuthToken && val.password) {
+    return helpers.error('any.custom', { message: 'Provide either sign-in session or new password, not both' })
+  }
+  return val
+})
+
+const checkEmailSchema = Joi.object({
+  formId: Joi.number().integer().required(),
+  email: Joi.string().email().required(),
+})
+
+const authLoginSchema = Joi.object({
+  formId: Joi.number().integer().required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+})
+
+const magicLinkSchema = Joi.object({
+  formId: Joi.number().integer().required(),
+  email: Joi.string().email().required(),
+})
+
+const verifyTokenSchema = Joi.object({
+  formId: Joi.number().integer().required(),
+  email: Joi.string().email().required(),
+  token: Joi.string().required(),
+})
+
+const memberPasswordSchema = Joi.object({
+  password: Joi.string().min(6).required(),
 })
 
 export function createSchedulingHandlers(pool) {
@@ -636,13 +699,152 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async checkEmail(req, res) {
+      try {
+        const { error, value } = checkEmailSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const member = await findMemberByEmail(pool, value.email)
+        res.json({
+          success: true,
+          data: {
+            exists: Boolean(member),
+            hasPassword: Boolean(member?.has_password),
+            firstName: member?.first_name || null,
+            lastName: member?.last_name || null,
+            profileComplete: member?.profile_complete != null ? Boolean(member.profile_complete) : null,
+          },
+        })
+      } catch (err) {
+        console.error('[scheduling] checkEmail:', err)
+        res.status(500).json({ success: false, message: 'Failed to check email' })
+      }
+    },
+
+    async authLogin(req, res) {
+      try {
+        const { error, value } = authLoginSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const member = await findMemberByEmail(pool, value.email)
+        if (!member) {
+          return res.status(401).json({ success: false, message: 'No account found for this email' })
+        }
+        const valid = await verifyMemberPassword(member, value.password)
+        if (!valid) {
+          return res.status(401).json({ success: false, message: 'Incorrect password' })
+        }
+        const signupAuthToken = issueSignupAuthToken({
+          formId: value.formId,
+          memberId: member.id,
+          email: member.email,
+        })
+        res.json({
+          success: true,
+          data: {
+            signupAuthToken,
+            memberId: Number(member.id),
+            profileComplete: Boolean(member.profile_complete),
+            firstName: member.first_name,
+            lastName: member.last_name,
+            email: member.email,
+          },
+        })
+      } catch (err) {
+        console.error('[scheduling] authLogin:', err)
+        res.status(500).json({ success: false, message: 'Failed to sign in' })
+      }
+    },
+
+    async authMagicLink(req, res) {
+      try {
+        const { error, value } = magicLinkSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const member = await findMemberByEmail(pool, value.email)
+        if (!member) {
+          return res.json({ success: true, message: 'If an account exists, a sign-in link has been sent.' })
+        }
+        const formRes = await pool.query(
+          'SELECT title FROM scheduling_form WHERE id = $1 AND deleted_at IS NULL',
+          [value.formId],
+        )
+        const token = generateMagicToken()
+        await storeMagicToken(pool, {
+          token,
+          email: value.email,
+          formId: value.formId,
+          memberId: member.id,
+        })
+        try {
+          await sendMagicLinkEmail({
+            email: value.email,
+            formId: value.formId,
+            formTitle: formRes.rows[0]?.title || 'Scheduling',
+            token,
+          })
+        } catch (emailErr) {
+          console.error('[scheduling] magic link email failed:', emailErr.message)
+          return res.status(503).json({
+            success: false,
+            message: emailErr.message || 'Failed to send sign-in email',
+          })
+        }
+        res.json({ success: true, message: 'If an account exists, a sign-in link has been sent.' })
+      } catch (err) {
+        console.error('[scheduling] authMagicLink:', err)
+        res.status(500).json({ success: false, message: 'Failed to send sign-in link' })
+      }
+    },
+
+    async authVerifyToken(req, res) {
+      try {
+        const { error, value } = verifyTokenSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const row = await verifyMagicToken(pool, {
+          token: value.token,
+          formId: value.formId,
+          email: value.email,
+        })
+        const member = await findMemberById(pool, row.member_id)
+        if (!member) {
+          return res.status(404).json({ success: false, message: 'Account not found' })
+        }
+        const signupAuthToken = issueSignupAuthToken({
+          formId: value.formId,
+          memberId: member.id,
+          email: member.email,
+        })
+        res.json({
+          success: true,
+          data: {
+            signupAuthToken,
+            memberId: Number(member.id),
+            profileComplete: Boolean(member.profile_complete),
+            firstName: member.first_name,
+            lastName: member.last_name,
+            email: member.email,
+          },
+        })
+      } catch (err) {
+        console.error('[scheduling] authVerifyToken:', err)
+        res.status(401).json({ success: false, message: err.message || 'Invalid or expired link' })
+      }
+    },
+
     async createSignup(req, res) {
       try {
         const { error, value } = signupSchema.validate(req.body, { abortEarly: false })
         if (error) {
+          const msg = error.details[0]?.message || 'Validation error'
           return res.status(400).json({
             success: false,
-            message: 'Validation error',
+            message: msg,
             errors: error.details.map((d) => d.message),
           })
         }
@@ -651,13 +853,13 @@ export function createSchedulingHandlers(pool) {
         if (formRes.rows.length === 0 || formRes.rows[0].deleted_at || !formRes.rows[0].is_active) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
         }
+        const formRow = formRes.rows[0]
         const detail = await loadFormDetail(pool, value.formId)
         if (!detail) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
         }
 
         const signupCategoryId = value.categoryId ?? null
-
         const group = detail.slotGroups.find((g) => g.id === value.slotGroupId)
         if (!group) {
           return res.status(400).json({ success: false, message: 'Invalid time slot group' })
@@ -678,16 +880,60 @@ export function createSchedulingHandlers(pool) {
           return res.status(400).json({ success: false, message: 'Time slot has no schedule entries' })
         }
 
-        const validationErrors = validateSignupResponses(detail.signupFields, value.responses, {
-          mandateWaiver: detail.mandateWaiver,
-        })
-        if (validationErrors.length > 0) {
-          return res.status(400).json({ success: false, message: validationErrors[0], errors: validationErrors })
+        let memberId = null
+        let responses = { ...value.responses }
+
+        if (value.signupAuthToken) {
+          const auth = verifySignupAuthToken(value.signupAuthToken, value.formId)
+          memberId = Number(auth.memberId)
+          const member = await findMemberById(pool, memberId)
+          if (!member) {
+            return res.status(401).json({ success: false, message: 'Account not found' })
+          }
+          responses = {
+            first_name: member.first_name,
+            last_name: member.last_name,
+            email: member.email,
+            phone: member.phone || responses.phone,
+            ...responses,
+          }
+        } else if (value.password) {
+          const validationErrors = validateSignupResponses(detail.signupFields, responses, {
+            mandateWaiver: detail.mandateWaiver,
+          })
+          if (validationErrors.length > 0) {
+            return res.status(400).json({ success: false, message: validationErrors[0], errors: validationErrors })
+          }
         }
 
         const client = await pool.connect()
         try {
           await client.query('BEGIN')
+
+          if (value.password && !memberId) {
+            memberId = await createMemberStub(client, {
+              firstName: String(responses.first_name || ''),
+              lastName: String(responses.last_name || ''),
+              email: String(responses.email || ''),
+              password: value.password,
+              phone: responses.phone ? String(responses.phone) : null,
+            })
+          }
+
+          if (!memberId) {
+            await client.query('ROLLBACK')
+            return res.status(400).json({ success: false, message: 'Could not resolve member account' })
+          }
+
+          const activeCount = await countActiveSignupsForMember(client, value.formId, memberId)
+          const maxSlots = formRow.max_slots_per_user != null ? Number(formRow.max_slots_per_user) : null
+          if (maxSlots != null && activeCount >= maxSlots) {
+            await client.query('ROLLBACK')
+            return res.status(400).json({
+              success: false,
+              message: `You have reached the maximum of ${maxSlots} slot${maxSlots === 1 ? '' : 's'} for this form`,
+            })
+          }
 
           const lock = await client.query(
             `
@@ -710,12 +956,12 @@ export function createSchedulingHandlers(pool) {
           const signupStatus =
             Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
 
-          const responses = value.responses
           const insert = await client.query(
             `
             INSERT INTO scheduling_signup
-              (form_id, category_id, time_slot_id, slot_group_id, first_name, last_name, email, phone, field_responses, responses, status)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+              (form_id, category_id, time_slot_id, slot_group_id, member_id,
+               first_name, last_name, email, phone, field_responses, responses, status)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             RETURNING *
             `,
             [
@@ -723,6 +969,7 @@ export function createSchedulingHandlers(pool) {
               signupCategoryId,
               firstOccurrence.id,
               value.slotGroupId,
+              memberId,
               responses.first_name || null,
               responses.last_name || null,
               responses.email || null,
@@ -735,21 +982,28 @@ export function createSchedulingHandlers(pool) {
 
           const signupId = insert.rows[0].id
           const positions = await computeSignupPositions(client, value.slotGroupId, signupId)
+          const totalSlotsAfter = activeCount + 1
+          const pricing = computeMonthlyPricing(formRow, totalSlotsAfter)
+          positions.pricing = pricing
 
           await client.query('COMMIT')
 
           const slotLabel = group.displayLabel || firstOccurrence.displayLabel || ''
           let confirmationEmailSentAt = null
           let waiverEmailSentAt = null
+          const emailParams = {
+            registrantFirstName: String(responses.first_name || ''),
+            registrantEmail: String(responses.email || ''),
+            formTitle: detail.title,
+            categoryName: category.name,
+            slotLabel,
+            pricing,
+          }
 
           if (signupStatus === 'confirmed') {
             try {
               await sendConfirmationEmail({
-                registrantFirstName: String(responses.first_name || ''),
-                registrantEmail: String(responses.email || ''),
-                formTitle: detail.title,
-                categoryName: category.name,
-                slotLabel,
+                ...emailParams,
                 signupNumber: positions.signupNumber,
                 maxParticipants: positions.maxParticipants,
               })
@@ -760,11 +1014,7 @@ export function createSchedulingHandlers(pool) {
           } else {
             try {
               await sendWaitlistEmail({
-                registrantFirstName: String(responses.first_name || ''),
-                registrantEmail: String(responses.email || ''),
-                formTitle: detail.title,
-                categoryName: category.name,
-                slotLabel,
+                ...emailParams,
                 waitlistPosition: positions.waitlistPosition,
               })
               confirmationEmailSentAt = new Date().toISOString()
@@ -813,13 +1063,19 @@ export function createSchedulingHandlers(pool) {
           })
         } catch (txErr) {
           await client.query('ROLLBACK')
+          if (txErr.message?.includes('already exists')) {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
           throw txErr
         } finally {
           client.release()
         }
       } catch (err) {
         console.error('[scheduling] createSignup:', err)
-        res.status(500).json({ success: false, message: 'Failed to submit signup' })
+        if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+          return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
+        }
+        res.status(500).json({ success: false, message: err.message || 'Failed to submit signup' })
       }
     },
 
@@ -859,8 +1115,11 @@ export function createSchedulingHandlers(pool) {
         }
         const result = await pool.query(
           `
-          INSERT INTO scheduling_form (title, description, start_date, end_date, is_active, signup_fields)
-          VALUES ($1, $2, $3, $4, $5, $6)
+          INSERT INTO scheduling_form (
+            title, description, start_date, end_date, is_active, signup_fields,
+            max_slots_per_user, slot_cost_monthly_cents, free_slots_per_user
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           RETURNING *
           `,
           [
@@ -870,6 +1129,9 @@ export function createSchedulingHandlers(pool) {
             formatDateOnly(value.endDate),
             value.isActive !== false,
             JSON.stringify([...DEFAULT_SIGNUP_FIELDS]),
+            value.maxSlotsPerUser ?? null,
+            value.slotCostMonthlyCents ?? 0,
+            value.freeSlotsPerUser ?? 0,
           ],
         )
         res.json({ success: true, data: mapFormRow(result.rows[0]) })
@@ -889,8 +1151,12 @@ export function createSchedulingHandlers(pool) {
           `
           UPDATE scheduling_form
           SET title = $1, description = $2, start_date = $3, end_date = $4,
-              is_active = COALESCE($5, is_active), updated_at = now()
-          WHERE id = $6 AND deleted_at IS NULL
+              is_active = COALESCE($5, is_active),
+              max_slots_per_user = $6,
+              slot_cost_monthly_cents = COALESCE($7, slot_cost_monthly_cents),
+              free_slots_per_user = COALESCE($8, free_slots_per_user),
+              updated_at = now()
+          WHERE id = $9 AND deleted_at IS NULL
           RETURNING *
           `,
           [
@@ -899,6 +1165,9 @@ export function createSchedulingHandlers(pool) {
             formatDateOnly(value.startDate),
             formatDateOnly(value.endDate),
             value.isActive,
+            value.maxSlotsPerUser !== undefined ? value.maxSlotsPerUser : null,
+            value.slotCostMonthlyCents,
+            value.freeSlotsPerUser,
             req.params.id,
           ],
         )
@@ -1327,7 +1596,13 @@ export function createSchedulingHandlers(pool) {
         const result = await pool.query(
           `
           SELECT s.*, c.name AS category_name, f.title AS form_title,
+            m.profile_complete,
             ts.week_letter, ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time, ts.schedule_mode,
+            (
+              SELECT COUNT(*)::int FROM scheduling_signup s2
+              WHERE s2.form_id = s.form_id AND s2.member_id = s.member_id
+                AND s2.status IN ('confirmed', 'waitlisted')
+            ) AS total_slots_for_user,
             (
               SELECT COALESCE(json_agg(
                 json_build_object(
@@ -1346,6 +1621,7 @@ export function createSchedulingHandlers(pool) {
           FROM scheduling_signup s
           LEFT JOIN scheduling_category c ON c.id = s.category_id
           LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
+          LEFT JOIN member m ON m.id = s.member_id
           JOIN scheduling_form f ON f.id = s.form_id
           WHERE ${where}
           ORDER BY s.created_at DESC
@@ -1702,6 +1978,40 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         console.error('[scheduling] updateSlotGroupMax:', err)
         res.status(500).json({ success: false, message: 'Failed to update capacity' })
+      }
+    },
+
+    async updateSignupMemberPassword(req, res) {
+      try {
+        const { error, value } = memberPasswordSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const signupRes = await pool.query('SELECT * FROM scheduling_signup WHERE id = $1', [
+          req.params.id,
+        ])
+        if (signupRes.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Signup not found' })
+        }
+        const signup = signupRes.rows[0]
+        if (!signup.member_id) {
+          return res.status(400).json({ success: false, message: 'Signup has no linked member account' })
+        }
+        const client = await pool.connect()
+        try {
+          await client.query('BEGIN')
+          await updateMemberPassword(client, signup.member_id, value.password)
+          await client.query('COMMIT')
+        } catch (txErr) {
+          await client.query('ROLLBACK')
+          throw txErr
+        } finally {
+          client.release()
+        }
+        res.json({ success: true, message: 'Password updated' })
+      } catch (err) {
+        console.error('[scheduling] updateSignupMemberPassword:', err)
+        res.status(500).json({ success: false, message: err.message || 'Failed to update password' })
       }
     },
   }

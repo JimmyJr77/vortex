@@ -1633,6 +1633,12 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
+                {profileData?.profileComplete === false && (
+                  <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 text-sm">
+                    <strong>Complete your profile</strong> to unlock all member portal features.
+                    Add your contact details, personal information, and medical info in your profile below.
+                  </div>
+                )}
                 {/* Members Section - Matching AdminMembers Format */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">

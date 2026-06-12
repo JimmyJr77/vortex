@@ -84,6 +84,17 @@ export interface SlotsByCategory {
   }
 }
 
+export interface SchedulingMonthlyPricing {
+  totalSlots: number
+  freeSlotsRemaining: number
+  costPerSlotMonthly: number
+  nonDiscountedMonthly: number
+  discountMonthly: number
+  discountedMonthly: number
+  hasFreeSlots: boolean
+  hasPricing: boolean
+}
+
 export interface SchedulingFormSummary {
   id: number
   title: string
@@ -93,6 +104,9 @@ export interface SchedulingFormSummary {
   signupFields: string[]
   mandateWaiver: boolean
   isActive: boolean
+  maxSlotsPerUser?: number | null
+  slotCostMonthlyCents?: number
+  freeSlotsPerUser?: number
 }
 
 export interface SchedulingFormDetail extends SchedulingFormSummary {
@@ -107,6 +121,7 @@ export interface SchedulingFormDetail extends SchedulingFormSummary {
 export interface SchedulingSignup {
   id: number
   formId: number
+  memberId?: number | null
   categoryId: number | null
   timeSlotId?: number | null
   slotGroupId?: number | null
@@ -119,6 +134,9 @@ export interface SchedulingSignup {
   signupNumber?: number | null
   maxParticipants?: number | null
   waitlistPosition?: number | null
+  totalSlotsForUser?: number
+  profileComplete?: boolean
+  pricing?: SchedulingMonthlyPricing
   createdAt: string
   categoryName?: string
   slotLabel?: string
@@ -127,6 +145,23 @@ export interface SchedulingSignup {
   waiverEmailSentAt?: string | null
   promotionEmailSentAt?: string | null
   demotionEmailSentAt?: string | null
+}
+
+export interface SchedulingEmailCheckResult {
+  exists: boolean
+  hasPassword: boolean
+  firstName: string | null
+  lastName: string | null
+  profileComplete: boolean | null
+}
+
+export interface SchedulingAuthSession {
+  signupAuthToken: string
+  memberId: number
+  profileComplete: boolean
+  firstName: string
+  lastName: string
+  email: string
 }
 
 export interface SlotBatchPayload {
@@ -190,11 +225,63 @@ export async function fetchPublicSchedulingForm(
   return parseJson(res)
 }
 
+export async function checkSchedulingEmail(
+  formId: number,
+  email: string,
+): Promise<SchedulingEmailCheckResult> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/auth/check-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ formId, email }),
+  })
+  return parseJson(res)
+}
+
+export async function loginSchedulingAuth(
+  formId: number,
+  email: string,
+  password: string,
+): Promise<SchedulingAuthSession> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ formId, email, password }),
+  })
+  return parseJson(res)
+}
+
+export async function requestSchedulingMagicLink(formId: number, email: string): Promise<void> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/auth/magic-link`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ formId, email }),
+  })
+  const data = await res.json()
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || 'Failed to send sign-in link')
+  }
+}
+
+export async function verifySchedulingAuthToken(
+  formId: number,
+  email: string,
+  token: string,
+): Promise<SchedulingAuthSession> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/auth/verify-token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ formId, email, token }),
+  })
+  return parseJson(res)
+}
+
 export async function submitSchedulingSignup(payload: {
   formId: number
   categoryId: number | null
   slotGroupId: number
   responses: Record<string, string | boolean | number | string[]>
+  signupAuthToken?: string
+  password?: string
 }): Promise<SchedulingSignup> {
   const res = await fetch(`${getApiUrl()}/api/scheduling/signups`, {
     method: 'POST',
@@ -228,6 +315,9 @@ export async function adminSaveSchedulingForm(
         startDate: normalizeSchedulingDate(payload.startDate),
         endDate: normalizeSchedulingDate(payload.endDate),
         isActive: payload.isActive,
+        maxSlotsPerUser: payload.maxSlotsPerUser ?? null,
+        slotCostMonthlyCents: payload.slotCostMonthlyCents ?? 0,
+        freeSlotsPerUser: payload.freeSlotsPerUser ?? 0,
       }),
     },
   )
@@ -345,6 +435,20 @@ export async function adminResendSignupEmail(
     body: JSON.stringify({ emailType }),
   })
   return parseJson(res)
+}
+
+export async function adminUpdateSignupMemberPassword(
+  signupId: number,
+  password: string,
+): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/scheduling/signups/${signupId}/member-password`, {
+    method: 'PATCH',
+    body: JSON.stringify({ password }),
+  })
+  const data = await res.json()
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || 'Failed to update password')
+  }
 }
 
 export async function adminUpdateSlotGroupMax(

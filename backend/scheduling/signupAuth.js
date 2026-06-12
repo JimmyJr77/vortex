@@ -1,0 +1,66 @@
+import crypto from 'crypto'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
+
+export function issueSignupAuthToken({ formId, memberId, email }) {
+  return jwt.sign(
+    { type: 'scheduling_signup', formId: Number(formId), memberId: Number(memberId), email },
+    JWT_SECRET,
+    { expiresIn: '30m' },
+  )
+}
+
+export function verifySignupAuthToken(token, formId) {
+  const decoded = jwt.verify(token, JWT_SECRET)
+  if (decoded.type !== 'scheduling_signup') {
+    throw new Error('Invalid signup session')
+  }
+  if (Number(decoded.formId) !== Number(formId)) {
+    throw new Error('Signup session is for a different form')
+  }
+  return decoded
+}
+
+export function generateMagicToken() {
+  return crypto.randomBytes(32).toString('hex')
+}
+
+export async function storeMagicToken(pool, { token, email, formId, memberId }) {
+  const tokenHash = await bcrypt.hash(token, 10)
+  const expiresAt = new Date(Date.now() + 30 * 60 * 1000)
+  await pool.query(
+    `
+    INSERT INTO scheduling_auth_token (token_hash, email, form_id, member_id, expires_at)
+    VALUES ($1, $2, $3, $4, $5)
+    `,
+    [tokenHash, email.trim().toLowerCase(), formId, memberId, expiresAt],
+  )
+}
+
+export async function verifyMagicToken(pool, { token, formId, email }) {
+  const res = await pool.query(
+    `
+    SELECT * FROM scheduling_auth_token
+    WHERE LOWER(email) = LOWER($1) AND form_id = $2
+      AND used_at IS NULL AND expires_at > now()
+    ORDER BY created_at DESC
+    LIMIT 10
+    `,
+    [email.trim(), formId],
+  )
+  for (const row of res.rows) {
+    if (await bcrypt.compare(token, row.token_hash)) {
+      await pool.query('UPDATE scheduling_auth_token SET used_at = now() WHERE id = $1', [row.id])
+      return row
+    }
+  }
+  throw new Error('Invalid or expired sign-in link')
+}
+
+export async function verifyMemberPassword(memberRow, password) {
+  const hash = memberRow?.password_hash
+  if (!hash) return false
+  return bcrypt.compare(password, hash)
+}

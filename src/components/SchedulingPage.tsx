@@ -1,21 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Calendar, ChevronRight, Loader2 } from 'lucide-react'
 import { fetchPublicSchedulingForms, type SchedulingFormSummary } from '../utils/schedulingApi'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 
 const SchedulingPage = () => {
+  const [searchParams] = useSearchParams()
+  const urlFormId = useMemo(() => {
+    const raw = searchParams.get('form')
+    if (!raw) return null
+    const n = Number(raw)
+    return Number.isFinite(n) ? n : null
+  }, [searchParams])
+  const urlAuthToken = searchParams.get('auth')
+  const urlEmail = searchParams.get('email')
+
   const [forms, setForms] = useState<SchedulingFormSummary[]>([])
-  const [selectedFormId, setSelectedFormId] = useState<number | null>(null)
+  const [selectedFormId, setSelectedFormId] = useState<number | null>(urlFormId)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchPublicSchedulingForms()
-      .then(setForms)
+      .then((data) => {
+        setForms(data)
+        if (urlFormId && data.some((f) => f.id === urlFormId)) {
+          setSelectedFormId(urlFormId)
+        }
+      })
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load forms'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [urlFormId])
 
   const selectedForm = forms.find((f) => f.id === selectedFormId) ?? null
 
@@ -107,7 +123,12 @@ const SchedulingPage = () => {
                 Cancel
               </button>
               {selectedForm && (
-                <SchedulingSignupEmbed key={selectedFormId} formId={selectedFormId} />
+                <SchedulingSignupEmbed
+                  key={selectedFormId}
+                  formId={selectedFormId}
+                  initialAuthToken={urlAuthToken}
+                  initialEmail={urlEmail}
+                />
               )}
             </div>
           )}
