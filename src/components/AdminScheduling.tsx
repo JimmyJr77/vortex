@@ -49,7 +49,7 @@ interface AdminSchedulingProps {
 
 const PANELS: { id: Panel; label: string }[] = [
   { id: 'overview', label: 'Overview' },
-  { id: 'disciplineTags', label: 'Discipline Tags' },
+  { id: 'disciplineTags', label: 'Sport Tags' },
   { id: 'form', label: 'Form' },
   { id: 'classEvents', label: 'Classes & Events' },
   { id: 'categories', label: 'Categories' },

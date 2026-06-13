@@ -41,7 +41,7 @@ const AdminSchedulingDisciplineTags = ({ programId, programDisplayName }: Props)
   useEffect(() => {
     setLoading(true)
     Promise.all([loadTags(), loadAssigned()])
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load discipline tags'))
+      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load sport tags'))
       .finally(() => setLoading(false))
   }, [loadTags, loadAssigned])
 
@@ -142,15 +142,15 @@ const AdminSchedulingDisciplineTags = ({ programId, programDisplayName }: Props)
   }
 
   if (loading) {
-    return <p className="text-gray-500 text-sm">Loading discipline tags…</p>
+    return <p className="text-gray-500 text-sm">Loading sport tags…</p>
   }
 
   return (
     <div className="w-full space-y-4">
       <div>
-        <h3 className="text-lg font-bold text-black">Discipline Tags</h3>
+        <h3 className="text-lg font-bold text-black">Sport Tags</h3>
         <p className="text-sm text-gray-600 mt-1">
-          Search, create, edit, and assign discipline tags to{' '}
+          Search, create, edit, and assign sport tags to{' '}
           <strong>{programDisplayName || 'this program'}</strong>. Tags help organize classes
           across sport disciplines and are saved at the program level.
         </p>
@@ -174,8 +174,8 @@ const AdminSchedulingDisciplineTags = ({ programId, programDisplayName }: Props)
       >
         {assignedCount > 0 ? (
           <span>
-            <strong>{assignedCount}</strong> discipline tag{assignedCount === 1 ? '' : 's'} assigned
-            to this program.
+            <strong>{assignedCount}</strong> sport tag{assignedCount === 1 ? '' : 's'} assigned to
+            this program.
           </span>
         ) : (
           <span>Select one or more tags below to associate them with this program.</span>
@@ -186,7 +186,7 @@ const AdminSchedulingDisciplineTags = ({ programId, programDisplayName }: Props)
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         <input
           type="search"
-          placeholder="Search discipline tags…"
+          placeholder="Search sport tags…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5"
@@ -195,7 +195,7 @@ const AdminSchedulingDisciplineTags = ({ programId, programDisplayName }: Props)
 
       <div className="flex gap-2">
         <input
-          placeholder="New discipline tag name"
+          placeholder="New sport tag name"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
@@ -214,7 +214,7 @@ const AdminSchedulingDisciplineTags = ({ programId, programDisplayName }: Props)
       <ul className="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden">
         {tags.length === 0 ? (
           <li className="px-4 py-3 text-gray-500 text-sm bg-white">
-            No discipline tags yet. Add one above.
+            No sport tags yet. Add one above.
           </li>
         ) : filteredTags.length === 0 ? (
           <li className="px-4 py-3 text-gray-500 text-sm bg-white">
