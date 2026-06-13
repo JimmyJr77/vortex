@@ -1,5 +1,17 @@
 import Joi from 'joi'
-import { ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
+import { ensureDisciplineTagsSchema, ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
+
+const disciplineTagSchema = Joi.object({
+  name: Joi.string().trim().min(1).max(255).required(),
+})
+
+function mapDisciplineTagRow(row) {
+  return {
+    id: Number(row.id),
+    name: row.name,
+    sortOrder: row.sort_order != null ? Number(row.sort_order) : 0,
+  }
+}
 
 const topProgramSchema = Joi.object({
   name: Joi.string().min(1).max(100).required(),
@@ -530,6 +542,140 @@ export function registerProgramsAdminRoutes(app, pool) {
     } catch (err) {
       console.error('[programs] delete top program:', err)
       res.status(500).json({ success: false, message: 'Failed to delete program' })
+    }
+  })
+
+  // ============================================================
+  // Discipline tags (global, searchable; associated at program level)
+  // ============================================================
+
+  app.get('/api/admin/discipline-tags', async (req, res) => {
+    try {
+      await ensureDisciplineTagsSchema(pool)
+      const result = await pool.query(
+        'SELECT id, name, sort_order FROM discipline_tag ORDER BY sort_order, name',
+      )
+      res.json({ success: true, data: result.rows.map(mapDisciplineTagRow) })
+    } catch (err) {
+      console.error('[programs] list discipline tags:', err)
+      res.status(500).json({ success: false, message: 'Failed to load discipline tags' })
+    }
+  })
+
+  app.post('/api/admin/discipline-tags', async (req, res) => {
+    try {
+      const { error, value } = disciplineTagSchema.validate(req.body)
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message })
+      }
+      await ensureDisciplineTagsSchema(pool)
+      const facilityId = await getFacilityId(pool)
+      const maxSort = await pool.query(
+        'SELECT COALESCE(MAX(sort_order), -1) + 1 AS next FROM discipline_tag',
+      )
+      const result = await pool.query(
+        `INSERT INTO discipline_tag (facility_id, name, sort_order)
+         VALUES ($1, $2, $3)
+         RETURNING id, name, sort_order`,
+        [facilityId, value.name, Number(maxSort.rows[0].next)],
+      )
+      res.json({ success: true, data: mapDisciplineTagRow(result.rows[0]) })
+    } catch (err) {
+      if (err.code === '23505') {
+        return res.status(409).json({ success: false, message: 'A tag with this name already exists' })
+      }
+      console.error('[programs] create discipline tag:', err)
+      res.status(500).json({ success: false, message: 'Failed to create discipline tag' })
+    }
+  })
+
+  app.put('/api/admin/discipline-tags/:id', async (req, res) => {
+    try {
+      const { error, value } = disciplineTagSchema.validate(req.body)
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message })
+      }
+      await ensureDisciplineTagsSchema(pool)
+      const result = await pool.query(
+        `UPDATE discipline_tag SET name = $1, updated_at = now()
+         WHERE id = $2
+         RETURNING id, name, sort_order`,
+        [value.name, req.params.id],
+      )
+      if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Discipline tag not found' })
+      }
+      res.json({ success: true, data: mapDisciplineTagRow(result.rows[0]) })
+    } catch (err) {
+      if (err.code === '23505') {
+        return res.status(409).json({ success: false, message: 'A tag with this name already exists' })
+      }
+      console.error('[programs] update discipline tag:', err)
+      res.status(500).json({ success: false, message: 'Failed to update discipline tag' })
+    }
+  })
+
+  app.delete('/api/admin/discipline-tags/:id', async (req, res) => {
+    try {
+      await ensureDisciplineTagsSchema(pool)
+      await pool.query('DELETE FROM discipline_tag WHERE id = $1', [req.params.id])
+      res.json({ success: true, message: 'Discipline tag deleted' })
+    } catch (err) {
+      console.error('[programs] delete discipline tag:', err)
+      res.status(500).json({ success: false, message: 'Failed to delete discipline tag' })
+    }
+  })
+
+  app.get('/api/admin/programs-top/:id/discipline-tags', async (req, res) => {
+    try {
+      await ensureDisciplineTagsSchema(pool)
+      const result = await pool.query(
+        `SELECT d.id, d.name, d.sort_order
+         FROM program_discipline_tag pdt
+         JOIN discipline_tag d ON d.id = pdt.tag_id
+         WHERE pdt.programs_id = $1
+         ORDER BY d.sort_order, d.name`,
+        [req.params.id],
+      )
+      res.json({ success: true, data: result.rows.map(mapDisciplineTagRow) })
+    } catch (err) {
+      console.error('[programs] list program discipline tags:', err)
+      res.status(500).json({ success: false, message: 'Failed to load program discipline tags' })
+    }
+  })
+
+  app.post('/api/admin/programs-top/:id/discipline-tags/:tagId', async (req, res) => {
+    try {
+      const programsId = Number(req.params.id)
+      const tagId = Number(req.params.tagId)
+      if (!Number.isFinite(programsId) || !Number.isFinite(tagId)) {
+        return res.status(400).json({ success: false, message: 'Invalid program or tag id' })
+      }
+      await ensureDisciplineTagsSchema(pool)
+      await pool.query(
+        `INSERT INTO program_discipline_tag (programs_id, tag_id)
+         VALUES ($1, $2)
+         ON CONFLICT DO NOTHING`,
+        [programsId, tagId],
+      )
+      res.json({ success: true, message: 'Tag linked to program' })
+    } catch (err) {
+      console.error('[programs] link discipline tag:', err)
+      res.status(500).json({ success: false, message: 'Failed to link discipline tag' })
+    }
+  })
+
+  app.delete('/api/admin/programs-top/:id/discipline-tags/:tagId', async (req, res) => {
+    try {
+      await ensureDisciplineTagsSchema(pool)
+      await pool.query(
+        'DELETE FROM program_discipline_tag WHERE programs_id = $1 AND tag_id = $2',
+        [req.params.id, req.params.tagId],
+      )
+      res.json({ success: true, message: 'Tag unlinked from program' })
+    } catch (err) {
+      console.error('[programs] unlink discipline tag:', err)
+      res.status(500).json({ success: false, message: 'Failed to unlink discipline tag' })
     }
   })
 }

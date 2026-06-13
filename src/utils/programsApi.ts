@@ -209,6 +209,69 @@ export async function fetchClassEventSchedulingFormId(classEventId: number): Pro
   return data.id
 }
 
+export interface DisciplineTag {
+  id: number
+  name: string
+  sortOrder: number
+}
+
+/** Discipline tags are global/searchable and associated at the program level. */
+export async function fetchDisciplineTags(): Promise<DisciplineTag[]> {
+  const res = await adminApiRequest('/api/admin/discipline-tags')
+  return parseJson(res)
+}
+
+export async function createDisciplineTag(name: string): Promise<DisciplineTag> {
+  const res = await adminApiRequest('/api/admin/discipline-tags', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  })
+  return parseJson(res)
+}
+
+export async function updateDisciplineTag(id: number, name: string): Promise<DisciplineTag> {
+  const res = await adminApiRequest(`/api/admin/discipline-tags/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ name }),
+  })
+  return parseJson(res)
+}
+
+export async function deleteDisciplineTag(id: number): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/discipline-tags/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Failed to delete tag')
+  }
+}
+
+export async function fetchProgramDisciplineTags(programId: number): Promise<DisciplineTag[]> {
+  const res = await adminApiRequest(`/api/admin/programs-top/${programId}/discipline-tags`)
+  return parseJson(res)
+}
+
+export async function linkProgramDisciplineTag(programId: number, tagId: number): Promise<void> {
+  const res = await adminApiRequest(
+    `/api/admin/programs-top/${programId}/discipline-tags/${tagId}`,
+    { method: 'POST' },
+  )
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Failed to link tag to program')
+  }
+}
+
+export async function unlinkProgramDisciplineTag(programId: number, tagId: number): Promise<void> {
+  const res = await adminApiRequest(
+    `/api/admin/programs-top/${programId}/discipline-tags/${tagId}`,
+    { method: 'DELETE' },
+  )
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Failed to unlink tag from program')
+  }
+}
+
 /** @deprecated Use fetchTopPrograms — categories alias during migration */
 export async function fetchTopProgramsLegacy(archived?: boolean): Promise<TopProgram[]> {
   const qs = archived === undefined ? '' : `?archived=${archived}`

@@ -71,3 +71,18 @@ export async function ensureProgramsSchedulingSchema(pool) {
   const sql = fs.readFileSync(migrationPath, 'utf8')
   await pool.query(sql)
 }
+
+let disciplineTagsSchemaReady = false
+
+export async function ensureDisciplineTagsSchema(pool) {
+  if (disciplineTagsSchemaReady) return
+  const fs = await import('fs')
+  const path = await import('path')
+  const { fileURLToPath } = await import('url')
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  const migrationPath = path.join(__dirname, '../migrations/add_discipline_tags.sql')
+  if (!fs.existsSync(migrationPath)) return
+  const sql = fs.readFileSync(migrationPath, 'utf8')
+  await pool.query(sql)
+  disciplineTagsSchemaReady = true
+}

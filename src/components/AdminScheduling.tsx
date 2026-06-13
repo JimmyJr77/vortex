@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Ban, Calendar, Check, Loader2, Mail, MailPlus, X } from 'lucide-react'
 import AdminSchedulingCategories from './scheduling/AdminSchedulingCategories'
+import AdminSchedulingDisciplineTags from './scheduling/AdminSchedulingDisciplineTags'
 import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
 import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
 import AdminSchedulingFormTab from './scheduling/AdminSchedulingFormTab'
@@ -39,7 +40,7 @@ import {
   type SchedulingNavigationIntent,
 } from '../utils/schedulingNavigation'
 
-type Panel = 'overview' | 'form' | 'classEvents' | 'categories' | 'offerings' | 'slots' | 'costs' | 'signups'
+type Panel = 'overview' | 'disciplineTags' | 'form' | 'classEvents' | 'categories' | 'offerings' | 'slots' | 'costs' | 'signups'
 
 interface AdminSchedulingProps {
   navigationIntent?: SchedulingNavigationIntent | null
@@ -48,6 +49,7 @@ interface AdminSchedulingProps {
 
 const PANELS: { id: Panel; label: string }[] = [
   { id: 'overview', label: 'Overview' },
+  { id: 'disciplineTags', label: 'Discipline Tags' },
   { id: 'form', label: 'Form' },
   { id: 'classEvents', label: 'Classes & Events' },
   { id: 'categories', label: 'Categories' },
@@ -446,6 +448,13 @@ const AdminScheduling = ({
 
               {panel === 'overview' && selectedProgram && (
                 <AdminSchedulingOverview program={selectedProgram} onSaved={handleProgramSaved} />
+              )}
+
+              {panel === 'disciplineTags' && selectedProgramId && (
+                <AdminSchedulingDisciplineTags
+                  programId={selectedProgramId}
+                  programDisplayName={selectedProgram?.displayName}
+                />
               )}
 
               {panel === 'form' && selectedProgram && (
