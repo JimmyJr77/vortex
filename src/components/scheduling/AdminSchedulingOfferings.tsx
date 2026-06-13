@@ -43,40 +43,34 @@ const AdminSchedulingOfferings = ({
 
   const loadCategories = useCallback(async () => {
     const data = await adminFetchAllCategories()
-    setCategories(data.filter((c) => c.isActive))
+    setCategories(data)
   }, [])
 
   const apiCategoryId = categoryApiId(selectedCategory)
 
+  // List every offering for the class (all categories); the category is shown per row.
   const loadOfferings = useCallback(async () => {
-    if (selectedCategory === null) {
-      setOfferings([])
-      return
-    }
-    const data = await adminFetchOfferings(formId, apiCategoryId ?? null)
+    const data = await adminFetchOfferings(formId)
     setOfferings(data)
-  }, [formId, selectedCategory, apiCategoryId])
+  }, [formId])
 
   useEffect(() => {
-    loadCategories()
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load categories'))
-      .finally(() => setLoading(false))
-  }, [loadCategories])
-
-  useEffect(() => {
-    if (selectedCategory === null) return
     setLoading(true)
-    loadOfferings()
-      .then(() => {
-        if (selectedOfferingId) return
-        adminFetchOfferings(formId, apiCategoryId ?? null).then((data) => {
-          const sel = data.find((o) => o.isSelected)
-          if (sel) onOfferingSelect(sel)
-        })
-      })
+    Promise.all([loadCategories(), loadOfferings()])
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load offerings'))
       .finally(() => setLoading(false))
-  }, [selectedCategory, apiCategoryId, loadOfferings, formId, selectedOfferingId, onOfferingSelect])
+  }, [loadCategories, loadOfferings])
+
+  // When a category is selected (and nothing is selected yet), default to the
+  // top/first available offering for that category.
+  useEffect(() => {
+    if (selectedOfferingId) return
+    if (offerings.length === 0) return
+    const wantCategoryId = selectedCategory === 'none' || selectedCategory == null ? null : selectedCategory
+    const matches = offerings.filter((o) => (o.categoryId ?? null) === wantCategoryId)
+    const fallback = matches.find((o) => o.isSelected) ?? matches[0]
+    if (fallback) onOfferingSelect(fallback)
+  }, [offerings, selectedCategory, selectedOfferingId, onOfferingSelect])
 
   const iconBtn =
     'p-1.5 rounded hover:bg-gray-100 text-gray-600 hover:text-gray-900 disabled:opacity-40'
@@ -88,7 +82,7 @@ const AdminSchedulingOfferings = ({
   }
 
   const handleSave = async () => {
-    if (selectedCategory === null || !draft.startDate || !draft.endDate) return
+    if (!draft.startDate || !draft.endDate) return
     setSaving(true)
     setError(null)
     try {
@@ -154,31 +148,18 @@ const AdminSchedulingOfferings = ({
     setShowAdd(true)
   }
 
-  const selectedCategoryName =
-    selectedCategory === 'none'
+  const categoryName = (categoryId: number | null): string =>
+    categoryId == null
       ? 'No Category'
-      : typeof selectedCategory === 'number'
-        ? categories.find((c) => c.id === selectedCategory)?.name
-        : undefined
+      : (categories.find((c) => c.id === categoryId)?.name ?? `Category #${categoryId}`)
 
-  if (loading && categories.length === 0 && selectedCategory !== 'none') {
+  const newOfferingCategoryName =
+    selectedCategory === 'none' || selectedCategory == null
+      ? 'No Category'
+      : (categories.find((c) => c.id === selectedCategory)?.name ?? 'selected category')
+
+  if (loading && categories.length === 0 && offerings.length === 0) {
     return <p className="text-gray-500 text-sm">Loading…</p>
-  }
-
-  if (selectedCategory === null) {
-    return (
-      <div className="space-y-4 w-full">
-        <div>
-          <h3 className="text-lg font-bold text-black">Offerings</h3>
-          <p className="text-sm text-gray-600 mt-1">
-            Date ranges per category. Select a category in the <strong>Categories</strong> tab first.
-          </p>
-        </div>
-        <p className="text-gray-600 py-4">
-          No category selected. Go to <strong>Categories</strong>, search or pick one from the list, then return here.
-        </p>
-      </div>
-    )
   }
 
   return (
@@ -186,7 +167,9 @@ const AdminSchedulingOfferings = ({
       <div>
         <h3 className="text-lg font-bold text-black">Offerings</h3>
         <p className="text-sm text-gray-600 mt-1">
-          Date ranges for <strong>{selectedCategoryName ?? 'selected category'}</strong>. Select one offering to build slots.
+          All offerings for this class. Selecting one builds slots for its category and updates the{' '}
+          <strong>Categories</strong> tab to match. New offerings are added under{' '}
+          <strong>{newOfferingCategoryName}</strong>.
         </p>
       </div>
 
@@ -261,33 +244,39 @@ const AdminSchedulingOfferings = ({
               <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
             </div>
           ) : offerings.length === 0 ? (
-            <p className="text-sm text-gray-500">No offerings yet for this category.</p>
+            <p className="text-sm text-gray-500">No offerings yet for this class.</p>
           ) : (
             <div className="border border-gray-200 rounded-xl overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 text-left text-gray-600">
                   <tr>
                     <th className="py-2 px-4 font-medium w-8" />
+                    <th className="py-2 px-4 font-medium">Category</th>
                     <th className="py-2 px-4 font-medium">Dates</th>
                     <th className="py-2 px-4 font-medium">Label</th>
                     <th className="py-2 px-4 font-medium w-24">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {offerings.map((o) => (
+                  {offerings.map((o) => {
+                    const isChecked = selectedOfferingId === o.id
+                    return (
                     <tr
                       key={o.id}
-                      className={`border-t border-gray-100 ${o.isSelected ? 'bg-red-50' : ''}`}
+                      className={`border-t border-gray-100 ${isChecked ? 'bg-red-50' : ''}`}
                     >
                       <td className="py-2 px-4">
                         <input
                           type="radio"
                           name="selected-offering"
-                          checked={o.isSelected}
+                          checked={isChecked}
                           onChange={() => handleSelect(o)}
                           disabled={saving}
                           title="Select for slot building"
                         />
+                      </td>
+                      <td className="py-2 px-4 font-medium text-gray-800">
+                        {categoryName(o.categoryId)}
                       </td>
                       <td className="py-2 px-4">
                         {o.startDate} – {o.endDate}
@@ -314,7 +303,8 @@ const AdminSchedulingOfferings = ({
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    )
+                  })}
                 </tbody>
               </table>
             </div>

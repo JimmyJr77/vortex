@@ -7,7 +7,6 @@ import type { ClassEvent } from '../utils/programsApi'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import AdminClassesEventsSpreadsheet from './classes/AdminClassesEventsSpreadsheet'
 import ClassSchedulingExpandPanel from './classes/ClassSchedulingExpandPanel'
-import { loadSchedulingCategoryLabelsForClasses } from '../utils/classSchedulingSummary'
 
 interface Program {
   id: number
@@ -24,6 +23,7 @@ interface Program {
   skillRequirements: string | null // Database column: skill_requirements
   isActive: boolean // Database column: is_active
   programIsActive?: boolean // Parent program active flag
+  schedulingCategoryName?: string | null // Scheduling category label, computed server-side
   archived?: boolean // Database column: archived
   createdAt: string // Database column: created_at
   updatedAt: string // Database column: updated_at
@@ -195,10 +195,6 @@ export default function AdminClasses({
     direction: 'asc',
   })
   const [viewMode, setViewMode] = useState<'default' | 'spreadsheet'>('default')
-  const [schedulingCategoryByClassId, setSchedulingCategoryByClassId] = useState<Map<number, string>>(
-    new Map(),
-  )
-  const [schedulingCategoriesLoading, setSchedulingCategoriesLoading] = useState(false)
 
   const fetchAllPrograms = async () => {
     try {
@@ -506,35 +502,16 @@ export default function AdminClasses({
   const activeClasses = programs.filter((p) => !p.archived)
   const archivedProgramsList = categories.filter((c) => c.archived)
 
-  const schedulingCategoryLabel = useCallback(
-    (classId: number) => schedulingCategoryByClassId.get(classId) ?? 'No Category',
-    [schedulingCategoryByClassId],
-  )
-
-  useEffect(() => {
-    if (programs.length === 0) {
-      setSchedulingCategoryByClassId(new Map())
-      return
-    }
-
-    let cancelled = false
-    setSchedulingCategoriesLoading(true)
-
-    loadSchedulingCategoryLabelsForClasses(programs.map((p) => ({ id: p.id })))
-      .then((labels) => {
-        if (!cancelled) setSchedulingCategoryByClassId(labels)
-      })
-      .catch(() => {
-        if (!cancelled) setSchedulingCategoryByClassId(new Map())
-      })
-      .finally(() => {
-        if (!cancelled) setSchedulingCategoriesLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
+  const schedulingCategoryById = useMemo(() => {
+    const map = new Map<number, string>()
+    for (const p of programs) map.set(p.id, p.schedulingCategoryName ?? 'No Category')
+    return map
   }, [programs])
+
+  const schedulingCategoryLabel = useCallback(
+    (classId: number) => schedulingCategoryById.get(classId) ?? 'No Category',
+    [schedulingCategoryById],
+  )
 
   const handleClassSort = (field: ClassSortField) => {
     setClassSortConfig((prev) => ({
@@ -865,9 +842,7 @@ export default function AdminClasses({
                         <tr key={program.id} className="hover:bg-gray-50/80">
                           <td className={tdClass}>{programNameForClass(program, categories)}</td>
                           <td className={tdClass}>{program.displayName}</td>
-                          <td className={tdClass}>
-                            {schedulingCategoriesLoading ? '…' : schedulingCategoryLabel(program.id)}
-                          </td>
+                          <td className={tdClass}>{schedulingCategoryLabel(program.id)}</td>
                           <td className={tdClass}>{formatAgeRange(program.ageMin, program.ageMax)}</td>
                           <td className={`${tdClass} w-0`}>
                             <div className="flex items-center gap-0.5">
@@ -1080,9 +1055,7 @@ export default function AdminClasses({
                           >
                             <td className={tdClass}>{programNameForClass(program, categories)}</td>
                             <td className={`${tdClass} font-medium`}>{program.displayName}</td>
-                            <td className={tdClass}>
-                              {schedulingCategoriesLoading ? '…' : schedulingCategoryLabel(program.id)}
-                            </td>
+                            <td className={tdClass}>{schedulingCategoryLabel(program.id)}</td>
                             <td className={tdClass}>{formatAgeRange(program.ageMin, program.ageMax)}</td>
                             <td className={tdClass}>{formatSkillLevel(program.skillLevel)}</td>
                             <td className={tdClass}>

@@ -10473,7 +10473,21 @@ app.get('/api/admin/programs', async (req, res) => {
         ${programIsActiveSelect}
         p.archived,
         p.created_at as "createdAt",
-        p.updated_at as "updatedAt"
+        p.updated_at as "updatedAt",
+        COALESCE((
+          SELECT string_agg(DISTINCT cat_name, ', ' ORDER BY cat_name)
+          FROM (
+            SELECT COALESCE(sc.name, 'No Category') AS cat_name
+            FROM scheduling_form sf
+            JOIN (
+              SELECT form_id, category_id FROM scheduling_offering
+              UNION
+              SELECT form_id, category_id FROM scheduling_slot_group
+            ) assoc ON assoc.form_id = sf.id
+            LEFT JOIN scheduling_category sc ON sc.id = assoc.category_id
+            WHERE sf.program_id = p.id AND sf.deleted_at IS NULL
+          ) names
+        ), 'No Category') as "schedulingCategoryName"
       FROM program p
       LEFT JOIN ${taxonomy.programsTable} pc ON p.${taxonomy.programFkColumn} = pc.id
     `
