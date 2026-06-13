@@ -1,16 +1,6 @@
 import { adminApiRequest } from './api'
-import {
-  updateClassEvent,
-  updateTopProgram,
-  type ClassEvent,
-  type ClassEventFormData,
-  type TopProgram,
-} from './programsApi'
-import {
-  adminLinkCategoryToForm,
-  type SchedulingFormDetail,
-  type SchedulingSlotGroup,
-} from './schedulingApi'
+import { updateTopProgram, type ClassEvent, type TopProgram } from './programsApi'
+import { type SchedulingFormDetail, type SchedulingSlotGroup } from './schedulingApi'
 
 export interface ClassEventSlotOverview {
   classEvent: ClassEvent
@@ -52,21 +42,6 @@ function primaryCategoryId(form: SchedulingFormDetail | null): number | null {
   return null
 }
 
-function formToClassEventFormData(
-  form: SchedulingFormDetail,
-  classEvent: ClassEvent,
-): ClassEventFormData {
-  return {
-    displayName: form.title || classEvent.displayName,
-    description: form.description || classEvent.description || '',
-    skillLevel: classEvent.skillLevel,
-    ageMin: classEvent.ageMin,
-    ageMax: classEvent.ageMax,
-    skillRequirements: classEvent.skillRequirements || '',
-    isActive: classEvent.isActive,
-  }
-}
-
 export async function syncTopProgramFromOverview(
   input: ExportOverviewInput,
 ): Promise<TopProgram> {
@@ -83,46 +58,40 @@ export interface ExportProgramsClassesResult {
   prefills: ClassEventExportPrefill[]
 }
 
+function resolveExportDisplayName(
+  form: SchedulingFormDetail | null,
+  classEvent: ClassEvent,
+): string {
+  const fromForm = form?.title?.trim()
+  if (fromForm) return fromForm
+  const fromClass = classEvent.displayName?.trim()
+  if (fromClass) return fromClass
+  return classEvent.displayName || 'Untitled class/event'
+}
+
+function buildExportClassPrefill(
+  classEvent: ClassEvent,
+  form: SchedulingFormDetail | null,
+): ClassEvent {
+  return {
+    ...classEvent,
+    displayName: resolveExportDisplayName(form, classEvent),
+    description: form?.description?.trim() || classEvent.description || null,
+  }
+}
+
 export async function autoSaveClassesFromOverview(
   input: ExportOverviewInput,
 ): Promise<ExportProgramsClassesResult> {
   const program = await syncTopProgramFromOverview(input)
 
-  const prefills: ClassEventExportPrefill[] = []
-
-  for (const { classEvent, form } of input.slotOverview) {
-    const formData = form
-      ? formToClassEventFormData(form, classEvent)
-      : {
-          displayName: classEvent.displayName,
-          description: classEvent.description || '',
-          skillLevel: classEvent.skillLevel,
-          ageMin: classEvent.ageMin,
-          ageMax: classEvent.ageMax,
-          skillRequirements: classEvent.skillRequirements || '',
-          isActive: classEvent.isActive,
-        }
-
-    const updated = await updateClassEvent(classEvent.id, formData)
-
-    const categoryId = primaryCategoryId(form)
-    const formId = updated.schedulingFormId ?? classEvent.schedulingFormId
-    if (formId && categoryId != null) {
-      await adminLinkCategoryToForm(formId, categoryId)
-    }
-
-    prefills.push({
-      programsId: input.program.id,
-      programsDisplayName: input.title.trim(),
-      editing: {
-        ...classEvent,
-        ...updated,
-        ...formData,
-      },
-      schedulingCategoryId: categoryId,
-      lockProgram: true,
-    })
-  }
+  const prefills: ClassEventExportPrefill[] = input.slotOverview.map(({ classEvent, form }) => ({
+    programsId: input.program.id,
+    programsDisplayName: input.title.trim(),
+    editing: buildExportClassPrefill(classEvent, form),
+    schedulingCategoryId: primaryCategoryId(form),
+    lockProgram: true,
+  }))
 
   return { program, prefills }
 }

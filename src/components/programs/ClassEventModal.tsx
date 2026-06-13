@@ -180,7 +180,7 @@ const ClassEventModal = ({
       if (editing) {
         saved = await updateClassEvent(editing.id, {
           ...form,
-          programsId: selectedProgramsId,
+          ...(lockProgram ? {} : { programsId: selectedProgramsId }),
           isActive: parentProgramActive ? form.isActive : false,
         })
       } else {

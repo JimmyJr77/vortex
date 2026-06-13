@@ -47,7 +47,8 @@ export interface ClassEventFormData {
 async function parseJson<T>(res: Response): Promise<T> {
   const data = await res.json()
   if (!res.ok || !data.success) {
-    throw new Error(data.message || 'Request failed')
+    const details = Array.isArray(data.errors) ? data.errors.join('; ') : ''
+    throw new Error(details || data.message || 'Request failed')
   }
   return data.data as T
 }
@@ -141,13 +142,22 @@ export async function createClassEvent(
 
 const VALID_SKILL_LEVELS = ['EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const
 
+function coerceOptionalInt(value: number | null | undefined): number | null | undefined {
+  if (value === undefined) return undefined
+  if (value == null) return null
+  const n = Number(value)
+  if (!Number.isFinite(n)) return null
+  return Math.trunc(n)
+}
+
 function sanitizeClassEventUpdateBody(
   payload: Partial<ClassEventFormData> & { programsId?: number | null },
 ): Record<string, unknown> {
-  const { programsId, skillLevel, displayName, ...rest } = payload
+  const { programsId, skillLevel, displayName, ageMin, ageMax, ...rest } = payload
   const body: Record<string, unknown> = { ...rest }
   if (displayName !== undefined) {
-    body.displayName = displayName.trim()
+    const trimmed = displayName.trim()
+    if (trimmed) body.displayName = trimmed
   }
   if (skillLevel !== undefined) {
     body.skillLevel =
@@ -155,6 +165,10 @@ function sanitizeClassEventUpdateBody(
         ? skillLevel
         : null
   }
+  const coercedAgeMin = coerceOptionalInt(ageMin)
+  if (coercedAgeMin !== undefined) body.ageMin = coercedAgeMin
+  const coercedAgeMax = coerceOptionalInt(ageMax)
+  if (coercedAgeMax !== undefined) body.ageMax = coercedAgeMax
   if (programsId != null) body.programsId = programsId
   return body
 }

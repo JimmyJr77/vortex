@@ -10769,7 +10769,10 @@ app.post('/api/admin/programs', async (req, res) => {
 app.put('/api/admin/programs/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const { error, value } = programUpdateSchema.validate(req.body)
+    const { error, value } = programUpdateSchema.validate(req.body, {
+      stripUnknown: true,
+      convert: true,
+    })
     if (error) {
       return res.status(400).json({
         success: false,
