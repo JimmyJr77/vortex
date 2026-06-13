@@ -1,11 +1,18 @@
-import { useEffect, useState } from 'react'
-import { Loader2, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Loader2, Plus, X } from 'lucide-react'
 import {
   createClassEvent,
   updateClassEvent,
   type ClassEvent,
   type ClassEventFormData,
 } from '../../utils/programsApi'
+import {
+  adminCreateCategory,
+  adminFetchAllCategories,
+  adminFetchFormCategories,
+  adminLinkCategoryToForm,
+  type SchedulingCategory,
+} from '../../utils/schedulingApi'
 
 interface ProgramOption {
   id: number
@@ -17,8 +24,11 @@ interface Props {
   programsId: number
   programsDisplayName?: string
   availablePrograms?: ProgramOption[]
+  lockProgram?: boolean
   parentProgramActive?: boolean
   editing?: ClassEvent | null
+  initialSchedulingCategoryId?: number | null
+  submitLabel?: string
   onClose: () => void
   onSaved: () => void
 }
@@ -38,8 +48,11 @@ const ClassEventModal = ({
   programsId,
   programsDisplayName,
   availablePrograms = [],
+  lockProgram = false,
   parentProgramActive = true,
   editing,
+  initialSchedulingCategoryId,
+  submitLabel,
   onClose,
   onSaved,
 }: Props) => {
@@ -47,6 +60,14 @@ const ClassEventModal = ({
   const [selectedProgramsId, setSelectedProgramsId] = useState(programsId)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [allCategories, setAllCategories] = useState<SchedulingCategory[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(false)
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
+  const [categorySearch, setCategorySearch] = useState('')
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
+  const [addingCategory, setAddingCategory] = useState(false)
+
+  const showProgramDropdown = !lockProgram && availablePrograms.length > 0
 
   useEffect(() => {
     if (!open) return
@@ -66,13 +87,86 @@ const ClassEventModal = ({
     } else {
       setForm(emptyForm())
     }
+    setSelectedCategoryId(initialSchedulingCategoryId ?? null)
+    setCategorySearch('')
+    setCategoryDropdownOpen(false)
     setError(null)
-  }, [open, editing, programsId])
+  }, [open, editing, programsId, initialSchedulingCategoryId])
+
+  useEffect(() => {
+    if (!open) return
+    let cancelled = false
+    setCategoriesLoading(true)
+
+    const loadCategories = async () => {
+      try {
+        const master = await adminFetchAllCategories()
+        if (cancelled) return
+        setAllCategories(master.filter((c) => c.isActive))
+
+        if (initialSchedulingCategoryId != null) {
+          setSelectedCategoryId(initialSchedulingCategoryId)
+          return
+        }
+
+        const formId = editing?.schedulingFormId
+        if (formId) {
+          const linked = await adminFetchFormCategories(formId)
+          if (cancelled) return
+          const primary = linked.find((c) => c.id != null)?.id ?? null
+          setSelectedCategoryId(primary)
+        }
+      } catch {
+        if (!cancelled) setAllCategories([])
+      } finally {
+        if (!cancelled) setCategoriesLoading(false)
+      }
+    }
+
+    void loadCategories()
+    return () => {
+      cancelled = true
+    }
+  }, [open, editing?.schedulingFormId, initialSchedulingCategoryId])
+
+  const filteredCategories = useMemo(() => {
+    const q = categorySearch.trim().toLowerCase()
+    if (!q) return allCategories
+    return allCategories.filter((c) => c.name.toLowerCase().includes(q))
+  }, [allCategories, categorySearch])
+
+  const selectedCategoryName = useMemo(() => {
+    if (selectedCategoryId == null) return 'No Category'
+    return allCategories.find((c) => c.id === selectedCategoryId)?.name ?? 'No Category'
+  }, [allCategories, selectedCategoryId])
+
+  const handleAddCategory = async () => {
+    const name = categorySearch.trim()
+    if (!name) return
+    setAddingCategory(true)
+    setError(null)
+    try {
+      const created = await adminCreateCategory(name)
+      setAllCategories((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
+      setSelectedCategoryId(created.id)
+      setCategorySearch(created.name)
+      setCategoryDropdownOpen(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create category')
+    } finally {
+      setAddingCategory(false)
+    }
+  }
+
+  const linkCategoryAfterSave = async (formId: number) => {
+    if (selectedCategoryId == null) return
+    await adminLinkCategoryToForm(formId, selectedCategoryId)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.displayName?.trim()) {
-      setError('Display name is required')
+      setError('Class or Event Name is required')
       return
     }
     setSaving(true)
@@ -82,17 +176,22 @@ const ClassEventModal = ({
         setError('Program is required')
         return
       }
+      let saved: ClassEvent
       if (editing) {
-        await updateClassEvent(editing.id, {
+        saved = await updateClassEvent(editing.id, {
           ...form,
           programsId: selectedProgramsId,
           isActive: parentProgramActive ? form.isActive : false,
         })
       } else {
-        await createClassEvent(selectedProgramsId, {
+        saved = await createClassEvent(selectedProgramsId, {
           ...form,
           isActive: parentProgramActive ? form.isActive !== false : false,
         })
+      }
+      const formId = saved.schedulingFormId ?? editing?.schedulingFormId
+      if (formId && selectedCategoryId != null) {
+        await linkCategoryAfterSave(formId)
       }
       onSaved()
       onClose()
@@ -102,6 +201,9 @@ const ClassEventModal = ({
       setSaving(false)
     }
   }
+
+  const submitButtonLabel =
+    submitLabel ?? (editing ? 'Update class/event' : 'Add class/event')
 
   if (!open) return null
 
@@ -123,7 +225,7 @@ const ClassEventModal = ({
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          {availablePrograms.length > 0 && (
+          {showProgramDropdown && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Program *</label>
               <select
@@ -144,7 +246,83 @@ const ClassEventModal = ({
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Display name *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <div className="relative">
+              <input
+                type="text"
+                value={categoryDropdownOpen ? categorySearch : selectedCategoryName}
+                onChange={(e) => {
+                  setCategorySearch(e.target.value)
+                  setCategoryDropdownOpen(true)
+                }}
+                onFocus={() => {
+                  setCategorySearch(selectedCategoryName === 'No Category' ? '' : selectedCategoryName)
+                  setCategoryDropdownOpen(true)
+                }}
+                placeholder="Search categories…"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              />
+              {categoryDropdownOpen && (
+                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  <button
+                    type="button"
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+                      selectedCategoryId == null ? 'bg-red-50 text-vortex-red font-medium' : ''
+                    }`}
+                    onClick={() => {
+                      setSelectedCategoryId(null)
+                      setCategorySearch('')
+                      setCategoryDropdownOpen(false)
+                    }}
+                  >
+                    No Category
+                  </button>
+                  {categoriesLoading ? (
+                    <p className="px-3 py-2 text-sm text-gray-500 inline-flex items-center gap-2">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Loading…
+                    </p>
+                  ) : (
+                    filteredCategories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+                          selectedCategoryId === cat.id ? 'bg-red-50 text-vortex-red font-medium' : ''
+                        }`}
+                        onClick={() => {
+                          setSelectedCategoryId(cat.id)
+                          setCategorySearch(cat.name)
+                          setCategoryDropdownOpen(false)
+                        }}
+                      >
+                        {cat.name}
+                      </button>
+                    ))
+                  )}
+                  {categorySearch.trim() &&
+                    !filteredCategories.some(
+                      (c) => c.name.toLowerCase() === categorySearch.trim().toLowerCase(),
+                    ) && (
+                      <button
+                        type="button"
+                        disabled={addingCategory}
+                        className="w-full text-left px-3 py-2 text-sm text-vortex-red hover:bg-red-50 inline-flex items-center gap-1 border-t border-gray-100"
+                        onClick={() => void handleAddCategory()}
+                      >
+                        {addingCategory ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Plus className="w-3 h-3" />
+                        )}
+                        Add &quot;{categorySearch.trim()}&quot;
+                      </button>
+                    )}
+                </div>
+              )}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Class or Event Name *</label>
             <input
               type="text"
               value={form.displayName}
@@ -255,7 +433,7 @@ const ClassEventModal = ({
               className="px-4 py-2 text-sm bg-vortex-red text-white rounded-lg hover:bg-red-700 disabled:opacity-50 inline-flex items-center gap-2"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {editing ? 'Save changes' : 'Add class/event'}
+              {submitButtonLabel}
             </button>
           </div>
         </form>

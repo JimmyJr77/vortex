@@ -1,21 +1,26 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ChevronDown, ChevronRight, Loader2, Users } from 'lucide-react'
-import { fetchClassEvents, updateTopProgram, type ClassEvent, type TopProgram } from '../../utils/programsApi'
+import { fetchClassEvents, updateTopProgram, type TopProgram } from '../../utils/programsApi'
 import {
   adminFetchSchedulingForm,
   dayAbbrev,
   type SchedulingFormDetail,
   type SchedulingSlotGroup,
 } from '../../utils/schedulingApi'
+import {
+  autoSaveClassesFromOverview,
+  exportOverviewToEvents,
+  type ClassEventExportPrefill,
+  type ClassEventSlotOverview,
+} from '../../utils/schedulingExport'
+import SchedulingExportModalStack from './SchedulingExportModalStack'
 
 interface Props {
   program: TopProgram
   onSaved: (program: TopProgram) => void
 }
 
-interface ClassEventSlotOverview {
-  classEvent: ClassEvent
-  form: SchedulingFormDetail | null
+interface ClassEventSlotOverviewLocal extends ClassEventSlotOverview {
   loadError?: string
 }
 
@@ -59,11 +64,15 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
   const [saving, setSaving] = useState(false)
   const [updated, setUpdated] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [slotOverview, setSlotOverview] = useState<ClassEventSlotOverview[]>([])
+  const [slotOverview, setSlotOverview] = useState<ClassEventSlotOverviewLocal[]>([])
   const [slotsLoading, setSlotsLoading] = useState(false)
   const [slotsError, setSlotsError] = useState<string | null>(null)
   const [expandedClasses, setExpandedClasses] = useState<Record<number, boolean>>({})
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({})
+  const [exporting, setExporting] = useState<'classes' | 'events' | null>(null)
+  const [exportError, setExportError] = useState<string | null>(null)
+  const [exportPrefills, setExportPrefills] = useState<ClassEventExportPrefill[]>([])
+  const [exportStackOpen, setExportStackOpen] = useState(false)
 
   const loadSlotOverview = useCallback(async (programId: number) => {
     setSlotsLoading(true)
@@ -71,7 +80,7 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
     try {
       const classEvents = await fetchClassEvents({ programsId: programId })
       const rows = await Promise.all(
-        classEvents.map(async (classEvent): Promise<ClassEventSlotOverview> => {
+        classEvents.map(async (classEvent): Promise<ClassEventSlotOverviewLocal> => {
           if (!classEvent.schedulingFormId) {
             return { classEvent, form: null }
           }
@@ -131,6 +140,58 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
     }
   }
 
+  const buildExportInput = () => ({
+    program,
+    title,
+    description,
+    active,
+    slotOverview: slotOverview.map(({ classEvent, form }) => ({ classEvent, form })),
+  })
+
+  const handleExportToProgramsClasses = async () => {
+    if (!title.trim()) return
+    setExporting('classes')
+    setExportError(null)
+    try {
+      const prefills = await autoSaveClassesFromOverview(buildExportInput())
+      if (prefills.length === 0) {
+        alert('No classes or events to export.')
+        return
+      }
+      setExportPrefills(prefills)
+      setExportStackOpen(true)
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : 'Export failed')
+    } finally {
+      setExporting(null)
+    }
+  }
+
+  const handleExportToEvents = async () => {
+    if (!title.trim()) return
+    if (!confirm('Create events from scheduling slots for each class/event in this program?')) {
+      return
+    }
+    setExporting('events')
+    setExportError(null)
+    try {
+      const count = await exportOverviewToEvents(buildExportInput())
+      if (count === 0) {
+        alert('No classes with slots found to export as events.')
+      } else {
+        alert(`Exported ${count} event${count !== 1 ? 's' : ''} to Admin → Events.`)
+      }
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : 'Export failed')
+    } finally {
+      setExporting(null)
+    }
+  }
+
+  const handleExportStackComplete = async () => {
+    await loadSlotOverview(program.id)
+  }
+
   const totalSlotGroups = slotOverview.reduce(
     (sum, row) => sum + (row.form?.slotGroups.length ?? 0),
     0,
@@ -181,7 +242,8 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
           <span className="font-semibold">Active (visible on /scheduling)</span>
         </label>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="flex items-center gap-3">
+        {exportError && <p className="text-sm text-red-600">{exportError}</p>}
+        <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={handleUpdate}
@@ -190,6 +252,24 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
             Update overview
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleExportToProgramsClasses()}
+            disabled={exporting != null || !title.trim() || slotsLoading}
+            className="border border-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-60 inline-flex items-center gap-2"
+          >
+            {exporting === 'classes' && <Loader2 className="w-4 h-4 animate-spin" />}
+            Export to Programs &amp; Classes
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleExportToEvents()}
+            disabled={exporting != null || !title.trim() || slotsLoading}
+            className="border border-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-60 inline-flex items-center gap-2"
+          >
+            {exporting === 'events' && <Loader2 className="w-4 h-4 animate-spin" />}
+            Export to Events
           </button>
           {updated && <span className="text-green-600 text-sm font-medium">Updated</span>}
         </div>
@@ -339,6 +419,13 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
           })}
         </div>
       </div>
+
+      <SchedulingExportModalStack
+        open={exportStackOpen}
+        prefills={exportPrefills}
+        onClose={() => setExportStackOpen(false)}
+        onComplete={() => void handleExportStackComplete()}
+      />
     </div>
   )
 }

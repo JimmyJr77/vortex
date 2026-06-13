@@ -40,6 +40,7 @@ export function registerSchedulingRoutes(app, pool) {
   app.post('/api/admin/scheduling/categories', h.createCategory)
   app.put('/api/admin/scheduling/categories/:id', h.updateCategory)
   app.delete('/api/admin/scheduling/categories/:id', h.deleteCategory)
+  app.post('/api/admin/scheduling/forms/:formId/categories/:categoryId/link', h.linkCategoryToForm)
 
   app.get('/api/admin/scheduling/forms/:formId/offerings', h.listOfferings)
   app.post('/api/admin/scheduling/forms/:formId/offerings', h.createOffering)

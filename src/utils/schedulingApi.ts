@@ -410,6 +410,17 @@ export async function adminCreateCategory(name: string, formId?: number): Promis
   return parseJson(res)
 }
 
+export async function adminLinkCategoryToForm(formId: number, categoryId: number): Promise<void> {
+  const res = await adminApiRequest(
+    `/api/admin/scheduling/forms/${formId}/categories/${categoryId}/link`,
+    { method: 'POST' },
+  )
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Failed to link category to form')
+  }
+}
+
 export async function adminUpdateCategory(id: number, name: string): Promise<SchedulingCategory> {
   const res = await adminApiRequest(`/api/admin/scheduling/categories/${id}`, {
     method: 'PUT',

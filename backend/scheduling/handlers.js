@@ -1621,6 +1621,36 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async linkCategoryToForm(req, res) {
+      try {
+        const formId = Number(req.params.formId)
+        const categoryId = Number(req.params.categoryId)
+        if (!Number.isFinite(formId) || !Number.isFinite(categoryId)) {
+          return res.status(400).json({ success: false, message: 'Invalid form or category id' })
+        }
+        const formCheck = await pool.query('SELECT id FROM scheduling_form WHERE id = $1', [formId])
+        if (formCheck.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Form not found' })
+        }
+        const catCheck = await pool.query('SELECT id FROM scheduling_category WHERE id = $1', [categoryId])
+        if (catCheck.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Category not found' })
+        }
+        await pool.query(
+          `
+          INSERT INTO scheduling_form_category (form_id, category_id)
+          VALUES ($1, $2)
+          ON CONFLICT DO NOTHING
+          `,
+          [formId, categoryId],
+        )
+        res.json({ success: true, message: 'Category linked to form' })
+      } catch (err) {
+        console.error('[scheduling] linkCategoryToForm:', err)
+        res.status(500).json({ success: false, message: 'Failed to link category to form' })
+      }
+    },
+
     async listOfferings(req, res) {
       try {
         const formId = Number(req.params.formId)

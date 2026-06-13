@@ -229,6 +229,7 @@ const ClassEventsPanel = ({
         open={modalOpen}
         programsId={programsId}
         programsDisplayName={programsDisplayName}
+        lockProgram
         editing={editing}
         onClose={() => {
           setModalOpen(false)

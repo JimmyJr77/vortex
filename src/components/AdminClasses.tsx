@@ -326,15 +326,25 @@ export default function AdminClasses({
 
   const handleCreateCategory = async () => {
     try {
+      const displayName = categoryFormData.displayName?.trim()
+      if (!displayName) {
+        alert('Display name is required')
+        return
+      }
+      const name = displayName.toUpperCase().replace(/\s+/g, '_')
       const response = await adminApiRequest('/api/admin/categories', {
         method: 'POST',
-        body: JSON.stringify(categoryFormData)
+        body: JSON.stringify({
+          name,
+          displayName,
+          description: categoryFormData.description,
+        })
       })
       
       if (response.ok) {
         await fetchAllCategories()
         await fetchAllPrograms()
-        setCategoryFormData({ name: '', displayName: '', description: '' })
+        setCategoryFormData({ displayName: '', description: '' })
         setShowCategoryModal(false)
         setEditingCategoryId(null)
       } else {
@@ -668,7 +678,7 @@ export default function AdminClasses({
               type="button"
               onClick={() => {
                 setEditingCategoryId(null)
-                setCategoryFormData({ name: '', displayName: '', description: '' })
+                setCategoryFormData({ displayName: '', description: '' })
                 setShowCategoryModal(true)
               }}
               className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
@@ -964,9 +974,9 @@ export default function AdminClasses({
                                   onClick={() => {
                                     setEditingCategoryId(category.id)
                                     setCategoryFormData({
-                                      name: category.name,
                                       displayName: category.displayName,
                                       description: category.description || '',
+                                      isActive: programIsActiveFlag(category),
                                     })
                                     setShowCategoryModal(true)
                                   }}
@@ -1178,29 +1188,16 @@ export default function AdminClasses({
               </div>
 
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name (internal) *</label>
-                    <input
-                      type="text"
-                      value={categoryFormData.name || ''}
-                      onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                      placeholder="e.g., GYMNASTICS"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Display name *</label>
-                    <input
-                      type="text"
-                      value={categoryFormData.displayName || ''}
-                      onChange={(e) => setCategoryFormData({ ...categoryFormData, displayName: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                      placeholder="e.g., Gymnastics"
-                      required
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Display name *</label>
+                  <input
+                    type="text"
+                    value={categoryFormData.displayName || ''}
+                    onChange={(e) => setCategoryFormData({ ...categoryFormData, displayName: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    placeholder="e.g., Gymnastics"
+                    required
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -1212,6 +1209,19 @@ export default function AdminClasses({
                     placeholder="Optional description for this program"
                   />
                 </div>
+                {editingCategoryId && (
+                  <div>
+                    <ActiveToggle
+                      checked={categoryFormData.isActive !== false}
+                      onChange={(next) => setCategoryFormData({ ...categoryFormData, isActive: next })}
+                      title={
+                        categoryFormData.isActive !== false
+                          ? 'Deactivate program and all its classes'
+                          : 'Activate program (classes keep their own settings)'
+                      }
+                    />
+                  </div>
+                )}
                 <div className="flex gap-2 justify-end">
                   <button
                     onClick={() => {
@@ -1249,7 +1259,7 @@ export default function AdminClasses({
         programsDisplayName={
           categories.find((c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId))?.displayName
         }
-        availablePrograms={activePrograms.map((c) => ({ id: c.id, displayName: c.displayName }))}
+        lockProgram={selectedCategoryForClass != null || editingClassEvent != null}
         parentProgramActive={
           (() => {
             const pid = selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId
