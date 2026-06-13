@@ -279,11 +279,11 @@ const AdminScheduling = ({
 
   const selectedProgram = topPrograms.find((p) => p.id === selectedProgramId) ?? null
 
-  const overviewReady = Boolean(selectedProgram?.schedulingOverviewSavedAt)
   const needsClassEvent = ['offerings', 'slots', 'costs', 'signups'].includes(panel)
   const showClassEventPrompt = needsClassEvent && !selectedClassEvent
-  const showCategoryPrompt =
-    panel === 'offerings' && selectedClassEvent && selectedCategory === null
+  // Offerings/Slots are scoped to a category; default to "No Category" so the
+  // admin is never forced to bounce back to the Categories tab just to proceed.
+  const effectiveCategory: CategorySelection = selectedCategory ?? 'none'
 
   const handleCategorySelect = useCallback((selection: CategorySelection) => {
     setSelectedCategory(selection)
@@ -291,14 +291,14 @@ const AdminScheduling = ({
   }, [])
 
   const categoryApiId =
-    selectedCategory === 'none' ? null : typeof selectedCategory === 'number' ? selectedCategory : undefined
+    effectiveCategory === 'none' ? null : typeof effectiveCategory === 'number' ? effectiveCategory : undefined
 
   const categoryDisplayName =
-    selectedCategory === 'none'
+    effectiveCategory === 'none'
       ? 'No Category'
-      : typeof selectedCategory === 'number' && detail
-        ? (detail.allCategories?.find((c) => c.id === selectedCategory)?.name ??
-          detail.categories.find((c) => c.id === selectedCategory)?.name ??
+      : typeof effectiveCategory === 'number' && detail
+        ? (detail.allCategories?.find((c) => c.id === effectiveCategory)?.name ??
+          detail.categories.find((c) => c.id === effectiveCategory)?.name ??
           null)
         : null
 
@@ -409,27 +409,20 @@ const AdminScheduling = ({
               </div>
 
               <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 pb-4">
-                {PANELS.map((p) => {
-                  const locked = p.id === 'classEvents' && !overviewReady
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      disabled={locked}
-                      title={locked ? 'Complete Overview first' : undefined}
-                      onClick={() => !locked && setPanel(p.id)}
-                      className={`px-4 py-2 rounded-lg font-semibold ${
-                        panel === p.id
-                          ? 'bg-vortex-red text-white'
-                          : locked
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {p.label}
-                    </button>
-                  )
-                })}
+                {PANELS.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPanel(p.id)}
+                    className={`px-4 py-2 rounded-lg font-semibold ${
+                      panel === p.id
+                        ? 'bg-vortex-red text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
               </div>
 
               {error && (
@@ -466,25 +459,13 @@ const AdminScheduling = ({
               )}
 
               {panel === 'classEvents' && selectedProgramId && (
-                overviewReady ? (
-                  <ClassEventsPanel
-                    programsId={selectedProgramId}
-                    programsDisplayName={selectedProgram?.displayName}
-                    selectedClassEventId={selectedClassEvent?.id ?? null}
-                    onSelectClassEvent={handleSelectClassEvent}
-                    onRefresh={refresh}
-                  />
-                ) : (
-                  <p className="text-gray-600 py-8">
-                    Update the <strong>Overview</strong> tab first, then add classes and events.
-                  </p>
-                )
-              )}
-
-              {showCategoryPrompt && (
-                <p className="text-gray-600 py-8">
-                  Select a category in the <strong>Categories</strong> tab to manage {panel}.
-                </p>
+                <ClassEventsPanel
+                  programsId={selectedProgramId}
+                  programsDisplayName={selectedProgram?.displayName}
+                  selectedClassEventId={selectedClassEvent?.id ?? null}
+                  onSelectClassEvent={handleSelectClassEvent}
+                  onRefresh={refresh}
+                />
               )}
 
               {panel === 'categories' && (
@@ -495,10 +476,10 @@ const AdminScheduling = ({
                 />
               )}
 
-              {panel === 'offerings' && selectedClassEvent && selectedId && selectedCategory !== null && (
+              {panel === 'offerings' && selectedClassEvent && selectedId && (
                 <AdminSchedulingOfferings
                   formId={selectedId}
-                  selectedCategory={selectedCategory}
+                  selectedCategory={effectiveCategory}
                   selectedOfferingId={selectedOffering?.id ?? null}
                   onOfferingSelect={handleOfferingSelect}
                 />
@@ -516,7 +497,7 @@ const AdminScheduling = ({
                   offeringLabel={selectedOffering?.label ?? null}
                   selectedCategoryId={categoryApiId ?? null}
                   categoryName={categoryDisplayName}
-                  canBuild={Boolean(selectedCategory !== null && selectedOffering)}
+                  canBuild={Boolean(selectedOffering)}
                   orphanedSignups={orphanedSignups}
                   signups={signups}
                   forms={forms}
