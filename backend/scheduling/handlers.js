@@ -505,12 +505,9 @@ function filterSlotRowsByVisibility(rows, _form, includeInactive) {
   const today = new Date().toISOString().slice(0, 10)
   return rows.filter((slot) => {
     if (slot.dates_tbd) return true
-    // Only slot-level custom dates gate visibility — form inherit dates are informational.
-    const activeStart =
-      formatDateOnly(slot.active_start) ?? formatDateOnly(slot.start_date) ?? null
     const activeEnd =
       formatDateOnly(slot.active_end) ?? formatDateOnly(slot.end_date) ?? null
-    if (activeStart && activeStart > today) return false
+    // Hide only after a slot has ended — allow signup before active_start.
     if (activeEnd && activeEnd < today) return false
     return true
   })
@@ -1169,9 +1166,15 @@ export function createSchedulingHandlers(pool) {
         if (signupCategoryId != null && !category) {
           return res.status(400).json({ success: false, message: 'Invalid category' })
         }
-        const firstOccurrence = group.occurrences[0]
+        const firstOccurrence =
+          (value.timeSlotId != null
+            ? group.occurrences.find((o) => o.id === value.timeSlotId)
+            : null) ?? group.occurrences[0]
         if (!firstOccurrence) {
           return res.status(400).json({ success: false, message: 'Time slot has no schedule entries' })
+        }
+        if (value.timeSlotId != null && firstOccurrence.id !== value.timeSlotId) {
+          return res.status(400).json({ success: false, message: 'Invalid time slot selection' })
         }
 
         let memberId = null

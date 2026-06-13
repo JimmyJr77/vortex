@@ -186,9 +186,7 @@ const AdminScheduling = () => {
   const needsClassEvent = ['offerings', 'slots', 'costs', 'signups'].includes(panel)
   const showClassEventPrompt = needsClassEvent && !selectedClassEvent
   const showCategoryPrompt =
-    ['offerings', 'slots'].includes(panel) && selectedClassEvent && selectedCategory === null
-  const showOfferingPrompt =
-    ['offerings', 'slots'].includes(panel) && selectedClassEvent && selectedCategory !== null && !selectedOffering
+    panel === 'offerings' && selectedClassEvent && selectedCategory === null
 
   const handleCategorySelect = useCallback((selection: CategorySelection) => {
     setSelectedCategory(selection)
@@ -359,12 +357,6 @@ const AdminScheduling = () => {
                 </p>
               )}
 
-              {showOfferingPrompt && panel === 'slots' && (
-                <p className="text-gray-600 py-8">
-                  Select an offering in the <strong>Offerings</strong> tab before building slots.
-                </p>
-              )}
-
               {panel === 'categories' && (
                 <AdminSchedulingCategories
                   selectedCategory={selectedCategory}
@@ -382,16 +374,16 @@ const AdminScheduling = () => {
                 />
               )}
 
-              {panel === 'slots' && selectedClassEvent && selectedId && detail && selectedOffering && (
+              {panel === 'slots' && selectedClassEvent && selectedId && detail && (
                 <AdminSchedulingSlots
                   formId={selectedId}
                   detail={detail}
                   formStartDate={detail.startDate ?? null}
                   formEndDate={detail.endDate ?? null}
-                  offeringId={selectedOffering.id}
-                  offeringStartDate={selectedOffering.startDate}
-                  offeringEndDate={selectedOffering.endDate}
-                  offeringLabel={selectedOffering.label}
+                  offeringId={selectedOffering?.id ?? null}
+                  offeringStartDate={selectedOffering?.startDate ?? null}
+                  offeringEndDate={selectedOffering?.endDate ?? null}
+                  offeringLabel={selectedOffering?.label ?? null}
                   selectedCategoryId={categoryApiId ?? null}
                   categoryName={categoryDisplayName}
                   canBuild={Boolean(selectedCategory !== null && selectedOffering)}

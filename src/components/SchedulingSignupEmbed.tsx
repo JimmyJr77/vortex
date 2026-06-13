@@ -36,6 +36,29 @@ function bookableGroupsForCategory(
   )
 }
 
+type SlotPickOption = {
+  key: string
+  slotGroupId: number
+  timeSlotId: number
+  group: SchedulingSlotGroup
+  occurrence: SchedulingSlotGroup['occurrences'][number]
+}
+
+function slotOptionsForCategory(
+  detail: SchedulingFormDetail,
+  catId: number | null,
+): SlotPickOption[] {
+  return bookableGroupsForCategory(detail, catId).flatMap((group) =>
+    group.occurrences.map((occurrence) => ({
+      key: `${group.id}-${occurrence.id}`,
+      slotGroupId: group.id,
+      timeSlotId: occurrence.id,
+      group,
+      occurrence,
+    })),
+  )
+}
+
 function getBookableCategories(detail: SchedulingFormDetail): SchedulingFormCategory[] {
   return detail.categories.filter((cat) =>
     bookableGroupsForCategory(detail, cat.id ?? null).length > 0,
@@ -148,6 +171,7 @@ const SchedulingSignupEmbed = ({
   const [formDetail, setFormDetail] = useState<SchedulingFormDetail | null>(null)
   const [categoryId, setCategoryId] = useState<number | null | undefined>(undefined)
   const [slotGroupId, setSlotGroupId] = useState<number | null>(null)
+  const [timeSlotId, setTimeSlotId] = useState<number | null>(null)
   const [responses, setResponses] = useState<Record<string, string | string[]>>({})
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -171,6 +195,7 @@ const SchedulingSignupEmbed = ({
     setLoading(true)
     setCategoryId(undefined)
     setSlotGroupId(null)
+    setTimeSlotId(null)
     setResponses({})
     setSuccess(false)
     setSignupResult(null)
@@ -218,6 +243,11 @@ const SchedulingSignupEmbed = ({
     return bookableGroupsForCategory(formDetail, categoryId)
   }, [formDetail, categoryId])
 
+  const slotOptions = useMemo(() => {
+    if (!formDetail || categoryId === undefined) return []
+    return slotOptionsForCategory(formDetail, categoryId)
+  }, [formDetail, categoryId])
+
   useEffect(() => {
     if (categoryId === undefined || !formDetail) return
 
@@ -229,12 +259,14 @@ const SchedulingSignupEmbed = ({
       return
     }
 
-    if (categoryChanged && bookableGroups.length === 1) {
-      setSlotGroupId(bookableGroups[0].id)
+    if (categoryChanged && slotOptions.length === 1) {
+      setSlotGroupId(slotOptions[0].slotGroupId)
+      setTimeSlotId(slotOptions[0].timeSlotId)
     } else if (categoryChanged) {
       setSlotGroupId(null)
+      setTimeSlotId(null)
     }
-  }, [categoryId, formDetail, bookableGroups])
+  }, [categoryId, formDetail, slotOptions])
 
   const showWeekInLabels = useMemo(
     () => schedulingHasMultipleWeeks(bookableGroups),
@@ -259,6 +291,7 @@ const SchedulingSignupEmbed = ({
 
   const handleCategorySelect = (catId: number | null) => {
     setSlotGroupId(null)
+    setTimeSlotId(null)
     setCategoryId(catId)
     if (!signupAuthToken) {
       setIdentityPhase('pending')
@@ -267,8 +300,9 @@ const SchedulingSignupEmbed = ({
     }
   }
 
-  const handleSlotSelect = (groupId: number) => {
-    setSlotGroupId(groupId)
+  const handleSlotSelect = (option: SlotPickOption) => {
+    setSlotGroupId(option.slotGroupId)
+    setTimeSlotId(option.timeSlotId)
     if (!signupAuthToken && identityPhase !== 'ready') {
       setIdentityPhase('email')
       setIsNewUser(false)
@@ -277,13 +311,13 @@ const SchedulingSignupEmbed = ({
   }
 
   useEffect(() => {
-    if (slotGroupId == null || signupAuthToken || identityPhase === 'ready' || identityPhase === 'login') {
+    if (slotGroupId == null || timeSlotId == null || signupAuthToken || identityPhase === 'ready' || identityPhase === 'login') {
       return
     }
     if (identityPhase === 'pending') {
       setIdentityPhase('email')
     }
-  }, [slotGroupId, signupAuthToken, identityPhase])
+  }, [slotGroupId, timeSlotId, signupAuthToken, identityPhase])
 
   const handleEmailContinue = async () => {
     const email = accountEmail.trim()
@@ -345,7 +379,7 @@ const SchedulingSignupEmbed = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formDetail || categoryId === undefined || !slotGroupId) return
+    if (!formDetail || categoryId === undefined || !slotGroupId || !timeSlotId) return
     if (identityPhase !== 'ready') return
     setSubmitting(true)
     setError(null)
@@ -369,6 +403,7 @@ const SchedulingSignupEmbed = ({
         formId: formDetail.id,
         categoryId,
         slotGroupId,
+        timeSlotId,
         responses: isNewUser ? payload : { email: accountEmail.trim() },
         signupAuthToken: signupAuthToken || undefined,
         password: isNewUser ? newAccountPassword : undefined,
@@ -386,10 +421,10 @@ const SchedulingSignupEmbed = ({
     ? 'bg-white rounded-xl border border-gray-200 p-4 shadow-sm'
     : 'bg-white rounded-2xl border border-gray-200 p-6 shadow-sm'
 
-  const slotSelected = categoryId !== undefined && slotGroupId !== null
+  const slotSelected = categoryId !== undefined && slotGroupId !== null && timeSlotId !== null
   const identityReady = identityPhase === 'ready'
   const showCategoryPick = bookableCategories.length > 1 && categoryId === undefined
-  const showSlotPick = categoryId !== undefined && slotGroupId === null && bookableGroups.length > 0
+  const showSlotPick = categoryId !== undefined && timeSlotId === null && slotOptions.length > 0
   const showEmailStep = slotSelected && identityPhase === 'email'
   const showLoginStep = slotSelected && identityPhase === 'login'
   const showNewUserForm = slotSelected && identityReady && isNewUser
@@ -403,6 +438,11 @@ const SchedulingSignupEmbed = ({
   const selectedGroup = useMemo(
     () => bookableGroups.find((g) => g.id === slotGroupId) ?? null,
     [bookableGroups, slotGroupId],
+  )
+
+  const selectedOccurrence = useMemo(
+    () => slotOptions.find((o) => o.timeSlotId === timeSlotId)?.occurrence ?? null,
+    [slotOptions, timeSlotId],
   )
 
   if (loading && !formDetail) {
@@ -536,6 +576,7 @@ const SchedulingSignupEmbed = ({
                   onClick={() => {
                     setCategoryId(undefined)
                     setSlotGroupId(null)
+                    setTimeSlotId(null)
                     setIdentityPhase('pending')
                   }}
                   className="text-vortex-red font-semibold hover:underline"
@@ -548,33 +589,31 @@ const SchedulingSignupEmbed = ({
               Choose your time
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {bookableGroups.map((group) => (
+              {slotOptions.map((option) => (
                 <button
-                  key={group.id}
+                  key={option.key}
                   type="button"
-                  onClick={() => handleSlotSelect(group.id)}
+                  onClick={() => handleSlotSelect(option)}
                   className={`text-left rounded-xl border-2 p-3 transition-all ${
-                    slotGroupId === group.id
+                    timeSlotId === option.timeSlotId
                       ? 'border-vortex-red bg-red-50'
                       : 'border-gray-200 hover:border-gray-400'
                   }`}
                 >
                   <div className="space-y-1">
-                    {group.occurrences.map((occ) => (
-                      <div key={occ.id} className="flex items-center gap-2 font-bold text-black text-sm">
-                        <Clock className="w-4 h-4 text-vortex-red shrink-0" />
-                        {formatSchedulingOccurrenceLabel(occ, {
-                          includeWeek: showWeekInLabels,
-                          formatTime: formatTimeLabel,
-                        })}
-                      </div>
-                    ))}
+                    <div className="flex items-center gap-2 font-bold text-black text-sm">
+                      <Clock className="w-4 h-4 text-vortex-red shrink-0" />
+                      {formatSchedulingOccurrenceLabel(option.occurrence, {
+                        includeWeek: showWeekInLabels,
+                        formatTime: formatTimeLabel,
+                      })}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-600 mt-2">
                     <Users className="w-4 h-4" />
-                    {group.isFull
-                      ? `Full — join waitlist${(group.waitlistCount ?? 0) > 0 ? ` (${group.waitlistCount} waiting)` : ''}`
-                      : `${group.spotsRemaining} of ${group.maxParticipants} spots left`}
+                    {option.group.isFull
+                      ? `Full — join waitlist${(option.group.waitlistCount ?? 0) > 0 ? ` (${option.group.waitlistCount} waiting)` : ''}`
+                      : `${option.group.spotsRemaining} of ${option.group.maxParticipants} spots left`}
                   </div>
                 </button>
               ))}
@@ -582,7 +621,7 @@ const SchedulingSignupEmbed = ({
           </div>
         )}
 
-        {categoryId !== undefined && bookableGroups.length === 0 && (
+        {categoryId !== undefined && slotOptions.length === 0 && (
           <div className={`${sectionClass} text-sm text-gray-600`}>
             No available times for this category.
             {bookableCategories.length > 1 && (
@@ -601,18 +640,16 @@ const SchedulingSignupEmbed = ({
           </div>
         )}
 
-        {slotSelected && selectedGroup && !showCategoryPick && !showSlotPick && (
+        {slotSelected && selectedGroup && selectedOccurrence && !showCategoryPick && !showSlotPick && (
           <div className={`${sectionClass} text-sm text-gray-700`}>
             <span className="font-semibold text-black">Selected slot: </span>
             {selectedCategoryName && <span>{selectedCategoryName} — </span>}
-            {selectedGroup.occurrences.map((occ) => (
-              <span key={occ.id} className="block sm:inline">
-                {formatSchedulingOccurrenceLabel(occ, {
-                  includeWeek: showWeekInLabels,
-                  formatTime: formatTimeLabel,
-                })}
-              </span>
-            ))}
+            <span>
+              {formatSchedulingOccurrenceLabel(selectedOccurrence, {
+                includeWeek: showWeekInLabels,
+                formatTime: formatTimeLabel,
+              })}
+            </span>
             {!signupAuthToken && identityPhase !== 'ready' && (
               <span className="block sm:inline mt-2 sm:mt-0">
                 <button
@@ -620,6 +657,7 @@ const SchedulingSignupEmbed = ({
                   onClick={() => {
                     skipAutoSlotRef.current = true
                     setSlotGroupId(null)
+                    setTimeSlotId(null)
                     setIdentityPhase('pending')
                   }}
                   className="text-vortex-red font-semibold hover:underline"

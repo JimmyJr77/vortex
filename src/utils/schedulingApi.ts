@@ -319,6 +319,7 @@ export async function submitSchedulingSignup(payload: {
   formId: number
   categoryId: number | null
   slotGroupId: number
+  timeSlotId?: number
   responses: Record<string, string | boolean | number | string[]>
   signupAuthToken?: string
   password?: string

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, ChevronRight, Copy, Pencil, Plus, Trash2, Users } from 'lucide-react'
 import {
   SCHEDULING_DAYS,
@@ -261,30 +261,55 @@ const AdminSchedulingSlots = ({
     setEditingSlotGroupId(null)
   }
 
-  const scheduledSections: { id: number | null; name: string }[] = (() => {
-    const seen = new Set<string>()
-    const sections: { id: number | null; name: string }[] = []
-    for (const c of formCategories) {
-      const dedupeKey = c.id == null ? 'none' : String(c.id)
+  const scheduledSections: { id: number | null; name: string }[] = useMemo(() => {
+    const sections: { id: number | null; name: string }[] = [{ id: null, name: 'No Category' }]
+    const seen = new Set<string>(['none'])
+
+    const catalog = detail.allCategories?.length
+      ? detail.allCategories.map((c) => ({ id: c.id, name: c.name }))
+      : formCategories.map((c) => ({ id: c.id, name: c.name }))
+
+    for (const c of catalog) {
+      if (c.id == null) continue
+      const dedupeKey = String(c.id)
       if (seen.has(dedupeKey)) continue
       seen.add(dedupeKey)
       sections.push({ id: c.id, name: c.name })
     }
+
+    for (const group of detail.slotGroups ?? []) {
+      const catId = group.categoryId ?? null
+      if (catId == null) continue
+      const dedupeKey = String(catId)
+      if (seen.has(dedupeKey)) continue
+      seen.add(dedupeKey)
+      const name =
+        catalog.find((c) => c.id === catId)?.name ??
+        formCategories.find((c) => c.id === catId)?.name ??
+        `Category #${catId}`
+      sections.push({ id: catId, name })
+    }
+
     return sections
-  })()
+  }, [detail.allCategories, detail.slotGroups, formCategories])
 
   const sectionKey = (id: number | null, name: string) =>
     id == null ? `none:${name}` : String(id)
 
+  const groupsForCategory = (catId: number | null) =>
+    (detail.slotGroups ?? []).filter((g) => (g.categoryId ?? null) === catId)
+
   useEffect(() => {
-    if (scheduledSections.length > 0) {
-      setExpanded((prev) =>
-        Object.keys(prev).length > 0
-          ? prev
-          : { [sectionKey(scheduledSections[0].id, scheduledSections[0].name)]: true },
+    if (scheduledSections.length === 0) return
+    setExpanded((prev) => {
+      if (Object.keys(prev).length > 0) return prev
+      const firstWithSlots = scheduledSections.find(
+        (section) => groupsForCategory(section.id).length > 0,
       )
-    }
-  }, [formCategories])
+      const initial = firstWithSlots ?? scheduledSections[0]
+      return { [sectionKey(initial.id, initial.name)]: true }
+    })
+  }, [scheduledSections, detail.slotGroups])
 
   const applyInheritedDates = () => {
     const { start, end } = inheritedDates()
@@ -515,9 +540,6 @@ const AdminSchedulingSlots = ({
       deletingRef.current = false
     }
   }
-
-  const groupsForCategory = (catId: number | null) =>
-    (detail.slotGroups ?? []).filter((g) => (g.categoryId ?? null) === catId)
 
   const groupSchedulesByWeek = (groups: SchedulingSlotGroup[]) => {
     const map = new Map<string, SchedulingSlotGroup[]>()
@@ -847,22 +869,22 @@ const AdminSchedulingSlots = ({
           {offeringLabel && <> · {offeringLabel}</>}
         </div>
       )}
-      {!canBuild ? (
-        <p className="text-gray-600 py-4">
-          Select a category in the <strong>Categories</strong> tab and an offering in <strong>Offerings</strong> before building slots.
+      {!canBuild && (
+        <p className="text-gray-600 py-2 text-sm rounded-lg border border-amber-200 bg-amber-50 px-4">
+          Select a category in the <strong>Categories</strong> tab and an offering in{' '}
+          <strong>Offerings</strong> to add a new time slot. Existing slots are listed below.
         </p>
-      ) : (
-        builderForm
       )}
+      {canBuild && builderForm}
 
       <div className="border-t border-gray-200 pt-8">
         <h3 className="text-xl font-bold text-black mb-4">Scheduled slots</h3>
         {scheduledSections.every((s) => groupsForCategory(s.id).length === 0) ? (
-          <p className="text-gray-500 text-sm">No scheduled slots yet. Add a time slot above to get started.</p>
-        ) : (
-          scheduledSections.map((cat) => {
+          <p className="text-gray-500 text-sm mb-4">No scheduled slots yet.</p>
+        ) : null}
+        <div className="space-y-3">
+          {scheduledSections.map((cat) => {
         const groups = groupsForCategory(cat.id)
-        if (groups.length === 0) return null
         const key = sectionKey(cat.id, cat.name)
         const isOpen = expanded[key] ?? false
         return (
@@ -880,7 +902,9 @@ const AdminSchedulingSlots = ({
             </button>
             {isOpen && (
               <div className="p-4 space-y-4">
-                {groupSchedulesByWeek(groups).map(([weekLabel, weekGroups]) => (
+                {groups.length === 0 ? (
+                  <p className="text-gray-500 text-sm">No slots for this category.</p>
+                ) : groupSchedulesByWeek(groups).map(([weekLabel, weekGroups]) => (
                   <div key={weekLabel}>
                     <h4 className="font-semibold text-gray-800 mb-2">{weekLabel}</h4>
                     <div className="overflow-x-auto">
@@ -960,13 +984,12 @@ const AdminSchedulingSlots = ({
                     </div>
                   </div>
                 ))}
-                {groups.length === 0 && <p className="text-gray-500 text-sm">No slots for this category.</p>}
               </div>
             )}
           </div>
         )
-          })
-        )}
+          })}
+        </div>
         <OrphanedSignupsPanel
           orphanedSignups={orphanedSignups}
           forms={forms}
