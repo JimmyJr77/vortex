@@ -5,6 +5,7 @@ import {
   isParentFieldLockedByWaiver,
   type SchedulingSignupFieldDef,
 } from '../config/schedulingSignupFields'
+import SchoolAutocompleteInput from './scheduling/SchoolAutocompleteInput'
 import {
   checkSchedulingEmail,
   fetchPublicSchedulingForm,
@@ -128,6 +129,17 @@ function SignupFieldInput({
     )
   }
 
+  if (field.key === 'current_school') {
+    return (
+      <SchoolAutocompleteInput
+        id={id}
+        required={field.required}
+        value={String(value || '')}
+        onChange={(val) => onChange(val)}
+      />
+    )
+  }
+
   const inputType =
     field.type === 'number' ? 'number'
     : field.type === 'email' ? 'email'
@@ -159,6 +171,7 @@ interface Props {
   fromEvent?: boolean
   initialAuthToken?: string | null
   initialEmail?: string | null
+  onSignupComplete?: (completed: boolean) => void
 }
 
 const SchedulingSignupEmbed = ({
@@ -167,6 +180,7 @@ const SchedulingSignupEmbed = ({
   fromEvent = false,
   initialAuthToken = null,
   initialEmail = null,
+  onSignupComplete,
 }: Props) => {
   const [formDetail, setFormDetail] = useState<SchedulingFormDetail | null>(null)
   const [categoryId, setCategoryId] = useState<number | null | undefined>(undefined)
@@ -218,6 +232,10 @@ const SchedulingSignupEmbed = ({
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load form'))
       .finally(() => setLoading(false))
   }, [formId, fromEvent])
+
+  useEffect(() => {
+    onSignupComplete?.(success)
+  }, [success, onSignupComplete])
 
   useEffect(() => {
     if (!initialAuthToken || !initialEmail) return

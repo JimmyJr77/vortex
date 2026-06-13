@@ -349,17 +349,26 @@ export function registerProgramsAdminRoutes(app, pool) {
         WHERE table_name = $1 AND column_name = 'description'
       `, [schema.programsTable])
       const hasDescription = columnCheck.rows.length > 0
+      const hasSchedulingCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
+      const schedInsert = hasSchedulingCols ? ', scheduling_overview_saved_at' : ''
+      const schedValues = hasSchedulingCols ? ', CURRENT_TIMESTAMP' : ''
+      const schedReturn = hasSchedulingCols
+        ? `, scheduling_active as "schedulingActive",
+           scheduling_signup_fields as "schedulingSignupFields",
+           scheduling_mandate_waiver as "schedulingMandateWaiver",
+           scheduling_overview_saved_at as "schedulingOverviewSavedAt"`
+        : ''
 
       const result = await pool.query(
         hasDescription
-          ? `INSERT INTO ${schema.programsTable} (facility_id, name, display_name, description)
-             VALUES ($1, $2, $3, $4)
+          ? `INSERT INTO ${schema.programsTable} (facility_id, name, display_name, description${schedInsert})
+             VALUES ($1, $2, $3, $4${schedValues})
              RETURNING id, name, display_name as "displayName", description, archived,
-               created_at as "createdAt", updated_at as "updatedAt"`
-          : `INSERT INTO ${schema.programsTable} (facility_id, name, display_name)
-             VALUES ($1, $2, $3)
+               created_at as "createdAt", updated_at as "updatedAt"${schedReturn}`
+          : `INSERT INTO ${schema.programsTable} (facility_id, name, display_name${schedInsert})
+             VALUES ($1, $2, $3${schedValues})
              RETURNING id, name, display_name as "displayName", NULL as description, archived,
-               created_at as "createdAt", updated_at as "updatedAt"`,
+               created_at as "createdAt", updated_at as "updatedAt"${schedReturn}`,
         [
           facilityId,
           value.name.toUpperCase().replace(/\s+/g, '_'),

@@ -13,7 +13,11 @@ import {
 } from '../../utils/schedulingApi'
 import { formatDateForInput } from '../../utils/dateUtils'
 import OrphanedSignupsPanel from './OrphanedSignupsPanel'
-import type { SchedulingFormSummary, SchedulingOrphanedSignup } from '../../utils/schedulingApi'
+import type {
+  SchedulingFormSummary,
+  SchedulingOrphanedSignup,
+  SchedulingSignup,
+} from '../../utils/schedulingApi'
 
 interface Props {
   formId: number
@@ -28,6 +32,7 @@ interface Props {
   categoryName?: string | null
   canBuild?: boolean
   orphanedSignups: SchedulingOrphanedSignup[]
+  signups: SchedulingSignup[]
   forms: SchedulingFormSummary[]
   onRefresh: () => Promise<void>
 }
@@ -40,6 +45,38 @@ type DateEntry = { type: 'single' | 'range'; date: string; startDate: string; en
 const defaultTime = (): TimeRow => ({ startTime: '09:00', endTime: '10:00' })
 
 const normalizeTime = (time: string) => (time.length >= 5 ? time.slice(0, 5) : time)
+
+function todayDateString() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function isSlotScheduleExpired(group: SchedulingSlotGroup) {
+  if (group.datesTbd) return false
+  const today = todayDateString()
+  return Boolean(group.activeEnd && group.activeEnd < today)
+}
+
+function hasWithdrawnStudents(
+  groupId: number,
+  signups: SchedulingSignup[],
+  orphanedSignups: SchedulingOrphanedSignup[],
+) {
+  const cancelled = signups.some((s) => s.slotGroupId === groupId && s.status === 'cancelled')
+  const orphaned = orphanedSignups.some((s) => s.orphanedSnapshot?.slotGroupId === groupId)
+  return cancelled || orphaned
+}
+
+function isScheduledSlotVisible(
+  group: SchedulingSlotGroup,
+  signups: SchedulingSignup[],
+  orphanedSignups: SchedulingOrphanedSignup[],
+) {
+  const activeEnrollments = (group.signupCount ?? 0) + (group.waitlistCount ?? 0)
+  if (activeEnrollments > 0) return true
+  if (group.isActive && !isSlotScheduleExpired(group)) return true
+  return hasWithdrawnStudents(group.id, signups, orphanedSignups)
+}
 
 function createDefaultWeeks(inheritedStart: string, inheritedEnd: string): WeekRow[] {
   return [
@@ -101,10 +138,19 @@ const AdminSchedulingSlots = ({
   categoryName,
   canBuild = true,
   orphanedSignups,
+  signups,
   forms,
   onRefresh,
 }: Props) => {
   const formCategories = detail.categories
+
+  const visibleSlotGroups = useMemo(
+    () =>
+      (detail.slotGroups ?? []).filter((group) =>
+        isScheduledSlotVisible(group, signups, orphanedSignups),
+      ),
+    [detail.slotGroups, signups, orphanedSignups],
+  )
   const builderRef = useRef<HTMLDivElement>(null)
   const savingRef = useRef(false)
   const deletingRef = useRef(false)
@@ -262,27 +308,22 @@ const AdminSchedulingSlots = ({
   }
 
   const scheduledSections: { id: number | null; name: string }[] = useMemo(() => {
-    const sections: { id: number | null; name: string }[] = [{ id: null, name: 'No Category' }]
-    const seen = new Set<string>(['none'])
+    const sections: { id: number | null; name: string }[] = []
+    const seen = new Set<string>()
 
     const catalog = detail.allCategories?.length
       ? detail.allCategories.map((c) => ({ id: c.id, name: c.name }))
       : formCategories.map((c) => ({ id: c.id, name: c.name }))
 
-    for (const c of catalog) {
-      if (c.id == null) continue
-      const dedupeKey = String(c.id)
-      if (seen.has(dedupeKey)) continue
-      seen.add(dedupeKey)
-      sections.push({ id: c.id, name: c.name })
-    }
-
-    for (const group of detail.slotGroups ?? []) {
+    for (const group of visibleSlotGroups) {
       const catId = group.categoryId ?? null
-      if (catId == null) continue
-      const dedupeKey = String(catId)
+      const dedupeKey = catId == null ? 'none' : String(catId)
       if (seen.has(dedupeKey)) continue
       seen.add(dedupeKey)
+      if (catId == null) {
+        sections.push({ id: null, name: 'No Category' })
+        continue
+      }
       const name =
         catalog.find((c) => c.id === catId)?.name ??
         formCategories.find((c) => c.id === catId)?.name ??
@@ -291,25 +332,22 @@ const AdminSchedulingSlots = ({
     }
 
     return sections
-  }, [detail.allCategories, detail.slotGroups, formCategories])
+  }, [detail.allCategories, formCategories, visibleSlotGroups])
 
   const sectionKey = (id: number | null, name: string) =>
     id == null ? `none:${name}` : String(id)
 
   const groupsForCategory = (catId: number | null) =>
-    (detail.slotGroups ?? []).filter((g) => (g.categoryId ?? null) === catId)
+    visibleSlotGroups.filter((g) => (g.categoryId ?? null) === catId)
 
   useEffect(() => {
     if (scheduledSections.length === 0) return
     setExpanded((prev) => {
       if (Object.keys(prev).length > 0) return prev
-      const firstWithSlots = scheduledSections.find(
-        (section) => groupsForCategory(section.id).length > 0,
-      )
-      const initial = firstWithSlots ?? scheduledSections[0]
+      const initial = scheduledSections[0]
       return { [sectionKey(initial.id, initial.name)]: true }
     })
-  }, [scheduledSections, detail.slotGroups])
+  }, [scheduledSections])
 
   const applyInheritedDates = () => {
     const { start, end } = inheritedDates()
@@ -879,8 +917,8 @@ const AdminSchedulingSlots = ({
 
       <div className="border-t border-gray-200 pt-8">
         <h3 className="text-xl font-bold text-black mb-4">Scheduled slots</h3>
-        {scheduledSections.every((s) => groupsForCategory(s.id).length === 0) ? (
-          <p className="text-gray-500 text-sm mb-4">No scheduled slots yet.</p>
+        {scheduledSections.length === 0 ? (
+          <p className="text-gray-500 text-sm mb-4">No active scheduled slots right now.</p>
         ) : null}
         <div className="space-y-3">
           {scheduledSections.map((cat) => {
@@ -902,9 +940,7 @@ const AdminSchedulingSlots = ({
             </button>
             {isOpen && (
               <div className="p-4 space-y-4">
-                {groups.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No slots for this category.</p>
-                ) : groupSchedulesByWeek(groups).map(([weekLabel, weekGroups]) => (
+                {groupSchedulesByWeek(groups).map(([weekLabel, weekGroups]) => (
                   <div key={weekLabel}>
                     <h4 className="font-semibold text-gray-800 mb-2">{weekLabel}</h4>
                     <div className="overflow-x-auto">

@@ -20,6 +20,7 @@ const SchedulingPage = () => {
   const [selectedFormId, setSelectedFormId] = useState<number | null>(urlFormId)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [signupComplete, setSignupComplete] = useState(false)
 
   useEffect(() => {
     fetchPublicSchedulingForms()
@@ -116,11 +117,14 @@ const SchedulingPage = () => {
             <div className="space-y-6">
               <button
                 type="button"
-                onClick={() => setSelectedFormId(null)}
+                onClick={() => {
+                  setSelectedFormId(null)
+                  setSignupComplete(false)
+                }}
                 className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-400 hover:text-black transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Cancel
+                {signupComplete ? 'Return' : 'Cancel'}
               </button>
               {selectedForm && (
                 <SchedulingSignupEmbed
@@ -128,6 +132,7 @@ const SchedulingPage = () => {
                   formId={selectedFormId}
                   initialAuthToken={urlAuthToken}
                   initialEmail={urlEmail}
+                  onSignupComplete={setSignupComplete}
                 />
               )}
             </div>

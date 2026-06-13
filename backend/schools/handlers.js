@@ -52,6 +52,41 @@ export function createSchoolsHandlers(pool) {
       }
     },
 
+    async searchSchoolsPublic(req, res) {
+      try {
+        const q = String(req.query.q || '').trim()
+        if (q.length < 1) {
+          return res.json({ success: true, data: [] })
+        }
+        const pattern = `%${q}%`
+        const result = await pool.query(
+          `
+          SELECT id, name, level, location
+          FROM school
+          WHERE is_active = TRUE AND name ILIKE $1
+          ORDER BY
+            is_verified DESC,
+            CASE WHEN name ILIKE $2 THEN 0 ELSE 1 END,
+            name ASC
+          LIMIT 12
+          `,
+          [pattern, `${q}%`],
+        )
+        res.json({
+          success: true,
+          data: result.rows.map((row) => ({
+            id: Number(row.id),
+            name: row.name,
+            level: row.level || null,
+            location: row.location || null,
+          })),
+        })
+      } catch (err) {
+        console.error('[schools] searchSchoolsPublic:', err)
+        res.status(500).json({ success: false, message: 'Failed to search schools' })
+      }
+    },
+
     async listUnverified(_req, res) {
       try {
         const result = await pool.query(
@@ -281,29 +316,57 @@ export function createSchoolsHandlers(pool) {
   }
 }
 
+/** Resolve an active school by name, or create an unverified write-in for later admin matching. */
+export async function resolveSchoolIdByName(db, schoolName) {
+  const name = String(schoolName).trim()
+  if (!name) return null
+
+  const existing = await db.query(
+    'SELECT id FROM school WHERE lower(name) = lower($1) AND is_active = TRUE LIMIT 1',
+    [name],
+  )
+  if (existing.rows[0]) return Number(existing.rows[0].id)
+
+  const facilityRes = await db.query('SELECT id FROM facility ORDER BY id LIMIT 1')
+  const facilityId = facilityRes.rows[0]?.id ?? null
+  const insertRes = await db.query(
+    `
+    INSERT INTO school (facility_id, name, level, is_verified, is_active)
+    VALUES ($1, $2, 'other', FALSE, TRUE)
+    ON CONFLICT (facility_id, (lower(name))) DO NOTHING
+    RETURNING id
+    `,
+    [facilityId, name],
+  )
+  const schoolId =
+    insertRes.rows[0]?.id ??
+    (await db.query('SELECT id FROM school WHERE lower(name) = lower($1) LIMIT 1', [name])).rows[0]?.id
+  return schoolId != null ? Number(schoolId) : null
+}
+
+/** Link a member to a school name without replacing their other school links. */
+export async function linkMemberToSchoolFromName(db, memberId, schoolName, source = 'signup') {
+  const schoolId = await resolveSchoolIdByName(db, schoolName)
+  if (!schoolId) return null
+  await db.query(
+    `
+    INSERT INTO member_school (member_id, school_id, source)
+    VALUES ($1, $2, $3)
+    ON CONFLICT (member_id, school_id) DO NOTHING
+    `,
+    [memberId, schoolId, source],
+  )
+  return schoolId
+}
+
 // Shared helper: replace a member's school links with the given set, and handle a
 // free-typed "Other" write-in (creates an unverified school, then links it).
 export async function setMemberSchools(pool, memberId, schoolIds = [], writeIn = null) {
   const ids = Array.isArray(schoolIds) ? [...new Set(schoolIds.map(Number).filter(Boolean))] : []
 
   if (writeIn && String(writeIn).trim()) {
-    const name = String(writeIn).trim()
-    const facilityRes = await pool.query('SELECT id FROM facility ORDER BY id LIMIT 1')
-    const facilityId = facilityRes.rows[0]?.id ?? null
-    const insertRes = await pool.query(
-      `
-      INSERT INTO school (facility_id, name, level, is_verified, is_active)
-      VALUES ($1, $2, 'other', FALSE, TRUE)
-      ON CONFLICT (facility_id, (lower(name))) DO NOTHING
-      RETURNING id
-      `,
-      [facilityId, name],
-    )
-    const writeInId =
-      insertRes.rows[0]?.id ??
-      (await pool.query('SELECT id FROM school WHERE lower(name) = lower($1) LIMIT 1', [name]))
-        .rows[0]?.id
-    if (writeInId) ids.push(Number(writeInId))
+    const writeInId = await resolveSchoolIdByName(pool, writeIn)
+    if (writeInId) ids.push(writeInId)
   }
 
   await pool.query('DELETE FROM member_school WHERE member_id = $1', [memberId])

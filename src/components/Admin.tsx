@@ -8,7 +8,6 @@ import AdminMembers from './AdminMembers'
 import AdminClasses from './AdminClasses'
 import AdminEvents from './AdminEvents'
 import AdminAnalytics from './AdminAnalytics'
-import AdminEnrollments from './AdminEnrollments'
 import AdminHighlights from './AdminHighlights'
 import AdminScheduling from './AdminScheduling'
 import AdminDbQueries from './AdminDbQueries'
@@ -48,7 +47,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'enrollments' | 'highlights' | 'scheduling' | 'dbQueries' | 'schools'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'dbQueries' | 'schools'
 
 
 export default function Admin({ onLogout }: AdminProps) {
@@ -267,23 +266,6 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
-                onClick={() => setActiveTab('enrollments')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'enrollments'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Enrollments
-                {activeTab === 'enrollments' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
                 onClick={() => setActiveTab('highlights')}
                 className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'highlights'
@@ -371,8 +353,6 @@ export default function Admin({ onLogout }: AdminProps) {
               <AdminScheduling />
             ) : activeTab === 'classes' ? (
               <AdminClasses />
-            ) : activeTab === 'enrollments' ? (
-              <AdminEnrollments />
             ) : activeTab === 'highlights' ? (
               <AdminHighlights />
             ) : activeTab === 'events' ? (

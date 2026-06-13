@@ -35,6 +35,7 @@ import {
   validateSignupResponses,
 } from './signupFieldCatalog.js'
 import { expandSlotBatch } from './slotExpansion.js'
+import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -1236,6 +1237,11 @@ export function createSchedulingHandlers(pool) {
             groupDisplayLabel: group.displayLabel,
             firstOccurrenceLabel: firstOccurrence.displayLabel,
           })
+
+          const currentSchool = responses.current_school != null ? String(responses.current_school).trim() : ''
+          if (currentSchool) {
+            await linkMemberToSchoolFromName(client, memberId, currentSchool, 'signup')
+          }
 
           await client.query('COMMIT')
 

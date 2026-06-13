@@ -3,6 +3,7 @@ import { createSchoolsHandlers } from './handlers.js'
 export function registerSchoolsRoutes(app, pool) {
   const h = createSchoolsHandlers(pool)
 
+  app.get('/api/schools/search', h.searchSchoolsPublic)
   app.get('/api/admin/schools', h.listSchools)
   app.get('/api/admin/schools/unverified', h.listUnverified)
   app.post('/api/admin/schools', h.createSchool)

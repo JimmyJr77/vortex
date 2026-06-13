@@ -346,7 +346,7 @@ const AdminScheduling = () => {
                   />
                 ) : (
                   <p className="text-gray-600 py-8">
-                    Save the <strong>Overview</strong> tab first, then add classes and events.
+                    Update the <strong>Overview</strong> tab first, then add classes and events.
                   </p>
                 )
               )}
@@ -388,6 +388,7 @@ const AdminScheduling = () => {
                   categoryName={categoryDisplayName}
                   canBuild={Boolean(selectedCategory !== null && selectedOffering)}
                   orphanedSignups={orphanedSignups}
+                  signups={signups}
                   forms={forms}
                   onRefresh={refresh}
                 />
