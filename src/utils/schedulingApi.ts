@@ -109,6 +109,14 @@ export interface SchedulingFormSummary {
   freeSlotsPerUser?: number
 }
 
+export interface LegacySchedulingForm extends SchedulingFormSummary {
+  programId: number | null
+  programsId: number | null
+  eventLinked: boolean
+  signupCount: number
+  slotGroupCount: number
+}
+
 export interface SchedulingFormDetail extends SchedulingFormSummary {
   categories: SchedulingFormCategory[]
   allCategories?: SchedulingCategory[]
@@ -325,6 +333,11 @@ export async function submitSchedulingSignup(payload: {
 
 export async function adminFetchSchedulingForms(): Promise<SchedulingFormSummary[]> {
   const res = await adminApiRequest('/api/admin/scheduling/forms')
+  return parseJson(res)
+}
+
+export async function adminFetchLegacySchedulingForms(): Promise<LegacySchedulingForm[]> {
+  const res = await adminApiRequest('/api/admin/scheduling/legacy-forms')
   return parseJson(res)
 }
 

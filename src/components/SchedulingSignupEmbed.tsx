@@ -150,7 +150,6 @@ const SchedulingSignupEmbed = ({
   const [slotGroupId, setSlotGroupId] = useState<number | null>(null)
   const [responses, setResponses] = useState<Record<string, string | string[]>>({})
   const [loading, setLoading] = useState(true)
-  const [categoryLoading, setCategoryLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -163,10 +162,12 @@ const SchedulingSignupEmbed = ({
   const [isNewUser, setIsNewUser] = useState(false)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [identityLoading, setIdentityLoading] = useState(false)
-  const manualCategoryPickRef = useRef(false)
+  const skipAutoSlotRef = useRef(false)
+  const prevCategoryIdRef = useRef<number | null | undefined>(undefined)
 
   useEffect(() => {
-    manualCategoryPickRef.current = false
+    prevCategoryIdRef.current = undefined
+    skipAutoSlotRef.current = false
     setLoading(true)
     setCategoryId(undefined)
     setSlotGroupId(null)
@@ -207,19 +208,6 @@ const SchedulingSignupEmbed = ({
       .finally(() => setIdentityLoading(false))
   }, [formId, initialAuthToken, initialEmail])
 
-  useEffect(() => {
-    if (!manualCategoryPickRef.current || categoryId === undefined) return
-    setCategoryLoading(true)
-    fetchPublicSchedulingForm(formId, categoryId, { fromEvent })
-      .then(setFormDetail)
-      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load form'))
-      .finally(() => {
-        setCategoryLoading(false)
-        manualCategoryPickRef.current = false
-      })
-    setSlotGroupId(null)
-  }, [formId, categoryId, fromEvent])
-
   const bookableCategories = useMemo(
     () => (formDetail ? getBookableCategories(formDetail) : []),
     [formDetail],
@@ -232,8 +220,19 @@ const SchedulingSignupEmbed = ({
 
   useEffect(() => {
     if (categoryId === undefined || !formDetail) return
-    if (bookableGroups.length === 1) {
+
+    const categoryChanged = prevCategoryIdRef.current !== categoryId
+    prevCategoryIdRef.current = categoryId
+
+    if (skipAutoSlotRef.current) {
+      skipAutoSlotRef.current = false
+      return
+    }
+
+    if (categoryChanged && bookableGroups.length === 1) {
       setSlotGroupId(bookableGroups[0].id)
+    } else if (categoryChanged) {
+      setSlotGroupId(null)
     }
   }, [categoryId, formDetail, bookableGroups])
 
@@ -259,7 +258,6 @@ const SchedulingSignupEmbed = ({
   }, [formDetail, mandateWaiver])
 
   const handleCategorySelect = (catId: number | null) => {
-    manualCategoryPickRef.current = true
     setSlotGroupId(null)
     setCategoryId(catId)
     if (!signupAuthToken) {
@@ -391,7 +389,7 @@ const SchedulingSignupEmbed = ({
   const slotSelected = categoryId !== undefined && slotGroupId !== null
   const identityReady = identityPhase === 'ready'
   const showCategoryPick = bookableCategories.length > 1 && categoryId === undefined
-  const showSlotPick = categoryId !== undefined && bookableGroups.length > 1 && slotGroupId === null
+  const showSlotPick = categoryId !== undefined && slotGroupId === null && bookableGroups.length > 0
   const showEmailStep = slotSelected && identityPhase === 'email'
   const showLoginStep = slotSelected && identityPhase === 'login'
   const showNewUserForm = slotSelected && identityReady && isNewUser
@@ -526,18 +524,25 @@ const SchedulingSignupEmbed = ({
           </div>
         )}
 
-        {categoryLoading && (
-          <div className="flex items-center justify-center py-6">
-            <Loader2 className="w-6 h-6 animate-spin text-vortex-red" />
-          </div>
-        )}
-
-        {!categoryLoading && showSlotPick && (
+        {showSlotPick && (
           <div className={sectionClass}>
             {selectedCategoryName && bookableCategories.length > 1 && (
-              <p className="text-sm text-gray-600 mb-3">
-                Category: <span className="font-semibold text-black">{selectedCategoryName}</span>
-              </p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600 mb-3">
+                <span>
+                  Category: <span className="font-semibold text-black">{selectedCategoryName}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCategoryId(undefined)
+                    setSlotGroupId(null)
+                    setIdentityPhase('pending')
+                  }}
+                  className="text-vortex-red font-semibold hover:underline"
+                >
+                  Change category
+                </button>
+              </div>
             )}
             <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
               Choose your time
@@ -577,9 +582,22 @@ const SchedulingSignupEmbed = ({
           </div>
         )}
 
-        {!categoryLoading && categoryId !== undefined && bookableGroups.length === 0 && (
+        {categoryId !== undefined && bookableGroups.length === 0 && (
           <div className={`${sectionClass} text-sm text-gray-600`}>
             No available times for this category.
+            {bookableCategories.length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCategoryId(undefined)
+                  setSlotGroupId(null)
+                  setIdentityPhase('pending')
+                }}
+                className="ml-2 text-vortex-red font-semibold hover:underline"
+              >
+                Choose another category
+              </button>
+            )}
           </div>
         )}
 
@@ -596,16 +614,35 @@ const SchedulingSignupEmbed = ({
               </span>
             ))}
             {!signupAuthToken && identityPhase !== 'ready' && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSlotGroupId(null)
-                  setIdentityPhase('pending')
-                }}
-                className="ml-0 sm:ml-3 mt-2 sm:mt-0 text-vortex-red font-semibold hover:underline block sm:inline"
-              >
-                Change slot
-              </button>
+              <span className="block sm:inline mt-2 sm:mt-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    skipAutoSlotRef.current = true
+                    setSlotGroupId(null)
+                    setIdentityPhase('pending')
+                  }}
+                  className="text-vortex-red font-semibold hover:underline"
+                >
+                  Change slot
+                </button>
+                {bookableCategories.length > 1 && (
+                  <>
+                    <span className="text-gray-400 mx-2">·</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCategoryId(undefined)
+                        setSlotGroupId(null)
+                        setIdentityPhase('pending')
+                      }}
+                      className="text-vortex-red font-semibold hover:underline"
+                    >
+                      Change category
+                    </button>
+                  </>
+                )}
+              </span>
             )}
           </div>
         )}
@@ -698,7 +735,7 @@ const SchedulingSignupEmbed = ({
           </div>
         )}
 
-        {!categoryLoading && showNewUserForm && (
+        {showNewUserForm && (
           <div className={sectionClass}>
             <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
               Your information
@@ -753,7 +790,7 @@ const SchedulingSignupEmbed = ({
           </div>
         )}
 
-        {!categoryLoading && showSubmit && (
+        {showSubmit && (
           <button
             type="submit"
             disabled={submitting}

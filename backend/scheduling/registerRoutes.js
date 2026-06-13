@@ -29,6 +29,7 @@ export function registerSchedulingRoutes(app, pool) {
   app.post('/api/scheduling/signups', signupLimiter, h.createSignup)
 
   app.get('/api/admin/scheduling/forms', h.listAdminForms)
+  app.get('/api/admin/scheduling/legacy-forms', h.listLegacyForms)
   app.get('/api/admin/scheduling/forms/:id', h.getAdminForm)
   app.post('/api/admin/scheduling/forms', h.createAdminForm)
   app.put('/api/admin/scheduling/forms/:id', h.updateAdminForm)

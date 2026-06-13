@@ -7,6 +7,7 @@ import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
 import AdminSchedulingFormTab from './scheduling/AdminSchedulingFormTab'
 import AdminSchedulingOfferings from './scheduling/AdminSchedulingOfferings'
 import AdminSchedulingCosts from './scheduling/AdminSchedulingCosts'
+import AdminSchedulingLegacyForms from './scheduling/AdminSchedulingLegacyForms'
 import {
   adminDeleteSchedulingForm,
   adminFetchSchedulingForm,
@@ -657,6 +658,8 @@ const AdminScheduling = () => {
           )}
         </div>
       </div>
+
+      <AdminSchedulingLegacyForms onDeleted={() => loadForms()} />
 
       <AnimatePresence>
         {deleteConfirmOpen && selectedId && (

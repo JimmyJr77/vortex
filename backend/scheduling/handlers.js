@@ -947,6 +947,7 @@ export function createSchedulingHandlers(pool) {
           LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
           WHERE sf.deleted_at IS NULL
             AND sf.is_active = TRUE
+            AND sf.program_id IS NOT NULL
             AND ${programActiveClause}
           ORDER BY sf.created_at DESC
           `,
@@ -1283,6 +1284,41 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async listLegacyForms(_req, res) {
+      try {
+        const result = await pool.query(
+          `
+          SELECT sf.*,
+            EXISTS(
+              SELECT 1 FROM events e
+              WHERE e.scheduling_form_id = sf.id AND COALESCE(e.archived, FALSE) = FALSE
+            ) AS event_linked,
+            (SELECT COUNT(*)::int FROM scheduling_signup s WHERE s.form_id = sf.id) AS signup_count,
+            (SELECT COUNT(*)::int FROM scheduling_slot_group sg WHERE sg.form_id = sf.id) AS slot_group_count
+          FROM scheduling_form sf
+          WHERE sf.deleted_at IS NULL
+            AND sf.program_id IS NULL
+            AND sf.programs_id IS NULL
+          ORDER BY sf.created_at ASC
+          `,
+        )
+        res.json({
+          success: true,
+          data: result.rows.map((row) => ({
+            ...mapFormRow(row),
+            programId: null,
+            programsId: null,
+            eventLinked: Boolean(row.event_linked),
+            signupCount: Number(row.signup_count),
+            slotGroupCount: Number(row.slot_group_count),
+          })),
+        })
+      } catch (err) {
+        console.error('[scheduling] listLegacyForms:', err)
+        res.status(500).json({ success: false, message: 'Failed to load legacy forms' })
+      }
+    },
+
     async listAdminForms(_req, res) {
       try {
         const result = await pool.query(
@@ -1414,6 +1450,11 @@ export function createSchedulingHandlers(pool) {
 
     async deleteAdminForm(req, res) {
       try {
+        await pool.query(
+          `UPDATE events SET scheduling_form_id = NULL, updated_at = CURRENT_TIMESTAMP
+           WHERE scheduling_form_id = $1`,
+          [req.params.id],
+        )
         const result = await pool.query(
           `
           UPDATE scheduling_form
