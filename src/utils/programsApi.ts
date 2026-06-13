@@ -139,15 +139,33 @@ export async function createClassEvent(
   return parseJson(res)
 }
 
+const VALID_SKILL_LEVELS = ['EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const
+
+function sanitizeClassEventUpdateBody(
+  payload: Partial<ClassEventFormData> & { programsId?: number | null },
+): Record<string, unknown> {
+  const { programsId, skillLevel, displayName, ...rest } = payload
+  const body: Record<string, unknown> = { ...rest }
+  if (displayName !== undefined) {
+    body.displayName = displayName.trim()
+  }
+  if (skillLevel !== undefined) {
+    body.skillLevel =
+      skillLevel && VALID_SKILL_LEVELS.includes(skillLevel as (typeof VALID_SKILL_LEVELS)[number])
+        ? skillLevel
+        : null
+  }
+  if (programsId != null) body.programsId = programsId
+  return body
+}
+
 export async function updateClassEvent(
   id: number,
   payload: Partial<ClassEventFormData> & { programsId?: number | null },
 ): Promise<ClassEvent> {
-  const body: Record<string, unknown> = { ...payload }
-  if (payload.programsId != null) body.categoryId = payload.programsId
   const res = await adminApiRequest(`/api/admin/programs/${id}`, {
     method: 'PUT',
-    body: JSON.stringify(body),
+    body: JSON.stringify(sanitizeClassEventUpdateBody(payload)),
   })
   return parseJson(res)
 }

@@ -153,9 +153,10 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
     setExporting('classes')
     setExportError(null)
     try {
-      const prefills = await autoSaveClassesFromOverview(buildExportInput())
+      const { program: updatedProgram, prefills } = await autoSaveClassesFromOverview(buildExportInput())
+      onSaved(updatedProgram)
       if (prefills.length === 0) {
-        alert('No classes or events to export.')
+        alert('Program exported to Admin → Classes.')
         return
       }
       setExportPrefills(prefills)

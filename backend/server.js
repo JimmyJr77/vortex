@@ -1364,7 +1364,8 @@ const adminUpdateSchema = Joi.object({
 const programUpdateSchema = Joi.object({
   displayName: Joi.string().min(1).max(255).optional(),
   categoryId: Joi.number().integer().optional().allow(null),
-  skillLevel: Joi.string().valid('EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED').optional().allow(null),
+  programsId: Joi.number().integer().optional().allow(null),
+  skillLevel: Joi.string().valid('EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED').optional().allow(null, ''),
   ageMin: Joi.number().integer().min(0).max(100).optional().allow(null),
   ageMax: Joi.number().integer().min(0).max(100).optional().allow(null),
   description: Joi.string().optional().allow('', null),
@@ -10777,30 +10778,34 @@ app.put('/api/admin/programs/:id', async (req, res) => {
       })
     }
 
-    // Check if category_id column exists
-    const columnCheck = await pool.query(`
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'program' 
-      AND column_name = 'category_id'
-    `)
-    const hasCategoryIdColumn = columnCheck.rows.length > 0
-
-    // Build update query dynamically
     const updates = []
     const values = []
     let paramCount = 1
 
-    // Handle categoryId update if provided and column exists
-    if (hasCategoryIdColumn && value.categoryId !== undefined) {
-      updates.push(`category_id = $${paramCount++}`)
-      values.push(value.categoryId)
+    // Check program FK column (programs_id after unify migration, or legacy category_id)
+    const columnCheck = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'program' 
+      AND column_name IN ('category_id', 'programs_id')
+    `)
+    const programCols = new Set(columnCheck.rows.map((row) => row.column_name))
+    const { resolveProgramsSchema } = await import('./programs/schema.js')
+    const schema = await resolveProgramsSchema(pool)
+    const fkCol = schema.programFkColumn
+    const parentProgramId =
+      value.programsId !== undefined ? value.programsId : value.categoryId
+
+    // Handle parent program FK update when provided
+    if (programCols.has(fkCol) && parentProgramId !== undefined) {
+      updates.push(`${fkCol} = $${paramCount++}`)
+      values.push(parentProgramId)
       
-      // If categoryId is being set, update the category enum to match
-      if (value.categoryId !== null) {
+      // If parent program is being set, update the legacy category enum to match
+      if (parentProgramId !== null) {
         const categoryResult = await pool.query(
-          'SELECT name FROM program_categories WHERE id = $1 AND archived = FALSE LIMIT 1',
-          [value.categoryId]
+          `SELECT name FROM ${schema.programsTable} WHERE id = $1 AND archived = FALSE LIMIT 1`,
+          [parentProgramId]
         )
         if (categoryResult.rows.length > 0) {
           const categoryName = categoryResult.rows[0].name
@@ -10820,11 +10825,10 @@ app.put('/api/admin/programs/:id', async (req, res) => {
             console.warn(`Category "${categoryName}" from database doesn't match legacy enum, using ${availableEnumValues[0]} as fallback`)
           }
         }
-      } else {
-        // If categoryId is being set to null, don't change category enum (keep existing)
-        // But we could set it to null if needed - for now, keep existing enum value
       }
     }
+
+    const hasCategoryIdColumn = programCols.has('category_id')
 
     if (value.displayName !== undefined) {
       updates.push(`display_name = $${paramCount++}`)
@@ -10902,10 +10906,15 @@ app.put('/api/admin/programs/:id', async (req, res) => {
     values.push(id)
 
     // Build RETURNING clause with category info
+    const fkReturning = programCols.has('programs_id')
+      ? 'programs_id as "programsId", programs_id as "categoryId",'
+      : hasCategoryIdColumn
+        ? 'category_id as "categoryId",'
+        : 'NULL as "categoryId",'
     let returningClause = `
       id,
       category,
-      ${hasCategoryIdColumn ? 'category_id as "categoryId",' : 'NULL as "categoryId",'}
+      ${fkReturning}
       name,
       display_name as "displayName",
       skill_level as "skillLevel",
@@ -10926,17 +10935,18 @@ app.put('/api/admin/programs/:id', async (req, res) => {
       RETURNING ${returningClause}
     `, values)
 
-    // If categoryId exists, fetch category display name separately
-    if (hasCategoryIdColumn && result.rows.length > 0 && result.rows[0].categoryId) {
-      const categoryInfo = await pool.query(`
-        SELECT name, display_name 
-        FROM program_categories 
-        WHERE id = $1
-      `, [result.rows[0].categoryId])
-      
-      if (categoryInfo.rows.length > 0) {
-        result.rows[0].categoryName = categoryInfo.rows[0].name
-        result.rows[0].categoryDisplayName = categoryInfo.rows[0].display_name
+    // Fetch parent program display name when linked
+    if (result.rows.length > 0) {
+      const parentId = result.rows[0].programsId ?? result.rows[0].categoryId
+      if (parentId) {
+        const categoryInfo = await pool.query(
+          `SELECT name, display_name FROM ${schema.programsTable} WHERE id = $1`,
+          [parentId],
+        )
+        if (categoryInfo.rows.length > 0) {
+          result.rows[0].categoryName = categoryInfo.rows[0].name
+          result.rows[0].categoryDisplayName = categoryInfo.rows[0].display_name
+        }
       }
     }
 

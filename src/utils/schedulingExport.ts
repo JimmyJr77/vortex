@@ -78,10 +78,15 @@ export async function syncTopProgramFromOverview(
   })
 }
 
+export interface ExportProgramsClassesResult {
+  program: TopProgram
+  prefills: ClassEventExportPrefill[]
+}
+
 export async function autoSaveClassesFromOverview(
   input: ExportOverviewInput,
-): Promise<ClassEventExportPrefill[]> {
-  await syncTopProgramFromOverview(input)
+): Promise<ExportProgramsClassesResult> {
+  const program = await syncTopProgramFromOverview(input)
 
   const prefills: ClassEventExportPrefill[] = []
 
@@ -98,10 +103,7 @@ export async function autoSaveClassesFromOverview(
           isActive: classEvent.isActive,
         }
 
-    const updated = await updateClassEvent(classEvent.id, {
-      ...formData,
-      programsId: input.program.id,
-    })
+    const updated = await updateClassEvent(classEvent.id, formData)
 
     const categoryId = primaryCategoryId(form)
     const formId = updated.schedulingFormId ?? classEvent.schedulingFormId
@@ -122,7 +124,7 @@ export async function autoSaveClassesFromOverview(
     })
   }
 
-  return prefills
+  return { program, prefills }
 }
 
 function slotGroupsToDatesAndTimes(groups: SchedulingSlotGroup[]): EventDateTimeEntry[] {
