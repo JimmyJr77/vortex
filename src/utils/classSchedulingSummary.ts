@@ -8,6 +8,11 @@ import {
 } from './schedulingApi'
 import { fetchClassEventSchedulingFormId, fetchClassEvents, type ClassEvent } from './programsApi'
 
+export interface OfferingWithSlots {
+  offering: SchedulingOffering
+  slotGroups: SchedulingSlotGroup[]
+}
+
 export interface CategoryOfferingDetail {
   categoryId: number | null
   categoryName: string
@@ -86,6 +91,25 @@ export function formatSlotOccurrence(group: SchedulingSlotGroup): string {
     .join('; ')
 }
 
+export function groupSlotsByOffering(
+  offerings: SchedulingOffering[],
+  slotGroups: SchedulingSlotGroup[],
+): { byOffering: OfferingWithSlots[]; unassigned: SchedulingSlotGroup[] } {
+  const assignedIds = new Set<number>()
+  const byOffering = offerings.map((offering) => {
+    const groups = slotGroups.filter((g) => {
+      if (g.offeringId === offering.id) {
+        assignedIds.add(g.id)
+        return true
+      }
+      return false
+    })
+    return { offering, slotGroups: groups }
+  })
+  const unassigned = slotGroups.filter((g) => !assignedIds.has(g.id))
+  return { byOffering, unassigned }
+}
+
 async function buildCategoryDetails(
   formId: number,
   form: SchedulingFormDetail,
@@ -135,8 +159,38 @@ export async function loadClassSchedulingDetail(
 }
 
 function summarizeCategories(categories: CategoryOfferingDetail[]): string {
-  const names = categories.map((c) => c.categoryName)
-  return names.length > 0 ? names.join(', ') : '—'
+  return summarizeSchedulingCategories(categories)
+}
+
+export function summarizeSchedulingCategories(categories: CategoryOfferingDetail[]): string {
+  if (categories.length === 0) return 'No Category'
+  return categories.map((c) => c.categoryName).join(', ')
+}
+
+export async function loadClassSchedulingCategoryLabel(
+  classId: number,
+  formId?: number | null,
+): Promise<string> {
+  try {
+    const resolvedFormId = formId ?? (await fetchClassEventSchedulingFormId(classId))
+    const form = await adminFetchSchedulingForm(resolvedFormId)
+    const categories = await buildCategoryDetails(resolvedFormId, form)
+    return summarizeSchedulingCategories(categories)
+  } catch {
+    return 'No Category'
+  }
+}
+
+export async function loadSchedulingCategoryLabelsForClasses(
+  classes: Array<{ id: number }>,
+): Promise<Map<number, string>> {
+  const entries = await Promise.all(
+    classes.map(async (cls) => {
+      const label = await loadClassSchedulingCategoryLabel(cls.id)
+      return [cls.id, label] as const
+    }),
+  )
+  return new Map(entries)
 }
 
 function summarizeOfferings(categories: CategoryOfferingDetail[]): string {

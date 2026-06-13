@@ -292,6 +292,11 @@ export async function initSchedulingTables(pool) {
   )
 
   await pool.query(`
+    ALTER TABLE scheduling_signup
+    ADD COLUMN IF NOT EXISTS admin_stub BOOLEAN NOT NULL DEFAULT FALSE
+  `)
+
+  await pool.query(`
     ALTER TABLE member
     ADD COLUMN IF NOT EXISTS profile_complete BOOLEAN NOT NULL DEFAULT TRUE
   `)

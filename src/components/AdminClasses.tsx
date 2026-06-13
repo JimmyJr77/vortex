@@ -7,6 +7,7 @@ import type { ClassEvent } from '../utils/programsApi'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import AdminClassesEventsSpreadsheet from './classes/AdminClassesEventsSpreadsheet'
 import ClassSchedulingExpandPanel from './classes/ClassSchedulingExpandPanel'
+import { loadSchedulingCategoryLabelsForClasses } from '../utils/classSchedulingSummary'
 
 interface Program {
   id: number
@@ -46,7 +47,7 @@ const iconBtnDanger =
 const thClass = 'px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'
 const tdClass = 'px-4 py-3 align-middle text-sm text-gray-900'
 
-type ClassSortField = 'program' | 'class' | 'ageRange' | 'skillLevel' | 'status'
+type ClassSortField = 'program' | 'class' | 'category' | 'ageRange' | 'skillLevel' | 'status'
 
 function SortableColumnHeader({
   label,
@@ -194,6 +195,10 @@ export default function AdminClasses({
     direction: 'asc',
   })
   const [viewMode, setViewMode] = useState<'default' | 'spreadsheet'>('default')
+  const [schedulingCategoryByClassId, setSchedulingCategoryByClassId] = useState<Map<number, string>>(
+    new Map(),
+  )
+  const [schedulingCategoriesLoading, setSchedulingCategoriesLoading] = useState(false)
 
   const fetchAllPrograms = async () => {
     try {
@@ -491,6 +496,36 @@ export default function AdminClasses({
   const activeClasses = programs.filter((p) => !p.archived)
   const archivedProgramsList = categories.filter((c) => c.archived)
 
+  const schedulingCategoryLabel = useCallback(
+    (classId: number) => schedulingCategoryByClassId.get(classId) ?? 'No Category',
+    [schedulingCategoryByClassId],
+  )
+
+  useEffect(() => {
+    if (programs.length === 0) {
+      setSchedulingCategoryByClassId(new Map())
+      return
+    }
+
+    let cancelled = false
+    setSchedulingCategoriesLoading(true)
+
+    loadSchedulingCategoryLabelsForClasses(programs.map((p) => ({ id: p.id })))
+      .then((labels) => {
+        if (!cancelled) setSchedulingCategoryByClassId(labels)
+      })
+      .catch(() => {
+        if (!cancelled) setSchedulingCategoryByClassId(new Map())
+      })
+      .finally(() => {
+        if (!cancelled) setSchedulingCategoriesLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [programs])
+
   const handleClassSort = (field: ClassSortField) => {
     setClassSortConfig((prev) => ({
       field,
@@ -508,6 +543,9 @@ export default function AdminClasses({
         break
       case 'class':
         cmp = a.displayName.localeCompare(b.displayName)
+        break
+      case 'category':
+        cmp = schedulingCategoryLabel(a.id).localeCompare(schedulingCategoryLabel(b.id))
         break
       case 'ageRange': {
         const aMin = a.ageMin ?? Number.MAX_SAFE_INTEGER
@@ -546,6 +584,7 @@ export default function AdminClasses({
       return (
         p.displayName.toLowerCase().includes(q) ||
         programNameForClass(p, categories).toLowerCase().includes(q) ||
+        schedulingCategoryLabel(p.id).toLowerCase().includes(q) ||
         (p.description?.toLowerCase().includes(q) ?? false) ||
         (p.skillRequirements?.toLowerCase().includes(q) ?? false)
       )
@@ -795,6 +834,7 @@ export default function AdminClasses({
                     <tr>
                       <th className={thClass}>Program</th>
                       <th className={thClass}>Class</th>
+                      <th className={thClass}>Category</th>
                       <th className={thClass}>Age range</th>
                       <th className={`${thClass} w-0`}>Actions</th>
                     </tr>
@@ -815,6 +855,9 @@ export default function AdminClasses({
                         <tr key={program.id} className="hover:bg-gray-50/80">
                           <td className={tdClass}>{programNameForClass(program, categories)}</td>
                           <td className={tdClass}>{program.displayName}</td>
+                          <td className={tdClass}>
+                            {schedulingCategoriesLoading ? '…' : schedulingCategoryLabel(program.id)}
+                          </td>
                           <td className={tdClass}>{formatAgeRange(program.ageMin, program.ageMax)}</td>
                           <td className={`${tdClass} w-0`}>
                             <div className="flex items-center gap-0.5">
@@ -1000,6 +1043,9 @@ export default function AdminClasses({
                           <SortableColumnHeader label="Class" field="class" sortConfig={classSortConfig} onSort={handleClassSort} />
                         </th>
                         <th className={thClass}>
+                          <SortableColumnHeader label="Category" field="category" sortConfig={classSortConfig} onSort={handleClassSort} />
+                        </th>
+                        <th className={thClass}>
                           <SortableColumnHeader label="Age range" field="ageRange" sortConfig={classSortConfig} onSort={handleClassSort} />
                         </th>
                         <th className={thClass}>
@@ -1024,6 +1070,9 @@ export default function AdminClasses({
                           >
                             <td className={tdClass}>{programNameForClass(program, categories)}</td>
                             <td className={`${tdClass} font-medium`}>{program.displayName}</td>
+                            <td className={tdClass}>
+                              {schedulingCategoriesLoading ? '…' : schedulingCategoryLabel(program.id)}
+                            </td>
                             <td className={tdClass}>{formatAgeRange(program.ageMin, program.ageMax)}</td>
                             <td className={tdClass}>{formatSkillLevel(program.skillLevel)}</td>
                             <td className={tdClass}>
@@ -1073,7 +1122,7 @@ export default function AdminClasses({
                           </tr>
                           {expandedClassId === program.id && (
                             <tr>
-                              <td colSpan={7} className="px-0 py-0">{renderClassDetailPanel(program)}</td>
+                              <td colSpan={8} className="px-0 py-0">{renderClassDetailPanel(program)}</td>
                             </tr>
                           )}
                         </Fragment>

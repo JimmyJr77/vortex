@@ -547,6 +547,7 @@ const AdminScheduling = ({
                           <th className="py-2 pr-4 w-0">Position</th>
                           <th className="py-2 pr-4 w-0">Confirm email</th>
                           <th className="py-2 pr-4 w-0">Waiver email</th>
+                          <th className="py-2 pr-4 w-0">Other</th>
                           <th className="py-2 w-0">Actions</th>
                         </tr>
                       </thead>
@@ -657,6 +658,13 @@ const AdminScheduling = ({
                               ) : (
                                 <span className="text-gray-300">N/A</span>
                               )}
+                            </td>
+                            <td className="py-3 pr-4 w-0">
+                              {s.adminStub ? (
+                                <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
+                                  AdminStub
+                                </span>
+                              ) : null}
                             </td>
                             <td className="py-3 w-0">
                               <div className="inline-flex items-center gap-1 flex-nowrap">

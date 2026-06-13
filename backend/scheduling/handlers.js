@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import Joi from 'joi'
 import {
   countActiveSignupsForMember,
@@ -119,6 +120,7 @@ async function insertSignupForMember(
     mandateWaiver,
     groupDisplayLabel,
     firstOccurrenceLabel,
+    adminStub = false,
   },
 ) {
   const activeCount = await countActiveSignupsForMember(client, formId, memberId)
@@ -157,8 +159,8 @@ async function insertSignupForMember(
     `
     INSERT INTO scheduling_signup
       (form_id, category_id, time_slot_id, slot_group_id, member_id,
-       first_name, last_name, email, phone, field_responses, responses, status)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+       first_name, last_name, email, phone, field_responses, responses, status, admin_stub)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
     RETURNING *
     `,
     [
@@ -174,6 +176,7 @@ async function insertSignupForMember(
       JSON.stringify(responses),
       JSON.stringify(responses),
       signupStatus,
+      adminStub,
     ],
   )
 
@@ -484,6 +487,7 @@ function mapSlotGroupRow(groupRow, occurrenceRows, signupCount, form, waitlistCo
     id: Number(groupRow.id),
     formId: Number(groupRow.form_id),
     categoryId: groupRow.category_id != null ? Number(groupRow.category_id) : null,
+    offeringId: groupRow.offering_id != null ? Number(groupRow.offering_id) : null,
     scheduleMode: groupRow.schedule_mode || 'day',
     maxParticipants: max,
     signupCount: count,
@@ -602,6 +606,7 @@ function mapSignupRow(row, positions = {}) {
     waitlistPosition: positions.waitlistPosition ?? null,
     totalSlotsForUser: row.total_slots_for_user != null ? Number(row.total_slots_for_user) : undefined,
     profileComplete: row.profile_complete != null ? Boolean(row.profile_complete) : undefined,
+    adminStub: Boolean(row.admin_stub),
     createdAt: row.created_at,
     categoryName: row.category_name || 'No Category',
     slotLabel: row.slot_label,
@@ -899,6 +904,44 @@ const signupSchema = Joi.object({
   }
   return val
 })
+
+const adminSignupSchema = Joi.object({
+  formId: Joi.number().integer().required(),
+  categoryId: Joi.number().integer().allow(null).optional(),
+  slotGroupId: Joi.number().integer().required(),
+  timeSlotId: Joi.number().integer().optional(),
+  memberId: Joi.number().integer().optional(),
+  email: Joi.string().email().optional(),
+  firstName: Joi.string().trim().optional(),
+  lastName: Joi.string().trim().optional(),
+  phone: Joi.string().trim().allow('', null).optional(),
+  responses: Joi.object().default({}),
+  sendEmails: Joi.boolean().default(true),
+}).custom((val, helpers) => {
+  if (!val.memberId && !val.email) {
+    return helpers.error('any.custom', { message: 'memberId or email required' })
+  }
+  return val
+})
+
+function signupResponsesFromRow(row) {
+  return row.responses && Object.keys(row.responses).length > 0
+    ? row.responses
+    : row.field_responses || {}
+}
+
+function computeAdminStub(profileComplete, signupFields, responses, mandateWaiver) {
+  if (!profileComplete) return true
+  const errors = validateSignupResponses(signupFields, responses, { mandateWaiver })
+  return errors.length > 0
+}
+
+function effectiveAdminStub(row, signupFields, mandateWaiver) {
+  if (!row.admin_stub) return false
+  const responses = signupResponsesFromRow(row)
+  const profileComplete = row.profile_complete != null ? Boolean(row.profile_complete) : false
+  return computeAdminStub(profileComplete, signupFields, responses, mandateWaiver)
+}
 
 const checkEmailSchema = Joi.object({
   formId: Joi.number().integer().required(),
@@ -2034,6 +2077,186 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async adminCreateSignup(req, res) {
+      try {
+        const { error, value } = adminSignupSchema.validate(req.body, { abortEarly: false })
+        if (error) {
+          const msg = error.details[0]?.message || 'Validation error'
+          return res.status(400).json({
+            success: false,
+            message: msg,
+            errors: error.details.map((d) => d.message),
+          })
+        }
+
+        const formRes = await pool.query('SELECT * FROM scheduling_form WHERE id = $1', [value.formId])
+        if (formRes.rows.length === 0 || formRes.rows[0].deleted_at || !formRes.rows[0].is_active) {
+          return res.status(404).json({ success: false, message: 'Scheduling form not available' })
+        }
+        const formRow = formRes.rows[0]
+        const detail = await loadFormDetail(pool, value.formId)
+        if (!detail) {
+          return res.status(404).json({ success: false, message: 'Scheduling form not available' })
+        }
+
+        const signupCategoryId = value.categoryId ?? null
+        const group = detail.slotGroups.find((g) => g.id === value.slotGroupId)
+        if (!group) {
+          return res.status(400).json({ success: false, message: 'Invalid time slot group' })
+        }
+        if ((group.categoryId ?? null) !== signupCategoryId) {
+          return res.status(400).json({ success: false, message: 'Time slot does not match category' })
+        }
+
+        const category =
+          signupCategoryId != null
+            ? detail.categories.find((c) => c.id === signupCategoryId)
+            : { id: null, name: 'No Category' }
+        if (signupCategoryId != null && !category) {
+          return res.status(400).json({ success: false, message: 'Invalid category' })
+        }
+        const firstOccurrence =
+          (value.timeSlotId != null
+            ? group.occurrences.find((o) => o.id === value.timeSlotId)
+            : null) ?? group.occurrences[0]
+        if (!firstOccurrence) {
+          return res.status(400).json({ success: false, message: 'Time slot has no schedule entries' })
+        }
+        if (value.timeSlotId != null && firstOccurrence.id !== value.timeSlotId) {
+          return res.status(400).json({ success: false, message: 'Invalid time slot selection' })
+        }
+
+        const client = await pool.connect()
+        try {
+          await client.query('BEGIN')
+
+          let memberId = value.memberId != null ? Number(value.memberId) : null
+          let member = null
+
+          if (memberId) {
+            member = await findMemberById(client, memberId)
+            if (!member) {
+              await client.query('ROLLBACK')
+              return res.status(404).json({ success: false, message: 'Member not found' })
+            }
+          } else {
+            const email = String(value.email || '').trim()
+            member = await findMemberByEmail(client, email)
+            if (member) {
+              memberId = Number(member.id)
+            } else {
+              const firstName = String(value.firstName || value.responses?.first_name || '').trim()
+              const lastName = String(value.lastName || value.responses?.last_name || '').trim()
+              if (!firstName || !lastName) {
+                await client.query('ROLLBACK')
+                return res.status(400).json({
+                  success: false,
+                  message: 'First and last name required for new accounts',
+                })
+              }
+              const generatedPassword = crypto.randomBytes(12).toString('base64url')
+              memberId = await createMemberStub(client, {
+                firstName,
+                lastName,
+                email,
+                password: generatedPassword,
+                phone: value.phone ? String(value.phone) : null,
+              })
+              member = await findMemberById(client, memberId)
+            }
+          }
+
+          const responses = {
+            first_name: member.first_name,
+            last_name: member.last_name,
+            email: member.email,
+            phone: member.phone || value.phone || value.responses?.phone || null,
+            ...value.responses,
+          }
+
+          const profileComplete =
+            member.profile_complete != null ? Boolean(member.profile_complete) : false
+          const adminStub = computeAdminStub(
+            profileComplete,
+            detail.signupFields,
+            responses,
+            detail.mandateWaiver,
+          )
+
+          const signupResult = await insertSignupForMember(client, {
+            formId: value.formId,
+            formRow,
+            signupCategoryId,
+            slotGroupId: value.slotGroupId,
+            memberId,
+            responses,
+            firstOccurrenceId: firstOccurrence.id,
+            categoryName: category.name,
+            formTitle: detail.title,
+            mandateWaiver: detail.mandateWaiver,
+            groupDisplayLabel: group.displayLabel,
+            firstOccurrenceLabel: firstOccurrence.displayLabel,
+            adminStub,
+          })
+
+          const currentSchool =
+            responses.current_school != null ? String(responses.current_school).trim() : ''
+          if (currentSchool) {
+            await linkMemberToSchoolFromName(client, memberId, currentSchool, 'signup')
+          }
+
+          await client.query('COMMIT')
+
+          const { signupId, signupStatus, positions, pricing } = signupResult
+          if (value.sendEmails) {
+            await sendSignupNotificationEmails(pool, {
+              signupStatus,
+              signupId,
+              responses,
+              formTitle: detail.title,
+              categoryName: category.name,
+              slotLabel: signupResult.slotLabel,
+              positions,
+              pricing,
+              mandateWaiver: detail.mandateWaiver,
+            })
+          }
+
+          const refreshed = await pool.query('SELECT * FROM scheduling_signup WHERE id = $1', [signupId])
+          const positionMessage = buildSignupPositionMessage({
+            status: signupStatus,
+            ...positions,
+          })
+
+          res.json({
+            success: true,
+            message: positionMessage,
+            data: {
+              ...mapSignupRow(refreshed.rows[0], positions),
+              adminStub,
+            },
+          })
+        } catch (txErr) {
+          await client.query('ROLLBACK')
+          if (txErr.code === 'MAX_SLOTS') {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          if (txErr.code === 'SLOT_UNAVAILABLE') {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          if (txErr.message?.includes('already exists')) {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          throw txErr
+        } finally {
+          client.release()
+        }
+      } catch (err) {
+        console.error('[scheduling] adminCreateSignup:', err)
+        res.status(500).json({ success: false, message: err.message || 'Failed to create signup' })
+      }
+    },
+
     async listSignups(req, res) {
       try {
         const formId = req.query.formId ? Number(req.query.formId) : null
@@ -2046,6 +2269,7 @@ export function createSchedulingHandlers(pool) {
         const result = await pool.query(
           `
           SELECT s.*, c.name AS category_name, f.title AS form_title,
+            f.signup_fields, f.mandate_waiver,
             m.profile_complete,
             ts.week_letter, ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time, ts.schedule_mode,
             (
@@ -2078,17 +2302,32 @@ export function createSchedulingHandlers(pool) {
           `,
           params,
         )
+
+        for (const row of result.rows) {
+          if (!row.admin_stub) continue
+          const signupFields = Array.isArray(row.signup_fields) ? row.signup_fields : []
+          if (!effectiveAdminStub(row, signupFields, Boolean(row.mandate_waiver))) {
+            await pool.query('UPDATE scheduling_signup SET admin_stub = FALSE WHERE id = $1', [row.id])
+            row.admin_stub = false
+          }
+        }
+
         const enriched = await attachPositionsToSignups(pool, result.rows)
         res.json({
           success: true,
           data: enriched.map((mapped, i) => {
             const row = result.rows[i]
+            const signupFields = Array.isArray(row.signup_fields) ? row.signup_fields : []
             const occurrences = Array.isArray(row.group_occurrences) ? row.group_occurrences : []
             const slotLabel =
               occurrences.length > 0
                 ? buildGroupDisplayLabel(occurrences)
                 : buildSlotDisplayLabel(row)
-            return { ...mapped, slotLabel }
+            return {
+              ...mapped,
+              slotLabel,
+              adminStub: effectiveAdminStub(row, signupFields, Boolean(row.mandate_waiver)),
+            }
           }),
         })
       } catch (err) {

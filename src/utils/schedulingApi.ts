@@ -52,6 +52,7 @@ export interface SchedulingSlotGroup {
   id: number
   formId: number
   categoryId: number | null
+  offeringId?: number | null
   scheduleMode: 'day' | 'date'
   maxParticipants: number
   signupCount: number
@@ -175,6 +176,7 @@ export interface SchedulingSignup {
   waitlistPosition?: number | null
   totalSlotsForUser?: number
   profileComplete?: boolean
+  adminStub?: boolean
   pricing?: SchedulingMonthlyPricing
   createdAt: string
   categoryName?: string
@@ -528,6 +530,26 @@ export async function adminDeleteSlotGroup(id: number): Promise<void> {
 export async function adminFetchSignups(formId?: number): Promise<SchedulingSignup[]> {
   const qs = formId ? `?formId=${formId}` : ''
   const res = await adminApiRequest(`/api/admin/scheduling/signups${qs}`)
+  return parseJson(res)
+}
+
+export async function adminCreateSignup(payload: {
+  formId: number
+  categoryId: number | null
+  slotGroupId: number
+  timeSlotId?: number
+  memberId?: number
+  email?: string
+  firstName?: string
+  lastName?: string
+  phone?: string
+  responses?: Record<string, string | boolean | number | string[]>
+  sendEmails?: boolean
+}): Promise<SchedulingSignup> {
+  const res = await adminApiRequest('/api/admin/scheduling/signups', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
   return parseJson(res)
 }
 
