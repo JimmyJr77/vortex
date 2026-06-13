@@ -44,7 +44,7 @@ const AdminSchedulingFormTab = ({ program, onSaved }: Props) => {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 w-full">
       <div>
         <h3 className="text-lg font-bold text-black">Form</h3>
         <p className="text-sm text-gray-600 mt-1">

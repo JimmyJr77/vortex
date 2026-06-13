@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, X, Save, UserPlus } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Edit2, Loader2, Save, Shield, UserPlus, X } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
 interface AdminInfo {
@@ -40,6 +40,15 @@ interface AdminAdminsProps {
   setAdminInfo: (info: AdminInfo | null) => void
 }
 
+const iconBtn =
+  'p-2 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none'
+const thClass = 'py-3 pr-4 font-semibold whitespace-nowrap'
+const tdClass = 'py-3 pr-4 align-middle whitespace-nowrap'
+
+function adminCategoryLabel(isMaster: boolean): string {
+  return isMaster ? 'Master' : 'Admin'
+}
+
 export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProps) {
   const [admins, setAdmins] = useState<AdminData[]>([])
   const [adminsLoading, setAdminsLoading] = useState(false)
@@ -50,7 +59,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     email: '',
     phone: '',
     username: '',
-    password: ''
+    password: '',
   })
   const [editingMyAccount, setEditingMyAccount] = useState(false)
   const [myAccountData, setMyAccountData] = useState({
@@ -59,8 +68,9 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     email: '',
     phone: '',
     username: '',
-    password: ''
+    password: '',
   })
+  const [savingAccount, setSavingAccount] = useState(false)
 
   const fetchAdmins = useCallback(async () => {
     try {
@@ -84,7 +94,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     try {
       const adminId = localStorage.getItem('vortex-admin-id')
       if (!adminId) return
-      
+
       const response = await adminApiRequest(`/api/admin/admins/me?id=${adminId}`)
       if (response.ok) {
         const data = await response.json()
@@ -95,9 +105,8 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
             email: data.data.email,
             phone: data.data.phone || '',
             username: data.data.username || '',
-            password: ''
+            password: '',
           })
-          // Update adminInfo with the latest data including isMaster
           const updatedAdminInfo: AdminInfo = {
             email: data.data.email,
             name: `${data.data.firstName} ${data.data.lastName}`,
@@ -106,7 +115,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
             lastName: data.data.lastName,
             phone: data.data.phone,
             username: data.data.username || '',
-            isMaster: data.data.isMaster
+            isMaster: data.data.isMaster,
           }
           setAdminInfo(updatedAdminInfo)
           localStorage.setItem('vortex-admin-info', JSON.stringify(updatedAdminInfo))
@@ -121,7 +130,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     try {
       const response = await adminApiRequest('/api/admin/admins', {
         method: 'POST',
-        body: JSON.stringify(adminFormData)
+        body: JSON.stringify(adminFormData),
       })
 
       if (response.ok) {
@@ -133,7 +142,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
           email: '',
           phone: '',
           username: '',
-          password: ''
+          password: '',
         })
       } else {
         const data = await response.json()
@@ -150,27 +159,27 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
       const adminId = localStorage.getItem('vortex-admin-id')
       if (!adminId) return
 
+      setSavingAccount(true)
       const updateData: AdminUpdateData = {
         firstName: myAccountData.firstName,
         lastName: myAccountData.lastName,
         email: myAccountData.email,
         phone: myAccountData.phone || null,
-        username: myAccountData.username
+        username: myAccountData.username,
       }
-      
+
       if (myAccountData.password) {
         updateData.password = myAccountData.password
       }
 
       const response = await adminApiRequest(`/api/admin/admins/${adminId}`, {
         method: 'PUT',
-        body: JSON.stringify(updateData)
+        body: JSON.stringify(updateData),
       })
 
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
-          // Update localStorage with new info
           const updatedAdmin: AdminInfo = {
             email: data.data.email,
             name: `${data.data.firstName} ${data.data.lastName}`,
@@ -179,13 +188,13 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
             lastName: data.data.lastName,
             phone: data.data.phone,
             username: data.data.username || '',
-            isMaster: data.data.isMaster
+            isMaster: data.data.isMaster,
           }
           localStorage.setItem('vortex-admin-info', JSON.stringify(updatedAdmin))
           setAdminInfo(updatedAdmin)
-          // Close edit mode and refresh account data
           setEditingMyAccount(false)
           await fetchMyAccount()
+          await fetchAdmins()
         }
       } else {
         const data = await response.json()
@@ -194,313 +203,382 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     } catch (error) {
       console.error('Error updating account:', error)
       alert('Failed to update account')
+    } finally {
+      setSavingAccount(false)
     }
   }
 
-  // Fetch admins and my account on mount
   useEffect(() => {
     fetchAdmins()
     fetchMyAccount()
   }, [fetchAdmins, fetchMyAccount])
 
-  return (
-    <>
-      <motion.div
-        key="admins"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3 }}
-        className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200"
-      >
-        {/* My Account Section */}
-        <div className="mb-8 bg-gray-50 rounded-lg p-6 border border-gray-200">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-4">
-            My Account
-          </h2>
-          {editingMyAccount ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">First Name *</label>
-                  <input
-                    type="text"
-                    value={myAccountData.firstName}
-                    onChange={(e) => setMyAccountData({ ...myAccountData, firstName: e.target.value })}
-                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name *</label>
-                  <input
-                    type="text"
-                    value={myAccountData.lastName}
-                    onChange={(e) => setMyAccountData({ ...myAccountData, lastName: e.target.value })}
-                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
-                  <input
-                    type="email"
-                    value={myAccountData.email}
-                    onChange={(e) => setMyAccountData({ ...myAccountData, email: e.target.value })}
-                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
-                  <input
-                    type="tel"
-                    value={myAccountData.phone}
-                    onChange={(e) => setMyAccountData({ ...myAccountData, phone: e.target.value })}
-                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Username *</label>
-                  <input
-                    type="text"
-                    value={myAccountData.username}
-                    onChange={(e) => setMyAccountData({ ...myAccountData, username: e.target.value })}
-                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">New Password (leave blank to keep current)</label>
-                  <input
-                    type="password"
-                    value={myAccountData.password}
-                    onChange={(e) => setMyAccountData({ ...myAccountData, password: e.target.value })}
-                    className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                    placeholder="Enter new password (optional)"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleUpdateMyAccount}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-medium"
-                >
-                  <Save className="w-4 h-4" />
-                  Save Changes
-                </button>
-                <button
-                  onClick={() => {
-                    setEditingMyAccount(false)
-                    fetchMyAccount()
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
-                >
-                  <X className="w-4 h-4" />
-                  Cancel
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Name</p>
-                  <p className="text-lg font-semibold text-black">{myAccountData.firstName} {myAccountData.lastName}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Email</p>
-                  <p className="text-lg font-semibold text-black">{myAccountData.email}</p>
-                </div>
-                {myAccountData.phone && (
-                  <div>
-                    <p className="text-sm text-gray-600">Phone</p>
-                    <p className="text-lg font-semibold text-black">{myAccountData.phone}</p>
-                  </div>
-                )}
-                {myAccountData.username && (
-                  <div>
-                    <p className="text-sm text-gray-600">Username</p>
-                    <p className="text-lg font-semibold text-black">{myAccountData.username}</p>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={async () => {
-                  // Ensure we have the latest account data before editing
-                  await fetchMyAccount()
-                  setEditingMyAccount(true)
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium mt-4"
-              >
-                <Edit2 className="w-4 h-4" />
-                Edit My Account
-              </button>
-            </div>
-          )}
-        </div>
+  const myAccountId = adminInfo?.id ?? Number(localStorage.getItem('vortex-admin-id') || 0)
 
-        {/* Admins Management Section */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-            Admins ({admins.length})
-          </h2>
+  const renderAdminRow = (admin: {
+    id: number
+    firstName: string
+    lastName: string
+    email: string
+    phone?: string | null
+    username: string
+    isMaster: boolean
+  }, options?: { showEdit?: boolean }) => (
+    <tr key={admin.id} className="border-b border-gray-100 hover:bg-gray-50/80">
+      <td className={tdClass}>{admin.lastName}</td>
+      <td className={tdClass}>{admin.firstName}</td>
+      <td className={tdClass}>
+        <span
+          className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+            admin.isMaster ? 'bg-vortex-red/10 text-vortex-red' : 'bg-gray-100 text-gray-700'
+          }`}
+        >
+          {adminCategoryLabel(admin.isMaster)}
+        </span>
+      </td>
+      <td className={tdClass}>{admin.username || '—'}</td>
+      <td className={tdClass}>{admin.email}</td>
+      <td className={tdClass}>{admin.phone || '—'}</td>
+      <td className={`${tdClass} w-0`}>
+        {options?.showEdit ? (
+          <button
+            type="button"
+            className={iconBtn}
+            title="Edit account"
+            aria-label="Edit account"
+            onClick={async () => {
+              await fetchMyAccount()
+              setEditingMyAccount(true)
+            }}
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+        ) : (
+          <span className="text-gray-300">—</span>
+        )}
+      </td>
+    </tr>
+  )
+
+  const adminTableHead = (
+    <thead>
+      <tr className="border-b border-gray-200 text-left text-gray-600 text-sm">
+        <th className={thClass}>Last name</th>
+        <th className={thClass}>First name</th>
+        <th className={thClass}>Category</th>
+        <th className={thClass}>Username</th>
+        <th className={thClass}>Email</th>
+        <th className={thClass}>Phone</th>
+        <th className={thClass}>Actions</th>
+      </tr>
+    </thead>
+  )
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <Shield className="w-7 h-7 text-vortex-red" />
+          Admins
+        </h2>
+        <p className="text-gray-600 text-sm mt-1">
+          Manage admin accounts and update your own login credentials.
+        </p>
+      </div>
+
+      <section className="space-y-4">
+        <h3 className="text-lg font-bold text-black">My account</h3>
+        <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
+          <table className="w-full text-sm border-collapse min-w-[720px]">
+            {adminTableHead}
+            <tbody>
+              {myAccountData.firstName || myAccountData.lastName ? (
+                renderAdminRow(
+                  {
+                    id: myAccountId,
+                    firstName: myAccountData.firstName,
+                    lastName: myAccountData.lastName,
+                    email: myAccountData.email,
+                    phone: myAccountData.phone,
+                    username: myAccountData.username,
+                    isMaster: Boolean(adminInfo?.isMaster),
+                  },
+                  { showEdit: true },
+                )
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-gray-500">
+                    Loading account…
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h3 className="text-lg font-bold text-black">All admins ({admins.length})</h3>
           {adminInfo?.isMaster && (
-            <motion.button
+            <button
+              type="button"
               onClick={() => setShowAdminForm(true)}
-              className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 shrink-0"
             >
-              <UserPlus className="w-4 h-4" />
-              <span>Create Admin</span>
-            </motion.button>
+              <UserPlus className="w-5 h-5" />
+              New admin
+            </button>
           )}
         </div>
 
         {adminsLoading ? (
-          <div className="text-center py-12 text-gray-600">Loading admins...</div>
+          <div className="py-12 text-center text-gray-500 inline-flex items-center gap-2 w-full justify-center">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            Loading admins…
+          </div>
         ) : admins.length === 0 ? (
-          <div className="text-center py-12 text-gray-600">No admins yet</div>
+          <div className="py-12 text-center text-gray-500 border border-dashed rounded-xl">
+            No admins yet.
+          </div>
         ) : (
-          <div className="space-y-4">
-            {admins.map((admin) => (
-              <div key={admin.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <div className="text-black font-semibold text-lg">
-                        {admin.firstName} {admin.lastName}
-                        {admin.isMaster && (
-                          <span className="ml-2 text-xs bg-vortex-red text-white px-2 py-1 rounded">Master</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-gray-600 text-sm mt-1">{admin.email}</div>
-                    {admin.phone && <div className="text-gray-600 text-sm">Phone: {admin.phone}</div>}
-                    <div className="text-gray-600 text-sm">Username: {admin.username}</div>
+          <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
+            <table className="w-full text-sm border-collapse min-w-[720px]">
+              {adminTableHead}
+              <tbody>{admins.map((admin) => renderAdminRow(admin))}</tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <AnimatePresence>
+        {editingMyAccount && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          >
+            <motion.div
+              className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b">
+                <h3 className="text-xl font-bold">Edit my account</h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingMyAccount(false)
+                    fetchMyAccount()
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">First name *</label>
+                    <input
+                      type="text"
+                      value={myAccountData.firstName}
+                      onChange={(e) => setMyAccountData({ ...myAccountData, firstName: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Last name *</label>
+                    <input
+                      type="text"
+                      value={myAccountData.lastName}
+                      onChange={(e) => setMyAccountData({ ...myAccountData, lastName: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                    <input
+                      type="email"
+                      value={myAccountData.email}
+                      onChange={(e) => setMyAccountData({ ...myAccountData, email: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      value={myAccountData.phone}
+                      onChange={(e) => setMyAccountData({ ...myAccountData, phone: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Username *</label>
+                    <input
+                      type="text"
+                      value={myAccountData.username}
+                      onChange={(e) => setMyAccountData({ ...myAccountData, username: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      New password (optional)
+                    </label>
+                    <input
+                      type="password"
+                      value={myAccountData.password}
+                      onChange={(e) => setMyAccountData({ ...myAccountData, password: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      placeholder="Leave blank to keep current"
+                    />
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="flex justify-end gap-2 px-6 py-4 border-t bg-gray-50">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingMyAccount(false)
+                    fetchMyAccount()
+                  }}
+                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUpdateMyAccount}
+                  disabled={savingAccount}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-vortex-red text-white rounded-lg font-semibold hover:bg-red-700 disabled:opacity-60"
+                >
+                  {savingAccount ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save changes
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
-      </motion.div>
+      </AnimatePresence>
 
-      {/* Create Admin Modal */}
       <AnimatePresence>
         {showAdminForm && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
           >
             <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => setShowAdminForm(false)}
-            />
-            <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">Create New Admin</h3>
+              <div className="flex items-center justify-between px-6 py-4 border-b">
+                <h3 className="text-xl font-bold">Create new admin</h3>
                 <button
+                  type="button"
                   onClick={() => setShowAdminForm(false)}
-                  className="text-gray-400 hover:text-white"
+                  className="p-2 hover:bg-gray-100 rounded-full"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
-
-              <div className="space-y-4">
+              <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">First name *</label>
                     <input
                       type="text"
                       value={adminFormData.firstName}
                       onChange={(e) => setAdminFormData({ ...adminFormData, firstName: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Last name *</label>
                     <input
                       type="text"
                       value={adminFormData.lastName}
                       onChange={(e) => setAdminFormData({ ...adminFormData, lastName: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
                     <input
                       type="email"
                       value={adminFormData.email}
                       onChange={(e) => setAdminFormData({ ...adminFormData, email: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Phone</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                     <input
                       type="tel"
                       value={adminFormData.phone}
                       onChange={(e) => setAdminFormData({ ...adminFormData, phone: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Username *</label>
                     <input
                       type="text"
                       value={adminFormData.username}
                       onChange={(e) => setAdminFormData({ ...adminFormData, username: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
                     <input
                       type="password"
                       value={adminFormData.password}
                       onChange={(e) => setAdminFormData({ ...adminFormData, password: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                       required
                       minLength={6}
                     />
                   </div>
                 </div>
-
-                <div className="flex gap-2 pt-4">
-                  <button
-                    onClick={handleCreateAdmin}
-                    className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                  >
-                    Create Admin
-                  </button>
-                  <button
-                    onClick={() => setShowAdminForm(false)}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
+              </div>
+              <div className="flex justify-end gap-2 px-6 py-4 border-t bg-gray-50">
+                <button
+                  type="button"
+                  onClick={() => setShowAdminForm(false)}
+                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCreateAdmin}
+                  className="px-4 py-2 text-sm bg-vortex-red text-white rounded-lg font-semibold hover:bg-red-700"
+                >
+                  Create admin
+                </button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   )
 }
-

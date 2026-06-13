@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Edit2 } from 'lucide-react'
+import { Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Edit2, Search, Users, Loader2, Trash2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 import MemberSchoolsNotes from './MemberSchoolsNotes'
@@ -179,6 +179,31 @@ interface UnifiedMember {
   waiverCompletionDate?: string | null
   createdAt: string
   updatedAt: string
+}
+
+const memberIconBtn =
+  'p-2 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none'
+const memberIconBtnDanger =
+  'p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:pointer-events-none'
+const memberThClass = 'py-3 pr-4 font-semibold whitespace-nowrap'
+const memberTdClass = 'py-3 pr-4 align-middle'
+
+function formatMemberRoleLabel(role: string): string {
+  const labels: Record<string, string> = {
+    PARENT_GUARDIAN: 'Parent/Guardian',
+    ATHLETE: 'Athlete',
+    OWNER_ADMIN: 'Owner Admin',
+    COACH: 'Coach',
+    STAFF: 'Staff',
+  }
+  return labels[role] || role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+function memberRolesDisplay(member: UnifiedMember): string {
+  const roleLabels = member.roles?.map((r) => formatMemberRoleLabel(r.role)) || []
+  if (roleLabels.length > 0) return roleLabels.join(', ')
+  const hasEnrollments = member.enrollments && member.enrollments.length > 0
+  return hasEnrollments ? 'Athlete' : 'Non-participant'
 }
 
 export default function AdminMembers() {
@@ -2608,178 +2633,210 @@ export default function AdminMembers() {
         transition={{ duration: 0.3 }}
         className="space-y-6"
       >
-        {/* Members Section */}
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-              Members ({members.filter(m => showArchivedMembers ? !m.isActive : m.isActive).length})
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <Users className="w-7 h-7 text-vortex-red" />
+              Members
+              <span className="text-lg font-semibold text-gray-500">
+                ({members.filter((m) => (showArchivedMembers ? !m.isActive : m.isActive)).length})
+              </span>
             </h2>
-            <div className="flex gap-2 flex-wrap">
-              <input
-                type="text"
-                placeholder="Search Members"
-                value={memberSearchQuery}
-                onChange={(e) => setMemberSearchQuery(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-              <motion.button
-                onClick={() => setShowArchivedMembers(!showArchivedMembers)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                  showArchivedMembers
-                    ? 'bg-gray-600 text-white hover:bg-gray-700'
-                    : 'bg-gray-500 text-white hover:bg-gray-600'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Archive className="w-4 h-4" />
-                <span>{showArchivedMembers ? 'Show Active' : 'Show Archives'}</span>
-              </motion.button>
-              <motion.button
-                onClick={() => {
-                  setUnifiedModalMode('create-new')
-                  setShowMemberModal(true)
-                  setMemberModalMode('search')
-                  setSelectedFamilyForMember(null)
-                  setMemberSearchQuery('')
-                  setEditingFamilyId(null)
-                  setEditingMemberUserId(null)
-                  setMemberSearchResults([])
-                }}
-                className="flex items-center space-x-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>Create Member</span>
-              </motion.button>
-              <motion.button
-                onClick={fixMissingAppUsers}
-                disabled={fixingAppUsers}
-                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                whileHover={{ scale: fixingAppUsers ? 1 : 1.05 }}
-                whileTap={{ scale: fixingAppUsers ? 1 : 0.95 }}
-              >
-                <span>{fixingAppUsers ? 'Fixing...' : 'Fix Login Issues'}</span>
-              </motion.button>
-            </div>
+            <p className="text-gray-600 text-sm mt-1">
+              Search, view, and manage member accounts and family records.
+            </p>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowArchivedMembers(!showArchivedMembers)}
+              title={showArchivedMembers ? 'Show active members' : 'Show archived members'}
+              aria-label={showArchivedMembers ? 'Show active members' : 'Show archived members'}
+              className={`${memberIconBtn} ${showArchivedMembers ? 'bg-gray-200 text-gray-900' : ''}`}
+            >
+              <Archive className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={fixMissingAppUsers}
+              disabled={fixingAppUsers}
+              title="Fix login issues"
+              aria-label="Fix login issues"
+              className={`${memberIconBtn} text-blue-700 hover:bg-blue-50`}
+            >
+              {fixingAppUsers ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <span className="text-xs font-semibold px-1">Fix logins</span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setUnifiedModalMode('create-new')
+                setShowMemberModal(true)
+                setMemberModalMode('search')
+                setSelectedFamilyForMember(null)
+                setMemberSearchQuery('')
+                setEditingFamilyId(null)
+                setEditingMemberUserId(null)
+                setMemberSearchResults([])
+              }}
+              className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
+            >
+              <UserPlus className="w-5 h-5" />
+              New member
+            </button>
+          </div>
+        </div>
 
-          {/* Members View */}
-          {membersLoading ? (
-            <div className="text-center py-12 text-gray-600">Loading members...</div>
-          ) : (() => {
-            const filteredMembers = members.filter(m => showArchivedMembers ? !m.isActive : m.isActive)
-            
-            if (filteredMembers.length === 0) {
-              return <div className="text-center py-12 text-gray-600">No {showArchivedMembers ? 'archived' : 'active'} members yet</div>
-            }
-            
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <input
+            type="search"
+            placeholder="Search members…"
+            value={memberSearchQuery}
+            onChange={(e) => setMemberSearchQuery(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 text-sm"
+          />
+        </div>
+
+        {membersLoading ? (
+          <div className="py-12 text-center text-gray-500 inline-flex items-center gap-2 w-full justify-center">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            Loading members…
+          </div>
+        ) : (() => {
+          const filteredMembers = members.filter((m) =>
+            showArchivedMembers ? !m.isActive : m.isActive,
+          )
+
+          if (filteredMembers.length === 0) {
             return (
-              <div className="space-y-4">
-                {filteredMembers.map((member) => {
-                  const hasEnrollments = member.enrollments && member.enrollments.length > 0
-                  const enrollmentStatus = hasEnrollments ? 'Athlete' : 'Non-Participant'
-                  const rolesList = member.roles?.map(r => r.role).join(', ') || 'No roles'
-                  
-                  return (
-                    <div 
-                      key={member.id}
-                      className={`bg-gray-50 rounded-lg p-4 border ${
-                        member.isActive ? 'border-gray-200' : 'border-gray-300 bg-gray-100'
-                      }`}
-                    >
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <div className="text-black font-semibold text-lg">
-                              {member.firstName} {member.lastName}
-                            </div>
-                            <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                              member.isActive 
-                                ? 'bg-green-600 text-white' 
-                                : 'bg-gray-500 text-white'
-                            }`}>
-                              {member.isActive ? 'Active' : 'Archived'}
-                            </span>
+              <div className="py-12 text-center text-gray-500 border border-dashed rounded-xl">
+                No {showArchivedMembers ? 'archived' : 'active'} members yet.
+              </div>
+            )
+          }
+
+          return (
+            <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
+              <table className="w-full text-sm border-collapse min-w-[960px]">
+                <thead>
+                  <tr className="border-b border-gray-200 text-left text-gray-600">
+                    <th className={memberThClass}>Last name</th>
+                    <th className={memberThClass}>First name</th>
+                    <th className={memberThClass}>Role</th>
+                    <th className={memberThClass}>Username</th>
+                    <th className={memberThClass}>Email</th>
+                    <th className={memberThClass}>Phone</th>
+                    <th className={memberThClass}>Status</th>
+                    <th className={memberThClass}>Family</th>
+                    <th className={`${memberThClass} w-0`}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredMembers.map((member) => {
+                    const hasEnrollments = member.enrollments && member.enrollments.length > 0
+                    return (
+                      <tr
+                        key={member.id}
+                        className={`border-b border-gray-100 hover:bg-gray-50/80 ${
+                          !member.isActive ? 'bg-gray-50/50' : ''
+                        }`}
+                      >
+                        <td className={memberTdClass}>{member.lastName}</td>
+                        <td className={memberTdClass}>{member.firstName}</td>
+                        <td className={memberTdClass}>
+                          <div className="flex flex-col gap-1">
+                            <span>{memberRolesDisplay(member)}</span>
                             {hasEnrollments && (
-                              <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-600 text-white">
-                                {enrollmentStatus}
+                              <span className="text-xs text-gray-500">
+                                {member.enrollments.map((e) => e.program_display_name).join(', ')}
                               </span>
                             )}
                           </div>
-                          {member.email && (
-                            <div className="text-gray-600 text-sm mt-1">{member.email}</div>
-                          )}
-                          {member.phone && (
-                            <div className="text-gray-600 text-sm">{member.phone}</div>
-                          )}
-                          {member.age !== null && member.age !== undefined && (
-                            <div className="text-gray-600 text-sm">Age: {member.age}</div>
-                          )}
-                          <div className="text-gray-500 text-xs mt-1">
-                            Roles: {rolesList} • Status: {member.status}
-                            {member.familyName && ` • Family: ${member.familyName}`}
-                            {member.familyId && ` (ID: ${member.familyId})`}
-                          </div>
-                          {hasEnrollments && (
-                            <div className="text-gray-500 text-xs mt-1">
-                              Enrolled in: {member.enrollments.map(e => e.program_display_name).join(', ')}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <motion.button
-                            onClick={() => handleViewUnifiedMember(member)}
-                            className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-blue-600 text-white hover:bg-blue-700"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <Eye className="w-4 h-4" />
-                            <span>View</span>
-                          </motion.button>
-                          <motion.button
-                            onClick={() => handleEditUnifiedMember(member)}
-                            className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-green-600 text-white hover:bg-green-700"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                            <span>Edit</span>
-                          </motion.button>
-                          <motion.button
-                            onClick={() => handleArchiveMember(member.id, member.isActive)}
-                            className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                        </td>
+                        <td className={memberTdClass}>{member.username || '—'}</td>
+                        <td className={memberTdClass}>{member.email || '—'}</td>
+                        <td className={memberTdClass}>{member.phone || '—'}</td>
+                        <td className={memberTdClass}>
+                          <span
+                            className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
                               member.isActive
-                                ? 'bg-gray-500 text-white hover:bg-gray-600'
-                                : 'bg-green-600 text-white hover:bg-green-700'
+                                ? 'bg-green-50 text-green-700'
+                                : 'bg-gray-100 text-gray-600'
                             }`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
                           >
-                            <Archive className="w-4 h-4" />
-                            <span>{member.isActive ? 'Archive' : 'Unarchive'}</span>
-                          </motion.button>
-                          {!member.isActive && showArchivedMembers && (
-                            <motion.button
-                              onClick={() => handleDeleteMemberClick(member.id, member.firstName, member.lastName)}
-                              className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-red-600 text-white hover:bg-red-700"
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <X className="w-4 h-4" />
-                              <span>Delete</span>
-                            </motion.button>
+                            {member.isActive ? 'Active' : 'Archived'}
+                          </span>
+                        </td>
+                        <td className={memberTdClass}>
+                          {member.familyName ? (
+                            <span>
+                              {member.familyName}
+                              {member.familyId ? ` (#${member.familyId})` : ''}
+                            </span>
+                          ) : (
+                            '—'
                           )}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )
-          })()}
-        </div>
+                        </td>
+                        <td className={`${memberTdClass} w-0`}>
+                          <div className="flex items-center gap-0.5">
+                            <button
+                              type="button"
+                              className={memberIconBtn}
+                              title="View member"
+                              aria-label="View member"
+                              onClick={() => handleViewUnifiedMember(member)}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              className={memberIconBtn}
+                              title="Edit member"
+                              aria-label="Edit member"
+                              onClick={() => handleEditUnifiedMember(member)}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              className={memberIconBtn}
+                              title={member.isActive ? 'Archive member' : 'Unarchive member'}
+                              aria-label={member.isActive ? 'Archive member' : 'Unarchive member'}
+                              onClick={() => handleArchiveMember(member.id, member.isActive)}
+                            >
+                              <Archive className="w-4 h-4" />
+                            </button>
+                            {!member.isActive && showArchivedMembers && (
+                              <button
+                                type="button"
+                                className={memberIconBtnDanger}
+                                title="Delete member"
+                                aria-label="Delete member"
+                                onClick={() =>
+                                  handleDeleteMemberClick(
+                                    member.id,
+                                    member.firstName,
+                                    member.lastName,
+                                  )
+                                }
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )
+        })()}
       </motion.div>
 
       {/* Comprehensive Create Member Modal */}

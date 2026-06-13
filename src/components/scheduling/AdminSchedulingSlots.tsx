@@ -607,7 +607,7 @@ const AdminSchedulingSlots = ({
       <h3 className="text-xl font-bold text-black mb-4">
         {editingSlotGroupId ? 'Edit time slot' : 'Add time slot'}
       </h3>
-      <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-4 max-w-4xl">
+      <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-4 w-full">
         {categoryName != null && (
           <div className="text-sm text-gray-700">
             Category: <strong>{categoryName}</strong>

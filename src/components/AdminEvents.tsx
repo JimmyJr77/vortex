@@ -301,7 +301,7 @@ const EventsView = ({
     <div className="space-y-6">
       {/* Search Bar */}
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-        <div className="relative max-w-2xl">
+        <div className="relative w-full max-w-none">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"

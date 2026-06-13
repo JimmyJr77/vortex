@@ -47,6 +47,10 @@
     @apply max-w-7xl mx-auto px-6 sm:px-8 lg:px-12;
   }
 
+  .container-admin {
+    @apply w-full max-w-none mx-auto px-6 sm:px-8 lg:px-10 xl:px-12;
+  }
+
   .pt-below-site-header {
     padding-top: var(--site-header-height);
   }

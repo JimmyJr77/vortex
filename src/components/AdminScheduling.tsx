@@ -253,7 +253,7 @@ const AdminScheduling = () => {
   }
 
   return (
-    <div className="container-custom py-8">
+    <div className="w-full py-8">
       <div className="flex flex-col lg:flex-row gap-6">
         <aside className="lg:w-64 shrink-0">
           <div className="mb-4">

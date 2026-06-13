@@ -167,7 +167,7 @@ const AdminSchedulingOfferings = ({
 
   if (selectedCategory === null) {
     return (
-      <div className="space-y-4 max-w-2xl">
+      <div className="space-y-4 w-full">
         <div>
           <h3 className="text-lg font-bold text-black">Offerings</h3>
           <p className="text-sm text-gray-600 mt-1">
@@ -182,7 +182,7 @@ const AdminSchedulingOfferings = ({
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 w-full">
       <div>
         <h3 className="text-lg font-bold text-black">Offerings</h3>
         <p className="text-sm text-gray-600 mt-1">

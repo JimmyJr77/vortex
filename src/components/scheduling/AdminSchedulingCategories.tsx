@@ -110,7 +110,7 @@ const AdminSchedulingCategories = ({ selectedCategory, onSelectCategory, onRefre
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="w-full space-y-4">
       <div>
         <h3 className="text-lg font-bold text-black">Categories</h3>
         <p className="text-sm text-gray-600 mt-1">

@@ -71,7 +71,7 @@ const AdminSchedulingLegacyForms = ({ onDeleted }: Props) => {
   if (forms.length === 0) return null
 
   return (
-    <div className="mt-10 pt-8 border-t border-gray-200 max-w-3xl">
+    <div className="mt-10 pt-8 border-t border-gray-200 w-full">
       <h3 className="text-lg font-bold text-black">Legacy scheduling forms</h3>
       <p className="text-sm text-gray-600 mt-1 mb-4">
         These forms were created before the program → class/event workflow. They may still be linked to events on the Read Board. Delete any you no longer need to fully remove them.
