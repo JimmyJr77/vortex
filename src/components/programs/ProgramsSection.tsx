@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Archive, Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Archive, Loader2, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import {
   archiveTopProgram,
   createTopProgram,
@@ -33,6 +33,18 @@ const ProgramsSection = ({
   const [form, setForm] = useState({ name: '', displayName: '', description: '' })
   const [saving, setSaving] = useState(false)
   const [actionId, setActionId] = useState<number | null>(null)
+  const [search, setSearch] = useState('')
+
+  const filteredPrograms = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return programs
+    return programs.filter(
+      (program) =>
+        program.displayName.toLowerCase().includes(q) ||
+        program.name.toLowerCase().includes(q) ||
+        (program.description?.toLowerCase().includes(q) ?? false),
+    )
+  }, [programs, search])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -157,11 +169,26 @@ const ProgramsSection = ({
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
+      {compact && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <input
+            type="search"
+            placeholder="Search programs…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm"
+          />
+        </div>
+      )}
+
       {programs.length === 0 ? (
         <p className="text-sm text-gray-500 py-4">No programs yet.</p>
+      ) : filteredPrograms.length === 0 ? (
+        <p className="text-sm text-gray-500 py-4">No programs match your search.</p>
       ) : (
         <div className={compact ? 'space-y-2' : 'border border-gray-200 rounded-xl overflow-hidden'}>
-          {programs.map((program) => {
+          {filteredPrograms.map((program) => {
             const selected = selectedProgramId === program.id
             return (
               <div
