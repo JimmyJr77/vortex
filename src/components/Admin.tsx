@@ -13,6 +13,7 @@ import AdminScheduling from './AdminScheduling'
 import AdminDbQueries from './AdminDbQueries'
 import AdminSchools from './AdminSchools'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
+import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 
 interface AdminProps {
   onLogout: () => void
@@ -55,6 +56,7 @@ export default function Admin({ onLogout }: AdminProps) {
   const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
   const [programs, setPrograms] = useState<Program[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [schedulingIntent, setSchedulingIntent] = useState<SchedulingNavigationIntent | null>(null)
 
   useEffect(() => {
     if (!getAdminToken()) {
@@ -215,40 +217,6 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
-                onClick={() => setActiveTab('dbQueries')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'dbQueries'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                DB Queries
-                {activeTab === 'dbQueries' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('schools')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'schools'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Schools
-                {activeTab === 'schools' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
                 onClick={() => setActiveTab('classes')}
                 className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'classes'
@@ -258,6 +226,23 @@ export default function Admin({ onLogout }: AdminProps) {
               >
                 Classes
                 {activeTab === 'classes' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('scheduling')}
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'scheduling'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Scheduling
+                {activeTab === 'scheduling' && (
                   <motion.div
                     className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
                     layoutId="activeTab"
@@ -300,15 +285,32 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
-                onClick={() => setActiveTab('scheduling')}
+                onClick={() => setActiveTab('dbQueries')}
                 className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'scheduling'
+                  activeTab === 'dbQueries'
                     ? 'text-white'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
-                Scheduling
-                {activeTab === 'scheduling' && (
+                DB Queries
+                {activeTab === 'dbQueries' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('schools')}
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'schools'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Schools
+                {activeTab === 'schools' && (
                   <motion.div
                     className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
                     layoutId="activeTab"
@@ -350,9 +352,17 @@ export default function Admin({ onLogout }: AdminProps) {
             ) : activeTab === 'schools' ? (
               <AdminSchools />
             ) : activeTab === 'scheduling' ? (
-              <AdminScheduling />
+              <AdminScheduling
+                navigationIntent={schedulingIntent}
+                onNavigationIntentConsumed={() => setSchedulingIntent(null)}
+              />
             ) : activeTab === 'classes' ? (
-              <AdminClasses />
+              <AdminClasses
+                onOpenScheduling={(intent) => {
+                  setSchedulingIntent(intent)
+                  setActiveTab('scheduling')
+                }}
+              />
             ) : activeTab === 'highlights' ? (
               <AdminHighlights />
             ) : activeTab === 'events' ? (

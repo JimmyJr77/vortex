@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Ban, Calendar, Check, Loader2, Mail, MailPlus, X } from 'lucide-react'
 import AdminSchedulingCategories from './scheduling/AdminSchedulingCategories'
@@ -28,13 +28,23 @@ import ClassEventsPanel from './programs/ClassEventsPanel'
 import ProgramsSection from './programs/ProgramsSection'
 import {
   fetchClassEventSchedulingFormId,
+  fetchClassEvents,
   fetchTopPrograms,
   fetchTopProgramsLegacy,
   type ClassEvent,
   type TopProgram,
 } from '../utils/programsApi'
+import {
+  allSignupFieldKeys,
+  type SchedulingNavigationIntent,
+} from '../utils/schedulingNavigation'
 
 type Panel = 'overview' | 'form' | 'classEvents' | 'categories' | 'offerings' | 'slots' | 'costs' | 'signups'
+
+interface AdminSchedulingProps {
+  navigationIntent?: SchedulingNavigationIntent | null
+  onNavigationIntentConsumed?: () => void
+}
 
 const PANELS: { id: Panel; label: string }[] = [
   { id: 'overview', label: 'Overview' },
@@ -47,9 +57,14 @@ const PANELS: { id: Panel; label: string }[] = [
   { id: 'signups', label: 'Signups' },
 ]
 
-const AdminScheduling = () => {
+const AdminScheduling = ({
+  navigationIntent = null,
+  onNavigationIntentConsumed,
+}: AdminSchedulingProps) => {
   const [topPrograms, setTopPrograms] = useState<TopProgram[]>([])
-  const [selectedProgramId, setSelectedProgramId] = useState<number | null>(null)
+  const [selectedProgramId, setSelectedProgramId] = useState<number | null>(
+    navigationIntent?.programsId ?? null,
+  )
   const [selectedClassEvent, setSelectedClassEvent] = useState<ClassEvent | null>(null)
   const [forms, setForms] = useState<SchedulingFormSummary[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -57,6 +72,7 @@ const AdminScheduling = () => {
   const [signups, setSignups] = useState<SchedulingSignup[]>([])
   const [orphanedSignups, setOrphanedSignups] = useState<SchedulingOrphanedSignup[]>([])
   const [panel, setPanel] = useState<Panel>('overview')
+  const [forwardFormSelectAll, setForwardFormSelectAll] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<CategorySelection>(null)
@@ -67,6 +83,7 @@ const AdminScheduling = () => {
   const [signupActionId, setSignupActionId] = useState<number | null>(null)
   const [passwordDrafts, setPasswordDrafts] = useState<Record<number, string>>({})
   const [passwordSavingId, setPasswordSavingId] = useState<number | null>(null)
+  const programsLoaded = useRef(false)
 
   const iconActionClass =
     'p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none'
@@ -155,22 +172,100 @@ const AdminScheduling = () => {
       setOrphanedSignups([])
       setSelectedCategory(null)
       setSelectedOffering(null)
+      setForwardFormSelectAll(false)
       setPanel('overview')
     },
     [],
   )
 
-  useEffect(() => {
-    loadTopPrograms()
-      .then((data) => {
-        const active = data.filter((p) => !p.archived)
-        if (active.length > 0 && !selectedProgramId) {
-          setSelectedProgramId(active[0].id)
-        }
+  const applyProgramDraftDefaults = useCallback((program: TopProgram): TopProgram => {
+    const allFields = allSignupFieldKeys()
+    return {
+      ...program,
+      schedulingActive: program.schedulingActive ?? true,
+      schedulingSignupFields: allFields,
+      schedulingMandateWaiver: true,
+      schedulingOverviewSavedAt:
+        program.schedulingOverviewSavedAt ?? new Date().toISOString(),
+    }
+  }, [])
+
+  const applyNavigationIntent = useCallback(
+    async (intent: SchedulingNavigationIntent, programs: TopProgram[]) => {
+      const program = programs.find((p) => p.id === intent.programsId)
+      if (!program) {
+        throw new Error('Program not found for scheduling setup')
+      }
+
+      const draftedProgram = applyProgramDraftDefaults(program)
+      setTopPrograms((prev) =>
+        prev.map((p) => (p.id === draftedProgram.id ? draftedProgram : p)),
+      )
+      setForwardFormSelectAll(true)
+      setSelectedProgramId(intent.programsId)
+      setSelectedCategory(intent.categorySelection)
+      setSelectedOffering(null)
+      setPanel(intent.targetPanel)
+
+      const classEvents = await fetchClassEvents({
+        programsId: intent.programsId,
+        archived: false,
       })
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load programs'))
-      .finally(() => setLoading(false))
-  }, [loadTopPrograms, selectedProgramId])
+      const classEvent = classEvents.find((event) => event.id === intent.classEventId)
+      if (!classEvent) {
+        throw new Error('Class not found for scheduling setup')
+      }
+
+      setSelectedClassEvent(classEvent)
+      const formId =
+        classEvent.schedulingFormId ?? (await fetchClassEventSchedulingFormId(classEvent.id))
+      setSelectedId(formId)
+      await Promise.allSettled([
+        loadDetail(formId),
+        loadSignups(formId),
+        loadOrphanedSignups(formId),
+      ])
+    },
+    [applyProgramDraftDefaults, loadDetail, loadSignups, loadOrphanedSignups],
+  )
+
+  useEffect(() => {
+    let cancelled = false
+
+    const boot = async () => {
+      if (!navigationIntent && programsLoaded.current) return
+
+      setLoading(true)
+      setError(null)
+      try {
+        const data = await loadTopPrograms()
+        if (cancelled) return
+
+        if (navigationIntent) {
+          await applyNavigationIntent(navigationIntent, data)
+          programsLoaded.current = true
+          onNavigationIntentConsumed?.()
+        } else if (!programsLoaded.current) {
+          programsLoaded.current = true
+          const active = data.filter((p) => !p.archived)
+          if (active.length > 0) {
+            setSelectedProgramId((current) => current ?? active[0].id)
+          }
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Failed to load scheduling')
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    void boot()
+    return () => {
+      cancelled = true
+    }
+  }, [navigationIntent, loadTopPrograms, applyNavigationIntent, onNavigationIntentConsumed])
 
   const refresh = async () => {
     if (!selectedId) return
@@ -206,6 +301,7 @@ const AdminScheduling = () => {
         : null
 
   const handleProgramSaved = (updated: TopProgram) => {
+    setForwardFormSelectAll(false)
     setTopPrograms((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))
   }
 
@@ -246,14 +342,35 @@ const AdminScheduling = () => {
 
   if (loading && topPrograms.length === 0) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-vortex-red" />
+      <div className="space-y-8">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Calendar className="w-7 h-7 text-vortex-red" />
+            Class &amp; Event Scheduling &amp; Signup Forms
+          </h2>
+          <p className="text-gray-600 text-sm mt-1">
+            Configure offerings, slots, costs, and signup forms for each class and event.
+          </p>
+        </div>
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-vortex-red" />
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="w-full py-8">
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <Calendar className="w-7 h-7 text-vortex-red" />
+          Class &amp; Event Scheduling &amp; Signup Forms
+        </h2>
+        <p className="text-gray-600 text-sm mt-1">
+          Configure offerings, slots, costs, and signup forms for each class and event.
+        </p>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-6">
         <aside className="lg:w-64 shrink-0">
           <div className="mb-4">
@@ -332,7 +449,11 @@ const AdminScheduling = () => {
               )}
 
               {panel === 'form' && selectedProgram && (
-                <AdminSchedulingFormTab program={selectedProgram} onSaved={handleProgramSaved} />
+                <AdminSchedulingFormTab
+                  program={selectedProgram}
+                  selectAllFields={forwardFormSelectAll}
+                  onSaved={handleProgramSaved}
+                />
               )}
 
               {panel === 'classEvents' && selectedProgramId && (

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Users, Check, GitMerge, Trash2, X } from 'lucide-react'
+import { Plus, Users, Check, GitMerge, Trash2, X, School as SchoolIcon } from 'lucide-react'
 import { schoolsApi, type School, type SchoolMember } from '../utils/adminFeaturesApi'
 
 const LEVELS = [
@@ -118,52 +118,60 @@ export default function AdminSchools() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-lg shadow-lg border border-gray-200"
+      className="space-y-8"
     >
-      <div className="p-4 md:p-6 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-black">Schools</h2>
-          <p className="text-gray-600 mt-1">Manage schools, view rosters, and resolve write-ins.</p>
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <SchoolIcon className="w-7 h-7 text-vortex-red" />
+            Schools
+          </h2>
+          <p className="text-gray-600 text-sm mt-1">
+            Manage schools, view rosters, and resolve write-ins.
+          </p>
         </div>
         <button
+          type="button"
           onClick={() => setShowAdd((v) => !v)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-vortex-red text-white font-semibold self-start"
+          className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 self-start"
         >
-          <Plus size={16} /> Add school
+          <Plus className="w-5 h-5" />
+          Add school
         </button>
       </div>
 
       {error && (
-        <div className="mx-4 md:mx-6 mt-4 px-4 py-3 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm">
+        <div className="px-4 py-3 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm">
           {error}
         </div>
       )}
 
-      {showAdd && (
-        <div className="mx-4 md:mx-6 mt-4 p-4 border border-gray-200 rounded-lg grid grid-cols-1 md:grid-cols-[1fr_180px_1fr_auto] gap-3 items-end">
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Name</label>
-            <input value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+      <div className="bg-white rounded-xl border border-gray-200">
+        {showAdd && (
+          <div className="mx-4 md:mx-6 mt-4 p-4 border border-gray-200 rounded-lg grid grid-cols-1 md:grid-cols-[1fr_180px_1fr_auto] gap-3 items-end">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Name</label>
+              <input value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Level</label>
+              <select value={newLevel} onChange={(e) => setNewLevel(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                {LEVELS.map((l) => (
+                  <option key={l.value} value={l.value}>{l.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Location (optional)</label>
+              <input value={newLocation} onChange={(e) => setNewLocation(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+            </div>
+            <button onClick={addSchool} disabled={!newName.trim()} className="px-4 py-2 rounded-lg bg-vortex-red text-white font-semibold disabled:opacity-50">
+              Save
+            </button>
           </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Level</label>
-            <select value={newLevel} onChange={(e) => setNewLevel(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2">
-              {LEVELS.map((l) => (
-                <option key={l.value} value={l.value}>{l.label}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Location (optional)</label>
-            <input value={newLocation} onChange={(e) => setNewLocation(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-          </div>
-          <button onClick={addSchool} disabled={!newName.trim()} className="px-4 py-2 rounded-lg bg-vortex-red text-white font-semibold disabled:opacity-50">
-            Save
-          </button>
-        </div>
-      )}
+        )}
 
-      <div className="px-4 md:px-6 mt-4 flex gap-2 border-b border-gray-200">
+        <div className="px-4 md:px-6 mt-4 flex gap-2 border-b border-gray-200">
         <button
           onClick={() => setTab('verified')}
           className={`px-4 py-2 font-semibold text-sm border-b-2 ${tab === 'verified' ? 'border-vortex-red text-black' : 'border-transparent text-gray-500'}`}
@@ -271,6 +279,7 @@ export default function AdminSchools() {
             )}
           </div>
         )}
+      </div>
       </div>
 
       {/* Roster modal */}

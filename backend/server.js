@@ -1383,7 +1383,8 @@ const categoryUpdateSchema = Joi.object({
   name: Joi.string().min(1).max(100).optional(),
   displayName: Joi.string().min(1).max(255).optional(),
   description: Joi.string().max(1000).optional().allow('', null),
-  archived: Joi.boolean().optional()
+  archived: Joi.boolean().optional(),
+  isActive: Joi.boolean().optional(),
 })
 
 const levelSchema = Joi.object({
@@ -10448,12 +10449,16 @@ app.post('/api/admin/admins', async (req, res) => {
 app.get('/api/admin/programs', async (req, res) => {
   try {
     await ensureProgramCategoriesSchema()
+    const taxonomy = await resolveProgramTaxonomy()
     const { archived } = req.query
+    const programIsActiveSelect = taxonomy.hasProgramIsActive
+      ? `COALESCE(pc.is_active, TRUE) as "programIsActive",`
+      : `TRUE as "programIsActive",`
     let query = `
       SELECT 
         p.id,
         p.category,
-        p.category_id as "categoryId",
+        p.${taxonomy.programFkColumn} as "categoryId",
         pc.name as "categoryName",
         pc.display_name as "categoryDisplayName",
         p.name,
@@ -10464,11 +10469,12 @@ app.get('/api/admin/programs', async (req, res) => {
         p.description,
         p.skill_requirements as "skillRequirements",
         p.is_active as "isActive",
+        ${programIsActiveSelect}
         p.archived,
         p.created_at as "createdAt",
         p.updated_at as "updatedAt"
       FROM program p
-      LEFT JOIN program_categories pc ON p.category_id = pc.id
+      LEFT JOIN ${taxonomy.programsTable} pc ON p.${taxonomy.programFkColumn} = pc.id
     `
     const params = []
     
@@ -10845,8 +10851,40 @@ app.put('/api/admin/programs/:id', async (req, res) => {
       values.push(value.skillRequirements || null)
     }
     if (value.isActive !== undefined) {
+      if (value.isActive === true) {
+        const taxonomy = await resolveProgramTaxonomy()
+        if (taxonomy.hasProgramIsActive) {
+          const fkCol = taxonomy.programFkColumn
+          const classRow = await pool.query(
+            `SELECT ${fkCol} as parent_id FROM program WHERE id = $1`,
+            [id],
+          )
+          const parentId = classRow.rows[0]?.parent_id
+          if (parentId) {
+            const parent = await pool.query(
+              `SELECT is_active FROM ${taxonomy.programsTable} WHERE id = $1`,
+              [parentId],
+            )
+            if (parent.rows[0]?.is_active === false) {
+              return res.status(400).json({
+                success: false,
+                message: 'Cannot activate a class while its program is inactive',
+              })
+            }
+          }
+        }
+      }
       updates.push(`is_active = $${paramCount++}`)
       values.push(value.isActive)
+      try {
+        await pool.query(
+          `UPDATE scheduling_form SET is_active = $1, updated_at = CURRENT_TIMESTAMP
+           WHERE program_id = $2 AND deleted_at IS NULL`,
+          [value.isActive, id],
+        )
+      } catch {
+        /* scheduling_form optional */
+      }
     }
     if (value.archived !== undefined) {
       updates.push(`archived = $${paramCount++}`)
@@ -11162,10 +11200,76 @@ app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
 })
 
 /** Ensures program_categories, skill_levels, and program.category_id/archived exist (local DB bootstrap). */
+let programTaxonomyCache = null
+async function resolveProgramTaxonomy() {
+  if (programTaxonomyCache) return programTaxonomyCache
+  const tableCheck = await pool.query(`
+    SELECT table_name FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name IN ('programs', 'program_categories')
+  `)
+  const hasPrograms = tableCheck.rows.some((r) => r.table_name === 'programs')
+  const programsTable = hasPrograms ? 'programs' : 'program_categories'
+  const colCheck = await pool.query(`
+    SELECT column_name FROM information_schema.columns
+    WHERE table_name = 'program' AND column_name IN ('programs_id', 'category_id')
+  `)
+  const programFkColumn = colCheck.rows.some((r) => r.column_name === 'programs_id')
+    ? 'programs_id'
+    : 'category_id'
+  const activeColCheck = await pool.query(
+    `SELECT 1 FROM information_schema.columns WHERE table_name = $1 AND column_name = 'is_active' LIMIT 1`,
+    [programsTable],
+  )
+  programTaxonomyCache = {
+    programsTable,
+    programFkColumn,
+    hasProgramIsActive: activeColCheck.rows.length > 0,
+  }
+  return programTaxonomyCache
+}
+
+async function deactivateClassesForProgram(programsId, taxonomy) {
+  const { programsTable, programFkColumn } = taxonomy
+  await pool.query(
+    `UPDATE program SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+     WHERE ${programFkColumn} = $1 AND archived = FALSE`,
+    [programsId],
+  )
+  try {
+    await pool.query(
+      `UPDATE scheduling_form sf SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+       FROM program p
+       WHERE sf.program_id = p.id AND p.${programFkColumn} = $1`,
+      [programsId],
+    )
+  } catch {
+    /* scheduling_form optional */
+  }
+  try {
+    await pool.query(
+      `UPDATE scheduling_form SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+       WHERE programs_id = $1 AND deleted_at IS NULL`,
+      [programsId],
+    )
+  } catch {
+    /* programs_id on scheduling_form optional */
+  }
+  try {
+    await pool.query(
+      `UPDATE ${programsTable} SET scheduling_active = FALSE, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $1`,
+      [programsId],
+    )
+  } catch {
+    /* scheduling_active optional */
+  }
+}
+
 const ensureProgramCategoriesSchema = async () => {
   const migrationFiles = [
     'add_categories_levels_tables.sql',
     'add_category_description.sql',
+    'add_programs_is_active.sql',
   ]
 
   for (const file of migrationFiles) {
@@ -11187,7 +11291,8 @@ const ensureProgramCategoriesSchema = async () => {
     }
   }
 
-  console.log('✅ Program categories schema ensured')
+    console.log('✅ Program categories schema ensured')
+  programTaxonomyCache = null
   try {
     const { ensureProgramsSchedulingSchema } = await import('./programs/schema.js')
     await ensureProgramsSchedulingSchema(pool)
@@ -11950,16 +12055,20 @@ app.get('/api/admin/programs/:programId/iterations/stats', async (req, res) => {
 app.get('/api/admin/categories', async (req, res) => {
   try {
     await ensureProgramCategoriesSchema()
+    const taxonomy = await resolveProgramTaxonomy()
     const { archived } = req.query
     
     // Check if description column exists
     const columnCheck = await pool.query(`
       SELECT column_name 
       FROM information_schema.columns 
-      WHERE table_name = 'program_categories' 
+      WHERE table_name = $1 
       AND column_name = 'description'
-    `)
+    `, [taxonomy.programsTable])
     const hasDescriptionColumn = columnCheck.rows.length > 0
+    const isActiveSelect = taxonomy.hasProgramIsActive
+      ? 'is_active as "isActive",'
+      : 'TRUE as "isActive",'
     
     let query = `
       SELECT 
@@ -11967,10 +12076,11 @@ app.get('/api/admin/categories', async (req, res) => {
         name,
         display_name as "displayName",
         ${hasDescriptionColumn ? 'description,' : 'NULL as description,'}
+        ${isActiveSelect}
         archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
-      FROM program_categories
+      FROM ${taxonomy.programsTable}
     `
     const params = []
     
@@ -12100,6 +12210,8 @@ app.put('/api/admin/categories/:id', async (req, res) => {
     const values = []
     let paramCount = 1
 
+    const taxonomy = await resolveProgramTaxonomy()
+
     if (value.name !== undefined) {
       updates.push(`name = $${paramCount++}`)
       values.push(value.name.toUpperCase().replace(/\s+/g, '_'))
@@ -12109,13 +12221,12 @@ app.put('/api/admin/categories/:id', async (req, res) => {
       values.push(value.displayName)
     }
     
-    // Check if description column exists before trying to update it
     const columnCheck = await pool.query(`
       SELECT column_name 
       FROM information_schema.columns 
-      WHERE table_name = 'program_categories' 
+      WHERE table_name = $1 
       AND column_name = 'description'
-    `)
+    `, [taxonomy.programsTable])
     const hasDescriptionColumn = columnCheck.rows.length > 0
     
     if (value.description !== undefined && hasDescriptionColumn) {
@@ -12126,6 +12237,11 @@ app.put('/api/admin/categories/:id', async (req, res) => {
     if (value.archived !== undefined) {
       updates.push(`archived = $${paramCount++}`)
       values.push(value.archived)
+    }
+
+    if (value.isActive !== undefined && taxonomy.hasProgramIsActive) {
+      updates.push(`is_active = $${paramCount++}`)
+      values.push(value.isActive)
     }
 
     if (updates.length === 0) {
@@ -12139,8 +12255,9 @@ app.put('/api/admin/categories/:id', async (req, res) => {
     values.push(id)
 
     const returnDescription = hasDescriptionColumn ? 'description,' : 'NULL as description,'
+    const returnIsActive = taxonomy.hasProgramIsActive ? 'is_active as "isActive",' : 'TRUE as "isActive",'
     const result = await pool.query(`
-      UPDATE program_categories
+      UPDATE ${taxonomy.programsTable}
       SET ${updates.join(', ')}
       WHERE id = $${paramCount}
       RETURNING 
@@ -12148,6 +12265,7 @@ app.put('/api/admin/categories/:id', async (req, res) => {
         name,
         display_name as "displayName",
         ${returnDescription}
+        ${returnIsActive}
         archived,
         created_at as "createdAt",
         updated_at as "updatedAt"
@@ -12158,6 +12276,10 @@ app.put('/api/admin/categories/:id', async (req, res) => {
         success: false,
         message: 'Category not found'
       })
+    }
+
+    if (value.isActive === false && taxonomy.hasProgramIsActive) {
+      await deactivateClassesForProgram(Number(id), taxonomy)
     }
 
     res.json({

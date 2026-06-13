@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Download, Save, Play, Trash2, RefreshCw } from 'lucide-react'
+import { Download, Save, Play, Trash2, RefreshCw, Database } from 'lucide-react'
 import {
   dbQueriesApi,
   type DbQueryEntityMeta,
@@ -161,25 +161,28 @@ export default function AdminDbQueries() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-lg shadow-lg border border-gray-200"
+      className="space-y-8"
     >
-      <div className="p-4 md:p-6 border-b border-gray-200">
-        <h2 className="text-2xl md:text-3xl font-display font-bold text-black">DB Queries</h2>
-        <p className="text-gray-600 mt-1">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <Database className="w-7 h-7 text-vortex-red" />
+          Database Queries
+        </h2>
+        <p className="text-gray-600 text-sm mt-1">
           Build relationship-aware reports. Pick a starting entity, then add only the columns it relates to.
         </p>
       </div>
 
       {error && (
-        <div className="mx-4 md:mx-6 mt-4 px-4 py-3 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm">
+        <div className="px-4 py-3 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm">
           {error}
         </div>
       )}
 
       {loadingMeta ? (
-        <div className="p-8 text-center text-gray-500">Loading…</div>
+        <div className="py-12 text-center text-gray-500">Loading…</div>
       ) : (
-        <div className="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
           {/* Builder panel */}
           <div className="space-y-4">
             <div>

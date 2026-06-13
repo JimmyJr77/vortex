@@ -3,26 +3,37 @@ import { Loader2 } from 'lucide-react'
 import AdminSchedulingSignupFields from './AdminSchedulingSignupFields'
 import { mergeSignupFieldsForSave } from '../../config/schedulingSignupFields'
 import { updateTopProgram, type TopProgram } from '../../utils/programsApi'
+import { defaultForwardFormFields } from '../../utils/schedulingNavigation'
 
 interface Props {
   program: TopProgram
   onSaved: (program: TopProgram) => void
+  selectAllFields?: boolean
 }
 
-const AdminSchedulingFormTab = ({ program, onSaved }: Props) => {
-  const [signupFields, setSignupFields] = useState<string[]>(
-    program.schedulingSignupFields ?? ['first_name', 'last_name', 'email'],
+const AdminSchedulingFormTab = ({ program, onSaved, selectAllFields = false }: Props) => {
+  const [signupFields, setSignupFields] = useState<string[]>(() =>
+    selectAllFields
+      ? defaultForwardFormFields()
+      : (program.schedulingSignupFields ?? ['first_name', 'last_name', 'email']),
   )
-  const [mandateWaiver, setMandateWaiver] = useState(program.schedulingMandateWaiver ?? false)
+  const [mandateWaiver, setMandateWaiver] = useState(() =>
+    selectAllFields ? true : (program.schedulingMandateWaiver ?? false),
+  )
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setSignupFields(program.schedulingSignupFields ?? ['first_name', 'last_name', 'email'])
-    setMandateWaiver(program.schedulingMandateWaiver ?? false)
+    if (selectAllFields) {
+      setSignupFields(defaultForwardFormFields())
+      setMandateWaiver(true)
+    } else {
+      setSignupFields(program.schedulingSignupFields ?? ['first_name', 'last_name', 'email'])
+      setMandateWaiver(program.schedulingMandateWaiver ?? false)
+    }
     setSaved(false)
-  }, [program])
+  }, [program, selectAllFields])
 
   const handleSave = async () => {
     setSaving(true)

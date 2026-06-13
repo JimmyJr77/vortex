@@ -7,10 +7,17 @@ import {
   type ClassEventFormData,
 } from '../../utils/programsApi'
 
+interface ProgramOption {
+  id: number
+  displayName: string
+}
+
 interface Props {
   open: boolean
   programsId: number
   programsDisplayName?: string
+  availablePrograms?: ProgramOption[]
+  parentProgramActive?: boolean
   editing?: ClassEvent | null
   onClose: () => void
   onSaved: () => void
@@ -30,16 +37,22 @@ const ClassEventModal = ({
   open,
   programsId,
   programsDisplayName,
+  availablePrograms = [],
+  parentProgramActive = true,
   editing,
   onClose,
   onSaved,
 }: Props) => {
   const [form, setForm] = useState<ClassEventFormData>(emptyForm())
+  const [selectedProgramsId, setSelectedProgramsId] = useState(programsId)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) return
+    const resolvedProgramsId =
+      editing?.programsId ?? editing?.categoryId ?? programsId
+    setSelectedProgramsId(resolvedProgramsId)
     if (editing) {
       setForm({
         displayName: editing.displayName,
@@ -54,7 +67,7 @@ const ClassEventModal = ({
       setForm(emptyForm())
     }
     setError(null)
-  }, [open, editing])
+  }, [open, editing, programsId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,10 +78,21 @@ const ClassEventModal = ({
     setSaving(true)
     setError(null)
     try {
+      if (!selectedProgramsId) {
+        setError('Program is required')
+        return
+      }
       if (editing) {
-        await updateClassEvent(editing.id, { ...form, programsId, isActive: editing.isActive })
+        await updateClassEvent(editing.id, {
+          ...form,
+          programsId: selectedProgramsId,
+          isActive: parentProgramActive ? form.isActive : false,
+        })
       } else {
-        await createClassEvent(programsId, { ...form, isActive: true })
+        await createClassEvent(selectedProgramsId, {
+          ...form,
+          isActive: parentProgramActive ? form.isActive !== false : false,
+        })
       }
       onSaved()
       onClose()
@@ -99,6 +123,26 @@ const ClassEventModal = ({
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          {availablePrograms.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Program *</label>
+              <select
+                value={selectedProgramsId || ''}
+                onChange={(e) =>
+                  setSelectedProgramsId(e.target.value ? parseInt(e.target.value, 10) : 0)
+                }
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                required
+              >
+                <option value="">Select a program…</option>
+                {availablePrograms.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.displayName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Display name *</label>
             <input
@@ -175,6 +219,23 @@ const ClassEventModal = ({
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
               placeholder="e.g. No experience required"
             />
+          </div>
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <input
+                type="checkbox"
+                checked={form.isActive !== false}
+                disabled={!parentProgramActive}
+                onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
+                className="w-4 h-4 text-vortex-red border-gray-300 rounded focus:ring-vortex-red disabled:opacity-50"
+              />
+              Active
+            </label>
+            {!parentProgramActive && (
+              <p className="text-xs text-amber-700 mt-1">
+                This class cannot be active while its program is inactive.
+              </p>
+            )}
           </div>
           <p className="text-xs text-gray-500">
             Schedule times are managed in the Scheduling → Slots tab after saving.
