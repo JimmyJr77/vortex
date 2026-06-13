@@ -20,6 +20,13 @@ interface Props {
   detail: SchedulingFormDetail
   formStartDate: string | null
   formEndDate: string | null
+  offeringId?: number | null
+  offeringStartDate?: string | null
+  offeringEndDate?: string | null
+  offeringLabel?: string | null
+  selectedCategoryId?: number | null
+  categoryName?: string | null
+  canBuild?: boolean
   orphanedSignups: SchedulingOrphanedSignup[]
   forms: SchedulingFormSummary[]
   onRefresh: () => Promise<void>
@@ -68,9 +75,11 @@ function payloadBase(
   activeEnd: string,
   scheduleMode: 'day' | 'date',
   maxParticipants: number,
+  offeringId?: number | null,
 ) {
   return {
     categoryId: builderCategoryId === '' ? null : Number(builderCategoryId),
+    offeringId: offeringId ?? null,
     activeDatesMode,
     activeStart: activeDatesMode === 'custom' ? activeStart || null : null,
     activeEnd: activeDatesMode === 'custom' ? activeEnd || null : null,
@@ -84,11 +93,17 @@ const AdminSchedulingSlots = ({
   detail,
   formStartDate,
   formEndDate,
+  offeringId,
+  offeringStartDate,
+  offeringEndDate,
+  offeringLabel,
+  selectedCategoryId,
+  categoryName,
+  canBuild = true,
   orphanedSignups,
   forms,
   onRefresh,
 }: Props) => {
-  const allCategories = detail.allCategories ?? detail.categories
   const formCategories = detail.categories
   const builderRef = useRef<HTMLDivElement>(null)
   const savingRef = useRef(false)
@@ -111,9 +126,17 @@ const AdminSchedulingSlots = ({
   const [saveError, setSaveError] = useState<string | null>(null)
 
   const inheritedDates = () => ({
-    start: formatDateForInput(formStartDate),
-    end: formatDateForInput(formEndDate),
+    start: formatDateForInput(offeringStartDate ?? formStartDate),
+    end: formatDateForInput(offeringEndDate ?? formEndDate),
   })
+
+  useEffect(() => {
+    if (selectedCategoryId != null) {
+      setBuilderCategoryId(selectedCategoryId)
+    } else if (canBuild && categoryName) {
+      setBuilderCategoryId('')
+    }
+  }, [selectedCategoryId, canBuild, categoryName])
 
   const resetBuilderForm = () => {
     const { start, end } = inheritedDates()
@@ -380,7 +403,15 @@ const AdminSchedulingSlots = ({
   }
 
   const buildPayload = (): SlotBatchPayload | null => {
-    const base = payloadBase(builderCategoryId, activeDatesMode, activeStart, activeEnd, scheduleMode, maxParticipants)
+    const base = payloadBase(
+      builderCategoryId,
+      activeDatesMode,
+      activeStart,
+      activeEnd,
+      scheduleMode,
+      maxParticipants,
+      offeringId,
+    )
     if (scheduleMode === 'day') {
       const weekPayload = weeks
         .map((w) => ({
@@ -517,23 +548,12 @@ const AdminSchedulingSlots = ({
         {editingSlotGroupId ? 'Edit time slot' : 'Add time slot'}
       </h3>
       <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-4 max-w-4xl">
-        <div>
-          <label className="block text-sm font-semibold mb-1">Category</label>
-          <select
-            value={builderCategoryId}
-            onChange={(e) =>
-              setBuilderCategoryId(e.target.value === '' ? '' : Number(e.target.value))
-            }
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 bg-white"
-          >
-            <option value="">No Category</option>
-            {allCategories
-              .filter((c) => c.id != null)
-              .map((c) => (
-                <option key={c.id} value={String(c.id)}>{c.name}</option>
-              ))}
-          </select>
-        </div>
+        {categoryName != null && (
+          <div className="text-sm text-gray-700">
+            Category: <strong>{categoryName}</strong>
+            <span className="text-gray-500 ml-2">(change in Categories tab)</span>
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-semibold mb-2">Active dates</label>
@@ -814,7 +834,26 @@ const AdminSchedulingSlots = ({
 
   return (
     <div className="space-y-8">
-      {builderForm}
+      {(categoryName || offeringLabel || offeringStartDate) && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-900">
+          Building slots for{' '}
+          <strong>{categoryName || 'category'}</strong>
+          {offeringStartDate && offeringEndDate && (
+            <>
+              {' '}
+              · <strong>{offeringStartDate} – {offeringEndDate}</strong>
+            </>
+          )}
+          {offeringLabel && <> · {offeringLabel}</>}
+        </div>
+      )}
+      {!canBuild ? (
+        <p className="text-gray-600 py-4">
+          Select a category in the <strong>Categories</strong> tab and an offering in <strong>Offerings</strong> before building slots.
+        </p>
+      ) : (
+        builderForm
+      )}
 
       <div className="border-t border-gray-200 pt-8">
         <h3 className="text-xl font-bold text-black mb-4">Scheduled slots</h3>

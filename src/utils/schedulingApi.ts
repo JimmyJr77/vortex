@@ -197,6 +197,7 @@ export interface SchedulingAuthSession {
 
 export interface SlotBatchPayload {
   categoryId: number | null
+  offeringId?: number | null
   activeDatesMode: 'inherit' | 'custom' | 'tbd'
   activeStart?: string | null
   activeEnd?: string | null
@@ -380,10 +381,15 @@ export async function adminFetchAllCategories(): Promise<SchedulingCategory[]> {
   return parseJson(res)
 }
 
-export async function adminCreateCategory(name: string): Promise<SchedulingCategory> {
+export async function adminFetchFormCategories(formId: number): Promise<SchedulingCategory[]> {
+  const res = await adminApiRequest(`/api/admin/scheduling/categories?formId=${formId}`)
+  return parseJson(res)
+}
+
+export async function adminCreateCategory(name: string, formId?: number): Promise<SchedulingCategory> {
   const res = await adminApiRequest('/api/admin/scheduling/categories', {
     method: 'POST',
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, formId }),
   })
   return parseJson(res)
 }
@@ -398,6 +404,71 @@ export async function adminUpdateCategory(id: number, name: string): Promise<Sch
 
 export async function adminDeleteCategory(id: number): Promise<void> {
   await adminApiRequest(`/api/admin/scheduling/categories/${id}`, { method: 'DELETE' })
+}
+
+export type CategorySelection = number | 'none' | null
+
+export interface SchedulingOffering {
+  id: number
+  formId: number
+  categoryId: number | null
+  startDate: string
+  endDate: string
+  label: string | null
+  isSelected: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export async function adminFetchOfferings(
+  formId: number,
+  categoryId?: number | null,
+): Promise<SchedulingOffering[]> {
+  const qs =
+    categoryId === null
+      ? '?categoryId=none'
+      : categoryId != null
+        ? `?categoryId=${categoryId}`
+        : ''
+  const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/offerings${qs}`)
+  return parseJson(res)
+}
+
+export async function adminCreateOffering(
+  formId: number,
+  payload: { categoryId: number | null; startDate: string; endDate: string; label?: string | null },
+): Promise<SchedulingOffering> {
+  const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/offerings`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+  return parseJson(res)
+}
+
+export async function adminUpdateOffering(
+  id: number,
+  payload: Partial<{ startDate: string; endDate: string; label: string | null }>,
+): Promise<SchedulingOffering> {
+  const res = await adminApiRequest(`/api/admin/scheduling/offerings/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+  return parseJson(res)
+}
+
+export async function adminSelectOffering(id: number): Promise<SchedulingOffering> {
+  const res = await adminApiRequest(`/api/admin/scheduling/offerings/${id}/select`, {
+    method: 'PATCH',
+  })
+  return parseJson(res)
+}
+
+export async function adminDeleteOffering(id: number): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/scheduling/offerings/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Failed to delete offering')
+  }
 }
 
 export async function adminCreateSlotBatch(

@@ -1,0 +1,502 @@
+import Joi from 'joi'
+import { ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
+
+const topProgramSchema = Joi.object({
+  name: Joi.string().min(1).max(100).required(),
+  displayName: Joi.string().min(1).max(255).required(),
+  description: Joi.string().max(1000).optional().allow('', null),
+})
+
+const classEventSchema = Joi.object({
+  displayName: Joi.string().min(1).max(255).required(),
+  skillLevel: Joi.string()
+    .valid('EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED')
+    .optional()
+    .allow(null, ''),
+  ageMin: Joi.number().integer().min(0).optional().allow(null),
+  ageMax: Joi.number().integer().min(0).optional().allow(null),
+  description: Joi.string().optional().allow('', null),
+  skillRequirements: Joi.string().optional().allow('', null),
+  isActive: Joi.boolean().optional(),
+})
+
+const topProgramUpdateSchema = Joi.object({
+  name: Joi.string().min(1).max(100).optional(),
+  displayName: Joi.string().min(1).max(255).optional(),
+  description: Joi.string().max(1000).optional().allow('', null),
+  archived: Joi.boolean().optional(),
+  schedulingActive: Joi.boolean().optional(),
+  schedulingSignupFields: Joi.array().items(Joi.string()).optional().allow(null),
+  schedulingMandateWaiver: Joi.boolean().optional(),
+  markOverviewSaved: Joi.boolean().optional(),
+})
+
+async function getFacilityId(pool) {
+  const facilityId = await pool.query('SELECT id FROM facility LIMIT 1')
+  return facilityId.rows[0]?.id ?? null
+}
+
+async function createSchedulingFormForClassEvent(pool, classEvent, programsId, schema) {
+  if (!schema.hasSchedulingProgramLink) return null
+  const existing = await pool.query(
+    `SELECT id FROM scheduling_form WHERE program_id = $1 AND deleted_at IS NULL LIMIT 1`,
+    [classEvent.id],
+  )
+  if (existing.rows.length > 0) return Number(existing.rows[0].id)
+
+  let signupFields = null
+  let mandateWaiver = false
+  let isActive = classEvent.isActive !== false
+  if (programsId) {
+    const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
+    if (hasSchedCols) {
+      const progRes = await pool.query(
+        `SELECT scheduling_signup_fields, scheduling_mandate_waiver, scheduling_active
+         FROM ${schema.programsTable} WHERE id = $1`,
+        [programsId],
+      )
+      if (progRes.rows[0]) {
+        signupFields = progRes.rows[0].scheduling_signup_fields
+        mandateWaiver = Boolean(progRes.rows[0].scheduling_mandate_waiver)
+        isActive = Boolean(progRes.rows[0].scheduling_active)
+      }
+    }
+  }
+
+  const cols = ['title', 'description', 'is_active']
+  const vals = [classEvent.displayName, classEvent.description || null, isActive]
+  if (signupFields) {
+    cols.push('signup_fields', 'mandate_waiver')
+    vals.push(JSON.stringify(signupFields), mandateWaiver)
+  }
+  if (schema.hasSchedulingProgramsLink && programsId) {
+    cols.push('programs_id', 'program_id')
+    vals.push(programsId, classEvent.id)
+  } else if (schema.hasSchedulingProgramLink) {
+    cols.push('program_id')
+    vals.push(classEvent.id)
+  }
+
+  const placeholders = vals.map((_, i) => `$${i + 1}`).join(', ')
+  const insert = await pool.query(
+    `INSERT INTO scheduling_form (${cols.join(', ')}) VALUES (${placeholders}) RETURNING id`,
+    vals,
+  )
+  return Number(insert.rows[0].id)
+}
+
+export function registerProgramsAdminRoutes(app, pool) {
+  console.log('✅ Programs admin routes registered')
+
+  app.get('/api/admin/programs/:programsId/class-events', async (req, res) => {
+    try {
+      await ensureProgramsSchedulingSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const programsId = Number(req.params.programsId)
+      const { archived } = req.query
+      let query = `
+        SELECT
+          p.id,
+          p.category,
+          p.${schema.programFkColumn} as "programsId",
+          p.${schema.programFkColumn} as "categoryId",
+          pr.display_name as "programsDisplayName",
+          pr.display_name as "categoryDisplayName",
+          pr.name as "programsName",
+          pr.name as "categoryName",
+          p.name,
+          p.display_name as "displayName",
+          p.skill_level as "skillLevel",
+          p.age_min as "ageMin",
+          p.age_max as "ageMax",
+          p.description,
+          p.skill_requirements as "skillRequirements",
+          p.is_active as "isActive",
+          p.archived,
+          p.created_at as "createdAt",
+          p.updated_at as "updatedAt",
+          sf.id as "schedulingFormId"
+        FROM program p
+        LEFT JOIN ${schema.programsTable} pr ON p.${schema.programFkColumn} = pr.id
+        LEFT JOIN scheduling_form sf ON sf.program_id = p.id AND sf.deleted_at IS NULL
+        WHERE p.${schema.programFkColumn} = $1
+      `
+      const params = [programsId]
+      if (archived === 'true') {
+        query += ' AND p.archived = $2'
+        params.push(true)
+      } else if (archived === 'false') {
+        query += ' AND p.archived = $2'
+        params.push(false)
+      }
+      query += ' ORDER BY p.archived ASC, p.display_name ASC'
+      const result = await pool.query(query, params)
+      res.json({ success: true, data: result.rows })
+    } catch (err) {
+      console.error('[programs] list class-events:', err)
+      res.status(500).json({ success: false, message: 'Failed to load classes and events' })
+    }
+  })
+
+  app.post('/api/admin/programs/:programsId/class-events', async (req, res) => {
+    try {
+      const { error, value } = classEventSchema.validate(req.body)
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message })
+      }
+      await ensureProgramsSchedulingSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const programsId = Number(req.params.programsId)
+      if (!Number.isFinite(programsId)) {
+        return res.status(400).json({ success: false, message: 'Invalid program id' })
+      }
+
+      const progCheck = await pool.query(
+        `SELECT id, name FROM ${schema.programsTable} WHERE id = $1 AND archived = FALSE LIMIT 1`,
+        [programsId],
+      )
+      if (progCheck.rows.length === 0) {
+        return res.status(400).json({ success: false, message: 'Program not found' })
+      }
+
+      const facilityId = await getFacilityId(pool)
+      if (!facilityId) return res.status(500).json({ success: false, message: 'No facility found' })
+
+      const enumCheckResult = await pool.query(`
+        SELECT unnest(enum_range(NULL::program_category))::text as enum_value
+      `)
+      const availableEnumValues = enumCheckResult.rows.map((row) => row.enum_value)
+      const programName = progCheck.rows[0].name
+      let categoryEnum =
+        availableEnumValues.find((v) => v === programName) ??
+        availableEnumValues[0] ??
+        'GYMNASTICS'
+
+      const colCheck = await pool.query(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = 'program'
+          AND column_name IN ('programs_id', 'category_id', 'level_id')
+      `)
+      const programCols = new Set(colCheck.rows.map((r) => r.column_name))
+      const fkCol = programCols.has('programs_id') ? 'programs_id' : 'category_id'
+
+      let levelId = null
+      if (value.skillLevel && programCols.has('level_id')) {
+        const levelResult = await pool.query(
+          'SELECT id FROM skill_levels WHERE name = $1 AND category_id = $2 LIMIT 1',
+          [value.skillLevel, programsId],
+        )
+        if (levelResult.rows.length > 0) levelId = levelResult.rows[0].id
+      }
+
+      const insertCols = ['facility_id', 'category', fkCol, 'name', 'display_name', 'skill_level']
+      const insertVals = [
+        facilityId,
+        categoryEnum,
+        programsId,
+        value.displayName.toUpperCase().replace(/\s+/g, '_'),
+        value.displayName,
+        value.skillLevel || null,
+      ]
+      if (programCols.has('level_id')) {
+        insertCols.push('level_id')
+        insertVals.push(levelId)
+      }
+      insertCols.push('age_min', 'age_max', 'description', 'skill_requirements', 'is_active')
+      insertVals.push(
+        value.ageMin ?? null,
+        value.ageMax ?? null,
+        value.description || null,
+        value.skillRequirements || null,
+        value.isActive !== false,
+      )
+
+      const placeholders = insertVals.map((_, i) => `$${i + 1}`).join(', ')
+      const result = await pool.query(
+        `INSERT INTO program (${insertCols.join(', ')}) VALUES (${placeholders})
+         RETURNING
+           id,
+           ${fkCol} as "programsId",
+           ${fkCol} as "categoryId",
+           name,
+           display_name as "displayName",
+           skill_level as "skillLevel",
+           age_min as "ageMin",
+           age_max as "ageMax",
+           description,
+           skill_requirements as "skillRequirements",
+           is_active as "isActive",
+           archived,
+           created_at as "createdAt",
+           updated_at as "updatedAt"`,
+        insertVals,
+      )
+
+      const classEvent = result.rows[0]
+      const formId = await createSchedulingFormForClassEvent(pool, classEvent, programsId, schema)
+      if (formId) classEvent.schedulingFormId = formId
+
+      res.json({ success: true, data: classEvent })
+    } catch (err) {
+      if (err.code === '23505') {
+        return res.status(409).json({ success: false, message: 'A class/event with this name already exists' })
+      }
+      console.error('[programs] create class-event:', err)
+      res.status(500).json({ success: false, message: 'Failed to create class or event' })
+    }
+  })
+
+  app.get('/api/admin/class-events/:id/scheduling-form', async (req, res) => {
+    try {
+      await ensureProgramsSchedulingSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      if (!schema.hasSchedulingProgramLink) {
+        return res.status(404).json({ success: false, message: 'Scheduling link not configured' })
+      }
+      let result = await pool.query(
+        `SELECT id, title, is_active as "isActive" FROM scheduling_form
+         WHERE program_id = $1 AND deleted_at IS NULL LIMIT 1`,
+        [req.params.id],
+      )
+      if (result.rows.length === 0) {
+        const classRes = await pool.query(
+          `SELECT p.*, p.${schema.programFkColumn} as programs_id FROM program p WHERE p.id = $1`,
+          [req.params.id],
+        )
+        if (classRes.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Class/event not found' })
+        }
+        const row = classRes.rows[0]
+        const formId = await createSchedulingFormForClassEvent(
+          pool,
+          {
+            id: row.id,
+            displayName: row.display_name,
+            description: row.description,
+            isActive: row.is_active,
+          },
+          row.programs_id,
+          schema,
+        )
+        result = await pool.query(
+          `SELECT id, title, is_active as "isActive" FROM scheduling_form WHERE id = $1`,
+          [formId],
+        )
+      }
+      res.json({ success: true, data: result.rows[0] })
+    } catch (err) {
+      console.error('[programs] scheduling-form:', err)
+      res.status(500).json({ success: false, message: 'Failed to load scheduling form' })
+    }
+  })
+
+  // Top-level programs list at /api/admin/programs-top (alias: GET /api/admin/categories in server.js)
+  app.get('/api/admin/programs-top', async (req, res) => {
+    try {
+      await ensureProgramsSchedulingSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const { archived } = req.query
+      const columnCheck = await pool.query(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = $1 AND column_name = 'description'
+      `, [schema.programsTable])
+      const hasDescription = columnCheck.rows.length > 0
+      const hasSchedulingCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
+      const schedCols = hasSchedulingCols
+        ? `, scheduling_active as "schedulingActive",
+           scheduling_signup_fields as "schedulingSignupFields",
+           scheduling_mandate_waiver as "schedulingMandateWaiver",
+           scheduling_overview_saved_at as "schedulingOverviewSavedAt"`
+        : `, FALSE as "schedulingActive", NULL as "schedulingSignupFields",
+           FALSE as "schedulingMandateWaiver", NULL as "schedulingOverviewSavedAt"`
+      let query = `
+        SELECT id, name, display_name as "displayName",
+          ${hasDescription ? 'description,' : 'NULL as description,'}
+          archived, created_at as "createdAt", updated_at as "updatedAt"
+          ${schedCols}
+        FROM ${schema.programsTable}
+      `
+      const params = []
+      if (archived === 'true') {
+        query += ' WHERE archived = $1'
+        params.push(true)
+      } else if (archived === 'false') {
+        query += ' WHERE archived = $1'
+        params.push(false)
+      }
+      query += ' ORDER BY archived ASC, display_name ASC'
+      const result = await pool.query(query, params)
+      res.json({ success: true, data: result.rows, programs: result.rows })
+    } catch (err) {
+      console.error('[programs] list top programs:', err)
+      res.status(500).json({ success: false, message: 'Failed to load programs' })
+    }
+  })
+
+  app.post('/api/admin/programs-top', async (req, res) => {
+    try {
+      const { error, value } = topProgramSchema.validate(req.body)
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message })
+      }
+      await ensureProgramsSchedulingSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const facilityId = await getFacilityId(pool)
+      if (!facilityId) return res.status(500).json({ success: false, message: 'No facility found' })
+
+      const columnCheck = await pool.query(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = $1 AND column_name = 'description'
+      `, [schema.programsTable])
+      const hasDescription = columnCheck.rows.length > 0
+
+      const result = await pool.query(
+        hasDescription
+          ? `INSERT INTO ${schema.programsTable} (facility_id, name, display_name, description)
+             VALUES ($1, $2, $3, $4)
+             RETURNING id, name, display_name as "displayName", description, archived,
+               created_at as "createdAt", updated_at as "updatedAt"`
+          : `INSERT INTO ${schema.programsTable} (facility_id, name, display_name)
+             VALUES ($1, $2, $3)
+             RETURNING id, name, display_name as "displayName", NULL as description, archived,
+               created_at as "createdAt", updated_at as "updatedAt"`,
+        [
+          facilityId,
+          value.name.toUpperCase().replace(/\s+/g, '_'),
+          value.displayName,
+          ...(hasDescription ? [value.description || null] : []),
+        ],
+      )
+      res.json({ success: true, data: result.rows[0] })
+    } catch (err) {
+      if (err.code === '23505') {
+        return res.status(409).json({ success: false, message: 'Program with this name already exists' })
+      }
+      console.error('[programs] create top program:', err)
+      res.status(500).json({ success: false, message: 'Failed to create program' })
+    }
+  })
+
+  app.put('/api/admin/programs-top/:id', async (req, res) => {
+    try {
+      const { error, value } = topProgramUpdateSchema.validate(req.body)
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message })
+      }
+      await ensureProgramsSchedulingSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const updates = []
+      const values = []
+      let n = 1
+      if (value.name !== undefined) {
+        updates.push(`name = $${n++}`)
+        values.push(value.name.toUpperCase().replace(/\s+/g, '_'))
+      }
+      if (value.displayName !== undefined) {
+        updates.push(`display_name = $${n++}`)
+        values.push(value.displayName)
+      }
+      if (value.description !== undefined) {
+        updates.push(`description = $${n++}`)
+        values.push(value.description || null)
+      }
+      if (value.archived !== undefined) {
+        updates.push(`archived = $${n++}`)
+        values.push(value.archived)
+      }
+      const hasSchedulingCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
+      if (hasSchedulingCols) {
+        if (value.schedulingActive !== undefined) {
+          updates.push(`scheduling_active = $${n++}`)
+          values.push(value.schedulingActive)
+        }
+        if (value.schedulingSignupFields !== undefined) {
+          updates.push(`scheduling_signup_fields = $${n++}`)
+          values.push(
+            value.schedulingSignupFields == null
+              ? null
+              : JSON.stringify(value.schedulingSignupFields),
+          )
+        }
+        if (value.schedulingMandateWaiver !== undefined) {
+          updates.push(`scheduling_mandate_waiver = $${n++}`)
+          values.push(value.schedulingMandateWaiver)
+        }
+        if (value.markOverviewSaved) {
+          updates.push(`scheduling_overview_saved_at = COALESCE(scheduling_overview_saved_at, CURRENT_TIMESTAMP)`)
+        }
+      }
+      if (updates.length === 0) {
+        return res.status(400).json({ success: false, message: 'No fields to update' })
+      }
+      updates.push('updated_at = CURRENT_TIMESTAMP')
+      values.push(req.params.id)
+      const returnSched = hasSchedulingCols
+        ? `, scheduling_active as "schedulingActive",
+           scheduling_signup_fields as "schedulingSignupFields",
+           scheduling_mandate_waiver as "schedulingMandateWaiver",
+           scheduling_overview_saved_at as "schedulingOverviewSavedAt"`
+        : ''
+      const result = await pool.query(
+        `UPDATE ${schema.programsTable} SET ${updates.join(', ')} WHERE id = $${n}
+         RETURNING id, name, display_name as "displayName", description, archived${returnSched}`,
+        values,
+      )
+      if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Program not found' })
+      }
+      res.json({ success: true, data: result.rows[0] })
+    } catch (err) {
+      console.error('[programs] update top program:', err)
+      res.status(500).json({ success: false, message: 'Failed to update program' })
+    }
+  })
+
+  app.patch('/api/admin/programs-top/:id/archive', async (req, res) => {
+    try {
+      await ensureProgramsSchedulingSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const archived = Boolean(req.body.archived)
+      const result = await pool.query(
+        `UPDATE ${schema.programsTable} SET archived = $1, updated_at = CURRENT_TIMESTAMP
+         WHERE id = $2 RETURNING id`,
+        [archived, req.params.id],
+      )
+      if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Program not found' })
+      }
+      res.json({ success: true, message: archived ? 'Program archived' : 'Program restored' })
+    } catch (err) {
+      console.error('[programs] archive top program:', err)
+      res.status(500).json({ success: false, message: 'Failed to archive program' })
+    }
+  })
+
+  app.delete('/api/admin/programs-top/:id', async (req, res) => {
+    try {
+      await ensureProgramsSchedulingSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const refs = await pool.query(
+        `SELECT COUNT(*)::int AS c FROM program WHERE ${schema.programFkColumn} = $1`,
+        [req.params.id],
+      )
+      if (Number(refs.rows[0].c) > 0) {
+        return res.status(409).json({
+          success: false,
+          message: 'Cannot delete: classes or events still reference this program',
+        })
+      }
+      const result = await pool.query(
+        `DELETE FROM ${schema.programsTable} WHERE id = $1 RETURNING id`,
+        [req.params.id],
+      )
+      if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Program not found' })
+      }
+      res.json({ success: true, message: 'Program deleted' })
+    } catch (err) {
+      console.error('[programs] delete top program:', err)
+      res.status(500).json({ success: false, message: 'Failed to delete program' })
+    }
+  })
+}

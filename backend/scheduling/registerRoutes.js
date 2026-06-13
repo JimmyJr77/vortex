@@ -40,6 +40,12 @@ export function registerSchedulingRoutes(app, pool) {
   app.put('/api/admin/scheduling/categories/:id', h.updateCategory)
   app.delete('/api/admin/scheduling/categories/:id', h.deleteCategory)
 
+  app.get('/api/admin/scheduling/forms/:formId/offerings', h.listOfferings)
+  app.post('/api/admin/scheduling/forms/:formId/offerings', h.createOffering)
+  app.put('/api/admin/scheduling/offerings/:id', h.updateOffering)
+  app.patch('/api/admin/scheduling/offerings/:id/select', h.selectOffering)
+  app.delete('/api/admin/scheduling/offerings/:id', h.deleteOffering)
+
   app.post('/api/admin/scheduling/forms/:formId/slot-batches', h.createSlotBatch)
   app.patch('/api/admin/scheduling/time-slots/:id', h.updateTimeSlot)
   app.delete('/api/admin/scheduling/time-slots/:id', h.deleteTimeSlot)

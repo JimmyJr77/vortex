@@ -364,6 +364,20 @@ function mapCategoryRow(row) {
   }
 }
 
+function mapOfferingRow(row) {
+  return {
+    id: Number(row.id),
+    formId: Number(row.form_id),
+    categoryId: row.category_id != null ? Number(row.category_id) : null,
+    startDate: formatDateOnly(row.start_date),
+    endDate: formatDateOnly(row.end_date),
+    label: row.label,
+    isSelected: Boolean(row.is_selected),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
 async function loadAllCategories(pool) {
   const result = await pool.query(
     'SELECT * FROM scheduling_category ORDER BY sort_order, id',
@@ -795,8 +809,22 @@ const formSchema = Joi.object({
 
 const categorySchema = Joi.object({
   name: Joi.string().trim().min(1).max(255).required(),
+  formId: Joi.number().integer().optional().allow(null),
   sortOrder: Joi.number().integer().min(0).optional(),
   isActive: Joi.boolean().optional(),
+})
+
+const offeringSchema = Joi.object({
+  categoryId: Joi.number().integer().allow(null).required(),
+  startDate: Joi.string().required(),
+  endDate: Joi.string().required(),
+  label: Joi.string().max(255).allow('', null).optional(),
+})
+
+const offeringUpdateSchema = Joi.object({
+  startDate: Joi.string().optional(),
+  endDate: Joi.string().optional(),
+  label: Joi.string().max(255).allow('', null).optional(),
 })
 
 const signupFieldsSchema = Joi.object({
@@ -812,6 +840,7 @@ const timeBlockSchema = Joi.object({
 
 const slotBatchSchema = Joi.object({
   categoryId: Joi.number().integer().allow(null).optional(),
+  offeringId: Joi.number().integer().allow(null).optional(),
   activeDatesMode: Joi.string().valid('inherit', 'custom', 'tbd').required(),
   activeStart: Joi.string().allow(null, '').optional(),
   activeEnd: Joi.string().allow(null, '').optional(),
@@ -903,10 +932,16 @@ export function createSchedulingHandlers(pool) {
       try {
         const result = await pool.query(
           `
-          SELECT * FROM scheduling_form
-          WHERE deleted_at IS NULL
-            AND is_active = TRUE
-          ORDER BY created_at DESC
+          SELECT sf.* FROM scheduling_form sf
+          LEFT JOIN programs pr ON pr.id = sf.programs_id
+          LEFT JOIN program_categories pc ON pc.id = sf.programs_id
+          WHERE sf.deleted_at IS NULL
+            AND sf.is_active = TRUE
+            AND (
+              sf.programs_id IS NULL
+              OR COALESCE(pr.scheduling_active, pc.scheduling_active, TRUE) = TRUE
+            )
+          ORDER BY sf.created_at DESC
           `,
         )
         res.json({ success: true, data: result.rows.map(mapFormRow) })
@@ -1391,9 +1426,12 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
-    async listCategories(_req, res) {
+    async listCategories(req, res) {
       try {
-        const data = await loadAllCategories(pool)
+        const formId = req.query.formId ? Number(req.query.formId) : null
+        const data = formId
+          ? await loadFormCategories(pool, formId, { includeInactive: true })
+          : await loadAllCategories(pool)
         res.json({ success: true, data })
       } catch (err) {
         console.error('[scheduling] listCategories:', err)
@@ -1413,15 +1451,26 @@ export function createSchedulingHandlers(pool) {
         const result = await pool.query(
           `
           INSERT INTO scheduling_category (form_id, name, sort_order, is_active)
-          VALUES (NULL, $1, $2, $3)
+          VALUES ($1, $2, $3, $4)
           RETURNING *
           `,
           [
+            value.formId ?? null,
             value.name,
             value.sortOrder ?? Number(maxSort.rows[0].next),
             value.isActive !== false,
           ],
         )
+        if (value.formId != null) {
+          await pool.query(
+            `
+            INSERT INTO scheduling_form_category (form_id, category_id)
+            VALUES ($1, $2)
+            ON CONFLICT DO NOTHING
+            `,
+            [value.formId, result.rows[0].id],
+          )
+        }
         res.json({ success: true, data: mapCategoryRow(result.rows[0]) })
       } catch (err) {
         console.error('[scheduling] createCategory:', err)
@@ -1472,6 +1521,153 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async listOfferings(req, res) {
+      try {
+        const formId = Number(req.params.formId)
+        const params = [formId]
+        let where = 'WHERE form_id = $1'
+        if (req.query.categoryId === 'none') {
+          where += ' AND category_id IS NULL'
+        } else if (req.query.categoryId != null && req.query.categoryId !== '') {
+          params.push(Number(req.query.categoryId))
+          where += ` AND category_id = $${params.length}`
+        }
+        const result = await pool.query(
+          `SELECT * FROM scheduling_offering ${where} ORDER BY start_date DESC, id DESC`,
+          params,
+        )
+        res.json({ success: true, data: result.rows.map(mapOfferingRow) })
+      } catch (err) {
+        console.error('[scheduling] listOfferings:', err)
+        res.status(500).json({ success: false, message: 'Failed to load offerings' })
+      }
+    },
+
+    async createOffering(req, res) {
+      try {
+        const { error, value } = offeringSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const formId = Number(req.params.formId)
+        const startDate = formatDateOnly(value.startDate)
+        const endDate = formatDateOnly(value.endDate)
+        if (!startDate || !endDate) {
+          return res.status(400).json({ success: false, message: 'Invalid start or end date' })
+        }
+        const countRes = await pool.query(
+          'SELECT COUNT(*)::int AS c FROM scheduling_offering WHERE form_id = $1 AND category_id IS NOT DISTINCT FROM $2',
+          [formId, value.categoryId ?? null],
+        )
+        const isFirst = Number(countRes.rows[0].c) === 0
+        const result = await pool.query(
+          `
+          INSERT INTO scheduling_offering (form_id, category_id, start_date, end_date, label, is_selected)
+          VALUES ($1, $2, $3, $4, $5, $6)
+          RETURNING *
+          `,
+          [formId, value.categoryId ?? null, startDate, endDate, value.label || null, isFirst],
+        )
+        res.json({ success: true, data: mapOfferingRow(result.rows[0]) })
+      } catch (err) {
+        console.error('[scheduling] createOffering:', err)
+        res.status(500).json({ success: false, message: 'Failed to create offering' })
+      }
+    },
+
+    async updateOffering(req, res) {
+      try {
+        const { error, value } = offeringUpdateSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const updates = []
+        const vals = []
+        let n = 1
+        if (value.startDate !== undefined) {
+          updates.push(`start_date = $${n++}`)
+          vals.push(formatDateOnly(value.startDate))
+        }
+        if (value.endDate !== undefined) {
+          updates.push(`end_date = $${n++}`)
+          vals.push(formatDateOnly(value.endDate))
+        }
+        if (value.label !== undefined) {
+          updates.push(`label = $${n++}`)
+          vals.push(value.label || null)
+        }
+        if (updates.length === 0) {
+          return res.status(400).json({ success: false, message: 'No fields to update' })
+        }
+        updates.push('updated_at = now()')
+        vals.push(req.params.id)
+        const result = await pool.query(
+          `UPDATE scheduling_offering SET ${updates.join(', ')} WHERE id = $${n} RETURNING *`,
+          vals,
+        )
+        if (result.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Offering not found' })
+        }
+        res.json({ success: true, data: mapOfferingRow(result.rows[0]) })
+      } catch (err) {
+        console.error('[scheduling] updateOffering:', err)
+        res.status(500).json({ success: false, message: 'Failed to update offering' })
+      }
+    },
+
+    async selectOffering(req, res) {
+      try {
+        const offeringRes = await pool.query(
+          'SELECT * FROM scheduling_offering WHERE id = $1',
+          [req.params.id],
+        )
+        if (offeringRes.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Offering not found' })
+        }
+        const row = offeringRes.rows[0]
+        await pool.query(
+          `UPDATE scheduling_offering SET is_selected = FALSE, updated_at = now()
+           WHERE form_id = $1 AND category_id IS NOT DISTINCT FROM $2`,
+          [row.form_id, row.category_id],
+        )
+        const result = await pool.query(
+          `UPDATE scheduling_offering SET is_selected = TRUE, updated_at = now()
+           WHERE id = $1 RETURNING *`,
+          [req.params.id],
+        )
+        res.json({ success: true, data: mapOfferingRow(result.rows[0]) })
+      } catch (err) {
+        console.error('[scheduling] selectOffering:', err)
+        res.status(500).json({ success: false, message: 'Failed to select offering' })
+      }
+    },
+
+    async deleteOffering(req, res) {
+      try {
+        const refs = await pool.query(
+          'SELECT COUNT(*)::int AS c FROM scheduling_slot_group WHERE offering_id = $1',
+          [req.params.id],
+        )
+        if (Number(refs.rows[0].c) > 0) {
+          return res.status(409).json({
+            success: false,
+            message: 'Cannot delete: slots reference this offering',
+          })
+        }
+        const result = await pool.query(
+          'DELETE FROM scheduling_offering WHERE id = $1 RETURNING id',
+          [req.params.id],
+        )
+        if (result.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Offering not found' })
+        }
+        res.json({ success: true, message: 'Offering deleted' })
+      } catch (err) {
+        console.error('[scheduling] deleteOffering:', err)
+        res.status(500).json({ success: false, message: 'Failed to delete offering' })
+      }
+    },
+
     async createSlotBatch(req, res) {
       try {
         const { error, value } = slotBatchSchema.validate(req.body, { abortEarly: false })
@@ -1494,6 +1690,34 @@ export function createSchedulingHandlers(pool) {
           value.activeDatesMode === 'custom' ? formatDateOnly(value.activeEnd) : null
         const batchDatesTbd = value.activeDatesMode === 'tbd'
 
+        let offeringRow = null
+        if (value.offeringId != null) {
+          const offRes = await pool.query(
+            'SELECT * FROM scheduling_offering WHERE id = $1 AND form_id = $2',
+            [value.offeringId, req.params.formId],
+          )
+          if (offRes.rows.length === 0) {
+            return res.status(400).json({ success: false, message: 'Invalid offering' })
+          }
+          offeringRow = offRes.rows[0]
+        }
+
+        let resolvedActiveStart = batchActiveStart
+        let resolvedActiveEnd = batchActiveEnd
+        if (value.activeDatesMode === 'inherit') {
+          if (offeringRow) {
+            resolvedActiveStart = formatDateOnly(offeringRow.start_date)
+            resolvedActiveEnd = formatDateOnly(offeringRow.end_date)
+          } else {
+            const formRes = await pool.query(
+              'SELECT start_date, end_date FROM scheduling_form WHERE id = $1',
+              [req.params.formId],
+            )
+            resolvedActiveStart = formatDateOnly(formRes.rows[0]?.start_date)
+            resolvedActiveEnd = formatDateOnly(formRes.rows[0]?.end_date)
+          }
+        }
+
         const client = await pool.connect()
         let groupRow = null
         const inserted = []
@@ -1513,18 +1737,19 @@ export function createSchedulingHandlers(pool) {
           const groupRes = await client.query(
             `
             INSERT INTO scheduling_slot_group (
-              form_id, category_id, schedule_mode, max_participants,
+              form_id, category_id, offering_id, schedule_mode, max_participants,
               active_start, active_end, dates_tbd, is_active
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE)
             RETURNING *
             `,
             [
               req.params.formId,
               value.categoryId ?? null,
+              value.offeringId ?? null,
               value.scheduleMode,
               value.maxParticipants,
-              batchActiveStart,
-              batchActiveEnd,
+              resolvedActiveStart,
+              resolvedActiveEnd,
               batchDatesTbd,
             ],
           )

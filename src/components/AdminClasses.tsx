@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, X, Save, Plus, Search, Trash2 } from 'lucide-react'
+import { Edit2, Archive, X, Save, Plus, Search } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
+import ClassEventModal from './programs/ClassEventModal'
+import type { ClassEvent } from '../utils/programsApi'
 
 interface Program {
   id: number
@@ -70,8 +72,6 @@ export default function AdminClasses() {
   const [categoriesLoading, setCategoriesLoading] = useState(false)
   const [editingProgramId, setEditingProgramId] = useState<number | null>(null)
   const [programFormData, setProgramFormData] = useState<Partial<Program>>({})
-  const [programIterations, setProgramIterations] = useState<Partial<ClassIteration>[]>([])
-  const [editingIterationIndex, setEditingIterationIndex] = useState<number | null>(null)
   const [showArchivedCategories, setShowArchivedCategories] = useState(false)
   const [showArchivedClasses, setShowArchivedClasses] = useState(false)
   const [categoryArchiveSearch, setCategoryArchiveSearch] = useState('')
@@ -82,7 +82,7 @@ export default function AdminClasses() {
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showClassModal, setShowClassModal] = useState(false)
   const [selectedCategoryForClass, setSelectedCategoryForClass] = useState<number | null>(null)
-  const [, setIterations] = useState<ClassIteration[]>([])
+  const [editingClassEvent, setEditingClassEvent] = useState<ClassEvent | null>(null)
   const [iterationStats, setIterationStats] = useState<Record<number, ClassIteration[]>>({})
 
   const fetchAllPrograms = async () => {
@@ -257,80 +257,6 @@ export default function AdminClasses() {
     }
   }
 
-  const handleCreateClass = async () => {
-    if (!selectedCategoryForClass) {
-      alert('Please select a category')
-      return
-    }
-    
-    try {
-      // Create program with category_id
-      const classData = {
-        ...programFormData,
-        categoryId: selectedCategoryForClass
-      }
-      
-      const response = await adminApiRequest('/api/admin/programs', {
-        method: 'POST',
-        body: JSON.stringify(classData)
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        const newProgramId = data.data?.id
-        
-        // Create iterations if any were specified
-        if (newProgramId && programIterations.length > 0) {
-          for (const iteration of programIterations) {
-            // Get timeBlocks or convert legacy format
-            const timeBlocks = iteration.timeBlocks && iteration.timeBlocks.length > 0
-              ? iteration.timeBlocks.map(tb => ({
-                  daysOfWeek: tb.daysOfWeek || [],
-                  startTime: tb.startTime && tb.startTime.length === 5 ? `${tb.startTime}:00` : (tb.startTime || '18:00:00'),
-                  endTime: tb.endTime && tb.endTime.length === 5 ? `${tb.endTime}:00` : (tb.endTime || '19:30:00')
-                }))
-              : [{
-                  daysOfWeek: iteration.daysOfWeek || [1, 2, 3, 4, 5],
-                  startTime: (iteration.startTime || '18:00:00').length === 5 ? `${iteration.startTime}:00` : (iteration.startTime || '18:00:00'),
-                  endTime: (iteration.endTime || '19:30:00').length === 5 ? `${iteration.endTime}:00` : (iteration.endTime || '19:30:00')
-                }]
-            
-            // For backward compatibility, also send first time block as legacy fields
-            const firstTimeBlock = timeBlocks[0]
-            
-            await adminApiRequest(`/api/admin/programs/${newProgramId}/iterations`, {
-              method: 'POST',
-              body: JSON.stringify({
-                daysOfWeek: firstTimeBlock.daysOfWeek,
-                startTime: firstTimeBlock.startTime,
-                endTime: firstTimeBlock.endTime,
-                timeBlocks: timeBlocks, // Always send timeBlocks (even if single block)
-                durationType: iteration.durationType || 'indefinite',
-                startDate: iteration.startDate,
-                endDate: iteration.endDate
-              })
-            })
-          }
-        }
-        
-        await fetchAllPrograms()
-        setProgramFormData({})
-        setProgramIterations([])
-        setShowClassModal(false)
-        setSelectedCategoryForClass(null)
-      } else {
-        const data = await response.json()
-        console.error('Create class error response:', data)
-        const errorMsg = data.errors ? data.errors.join(', ') : (data.message || 'Failed to create class')
-        alert(`Error creating class: ${errorMsg}`)
-      }
-    } catch (error) {
-      console.error('Error creating class:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Network error'
-      alert(`Failed to create class: ${errorMessage}`)
-    }
-  }
-
   const handleUpdateCategory = async () => {
     if (!editingCategoryId) return
     
@@ -398,33 +324,6 @@ export default function AdminClasses() {
     }
   }
 
-  const fetchIterations = async (programId: number) => {
-    try {
-      const response = await adminApiRequest(`/api/admin/programs/${programId}/iterations`)
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success) {
-          const fetchedIterations = data.data || []
-          setIterations(fetchedIterations)
-          return fetchedIterations
-        }
-      } else {
-        // If we get a 500 error, it might mean the table doesn't exist yet
-        // But the default iteration might have been created, so we'll return empty
-        // and let the user know they need to add iterations
-        const errorData = await response.json().catch(() => ({}))
-        console.error('Error fetching iterations:', errorData.message || 'Unknown error')
-        setIterations([])
-        return []
-      }
-      return []
-    } catch (error) {
-      console.error('Error fetching iterations:', error)
-      setIterations([])
-      return []
-    }
-  }
-
   const handleEditProgram = async (program: Program) => {
     setEditingProgramId(program.id)
     setProgramFormData({
@@ -439,37 +338,6 @@ export default function AdminClasses() {
       categoryId: program.categoryId || null, // Allow updating category
       categoryDisplayName: program.categoryDisplayName || program.categoryName || program.category || null // For display only
     })
-    const fetchedIterations = await fetchIterations(program.id)
-    // Convert fetched iterations to form data format
-    // Convert legacy format to new timeBlocks format
-    const iterationsData = fetchedIterations.map((iter: ClassIteration) => {
-      // If timeBlocks exists, use it; otherwise convert legacy fields to timeBlocks format
-      const timeBlocks = iter.timeBlocks && iter.timeBlocks.length > 0 
-        ? iter.timeBlocks 
-        : [{ daysOfWeek: iter.daysOfWeek || [], startTime: iter.startTime || '18:00:00', endTime: iter.endTime || '19:30:00' }]
-      return {
-        daysOfWeek: iter.daysOfWeek, // Keep for backward compatibility
-        startTime: iter.startTime, // Keep for backward compatibility
-        endTime: iter.endTime, // Keep for backward compatibility
-        timeBlocks, // New format
-        durationType: iter.durationType,
-        startDate: iter.startDate || undefined,
-        endDate: iter.endDate || undefined
-      }
-    })
-    
-    // If no iterations were fetched but this is a newly created class,
-    // it might have a default iteration that we can't fetch yet (table doesn't exist)
-    // In that case, we'll show empty and let user add iterations
-    // But if fetch failed with 500, show a helpful message
-    if (iterationsData.length === 0) {
-      // Check if there was an error - if so, the iterations might exist but table is missing
-      // We'll still set empty array, but the UI will show a message
-      setProgramIterations([])
-    } else {
-      setProgramIterations(iterationsData)
-    }
-    setEditingIterationIndex(null)
   }
 
   const handleUpdateProgram = async () => {
@@ -489,108 +357,9 @@ export default function AdminClasses() {
       })
       
       if (response.ok) {
-        // Update iterations - first get existing iterations
-        const existingIterationsResponse = await adminApiRequest(`/api/admin/programs/${editingProgramId}/iterations`)
-        const existingIterationsData = existingIterationsResponse.ok ? await existingIterationsResponse.json() : { data: [] }
-        const existingIterations = existingIterationsData.data || []
-        
-        // Delete iterations that are no longer in programIterations
-        for (const existing of existingIterations) {
-          const stillExists = programIterations.some((_iter, idx) => {
-            // Match by iteration number or by comparing all fields
-            return existing.iterationNumber === idx + 1
-          })
-          if (!stillExists) {
-            await adminApiRequest(`/api/admin/programs/${editingProgramId}/iterations/${existing.id}`, {
-              method: 'DELETE'
-            })
-          }
-        }
-        
-        // Create or update iterations
-        for (let i = 0; i < programIterations.length; i++) {
-          const iteration = programIterations[i]
-          const existing = existingIterations.find((iter: ClassIteration) => iter.iterationNumber === i + 1)
-          
-          // Get timeBlocks or convert legacy format
-          const timeBlocks = iteration.timeBlocks && iteration.timeBlocks.length > 0
-            ? iteration.timeBlocks
-                .map(tb => ({
-                  // Ensure daysOfWeek is always a non-empty array (default to Mon-Fri if empty)
-                  daysOfWeek: Array.isArray(tb.daysOfWeek) && tb.daysOfWeek.length > 0 
-                    ? tb.daysOfWeek 
-                    : [1, 2, 3, 4, 5],
-                  // Ensure times are properly formatted (HH:MM:SS)
-                  startTime: tb.startTime 
-                    ? (tb.startTime.length === 5 ? `${tb.startTime}:00` : tb.startTime)
-                    : '18:00:00',
-                  endTime: tb.endTime 
-                    ? (tb.endTime.length === 5 ? `${tb.endTime}:00` : tb.endTime)
-                    : '19:30:00'
-                }))
-                .filter(tb => tb.daysOfWeek && tb.daysOfWeek.length > 0) // Filter out any invalid blocks
-            : [{
-                daysOfWeek: Array.isArray(iteration.daysOfWeek) && iteration.daysOfWeek.length > 0
-                  ? iteration.daysOfWeek
-                  : [1, 2, 3, 4, 5],
-                startTime: iteration.startTime 
-                  ? ((iteration.startTime.length === 5 ? `${iteration.startTime}:00` : iteration.startTime))
-                  : '18:00:00',
-                endTime: iteration.endTime 
-                  ? ((iteration.endTime.length === 5 ? `${iteration.endTime}:00` : iteration.endTime))
-                  : '19:30:00'
-              }]
-          
-          // Ensure we have at least one valid time block
-          if (timeBlocks.length === 0) {
-            timeBlocks.push({
-              daysOfWeek: [1, 2, 3, 4, 5],
-              startTime: '18:00:00',
-              endTime: '19:30:00'
-            })
-          }
-          
-          // For backward compatibility, also send first time block as legacy fields
-          const firstTimeBlock = timeBlocks[0]
-          
-          // Ensure firstTimeBlock has valid daysOfWeek
-          if (!firstTimeBlock.daysOfWeek || firstTimeBlock.daysOfWeek.length === 0) {
-            firstTimeBlock.daysOfWeek = [1, 2, 3, 4, 5]
-          }
-          
-          const iterationData = {
-            daysOfWeek: firstTimeBlock.daysOfWeek,
-            startTime: firstTimeBlock.startTime,
-            endTime: firstTimeBlock.endTime,
-            timeBlocks: timeBlocks, // Always send timeBlocks (even if single block)
-            durationType: iteration.durationType || 'indefinite',
-            startDate: iteration.startDate || null,
-            endDate: iteration.endDate || null
-          }
-          
-          if (existing) {
-            // Update existing iteration
-            await adminApiRequest(`/api/admin/programs/${editingProgramId}/iterations/${existing.id}`, {
-              method: 'PUT',
-              body: JSON.stringify(iterationData)
-            })
-          } else {
-            // Create new iteration
-            await adminApiRequest(`/api/admin/programs/${editingProgramId}/iterations`, {
-              method: 'POST',
-              body: JSON.stringify(iterationData)
-            })
-          }
-        }
-        
-        // Refresh both programs and categories to ensure UI is up to date
         await Promise.all([fetchAllPrograms(), fetchAllCategories()])
-        if (editingProgramId) {
-          await fetchIterations(editingProgramId)
-        }
         setEditingProgramId(null)
         setProgramFormData({})
-        setProgramIterations([])
       } else {
         const data = await response.json()
         const errorMessage = data.errors ? data.errors.join(', ') : (data.message || 'Failed to update program')
@@ -602,67 +371,6 @@ export default function AdminClasses() {
       const errorMessage = error instanceof Error ? error.message : 'Network error'
       alert(`Failed to update program: ${errorMessage}`)
     }
-  }
-
-  const addIterationToForm = () => {
-    // Add new iteration with default values (Mon-Fri, 6pm-7:30pm, indefinite)
-    const newIteration = {
-      daysOfWeek: [1, 2, 3, 4, 5], // Monday through Friday (legacy, for backward compatibility)
-      startTime: '18:00:00', // 6:00 PM (legacy, for backward compatibility)
-      endTime: '19:30:00', // 7:30 PM (legacy, for backward compatibility)
-      timeBlocks: [{ // New structure - array of time blocks
-        daysOfWeek: [1, 2, 3, 4, 5], // Monday through Friday
-        startTime: '18:00:00', // 6:00 PM
-        endTime: '19:30:00' // 7:30 PM
-      }],
-      durationType: 'indefinite' as const
-    }
-    setProgramIterations([...programIterations, newIteration])
-    // Automatically start editing the new iteration
-    setEditingIterationIndex(programIterations.length)
-  }
-
-  const updateIterationInForm = (index: number, iteration: Partial<ClassIteration>) => {
-    const updated = [...programIterations]
-    updated[index] = { ...updated[index], ...iteration }
-    setProgramIterations(updated)
-  }
-
-  const removeIterationFromForm = (index: number) => {
-    setProgramIterations(programIterations.filter((_, i) => i !== index))
-  }
-
-  const addTimeBlockToIteration = (iterationIndex: number) => {
-    const updated = [...programIterations]
-    const iteration = updated[iterationIndex]
-    const timeBlocks = iteration.timeBlocks || [{ daysOfWeek: [], startTime: '18:00:00', endTime: '19:30:00' }]
-    timeBlocks.push({ daysOfWeek: [], startTime: '18:00:00', endTime: '19:30:00' })
-    updated[iterationIndex] = { ...iteration, timeBlocks }
-    setProgramIterations(updated)
-  }
-
-  const removeTimeBlockFromIteration = (iterationIndex: number, timeBlockIndex: number) => {
-    const updated = [...programIterations]
-    const iteration = updated[iterationIndex]
-    const timeBlocks = iteration.timeBlocks || []
-    if (timeBlocks.length > 1) {
-      timeBlocks.splice(timeBlockIndex, 1)
-      updated[iterationIndex] = { ...iteration, timeBlocks }
-      setProgramIterations(updated)
-    }
-  }
-
-  const updateTimeBlockInIteration = (
-    iterationIndex: number,
-    timeBlockIndex: number,
-    updates: Partial<TimeBlock>
-  ) => {
-    const updated = [...programIterations]
-    const iteration = updated[iterationIndex]
-    const timeBlocks = [...(iteration.timeBlocks || [])]
-    timeBlocks[timeBlockIndex] = { ...timeBlocks[timeBlockIndex], ...updates }
-    updated[iterationIndex] = { ...iteration, timeBlocks }
-    setProgramIterations(updated)
   }
 
   useEffect(() => {
@@ -701,7 +409,7 @@ export default function AdminClasses() {
             whileTap={{ scale: 0.95 }}
           >
             <Archive className="w-4 h-4" />
-            <span>{showArchivedCategories ? 'Show Active Categories' : 'Show Category Archives'}</span>
+            <span>{showArchivedCategories ? 'Show Active Programs' : 'Show Program Archives'}</span>
           </motion.button>
           <motion.button
             onClick={() => {
@@ -725,7 +433,7 @@ export default function AdminClasses() {
         {showArchivedCategories && (
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
             <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-4">
-              Category Archives
+              Program Archives
             </h2>
             <div className="mb-4">
               <div className="relative">
@@ -810,7 +518,7 @@ export default function AdminClasses() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Category</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Program</label>
                 <select
                   value={classArchiveCategoryFilter === 'all' ? 'all' : String(classArchiveCategoryFilter)}
                   onChange={(e) => setClassArchiveCategoryFilter(e.target.value === 'all' ? 'all' : parseInt(e.target.value, 10))}
@@ -1069,7 +777,7 @@ export default function AdminClasses() {
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-              Category & Class Management
+              Programs &amp; Class Events
             </h2>
             <div className="flex gap-2">
               <motion.button
@@ -1083,7 +791,7 @@ export default function AdminClasses() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Plus className="w-4 h-4" />
-                <span>Add Category</span>
+                <span>Add Program</span>
               </motion.button>
             </div>
           </div>
@@ -1131,13 +839,14 @@ export default function AdminClasses() {
                           <button
                             onClick={() => {
                               setSelectedCategoryForClass(category.id)
-                              setProgramFormData({})
+                              setEditingClassEvent(null)
                               setShowClassModal(true)
                             }}
                             className="flex items-center gap-2 px-3 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
+                            title="Add class or event"
                           >
                             <Plus className="w-4 h-4" />
-                            Add Class
+                            <span className="sr-only">Add class/event</span>
                           </button>
                           <button
                             onClick={() => {
@@ -1273,198 +982,21 @@ export default function AdminClasses() {
                                 <label className="text-sm font-semibold text-gray-700">Active</label>
                               </div>
                               
-                              {/* Class Iterations Section */}
+                              {/* Legacy schedule (read-only); new schedules use Admin → Scheduling → Slots */}
                               <div className="border-t border-gray-300 pt-4 mt-4">
-                                <div className="flex justify-between items-center mb-4">
-                                  <h4 className="text-lg font-semibold text-gray-700">Class Iterations</h4>
-                                  <button
-                                    type="button"
-                                    onClick={addIterationToForm}
-                                    className="flex items-center gap-2 px-3 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
-                                  >
-                                    <Plus className="w-4 h-4" />
-                                    Add Iteration
-                                  </button>
-                                </div>
-                                {programIterations.length === 0 ? (
-                                  <div className="space-y-2">
-                                    <p className="text-sm text-gray-500">No iterations loaded. Click "Add Iteration" to create one.</p>
-                                  </div>
+                                <h4 className="text-lg font-semibold text-gray-700 mb-2">Legacy schedule</h4>
+                                <p className="text-sm text-gray-500 mb-3">
+                                  Class times are managed in Admin → Scheduling → Slots. Existing iteration enrollments remain active below.
+                                </p>
+                                {(iterationStats[program.id] || []).length === 0 ? (
+                                  <p className="text-sm text-gray-400">No legacy iterations on record.</p>
                                 ) : (
-                                  <div className="space-y-3">
-                                    {programIterations.map((iteration, index) => {
-                                      return (
-                                        <div key={index} className="bg-gray-50 p-3 rounded border border-gray-200">
-                                          <div className="flex justify-between items-start">
-                                            <div className="flex-1">
-                                              <div className="font-semibold text-gray-800 mb-2">
-                                                Iteration {index + 1}
-                                              </div>
-                                              {editingIterationIndex === index ? (
-                                                <div className="space-y-3">
-                                                  {/* Time Blocks */}
-                                                  <div className="space-y-3">
-                                                    <label className="block text-xs font-semibold text-gray-700 mb-1">Time Blocks *</label>
-                                                    {((iteration.timeBlocks && iteration.timeBlocks.length > 0) ? iteration.timeBlocks : [{ daysOfWeek: iteration.daysOfWeek || [], startTime: iteration.startTime || '18:00:00', endTime: iteration.endTime || '19:30:00' }]).map((timeBlock, timeBlockIndex) => (
-                                                      <div key={timeBlockIndex} className="bg-white p-3 rounded border border-gray-300 relative">
-                                                        {timeBlockIndex > 0 && (
-                                                          <button
-                                                            type="button"
-                                                            onClick={() => removeTimeBlockFromIteration(index, timeBlockIndex)}
-                                                            className="absolute top-2 right-2 p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
-                                                            title="Remove this time block"
-                                                          >
-                                                            <Trash2 className="w-4 h-4" />
-                                                          </button>
-                                                        )}
-                                                        <div className="mb-2">
-                                                          <label className="block text-xs font-semibold text-gray-700 mb-1">Days of Week *</label>
-                                                          <div className="grid grid-cols-7 gap-1">
-                                                            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, dayIndex) => (
-                                                              <label key={day} className="flex items-center space-x-1">
-                                                                <input
-                                                                  type="checkbox"
-                                                                  checked={(timeBlock.daysOfWeek || []).includes(dayIndex)}
-                                                                  onChange={(e) => {
-                                                                    const currentDays = timeBlock.daysOfWeek || []
-                                                                    let newDays
-                                                                    if (e.target.checked) {
-                                                                      newDays = [...currentDays, dayIndex].sort()
-                                                                    } else {
-                                                                      newDays = currentDays.filter((d: number) => d !== dayIndex)
-                                                                    }
-                                                                    updateTimeBlockInIteration(index, timeBlockIndex, { daysOfWeek: newDays })
-                                                                  }}
-                                                                  className="w-3 h-3 text-vortex-red bg-white border-gray-300 rounded focus:ring-vortex-red"
-                                                                />
-                                                                <span className="text-xs text-gray-700">{day}</span>
-                                                              </label>
-                                                            ))}
-                                                          </div>
-                                                        </div>
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                          <div>
-                                                            <label className="block text-xs font-semibold text-gray-700 mb-1">Start Time *</label>
-                                                            <input
-                                                              type="time"
-                                                              value={timeBlock.startTime ? timeBlock.startTime.substring(0, 5) : '18:00'}
-                                                              onChange={(e) => updateTimeBlockInIteration(index, timeBlockIndex, { startTime: e.target.value || '18:00:00' })}
-                                                              className="w-full px-2 py-1 bg-white text-black rounded border border-gray-300 text-sm"
-                                                            />
-                                                          </div>
-                                                          <div>
-                                                            <label className="block text-xs font-semibold text-gray-700 mb-1">End Time *</label>
-                                                            <input
-                                                              type="time"
-                                                              value={timeBlock.endTime ? timeBlock.endTime.substring(0, 5) : '19:30'}
-                                                              onChange={(e) => updateTimeBlockInIteration(index, timeBlockIndex, { endTime: e.target.value || '19:30:00' })}
-                                                              className="w-full px-2 py-1 bg-white text-black rounded border border-gray-300 text-sm"
-                                                            />
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                    ))}
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => addTimeBlockToIteration(index)}
-                                                      className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-medium w-full justify-center"
-                                                    >
-                                                      <Plus className="w-3 h-3" />
-                                                      Add Another Time Block
-                                                    </button>
-                                                  </div>
-                                                  <div>
-                                                    <label className="block text-xs font-semibold text-gray-700 mb-1">Duration Type *</label>
-                                                    <select
-                                                      value={iteration.durationType || 'indefinite'}
-                                                      onChange={(e) => updateIterationInForm(index, { durationType: e.target.value as 'indefinite' | '3_month_block' | 'finite' })}
-                                                      className="w-full px-2 py-1 bg-white text-black rounded border border-gray-300 text-sm"
-                                                    >
-                                                      <option value="indefinite">Indefinite</option>
-                                                      <option value="3_month_block">3-Month Block</option>
-                                                      <option value="finite">Finite (Specific Dates)</option>
-                                                    </select>
-                                                  </div>
-                                                  {(iteration.durationType === '3_month_block' || iteration.durationType === 'finite') && (
-                                                    <div>
-                                                      <label className="block text-xs font-semibold text-gray-700 mb-1">Start Date *</label>
-                                                      <input
-                                                        type="date"
-                                                        value={iteration.startDate || ''}
-                                                        onChange={(e) => updateIterationInForm(index, { startDate: e.target.value })}
-                                                        className="w-full px-2 py-1 bg-white text-black rounded border border-gray-300 text-sm"
-                                                      />
-                                                    </div>
-                                                  )}
-                                                  {iteration.durationType === 'finite' && (
-                                                    <div>
-                                                      <label className="block text-xs font-semibold text-gray-700 mb-1">End Date *</label>
-                                                      <input
-                                                        type="date"
-                                                        value={iteration.endDate || ''}
-                                                        onChange={(e) => updateIterationInForm(index, { endDate: e.target.value })}
-                                                        className="w-full px-2 py-1 bg-white text-black rounded border border-gray-300 text-sm"
-                                                      />
-                                                    </div>
-                                                  )}
-                                                  <div className="flex gap-2">
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => setEditingIterationIndex(null)}
-                                                      className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-white text-xs font-medium"
-                                                    >
-                                                      Done
-                                                    </button>
-                                                  </div>
-                                                </div>
-                                              ) : (
-                                                <div className="text-sm text-gray-600 space-y-1">
-                                                  <div><span className="font-medium">Time Blocks:</span></div>
-                                                  {((iteration.timeBlocks && iteration.timeBlocks.length > 0) ? iteration.timeBlocks : [{ daysOfWeek: iteration.daysOfWeek || [], startTime: iteration.startTime || '18:00:00', endTime: iteration.endTime || '19:30:00' }]).map((timeBlock, timeBlockIndex) => {
-                                                    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-                                                    const timeBlockDays = (timeBlock.daysOfWeek || []).map((d: number) => dayNames[d]).join(', ')
-                                                    const startTime = timeBlock.startTime ? timeBlock.startTime.substring(0, 5) : '18:00'
-                                                    const endTime = timeBlock.endTime ? timeBlock.endTime.substring(0, 5) : '19:30'
-                                                    return (
-                                                      <div key={timeBlockIndex} className="ml-2 text-xs">
-                                                        {timeBlockDays || 'None'}: {startTime} - {endTime}
-                                                      </div>
-                                                    )
-                                                  })}
-                                                  <div><span className="font-medium">Duration:</span> {
-                                                    iteration.durationType === 'indefinite' ? 'Indefinite' :
-                                                    iteration.durationType === '3_month_block' ? `3-Month Block (from ${iteration.startDate || 'TBD'})` :
-                                                    `Finite (${iteration.startDate || 'TBD'} to ${iteration.endDate || 'TBD'})`
-                                                  }</div>
-                                                </div>
-                                              )}
-                                            </div>
-                                            <div className="flex gap-2 ml-2">
-                                              {editingIterationIndex !== index && (
-                                                <>
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => setEditingIterationIndex(index)}
-                                                    className="flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-medium"
-                                                  >
-                                                    <Edit2 className="w-3 h-3" />
-                                                    Edit
-                                                  </button>
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => removeIterationFromForm(index)}
-                                                    className="flex items-center gap-1 px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-white text-xs font-medium"
-                                                  >
-                                                    <X className="w-3 h-3" />
-                                                    Remove
-                                                  </button>
-                                                </>
-                                              )}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )
-                                    })}
+                                  <div className="space-y-2">
+                                    {(iterationStats[program.id] || []).map((iteration) => (
+                                      <div key={iteration.id} className="text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded border border-gray-200">
+                                        Iteration {iteration.iterationNumber}: legacy enrollment schedule (read-only)
+                                      </div>
+                                    ))}
                                   </div>
                                 )}
                               </div>
@@ -1481,9 +1013,6 @@ export default function AdminClasses() {
                                   onClick={() => {
                                     setEditingProgramId(null)
                                     setProgramFormData({})
-                                    setIterations([])
-                                    setProgramIterations([])
-                                    setEditingIterationIndex(null)
                                   }}
                                   className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
                                 >
@@ -1829,345 +1358,25 @@ export default function AdminClasses() {
         )}
       </AnimatePresence>
 
-      {/* Add Class Modal */}
-      <AnimatePresence>
-        {showClassModal && selectedCategoryForClass && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
-          >
-            <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => {
-                setShowClassModal(false)
-                setSelectedCategoryForClass(null)
-                setProgramFormData({})
-                setProgramIterations([])
-                setEditingIterationIndex(null)
-              }}
-            />
-            <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">
-                  Add New Class
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowClassModal(false)
-                    setSelectedCategoryForClass(null)
-                    setProgramFormData({})
-                    setProgramIterations([])
-                    setEditingIterationIndex(null)
-                  }}
-                  className="text-gray-400 hover:text-white"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Display Name *</label>
-                    <input
-                      type="text"
-                      value={programFormData.displayName || ''}
-                      onChange={(e) => setProgramFormData({ ...programFormData, displayName: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Skill Level</label>
-                    <select
-                      value={programFormData.skillLevel || ''}
-                      onChange={(e) => setProgramFormData({ ...programFormData, skillLevel: e.target.value as Program['skillLevel'] || null })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                    >
-                      <option value="">None (All Levels)</option>
-                      <option value="EARLY_STAGE">Early Stage</option>
-                      <option value="BEGINNER">Beginner</option>
-                      <option value="INTERMEDIATE">Intermediate</option>
-                      <option value="ADVANCED">Advanced</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Minimum Age</label>
-                    <input
-                      type="number"
-                      value={programFormData.ageMin ?? ''}
-                      onChange={(e) => setProgramFormData({ ...programFormData, ageMin: e.target.value ? parseInt(e.target.value) : null })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                      min="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Maximum Age</label>
-                    <input
-                      type="number"
-                      value={programFormData.ageMax ?? ''}
-                      onChange={(e) => setProgramFormData({ ...programFormData, ageMax: e.target.value ? parseInt(e.target.value) : null })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                      min="0"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Description</label>
-                  <textarea
-                    value={programFormData.description || ''}
-                    onChange={(e) => setProgramFormData({ ...programFormData, description: e.target.value })}
-                    rows={4}
-                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Skill Requirements</label>
-                  <input
-                    type="text"
-                    value={programFormData.skillRequirements || ''}
-                    onChange={(e) => setProgramFormData({ ...programFormData, skillRequirements: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                    placeholder="e.g., No Experience Required, Skill Evaluation Required"
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={programFormData.isActive ?? true}
-                    onChange={(e) => setProgramFormData({ ...programFormData, isActive: e.target.checked })}
-                    className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
-                  />
-                  <label className="text-sm font-semibold text-gray-300">Active</label>
-                </div>
-
-                {/* Class Iterations Section */}
-                <div className="border-t border-gray-600 pt-4 mt-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-lg font-semibold text-gray-300">Class Iterations</h4>
-                    <button
-                      type="button"
-                      onClick={addIterationToForm}
-                      className="flex items-center gap-2 px-3 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add Iteration
-                    </button>
-                  </div>
-                  {programIterations.length === 0 ? (
-                    <p className="text-sm text-gray-400">No iterations yet. Add one to set class schedule. A default iteration will be created if none are specified.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {programIterations.map((iteration, index) => {
-                        return (
-                          <div key={index} className="bg-gray-700 p-3 rounded border border-gray-600">
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <div className="font-semibold text-gray-200 mb-2">
-                                  Iteration {index + 1}
-                                </div>
-                                {editingIterationIndex === index ? (
-                                  <div className="space-y-3">
-                                    {/* Time Blocks */}
-                                    <div className="space-y-3">
-                                      <label className="block text-xs font-semibold text-gray-300 mb-1">Time Blocks *</label>
-                                      {((iteration.timeBlocks && iteration.timeBlocks.length > 0) ? iteration.timeBlocks : [{ daysOfWeek: iteration.daysOfWeek || [], startTime: iteration.startTime || '18:00:00', endTime: iteration.endTime || '19:30:00' }]).map((timeBlock, timeBlockIndex) => (
-                                        <div key={timeBlockIndex} className="bg-gray-600 p-3 rounded border border-gray-500 relative">
-                                          {timeBlockIndex > 0 && (
-                                            <button
-                                              type="button"
-                                              onClick={() => removeTimeBlockFromIteration(index, timeBlockIndex)}
-                                              className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded"
-                                              title="Remove this time block"
-                                            >
-                                              <Trash2 className="w-4 h-4" />
-                                            </button>
-                                          )}
-                                          <div className="mb-2">
-                                            <label className="block text-xs font-semibold text-gray-300 mb-1">Days of Week *</label>
-                                            <div className="grid grid-cols-7 gap-1">
-                                              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, dayIndex) => (
-                                                <label key={day} className="flex items-center space-x-1">
-                                                  <input
-                                                    type="checkbox"
-                                                    checked={(timeBlock.daysOfWeek || []).includes(dayIndex)}
-                                                    onChange={(e) => {
-                                                      const currentDays = timeBlock.daysOfWeek || []
-                                                      let newDays
-                                                      if (e.target.checked) {
-                                                        newDays = [...currentDays, dayIndex].sort()
-                                                      } else {
-                                                        newDays = currentDays.filter((d: number) => d !== dayIndex)
-                                                      }
-                                                      updateTimeBlockInIteration(index, timeBlockIndex, { daysOfWeek: newDays })
-                                                    }}
-                                                    className="w-3 h-3 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
-                                                  />
-                                                  <span className="text-xs text-gray-300">{day}</span>
-                                                </label>
-                                              ))}
-                                            </div>
-                                          </div>
-                                          <div className="grid grid-cols-2 gap-2">
-                                            <div>
-                                              <label className="block text-xs font-semibold text-gray-300 mb-1">Start Time *</label>
-                                              <input
-                                                type="time"
-                                                value={timeBlock.startTime ? timeBlock.startTime.substring(0, 5) : '18:00'}
-                                                onChange={(e) => updateTimeBlockInIteration(index, timeBlockIndex, { startTime: e.target.value || '18:00:00' })}
-                                                className="w-full px-2 py-1 bg-gray-700 text-white rounded border border-gray-500 text-sm"
-                                              />
-                                            </div>
-                                            <div>
-                                              <label className="block text-xs font-semibold text-gray-300 mb-1">End Time *</label>
-                                              <input
-                                                type="time"
-                                                value={timeBlock.endTime ? timeBlock.endTime.substring(0, 5) : '19:30'}
-                                                onChange={(e) => updateTimeBlockInIteration(index, timeBlockIndex, { endTime: e.target.value || '19:30:00' })}
-                                                className="w-full px-2 py-1 bg-gray-700 text-white rounded border border-gray-500 text-sm"
-                                              />
-                                            </div>
-                                          </div>
-                                        </div>
-                                      ))}
-                                      <button
-                                        type="button"
-                                        onClick={() => addTimeBlockToIteration(index)}
-                                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-medium w-full justify-center"
-                                      >
-                                        <Plus className="w-3 h-3" />
-                                        Add Another Time Block
-                                      </button>
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-semibold text-gray-300 mb-1">Duration Type *</label>
-                                      <select
-                                        value={iteration.durationType || 'indefinite'}
-                                        onChange={(e) => updateIterationInForm(index, { durationType: e.target.value as 'indefinite' | '3_month_block' | 'finite' })}
-                                        className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
-                                      >
-                                        <option value="indefinite">Indefinite</option>
-                                        <option value="3_month_block">3-Month Block</option>
-                                        <option value="finite">Finite (Specific Dates)</option>
-                                      </select>
-                                    </div>
-                                    {(iteration.durationType === '3_month_block' || iteration.durationType === 'finite') && (
-                                      <div>
-                                        <label className="block text-xs font-semibold text-gray-300 mb-1">Start Date *</label>
-                                        <input
-                                          type="date"
-                                          value={iteration.startDate || ''}
-                                          onChange={(e) => updateIterationInForm(index, { startDate: e.target.value })}
-                                          className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
-                                        />
-                                      </div>
-                                    )}
-                                    {iteration.durationType === 'finite' && (
-                                      <div>
-                                        <label className="block text-xs font-semibold text-gray-300 mb-1">End Date *</label>
-                                        <input
-                                          type="date"
-                                          value={iteration.endDate || ''}
-                                          onChange={(e) => updateIterationInForm(index, { endDate: e.target.value })}
-                                          className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
-                                        />
-                                      </div>
-                                    )}
-                                    <div className="flex gap-2">
-                                      <button
-                                        type="button"
-                                        onClick={() => setEditingIterationIndex(null)}
-                                        className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-white text-xs font-medium"
-                                      >
-                                        Done
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div className="text-sm text-gray-400 space-y-1">
-                                    <div><span className="font-medium">Time Blocks:</span></div>
-                                    {((iteration.timeBlocks && iteration.timeBlocks.length > 0) ? iteration.timeBlocks : [{ daysOfWeek: iteration.daysOfWeek || [], startTime: iteration.startTime || '18:00:00', endTime: iteration.endTime || '19:30:00' }]).map((timeBlock, timeBlockIndex) => {
-                                      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-                                      const timeBlockDays = (timeBlock.daysOfWeek || []).map((d: number) => dayNames[d]).join(', ')
-                                      const startTime = timeBlock.startTime ? timeBlock.startTime.substring(0, 5) : '18:00'
-                                      const endTime = timeBlock.endTime ? timeBlock.endTime.substring(0, 5) : '19:30'
-                                      return (
-                                        <div key={timeBlockIndex} className="ml-2 text-xs">
-                                          {timeBlockDays || 'None'}: {startTime} - {endTime}
-                                        </div>
-                                      )
-                                    })}
-                                    <div><span className="font-medium">Duration:</span> {
-                                      iteration.durationType === 'indefinite' ? 'Indefinite' :
-                                      iteration.durationType === '3_month_block' ? `3-Month Block (from ${iteration.startDate || 'TBD'})` :
-                                      `Finite (${iteration.startDate || 'TBD'} to ${iteration.endDate || 'TBD'})`
-                                    }</div>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex gap-2 ml-2">
-                                {editingIterationIndex !== index && (
-                                  <>
-                                    <button
-                                      type="button"
-                                      onClick={() => setEditingIterationIndex(index)}
-                                      className="flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-medium"
-                                    >
-                                      <Edit2 className="w-3 h-3" />
-                                      Edit
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => removeIterationFromForm(index)}
-                                      className="flex items-center gap-1 px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-white text-xs font-medium"
-                                    >
-                                      <X className="w-3 h-3" />
-                                      Remove
-                                    </button>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-2 justify-end">
-                  <button
-                    onClick={() => {
-                      setShowClassModal(false)
-                      setSelectedCategoryForClass(null)
-                      setProgramFormData({})
-                      setProgramIterations([])
-                      setEditingIterationIndex(null)
-                    }}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm font-medium"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCreateClass}
-                    className="px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium"
-                  >
-                    Create Class
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ClassEventModal
+        open={showClassModal && selectedCategoryForClass != null}
+        programsId={selectedCategoryForClass ?? 0}
+        programsDisplayName={
+          categories.find((c) => c.id === selectedCategoryForClass)?.displayName
+        }
+        editing={editingClassEvent}
+        onClose={() => {
+          setShowClassModal(false)
+          setSelectedCategoryForClass(null)
+          setEditingClassEvent(null)
+        }}
+        onSaved={async () => {
+          await fetchAllPrograms()
+          setShowClassModal(false)
+          setSelectedCategoryForClass(null)
+          setEditingClassEvent(null)
+        }}
+      />
 
     </>
   )

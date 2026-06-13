@@ -352,10 +352,10 @@ export default function AdminEnrollments() {
           </div>
         </div>
 
-        {/* Class Iterations */}
+        {/* Legacy class iteration enrollments (read-only; new schedules use Scheduling slots) */}
         {iterationsLoading ? (
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-            <div className="text-center py-8 text-gray-600">Loading class iterations...</div>
+            <div className="text-center py-8 text-gray-600">Loading legacy class schedules…</div>
           </div>
         ) : programIterations.length > 0 ? (
           <div className="space-y-6">
@@ -519,7 +519,7 @@ export default function AdminEnrollments() {
         ) : (
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
             <p className="text-gray-600">
-              No Class Offerings for this Class Found.
+              No legacy iteration schedules for this class. New signups use Admin → Scheduling → Slots.
             </p>
           </div>
         )}

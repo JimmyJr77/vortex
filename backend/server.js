@@ -14,6 +14,7 @@ import { initAnalyticsTables } from './analytics/initTables.js'
 import { registerAnalyticsRoutes } from './analytics/registerRoutes.js'
 import { initSchedulingTables } from './scheduling/initTables.js'
 import { registerSchedulingRoutes } from './scheduling/registerRoutes.js'
+import { registerProgramsAdminRoutes } from './programs/registerRoutes.js'
 import { applyRegistrationAttribution } from './analytics/adminHandlers.js'
 import { initDbFeatureTables } from './dbfeatures/initTables.js'
 import { registerSchoolsRoutes } from './schools/registerRoutes.js'
@@ -2245,6 +2246,7 @@ app.use('/api/admin', async (req, res, next) => {
 // Analytics & consent (public + admin)
 registerAnalyticsRoutes(app, pool)
 registerSchedulingRoutes(app, pool)
+registerProgramsAdminRoutes(app, pool)
 
 app.get('/api/admin/email/status', async (req, res) => {
   try {
@@ -10688,22 +10690,33 @@ app.post('/api/admin/programs', async (req, res) => {
     const result = await pool.query(insertQuery, insertValues)
     const newProgramId = result.rows[0].id
 
-    // Automatically create iteration 1 with default values (6pm-7:30pm, Mon-Fri, indefinite)
+    // Link scheduling form for slots/signups (replaces default iteration for new class/events)
     try {
-      await pool.query(`
-        INSERT INTO class_iteration (
-          program_id,
-          iteration_number,
-          days_of_week,
-          start_time,
-          end_time,
-          duration_type
+      const { ensureProgramsSchedulingSchema, resolveProgramsSchema } = await import('./programs/schema.js')
+      await ensureProgramsSchedulingSchema(pool)
+      const progSchema = await resolveProgramsSchema(pool)
+      if (progSchema.hasSchedulingProgramLink) {
+        const programsId = categoryId || null
+        const existing = await pool.query(
+          `SELECT id FROM scheduling_form WHERE program_id = $1 AND deleted_at IS NULL LIMIT 1`,
+          [newProgramId],
         )
-        VALUES ($1, 1, ARRAY[1,2,3,4,5], '18:00:00', '19:30:00', 'indefinite')
-      `, [newProgramId])
-    } catch (iterationError) {
-      console.error('Error creating default iteration:', iterationError)
-      // Don't fail the program creation if iteration creation fails
+        if (existing.rows.length === 0) {
+          const cols = ['title', 'description', 'is_active']
+          const vals = [value.displayName, value.description || null, value.isActive !== false]
+          if (progSchema.hasSchedulingProgramsLink && programsId) {
+            cols.push('programs_id', 'program_id')
+            vals.push(programsId, newProgramId)
+          } else {
+            cols.push('program_id')
+            vals.push(newProgramId)
+          }
+          const ph = vals.map((_, i) => `$${i + 1}`).join(', ')
+          await pool.query(`INSERT INTO scheduling_form (${cols.join(', ')}) VALUES (${ph})`)
+        }
+      }
+    } catch (schedErr) {
+      console.error('Error creating scheduling form for class/event:', schedErr)
     }
 
     res.json({
@@ -11175,6 +11188,12 @@ const ensureProgramCategoriesSchema = async () => {
   }
 
   console.log('✅ Program categories schema ensured')
+  try {
+    const { ensureProgramsSchedulingSchema } = await import('./programs/schema.js')
+    await ensureProgramsSchedulingSchema(pool)
+  } catch (err) {
+    console.warn('[ensureProgramCategoriesSchema] unify programs:', err.message)
+  }
 }
 
 // Helper function to ensure class_iteration table exists

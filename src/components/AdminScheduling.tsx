@@ -1,71 +1,86 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Ban, Calendar, Check, Loader2, Mail, MailPlus, Plus, X } from 'lucide-react'
+import { Ban, Calendar, Check, Loader2, Mail, MailPlus, X } from 'lucide-react'
 import AdminSchedulingCategories from './scheduling/AdminSchedulingCategories'
-import AdminSchedulingSignupFields from './scheduling/AdminSchedulingSignupFields'
 import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
+import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
+import AdminSchedulingFormTab from './scheduling/AdminSchedulingFormTab'
+import AdminSchedulingOfferings from './scheduling/AdminSchedulingOfferings'
+import AdminSchedulingCosts from './scheduling/AdminSchedulingCosts'
 import {
   adminDeleteSchedulingForm,
   adminFetchSchedulingForm,
   adminFetchSchedulingForms,
   adminFetchSignups,
   adminFetchOrphanedSignups,
-  adminSaveSchedulingForm,
   adminResendSignupEmail,
-  adminUpdateSignupFields,
   adminUpdateSignupStatus,
   adminUpdateSignupMemberPassword,
   type SchedulingFormDetail,
   type SchedulingFormSummary,
   type SchedulingSignup,
   type SchedulingOrphanedSignup,
+  type SchedulingOffering,
+  type CategorySelection,
 } from '../utils/schedulingApi'
-import { mergeSignupFieldsForSave } from '../config/schedulingSignupFields'
-import { dateInputValue } from '../utils/dateUtils'
+import ClassEventsPanel from './programs/ClassEventsPanel'
+import ProgramsSection from './programs/ProgramsSection'
+import {
+  fetchClassEventSchedulingFormId,
+  fetchTopPrograms,
+  fetchTopProgramsLegacy,
+  type ClassEvent,
+  type TopProgram,
+} from '../utils/programsApi'
 
-type Panel = 'settings' | 'categories' | 'slots' | 'signups'
-
-const emptyForm = (): Partial<SchedulingFormSummary> & { title: string } => ({
-  title: '',
-  description: '',
-  startDate: null,
-  endDate: null,
-  isActive: true,
-  maxSlotsPerUser: null,
-  slotCostMonthlyCents: 0,
-  freeSlotsPerUser: 0,
-})
+type Panel = 'overview' | 'form' | 'classEvents' | 'categories' | 'offerings' | 'slots' | 'costs' | 'signups'
 
 const PANELS: { id: Panel; label: string }[] = [
-  { id: 'settings', label: 'Settings' },
+  { id: 'overview', label: 'Overview' },
+  { id: 'form', label: 'Form' },
+  { id: 'classEvents', label: 'Classes & Events' },
   { id: 'categories', label: 'Categories' },
+  { id: 'offerings', label: 'Offerings' },
   { id: 'slots', label: 'Slots' },
+  { id: 'costs', label: 'Costs' },
   { id: 'signups', label: 'Signups' },
 ]
 
 const AdminScheduling = () => {
+  const [topPrograms, setTopPrograms] = useState<TopProgram[]>([])
+  const [selectedProgramId, setSelectedProgramId] = useState<number | null>(null)
+  const [selectedClassEvent, setSelectedClassEvent] = useState<ClassEvent | null>(null)
   const [forms, setForms] = useState<SchedulingFormSummary[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [detail, setDetail] = useState<SchedulingFormDetail | null>(null)
   const [signups, setSignups] = useState<SchedulingSignup[]>([])
   const [orphanedSignups, setOrphanedSignups] = useState<SchedulingOrphanedSignup[]>([])
-  const [panel, setPanel] = useState<Panel>('settings')
+  const [panel, setPanel] = useState<Panel>('overview')
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [formDraft, setFormDraft] = useState(emptyForm())
+  const [selectedCategory, setSelectedCategory] = useState<CategorySelection>(null)
+  const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
-  const [signupFieldsDraft, setSignupFieldsDraft] = useState<string[]>([])
-  const [mandateWaiverDraft, setMandateWaiverDraft] = useState(false)
-  const [settingsSaved, setSettingsSaved] = useState(false)
   const [signupActionId, setSignupActionId] = useState<number | null>(null)
   const [passwordDrafts, setPasswordDrafts] = useState<Record<number, string>>({})
   const [passwordSavingId, setPasswordSavingId] = useState<number | null>(null)
 
   const iconActionClass =
     'p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none'
+
+  const loadTopPrograms = useCallback(async () => {
+    try {
+      const data = await fetchTopPrograms(false)
+      setTopPrograms(data.filter((p) => !p.archived))
+      return data
+    } catch {
+      const legacy = await fetchTopProgramsLegacy(false).catch(() => [])
+      setTopPrograms(legacy.filter((p) => !p.archived))
+      return legacy
+    }
+  }, [])
 
   const loadForms = useCallback(async () => {
     const data = await adminFetchSchedulingForms()
@@ -76,21 +91,6 @@ const AdminScheduling = () => {
   const loadDetail = useCallback(async (id: number) => {
     const data = await adminFetchSchedulingForm(id)
     setDetail(data)
-    const startDate = dateInputValue(data.startDate) || null
-    const endDate = dateInputValue(data.endDate) || null
-    setFormDraft({
-      title: data.title,
-      description: data.description,
-      startDate,
-      endDate,
-      isActive: data.isActive,
-      maxSlotsPerUser: data.maxSlotsPerUser ?? null,
-      slotCostMonthlyCents: data.slotCostMonthlyCents ?? 0,
-      freeSlotsPerUser: data.freeSlotsPerUser ?? 0,
-    })
-    setSignupFieldsDraft(data.signupFields)
-    setMandateWaiverDraft(data.mandateWaiver ?? false)
-    setSettingsSaved(false)
   }, [])
 
   const loadSignups = useCallback(async (formId: number) => {
@@ -103,30 +103,73 @@ const AdminScheduling = () => {
     setOrphanedSignups(data)
   }, [])
 
-  useEffect(() => {
-    loadForms()
-      .then((data) => {
-        if (data.length > 0 && !selectedId) setSelectedId(data[0].id)
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
-  }, [loadForms, selectedId])
+  const loadSchedulingForClassEvent = useCallback(
+    async (classEvent: ClassEvent | null) => {
+      if (!classEvent) {
+        setSelectedId(null)
+        setDetail(null)
+        setSignups([])
+        setOrphanedSignups([])
+        setSelectedCategory(null)
+        setSelectedOffering(null)
+        return
+      }
+      try {
+        const formId =
+          classEvent.schedulingFormId ?? (await fetchClassEventSchedulingFormId(classEvent.id))
+        setSelectedId(formId)
+        await Promise.allSettled([
+          loadDetail(formId),
+          loadSignups(formId),
+          loadOrphanedSignups(formId),
+        ])
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load scheduling form')
+      }
+    },
+    [loadDetail, loadSignups, loadOrphanedSignups],
+  )
+
+  const handleSelectClassEvent = useCallback(
+    async (event: ClassEvent | null) => {
+      setSelectedClassEvent(event)
+      setLoading(true)
+      setError(null)
+      try {
+        await loadSchedulingForClassEvent(event)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [loadSchedulingForClassEvent],
+  )
+
+  const handleSelectProgram = useCallback(
+    (program: TopProgram | null) => {
+      setSelectedProgramId(program?.id ?? null)
+      setSelectedClassEvent(null)
+      setSelectedId(null)
+      setDetail(null)
+      setSignups([])
+      setOrphanedSignups([])
+      setSelectedCategory(null)
+      setSelectedOffering(null)
+      setPanel('overview')
+    },
+    [],
+  )
 
   useEffect(() => {
-    if (!selectedId) return
-    setLoading(true)
-    setError(null)
-    Promise.allSettled([loadDetail(selectedId), loadSignups(selectedId), loadOrphanedSignups(selectedId)]).then((results) => {
-      const failures = results
-        .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
-        .map((r) => (r.reason instanceof Error ? r.reason.message : 'Failed to load scheduling data'))
-      if (failures.length === results.length) {
-        setError(failures[0])
-      } else if (failures.length > 0) {
-        setError(failures.join(' · '))
-      }
-    }).finally(() => setLoading(false))
-  }, [selectedId, loadDetail, loadSignups, loadOrphanedSignups])
+    loadTopPrograms()
+      .then((data) => {
+        const active = data.filter((p) => !p.archived)
+        if (active.length > 0 && !selectedProgramId) {
+          setSelectedProgramId(active[0].id)
+        }
+      })
+      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load programs'))
+      .finally(() => setLoading(false))
+  }, [loadTopPrograms, selectedProgramId])
 
   const refresh = async () => {
     if (!selectedId) return
@@ -136,51 +179,41 @@ const AdminScheduling = () => {
     await loadForms()
   }
 
-  const handleCreateForm = async () => {
-    setSaving(true)
-    setError(null)
-    try {
-      const created = await adminSaveSchedulingForm({ title: 'New scheduling form', isActive: false })
-      await loadForms()
-      setSelectedId(created.id)
-      setPanel('settings')
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to create form')
-    } finally {
-      setSaving(false)
-    }
+  const selectedProgram = topPrograms.find((p) => p.id === selectedProgramId) ?? null
+
+  const overviewReady = Boolean(selectedProgram?.schedulingOverviewSavedAt)
+  const needsClassEvent = ['offerings', 'slots', 'costs', 'signups'].includes(panel)
+  const showClassEventPrompt = needsClassEvent && !selectedClassEvent
+  const showCategoryPrompt =
+    ['offerings', 'slots'].includes(panel) && selectedClassEvent && selectedCategory === null
+  const showOfferingPrompt =
+    ['offerings', 'slots'].includes(panel) && selectedClassEvent && selectedCategory !== null && !selectedOffering
+
+  const handleCategorySelect = useCallback((selection: CategorySelection) => {
+    setSelectedCategory(selection)
+    setSelectedOffering(null)
+  }, [])
+
+  const categoryApiId =
+    selectedCategory === 'none' ? null : typeof selectedCategory === 'number' ? selectedCategory : undefined
+
+  const categoryDisplayName =
+    selectedCategory === 'none'
+      ? 'No Category'
+      : typeof selectedCategory === 'number' && detail
+        ? (detail.allCategories?.find((c) => c.id === selectedCategory)?.name ??
+          detail.categories.find((c) => c.id === selectedCategory)?.name ??
+          null)
+        : null
+
+  const handleProgramSaved = (updated: TopProgram) => {
+    setTopPrograms((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))
   }
 
-  const handleSaveSettings = async () => {
-    if (!selectedId) return
-    setSaving(true)
-    setError(null)
-    setSettingsSaved(false)
-    const startDate = dateInputValue(formDraft.startDate) || null
-    const endDate = dateInputValue(formDraft.endDate) || null
-    const formPayload = { ...formDraft, startDate, endDate }
-    try {
-      const mergedFields = mergeSignupFieldsForSave(signupFieldsDraft, mandateWaiverDraft)
-      await Promise.all([
-        adminSaveSchedulingForm(formPayload, selectedId),
-        adminUpdateSignupFields(selectedId, mergedFields, mandateWaiverDraft),
-      ])
-      // Keep the dates the user saved — production API may still return legacy strings.
-      setFormDraft((d) => ({ ...d, ...formPayload }))
-      setDetail((prev) => (prev ? { ...prev, startDate, endDate } : prev))
-      await loadSignups(selectedId)
-      await loadForms()
-      const data = await adminFetchSchedulingForm(selectedId)
-      setDetail({ ...data, startDate, endDate })
-      setSignupFieldsDraft(data.signupFields)
-      setMandateWaiverDraft(data.mandateWaiver ?? false)
-      setSettingsSaved(true)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to save')
-    } finally {
-      setSaving(false)
-    }
-  }
+  const handleOfferingSelect = useCallback((offering: SchedulingOffering | null) => {
+    setSelectedOffering(offering)
+    if (offering) setSelectedCategory(offering.categoryId ?? 'none')
+  }, [])
 
   const openDeleteConfirm = () => {
     if (!selectedId) return
@@ -200,9 +233,11 @@ const AdminScheduling = () => {
     try {
       await adminDeleteSchedulingForm(selectedId)
       closeDeleteConfirm()
-      const data = await loadForms()
-      setSelectedId(data[0]?.id ?? null)
+      setSelectedClassEvent(null)
+      setSelectedId(null)
       setDetail(null)
+      setSignups([])
+      setOrphanedSignups([])
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to delete form')
     } finally {
@@ -210,7 +245,7 @@ const AdminScheduling = () => {
     }
   }
 
-  if (loading && forms.length === 0) {
+  if (loading && topPrograms.length === 0) {
     return (
       <div className="flex justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-vortex-red" />
@@ -222,55 +257,61 @@ const AdminScheduling = () => {
     <div className="container-custom py-8">
       <div className="flex flex-col lg:flex-row gap-6">
         <aside className="lg:w-64 shrink-0">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-black">Forms</h2>
-            <button
-              type="button"
-              onClick={handleCreateForm}
-              disabled={saving}
-              className="p-2 rounded-lg bg-vortex-red text-white hover:bg-red-700"
-              title="New form"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
+          <div className="mb-4">
+            <h2 className="text-lg font-bold text-black">Programs</h2>
           </div>
-          <div className="space-y-2">
-            {forms.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setSelectedId(f.id)}
-                className={`w-full text-left rounded-lg px-4 py-3 border transition-colors ${
-                  selectedId === f.id
-                    ? 'border-vortex-red bg-red-50 text-black font-semibold'
-                    : 'border-gray-200 hover:border-gray-400 text-gray-700'
-                }`}
-              >
-                {f.title}
-                {!f.isActive && <span className="text-xs text-gray-500 block">Inactive</span>}
-              </button>
-            ))}
-          </div>
+          <ProgramsSection
+            compact
+            selectedProgramId={selectedProgramId}
+            onSelectProgram={handleSelectProgram}
+          />
         </aside>
 
         <div className="flex-1 min-w-0">
-          {!selectedId || !detail ? (
-            <p className="text-gray-600">Create or select a scheduling form to manage.</p>
+          {!selectedProgramId ? (
+            <p className="text-gray-600">Select or create a program in the sidebar.</p>
           ) : (
             <>
+              <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900">
+                Program: <strong>{selectedProgram?.displayName}</strong>
+                {selectedClassEvent ? (
+                  <>
+                    {' '}
+                    · Class/Event: <strong>{selectedClassEvent.displayName}</strong>
+                    {selectedCategory !== null && (
+                      <>
+                        {' '}
+                        · Category: <strong>{categoryDisplayName ?? 'Selected'}</strong>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-amber-700"> · Select a class or event in Classes &amp; Events</span>
+                )}
+              </div>
+
               <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 pb-4">
-                {PANELS.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setPanel(p.id)}
-                    className={`px-4 py-2 rounded-lg font-semibold ${
-                      panel === p.id ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
+                {PANELS.map((p) => {
+                  const locked = p.id === 'classEvents' && !overviewReady
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      disabled={locked}
+                      title={locked ? 'Complete Overview first' : undefined}
+                      onClick={() => !locked && setPanel(p.id)}
+                      className={`px-4 py-2 rounded-lg font-semibold ${
+                        panel === p.id
+                          ? 'bg-vortex-red text-white'
+                          : locked
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  )
+                })}
               </div>
 
               {error && (
@@ -280,183 +321,99 @@ const AdminScheduling = () => {
                 </div>
               )}
 
-              {panel === 'settings' && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10 max-w-2xl">
-                  <section className="space-y-4">
-                    <h3 className="text-lg font-bold text-black">Form details</h3>
-                    <div>
-                      <label className="block text-sm font-semibold mb-1">Title</label>
-                      <input
-                        value={formDraft.title}
-                        onChange={(e) => {
-                          setFormDraft((d) => ({ ...d, title: e.target.value }))
-                          setSettingsSaved(false)
-                        }}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold mb-1">Description</label>
-                      <textarea
-                        rows={3}
-                        value={formDraft.description || ''}
-                        onChange={(e) => {
-                          setFormDraft((d) => ({ ...d, description: e.target.value }))
-                          setSettingsSaved(false)
-                        }}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold mb-1">Start date</label>
-                        <input
-                          type="date"
-                          value={dateInputValue(formDraft.startDate)}
-                          onChange={(e) => {
-                            setFormDraft((d) => ({ ...d, startDate: e.target.value || null }))
-                            setSettingsSaved(false)
-                          }}
-                          className="w-full rounded-lg border border-gray-300 px-4 py-2"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold mb-1">End date</label>
-                        <input
-                          type="date"
-                          value={dateInputValue(formDraft.endDate)}
-                          onChange={(e) => {
-                            setFormDraft((d) => ({ ...d, endDate: e.target.value || null }))
-                            setSettingsSaved(false)
-                          }}
-                          className="w-full rounded-lg border border-gray-300 px-4 py-2"
-                        />
-                      </div>
-                    </div>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={formDraft.isActive !== false}
-                        onChange={(e) => {
-                          setFormDraft((d) => ({ ...d, isActive: e.target.checked }))
-                          setSettingsSaved(false)
-                        }}
-                      />
-                      <span className="font-semibold">Active (visible on /scheduling)</span>
-                    </label>
-                  </section>
+              {showClassEventPrompt && (
+                <p className="text-gray-600 py-8">
+                  Select a class or event in the <strong>Classes &amp; Events</strong> tab to manage{' '}
+                  {panel}.
+                </p>
+              )}
 
-                  <section className="border-t border-gray-200 pt-8 space-y-4">
-                    <h3 className="text-lg font-bold text-black">Availability and Costs</h3>
-                    <div>
-                      <label className="block text-sm font-semibold mb-1">Max slots per user</label>
-                      <input
-                        type="number"
-                        min={1}
-                        placeholder="Unlimited"
-                        value={formDraft.maxSlotsPerUser ?? ''}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          setFormDraft((d) => ({
-                            ...d,
-                            maxSlotsPerUser: v === '' ? null : Math.max(1, Number(v)),
-                          }))
-                          setSettingsSaved(false)
-                        }}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">Leave empty for no limit on this form.</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold mb-1">Cost per slot per month ($)</label>
-                      <input
-                        type="number"
-                        min={0}
-                        step={0.01}
-                        value={(formDraft.slotCostMonthlyCents ?? 0) / 100}
-                        onChange={(e) => {
-                          const dollars = Number(e.target.value) || 0
-                          setFormDraft((d) => ({
-                            ...d,
-                            slotCostMonthlyCents: Math.round(dollars * 100),
-                          }))
-                          setSettingsSaved(false)
-                        }}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold mb-1">Free slots per user</label>
-                      <input
-                        type="number"
-                        min={0}
-                        value={formDraft.freeSlotsPerUser ?? 0}
-                        onChange={(e) => {
-                          setFormDraft((d) => ({
-                            ...d,
-                            freeSlotsPerUser: Math.max(0, Number(e.target.value) || 0),
-                          }))
-                          setSettingsSaved(false)
-                        }}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
-                      />
-                    </div>
-                  </section>
+              {panel === 'overview' && selectedProgram && (
+                <AdminSchedulingOverview program={selectedProgram} onSaved={handleProgramSaved} />
+              )}
 
-                  <section className="border-t border-gray-200 pt-8">
-                    <h3 className="text-lg font-bold text-black mb-4">Signup fields</h3>
-                    <AdminSchedulingSignupFields
-                      selected={signupFieldsDraft}
-                      waiverEnabled={mandateWaiverDraft}
-                      onSelectedChange={(fields) => {
-                        setSignupFieldsDraft(fields)
-                        setSettingsSaved(false)
-                      }}
-                      onWaiverChange={(enabled) => {
-                        setMandateWaiverDraft(enabled)
-                        setSettingsSaved(false)
-                      }}
-                    />
-                  </section>
+              {panel === 'form' && selectedProgram && (
+                <AdminSchedulingFormTab program={selectedProgram} onSaved={handleProgramSaved} />
+              )}
 
-                  <div className="flex flex-wrap items-center gap-3 border-t border-gray-200 pt-8">
-                    <button
-                      type="button"
-                      onClick={handleSaveSettings}
-                      disabled={saving}
-                      className="bg-vortex-red text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-60"
-                    >
-                      Save/Update Form
-                    </button>
-                    <button
-                      type="button"
-                      onClick={openDeleteConfirm}
-                      className="border border-red-300 text-red-700 px-6 py-2 rounded-lg font-semibold hover:bg-red-50"
-                    >
-                      Delete form
-                    </button>
-                    {settingsSaved && <span className="text-green-600 text-sm font-medium">Saved</span>}
-                  </div>
-                </motion.div>
+              {panel === 'classEvents' && selectedProgramId && (
+                overviewReady ? (
+                  <ClassEventsPanel
+                    programsId={selectedProgramId}
+                    programsDisplayName={selectedProgram?.displayName}
+                    selectedClassEventId={selectedClassEvent?.id ?? null}
+                    onSelectClassEvent={handleSelectClassEvent}
+                    onRefresh={refresh}
+                  />
+                ) : (
+                  <p className="text-gray-600 py-8">
+                    Save the <strong>Overview</strong> tab first, then add classes and events.
+                  </p>
+                )
+              )}
+
+              {showCategoryPrompt && (
+                <p className="text-gray-600 py-8">
+                  Select a category in the <strong>Categories</strong> tab to manage {panel}.
+                </p>
+              )}
+
+              {showOfferingPrompt && panel === 'slots' && (
+                <p className="text-gray-600 py-8">
+                  Select an offering in the <strong>Offerings</strong> tab before building slots.
+                </p>
               )}
 
               {panel === 'categories' && (
-                <AdminSchedulingCategories onRefresh={refresh} />
+                <AdminSchedulingCategories
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={handleCategorySelect}
+                  onRefresh={refresh}
+                />
               )}
 
-              {panel === 'slots' && (
+              {panel === 'offerings' && selectedClassEvent && selectedId && selectedCategory !== null && (
+                <AdminSchedulingOfferings
+                  formId={selectedId}
+                  selectedCategory={selectedCategory}
+                  selectedOfferingId={selectedOffering?.id ?? null}
+                  onOfferingSelect={handleOfferingSelect}
+                />
+              )}
+
+              {panel === 'slots' && selectedClassEvent && selectedId && detail && selectedOffering && (
                 <AdminSchedulingSlots
                   formId={selectedId}
                   detail={detail}
-                  formStartDate={formDraft.startDate ?? null}
-                  formEndDate={formDraft.endDate ?? null}
+                  formStartDate={detail.startDate ?? null}
+                  formEndDate={detail.endDate ?? null}
+                  offeringId={selectedOffering.id}
+                  offeringStartDate={selectedOffering.startDate}
+                  offeringEndDate={selectedOffering.endDate}
+                  offeringLabel={selectedOffering.label}
+                  selectedCategoryId={categoryApiId ?? null}
+                  categoryName={categoryDisplayName}
+                  canBuild={Boolean(selectedCategory !== null && selectedOffering)}
                   orphanedSignups={orphanedSignups}
                   forms={forms}
                   onRefresh={refresh}
                 />
               )}
 
-              {panel === 'signups' && (
+              {panel === 'costs' && selectedClassEvent && selectedId && detail && (
+                <div className="space-y-6">
+                  <AdminSchedulingCosts formId={selectedId} detail={detail} onSaved={refresh} />
+                  <button
+                    type="button"
+                    onClick={openDeleteConfirm}
+                    className="border border-red-300 text-red-700 px-6 py-2 rounded-lg font-semibold hover:bg-red-50"
+                  >
+                    Delete scheduling form
+                  </button>
+                </div>
+              )}
+
+                            {panel === 'signups' && selectedClassEvent && selectedId && (
                 <div className="overflow-x-auto">
                   {signups.length === 0 ? (
                     <p className="text-gray-600 flex items-center gap-2"><Calendar className="w-4 h-4" /> No signups yet.</p>
@@ -718,7 +675,7 @@ const AdminScheduling = () => {
               <h2 className="text-2xl font-bold text-red-600 mb-4">Delete scheduling form</h2>
               <p className="text-gray-700 mb-4">
                 Are you sure you want to delete{' '}
-                <strong>{formDraft.title || 'this form'}</strong>? It will be removed from the admin
+                <strong>{selectedClassEvent?.displayName || detail?.title || 'this form'}</strong>? It will be removed from the admin
                 portal and public scheduling page. Signups, slots, and other data will remain in the
                 database.
               </p>

@@ -38,7 +38,11 @@ export async function initSchedulingTables(pool) {
   `)
   await pool.query(`
     ALTER TABLE scheduling_form
-    ADD COLUMN IF NOT EXISTS free_slots_per_user INTEGER NOT NULL DEFAULT 0
+    ADD COLUMN IF NOT EXISTS programs_id BIGINT
+  `)
+  await pool.query(`
+    ALTER TABLE scheduling_form
+    ADD COLUMN IF NOT EXISTS program_id BIGINT
   `)
 
   await pool.query(`
@@ -311,6 +315,53 @@ export async function initSchedulingTables(pool) {
   await pool.query(
     `CREATE INDEX IF NOT EXISTS idx_scheduling_auth_token_email_form ON scheduling_auth_token(email, form_id)`,
   )
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS scheduling_offering (
+      id           BIGSERIAL PRIMARY KEY,
+      form_id      BIGINT NOT NULL REFERENCES scheduling_form(id) ON DELETE CASCADE,
+      category_id  BIGINT NOT NULL REFERENCES scheduling_category(id) ON DELETE CASCADE,
+      start_date   DATE NOT NULL,
+      end_date     DATE NOT NULL,
+      label        VARCHAR(255),
+      is_selected  BOOLEAN NOT NULL DEFAULT FALSE,
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `)
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_offering_form ON scheduling_offering(form_id)`)
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_offering_category ON scheduling_offering(category_id)`)
+  await pool.query(`DROP INDEX IF EXISTS idx_scheduling_offering_selected`)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_scheduling_offering_selected
+    ON scheduling_offering(form_id, category_id) WHERE is_selected = TRUE AND category_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_scheduling_offering_selected_no_cat
+    ON scheduling_offering(form_id) WHERE is_selected = TRUE AND category_id IS NULL
+  `)
+  await pool.query(`
+    ALTER TABLE scheduling_offering
+      ALTER COLUMN category_id DROP NOT NULL
+  `)
+  await pool.query(`
+    ALTER TABLE scheduling_slot_group
+    ADD COLUMN IF NOT EXISTS offering_id BIGINT REFERENCES scheduling_offering(id) ON DELETE SET NULL
+  `)
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_slot_group_offering ON scheduling_slot_group(offering_id)`)
+
+  const fs = await import('fs')
+  const path = await import('path')
+  const { fileURLToPath } = await import('url')
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  const offeringsMigration = path.join(__dirname, '../migrations/add_scheduling_offerings.sql')
+  if (fs.existsSync(offeringsMigration)) {
+    try {
+      await pool.query(fs.readFileSync(offeringsMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] offerings migration:', err.message)
+    }
+  }
 
   console.log('✅ Scheduling tables ready')
 }
