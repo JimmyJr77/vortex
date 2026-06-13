@@ -394,6 +394,8 @@ async function loadFormCategories(pool, formId, { includeInactive = false } = {}
       SELECT category_id FROM scheduling_form_category WHERE form_id = $1
       UNION
       SELECT category_id FROM scheduling_time_slot WHERE form_id = $1 AND category_id IS NOT NULL
+      UNION
+      SELECT category_id FROM scheduling_slot_group WHERE form_id = $1 AND category_id IS NOT NULL
     )
     ${includeInactive ? '' : 'AND c.is_active = TRUE'}
     ORDER BY c.sort_order, c.id
@@ -930,17 +932,22 @@ export function createSchedulingHandlers(pool) {
   return {
     async listPublicForms(_req, res) {
       try {
+        const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import(
+          '../programs/schema.js'
+        )
+        const schema = await resolveProgramsSchema(pool)
+        const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
+        const programActiveClause = hasSchedCols
+          ? `(sf.programs_id IS NULL OR COALESCE(pr.scheduling_active, TRUE) = TRUE)`
+          : 'TRUE'
+
         const result = await pool.query(
           `
           SELECT sf.* FROM scheduling_form sf
-          LEFT JOIN programs pr ON pr.id = sf.programs_id
-          LEFT JOIN program_categories pc ON pc.id = sf.programs_id
+          LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
           WHERE sf.deleted_at IS NULL
             AND sf.is_active = TRUE
-            AND (
-              sf.programs_id IS NULL
-              OR COALESCE(pr.scheduling_active, pc.scheduling_active, TRUE) = TRUE
-            )
+            AND ${programActiveClause}
           ORDER BY sf.created_at DESC
           `,
         )

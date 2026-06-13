@@ -445,6 +445,14 @@ export function registerProgramsAdminRoutes(app, pool) {
       if (result.rows.length === 0) {
         return res.status(404).json({ success: false, message: 'Program not found' })
       }
+      if (hasSchedulingCols && value.schedulingActive !== undefined) {
+        await pool.query(
+          `UPDATE scheduling_form
+           SET is_active = $1, updated_at = CURRENT_TIMESTAMP
+           WHERE programs_id = $2 AND deleted_at IS NULL`,
+          [value.schedulingActive, req.params.id],
+        )
+      }
       res.json({ success: true, data: result.rows[0] })
     } catch (err) {
       console.error('[programs] update top program:', err)
