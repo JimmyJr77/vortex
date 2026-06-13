@@ -37,13 +37,15 @@ const SchedulingExportModalStack = ({ open, prefills, onClose, onComplete }: Pro
         </div>
       )}
       <ClassEventModal
+        key={index}
         open
         programsId={current.programsId}
         programsDisplayName={current.programsDisplayName}
         lockProgram={current.lockProgram}
         editing={current.editing}
+        initialFormData={current.initialFormData}
         initialSchedulingCategoryId={current.schedulingCategoryId}
-        submitLabel="Update class/event"
+        submitLabel={current.editing ? 'Update class/event' : 'Add class/event'}
         parentProgramActive
         onClose={advance}
         onSaved={advance}

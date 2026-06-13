@@ -189,15 +189,17 @@ export function registerProgramsAdminRoutes(app, pool) {
         if (levelResult.rows.length > 0) levelId = levelResult.rows[0].id
       }
 
+      const baseName = value.displayName.toUpperCase().replace(/\s+/g, '_')
       const insertCols = ['facility_id', 'category', fkCol, 'name', 'display_name', 'skill_level']
       const insertVals = [
         facilityId,
         categoryEnum,
         programsId,
-        value.displayName.toUpperCase().replace(/\s+/g, '_'),
+        baseName,
         value.displayName,
         value.skillLevel || null,
       ]
+      const nameValueIndex = 3
       if (programCols.has('level_id')) {
         insertCols.push('level_id')
         insertVals.push(levelId)
@@ -212,8 +214,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       )
 
       const placeholders = insertVals.map((_, i) => `$${i + 1}`).join(', ')
-      const result = await pool.query(
-        `INSERT INTO program (${insertCols.join(', ')}) VALUES (${placeholders})
+      const insertSql = `INSERT INTO program (${insertCols.join(', ')}) VALUES (${placeholders})
          RETURNING
            id,
            ${fkCol} as "programsId",
@@ -228,9 +229,24 @@ export function registerProgramsAdminRoutes(app, pool) {
            is_active as "isActive",
            archived,
            created_at as "createdAt",
-           updated_at as "updatedAt"`,
-        insertVals,
-      )
+           updated_at as "updatedAt"`
+
+      // The program table enforces UNIQUE (facility_id, category, name). The display
+      // name may legitimately repeat (e.g. one class per scheduling category), so keep
+      // display_name as typed and append a hidden numeric suffix to the internal name
+      // until the insert succeeds.
+      let result = null
+      const maxAttempts = 50
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        insertVals[nameValueIndex] = attempt === 1 ? baseName : `${baseName}_${attempt}`
+        try {
+          result = await pool.query(insertSql, insertVals)
+          break
+        } catch (insertErr) {
+          if (insertErr.code === '23505' && attempt < maxAttempts) continue
+          throw insertErr
+        }
+      }
 
       const classEvent = result.rows[0]
       const formId = await createSchedulingFormForClassEvent(pool, classEvent, programsId, schema)

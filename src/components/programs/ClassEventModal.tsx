@@ -27,6 +27,7 @@ interface Props {
   lockProgram?: boolean
   parentProgramActive?: boolean
   editing?: ClassEvent | null
+  initialFormData?: ClassEventFormData
   initialSchedulingCategoryId?: number | null
   submitLabel?: string
   onClose: () => void
@@ -51,6 +52,7 @@ const ClassEventModal = ({
   lockProgram = false,
   parentProgramActive = true,
   editing,
+  initialFormData,
   initialSchedulingCategoryId,
   submitLabel,
   onClose,
@@ -84,6 +86,8 @@ const ClassEventModal = ({
         skillRequirements: editing.skillRequirements || '',
         isActive: editing.isActive,
       })
+    } else if (initialFormData) {
+      setForm({ ...initialFormData })
     } else {
       setForm(emptyForm())
     }
@@ -91,7 +95,7 @@ const ClassEventModal = ({
     setCategorySearch('')
     setCategoryDropdownOpen(false)
     setError(null)
-  }, [open, editing, programsId, initialSchedulingCategoryId])
+  }, [open, editing, initialFormData, programsId, initialSchedulingCategoryId])
 
   useEffect(() => {
     if (!open) return
