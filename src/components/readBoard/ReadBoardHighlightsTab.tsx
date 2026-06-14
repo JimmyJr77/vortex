@@ -1,15 +1,69 @@
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { motion } from 'framer-motion'
+import { Search } from 'lucide-react'
 import type { Highlight } from '../../types/highlights'
 import { getApiUrl } from '../../utils/api'
 import { getHighlightSiteKey } from '../../utils/highlightSite'
 import { HighlightSlide } from '../highlights/HighlightSlide'
 
+function highlightSearchText(h: Highlight): string {
+  const parts = [
+    h.title,
+    h.buttonLabel,
+    h.buttonTextAbove,
+    h.buttonTextBelow,
+  ]
+  if (h.contentType === 'event' && h.event) {
+    parts.push(
+      h.event.eventName,
+      h.event.shortDescription,
+      h.event.longDescription,
+      h.event.address,
+    )
+  }
+  return parts.filter(Boolean).join(' ').toLowerCase()
+}
+
+function matchesSearch(h: Highlight, query: string): boolean {
+  if (!query.trim()) return true
+  return highlightSearchText(h).includes(query.trim().toLowerCase())
+}
+
+function HighlightCtaFooter({ highlight }: { highlight: Highlight }) {
+  const optionalText = highlight.buttonTextAbove?.trim()
+  const showButton = highlight.buttonEnabled && highlight.buttonUrl
+  const textBelowButton = showButton && highlight.buttonTextBelow?.trim()
+
+  if (!optionalText && !showButton && !textBelowButton) return null
+
+  return (
+    <div className="mt-6 space-y-3">
+      {optionalText && (
+        <p className="text-sm text-gray-600 whitespace-pre-wrap">{optionalText}</p>
+      )}
+      {showButton && (
+        <a
+          href={highlight.buttonUrl!}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block bg-vortex-red text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700"
+        >
+          {highlight.buttonLabel?.trim() || 'Learn more'}
+        </a>
+      )}
+      {textBelowButton && (
+        <p className="text-sm text-gray-600 whitespace-pre-wrap">
+          {highlight.buttonTextBelow!.trim()}
+        </p>
+      )}
+    </div>
+  )
+}
+
 const ReadBoardHighlightsTab = () => {
   const [highlights, setHighlights] = useState<Highlight[]>([])
   const [loading, setLoading] = useState(true)
-  const [index, setIndex] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -25,7 +79,6 @@ const ReadBoardHighlightsTab = () => {
         const data = await res.json()
         if (!cancelled) {
           setHighlights(Array.isArray(data.highlights) ? data.highlights : [])
-          setIndex(0)
         }
       } catch {
         if (!cancelled) setHighlights([])
@@ -40,6 +93,11 @@ const ReadBoardHighlightsTab = () => {
     }
   }, [])
 
+  const filteredHighlights = useMemo(
+    () => highlights.filter((h) => matchesSearch(h, searchQuery)),
+    [highlights, searchQuery],
+  )
+
   if (loading) {
     return (
       <section className="section-padding bg-white">
@@ -50,22 +108,6 @@ const ReadBoardHighlightsTab = () => {
     )
   }
 
-  if (highlights.length === 0) {
-    return (
-      <section className="section-padding bg-white">
-        <div className="container-custom text-center py-12">
-          <p className="text-xl text-gray-600">No highlights at this time.</p>
-        </div>
-      </section>
-    )
-  }
-
-  const current = highlights[index]
-  const hasMultiple = highlights.length > 1
-  const optionalText = current?.buttonTextAbove?.trim()
-  const showButton = current?.buttonEnabled && current.buttonUrl
-  const textBelowButton = showButton && current.buttonTextBelow?.trim()
-
   return (
     <section className="section-padding bg-white">
       <div className="container-custom max-w-3xl mx-auto">
@@ -74,92 +116,49 @@ const ReadBoardHighlightsTab = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-2 text-center">
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-8 text-center">
             <span className="text-vortex-red">Highlights</span>
           </h2>
-          {hasMultiple && (
-            <p className="text-sm text-gray-500 text-center mb-8">
-              {index + 1} of {highlights.length}
-            </p>
-          )}
 
-          <div className="relative rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white overflow-hidden">
-            {hasMultiple && (
-              <>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setIndex((i) => (i - 1 + highlights.length) % highlights.length)
-                  }
-                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/90 shadow text-gray-500 hover:text-gray-900"
-                  aria-label="Previous highlight"
-                >
-                  <ChevronLeft className="w-8 h-8" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIndex((i) => (i + 1) % highlights.length)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/90 shadow text-gray-500 hover:text-gray-900"
-                  aria-label="Next highlight"
-                >
-                  <ChevronRight className="w-8 h-8" />
-                </button>
-              </>
-            )}
-
-            <div className="px-4 sm:px-8 py-8 min-h-[280px]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={current?.id ?? index}
-                  initial={{ opacity: 0, x: 12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -12 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {current && <HighlightSlide highlight={current} />}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {hasMultiple && (
-              <div className="flex justify-center gap-2 pb-6">
-                {highlights.map((h, i) => (
-                  <button
-                    key={h.id}
-                    type="button"
-                    onClick={() => setIndex(i)}
-                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                      i === index ? 'bg-vortex-red' : 'bg-gray-300'
-                    }`}
-                    aria-label={`Go to highlight ${i + 1}`}
-                  />
-                ))}
-              </div>
-            )}
-
-            {(optionalText || showButton || textBelowButton) && (
-              <div className="border-t border-gray-200 px-6 py-6 space-y-3 text-center">
-                {optionalText && (
-                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{optionalText}</p>
-                )}
-                {showButton && (
-                  <a
-                    href={current.buttonUrl!}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block bg-vortex-red text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700"
-                  >
-                    {current.buttonLabel?.trim() || 'Learn more'}
-                  </a>
-                )}
-                {textBelowButton && (
-                  <p className="text-sm text-gray-600 whitespace-pre-wrap">
-                    {current.buttonTextBelow!.trim()}
-                  </p>
-                )}
-              </div>
-            )}
+          <div className="relative mb-10">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search highlights…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors text-lg"
+            />
           </div>
+
+          {highlights.length === 0 ? (
+            <p className="text-center text-xl text-gray-600 py-12">No highlights at this time.</p>
+          ) : filteredHighlights.length === 0 ? (
+            <p className="text-center text-xl text-gray-600 py-12">
+              No highlights found matching &ldquo;{searchQuery}&rdquo;
+            </p>
+          ) : (
+            <div>
+              {filteredHighlights.map((highlight, index) => (
+                <article
+                  key={highlight.id}
+                  className={
+                    index < filteredHighlights.length - 1
+                      ? 'border-b border-gray-200 pb-10 mb-10'
+                      : 'pb-4'
+                  }
+                >
+                  {highlight.title?.trim() && (
+                    <h3 className="text-xl font-display font-bold text-black mb-4">
+                      {highlight.title}
+                    </h3>
+                  )}
+                  <HighlightSlide highlight={highlight} />
+                  <HighlightCtaFooter highlight={highlight} />
+                </article>
+              ))}
+            </div>
+          )}
         </motion.div>
       </div>
     </section>

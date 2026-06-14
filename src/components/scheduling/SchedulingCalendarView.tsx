@@ -393,7 +393,7 @@ const SchedulingCalendarView = ({
       return (
         <div className="p-8 text-center">
           <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
-            Select a class above to see its scheduled offerings.
+            Select a class below to see its scheduled offerings.
           </p>
         </div>
       )
@@ -449,82 +449,130 @@ const SchedulingCalendarView = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="inline-flex rounded-lg border overflow-hidden text-sm flex-wrap">
-            {viewModes.map((v) => (
-              <button
-                key={v}
-                type="button"
-                onClick={() => {
-                  onViewChange(v)
-                  if (v === 'week' || v === 'day') {
-                    const { startDate, endDate } = monthRange(year, month)
-                    if (today < startDate || today > endDate) {
-                      // parent handles focus via onViewChange side effect
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="inline-flex rounded-lg border overflow-hidden text-sm flex-wrap">
+              {viewModes.map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => {
+                    onViewChange(v)
+                    if (v === 'week' || v === 'day') {
+                      const { startDate, endDate } = monthRange(year, month)
+                      if (today < startDate || today > endDate) {
+                        // parent handles focus via onViewChange side effect
+                      }
                     }
-                  }
-                }}
-                className={`px-3 py-2 capitalize transition-colors border-r last:border-r-0 ${
-                  isDark ? 'border-gray-600' : 'border-gray-300'
-                } ${
-                  view === v
-                    ? 'bg-vortex-red text-white'
-                    : isDark
-                      ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {v === 'byClass' ? 'By class' : v}
-              </button>
-            ))}
+                  }}
+                  className={`px-3 py-2 capitalize transition-colors border-r last:border-r-0 ${
+                    isDark ? 'border-gray-600' : 'border-gray-300'
+                  } ${
+                    view === v
+                      ? 'bg-vortex-red text-white'
+                      : isDark
+                        ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {v === 'byClass' ? 'By class' : v}
+                </button>
+              ))}
+            </div>
+
+            {view !== 'byClass' || classFilterId !== 'none' ? (
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={onGoBack}
+                  className={`p-2 rounded-lg border transition-colors ${
+                    isDark
+                      ? 'border-gray-600 hover:bg-gray-800'
+                      : 'border-gray-200 hover:bg-gray-50'
+                  }`}
+                  aria-label="Previous period"
+                >
+                  <ChevronLeft className="w-5 h-5 text-vortex-red" />
+                </button>
+                <h2
+                  className={`text-xl font-display font-bold min-w-[200px] text-center ${
+                    isDark ? 'text-white' : 'text-black'
+                  }`}
+                >
+                  {periodTitle(view, year, month, focusDate, selectedClassName)}
+                </h2>
+                <button
+                  type="button"
+                  onClick={onGoForward}
+                  className={`p-2 rounded-lg border transition-colors ${
+                    isDark
+                      ? 'border-gray-600 hover:bg-gray-800'
+                      : 'border-gray-200 hover:bg-gray-50'
+                  }`}
+                  aria-label="Next period"
+                >
+                  <ChevronRight className="w-5 h-5 text-vortex-red" />
+                </button>
+              </div>
+            ) : null}
           </div>
 
-          {view !== 'byClass' || classFilterId !== 'none' ? (
-            <div className="flex items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={onGoBack}
-                className={`p-2 rounded-lg border transition-colors ${
-                  isDark
-                    ? 'border-gray-600 hover:bg-gray-800'
-                    : 'border-gray-200 hover:bg-gray-50'
-                }`}
-                aria-label="Previous period"
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center flex-wrap">
+            {showProgramFilter && view !== 'byClass' && (
+              <select
+                value={programFilterId === 'all' ? 'all' : String(programFilterId)}
+                onChange={(e) =>
+                  onProgramFilterChange(e.target.value === 'all' ? 'all' : Number(e.target.value))
+                }
+                className={selectClass}
               >
-                <ChevronLeft className="w-5 h-5 text-vortex-red" />
-              </button>
-              <h2
-                className={`text-xl font-display font-bold min-w-[200px] text-center ${
-                  isDark ? 'text-white' : 'text-black'
+                <option value="all">All programs</option>
+                {programs.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.displayName}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {showFormActiveFilter && (
+              <div
+                className={`inline-flex rounded-lg border overflow-hidden text-sm ${
+                  isDark ? 'border-gray-600' : 'border-gray-300'
                 }`}
               >
-                {periodTitle(view, year, month, focusDate, selectedClassName)}
-              </h2>
-              <button
-                type="button"
-                onClick={onGoForward}
-                className={`p-2 rounded-lg border transition-colors ${
-                  isDark
-                    ? 'border-gray-600 hover:bg-gray-800'
-                    : 'border-gray-200 hover:bg-gray-50'
-                }`}
-                aria-label="Next period"
-              >
-                <ChevronRight className="w-5 h-5 text-vortex-red" />
-              </button>
-            </div>
-          ) : null}
+                {(['all', 'active', 'inactive'] as const).map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => onFormActiveFilterChange(value)}
+                    className={`px-3 py-2 capitalize transition-colors border-r last:border-r-0 ${
+                      isDark ? 'border-gray-600' : 'border-gray-300'
+                    } ${
+                      formActiveFilter === value
+                        ? 'bg-vortex-red text-white'
+                        : isDark
+                          ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {value}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-center flex-wrap">
-          {view === 'byClass' && (
+        {view === 'byClass' && (
+          <div className="w-full">
             <select
               value={classFilterId === 'none' ? 'none' : String(classFilterId)}
               onChange={(e) =>
                 onClassFilterChange(e.target.value === 'none' ? 'none' : Number(e.target.value))
               }
-              className={selectClass}
+              className={`${selectClass} w-full max-w-md`}
             >
               <option value="none">Select a class…</option>
               {classOptions.map((c) => (
@@ -533,52 +581,8 @@ const SchedulingCalendarView = ({
                 </option>
               ))}
             </select>
-          )}
-
-          {showProgramFilter && view !== 'byClass' && (
-            <select
-              value={programFilterId === 'all' ? 'all' : String(programFilterId)}
-              onChange={(e) =>
-                onProgramFilterChange(e.target.value === 'all' ? 'all' : Number(e.target.value))
-              }
-              className={selectClass}
-            >
-              <option value="all">All programs</option>
-              {programs.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.displayName}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {showFormActiveFilter && (
-            <div
-              className={`inline-flex rounded-lg border overflow-hidden text-sm ${
-                isDark ? 'border-gray-600' : 'border-gray-300'
-              }`}
-            >
-              {(['all', 'active', 'inactive'] as const).map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => onFormActiveFilterChange(value)}
-                  className={`px-3 py-2 capitalize transition-colors border-r last:border-r-0 ${
-                    isDark ? 'border-gray-600' : 'border-gray-300'
-                  } ${
-                    formActiveFilter === value
-                      ? 'bg-vortex-red text-white'
-                      : isDark
-                        ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {value}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {error && (
