@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Calendar, CheckCircle, Clock, Loader2, Plus, Trash2, Users, X } from 'lucide-react'
 import {
   getSignupFieldDef,
@@ -8,21 +8,26 @@ import {
 import SchoolAutocompleteInput from './scheduling/SchoolAutocompleteInput'
 import {
   checkSchedulingEmail,
+  fetchMySchedulingSignups,
   fetchProgramSignupOptions,
   fetchPublicSchedulingForm,
   formatSchedulingOccurrenceLabel,
+  getSchedulingMemberEmail,
   loginSchedulingAuth,
+  memberSignupSlotKey,
   requestSchedulingMagicLink,
   schedulingHasMultipleWeeks,
   submitSchedulingSignupBatch,
   saveSchedulingMemberEmail,
   verifySchedulingAuthToken,
   type ProgramClassOption,
+  type ProgramClassSlotOption,
   type SchedulingFormCategory,
   type SchedulingFormDetail,
   type SchedulingSignup,
   type SchedulingSignupCompleteDetail,
   type SchedulingSlotGroup,
+  type SchedulingTimeSlot,
 } from '../utils/schedulingApi'
 
 function formatTimeLabel(time: string) {
@@ -68,6 +73,120 @@ function getBookableCategories(detail: SchedulingFormDetail): SchedulingFormCate
   return detail.categories.filter((cat) =>
     bookableGroupsForCategory(detail, cat.id ?? null).length > 0,
   )
+}
+
+function categoryBundleKey(formId: number, categoryId: number | null) {
+  return `${formId}:${categoryId ?? 'none'}`
+}
+
+function slotSelectionKey(
+  formId: number,
+  categoryId: number | null,
+  slotGroupId: number,
+  timeSlotId: number,
+) {
+  return `${formId}:${categoryId ?? 'none'}:${slotGroupId}:${timeSlotId}`
+}
+
+function slotOptionFromOccurrence(
+  group: SchedulingSlotGroup,
+  occurrence: SchedulingTimeSlot,
+  includeWeek: boolean,
+  alreadySignedUp = false,
+): ProgramClassSlotOption {
+  return {
+    slotGroupId: group.id,
+    timeSlotId: occurrence.id,
+    label: formatSchedulingOccurrenceLabel(occurrence, {
+      includeWeek,
+      formatTime: formatTimeLabel,
+    }),
+    isFull: group.isFull,
+    spotsRemaining: group.spotsRemaining,
+    waitlistCount: group.waitlistCount ?? 0,
+    alreadySignedUp,
+    scheduleMode: occurrence.scheduleMode,
+    dayOfWeek: occurrence.dayOfWeek,
+    dayName: occurrence.dayName,
+    specificDate: occurrence.specificDate,
+    startTime: occurrence.startTime,
+    endTime: occurrence.endTime,
+    weekLetter: occurrence.weekLetter,
+  }
+}
+
+function bundlesFromFormDetail(
+  detail: SchedulingFormDetail,
+  signedUpSlotKeys: Set<string>,
+): ProgramClassOption[] {
+  const includeWeek = schedulingHasMultipleWeeks(detail.slotGroups ?? [])
+  return getBookableCategories(detail).map((cat) => {
+    const catId = cat.id ?? null
+    const slots = slotOptionsForCategory(detail, catId).map((opt) => {
+      const signedUp = signedUpSlotKeys.has(
+        memberSignupSlotKey({
+          formId: detail.id,
+          categoryId: catId,
+          slotGroupId: opt.slotGroupId,
+          timeSlotId: opt.timeSlotId,
+        }),
+      )
+      return slotOptionFromOccurrence(opt.group, opt.occurrence, includeWeek, signedUp)
+    })
+    return {
+      key: categoryBundleKey(detail.id, catId),
+      formId: detail.id,
+      formTitle: detail.title,
+      categoryId: catId,
+      categoryName: cat.name,
+      slots,
+    }
+  })
+}
+
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number)
+  return h * 60 + m
+}
+
+function sameScheduleDay(a: ProgramClassSlotOption, b: ProgramClassSlotOption): boolean {
+  if (a.scheduleMode === 'date' && b.scheduleMode === 'date') {
+    return Boolean(a.specificDate && a.specificDate === b.specificDate)
+  }
+  if (a.scheduleMode === 'day' && b.scheduleMode === 'day') {
+    return a.dayOfWeek != null && a.dayOfWeek === b.dayOfWeek
+  }
+  return false
+}
+
+function timeRangesOverlap(
+  startA: string,
+  endA: string,
+  startB: string,
+  endB: string,
+): boolean {
+  const s1 = timeToMinutes(startA)
+  const e1 = timeToMinutes(endA)
+  const s2 = timeToMinutes(startB)
+  const e2 = timeToMinutes(endB)
+  return s1 < e2 && s2 < e1
+}
+
+function slotsConflict(a: ProgramClassSlotOption, b: ProgramClassSlotOption): boolean {
+  if (!a.startTime || !a.endTime || !b.startTime || !b.endTime) return false
+  return sameScheduleDay(a, b) && timeRangesOverlap(a.startTime, a.endTime, b.startTime, b.endTime)
+}
+
+function mergeCategoryBundles(
+  primary: ProgramClassOption[],
+  extra: ProgramClassOption[],
+): ProgramClassOption[] {
+  const byKey = new Map<string, ProgramClassOption>()
+  for (const bundle of primary) byKey.set(bundle.key, bundle)
+  for (const bundle of extra) {
+    if (!byKey.has(bundle.key)) byKey.set(bundle.key, bundle)
+  }
+  return [...byKey.values()]
 }
 
 function SignupFieldInput({
@@ -178,6 +297,8 @@ type SignupCartItem = {
   isFull: boolean
 }
 
+type SelectedSlotMap = Record<string, SignupCartItem>
+
 function formatMoney(amount: number) {
   return `$${amount.toFixed(2)}`
 }
@@ -212,10 +333,9 @@ const SchedulingSignupEmbed = ({
   const [cartItems, setCartItems] = useState<SignupCartItem[]>([])
   const [programOptions, setProgramOptions] = useState<ProgramClassOption[]>([])
   const [programOptionsLoading, setProgramOptionsLoading] = useState(false)
-  const [selectedAdditionalKeys, setSelectedAdditionalKeys] = useState<Set<string>>(new Set())
-  const [additionalSlotByKey, setAdditionalSlotByKey] = useState<
-    Record<string, { slotGroupId: number; timeSlotId: number }>
-  >({})
+  const [selectedSlots, setSelectedSlots] = useState<SelectedSlotMap>({})
+  const [browseCategoryKey, setBrowseCategoryKey] = useState<string>('')
+  const [signedUpSlotKeys, setSignedUpSlotKeys] = useState<Set<string>>(new Set())
   const [signupResults, setSignupResults] = useState<SchedulingSignup[]>([])
   const [signupResult, setSignupResult] = useState<SchedulingSignup | null>(null)
   const [identityPhase, setIdentityPhase] = useState<IdentityPhase>('pending')
@@ -241,8 +361,9 @@ const SchedulingSignupEmbed = ({
     setSignupPhase('select')
     setCartItems([])
     setProgramOptions([])
-    setSelectedAdditionalKeys(new Set())
-    setAdditionalSlotByKey({})
+    setSelectedSlots({})
+    setBrowseCategoryKey('')
+    setSignedUpSlotKeys(new Set())
     setSignupResults([])
     setSignupResult(null)
     setError(null)
@@ -294,6 +415,42 @@ const SchedulingSignupEmbed = ({
       .finally(() => setIdentityLoading(false))
   }, [formId, initialAuthToken, initialEmail])
 
+  const loadSignedUpSlots = useCallback(async (email: string) => {
+    try {
+      const signups = await fetchMySchedulingSignups(email)
+      setSignedUpSlotKeys(new Set(signups.map((s) => memberSignupSlotKey(s))))
+    } catch {
+      setSignedUpSlotKeys(new Set())
+    }
+  }, [])
+
+  useEffect(() => {
+    const email =
+      accountEmail.trim() ||
+      initialEmail?.trim() ||
+      getSchedulingMemberEmail()?.trim().toLowerCase() ||
+      ''
+    if (email) void loadSignedUpSlots(email)
+  }, [accountEmail, initialEmail, identityPhase, loadSignedUpSlots])
+
+  const isSlotAlreadySignedUp = useCallback(
+    (
+      targetFormId: number,
+      targetCategoryId: number | null,
+      targetSlotGroupId: number,
+      targetTimeSlotId: number,
+    ) =>
+      signedUpSlotKeys.has(
+        memberSignupSlotKey({
+          formId: targetFormId,
+          categoryId: targetCategoryId,
+          slotGroupId: targetSlotGroupId,
+          timeSlotId: targetTimeSlotId,
+        }),
+      ),
+    [signedUpSlotKeys],
+  )
+
   const bookableCategories = useMemo(
     () => (formDetail ? getBookableCategories(formDetail) : []),
     [formDetail],
@@ -321,13 +478,19 @@ const SchedulingSignupEmbed = ({
     }
 
     if (categoryChanged && slotOptions.length === 1) {
-      setSlotGroupId(slotOptions[0].slotGroupId)
-      setTimeSlotId(slotOptions[0].timeSlotId)
+      const only = slotOptions[0]
+      const signedUp =
+        formDetail &&
+        isSlotAlreadySignedUp(formDetail.id, categoryId ?? null, only.slotGroupId, only.timeSlotId)
+      if (!signedUp) {
+        setSlotGroupId(only.slotGroupId)
+        setTimeSlotId(only.timeSlotId)
+      }
     } else if (categoryChanged) {
       setSlotGroupId(null)
       setTimeSlotId(null)
     }
-  }, [categoryId, formDetail, slotOptions])
+  }, [categoryId, formDetail, slotOptions, isSlotAlreadySignedUp])
 
   const showWeekInLabels = useMemo(
     () => schedulingHasMultipleWeeks(bookableGroups),
@@ -449,26 +612,83 @@ const SchedulingSignupEmbed = ({
     const email = accountEmail.trim() || initialEmail?.trim() || ''
     setProgramOptionsLoading(true)
     fetchProgramSignupOptions(formId, {
-      excludeCategoryId: categoryId,
       email: email || undefined,
     })
-      .then((data) => {
-        setProgramOptions(data.options)
-        setSelectedAdditionalKeys(new Set())
-        const defaults: Record<string, { slotGroupId: number; timeSlotId: number }> = {}
-        for (const opt of data.options) {
-          if (opt.slots[0]) {
-            defaults[opt.key] = {
-              slotGroupId: opt.slots[0].slotGroupId,
-              timeSlotId: opt.slots[0].timeSlotId,
-            }
-          }
-        }
-        setAdditionalSlotByKey(defaults)
-      })
+      .then((data) => setProgramOptions(data.options))
       .catch(() => setProgramOptions([]))
       .finally(() => setProgramOptionsLoading(false))
   }, [formDetail, formId, categoryId, slotGroupId, timeSlotId, identityPhase, accountEmail, initialEmail])
+
+  const categoryBundles = useMemo(() => {
+    if (!formDetail) return []
+    const localBundles = bundlesFromFormDetail(formDetail, signedUpSlotKeys)
+    return mergeCategoryBundles(localBundles, programOptions)
+  }, [formDetail, programOptions, signedUpSlotKeys])
+
+  const currentCategoryKey = useMemo(() => {
+    if (!formDetail || categoryId === undefined) return null
+    return categoryBundleKey(formDetail.id, categoryId)
+  }, [formDetail, categoryId])
+
+  const currentCategoryBundle = useMemo(
+    () => categoryBundles.find((b) => b.key === currentCategoryKey) ?? null,
+    [categoryBundles, currentCategoryKey],
+  )
+
+  const otherCategoryBundles = useMemo(() => {
+    if (!currentCategoryKey) return categoryBundles
+    return categoryBundles.filter((b) => b.key !== currentCategoryKey)
+  }, [categoryBundles, currentCategoryKey])
+
+  useEffect(() => {
+    if (otherCategoryBundles.length === 0) {
+      setBrowseCategoryKey('')
+      return
+    }
+    if (!browseCategoryKey || !otherCategoryBundles.some((b) => b.key === browseCategoryKey)) {
+      setBrowseCategoryKey(otherCategoryBundles[0].key)
+    }
+  }, [otherCategoryBundles, browseCategoryKey])
+
+  const browseCategoryBundle = useMemo(
+    () => otherCategoryBundles.find((b) => b.key === browseCategoryKey) ?? null,
+    [otherCategoryBundles, browseCategoryKey],
+  )
+
+  const selectedSlotList = useMemo(() => Object.values(selectedSlots), [selectedSlots])
+
+  useEffect(() => {
+    if (!formDetail || categoryId === undefined || !slotGroupId || !timeSlotId) return
+    const bundle = currentCategoryBundle
+    const slot = bundle?.slots.find(
+      (s) => s.slotGroupId === slotGroupId && s.timeSlotId === timeSlotId,
+    )
+    if (!bundle || !slot) return
+    const catKey = bundle.key
+    setSelectedSlots((prev) => {
+      const existing = prev[catKey]
+      if (
+        existing?.slotGroupId === slotGroupId &&
+        existing?.timeSlotId === timeSlotId
+      ) {
+        return prev
+      }
+      return {
+        ...prev,
+        [catKey]: {
+          key: catKey,
+          formId: bundle.formId,
+          formTitle: bundle.formTitle,
+          categoryId: bundle.categoryId,
+          categoryName: bundle.categoryName,
+          slotGroupId,
+          timeSlotId,
+          slotLabel: slot.label,
+          isFull: slot.isFull,
+        },
+      }
+    })
+  }, [formDetail, categoryId, slotGroupId, timeSlotId, currentCategoryBundle])
 
   const sectionClass = compact
     ? 'bg-white rounded-xl border border-gray-200 p-4 shadow-sm'
@@ -483,6 +703,9 @@ const SchedulingSignupEmbed = ({
   const showNewUserForm = slotSelected && identityReady && isNewUser && signupPhase === 'select'
   const showSubmit = slotSelected && identityReady && signupPhase === 'select'
   const showReview = signupPhase === 'review'
+  const showAddMoreClasses =
+    showSubmit &&
+    (categoryBundles.length > 1 || categoryBundles.some((b) => b.slots.length > 1))
 
   const selectedCategoryName = useMemo(() => {
     if (categoryId === undefined || !formDetail) return null
@@ -499,72 +722,150 @@ const SchedulingSignupEmbed = ({
     [slotOptions, timeSlotId],
   )
 
-  const buildPrimaryCartItem = (): SignupCartItem | null => {
-    if (!formDetail || categoryId === undefined || !slotGroupId || !timeSlotId) return null
-    const slotLabel =
-      selectedGroup?.displayLabel ||
-      selectedOccurrence?.displayLabel ||
-      (selectedOccurrence
-        ? formatSchedulingOccurrenceLabel(selectedOccurrence, {
-            includeWeek: showWeekInLabels,
-            formatTime: formatTimeLabel,
-          })
-        : '')
-    return {
-      key: `${formDetail.id}:${categoryId ?? 'none'}`,
-      formId: formDetail.id,
-      formTitle: formDetail.title,
-      categoryId,
-      categoryName: selectedCategoryName || 'No Category',
-      slotGroupId,
-      timeSlotId,
-      slotLabel,
-      isFull: Boolean(selectedGroup?.isFull),
+  const buildCartItems = (): SignupCartItem[] => Object.values(selectedSlots)
+
+  const slotConflictsWithSelected = (
+    slot: ProgramClassSlotOption,
+    bundle: ProgramClassOption,
+  ): boolean => {
+    const thisKey = slotSelectionKey(
+      bundle.formId,
+      bundle.categoryId,
+      slot.slotGroupId,
+      slot.timeSlotId,
+    )
+    for (const item of selectedSlotList) {
+      const selectedBundle = categoryBundles.find((b) => b.key === item.key)
+      const selectedSlot = selectedBundle?.slots.find(
+        (s) => s.slotGroupId === item.slotGroupId && s.timeSlotId === item.timeSlotId,
+      )
+      if (!selectedSlot) continue
+      const otherKey = slotSelectionKey(
+        item.formId,
+        item.categoryId,
+        item.slotGroupId,
+        item.timeSlotId,
+      )
+      if (otherKey === thisKey) continue
+      if (slotsConflict(slot, selectedSlot)) return true
     }
+    return false
   }
 
-  const toggleAdditionalOption = (opt: ProgramClassOption, checked: boolean) => {
-    setSelectedAdditionalKeys((prev) => {
-      const next = new Set(prev)
-      if (checked) next.add(opt.key)
-      else next.delete(opt.key)
+  const toggleCategorySlot = (
+    bundle: ProgramClassOption,
+    slot: ProgramClassSlotOption,
+    checked: boolean,
+  ) => {
+    if (slot.alreadySignedUp) return
+    const catKey = bundle.key
+    if (checked) {
+      if (slotConflictsWithSelected(slot, bundle)) return
+      const item: SignupCartItem = {
+        key: catKey,
+        formId: bundle.formId,
+        formTitle: bundle.formTitle,
+        categoryId: bundle.categoryId,
+        categoryName: bundle.categoryName,
+        slotGroupId: slot.slotGroupId,
+        timeSlotId: slot.timeSlotId,
+        slotLabel: slot.label,
+        isFull: slot.isFull,
+      }
+      setSelectedSlots((prev) => ({ ...prev, [catKey]: item }))
+      if (bundle.formId === formDetail?.id && bundle.categoryId === categoryId) {
+        setSlotGroupId(slot.slotGroupId)
+        setTimeSlotId(slot.timeSlotId)
+      }
+      return
+    }
+
+    if (Object.keys(selectedSlots).length <= 1 && selectedSlots[catKey]) {
+      setError('At least one class time must remain selected')
+      return
+    }
+    setError(null)
+    setSelectedSlots((prev) => {
+      const next = { ...prev }
+      delete next[catKey]
+      if (bundle.formId === formDetail?.id && bundle.categoryId === categoryId) {
+        const remaining = Object.values(next)
+        if (remaining[0]) {
+          setSlotGroupId(remaining[0].slotGroupId)
+          setTimeSlotId(remaining[0].timeSlotId)
+          if (remaining[0].formId === formDetail?.id) {
+            setCategoryId(remaining[0].categoryId)
+          }
+        } else {
+          setSlotGroupId(null)
+          setTimeSlotId(null)
+        }
+      }
       return next
     })
-    if (checked && !additionalSlotByKey[opt.key] && opt.slots[0]) {
-      setAdditionalSlotByKey((prev) => ({
-        ...prev,
-        [opt.key]: {
-          slotGroupId: opt.slots[0].slotGroupId,
-          timeSlotId: opt.slots[0].timeSlotId,
-        },
-      }))
-    }
   }
 
-  const buildCartItems = (): SignupCartItem[] => {
-    const primary = buildPrimaryCartItem()
-    if (!primary) return []
-    const items = [primary]
-    for (const opt of programOptions) {
-      if (!selectedAdditionalKeys.has(opt.key)) continue
-      const slotPick = additionalSlotByKey[opt.key] ?? opt.slots[0]
-      if (!slotPick) continue
-      const slotMeta = opt.slots.find(
-        (s) => s.slotGroupId === slotPick.slotGroupId && s.timeSlotId === slotPick.timeSlotId,
-      )
-      items.push({
-        key: opt.key,
-        formId: opt.formId,
-        formTitle: opt.formTitle,
-        categoryId: opt.categoryId,
-        categoryName: opt.categoryName,
-        slotGroupId: slotPick.slotGroupId,
-        timeSlotId: slotPick.timeSlotId,
-        slotLabel: slotMeta?.label || opt.categoryName,
-        isFull: Boolean(slotMeta?.isFull),
-      })
-    }
-    return items
+  const renderCategorySlotList = (bundle: ProgramClassOption) => {
+    const selectedForCategory = selectedSlots[bundle.key]
+
+    return (
+      <ul className="space-y-2">
+        {bundle.slots.map((slot) => {
+          const isChecked =
+            slot.alreadySignedUp ||
+            (selectedForCategory?.slotGroupId === slot.slotGroupId &&
+              selectedForCategory?.timeSlotId === slot.timeSlotId)
+          const hasConflict =
+            !isChecked &&
+            !slot.alreadySignedUp &&
+            slotConflictsWithSelected(slot, bundle)
+          const inputId = `slot-${bundle.key}-${slot.slotGroupId}-${slot.timeSlotId}`
+
+          return (
+            <li key={inputId}>
+              <label
+                htmlFor={inputId}
+                className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
+                  slot.alreadySignedUp
+                    ? 'border-gray-200 bg-gray-100 opacity-70 cursor-not-allowed'
+                    : hasConflict
+                      ? 'border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed'
+                      : isChecked
+                        ? 'border-vortex-red bg-red-50/40 cursor-pointer'
+                        : 'border-gray-200 hover:border-gray-300 cursor-pointer'
+                }`}
+              >
+                <input
+                  id={inputId}
+                  type="checkbox"
+                  checked={isChecked}
+                  disabled={hasConflict || slot.alreadySignedUp}
+                  onChange={(e) => toggleCategorySlot(bundle, slot, e.target.checked)}
+                  className="mt-0.5"
+                />
+                <span className="flex-1 min-w-0">
+                  <span className="font-semibold text-black block">{slot.label}</span>
+                  <span className="text-xs text-gray-600 mt-1 flex items-center gap-2">
+                    <Users className="w-3.5 h-3.5 shrink-0" />
+                    {slot.alreadySignedUp
+                      ? 'Already signed up'
+                      : slot.isFull
+                        ? `Full — join waitlist${slot.waitlistCount > 0 ? ` (${slot.waitlistCount} waiting)` : ''}`
+                        : `${slot.spotsRemaining} spots left`}
+                  </span>
+                </span>
+                {hasConflict && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-xs font-semibold shrink-0">
+                    <Clock className="w-3 h-3" />
+                    Conflict
+                  </span>
+                )}
+              </label>
+            </li>
+          )
+        })}
+      </ul>
+    )
   }
 
   const handleGoToReview = () => {
@@ -624,6 +925,8 @@ const SchedulingSignupEmbed = ({
       setSignupResults(result.signups)
       setSignupResult(result.signups[0] ?? null)
       setSuccess(true)
+      const email = accountEmail.trim() || initialEmail?.trim() || ''
+      if (email) void loadSignedUpSlots(email)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed')
     } finally {
@@ -800,9 +1103,14 @@ const SchedulingSignupEmbed = ({
                     </div>
                     <button
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
                         setCartItems((prev) => prev.filter((entry) => entry.key !== item.key))
-                      }
+                        setSelectedSlots((prev) => {
+                          const next = { ...prev }
+                          delete next[item.key]
+                          return next
+                        })
+                      }}
                       className="shrink-0 text-red-600 hover:text-red-800 p-1"
                       aria-label={`Remove ${item.categoryName}`}
                     >
@@ -815,7 +1123,10 @@ const SchedulingSignupEmbed = ({
             <div className="flex flex-wrap gap-3 mt-5">
               <button
                 type="button"
-                onClick={() => setSignupPhase('select')}
+                onClick={() => {
+                  setSelectedSlots(Object.fromEntries(cartItems.map((item) => [item.key, item])))
+                  setSignupPhase('select')
+                }}
                 className="text-sm text-gray-600 font-semibold hover:underline"
               >
                 Back to add or change classes
@@ -869,15 +1180,25 @@ const SchedulingSignupEmbed = ({
               Choose your time
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {slotOptions.map((option) => (
+              {slotOptions.map((option) => {
+                const alreadySignedUp = isSlotAlreadySignedUp(
+                  formDetail.id,
+                  categoryId ?? null,
+                  option.slotGroupId,
+                  option.timeSlotId,
+                )
+                return (
                 <button
                   key={option.key}
                   type="button"
-                  onClick={() => handleSlotSelect(option)}
+                  disabled={alreadySignedUp}
+                  onClick={() => !alreadySignedUp && handleSlotSelect(option)}
                   className={`text-left rounded-xl border-2 p-3 transition-all ${
-                    timeSlotId === option.timeSlotId
-                      ? 'border-vortex-red bg-red-50'
-                      : 'border-gray-200 hover:border-gray-400'
+                    alreadySignedUp
+                      ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
+                      : timeSlotId === option.timeSlotId
+                        ? 'border-vortex-red bg-red-50'
+                        : 'border-gray-200 hover:border-gray-400'
                   }`}
                 >
                   <div className="space-y-1">
@@ -891,12 +1212,15 @@ const SchedulingSignupEmbed = ({
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-600 mt-2">
                     <Users className="w-4 h-4" />
-                    {option.group.isFull
-                      ? `Full — join waitlist${(option.group.waitlistCount ?? 0) > 0 ? ` (${option.group.waitlistCount} waiting)` : ''}`
-                      : `${option.group.spotsRemaining} of ${option.group.maxParticipants} spots left`}
+                    {alreadySignedUp
+                      ? 'Already signed up'
+                      : option.group.isFull
+                        ? `Full — join waitlist${(option.group.waitlistCount ?? 0) > 0 ? ` (${option.group.waitlistCount} waiting)` : ''}`
+                        : `${option.group.spotsRemaining} of ${option.group.maxParticipants} spots left`}
                   </div>
                 </button>
-              ))}
+                )
+              })}
             </div>
           </div>
         )}
@@ -1101,13 +1425,13 @@ const SchedulingSignupEmbed = ({
           </div>
         )}
 
-        {showSubmit && programOptions.length > 0 && (
+        {showAddMoreClasses && (
           <div className={sectionClass}>
             <h4 className={`font-bold text-black mb-2 ${compact ? 'text-base' : 'text-xl'}`}>
               Add more classes
             </h4>
             <p className="text-sm text-gray-600 mb-4">
-              Other classes in this program you can sign up for at the same time:
+              Other classes in this program for signup:
             </p>
             {programOptionsLoading ? (
               <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -1115,59 +1439,50 @@ const SchedulingSignupEmbed = ({
                 Loading available classes…
               </div>
             ) : (
-              <div className="space-y-3">
-                {programOptions.map((opt) => {
-                  const checked = selectedAdditionalKeys.has(opt.key)
-                  const slotPick = additionalSlotByKey[opt.key] ?? opt.slots[0]
-                  const showTitle = opt.formTitle !== formDetail.title
-                  return (
-                    <div
-                      key={opt.key}
-                      className={`rounded-xl border px-4 py-3 ${
-                        checked ? 'border-vortex-red bg-red-50/40' : 'border-gray-200'
-                      }`}
+              <div className="space-y-6">
+                {currentCategoryBundle && (
+                  <div>
+                    <p className="text-sm font-semibold text-black mb-3">
+                      Current Selected Category: {currentCategoryBundle.categoryName}
+                    </p>
+                    {renderCategorySlotList(currentCategoryBundle)}
+                  </div>
+                )}
+
+                {otherCategoryBundles.length > 0 && (
+                  <div>
+                    <label
+                      htmlFor="browse-category-select"
+                      className="block text-sm font-semibold text-black mb-2"
                     >
-                      <label className="flex items-start gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={(e) => toggleAdditionalOption(opt, e.target.checked)}
-                          className="mt-1"
-                        />
-                        <span className="text-sm text-black font-semibold">
-                          {showTitle ? `${opt.formTitle} — ` : ''}
-                          {opt.categoryName}
-                        </span>
-                      </label>
-                      {checked && opt.slots.length > 1 && slotPick && (
-                        <select
-                          value={`${slotPick.slotGroupId}:${slotPick.timeSlotId}`}
-                          onChange={(e) => {
-                            const [sg, ts] = e.target.value.split(':').map(Number)
-                            setAdditionalSlotByKey((prev) => ({
-                              ...prev,
-                              [opt.key]: { slotGroupId: sg, timeSlotId: ts },
-                            }))
-                          }}
-                          className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                        >
-                          {opt.slots.map((slot) => (
-                            <option
-                              key={`${slot.slotGroupId}-${slot.timeSlotId}`}
-                              value={`${slot.slotGroupId}:${slot.timeSlotId}`}
-                            >
-                              {slot.label}
-                              {slot.isFull ? ' (waitlist)' : ''}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                      {checked && opt.slots.length === 1 && (
-                        <p className="mt-2 text-xs text-gray-600 ml-6">{opt.slots[0].label}</p>
-                      )}
-                    </div>
-                  )
-                })}
+                      Other category
+                    </label>
+                    <select
+                      id="browse-category-select"
+                      value={browseCategoryKey}
+                      onChange={(e) => setBrowseCategoryKey(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm mb-4"
+                    >
+                      {otherCategoryBundles.map((bundle) => (
+                        <option key={bundle.key} value={bundle.key}>
+                          {bundle.formTitle !== formDetail.title
+                            ? `${bundle.formTitle} — ${bundle.categoryName}`
+                            : bundle.categoryName}
+                        </option>
+                      ))}
+                    </select>
+                    {browseCategoryBundle && (
+                      <div>
+                        <p className="text-sm font-semibold text-black mb-3">
+                          {browseCategoryBundle.formTitle !== formDetail.title
+                            ? `${browseCategoryBundle.formTitle} — ${browseCategoryBundle.categoryName}`
+                            : browseCategoryBundle.categoryName}
+                        </p>
+                        {renderCategorySlotList(browseCategoryBundle)}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

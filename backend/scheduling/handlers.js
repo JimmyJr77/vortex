@@ -365,17 +365,19 @@ function programClassOptionKey(formId, categoryId) {
   return `${formId}:${categoryId ?? 'none'}`
 }
 
-function buildProgramClassOptionsFromDetail(detail, { excludeFormId, excludeCategoryId } = {}) {
+function programSlotSignupKey(formId, categoryId, slotGroupId, timeSlotId) {
+  return `${formId}:${categoryId ?? 'none'}:${slotGroupId}:${timeSlotId ?? 'none'}`
+}
+
+function buildProgramClassOptionsFromDetail(detail, { signedUpSlotKeys = null } = {}) {
   const options = []
   for (const cat of detail.categories) {
     const catId = cat.id ?? null
-    if (excludeFormId === detail.id && (excludeCategoryId ?? null) === catId) {
-      continue
-    }
     const groups = detail.slotGroups.filter((g) => (g.categoryId ?? null) === catId)
     const slots = []
     for (const group of groups) {
       for (const occ of group.occurrences) {
+        const slotKey = programSlotSignupKey(detail.id, catId, group.id, occ.id)
         slots.push({
           slotGroupId: group.id,
           timeSlotId: occ.id,
@@ -383,6 +385,14 @@ function buildProgramClassOptionsFromDetail(detail, { excludeFormId, excludeCate
           isFull: group.isFull,
           spotsRemaining: group.spotsRemaining,
           waitlistCount: group.waitlistCount ?? 0,
+          alreadySignedUp: signedUpSlotKeys?.has(slotKey) ?? false,
+          scheduleMode: occ.scheduleMode || group.scheduleMode || 'day',
+          dayOfWeek: occ.dayOfWeek ?? null,
+          dayName: occ.dayName ?? null,
+          specificDate: occ.specificDate ?? null,
+          startTime: occ.startTime,
+          endTime: occ.endTime,
+          weekLetter: occ.weekLetter ?? null,
         })
       }
     }
@@ -1052,7 +1062,6 @@ const batchSignupSchema = Joi.object({
 })
 
 const programOptionsQuerySchema = Joi.object({
-  excludeCategoryId: Joi.string().allow('').optional(),
   email: Joi.string().email().optional(),
 })
 
@@ -1208,26 +1217,27 @@ export function createSchedulingHandlers(pool) {
 
         const programsId =
           formRes.rows[0].programs_id != null ? Number(formRes.rows[0].programs_id) : null
-        const excludeCategoryId =
-          value.excludeCategoryId === '' || value.excludeCategoryId == null
-            ? undefined
-            : Number(value.excludeCategoryId)
 
-        let signedUpKeys = new Set()
+        let signedUpSlotKeys = new Set()
         if (value.email) {
           const member = await findMemberByEmail(pool, value.email)
           if (member) {
             const signupRes = await pool.query(
-              `SELECT form_id, category_id
+              `SELECT form_id, category_id, slot_group_id, time_slot_id
                FROM scheduling_signup
                WHERE member_id = $1
                  AND orphaned_at IS NULL
                  AND status IN ('confirmed', 'waitlisted')`,
               [member.id],
             )
-            signedUpKeys = new Set(
+            signedUpSlotKeys = new Set(
               signupRes.rows.map((r) =>
-                programClassOptionKey(Number(r.form_id), r.category_id != null ? Number(r.category_id) : null),
+                programSlotSignupKey(
+                  Number(r.form_id),
+                  r.category_id != null ? Number(r.category_id) : null,
+                  Number(r.slot_group_id),
+                  r.time_slot_id != null ? Number(r.time_slot_id) : null,
+                ),
               ),
             )
           }
@@ -1271,10 +1281,7 @@ export function createSchedulingHandlers(pool) {
           const siblingId = Number(row.id)
           const detail = await loadFormDetail(pool, siblingId)
           if (!detail) continue
-          const classOptions = buildProgramClassOptionsFromDetail(detail, {
-            excludeFormId: formId,
-            excludeCategoryId,
-          }).filter((opt) => !signedUpKeys.has(opt.key))
+          const classOptions = buildProgramClassOptionsFromDetail(detail, { signedUpSlotKeys })
           options.push(...classOptions)
         }
 
@@ -1314,7 +1321,7 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
-    /** Form ids this member already has an active scheduling signup for. */
+    /** Active scheduling signups for this member (slot-level). */
     async listMemberSignedUpForms(req, res) {
       try {
         const { error, value } = memberSignupsSchema.validate(req.body)
@@ -1323,19 +1330,28 @@ export function createSchedulingHandlers(pool) {
         }
         const member = await findMemberByEmail(pool, value.email)
         if (!member) {
-          return res.json({ success: true, data: { formIds: [] } })
+          return res.json({ success: true, data: { signups: [], formIds: [] } })
         }
         const result = await pool.query(
-          `SELECT DISTINCT form_id
+          `SELECT form_id, category_id, slot_group_id, time_slot_id
            FROM scheduling_signup
            WHERE member_id = $1
              AND orphaned_at IS NULL
              AND status IN ('confirmed', 'waitlisted')`,
           [member.id],
         )
+        const signups = result.rows.map((r) => ({
+          formId: Number(r.form_id),
+          categoryId: r.category_id != null ? Number(r.category_id) : null,
+          slotGroupId: Number(r.slot_group_id),
+          timeSlotId: r.time_slot_id != null ? Number(r.time_slot_id) : null,
+        }))
         res.json({
           success: true,
-          data: { formIds: result.rows.map((r) => Number(r.form_id)) },
+          data: {
+            signups,
+            formIds: [...new Set(signups.map((s) => s.formId))],
+          },
         })
       } catch (err) {
         console.error('[scheduling] listMemberSignedUpForms:', err)

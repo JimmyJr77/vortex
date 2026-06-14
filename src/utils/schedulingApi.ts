@@ -267,6 +267,14 @@ export interface ProgramClassSlotOption {
   isFull: boolean
   spotsRemaining: number
   waitlistCount: number
+  alreadySignedUp?: boolean
+  scheduleMode: 'day' | 'date'
+  dayOfWeek: number | null
+  dayName: string | null
+  specificDate: string | null
+  startTime: string
+  endTime: string
+  weekLetter: string | null
 }
 
 export interface ProgramClassOption {
@@ -319,7 +327,34 @@ export function getSchedulingMemberEmail(): string | null {
   }
 }
 
-/** Form ids where this email already has a confirmed or waitlisted signup. */
+export interface MemberSchedulingSignup {
+  formId: number
+  categoryId: number | null
+  slotGroupId: number
+  timeSlotId: number | null
+}
+
+export function memberSignupSlotKey(signup: {
+  formId: number
+  categoryId: number | null
+  slotGroupId: number
+  timeSlotId: number | null
+}): string {
+  return `${signup.formId}:${signup.categoryId ?? 'none'}:${signup.slotGroupId}:${signup.timeSlotId ?? 'none'}`
+}
+
+/** Active slot-level signups for this email. */
+export async function fetchMySchedulingSignups(email: string): Promise<MemberSchedulingSignup[]> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/my-signups`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email.trim().toLowerCase() }),
+  })
+  const data = await parseJson<{ signups: MemberSchedulingSignup[]; formIds: number[] }>(res)
+  return data.signups ?? []
+}
+
+/** @deprecated Prefer fetchMySchedulingSignups for slot-level state. */
 export async function fetchMySchedulingFormIds(email: string): Promise<number[]> {
   const res = await fetch(`${getApiUrl()}/api/scheduling/my-signups`, {
     method: 'POST',
@@ -346,16 +381,9 @@ export async function fetchPublicSchedulingForm(
 
 export async function fetchProgramSignupOptions(
   formId: number,
-  options?: { excludeCategoryId?: number | null; email?: string },
+  options?: { email?: string },
 ): Promise<ProgramSignupOptions> {
   const params = new URLSearchParams()
-  if (options && 'excludeCategoryId' in options) {
-    if (options.excludeCategoryId == null) {
-      params.set('excludeCategoryId', '')
-    } else {
-      params.set('excludeCategoryId', String(options.excludeCategoryId))
-    }
-  }
   if (options?.email) params.set('email', options.email.trim().toLowerCase())
   const qs = params.toString() ? `?${params.toString()}` : ''
   const res = await fetch(`${getApiUrl()}/api/scheduling/forms/${formId}/program-options${qs}`)
