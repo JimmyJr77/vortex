@@ -601,7 +601,7 @@ const SchedulingCalendarView = ({
       )}
 
       <div className={shellClass}>
-        {(view === 'month' || view === 'week') && view !== 'byClass' && (
+        {(view === 'month' || view === 'week') && (
           <div
             className={`grid grid-cols-7 border-b ${
               isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'
