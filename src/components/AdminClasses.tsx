@@ -1,9 +1,11 @@
 import { useState, useEffect, Fragment, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash2, Layers, ArrowUpDown, ArrowUp, ArrowDown, ArrowRight, Table2 } from 'lucide-react'
+import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash2, Layers, ArrowUpDown, ArrowUp, ArrowDown, ArrowRight, Table2, RefreshCw } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import ClassEventModal from './programs/ClassEventModal'
 import type { ClassEvent } from '../utils/programsApi'
+import { setClassSchedulingCategory, syncSchedulingCategories } from '../utils/programsApi'
+import { adminFetchAllCategories, type SchedulingCategory } from '../utils/schedulingApi'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import AdminClassesEventsSpreadsheet from './classes/AdminClassesEventsSpreadsheet'
 import ClassSchedulingExpandPanel from './classes/ClassSchedulingExpandPanel'
@@ -23,7 +25,9 @@ interface Program {
   skillRequirements: string | null // Database column: skill_requirements
   isActive: boolean // Database column: is_active
   programIsActive?: boolean // Parent program active flag
+  schedulingCategoryId?: number | null // program.scheduling_category_id — the single mapped scheduling category
   schedulingCategoryName?: string | null // Scheduling category label, computed server-side
+  sportTags?: string | null // Comma-joined sport tags from the parent program
   archived?: boolean // Database column: archived
   createdAt: string // Database column: created_at
   updatedAt: string // Database column: updated_at
@@ -47,7 +51,7 @@ const iconBtnDanger =
 const thClass = 'px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'
 const tdClass = 'px-4 py-3 align-middle text-sm text-gray-900'
 
-type ClassSortField = 'program' | 'class' | 'category' | 'ageRange' | 'skillLevel' | 'status'
+type ClassSortField = 'sportTag' | 'program' | 'class' | 'category' | 'ageRange' | 'skillLevel' | 'status'
 
 function SortableColumnHeader({
   label,
@@ -195,6 +199,9 @@ export default function AdminClasses({
     direction: 'asc',
   })
   const [viewMode, setViewMode] = useState<'default' | 'spreadsheet'>('default')
+  const [schedulingCategories, setSchedulingCategories] = useState<SchedulingCategory[]>([])
+  const [updatingCategoryClassId, setUpdatingCategoryClassId] = useState<number | null>(null)
+  const [syncing, setSyncing] = useState(false)
 
   const fetchAllPrograms = async () => {
     try {
@@ -420,6 +427,42 @@ export default function AdminClasses({
     }
   }
 
+  const loadSchedulingCategories = useCallback(async () => {
+    try {
+      const cats = await adminFetchAllCategories()
+      setSchedulingCategories(cats)
+    } catch (err) {
+      console.error('Error loading scheduling categories:', err)
+    }
+  }, [])
+
+  const handleChangeSchedulingCategory = async (program: Program, rawValue: string) => {
+    const nextCategoryId = rawValue === 'none' ? null : Number(rawValue)
+    const currentId = program.schedulingCategoryId ?? null
+    if (nextCategoryId === currentId) return
+    setUpdatingCategoryClassId(program.id)
+    try {
+      await setClassSchedulingCategory(program.id, nextCategoryId)
+      await fetchAllPrograms()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update category')
+    } finally {
+      setUpdatingCategoryClassId(null)
+    }
+  }
+
+  const handleSyncCategories = async () => {
+    setSyncing(true)
+    try {
+      await syncSchedulingCategories()
+      await Promise.all([fetchAllPrograms(), loadSchedulingCategories()])
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to refresh from scheduling')
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   const handleEditClass = (program: Program) => {
     setEditingClassEvent(toClassEvent(program))
     setSelectedCategoryForClass(program.categoryId ?? null)
@@ -491,7 +534,8 @@ export default function AdminClasses({
   useEffect(() => {
     fetchAllPrograms()
     fetchAllCategories()
-  }, [])
+    loadSchedulingCategories()
+  }, [loadSchedulingCategories])
 
   useEffect(() => {
     fetchAllPrograms()
@@ -525,6 +569,9 @@ export default function AdminClasses({
     let cmp = 0
 
     switch (classSortConfig.field) {
+      case 'sportTag':
+        cmp = (a.sportTags || '').localeCompare(b.sportTags || '')
+        break
       case 'program':
         cmp = programNameForClass(a, categories).localeCompare(programNameForClass(b, categories))
         break
@@ -572,6 +619,7 @@ export default function AdminClasses({
         p.displayName.toLowerCase().includes(q) ||
         programNameForClass(p, categories).toLowerCase().includes(q) ||
         schedulingCategoryLabel(p.id).toLowerCase().includes(q) ||
+        (p.sportTags?.toLowerCase().includes(q) ?? false) ||
         (p.description?.toLowerCase().includes(q) ?? false) ||
         (p.skillRequirements?.toLowerCase().includes(q) ?? false)
       )
@@ -819,6 +867,7 @@ export default function AdminClasses({
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
                   <thead className="bg-gray-50">
                     <tr>
+                      <th className={thClass}>Sport Tag</th>
                       <th className={thClass}>Program</th>
                       <th className={thClass}>Class</th>
                       <th className={thClass}>Category</th>
@@ -840,6 +889,7 @@ export default function AdminClasses({
                       )
                       .map((program) => (
                         <tr key={program.id} className="hover:bg-gray-50/80">
+                          <td className={tdClass}>{program.sportTags || '—'}</td>
                           <td className={tdClass}>{programNameForClass(program, categories)}</td>
                           <td className={tdClass}>{program.displayName}</td>
                           <td className={tdClass}>{schedulingCategoryLabel(program.id)}</td>
@@ -998,6 +1048,16 @@ export default function AdminClasses({
                   >
                     <Archive className="w-5 h-5" />
                   </button>
+                  <button
+                    type="button"
+                    onClick={handleSyncCategories}
+                    disabled={syncing}
+                    title="Refresh from Scheduling (split merged classes, sync categories)"
+                    aria-label="Refresh from Scheduling"
+                    className={iconBtn}
+                  >
+                    <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
+                  </button>
                 </div>
                 <div className="relative max-w-md w-full">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -1021,6 +1081,9 @@ export default function AdminClasses({
                   <table className="min-w-full divide-y divide-gray-200 text-sm">
                     <thead className="bg-gray-50 sticky top-0 z-10">
                       <tr>
+                        <th className={thClass}>
+                          <SortableColumnHeader label="Sport Tag" field="sportTag" sortConfig={classSortConfig} onSort={handleClassSort} />
+                        </th>
                         <th className={thClass}>
                           <SortableColumnHeader label="Program" field="program" sortConfig={classSortConfig} onSort={handleClassSort} />
                         </th>
@@ -1053,9 +1116,27 @@ export default function AdminClasses({
                             className={`hover:bg-gray-50/80 cursor-pointer ${expandedClassId === program.id ? 'bg-gray-50/50' : ''}`}
                             onClick={() => toggleClassExpand(program.id)}
                           >
+                            <td className={tdClass}>{program.sportTags || '—'}</td>
                             <td className={tdClass}>{programNameForClass(program, categories)}</td>
                             <td className={`${tdClass} font-medium`}>{program.displayName}</td>
-                            <td className={tdClass}>{schedulingCategoryLabel(program.id)}</td>
+                            <td className={tdClass} onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center gap-1.5">
+                                <select
+                                  value={program.schedulingCategoryId != null ? String(program.schedulingCategoryId) : 'none'}
+                                  disabled={updatingCategoryClassId === program.id}
+                                  onChange={(e) => handleChangeSchedulingCategory(program, e.target.value)}
+                                  className="rounded-lg border border-gray-300 px-2 py-1 text-sm bg-white max-w-[12rem] disabled:opacity-50"
+                                >
+                                  <option value="none">No Category</option>
+                                  {schedulingCategories.map((c) => (
+                                    <option key={c.id} value={String(c.id)}>{c.name}</option>
+                                  ))}
+                                </select>
+                                {updatingCategoryClassId === program.id && (
+                                  <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                                )}
+                              </div>
+                            </td>
                             <td className={tdClass}>{formatAgeRange(program.ageMin, program.ageMax)}</td>
                             <td className={tdClass}>{formatSkillLevel(program.skillLevel)}</td>
                             <td className={tdClass}>
@@ -1105,7 +1186,7 @@ export default function AdminClasses({
                           </tr>
                           {expandedClassId === program.id && (
                             <tr>
-                              <td colSpan={8} className="px-0 py-0">{renderClassDetailPanel(program)}</td>
+                              <td colSpan={9} className="px-0 py-0">{renderClassDetailPanel(program)}</td>
                             </tr>
                           )}
                         </Fragment>

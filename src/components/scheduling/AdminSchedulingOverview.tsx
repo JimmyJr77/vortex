@@ -8,12 +8,9 @@ import {
   type SchedulingSlotGroup,
 } from '../../utils/schedulingApi'
 import {
-  autoSaveClassesFromOverview,
   exportOverviewToEvents,
-  type ClassEventExportPrefill,
   type ClassEventSlotOverview,
 } from '../../utils/schedulingExport'
-import SchedulingExportModalStack from './SchedulingExportModalStack'
 
 interface Props {
   program: TopProgram
@@ -69,10 +66,8 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
   const [slotsError, setSlotsError] = useState<string | null>(null)
   const [expandedClasses, setExpandedClasses] = useState<Record<number, boolean>>({})
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({})
-  const [exporting, setExporting] = useState<'classes' | 'events' | null>(null)
+  const [exporting, setExporting] = useState<'events' | null>(null)
   const [exportError, setExportError] = useState<string | null>(null)
-  const [exportPrefills, setExportPrefills] = useState<ClassEventExportPrefill[]>([])
-  const [exportStackOpen, setExportStackOpen] = useState(false)
 
   const loadSlotOverview = useCallback(async (programId: number) => {
     setSlotsLoading(true)
@@ -148,26 +143,6 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
     slotOverview: slotOverview.map(({ classEvent, form }) => ({ classEvent, form })),
   })
 
-  const handleExportToProgramsClasses = async () => {
-    if (!title.trim()) return
-    setExporting('classes')
-    setExportError(null)
-    try {
-      const { program: updatedProgram, prefills } = await autoSaveClassesFromOverview(buildExportInput())
-      onSaved(updatedProgram)
-      if (prefills.length === 0) {
-        alert('Program exported to Admin → Classes.')
-        return
-      }
-      setExportPrefills(prefills)
-      setExportStackOpen(true)
-    } catch (e) {
-      setExportError(e instanceof Error ? e.message : 'Export failed')
-    } finally {
-      setExporting(null)
-    }
-  }
-
   const handleExportToEvents = async () => {
     if (!title.trim()) return
     if (!confirm('Create events from scheduling slots for each class/event in this program?')) {
@@ -187,10 +162,6 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
     } finally {
       setExporting(null)
     }
-  }
-
-  const handleExportStackComplete = async () => {
-    await loadSlotOverview(program.id)
   }
 
   const totalSlotGroups = slotOverview.reduce(
@@ -253,15 +224,6 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
             Update overview
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleExportToProgramsClasses()}
-            disabled={exporting != null || !title.trim() || slotsLoading}
-            className="border border-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-60 inline-flex items-center gap-2"
-          >
-            {exporting === 'classes' && <Loader2 className="w-4 h-4 animate-spin" />}
-            Export to Programs &amp; Classes
           </button>
           <button
             type="button"
@@ -420,13 +382,6 @@ const AdminSchedulingOverview = ({ program, onSaved }: Props) => {
           })}
         </div>
       </div>
-
-      <SchedulingExportModalStack
-        open={exportStackOpen}
-        prefills={exportPrefills}
-        onClose={() => setExportStackOpen(false)}
-        onComplete={() => void handleExportStackComplete()}
-      />
     </div>
   )
 }

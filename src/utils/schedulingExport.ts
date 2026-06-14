@@ -2,7 +2,6 @@ import { adminApiRequest } from './api'
 import {
   updateTopProgram,
   type ClassEvent,
-  type ClassEventFormData,
   type TopProgram,
 } from './programsApi'
 import { type SchedulingFormDetail, type SchedulingSlotGroup } from './schedulingApi'
@@ -20,53 +19,12 @@ export interface ExportOverviewInput {
   slotOverview: ClassEventSlotOverview[]
 }
 
-export interface ClassEventExportPrefill {
-  programsId: number
-  programsDisplayName: string
-  editing: ClassEvent | null
-  initialFormData?: ClassEventFormData
-  schedulingCategoryId: number | null
-  lockProgram: boolean
-}
-
 interface EventDateTimeEntry {
   date: string
   startTime?: string
   endTime?: string
   description?: string
   allDay?: boolean
-}
-
-interface FormCategoryRef {
-  id: number | null
-  name: string
-}
-
-function categoriesForForm(form: SchedulingFormDetail | null): FormCategoryRef[] {
-  if (!form) return [{ id: null, name: 'No Category' }]
-
-  const seen = new Set<number>()
-  const ordered: FormCategoryRef[] = []
-  const nameForId = (id: number): string =>
-    form.categories.find((c) => c.id === id)?.name ??
-    form.allCategories?.find((c) => c.id === id)?.name ??
-    `Category #${id}`
-
-  for (const group of form.slotGroups) {
-    if (group.categoryId != null && !seen.has(group.categoryId)) {
-      seen.add(group.categoryId)
-      ordered.push({ id: group.categoryId, name: nameForId(group.categoryId) })
-    }
-  }
-  for (const cat of form.categories) {
-    if (cat.id != null && !seen.has(cat.id)) {
-      seen.add(cat.id)
-      ordered.push({ id: cat.id, name: cat.name })
-    }
-  }
-
-  if (ordered.length === 0) return [{ id: null, name: 'No Category' }]
-  return ordered
 }
 
 export async function syncTopProgramFromOverview(
@@ -78,72 +36,6 @@ export async function syncTopProgramFromOverview(
     schedulingActive: input.active,
     ...(!input.program.schedulingOverviewSavedAt ? { markOverviewSaved: true } : {}),
   })
-}
-
-export interface ExportProgramsClassesResult {
-  program: TopProgram
-  prefills: ClassEventExportPrefill[]
-}
-
-function resolveExportDisplayName(
-  form: SchedulingFormDetail | null,
-  classEvent: ClassEvent,
-): string {
-  const fromForm = form?.title?.trim()
-  if (fromForm) return fromForm
-  const fromClass = classEvent.displayName?.trim()
-  if (fromClass) return fromClass
-  return classEvent.displayName || 'Untitled class/event'
-}
-
-function buildExportClassPrefill(
-  classEvent: ClassEvent,
-  form: SchedulingFormDetail | null,
-): ClassEvent {
-  return {
-    ...classEvent,
-    displayName: resolveExportDisplayName(form, classEvent),
-    description: form?.description?.trim() || classEvent.description || null,
-  }
-}
-
-function buildExportFormData(
-  classEvent: ClassEvent,
-  form: SchedulingFormDetail | null,
-): ClassEventFormData {
-  return {
-    displayName: resolveExportDisplayName(form, classEvent),
-    skillLevel: classEvent.skillLevel,
-    ageMin: classEvent.ageMin,
-    ageMax: classEvent.ageMax,
-    description: form?.description?.trim() || classEvent.description || '',
-    skillRequirements: classEvent.skillRequirements || '',
-    isActive: classEvent.isActive,
-  }
-}
-
-export async function autoSaveClassesFromOverview(
-  input: ExportOverviewInput,
-): Promise<ExportProgramsClassesResult> {
-  const program = await syncTopProgramFromOverview(input)
-
-  const prefills: ClassEventExportPrefill[] = []
-  for (const { classEvent, form } of input.slotOverview) {
-    const categories = categoriesForForm(form)
-    categories.forEach((category, index) => {
-      prefills.push({
-        programsId: input.program.id,
-        programsDisplayName: input.title.trim(),
-        // First category reuses the existing class row; the rest create new rows.
-        editing: index === 0 ? buildExportClassPrefill(classEvent, form) : null,
-        initialFormData: index === 0 ? undefined : buildExportFormData(classEvent, form),
-        schedulingCategoryId: category.id,
-        lockProgram: true,
-      })
-    })
-  }
-
-  return { program, prefills }
 }
 
 function slotGroupsToDatesAndTimes(groups: SchedulingSlotGroup[]): EventDateTimeEntry[] {

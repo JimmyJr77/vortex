@@ -86,3 +86,18 @@ export async function ensureDisciplineTagsSchema(pool) {
   await pool.query(sql)
   disciplineTagsSchemaReady = true
 }
+
+let programSchedulingCategoryReady = false
+
+export async function ensureProgramSchedulingCategoryColumn(pool) {
+  if (programSchedulingCategoryReady) return
+  const fs = await import('fs')
+  const path = await import('path')
+  const { fileURLToPath } = await import('url')
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  const migrationPath = path.join(__dirname, '../migrations/add_program_scheduling_category.sql')
+  if (!fs.existsSync(migrationPath)) return
+  const sql = fs.readFileSync(migrationPath, 'utf8')
+  await pool.query(sql)
+  programSchedulingCategoryReady = true
+}

@@ -1,5 +1,10 @@
 import Joi from 'joi'
-import { ensureDisciplineTagsSchema, ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
+import { ensureDisciplineTagsSchema, ensureProgramSchedulingCategoryColumn, ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
+import { reconcileClasses, setProgramSchedulingCategory } from './reconcile.js'
+
+const schedulingCategoryUpdateSchema = Joi.object({
+  schedulingCategoryId: Joi.number().integer().allow(null).required(),
+})
 
 const disciplineTagSchema = Joi.object({
   name: Joi.string().trim().min(1).max(255).required(),
@@ -676,6 +681,62 @@ export function registerProgramsAdminRoutes(app, pool) {
     } catch (err) {
       console.error('[programs] unlink discipline tag:', err)
       res.status(500).json({ success: false, message: 'Failed to unlink discipline tag' })
+    }
+  })
+
+  // ============================================================
+  // Classes <-> Scheduling category sync (physical split, one category per row)
+  // ============================================================
+
+  // Re-point a single class row's scheduling data to a different category
+  // (or "No Category" when schedulingCategoryId is null). Bidirectional edit
+  // driven by the Admin > Classes Category dropdown.
+  app.put('/api/admin/programs/:id/scheduling-category', async (req, res) => {
+    try {
+      const { error, value } = schedulingCategoryUpdateSchema.validate(req.body)
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message })
+      }
+      await ensureProgramsSchedulingSchema(pool)
+      await ensureProgramSchedulingCategoryColumn(pool)
+      const programId = Number(req.params.id)
+      if (!Number.isFinite(programId)) {
+        return res.status(400).json({ success: false, message: 'Invalid class id' })
+      }
+
+      const exists = await pool.query('SELECT id FROM program WHERE id = $1 LIMIT 1', [programId])
+      if (exists.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Class not found' })
+      }
+
+      if (value.schedulingCategoryId != null) {
+        const cat = await pool.query('SELECT id FROM scheduling_category WHERE id = $1 LIMIT 1', [value.schedulingCategoryId])
+        if (cat.rows.length === 0) {
+          return res.status(400).json({ success: false, message: 'Scheduling category not found' })
+        }
+      }
+
+      const result = await setProgramSchedulingCategory(pool, programId, value.schedulingCategoryId)
+      res.json({ success: true, data: result })
+    } catch (err) {
+      console.error('[programs] set scheduling category:', err)
+      res.status(500).json({ success: false, message: 'Failed to update scheduling category' })
+    }
+  })
+
+  // Read Scheduling -> rewrite Classes: split merged rows, assign the single
+  // category mapping. Idempotent. Never deletes scheduling data.
+  app.post('/api/admin/programs/sync-scheduling-categories', async (req, res) => {
+    try {
+      await ensureProgramsSchedulingSchema(pool)
+      await ensureProgramSchedulingCategoryColumn(pool)
+      const parentProgramId = req.body?.parentProgramId != null ? Number(req.body.parentProgramId) : null
+      const programId = req.body?.programId != null ? Number(req.body.programId) : null
+      const stats = await reconcileClasses(pool, { parentProgramId, programId })
+      res.json({ success: true, data: stats })
+    } catch (err) {
+      console.error('[programs] sync scheduling categories:', err)
+      res.status(500).json({ success: false, message: 'Failed to sync scheduling categories' })
     }
   })
 }

@@ -30,6 +30,9 @@ export interface ClassEvent {
   isActive: boolean
   archived?: boolean
   schedulingFormId?: number | null
+  schedulingCategoryId?: number | null
+  schedulingCategoryName?: string | null
+  sportTags?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -207,6 +210,50 @@ export async function fetchClassEventSchedulingFormId(classEventId: number): Pro
   const res = await adminApiRequest(`/api/admin/class-events/${classEventId}/scheduling-form`)
   const data = await parseJson<{ id: number }>(res)
   return data.id
+}
+
+/**
+ * Re-point a class row's scheduling data to a different category (or "No
+ * Category" when categoryId is null). This is the Classes -> Scheduling
+ * direction of the bidirectional sync.
+ */
+export async function setClassSchedulingCategory(
+  classId: number,
+  schedulingCategoryId: number | null,
+): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/programs/${classId}/scheduling-category`, {
+    method: 'PUT',
+    body: JSON.stringify({ schedulingCategoryId }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Failed to update scheduling category')
+  }
+}
+
+export interface SyncSchedulingStats {
+  scanned: number
+  split: number
+  created: number
+  assigned: number
+}
+
+/**
+ * Read Scheduling -> rewrite Classes: split merged rows and assign the single
+ * category mapping. Idempotent and never deletes scheduling data.
+ */
+export async function syncSchedulingCategories(opts?: {
+  parentProgramId?: number | null
+  programId?: number | null
+}): Promise<SyncSchedulingStats> {
+  const res = await adminApiRequest('/api/admin/programs/sync-scheduling-categories', {
+    method: 'POST',
+    body: JSON.stringify({
+      parentProgramId: opts?.parentProgramId ?? null,
+      programId: opts?.programId ?? null,
+    }),
+  })
+  return parseJson(res)
 }
 
 export interface DisciplineTag {

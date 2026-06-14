@@ -10450,6 +10450,10 @@ app.post('/api/admin/admins', async (req, res) => {
 app.get('/api/admin/programs', async (req, res) => {
   try {
     await ensureProgramCategoriesSchema()
+    const { ensureProgramsSchedulingSchema, ensureProgramSchedulingCategoryColumn, ensureDisciplineTagsSchema } = await import('./programs/schema.js')
+    await ensureProgramsSchedulingSchema(pool)
+    await ensureProgramSchedulingCategoryColumn(pool)
+    await ensureDisciplineTagsSchema(pool)
     const taxonomy = await resolveProgramTaxonomy()
     const { archived } = req.query
     const programIsActiveSelect = taxonomy.hasProgramIsActive
@@ -10474,22 +10478,17 @@ app.get('/api/admin/programs', async (req, res) => {
         p.archived,
         p.created_at as "createdAt",
         p.updated_at as "updatedAt",
+        p.scheduling_category_id as "schedulingCategoryId",
+        COALESCE(scat.name, 'No Category') as "schedulingCategoryName",
         COALESCE((
-          SELECT string_agg(DISTINCT cat_name, ', ' ORDER BY cat_name)
-          FROM (
-            SELECT COALESCE(sc.name, 'No Category') AS cat_name
-            FROM scheduling_form sf
-            JOIN (
-              SELECT form_id, category_id FROM scheduling_offering
-              UNION
-              SELECT form_id, category_id FROM scheduling_slot_group
-            ) assoc ON assoc.form_id = sf.id
-            LEFT JOIN scheduling_category sc ON sc.id = assoc.category_id
-            WHERE sf.program_id = p.id AND sf.deleted_at IS NULL
-          ) names
-        ), 'No Category') as "schedulingCategoryName"
+          SELECT string_agg(dt.name, ', ' ORDER BY dt.sort_order, dt.name)
+          FROM program_discipline_tag pdt
+          JOIN discipline_tag dt ON dt.id = pdt.tag_id
+          WHERE pdt.programs_id = p.${taxonomy.programFkColumn}
+        ), '') as "sportTags"
       FROM program p
       LEFT JOIN ${taxonomy.programsTable} pc ON p.${taxonomy.programFkColumn} = pc.id
+      LEFT JOIN scheduling_category scat ON scat.id = p.scheduling_category_id
     `
     const params = []
     
@@ -10850,6 +10849,17 @@ app.put('/api/admin/programs/:id', async (req, res) => {
     if (value.displayName !== undefined) {
       updates.push(`display_name = $${paramCount++}`)
       values.push(value.displayName)
+      // Keep the linked scheduling form's title in sync with the class name so
+      // the public /scheduling page never shows a stale title.
+      try {
+        await pool.query(
+          `UPDATE scheduling_form SET title = $1, updated_at = CURRENT_TIMESTAMP
+           WHERE program_id = $2 AND deleted_at IS NULL`,
+          [value.displayName, id],
+        )
+      } catch {
+        /* scheduling_form optional */
+      }
     }
     if (value.skillLevel !== undefined) {
       updates.push(`skill_level = $${paramCount++}`)

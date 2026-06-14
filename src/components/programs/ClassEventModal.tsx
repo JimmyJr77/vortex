@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Loader2, Plus, X } from 'lucide-react'
 import {
   createClassEvent,
+  setClassSchedulingCategory,
   updateClassEvent,
   type ClassEvent,
   type ClassEventFormData,
@@ -10,7 +11,6 @@ import {
   adminCreateCategory,
   adminFetchAllCategories,
   adminFetchFormCategories,
-  adminLinkCategoryToForm,
   type SchedulingCategory,
 } from '../../utils/schedulingApi'
 
@@ -162,11 +162,6 @@ const ClassEventModal = ({
     }
   }
 
-  const linkCategoryAfterSave = async (formId: number) => {
-    if (selectedCategoryId == null) return
-    await adminLinkCategoryToForm(formId, selectedCategoryId)
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.displayName?.trim()) {
@@ -193,10 +188,11 @@ const ClassEventModal = ({
           isActive: parentProgramActive ? form.isActive !== false : false,
         })
       }
-      const formId = saved.schedulingFormId ?? editing?.schedulingFormId
-      if (formId && selectedCategoryId != null) {
-        await linkCategoryAfterSave(formId)
-      }
+      // Persist the chosen scheduling category directly on the class row
+      // (program.scheduling_category_id) so it shows immediately in the Classes
+      // table and stays consistent on the Scheduling side. This sets the column,
+      // normalizes the form-category link, and re-points any offerings/slots.
+      await setClassSchedulingCategory(saved.id, selectedCategoryId)
       onSaved()
       onClose()
     } catch (err) {
