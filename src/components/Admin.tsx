@@ -10,6 +10,7 @@ import AdminEvents from './AdminEvents'
 import AdminAnalytics from './AdminAnalytics'
 import AdminHighlights from './AdminHighlights'
 import AdminScheduling from './AdminScheduling'
+import AdminCalendar from './scheduling/AdminCalendar'
 import AdminPricing from './AdminPricing'
 import AdminSignups from './AdminSignups'
 import AdminDbQueries from './AdminDbQueries'
@@ -50,7 +51,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'pricing' | 'signups' | 'dbQueries' | 'schools'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'dbQueries' | 'schools'
 
 
 export default function Admin({ onLogout }: AdminProps) {
@@ -254,6 +255,23 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
+                onClick={() => setActiveTab('calendar')}
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'calendar'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Calendar
+                {activeTab === 'calendar' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab('pricing')}
                 className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'pricing'
@@ -393,6 +411,14 @@ export default function Admin({ onLogout }: AdminProps) {
                 key={`scheduling-${schedulingNavKey}`}
                 navigationIntent={schedulingIntent}
                 onNavigationIntentConsumed={() => setSchedulingIntent(null)}
+              />
+            ) : activeTab === 'calendar' ? (
+              <AdminCalendar
+                onOpenScheduling={(intent) => {
+                  setSchedulingIntent(intent)
+                  setSchedulingNavKey((key) => key + 1)
+                  setActiveTab('scheduling')
+                }}
               />
             ) : activeTab === 'pricing' ? (
               <AdminPricing />

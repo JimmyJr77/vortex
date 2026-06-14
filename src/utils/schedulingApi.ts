@@ -145,6 +145,53 @@ export interface SchedulingFormDetail extends SchedulingFormSummary {
   schedulePreview: SlotsByCategory['preview']
 }
 
+export type CalendarFormActiveFilter = 'all' | 'active' | 'inactive'
+
+export interface SchedulingCalendarEvent {
+  id: string
+  date: string
+  startTime: string
+  endTime: string
+  formId: number
+  classEventId: number | null
+  programsId: number | null
+  programName: string | null
+  className: string
+  categoryId: number | null
+  categoryName: string | null
+  offeringLabel: string | null
+  formActive: boolean
+  slotGroupActive: boolean
+  slotActive: boolean
+  weekLetter?: string | null
+}
+
+export interface SchedulingCalendarTbd {
+  formId: number
+  classEventId: number | null
+  programsId: number | null
+  programName: string | null
+  className: string
+  categoryId: number | null
+  categoryName: string | null
+  offeringLabel: string | null
+  formActive: boolean
+  slotGroupActive: boolean
+  scheduleMode: 'day' | 'date'
+  weekLetter: string | null
+  dayOfWeek: number | null
+  dayName: string | null
+  startTime: string
+  endTime: string
+}
+
+export interface SchedulingCalendarMonth {
+  year: number
+  month: number
+  events: SchedulingCalendarEvent[]
+  tbdPatterns: SchedulingCalendarTbd[]
+}
+
 export interface SchedulingOrphanedSnapshot {
   formTitle: string
   categoryName: string
@@ -478,6 +525,24 @@ export async function submitSchedulingSignupBatch(payload: {
 
 export async function adminFetchSchedulingForms(): Promise<SchedulingFormSummary[]> {
   const res = await adminApiRequest('/api/admin/scheduling/forms')
+  return parseJson(res)
+}
+
+export async function adminFetchSchedulingCalendar(params: {
+  year: number
+  month: number
+  programsId?: number | null
+  formActive?: CalendarFormActiveFilter
+}): Promise<SchedulingCalendarMonth> {
+  const qs = new URLSearchParams({
+    year: String(params.year),
+    month: String(params.month),
+    formActive: params.formActive ?? 'all',
+  })
+  if (params.programsId != null) {
+    qs.set('programsId', String(params.programsId))
+  }
+  const res = await adminApiRequest(`/api/admin/scheduling/calendar?${qs.toString()}`)
   return parseJson(res)
 }
 

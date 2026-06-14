@@ -5,7 +5,7 @@ export type SchedulingNavigationIntent = {
   programsId: number
   classEventId: number
   categorySelection: CategorySelection
-  targetPanel: 'form'
+  targetPanel: 'form' | 'slots'
 }
 
 export function allSignupFieldKeys(): string[] {

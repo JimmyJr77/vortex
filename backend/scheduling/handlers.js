@@ -36,6 +36,7 @@ import {
   validateSignupResponses,
 } from './signupFieldCatalog.js'
 import { expandSlotBatch } from './slotExpansion.js'
+import { expandCalendarMonth } from './calendarExpansion.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { ensureNoCategoryCategory, isNoCategoryCategoryRow, NO_CATEGORY_NAME } from '../programs/noCategory.js'
 
@@ -1937,6 +1938,87 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         console.error('[scheduling] listLegacyForms:', err)
         res.status(500).json({ success: false, message: 'Failed to load legacy forms' })
+      }
+    },
+
+    async getAdminCalendar(req, res) {
+      try {
+        const year = Number(req.query.year)
+        const month = Number(req.query.month)
+        if (!Number.isInteger(year) || year < 2000 || year > 2100) {
+          return res.status(400).json({ success: false, message: 'Invalid year' })
+        }
+        if (!Number.isInteger(month) || month < 1 || month > 12) {
+          return res.status(400).json({ success: false, message: 'Invalid month' })
+        }
+
+        const programsId = req.query.programsId != null ? Number(req.query.programsId) : null
+        if (req.query.programsId != null && !Number.isInteger(programsId)) {
+          return res.status(400).json({ success: false, message: 'Invalid programsId' })
+        }
+
+        const formActive = String(req.query.formActive || 'all').toLowerCase()
+        if (!['all', 'active', 'inactive'].includes(formActive)) {
+          return res.status(400).json({ success: false, message: 'Invalid formActive filter' })
+        }
+
+        const { resolveProgramsSchema } = await import('../programs/schema.js')
+        const schema = await resolveProgramsSchema(pool)
+
+        const params = []
+        const filters = [
+          'sf.deleted_at IS NULL',
+          'sf.program_id IS NOT NULL',
+        ]
+
+        if (programsId != null) {
+          params.push(programsId)
+          filters.push(`sf.programs_id = $${params.length}`)
+        }
+        if (formActive === 'active') {
+          filters.push('sf.is_active = TRUE')
+        } else if (formActive === 'inactive') {
+          filters.push('sf.is_active = FALSE')
+        }
+
+        const result = await pool.query(
+          `
+          SELECT
+            ts.*,
+            sg.is_active AS sg_is_active,
+            sg.active_start AS sg_active_start,
+            sg.active_end AS sg_active_end,
+            sg.dates_tbd AS sg_dates_tbd,
+            sf.title AS form_title,
+            sf.is_active AS form_is_active,
+            sf.start_date AS form_start_date,
+            sf.end_date AS form_end_date,
+            sf.program_id,
+            sf.programs_id,
+            o.start_date AS offering_start_date,
+            o.end_date AS offering_end_date,
+            o.label AS offering_label,
+            p.display_name AS class_name,
+            pr.display_name AS program_name,
+            COALESCE(sc.name, 'No Category') AS category_name
+          FROM scheduling_time_slot ts
+          JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
+          JOIN scheduling_form sf ON sf.id = ts.form_id
+          LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
+          LEFT JOIN program p ON p.id = sf.program_id
+          LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
+          LEFT JOIN scheduling_category sc ON sc.id = COALESCE(ts.category_id, sg.category_id)
+          WHERE ${filters.join(' AND ')}
+          ORDER BY ts.start_time, p.display_name, ts.id
+          `,
+          params,
+        )
+
+        const data = expandCalendarMonth({ year, month, rows: result.rows })
+        res.json({ success: true, data })
+      } catch (err) {
+        console.error('[scheduling] getAdminCalendar:', err)
+        res.status(500).json({ success: false, message: 'Failed to load calendar' })
       }
     },
 
