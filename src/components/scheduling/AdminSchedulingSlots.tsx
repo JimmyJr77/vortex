@@ -133,6 +133,7 @@ const AdminSchedulingSlots = ({
   offeringId,
   offeringStartDate,
   offeringEndDate,
+  offeringLabel,
   selectedCategoryId,
   categoryName,
   canBuild = true,
@@ -143,13 +144,16 @@ const AdminSchedulingSlots = ({
 }: Props) => {
   const formCategories = detail.categories
 
-  const visibleSlotGroups = useMemo(
-    () =>
-      (detail.slotGroups ?? []).filter((group) =>
-        isScheduledSlotVisible(group, signups, orphanedSignups),
-      ),
-    [detail.slotGroups, signups, orphanedSignups],
-  )
+  const offeringScopedSlotGroups = useMemo(() => {
+    if (offeringId == null) return []
+
+    return (detail.slotGroups ?? []).filter((group) => {
+      if (!isScheduledSlotVisible(group, signups, orphanedSignups)) return false
+      if ((group.categoryId ?? null) !== (selectedCategoryId ?? null)) return false
+      return group.offeringId === offeringId
+    })
+  }, [detail.slotGroups, signups, orphanedSignups, offeringId, selectedCategoryId])
+
   const builderRef = useRef<HTMLDivElement>(null)
   const savingRef = useRef(false)
   const deletingRef = useRef(false)
@@ -307,46 +311,38 @@ const AdminSchedulingSlots = ({
   }
 
   const scheduledSections: { id: number | null; name: string }[] = useMemo(() => {
-    const sections: { id: number | null; name: string }[] = []
-    const seen = new Set<string>()
+    if (offeringId == null) return []
 
-    const catalog = detail.allCategories?.length
-      ? detail.allCategories.map((c) => ({ id: c.id, name: c.name }))
-      : formCategories.map((c) => ({ id: c.id, name: c.name }))
+    const name =
+      categoryName ??
+      (selectedCategoryId == null
+        ? 'No Category'
+        : (formCategories.find((c) => c.id === selectedCategoryId)?.name ??
+          detail.allCategories?.find((c) => c.id === selectedCategoryId)?.name ??
+          `Category #${selectedCategoryId}`))
 
-    for (const group of visibleSlotGroups) {
-      const catId = group.categoryId ?? null
-      const dedupeKey = catId == null ? 'none' : String(catId)
-      if (seen.has(dedupeKey)) continue
-      seen.add(dedupeKey)
-      if (catId == null) {
-        sections.push({ id: null, name: 'No Category' })
-        continue
-      }
-      const name =
-        catalog.find((c) => c.id === catId)?.name ??
-        formCategories.find((c) => c.id === catId)?.name ??
-        `Category #${catId}`
-      sections.push({ id: catId, name })
-    }
-
-    return sections
-  }, [detail.allCategories, formCategories, visibleSlotGroups])
+    return [{ id: selectedCategoryId ?? null, name }]
+  }, [
+    offeringId,
+    categoryName,
+    selectedCategoryId,
+    formCategories,
+    detail.allCategories,
+  ])
 
   const sectionKey = (id: number | null, name: string) =>
     id == null ? `none:${name}` : String(id)
 
-  const groupsForCategory = (catId: number | null) =>
-    visibleSlotGroups.filter((g) => (g.categoryId ?? null) === catId)
+  const groupsForCategory = (_catId: number | null) => offeringScopedSlotGroups
 
   useEffect(() => {
-    if (scheduledSections.length === 0) return
-    setExpanded((prev) => {
-      if (Object.keys(prev).length > 0) return prev
-      const initial = scheduledSections[0]
-      return { [sectionKey(initial.id, initial.name)]: true }
-    })
-  }, [scheduledSections])
+    if (scheduledSections.length === 0) {
+      setExpanded({})
+      return
+    }
+    const initial = scheduledSections[0]
+    setExpanded({ [sectionKey(initial.id, initial.name)]: true })
+  }, [offeringId, selectedCategoryId, scheduledSections])
 
   const applyInheritedDates = () => {
     const { start, end } = inheritedDates()
@@ -610,6 +606,12 @@ const AdminSchedulingSlots = ({
         {categoryName != null && (
           <div className="text-sm text-gray-700">
             Category: <strong>{categoryName}</strong>
+            {offeringLabel && (
+              <>
+                {' '}
+                · Offering: <strong>{offeringLabel}</strong>
+              </>
+            )}
           </div>
         )}
 
@@ -895,8 +897,8 @@ const AdminSchedulingSlots = ({
       {canBuild && builderForm}
 
       <div className="border-t border-gray-200 pt-8">
-        {scheduledSections.length === 0 ? (
-          <p className="text-gray-500 text-sm mb-4">No active scheduled slots right now.</p>
+        {scheduledSections.length === 0 || groupsForCategory(scheduledSections[0]?.id ?? null).length === 0 ? (
+          <p className="text-gray-500 text-sm mb-4">No scheduled slots for this offering yet.</p>
         ) : null}
         <div className="space-y-3">
           {scheduledSections.map((cat) => {

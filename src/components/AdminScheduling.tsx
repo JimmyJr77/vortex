@@ -435,7 +435,13 @@ const AdminScheduling = ({
                 />
               )}
 
-              {panel === 'slots' && selectedClassEvent && selectedId && detail && (
+              {panel === 'slots' && selectedClassEvent && selectedId && detail && !selectedOffering && (
+                <p className="text-gray-600 py-8">
+                  Select an offering in <strong>Offerings</strong> to view and manage its time slots.
+                </p>
+              )}
+
+              {panel === 'slots' && selectedClassEvent && selectedId && detail && selectedOffering && (
                 <AdminSchedulingSlots
                   formId={selectedId}
                   detail={detail}
@@ -444,7 +450,7 @@ const AdminScheduling = ({
                   offeringId={selectedOffering?.id ?? null}
                   offeringStartDate={selectedOffering?.startDate ?? null}
                   offeringEndDate={selectedOffering?.endDate ?? null}
-                  offeringLabel={selectedOffering?.label ?? null}
+                  offeringLabel={offeringDisplayName}
                   selectedCategoryId={categoryApiId ?? null}
                   categoryName={categoryDisplayName}
                   canBuild={Boolean(selectedOffering)}
