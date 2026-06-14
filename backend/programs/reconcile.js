@@ -114,6 +114,15 @@ export async function reconcileClasses(pool, opts = {}) {
     for (const row of classes.rows) {
       const cats = await distinctCategoryIds(client, row.form_id)
 
+      // Keep the form title in sync with the class name so the public
+      // /scheduling page never shows a stale title (e.g. an old export name).
+      if (row.display_name != null) {
+        await client.query(
+          'UPDATE scheduling_form SET title = $1, updated_at = now() WHERE id = $2 AND title IS DISTINCT FROM $1',
+          [row.display_name, row.form_id],
+        )
+      }
+
       // 0 or 1 category: just make sure the mapping column matches. No split.
       if (cats.length <= 1) {
         const single = cats.length === 1 ? cats[0] : null
