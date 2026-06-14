@@ -1646,11 +1646,16 @@ export function createSchedulingHandlers(pool) {
 
         const seenKeys = new Set()
         for (const entry of value.signups) {
-          const key = programClassOptionKey(entry.formId, entry.categoryId ?? null)
+          const key = programSlotSignupKey(
+            entry.formId,
+            entry.categoryId ?? null,
+            entry.slotGroupId,
+            entry.timeSlotId ?? null,
+          )
           if (seenKeys.has(key)) {
             return res.status(400).json({
               success: false,
-              message: 'Duplicate class selection in signup batch',
+              message: 'Duplicate slot selection in signup batch',
             })
           }
           seenKeys.add(key)
@@ -1728,6 +1733,26 @@ export function createSchedulingHandlers(pool) {
           if (!memberId) {
             await client.query('ROLLBACK')
             return res.status(400).json({ success: false, message: 'Could not resolve member account' })
+          }
+
+          for (const resolved of resolvedEntries) {
+            const existing = await client.query(
+              `
+              SELECT id FROM scheduling_signup
+              WHERE member_id = $1
+                AND slot_group_id = $2
+                AND time_slot_id = $3
+                AND orphaned_at IS NULL
+                AND status IN ('confirmed', 'waitlisted')
+              LIMIT 1
+              `,
+              [memberId, resolved.entry.slotGroupId, resolved.firstOccurrence.id],
+            )
+            if (existing.rows.length > 0) {
+              const err = new Error('You are already signed up for one of the selected slots')
+              err.code = 'ALREADY_SIGNED_UP'
+              throw err
+            }
           }
 
           const byForm = new Map()
@@ -1826,6 +1851,9 @@ export function createSchedulingHandlers(pool) {
             return res.status(400).json({ success: false, message: txErr.message })
           }
           if (txErr.code === 'SLOT_UNAVAILABLE') {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          if (txErr.code === 'ALREADY_SIGNED_UP') {
             return res.status(400).json({ success: false, message: txErr.message })
           }
           if (txErr.message?.includes('already exists')) {

@@ -184,9 +184,47 @@ function mergeCategoryBundles(
   const byKey = new Map<string, ProgramClassOption>()
   for (const bundle of primary) byKey.set(bundle.key, bundle)
   for (const bundle of extra) {
-    if (!byKey.has(bundle.key)) byKey.set(bundle.key, bundle)
+    const existing = byKey.get(bundle.key)
+    if (!existing) {
+      byKey.set(bundle.key, bundle)
+      continue
+    }
+    const slotsByKey = new Map(
+      existing.slots.map((slot) => [`${slot.slotGroupId}:${slot.timeSlotId}`, slot]),
+    )
+    for (const slot of bundle.slots) {
+      const slotKey = `${slot.slotGroupId}:${slot.timeSlotId}`
+      const prev = slotsByKey.get(slotKey)
+      if (prev) {
+        slotsByKey.set(slotKey, {
+          ...prev,
+          alreadySignedUp: Boolean(prev.alreadySignedUp || slot.alreadySignedUp),
+        })
+      } else {
+        slotsByKey.set(slotKey, slot)
+      }
+    }
+    byKey.set(bundle.key, { ...existing, slots: [...slotsByKey.values()] })
   }
   return [...byKey.values()]
+}
+
+function collectSignedUpSlotKeysFromOptions(options: ProgramClassOption[]): Set<string> {
+  const keys = new Set<string>()
+  for (const bundle of options) {
+    for (const slot of bundle.slots) {
+      if (!slot.alreadySignedUp) continue
+      keys.add(
+        memberSignupSlotKey({
+          formId: bundle.formId,
+          categoryId: bundle.categoryId,
+          slotGroupId: slot.slotGroupId,
+          timeSlotId: slot.timeSlotId,
+        }),
+      )
+    }
+  }
+  return keys
 }
 
 function SignupFieldInput({
@@ -410,6 +448,7 @@ const SchedulingSignupEmbed = ({
         saveSchedulingMemberEmail(session.email)
         setIdentityPhase('ready')
         setIsNewUser(false)
+        void loadSignedUpSlots(session.email)
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Invalid sign-in link'))
       .finally(() => setIdentityLoading(false))
@@ -525,8 +564,47 @@ const SchedulingSignupEmbed = ({
   }
 
   const handleSlotSelect = (option: SlotPickOption) => {
+    if (
+      formDetail &&
+      isSlotAlreadySignedUp(
+        formDetail.id,
+        categoryId ?? null,
+        option.slotGroupId,
+        option.timeSlotId,
+      )
+    ) {
+      return
+    }
     setSlotGroupId(option.slotGroupId)
     setTimeSlotId(option.timeSlotId)
+    if (formDetail) {
+      const slotKey = slotSelectionKey(
+        formDetail.id,
+        categoryId ?? null,
+        option.slotGroupId,
+        option.timeSlotId,
+      )
+      const categoryName =
+        formDetail.categories.find((c) => (c.id ?? null) === (categoryId ?? null))?.name ??
+        'No Category'
+      setSelectedSlots((prev) => ({
+        ...prev,
+        [slotKey]: {
+          key: slotKey,
+          formId: formDetail.id,
+          formTitle: formDetail.title,
+          categoryId: categoryId ?? null,
+          categoryName,
+          slotGroupId: option.slotGroupId,
+          timeSlotId: option.timeSlotId,
+          slotLabel: formatSchedulingOccurrenceLabel(option.occurrence, {
+            includeWeek: schedulingHasMultipleWeeks(bookableGroupsForCategory(formDetail, categoryId ?? null)),
+            formatTime: formatTimeLabel,
+          }),
+          isFull: option.group.isFull,
+        },
+      }))
+    }
     if (!signupAuthToken && identityPhase !== 'ready') {
       setIdentityPhase('email')
       setIsNewUser(false)
@@ -583,6 +661,7 @@ const SchedulingSignupEmbed = ({
       setSignupAuthToken(session.signupAuthToken)
       setIdentityPhase('ready')
       setIsNewUser(false)
+      void loadSignedUpSlots(accountEmail.trim())
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed')
     } finally {
@@ -614,7 +693,13 @@ const SchedulingSignupEmbed = ({
     fetchProgramSignupOptions(formId, {
       email: email || undefined,
     })
-      .then((data) => setProgramOptions(data.options))
+      .then((data) => {
+        setProgramOptions(data.options)
+        const fromApi = collectSignedUpSlotKeysFromOptions(data.options)
+        if (fromApi.size > 0) {
+          setSignedUpSlotKeys((prev) => new Set([...prev, ...fromApi]))
+        }
+      })
       .catch(() => setProgramOptions([]))
       .finally(() => setProgramOptionsLoading(false))
   }, [formDetail, formId, categoryId, slotGroupId, timeSlotId, identityPhase, accountEmail, initialEmail])
@@ -659,24 +744,28 @@ const SchedulingSignupEmbed = ({
 
   useEffect(() => {
     if (!formDetail || categoryId === undefined || !slotGroupId || !timeSlotId) return
+    if (
+      isSlotAlreadySignedUp(formDetail.id, categoryId ?? null, slotGroupId, timeSlotId)
+    ) {
+      return
+    }
     const bundle = currentCategoryBundle
     const slot = bundle?.slots.find(
       (s) => s.slotGroupId === slotGroupId && s.timeSlotId === timeSlotId,
     )
     if (!bundle || !slot) return
-    const catKey = bundle.key
+    const slotKey = slotSelectionKey(
+      bundle.formId,
+      bundle.categoryId,
+      slotGroupId,
+      timeSlotId,
+    )
     setSelectedSlots((prev) => {
-      const existing = prev[catKey]
-      if (
-        existing?.slotGroupId === slotGroupId &&
-        existing?.timeSlotId === timeSlotId
-      ) {
-        return prev
-      }
+      if (prev[slotKey]) return prev
       return {
         ...prev,
-        [catKey]: {
-          key: catKey,
+        [slotKey]: {
+          key: slotKey,
           formId: bundle.formId,
           formTitle: bundle.formTitle,
           categoryId: bundle.categoryId,
@@ -688,7 +777,14 @@ const SchedulingSignupEmbed = ({
         },
       }
     })
-  }, [formDetail, categoryId, slotGroupId, timeSlotId, currentCategoryBundle])
+  }, [
+    formDetail,
+    categoryId,
+    slotGroupId,
+    timeSlotId,
+    currentCategoryBundle,
+    isSlotAlreadySignedUp,
+  ])
 
   const sectionClass = compact
     ? 'bg-white rounded-xl border border-gray-200 p-4 shadow-sm'
@@ -735,7 +831,10 @@ const SchedulingSignupEmbed = ({
       slot.timeSlotId,
     )
     for (const item of selectedSlotList) {
-      const selectedBundle = categoryBundles.find((b) => b.key === item.key)
+      const selectedBundle = categoryBundles.find(
+        (b) =>
+          b.formId === item.formId && (b.categoryId ?? null) === (item.categoryId ?? null),
+      )
       const selectedSlot = selectedBundle?.slots.find(
         (s) => s.slotGroupId === item.slotGroupId && s.timeSlotId === item.timeSlotId,
       )
@@ -752,17 +851,68 @@ const SchedulingSignupEmbed = ({
     return false
   }
 
+  const slotConflictsWithEnrolled = (
+    slot: ProgramClassSlotOption,
+    bundle: ProgramClassOption,
+  ): boolean => {
+    for (const catBundle of categoryBundles) {
+      for (const enrolled of catBundle.slots) {
+        const enrolledKey = slotSelectionKey(
+          catBundle.formId,
+          catBundle.categoryId,
+          enrolled.slotGroupId,
+          enrolled.timeSlotId,
+        )
+        const isEnrolled =
+          enrolled.alreadySignedUp ||
+          isSlotAlreadySignedUp(
+            catBundle.formId,
+            catBundle.categoryId,
+            enrolled.slotGroupId,
+            enrolled.timeSlotId,
+          )
+        if (!isEnrolled) continue
+        const candidateKey = slotSelectionKey(
+          bundle.formId,
+          bundle.categoryId,
+          slot.slotGroupId,
+          slot.timeSlotId,
+        )
+        if (enrolledKey === candidateKey) continue
+        if (slotsConflict(slot, enrolled)) return true
+      }
+    }
+    return false
+  }
+
   const toggleCategorySlot = (
     bundle: ProgramClassOption,
     slot: ProgramClassSlotOption,
     checked: boolean,
   ) => {
-    if (slot.alreadySignedUp) return
-    const catKey = bundle.key
+    const isEnrolled =
+      slot.alreadySignedUp ||
+      isSlotAlreadySignedUp(
+        bundle.formId,
+        bundle.categoryId,
+        slot.slotGroupId,
+        slot.timeSlotId,
+      )
+    if (isEnrolled) return
+
+    const slotKey = slotSelectionKey(
+      bundle.formId,
+      bundle.categoryId,
+      slot.slotGroupId,
+      slot.timeSlotId,
+    )
+
     if (checked) {
-      if (slotConflictsWithSelected(slot, bundle)) return
+      if (slotConflictsWithSelected(slot, bundle) || slotConflictsWithEnrolled(slot, bundle)) {
+        return
+      }
       const item: SignupCartItem = {
-        key: catKey,
+        key: slotKey,
         formId: bundle.formId,
         formTitle: bundle.formTitle,
         categoryId: bundle.categoryId,
@@ -772,7 +922,7 @@ const SchedulingSignupEmbed = ({
         slotLabel: slot.label,
         isFull: slot.isFull,
       }
-      setSelectedSlots((prev) => ({ ...prev, [catKey]: item }))
+      setSelectedSlots((prev) => ({ ...prev, [slotKey]: item }))
       if (bundle.formId === formDetail?.id && bundle.categoryId === categoryId) {
         setSlotGroupId(slot.slotGroupId)
         setTimeSlotId(slot.timeSlotId)
@@ -780,17 +930,24 @@ const SchedulingSignupEmbed = ({
       return
     }
 
-    if (Object.keys(selectedSlots).length <= 1 && selectedSlots[catKey]) {
+    if (Object.keys(selectedSlots).length <= 1 && selectedSlots[slotKey]) {
       setError('At least one class time must remain selected')
       return
     }
     setError(null)
     setSelectedSlots((prev) => {
       const next = { ...prev }
-      delete next[catKey]
+      delete next[slotKey]
       if (bundle.formId === formDetail?.id && bundle.categoryId === categoryId) {
         const remaining = Object.values(next)
-        if (remaining[0]) {
+        const sameCategory = remaining.find(
+          (item) =>
+            item.formId === formDetail?.id && (item.categoryId ?? null) === (categoryId ?? null),
+        )
+        if (sameCategory) {
+          setSlotGroupId(sameCategory.slotGroupId)
+          setTimeSlotId(sameCategory.timeSlotId)
+        } else if (remaining[0]) {
           setSlotGroupId(remaining[0].slotGroupId)
           setTimeSlotId(remaining[0].timeSlotId)
           if (remaining[0].formId === formDetail?.id) {
@@ -806,27 +963,36 @@ const SchedulingSignupEmbed = ({
   }
 
   const renderCategorySlotList = (bundle: ProgramClassOption) => {
-    const selectedForCategory = selectedSlots[bundle.key]
-
     return (
       <ul className="space-y-2">
         {bundle.slots.map((slot) => {
-          const isChecked =
+          const slotKey = slotSelectionKey(
+            bundle.formId,
+            bundle.categoryId,
+            slot.slotGroupId,
+            slot.timeSlotId,
+          )
+          const isAlreadySignedUp =
             slot.alreadySignedUp ||
-            (selectedForCategory?.slotGroupId === slot.slotGroupId &&
-              selectedForCategory?.timeSlotId === slot.timeSlotId)
+            isSlotAlreadySignedUp(
+              bundle.formId,
+              bundle.categoryId,
+              slot.slotGroupId,
+              slot.timeSlotId,
+            )
+          const isSelected = Boolean(selectedSlots[slotKey])
+          const isChecked = isAlreadySignedUp || isSelected
           const hasConflict =
             !isChecked &&
-            !slot.alreadySignedUp &&
-            slotConflictsWithSelected(slot, bundle)
-          const inputId = `slot-${bundle.key}-${slot.slotGroupId}-${slot.timeSlotId}`
+            (slotConflictsWithSelected(slot, bundle) || slotConflictsWithEnrolled(slot, bundle))
+          const inputId = `slot-${slotKey}`
 
           return (
             <li key={inputId}>
               <label
                 htmlFor={inputId}
                 className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
-                  slot.alreadySignedUp
+                  isAlreadySignedUp
                     ? 'border-gray-200 bg-gray-100 opacity-70 cursor-not-allowed'
                     : hasConflict
                       ? 'border-gray-200 bg-gray-50 opacity-70 cursor-not-allowed'
@@ -839,7 +1005,7 @@ const SchedulingSignupEmbed = ({
                   id={inputId}
                   type="checkbox"
                   checked={isChecked}
-                  disabled={hasConflict || slot.alreadySignedUp}
+                  disabled={hasConflict || isAlreadySignedUp}
                   onChange={(e) => toggleCategorySlot(bundle, slot, e.target.checked)}
                   className="mt-0.5"
                 />
@@ -847,7 +1013,7 @@ const SchedulingSignupEmbed = ({
                   <span className="font-semibold text-black block">{slot.label}</span>
                   <span className="text-xs text-gray-600 mt-1 flex items-center gap-2">
                     <Users className="w-3.5 h-3.5 shrink-0" />
-                    {slot.alreadySignedUp
+                    {isAlreadySignedUp
                       ? 'Already signed up'
                       : slot.isFull
                         ? `Full — join waitlist${slot.waitlistCount > 0 ? ` (${slot.waitlistCount} waiting)` : ''}`
@@ -912,7 +1078,17 @@ const SchedulingSignupEmbed = ({
         }
       }
       const result = await submitSchedulingSignupBatch({
-        signups: cartItems.map((item) => ({
+        signups: cartItems
+          .filter(
+            (item) =>
+              !isSlotAlreadySignedUp(
+                item.formId,
+                item.categoryId,
+                item.slotGroupId,
+                item.timeSlotId,
+              ),
+          )
+          .map((item) => ({
           formId: item.formId,
           categoryId: item.categoryId,
           slotGroupId: item.slotGroupId,
@@ -1431,7 +1607,7 @@ const SchedulingSignupEmbed = ({
               Add more classes
             </h4>
             <p className="text-sm text-gray-600 mb-4">
-              Other classes in this program for signup:
+              Other classes in this program available for signup:
             </p>
             {programOptionsLoading ? (
               <div className="flex items-center gap-2 text-sm text-gray-500">
