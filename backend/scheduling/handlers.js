@@ -352,11 +352,131 @@ function mapFormRow(row) {
     signupFields: parseSignupFields(row),
     mandateWaiver: Boolean(row.mandate_waiver),
     isActive: row.is_active,
+    programsId: row.programs_id != null ? Number(row.programs_id) : null,
     maxSlotsPerUser: row.max_slots_per_user != null ? Number(row.max_slots_per_user) : null,
     slotCostMonthlyCents: Number(row.slot_cost_monthly_cents ?? 0),
     freeSlotsPerUser: Number(row.free_slots_per_user ?? 0),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  }
+}
+
+function programClassOptionKey(formId, categoryId) {
+  return `${formId}:${categoryId ?? 'none'}`
+}
+
+function buildProgramClassOptionsFromDetail(detail, { excludeFormId, excludeCategoryId } = {}) {
+  const options = []
+  for (const cat of detail.categories) {
+    const catId = cat.id ?? null
+    if (excludeFormId === detail.id && (excludeCategoryId ?? null) === catId) {
+      continue
+    }
+    const groups = detail.slotGroups.filter((g) => (g.categoryId ?? null) === catId)
+    const slots = []
+    for (const group of groups) {
+      for (const occ of group.occurrences) {
+        slots.push({
+          slotGroupId: group.id,
+          timeSlotId: occ.id,
+          label: group.displayLabel || occ.displayLabel || '',
+          isFull: group.isFull,
+          spotsRemaining: group.spotsRemaining,
+          waitlistCount: group.waitlistCount ?? 0,
+        })
+      }
+    }
+    if (slots.length === 0) continue
+    options.push({
+      key: programClassOptionKey(detail.id, catId),
+      formId: detail.id,
+      formTitle: detail.title,
+      categoryId: catId,
+      categoryName: cat.name,
+      slots,
+    })
+  }
+  return options
+}
+
+async function loadFormProgramsId(pool, formId) {
+  const res = await pool.query(
+    'SELECT programs_id FROM scheduling_form WHERE id = $1',
+    [formId],
+  )
+  return res.rows[0]?.programs_id != null ? Number(res.rows[0].programs_id) : null
+}
+
+async function issueSignupAuthForForm(pool, formId, member) {
+  const programsId = await loadFormProgramsId(pool, formId)
+  return issueSignupAuthToken({
+    formId,
+    memberId: member.id,
+    email: member.email,
+    programsId,
+  })
+}
+
+async function resolveSignupEntryForInsert(pool, entry) {
+  const formRes = await pool.query('SELECT * FROM scheduling_form WHERE id = $1', [entry.formId])
+  if (formRes.rows.length === 0 || formRes.rows[0].deleted_at || !formRes.rows[0].is_active) {
+    const err = new Error('Scheduling form not available')
+    err.code = 'FORM_UNAVAILABLE'
+    throw err
+  }
+  const formRow = formRes.rows[0]
+  const detail = await loadFormDetail(pool, entry.formId)
+  if (!detail) {
+    const err = new Error('Scheduling form not available')
+    err.code = 'FORM_UNAVAILABLE'
+    throw err
+  }
+
+  const signupCategoryId = entry.categoryId ?? null
+  const group = detail.slotGroups.find((g) => g.id === entry.slotGroupId)
+  if (!group) {
+    const err = new Error('Invalid time slot group')
+    err.code = 'INVALID_ENTRY'
+    throw err
+  }
+  if ((group.categoryId ?? null) !== signupCategoryId) {
+    const err = new Error('Time slot does not match category')
+    err.code = 'INVALID_ENTRY'
+    throw err
+  }
+
+  const category =
+    signupCategoryId != null
+      ? detail.categories.find((c) => c.id === signupCategoryId)
+      : { id: null, name: 'No Category' }
+  if (signupCategoryId != null && !category) {
+    const err = new Error('Invalid category')
+    err.code = 'INVALID_ENTRY'
+    throw err
+  }
+
+  const firstOccurrence =
+    (entry.timeSlotId != null
+      ? group.occurrences.find((o) => o.id === entry.timeSlotId)
+      : null) ?? group.occurrences[0]
+  if (!firstOccurrence) {
+    const err = new Error('Time slot has no schedule entries')
+    err.code = 'INVALID_ENTRY'
+    throw err
+  }
+  if (entry.timeSlotId != null && firstOccurrence.id !== entry.timeSlotId) {
+    const err = new Error('Invalid time slot selection')
+    err.code = 'INVALID_ENTRY'
+    throw err
+  }
+
+  return {
+    formRow,
+    detail,
+    group,
+    category,
+    firstOccurrence,
+    signupCategoryId,
   }
 }
 
@@ -909,6 +1029,33 @@ const signupSchema = Joi.object({
   return val
 })
 
+const signupItemSchema = Joi.object({
+  formId: Joi.number().integer().required(),
+  categoryId: Joi.number().integer().allow(null).optional(),
+  slotGroupId: Joi.number().integer().required(),
+  timeSlotId: Joi.number().integer().optional(),
+})
+
+const batchSignupSchema = Joi.object({
+  signups: Joi.array().items(signupItemSchema).min(1).max(20).required(),
+  responses: Joi.object().default({}),
+  signupAuthToken: Joi.string().trim().optional(),
+  password: Joi.string().min(6).optional(),
+}).custom((val, helpers) => {
+  if (!val.signupAuthToken && !val.password) {
+    return helpers.error('any.custom', { message: 'Sign in or set an account password to continue' })
+  }
+  if (val.signupAuthToken && val.password) {
+    return helpers.error('any.custom', { message: 'Provide either sign-in session or new password, not both' })
+  }
+  return val
+})
+
+const programOptionsQuerySchema = Joi.object({
+  excludeCategoryId: Joi.string().allow('').optional(),
+  email: Joi.string().email().optional(),
+})
+
 const adminSignupSchema = Joi.object({
   formId: Joi.number().integer().required(),
   categoryId: Joi.number().integer().allow(null).optional(),
@@ -949,6 +1096,10 @@ function effectiveAdminStub(row, signupFields, mandateWaiver) {
 
 const checkEmailSchema = Joi.object({
   formId: Joi.number().integer().required(),
+  email: Joi.string().email().required(),
+})
+
+const memberSignupsSchema = Joi.object({
   email: Joi.string().email().required(),
 })
 
@@ -1038,6 +1189,108 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    /** Other bookable class/category options under the same parent program. */
+    async getProgramSignupOptions(req, res) {
+      try {
+        const formId = Number(req.params.id)
+        const { error, value } = programOptionsQuerySchema.validate(req.query)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+
+        const formRes = await pool.query(
+          'SELECT id, programs_id FROM scheduling_form WHERE id = $1 AND deleted_at IS NULL AND is_active = TRUE',
+          [formId],
+        )
+        if (formRes.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Scheduling form not found' })
+        }
+
+        const programsId =
+          formRes.rows[0].programs_id != null ? Number(formRes.rows[0].programs_id) : null
+        const excludeCategoryId =
+          value.excludeCategoryId === '' || value.excludeCategoryId == null
+            ? undefined
+            : Number(value.excludeCategoryId)
+
+        let signedUpKeys = new Set()
+        if (value.email) {
+          const member = await findMemberByEmail(pool, value.email)
+          if (member) {
+            const signupRes = await pool.query(
+              `SELECT form_id, category_id
+               FROM scheduling_signup
+               WHERE member_id = $1
+                 AND orphaned_at IS NULL
+                 AND status IN ('confirmed', 'waitlisted')`,
+              [member.id],
+            )
+            signedUpKeys = new Set(
+              signupRes.rows.map((r) =>
+                programClassOptionKey(Number(r.form_id), r.category_id != null ? Number(r.category_id) : null),
+              ),
+            )
+          }
+        }
+
+        const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import(
+          '../programs/schema.js'
+        )
+        const schema = await resolveProgramsSchema(pool)
+        const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
+        const programActiveClause = hasSchedCols
+          ? `(sf.programs_id IS NULL OR COALESCE(pr.scheduling_active, TRUE) = TRUE)`
+          : 'TRUE'
+
+        const siblingRes = await pool.query(
+          programsId != null
+            ? `
+              SELECT sf.id
+              FROM scheduling_form sf
+              LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
+              WHERE sf.deleted_at IS NULL
+                AND sf.is_active = TRUE
+                AND sf.program_id IS NOT NULL
+                AND sf.programs_id = $1
+                AND ${programActiveClause}
+              ORDER BY sf.title, sf.id
+              `
+            : `
+              SELECT sf.id
+              FROM scheduling_form sf
+              WHERE sf.deleted_at IS NULL
+                AND sf.is_active = TRUE
+                AND sf.program_id IS NOT NULL
+                AND sf.id = $1
+              `,
+          programsId != null ? [programsId] : [formId],
+        )
+
+        const options = []
+        for (const row of siblingRes.rows) {
+          const siblingId = Number(row.id)
+          const detail = await loadFormDetail(pool, siblingId)
+          if (!detail) continue
+          const classOptions = buildProgramClassOptionsFromDetail(detail, {
+            excludeFormId: formId,
+            excludeCategoryId,
+          }).filter((opt) => !signedUpKeys.has(opt.key))
+          options.push(...classOptions)
+        }
+
+        res.json({
+          success: true,
+          data: {
+            programsId,
+            options,
+          },
+        })
+      } catch (err) {
+        console.error('[scheduling] getProgramSignupOptions:', err)
+        res.status(500).json({ success: false, message: 'Failed to load program signup options' })
+      }
+    },
+
     async checkEmail(req, res) {
       try {
         const { error, value } = checkEmailSchema.validate(req.body)
@@ -1061,6 +1314,35 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    /** Form ids this member already has an active scheduling signup for. */
+    async listMemberSignedUpForms(req, res) {
+      try {
+        const { error, value } = memberSignupsSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const member = await findMemberByEmail(pool, value.email)
+        if (!member) {
+          return res.json({ success: true, data: { formIds: [] } })
+        }
+        const result = await pool.query(
+          `SELECT DISTINCT form_id
+           FROM scheduling_signup
+           WHERE member_id = $1
+             AND orphaned_at IS NULL
+             AND status IN ('confirmed', 'waitlisted')`,
+          [member.id],
+        )
+        res.json({
+          success: true,
+          data: { formIds: result.rows.map((r) => Number(r.form_id)) },
+        })
+      } catch (err) {
+        console.error('[scheduling] listMemberSignedUpForms:', err)
+        res.status(500).json({ success: false, message: 'Failed to load signups' })
+      }
+    },
+
     async authLogin(req, res) {
       try {
         const { error, value } = authLoginSchema.validate(req.body)
@@ -1075,11 +1357,7 @@ export function createSchedulingHandlers(pool) {
         if (!valid) {
           return res.status(401).json({ success: false, message: 'Incorrect password' })
         }
-        const signupAuthToken = issueSignupAuthToken({
-          formId: value.formId,
-          memberId: member.id,
-          email: member.email,
-        })
+        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, member)
         res.json({
           success: true,
           data: {
@@ -1154,11 +1432,7 @@ export function createSchedulingHandlers(pool) {
         if (!member) {
           return res.status(404).json({ success: false, message: 'Account not found' })
         }
-        const signupAuthToken = issueSignupAuthToken({
-          formId: value.formId,
-          memberId: member.id,
-          email: member.email,
-        })
+        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, member)
         res.json({
           success: true,
           data: {
@@ -1229,7 +1503,9 @@ export function createSchedulingHandlers(pool) {
         let responses = { ...value.responses }
 
         if (value.signupAuthToken) {
-          const auth = verifySignupAuthToken(value.signupAuthToken, value.formId)
+          const auth = verifySignupAuthToken(value.signupAuthToken, value.formId, {
+            programsId: formRow.programs_id != null ? Number(formRow.programs_id) : null,
+          })
           memberId = Number(auth.memberId)
           const member = await findMemberById(pool, memberId)
           if (!member) {
@@ -1337,6 +1613,218 @@ export function createSchedulingHandlers(pool) {
           return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
         }
         res.status(500).json({ success: false, message: err.message || 'Failed to submit signup' })
+      }
+    },
+
+    async createSignupBatch(req, res) {
+      try {
+        const { error, value } = batchSignupSchema.validate(req.body, { abortEarly: false })
+        if (error) {
+          const msg = error.details[0]?.message || 'Validation error'
+          return res.status(400).json({
+            success: false,
+            message: msg,
+            errors: error.details.map((d) => d.message),
+          })
+        }
+
+        const seenKeys = new Set()
+        for (const entry of value.signups) {
+          const key = programClassOptionKey(entry.formId, entry.categoryId ?? null)
+          if (seenKeys.has(key)) {
+            return res.status(400).json({
+              success: false,
+              message: 'Duplicate class selection in signup batch',
+            })
+          }
+          seenKeys.add(key)
+        }
+
+        const resolvedEntries = []
+        for (const entry of value.signups) {
+          try {
+            const resolved = await resolveSignupEntryForInsert(pool, entry)
+            resolvedEntries.push({ entry, ...resolved })
+          } catch (resolveErr) {
+            if (resolveErr.code === 'FORM_UNAVAILABLE' || resolveErr.code === 'INVALID_ENTRY') {
+              return res.status(400).json({ success: false, message: resolveErr.message })
+            }
+            throw resolveErr
+          }
+        }
+
+        const primaryFormRow = resolvedEntries[0].formRow
+        let memberId = null
+        let responses = { ...value.responses }
+
+        if (value.signupAuthToken) {
+          const auth = verifySignupAuthToken(value.signupAuthToken, value.signups[0].formId, {
+            programsId:
+              primaryFormRow.programs_id != null ? Number(primaryFormRow.programs_id) : null,
+          })
+          memberId = Number(auth.memberId)
+          const member = await findMemberById(pool, memberId)
+          if (!member) {
+            return res.status(401).json({ success: false, message: 'Account not found' })
+          }
+          for (const resolved of resolvedEntries) {
+            verifySignupAuthToken(value.signupAuthToken, resolved.entry.formId, {
+              programsId:
+                resolved.formRow.programs_id != null ? Number(resolved.formRow.programs_id) : null,
+            })
+          }
+          responses = {
+            first_name: member.first_name,
+            last_name: member.last_name,
+            email: member.email,
+            phone: member.phone || responses.phone,
+            ...responses,
+          }
+        } else if (value.password) {
+          const validationErrors = validateSignupResponses(
+            resolvedEntries[0].detail.signupFields,
+            responses,
+            { mandateWaiver: resolvedEntries[0].detail.mandateWaiver },
+          )
+          if (validationErrors.length > 0) {
+            return res.status(400).json({
+              success: false,
+              message: validationErrors[0],
+              errors: validationErrors,
+            })
+          }
+        }
+
+        const client = await pool.connect()
+        try {
+          await client.query('BEGIN')
+
+          if (value.password && !memberId) {
+            memberId = await createMemberStub(client, {
+              firstName: String(responses.first_name || ''),
+              lastName: String(responses.last_name || ''),
+              email: String(responses.email || ''),
+              password: value.password,
+              phone: responses.phone ? String(responses.phone) : null,
+            })
+          }
+
+          if (!memberId) {
+            await client.query('ROLLBACK')
+            return res.status(400).json({ success: false, message: 'Could not resolve member account' })
+          }
+
+          const byForm = new Map()
+          for (const resolved of resolvedEntries) {
+            const formId = resolved.entry.formId
+            if (!byForm.has(formId)) byForm.set(formId, [])
+            byForm.get(formId).push(resolved)
+          }
+
+          for (const [formId, entries] of byForm) {
+            const activeCount = await countActiveSignupsForMember(client, formId, memberId)
+            const maxSlots =
+              entries[0].formRow.max_slots_per_user != null
+                ? Number(entries[0].formRow.max_slots_per_user)
+                : null
+            if (maxSlots != null && activeCount + entries.length > maxSlots) {
+              const err = new Error(
+                `Maximum of ${maxSlots} slot${maxSlots === 1 ? '' : 's'} reached for this form`,
+              )
+              err.code = 'MAX_SLOTS'
+              throw err
+            }
+          }
+
+          const signupResults = []
+          for (const resolved of resolvedEntries) {
+            const signupResult = await insertSignupForMember(client, {
+              formId: resolved.entry.formId,
+              formRow: resolved.formRow,
+              signupCategoryId: resolved.signupCategoryId,
+              slotGroupId: resolved.entry.slotGroupId,
+              memberId,
+              responses,
+              firstOccurrenceId: resolved.firstOccurrence.id,
+              categoryName: resolved.category.name,
+              formTitle: resolved.detail.title,
+              mandateWaiver: resolved.detail.mandateWaiver,
+              groupDisplayLabel: resolved.group.displayLabel,
+              firstOccurrenceLabel: resolved.firstOccurrence.displayLabel,
+            })
+            signupResults.push(signupResult)
+          }
+
+          const currentSchool =
+            responses.current_school != null ? String(responses.current_school).trim() : ''
+          if (currentSchool) {
+            await linkMemberToSchoolFromName(client, memberId, currentSchool, 'signup')
+          }
+
+          await client.query('COMMIT')
+
+          const mappedSignups = []
+          for (const signupResult of signupResults) {
+            const { signupId, signupStatus, positions, pricing, responses: signupResponses } =
+              signupResult
+            await sendSignupNotificationEmails(pool, {
+              signupStatus,
+              signupId,
+              responses: signupResponses,
+              formTitle: signupResult.formTitle,
+              categoryName: signupResult.categoryName,
+              slotLabel: signupResult.slotLabel,
+              positions,
+              pricing,
+              mandateWaiver: signupResult.mandateWaiver,
+            })
+
+            const refreshed = await pool.query('SELECT * FROM scheduling_signup WHERE id = $1', [
+              signupId,
+            ])
+            mappedSignups.push({
+              ...mapSignupRow(refreshed.rows[0], positions),
+              formTitle: signupResult.formTitle,
+              categoryName: signupResult.categoryName,
+              slotLabel: signupResult.slotLabel,
+              pricing: signupResult.pricing,
+            })
+          }
+
+          res.json({
+            success: true,
+            message:
+              mappedSignups.length === 1
+                ? buildSignupPositionMessage({
+                    status: mappedSignups[0].status,
+                    signupNumber: mappedSignups[0].signupNumber,
+                    maxParticipants: mappedSignups[0].maxParticipants,
+                    waitlistPosition: mappedSignups[0].waitlistPosition,
+                  })
+                : `Signed up for ${mappedSignups.length} classes`,
+            data: { signups: mappedSignups },
+          })
+        } catch (txErr) {
+          await client.query('ROLLBACK')
+          if (txErr.code === 'MAX_SLOTS') {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          if (txErr.code === 'SLOT_UNAVAILABLE') {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          if (txErr.message?.includes('already exists')) {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          throw txErr
+        } finally {
+          client.release()
+        }
+      } catch (err) {
+        console.error('[scheduling] createSignupBatch:', err)
+        if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+          return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
+        }
+        res.status(500).json({ success: false, message: err.message || 'Failed to submit signups' })
       }
     },
 

@@ -22,11 +22,14 @@ export function registerSchedulingRoutes(app, pool) {
 
   app.get('/api/scheduling/forms', h.listPublicForms)
   app.get('/api/scheduling/forms/:id', h.getPublicForm)
+  app.get('/api/scheduling/forms/:id/program-options', h.getProgramSignupOptions)
   app.post('/api/scheduling/auth/check-email', authLimiter, h.checkEmail)
+  app.post('/api/scheduling/my-signups', authLimiter, h.listMemberSignedUpForms)
   app.post('/api/scheduling/auth/login', authLimiter, h.authLogin)
   app.post('/api/scheduling/auth/magic-link', authLimiter, h.authMagicLink)
   app.post('/api/scheduling/auth/verify-token', authLimiter, h.authVerifyToken)
   app.post('/api/scheduling/signups', signupLimiter, h.createSignup)
+  app.post('/api/scheduling/signups/batch', signupLimiter, h.createSignupBatch)
 
   app.get('/api/admin/scheduling/forms', h.listAdminForms)
   app.get('/api/admin/scheduling/legacy-forms', h.listLegacyForms)

@@ -122,6 +122,7 @@ export interface SchedulingFormSummary {
   signupFields: string[]
   mandateWaiver: boolean
   isActive: boolean
+  programsId?: number | null
   maxSlotsPerUser?: number | null
   slotCostMonthlyCents?: number
   freeSlotsPerUser?: number
@@ -252,6 +253,36 @@ export interface SlotBatchPayload {
   }
 }
 
+export interface SchedulingSignupCompleteDetail {
+  completed: boolean
+  formId?: number
+  formIds?: number[]
+  email?: string
+}
+
+export interface ProgramClassSlotOption {
+  slotGroupId: number
+  timeSlotId: number
+  label: string
+  isFull: boolean
+  spotsRemaining: number
+  waitlistCount: number
+}
+
+export interface ProgramClassOption {
+  key: string
+  formId: number
+  formTitle: string
+  categoryId: number | null
+  categoryName: string
+  slots: ProgramClassSlotOption[]
+}
+
+export interface ProgramSignupOptions {
+  programsId: number | null
+  options: ProgramClassOption[]
+}
+
 async function parseJson<T>(response: Response): Promise<T> {
   const data = await response.json()
   if (!response.ok || !data.success) {
@@ -270,6 +301,35 @@ export async function fetchPublicSchedulingForms(): Promise<SchedulingFormSummar
   return parseJson(res)
 }
 
+const SCHEDULING_MEMBER_EMAIL_KEY = 'vortex_scheduling_member_email'
+
+export function saveSchedulingMemberEmail(email: string): void {
+  try {
+    localStorage.setItem(SCHEDULING_MEMBER_EMAIL_KEY, email.trim().toLowerCase())
+  } catch {
+    /* private browsing / storage blocked */
+  }
+}
+
+export function getSchedulingMemberEmail(): string | null {
+  try {
+    return localStorage.getItem(SCHEDULING_MEMBER_EMAIL_KEY)
+  } catch {
+    return null
+  }
+}
+
+/** Form ids where this email already has a confirmed or waitlisted signup. */
+export async function fetchMySchedulingFormIds(email: string): Promise<number[]> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/my-signups`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email.trim().toLowerCase() }),
+  })
+  const data = await parseJson<{ formIds: number[] }>(res)
+  return data.formIds ?? []
+}
+
 export async function fetchPublicSchedulingForm(
   id: number,
   categoryId?: number | null,
@@ -281,6 +341,24 @@ export async function fetchPublicSchedulingForm(
   if (options?.fromEvent) params.set('fromEvent', '1')
   const qs = params.toString() ? `?${params.toString()}` : ''
   const res = await fetch(`${getApiUrl()}/api/scheduling/forms/${id}${qs}`)
+  return parseJson(res)
+}
+
+export async function fetchProgramSignupOptions(
+  formId: number,
+  options?: { excludeCategoryId?: number | null; email?: string },
+): Promise<ProgramSignupOptions> {
+  const params = new URLSearchParams()
+  if (options && 'excludeCategoryId' in options) {
+    if (options.excludeCategoryId == null) {
+      params.set('excludeCategoryId', '')
+    } else {
+      params.set('excludeCategoryId', String(options.excludeCategoryId))
+    }
+  }
+  if (options?.email) params.set('email', options.email.trim().toLowerCase())
+  const qs = params.toString() ? `?${params.toString()}` : ''
+  const res = await fetch(`${getApiUrl()}/api/scheduling/forms/${formId}/program-options${qs}`)
   return parseJson(res)
 }
 
@@ -344,6 +422,25 @@ export async function submitSchedulingSignup(payload: {
   password?: string
 }): Promise<SchedulingSignup> {
   const res = await fetch(`${getApiUrl()}/api/scheduling/signups`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  return parseJson(res)
+}
+
+export async function submitSchedulingSignupBatch(payload: {
+  signups: Array<{
+    formId: number
+    categoryId: number | null
+    slotGroupId: number
+    timeSlotId?: number
+  }>
+  responses: Record<string, string | boolean | number | string[]>
+  signupAuthToken?: string
+  password?: string
+}): Promise<{ signups: SchedulingSignup[] }> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/signups/batch`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

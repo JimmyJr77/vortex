@@ -8,16 +8,20 @@ import {
 import SchoolAutocompleteInput from './scheduling/SchoolAutocompleteInput'
 import {
   checkSchedulingEmail,
+  fetchProgramSignupOptions,
   fetchPublicSchedulingForm,
   formatSchedulingOccurrenceLabel,
   loginSchedulingAuth,
   requestSchedulingMagicLink,
   schedulingHasMultipleWeeks,
-  submitSchedulingSignup,
+  submitSchedulingSignupBatch,
+  saveSchedulingMemberEmail,
   verifySchedulingAuthToken,
+  type ProgramClassOption,
   type SchedulingFormCategory,
   type SchedulingFormDetail,
   type SchedulingSignup,
+  type SchedulingSignupCompleteDetail,
   type SchedulingSlotGroup,
 } from '../utils/schedulingApi'
 
@@ -160,6 +164,19 @@ function SignupFieldInput({
 }
 
 type IdentityPhase = 'pending' | 'email' | 'login' | 'ready'
+type SignupPhase = 'select' | 'review'
+
+type SignupCartItem = {
+  key: string
+  formId: number
+  formTitle: string
+  categoryId: number | null
+  categoryName: string
+  slotGroupId: number
+  timeSlotId: number
+  slotLabel: string
+  isFull: boolean
+}
 
 function formatMoney(amount: number) {
   return `$${amount.toFixed(2)}`
@@ -171,7 +188,7 @@ interface Props {
   fromEvent?: boolean
   initialAuthToken?: string | null
   initialEmail?: string | null
-  onSignupComplete?: (completed: boolean) => void
+  onSignupComplete?: (detail: SchedulingSignupCompleteDetail) => void
 }
 
 const SchedulingSignupEmbed = ({
@@ -191,6 +208,15 @@ const SchedulingSignupEmbed = ({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [signupPhase, setSignupPhase] = useState<SignupPhase>('select')
+  const [cartItems, setCartItems] = useState<SignupCartItem[]>([])
+  const [programOptions, setProgramOptions] = useState<ProgramClassOption[]>([])
+  const [programOptionsLoading, setProgramOptionsLoading] = useState(false)
+  const [selectedAdditionalKeys, setSelectedAdditionalKeys] = useState<Set<string>>(new Set())
+  const [additionalSlotByKey, setAdditionalSlotByKey] = useState<
+    Record<string, { slotGroupId: number; timeSlotId: number }>
+  >({})
+  const [signupResults, setSignupResults] = useState<SchedulingSignup[]>([])
   const [signupResult, setSignupResult] = useState<SchedulingSignup | null>(null)
   const [identityPhase, setIdentityPhase] = useState<IdentityPhase>('pending')
   const [accountEmail, setAccountEmail] = useState(initialEmail || '')
@@ -212,6 +238,12 @@ const SchedulingSignupEmbed = ({
     setTimeSlotId(null)
     setResponses({})
     setSuccess(false)
+    setSignupPhase('select')
+    setCartItems([])
+    setProgramOptions([])
+    setSelectedAdditionalKeys(new Set())
+    setAdditionalSlotByKey({})
+    setSignupResults([])
     setSignupResult(null)
     setError(null)
     setIdentityPhase('pending')
@@ -234,8 +266,18 @@ const SchedulingSignupEmbed = ({
   }, [formId, fromEvent])
 
   useEffect(() => {
-    onSignupComplete?.(success)
-  }, [success, onSignupComplete])
+    const email =
+      accountEmail.trim() ||
+      (typeof responses.email === 'string' ? responses.email.trim() : '') ||
+      initialEmail?.trim() ||
+      ''
+    onSignupComplete?.({
+      completed: success,
+      formId: success ? formId : undefined,
+      formIds: success ? signupResults.map((r) => r.formId) : undefined,
+      email: success && email ? email : undefined,
+    })
+  }, [success, formId, accountEmail, responses.email, initialEmail, onSignupComplete, signupResults])
 
   useEffect(() => {
     if (!initialAuthToken || !initialEmail) return
@@ -244,6 +286,7 @@ const SchedulingSignupEmbed = ({
       .then((session) => {
         setSignupAuthToken(session.signupAuthToken)
         setAccountEmail(session.email)
+        saveSchedulingMemberEmail(session.email)
         setIdentityPhase('ready')
         setIsNewUser(false)
       })
@@ -348,6 +391,7 @@ const SchedulingSignupEmbed = ({
     setMagicLinkSent(false)
     try {
       const check = await checkSchedulingEmail(formId, email)
+      saveSchedulingMemberEmail(email)
       if (check.exists) {
         setIsNewUser(false)
         setIdentityPhase('login')
@@ -372,6 +416,7 @@ const SchedulingSignupEmbed = ({
     setError(null)
     try {
       const session = await loginSchedulingAuth(formId, accountEmail.trim(), accountPassword)
+      saveSchedulingMemberEmail(accountEmail.trim())
       setSignupAuthToken(session.signupAuthToken)
       setIdentityPhase('ready')
       setIsNewUser(false)
@@ -395,45 +440,35 @@ const SchedulingSignupEmbed = ({
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!formDetail || categoryId === undefined || !slotGroupId || !timeSlotId) return
-    if (identityPhase !== 'ready') return
-    setSubmitting(true)
-    setError(null)
-    try {
-      const payload: Record<string, string | boolean | number | string[]> = {}
-      if (isNewUser) {
-        for (const field of enabledFields) {
-          const raw = responses[field.key]
-          if (field.type === 'email_list') {
-            const list = (Array.isArray(raw) ? raw : []).map((s) => s.trim()).filter(Boolean)
-            if (list.length > 0) payload[field.key] = list
-          } else if (raw != null && String(raw).trim() !== '') {
-            payload[field.key] = field.type === 'number' ? Number(raw) : String(raw).trim()
+  useEffect(() => {
+    if (!formDetail || categoryId === undefined || !slotGroupId || !timeSlotId || identityPhase !== 'ready') {
+      setProgramOptions([])
+      return
+    }
+
+    const email = accountEmail.trim() || initialEmail?.trim() || ''
+    setProgramOptionsLoading(true)
+    fetchProgramSignupOptions(formId, {
+      excludeCategoryId: categoryId,
+      email: email || undefined,
+    })
+      .then((data) => {
+        setProgramOptions(data.options)
+        setSelectedAdditionalKeys(new Set())
+        const defaults: Record<string, { slotGroupId: number; timeSlotId: number }> = {}
+        for (const opt of data.options) {
+          if (opt.slots[0]) {
+            defaults[opt.key] = {
+              slotGroupId: opt.slots[0].slotGroupId,
+              timeSlotId: opt.slots[0].timeSlotId,
+            }
           }
         }
-        if (!newAccountPassword || newAccountPassword.length < 6) {
-          throw new Error('Account password must be at least 6 characters')
-        }
-      }
-      const result = await submitSchedulingSignup({
-        formId: formDetail.id,
-        categoryId,
-        slotGroupId,
-        timeSlotId,
-        responses: isNewUser ? payload : { email: accountEmail.trim() },
-        signupAuthToken: signupAuthToken || undefined,
-        password: isNewUser ? newAccountPassword : undefined,
+        setAdditionalSlotByKey(defaults)
       })
-      setSignupResult(result)
-      setSuccess(true)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Signup failed')
-    } finally {
-      setSubmitting(false)
-    }
-  }
+      .catch(() => setProgramOptions([]))
+      .finally(() => setProgramOptionsLoading(false))
+  }, [formDetail, formId, categoryId, slotGroupId, timeSlotId, identityPhase, accountEmail, initialEmail])
 
   const sectionClass = compact
     ? 'bg-white rounded-xl border border-gray-200 p-4 shadow-sm'
@@ -445,8 +480,9 @@ const SchedulingSignupEmbed = ({
   const showSlotPick = categoryId !== undefined && timeSlotId === null && slotOptions.length > 0
   const showEmailStep = slotSelected && identityPhase === 'email'
   const showLoginStep = slotSelected && identityPhase === 'login'
-  const showNewUserForm = slotSelected && identityReady && isNewUser
-  const showSubmit = slotSelected && identityReady
+  const showNewUserForm = slotSelected && identityReady && isNewUser && signupPhase === 'select'
+  const showSubmit = slotSelected && identityReady && signupPhase === 'select'
+  const showReview = signupPhase === 'review'
 
   const selectedCategoryName = useMemo(() => {
     if (categoryId === undefined || !formDetail) return null
@@ -463,6 +499,147 @@ const SchedulingSignupEmbed = ({
     [slotOptions, timeSlotId],
   )
 
+  const buildPrimaryCartItem = (): SignupCartItem | null => {
+    if (!formDetail || categoryId === undefined || !slotGroupId || !timeSlotId) return null
+    const slotLabel =
+      selectedGroup?.displayLabel ||
+      selectedOccurrence?.displayLabel ||
+      (selectedOccurrence
+        ? formatSchedulingOccurrenceLabel(selectedOccurrence, {
+            includeWeek: showWeekInLabels,
+            formatTime: formatTimeLabel,
+          })
+        : '')
+    return {
+      key: `${formDetail.id}:${categoryId ?? 'none'}`,
+      formId: formDetail.id,
+      formTitle: formDetail.title,
+      categoryId,
+      categoryName: selectedCategoryName || 'No Category',
+      slotGroupId,
+      timeSlotId,
+      slotLabel,
+      isFull: Boolean(selectedGroup?.isFull),
+    }
+  }
+
+  const toggleAdditionalOption = (opt: ProgramClassOption, checked: boolean) => {
+    setSelectedAdditionalKeys((prev) => {
+      const next = new Set(prev)
+      if (checked) next.add(opt.key)
+      else next.delete(opt.key)
+      return next
+    })
+    if (checked && !additionalSlotByKey[opt.key] && opt.slots[0]) {
+      setAdditionalSlotByKey((prev) => ({
+        ...prev,
+        [opt.key]: {
+          slotGroupId: opt.slots[0].slotGroupId,
+          timeSlotId: opt.slots[0].timeSlotId,
+        },
+      }))
+    }
+  }
+
+  const buildCartItems = (): SignupCartItem[] => {
+    const primary = buildPrimaryCartItem()
+    if (!primary) return []
+    const items = [primary]
+    for (const opt of programOptions) {
+      if (!selectedAdditionalKeys.has(opt.key)) continue
+      const slotPick = additionalSlotByKey[opt.key] ?? opt.slots[0]
+      if (!slotPick) continue
+      const slotMeta = opt.slots.find(
+        (s) => s.slotGroupId === slotPick.slotGroupId && s.timeSlotId === slotPick.timeSlotId,
+      )
+      items.push({
+        key: opt.key,
+        formId: opt.formId,
+        formTitle: opt.formTitle,
+        categoryId: opt.categoryId,
+        categoryName: opt.categoryName,
+        slotGroupId: slotPick.slotGroupId,
+        timeSlotId: slotPick.timeSlotId,
+        slotLabel: slotMeta?.label || opt.categoryName,
+        isFull: Boolean(slotMeta?.isFull),
+      })
+    }
+    return items
+  }
+
+  const handleGoToReview = () => {
+    if (!formDetail || categoryId === undefined || !slotGroupId || !timeSlotId) return
+    if (identityPhase !== 'ready') return
+    if (isNewUser) {
+      if (!newAccountPassword || newAccountPassword.length < 6) {
+        setError('Account password must be at least 6 characters')
+        return
+      }
+      for (const field of enabledFields) {
+        if (!field.required) continue
+        const raw = responses[field.key]
+        const empty =
+          field.type === 'email_list'
+            ? !(Array.isArray(raw) ? raw : []).some((s) => String(s).trim())
+            : raw == null || String(raw).trim() === ''
+        if (empty) {
+          setError(`${field.label} is required`)
+          return
+        }
+      }
+    }
+    setError(null)
+    setCartItems(buildCartItems())
+    setSignupPhase('review')
+  }
+
+  const handleFinalSubmit = async () => {
+    if (!formDetail || cartItems.length === 0 || identityPhase !== 'ready') return
+    setSubmitting(true)
+    setError(null)
+    try {
+      const payload: Record<string, string | boolean | number | string[]> = {}
+      if (isNewUser) {
+        for (const field of enabledFields) {
+          const raw = responses[field.key]
+          if (field.type === 'email_list') {
+            const list = (Array.isArray(raw) ? raw : []).map((s) => s.trim()).filter(Boolean)
+            if (list.length > 0) payload[field.key] = list
+          } else if (raw != null && String(raw).trim() !== '') {
+            payload[field.key] = field.type === 'number' ? Number(raw) : String(raw).trim()
+          }
+        }
+      }
+      const result = await submitSchedulingSignupBatch({
+        signups: cartItems.map((item) => ({
+          formId: item.formId,
+          categoryId: item.categoryId,
+          slotGroupId: item.slotGroupId,
+          timeSlotId: item.timeSlotId,
+        })),
+        responses: isNewUser ? payload : { email: accountEmail.trim() },
+        signupAuthToken: signupAuthToken || undefined,
+        password: isNewUser ? newAccountPassword : undefined,
+      })
+      setSignupResults(result.signups)
+      setSignupResult(result.signups[0] ?? null)
+      setSuccess(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Signup failed')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (signupPhase === 'select') {
+      handleGoToReview()
+    } else {
+      void handleFinalSubmit()
+    }
+  }
+
   if (loading && !formDetail) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -472,11 +649,14 @@ const SchedulingSignupEmbed = ({
   }
 
   if (success) {
-    const isWaitlisted = signupResult?.status === 'waitlisted'
+    const multiple = signupResults.length > 1
+    const isWaitlisted = signupResults.some((r) => r.status === 'waitlisted')
     const positionText =
-      isWaitlisted && signupResult?.waitlistPosition != null
+      !multiple && signupResult?.status === 'waitlisted' && signupResult?.waitlistPosition != null
         ? `You are #${signupResult.waitlistPosition} on the waitlist`
-        : signupResult?.signupNumber != null && signupResult?.maxParticipants != null
+        : !multiple &&
+            signupResult?.signupNumber != null &&
+            signupResult?.maxParticipants != null
           ? `You are number ${signupResult.signupNumber} of ${signupResult.maxParticipants}`
           : null
 
@@ -484,12 +664,38 @@ const SchedulingSignupEmbed = ({
       <div className={`${sectionClass} text-center`}>
         <CheckCircle className={`w-12 h-12 mx-auto mb-4 ${isWaitlisted ? 'text-amber-600' : 'text-green-600'}`} />
         <h4 className="text-xl font-display font-bold text-black mb-2">
-          {isWaitlisted ? "You're on the waitlist!" : "You're signed up!"}
+          {multiple
+            ? `You're signed up for ${signupResults.length} classes!`
+            : isWaitlisted
+              ? "You're on the waitlist!"
+              : "You're signed up!"}
         </h4>
         {positionText && (
           <p className="text-lg font-semibold text-black mb-2">{positionText}</p>
         )}
-        <p className="text-gray-600 text-sm">
+        {multiple && (
+          <ul className="mt-4 text-left space-y-2 text-sm text-gray-700">
+            {signupResults.map((result) => (
+              <li
+                key={result.id}
+                className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+              >
+                <p className="font-semibold text-black">
+                  {result.formTitle || formDetail?.title}
+                </p>
+                {result.categoryName && result.slotLabel && (
+                  <p className="text-gray-600">
+                    {result.categoryName} — {result.slotLabel}
+                  </p>
+                )}
+                <p className="text-xs mt-1 text-gray-500">
+                  {result.status === 'waitlisted' ? 'Waitlisted' : 'Confirmed'}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="text-gray-600 text-sm mt-4">
           {isWaitlisted
             ? "We'll email you if a spot opens up. Check your inbox for details."
             : 'Check your email for confirmation with your event details.'}
@@ -562,6 +768,62 @@ const SchedulingSignupEmbed = ({
       )}
 
       <form onSubmit={handleSubmit} className={compact ? 'space-y-4' : 'space-y-8'}>
+        {showReview ? (
+          <div className={sectionClass}>
+            <h4 className={`font-bold text-black mb-2 ${compact ? 'text-base' : 'text-xl'}`}>
+              Review your signups
+            </h4>
+            <p className="text-sm text-gray-600 mb-4">
+              Confirm the classes below, or remove any you do not want before submitting.
+            </p>
+            {cartItems.length === 0 ? (
+              <p className="text-sm text-gray-600">No classes selected.</p>
+            ) : (
+              <ul className="space-y-3">
+                {cartItems.map((item) => (
+                  <li
+                    key={item.key}
+                    className="flex items-start justify-between gap-3 rounded-xl border border-gray-200 px-4 py-3"
+                  >
+                    <div className="text-sm text-gray-700 min-w-0">
+                      {item.formTitle !== formDetail.title && (
+                        <p className="font-semibold text-black">{item.formTitle}</p>
+                      )}
+                      <p>
+                        <span className="font-semibold text-black">{item.categoryName}</span>
+                        {' — '}
+                        {item.slotLabel}
+                      </p>
+                      {item.isFull && (
+                        <p className="text-xs text-amber-700 mt-1">Will join waitlist if full</p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCartItems((prev) => prev.filter((entry) => entry.key !== item.key))
+                      }
+                      className="shrink-0 text-red-600 hover:text-red-800 p-1"
+                      aria-label={`Remove ${item.categoryName}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="flex flex-wrap gap-3 mt-5">
+              <button
+                type="button"
+                onClick={() => setSignupPhase('select')}
+                className="text-sm text-gray-600 font-semibold hover:underline"
+              >
+                Back to add or change classes
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
         {showCategoryPick && (
           <div className={sectionClass}>
             <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
@@ -839,6 +1101,80 @@ const SchedulingSignupEmbed = ({
           </div>
         )}
 
+        {showSubmit && programOptions.length > 0 && (
+          <div className={sectionClass}>
+            <h4 className={`font-bold text-black mb-2 ${compact ? 'text-base' : 'text-xl'}`}>
+              Add more classes
+            </h4>
+            <p className="text-sm text-gray-600 mb-4">
+              Other classes in this program you can sign up for at the same time:
+            </p>
+            {programOptionsLoading ? (
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading available classes…
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {programOptions.map((opt) => {
+                  const checked = selectedAdditionalKeys.has(opt.key)
+                  const slotPick = additionalSlotByKey[opt.key] ?? opt.slots[0]
+                  const showTitle = opt.formTitle !== formDetail.title
+                  return (
+                    <div
+                      key={opt.key}
+                      className={`rounded-xl border px-4 py-3 ${
+                        checked ? 'border-vortex-red bg-red-50/40' : 'border-gray-200'
+                      }`}
+                    >
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => toggleAdditionalOption(opt, e.target.checked)}
+                          className="mt-1"
+                        />
+                        <span className="text-sm text-black font-semibold">
+                          {showTitle ? `${opt.formTitle} — ` : ''}
+                          {opt.categoryName}
+                        </span>
+                      </label>
+                      {checked && opt.slots.length > 1 && slotPick && (
+                        <select
+                          value={`${slotPick.slotGroupId}:${slotPick.timeSlotId}`}
+                          onChange={(e) => {
+                            const [sg, ts] = e.target.value.split(':').map(Number)
+                            setAdditionalSlotByKey((prev) => ({
+                              ...prev,
+                              [opt.key]: { slotGroupId: sg, timeSlotId: ts },
+                            }))
+                          }}
+                          className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                        >
+                          {opt.slots.map((slot) => (
+                            <option
+                              key={`${slot.slotGroupId}-${slot.timeSlotId}`}
+                              value={`${slot.slotGroupId}:${slot.timeSlotId}`}
+                            >
+                              {slot.label}
+                              {slot.isFull ? ' (waitlist)' : ''}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                      {checked && opt.slots.length === 1 && (
+                        <p className="mt-2 text-xs text-gray-600 ml-6">{opt.slots[0].label}</p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+          </>
+        )}
+
         {error && (
           <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 px-4 py-3 flex justify-between text-sm">
             <span>{error}</span>
@@ -853,7 +1189,18 @@ const SchedulingSignupEmbed = ({
             className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition-all disabled:opacity-60"
           >
             {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-            {selectedGroup?.isFull ? 'Join waitlist' : 'Confirm signup'}
+            {selectedGroup?.isFull ? 'Continue to waitlist signup' : 'Confirm signup'}
+          </button>
+        )}
+
+        {showReview && (
+          <button
+            type="submit"
+            disabled={submitting || cartItems.length === 0}
+            className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition-all disabled:opacity-60"
+          >
+            {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+            {cartItems.length === 1 ? 'Submit signup' : `Submit ${cartItems.length} signups`}
           </button>
         )}
       </form>

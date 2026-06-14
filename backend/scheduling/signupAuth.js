@@ -4,23 +4,35 @@ import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
 
-export function issueSignupAuthToken({ formId, memberId, email }) {
-  return jwt.sign(
-    { type: 'scheduling_signup', formId: Number(formId), memberId: Number(memberId), email },
-    JWT_SECRET,
-    { expiresIn: '30m' },
-  )
+export function issueSignupAuthToken({ formId, memberId, email, programsId = null }) {
+  const payload = {
+    type: 'scheduling_signup',
+    formId: Number(formId),
+    memberId: Number(memberId),
+    email,
+  }
+  if (programsId != null) {
+    payload.programsId = Number(programsId)
+  }
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '30m' })
 }
 
-export function verifySignupAuthToken(token, formId) {
+export function verifySignupAuthToken(token, formId, { programsId = null } = {}) {
   const decoded = jwt.verify(token, JWT_SECRET)
   if (decoded.type !== 'scheduling_signup') {
     throw new Error('Invalid signup session')
   }
-  if (Number(decoded.formId) !== Number(formId)) {
-    throw new Error('Signup session is for a different form')
+  if (Number(decoded.formId) === Number(formId)) {
+    return decoded
   }
-  return decoded
+  if (
+    decoded.programsId != null &&
+    programsId != null &&
+    Number(decoded.programsId) === Number(programsId)
+  ) {
+    return decoded
+  }
+  throw new Error('Signup session is for a different form')
 }
 
 export function generateMagicToken() {
