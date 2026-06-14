@@ -91,7 +91,7 @@ const ClassEventModal = ({
     } else {
       setForm(emptyForm())
     }
-    setSelectedCategoryId(initialSchedulingCategoryId ?? null)
+    setSelectedCategoryId(initialSchedulingCategoryId ?? editing?.schedulingCategoryId ?? null)
     setCategorySearch('')
     setCategoryDropdownOpen(false)
     setError(null)
@@ -113,6 +113,12 @@ const ClassEventModal = ({
           return
         }
 
+        // The class row's mapped scheduling category is the source of truth.
+        if (editing?.schedulingCategoryId != null) {
+          setSelectedCategoryId(editing.schedulingCategoryId)
+          return
+        }
+
         const formId = editing?.schedulingFormId
         if (formId) {
           const linked = await adminFetchFormCategories(formId)
@@ -131,7 +137,7 @@ const ClassEventModal = ({
     return () => {
       cancelled = true
     }
-  }, [open, editing?.schedulingFormId, initialSchedulingCategoryId])
+  }, [open, editing?.schedulingFormId, editing?.schedulingCategoryId, initialSchedulingCategoryId])
 
   const filteredCategories = useMemo(() => {
     const q = categorySearch.trim().toLowerCase()

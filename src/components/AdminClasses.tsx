@@ -4,8 +4,7 @@ import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash
 import { adminApiRequest } from '../utils/api'
 import ClassEventModal from './programs/ClassEventModal'
 import type { ClassEvent } from '../utils/programsApi'
-import { setClassSchedulingCategory, syncSchedulingCategories } from '../utils/programsApi'
-import { adminFetchAllCategories, type SchedulingCategory } from '../utils/schedulingApi'
+import { syncSchedulingCategories } from '../utils/programsApi'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import AdminClassesEventsSpreadsheet from './classes/AdminClassesEventsSpreadsheet'
 import ClassSchedulingExpandPanel from './classes/ClassSchedulingExpandPanel'
@@ -114,6 +113,9 @@ function toClassEvent(program: Program): ClassEvent {
     skillRequirements: program.skillRequirements,
     isActive: program.isActive,
     archived: program.archived,
+    schedulingCategoryId: program.schedulingCategoryId ?? null,
+    schedulingCategoryName: program.schedulingCategoryName ?? null,
+    sportTags: program.sportTags ?? null,
     createdAt: program.createdAt,
     updatedAt: program.updatedAt,
   }
@@ -199,8 +201,6 @@ export default function AdminClasses({
     direction: 'asc',
   })
   const [viewMode, setViewMode] = useState<'default' | 'spreadsheet'>('default')
-  const [schedulingCategories, setSchedulingCategories] = useState<SchedulingCategory[]>([])
-  const [updatingCategoryClassId, setUpdatingCategoryClassId] = useState<number | null>(null)
   const [syncing, setSyncing] = useState(false)
 
   const fetchAllPrograms = async () => {
@@ -427,35 +427,11 @@ export default function AdminClasses({
     }
   }
 
-  const loadSchedulingCategories = useCallback(async () => {
-    try {
-      const cats = await adminFetchAllCategories()
-      setSchedulingCategories(cats)
-    } catch (err) {
-      console.error('Error loading scheduling categories:', err)
-    }
-  }, [])
-
-  const handleChangeSchedulingCategory = async (program: Program, rawValue: string) => {
-    const nextCategoryId = rawValue === 'none' ? null : Number(rawValue)
-    const currentId = program.schedulingCategoryId ?? null
-    if (nextCategoryId === currentId) return
-    setUpdatingCategoryClassId(program.id)
-    try {
-      await setClassSchedulingCategory(program.id, nextCategoryId)
-      await fetchAllPrograms()
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update category')
-    } finally {
-      setUpdatingCategoryClassId(null)
-    }
-  }
-
   const handleSyncCategories = async () => {
     setSyncing(true)
     try {
       await syncSchedulingCategories()
-      await Promise.all([fetchAllPrograms(), loadSchedulingCategories()])
+      await fetchAllPrograms()
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to refresh from scheduling')
     } finally {
@@ -534,8 +510,7 @@ export default function AdminClasses({
   useEffect(() => {
     fetchAllPrograms()
     fetchAllCategories()
-    loadSchedulingCategories()
-  }, [loadSchedulingCategories])
+  }, [])
 
   useEffect(() => {
     fetchAllPrograms()
@@ -1119,24 +1094,7 @@ export default function AdminClasses({
                             <td className={tdClass}>{program.sportTags || '—'}</td>
                             <td className={tdClass}>{programNameForClass(program, categories)}</td>
                             <td className={`${tdClass} font-medium`}>{program.displayName}</td>
-                            <td className={tdClass} onClick={(e) => e.stopPropagation()}>
-                              <div className="flex items-center gap-1.5">
-                                <select
-                                  value={program.schedulingCategoryId != null ? String(program.schedulingCategoryId) : 'none'}
-                                  disabled={updatingCategoryClassId === program.id}
-                                  onChange={(e) => handleChangeSchedulingCategory(program, e.target.value)}
-                                  className="rounded-lg border border-gray-300 px-2 py-1 text-sm bg-white max-w-[12rem] disabled:opacity-50"
-                                >
-                                  <option value="none">No Category</option>
-                                  {schedulingCategories.map((c) => (
-                                    <option key={c.id} value={String(c.id)}>{c.name}</option>
-                                  ))}
-                                </select>
-                                {updatingCategoryClassId === program.id && (
-                                  <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-                                )}
-                              </div>
-                            </td>
+                            <td className={tdClass}>{schedulingCategoryLabel(program.id)}</td>
                             <td className={tdClass}>{formatAgeRange(program.ageMin, program.ageMax)}</td>
                             <td className={tdClass}>{formatSkillLevel(program.skillLevel)}</td>
                             <td className={tdClass}>
