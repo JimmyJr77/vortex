@@ -1,4 +1,4 @@
-import DisciplineTagPicker from './DisciplineTagPicker'
+import DisciplineTagPicker from '../programs/DisciplineTagPicker'
 
 interface Props {
   programId: number

@@ -133,7 +133,6 @@ const AdminSchedulingSlots = ({
   offeringId,
   offeringStartDate,
   offeringEndDate,
-  offeringLabel,
   selectedCategoryId,
   categoryName,
   canBuild = true,
