@@ -25,7 +25,7 @@ const SignUpCta = ({ className = '' }: { className?: string }) => (
     to="/scheduling"
     className={`inline-flex items-center justify-center gap-2 bg-vortex-red border-2 border-vortex-red text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105 ${className}`}
   >
-    Sign Up for Free Sessions
+    Enroll Now!
   </Link>
 )
 
@@ -38,7 +38,7 @@ const OfferBadge = ({ dark = false }: { dark?: boolean }) => (
     }`}
   >
     <School className="w-4 h-4 text-vortex-red flex-shrink-0" />
-    Free training sessions are available for students from select schools.
+    Free training sessions are available for students from select middle and high schools.
   </div>
 )
 
@@ -405,7 +405,7 @@ const SummerAthleticTraining = () => {
               to="/scheduling"
               className="inline-flex items-center justify-center gap-2 bg-white text-vortex-red px-10 py-5 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-gray-100 hover:scale-105"
             >
-              Sign Up for Free Sessions
+              Enroll Now!
             </Link>
             <p className="text-red-100 text-sm mt-6">
               Spots may be limited. Availability may depend on school, schedule, and program
