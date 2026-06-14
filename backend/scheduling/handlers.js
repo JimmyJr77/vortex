@@ -37,6 +37,11 @@ import {
 } from './signupFieldCatalog.js'
 import { expandSlotBatch } from './slotExpansion.js'
 import { expandCalendarRange } from './calendarExpansion.js'
+import {
+  loadPublicSchedulingClasses,
+  loadSchedulingCalendar,
+  parseCalendarDateRange,
+} from './calendarQuery.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { ensureNoCategoryCategory, isNoCategoryCategoryRow, NO_CATEGORY_NAME } from '../programs/noCategory.js'
 
@@ -1943,29 +1948,9 @@ export function createSchedulingHandlers(pool) {
 
     async getAdminCalendar(req, res) {
       try {
-        const startDateParam = formatDateOnly(req.query.startDate)
-        const endDateParam = formatDateOnly(req.query.endDate)
-        let startDate = startDateParam
-        let endDate = endDateParam
-
-        if (!startDate || !endDate) {
-          const year = Number(req.query.year)
-          const month = Number(req.query.month)
-          if (!Number.isInteger(year) || year < 2000 || year > 2100) {
-            return res.status(400).json({ success: false, message: 'Invalid year' })
-          }
-          if (!Number.isInteger(month) || month < 1 || month > 12) {
-            return res.status(400).json({ success: false, message: 'Invalid month' })
-          }
-          const monthStart = `${year}-${String(month).padStart(2, '0')}-01`
-          const lastDay = new Date(year, month, 0).getDate()
-          const monthEnd = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
-          startDate = monthStart
-          endDate = monthEnd
-        }
-
-        if (startDate > endDate) {
-          return res.status(400).json({ success: false, message: 'startDate must be on or before endDate' })
+        const range = parseCalendarDateRange(req.query)
+        if (range.error) {
+          return res.status(400).json({ success: false, message: range.error })
         }
 
         const programsId = req.query.programsId != null ? Number(req.query.programsId) : null
@@ -1973,74 +1958,70 @@ export function createSchedulingHandlers(pool) {
           return res.status(400).json({ success: false, message: 'Invalid programsId' })
         }
 
+        const programId = req.query.programId != null ? Number(req.query.programId) : null
+        if (req.query.programId != null && !Number.isInteger(programId)) {
+          return res.status(400).json({ success: false, message: 'Invalid programId' })
+        }
+
         const formActive = String(req.query.formActive || 'all').toLowerCase()
         if (!['all', 'active', 'inactive'].includes(formActive)) {
           return res.status(400).json({ success: false, message: 'Invalid formActive filter' })
         }
 
-        const { resolveProgramsSchema } = await import('../programs/schema.js')
-        const schema = await resolveProgramsSchema(pool)
-
-        const params = []
-        const filters = [
-          'sf.deleted_at IS NULL',
-          'sf.program_id IS NOT NULL',
-          'p.archived = FALSE',
-          '(pr.id IS NULL OR pr.archived = FALSE)',
-        ]
-
-        if (programsId != null) {
-          params.push(programsId)
-          filters.push(`sf.programs_id = $${params.length}`)
-        }
-        if (formActive === 'active') {
-          filters.push('sf.is_active = TRUE')
-        } else if (formActive === 'inactive') {
-          filters.push('sf.is_active = FALSE')
-        }
-
-        const result = await pool.query(
-          `
-          SELECT
-            ts.*,
-            sg.is_active AS sg_is_active,
-            sg.active_start AS sg_active_start,
-            sg.active_end AS sg_active_end,
-            sg.dates_tbd AS sg_dates_tbd,
-            sf.title AS form_title,
-            sf.is_active AS form_is_active,
-            sf.start_date AS form_start_date,
-            sf.end_date AS form_end_date,
-            sf.program_id,
-            sf.programs_id,
-            o.start_date AS offering_start_date,
-            o.end_date AS offering_end_date,
-            o.label AS offering_label,
-            p.display_name AS class_name,
-            p.description AS class_description,
-            p.skill_level,
-            p.age_min,
-            p.age_max,
-            pr.display_name AS program_name,
-            COALESCE(sc.name, 'No Category') AS category_name
-          FROM scheduling_time_slot ts
-          JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
-          JOIN scheduling_form sf ON sf.id = ts.form_id
-          JOIN program p ON p.id = sf.program_id
-          LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
-          LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
-          LEFT JOIN scheduling_category sc ON sc.id = COALESCE(ts.category_id, sg.category_id)
-          WHERE ${filters.join(' AND ')}
-          ORDER BY ts.start_time, p.display_name, ts.id
-          `,
-          params,
-        )
-
-        const data = expandCalendarRange({ startDate, endDate, rows: result.rows })
+        const data = await loadSchedulingCalendar(pool, {
+          startDate: range.startDate,
+          endDate: range.endDate,
+          programsId,
+          programId,
+          formActive,
+          publicOnly: false,
+        })
         res.json({ success: true, data })
       } catch (err) {
         console.error('[scheduling] getAdminCalendar:', err)
         res.status(500).json({ success: false, message: 'Failed to load calendar' })
+      }
+    },
+
+    async getPublicCalendar(req, res) {
+      try {
+        const range = parseCalendarDateRange(req.query)
+        if (range.error) {
+          return res.status(400).json({ success: false, message: range.error })
+        }
+
+        const programsId = req.query.programsId != null ? Number(req.query.programsId) : null
+        if (req.query.programsId != null && !Number.isInteger(programsId)) {
+          return res.status(400).json({ success: false, message: 'Invalid programsId' })
+        }
+
+        const programId = req.query.programId != null ? Number(req.query.programId) : null
+        if (req.query.programId != null && !Number.isInteger(programId)) {
+          return res.status(400).json({ success: false, message: 'Invalid programId' })
+        }
+
+        const data = await loadSchedulingCalendar(pool, {
+          startDate: range.startDate,
+          endDate: range.endDate,
+          programsId,
+          programId,
+          formActive: 'active',
+          publicOnly: true,
+        })
+        res.json({ success: true, data })
+      } catch (err) {
+        console.error('[scheduling] getPublicCalendar:', err)
+        res.status(500).json({ success: false, message: 'Failed to load calendar' })
+      }
+    },
+
+    async listPublicSchedulingClasses(_req, res) {
+      try {
+        const data = await loadPublicSchedulingClasses(pool)
+        res.json({ success: true, data })
+      } catch (err) {
+        console.error('[scheduling] listPublicSchedulingClasses:', err)
+        res.status(500).json({ success: false, message: 'Failed to load classes' })
       }
     },
 

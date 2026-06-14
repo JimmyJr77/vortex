@@ -12,6 +12,8 @@ const signupLimiter = rateLimit({
 export function registerSchedulingRoutes(app, pool) {
   const h = createSchedulingHandlers(pool)
 
+  app.get('/api/scheduling/calendar', h.getPublicCalendar)
+  app.get('/api/public/scheduling/classes', h.listPublicSchedulingClasses)
   app.get('/api/scheduling/forms', h.listPublicForms)
   app.get('/api/scheduling/forms/:id', h.getPublicForm)
   app.get('/api/scheduling/forms/:id/program-options', h.getProgramSignupOptions)

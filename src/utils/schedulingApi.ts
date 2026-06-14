@@ -147,6 +147,35 @@ export interface SchedulingFormDetail extends SchedulingFormSummary {
 
 export type CalendarFormActiveFilter = 'all' | 'active' | 'inactive'
 
+export interface PublicSchedulingClassOption {
+  id: number
+  displayName: string
+  programName: string | null
+  formId: number
+}
+
+export function schedulingSignupPath(
+  formId: number,
+  categoryId?: number | null,
+): string {
+  const params = new URLSearchParams({ form: String(formId) })
+  if (categoryId != null) {
+    params.set('categoryId', String(categoryId))
+  }
+  return `/scheduling?${params.toString()}`
+}
+
+export function buildSchedulingSignupUrl(
+  formId: number,
+  categoryId?: number | null,
+): string {
+  const path = schedulingSignupPath(formId, categoryId)
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}${path}`
+  }
+  return path
+}
+
 export interface SchedulingCalendarEvent {
   id: string
   date: string
@@ -537,12 +566,44 @@ export async function adminFetchSchedulingForms(): Promise<SchedulingFormSummary
   return parseJson(res)
 }
 
+export async function fetchPublicSchedulingCalendar(params: {
+  year?: number
+  month?: number
+  startDate?: string
+  endDate?: string
+  programsId?: number | null
+  programId?: number | null
+}): Promise<SchedulingCalendarMonth> {
+  const qs = new URLSearchParams()
+  if (params.startDate && params.endDate) {
+    qs.set('startDate', params.startDate)
+    qs.set('endDate', params.endDate)
+  } else if (params.year != null && params.month != null) {
+    qs.set('year', String(params.year))
+    qs.set('month', String(params.month))
+  }
+  if (params.programsId != null) {
+    qs.set('programsId', String(params.programsId))
+  }
+  if (params.programId != null) {
+    qs.set('programId', String(params.programId))
+  }
+  const res = await fetch(`${getApiUrl()}/api/scheduling/calendar?${qs.toString()}`)
+  return parseJson(res)
+}
+
+export async function fetchPublicSchedulingClasses(): Promise<PublicSchedulingClassOption[]> {
+  const res = await fetch(`${getApiUrl()}/api/public/scheduling/classes`)
+  return parseJson(res)
+}
+
 export async function adminFetchSchedulingCalendar(params: {
   year?: number
   month?: number
   startDate?: string
   endDate?: string
   programsId?: number | null
+  programId?: number | null
   formActive?: CalendarFormActiveFilter
 }): Promise<SchedulingCalendarMonth> {
   const qs = new URLSearchParams({
@@ -557,6 +618,9 @@ export async function adminFetchSchedulingCalendar(params: {
   }
   if (params.programsId != null) {
     qs.set('programsId', String(params.programsId))
+  }
+  if (params.programId != null) {
+    qs.set('programId', String(params.programId))
   }
   const res = await adminApiRequest(`/api/admin/scheduling/calendar?${qs.toString()}`)
   return parseJson(res)

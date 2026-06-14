@@ -2,32 +2,12 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Highlight } from '../types/highlights'
-import HighlightEventSlide from './highlights/HighlightEventSlide'
-import HighlightDocumentSlide from './highlights/HighlightDocumentSlide'
-import HighlightCanvasRenderer from './highlights/HighlightCanvasRenderer'
+import { HighlightSlide } from './highlights/HighlightSlide'
 interface HighlightsModalProps {
   highlights: Highlight[]
   isOpen: boolean
   onClose: () => void
   initialIndex?: number
-}
-
-function renderSlide(h: Highlight) {
-  if (h.contentType === 'event' && h.event) {
-    return <HighlightEventSlide event={h.event} />
-  }
-  if (h.contentType === 'document' && h.documentMime && h.documentData) {
-    return (
-      <HighlightDocumentSlide
-        documentMime={h.documentMime}
-        documentData={h.documentData}
-      />
-    )
-  }
-  if (h.contentType === 'custom' && h.customContent) {
-    return <HighlightCanvasRenderer canvas={h.customContent} />
-  }
-  return <p className="text-gray-500 text-sm">No content available for this highlight.</p>
 }
 
 const HighlightsModal = ({
@@ -144,7 +124,7 @@ const HighlightsModal = ({
                     exit={{ opacity: 0, x: -12 }}
                     transition={{ duration: 0.2 }}
                   >
-                    {current && renderSlide(current)}
+                    {current && <HighlightSlide highlight={current} />}
                   </motion.div>
                 </AnimatePresence>
               </div>

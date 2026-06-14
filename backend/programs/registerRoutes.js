@@ -3,6 +3,7 @@ import { ensureDisciplineTagsSchema, ensureNoCategoryDefault, ensureProgramSched
 import { ensureNoCategoryCategory, isNoCategoryCategoryRow } from './noCategory.js'
 import { addVariationCategory, consolidateClasses, reassignVariationCategory, setProgramSchedulingCategory } from './reconcile.js'
 import { deleteTopProgramCascade } from './deleteTopProgram.js'
+import { listPublicClassesOffered } from './listPublicClassesOffered.js'
 
 const schedulingCategoryUpdateSchema = Joi.object({
   schedulingCategoryId: Joi.number().integer().allow(null).required(),
@@ -111,6 +112,18 @@ async function createSchedulingFormForClassEvent(pool, classEvent, programsId, s
     vals,
   )
   return Number(insert.rows[0].id)
+}
+
+export function registerProgramsPublicRoutes(app, pool) {
+  app.get('/api/public/classes-offered', async (_req, res) => {
+    try {
+      const data = await listPublicClassesOffered(pool)
+      res.json({ success: true, data })
+    } catch (err) {
+      console.error('[programs] public classes-offered:', err)
+      res.status(500).json({ success: false, message: 'Failed to load classes offered' })
+    }
+  })
 }
 
 export function registerProgramsAdminRoutes(app, pool) {

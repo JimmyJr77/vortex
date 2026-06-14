@@ -14,7 +14,7 @@ import { initAnalyticsTables } from './analytics/initTables.js'
 import { registerAnalyticsRoutes } from './analytics/registerRoutes.js'
 import { initSchedulingTables } from './scheduling/initTables.js'
 import { registerSchedulingRoutes } from './scheduling/registerRoutes.js'
-import { registerProgramsAdminRoutes } from './programs/registerRoutes.js'
+import { registerProgramsAdminRoutes, registerProgramsPublicRoutes } from './programs/registerRoutes.js'
 import { applyRegistrationAttribution } from './analytics/adminHandlers.js'
 import { initDbFeatureTables } from './dbfeatures/initTables.js'
 import { registerSchoolsRoutes } from './schools/registerRoutes.js'
@@ -2248,6 +2248,7 @@ app.use('/api/admin', async (req, res, next) => {
 // Analytics & consent (public + admin)
 registerAnalyticsRoutes(app, pool)
 registerSchedulingRoutes(app, pool)
+registerProgramsPublicRoutes(app, pool)
 registerProgramsAdminRoutes(app, pool)
 
 app.get('/api/admin/email/status', async (req, res) => {

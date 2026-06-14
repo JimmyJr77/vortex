@@ -1,6 +1,7 @@
 import {
   adminFetchOfferings,
   adminFetchSchedulingForm,
+  buildSchedulingSignupUrl,
   dayAbbrev,
   type SchedulingFormDetail,
   type SchedulingOffering,
@@ -70,10 +71,7 @@ export function formatSchedulingCosts(form: {
 }
 
 export function schedulingSignupUrl(formId: number): string {
-  if (typeof window !== 'undefined') {
-    return `${window.location.origin}/scheduling?form=${formId}`
-  }
-  return `/scheduling?form=${formId}`
+  return buildSchedulingSignupUrl(formId)
 }
 
 export function formatOfferingDates(offering: SchedulingOffering): string {
