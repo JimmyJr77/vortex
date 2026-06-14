@@ -37,32 +37,9 @@ import {
 } from './signupFieldCatalog.js'
 import { expandSlotBatch } from './slotExpansion.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
-import { reconcileClasses } from '../programs/reconcile.js'
-import { ensureProgramSchedulingCategoryColumn } from '../programs/schema.js'
+import { ensureNoCategoryCategory, isNoCategoryCategoryRow, NO_CATEGORY_NAME } from '../programs/noCategory.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-/**
- * Auto-sync Classes after a scheduling mutation that can change a form's
- * category set. Reads Scheduling -> rewrites Classes (split merged rows, assign
- * the single category mapping). Best-effort: never fails the originating
- * request, never deletes scheduling data.
- */
-async function autoReconcileByForm(pool, formId) {
-  try {
-    if (!Number.isFinite(Number(formId))) return
-    await ensureProgramSchedulingCategoryColumn(pool)
-    const formRes = await pool.query(
-      'SELECT program_id FROM scheduling_form WHERE id = $1 LIMIT 1',
-      [formId],
-    )
-    const programId = formRes.rows[0]?.program_id ?? null
-    if (programId == null) return
-    await reconcileClasses(pool, { programId: Number(programId) })
-  } catch (err) {
-    console.error('[scheduling] autoReconcileByForm:', err.message)
-  }
-}
 
 
 async function buildOrphanSnapshot(db, groupId) {
@@ -411,7 +388,9 @@ async function loadAllCategories(pool) {
   const result = await pool.query(
     'SELECT * FROM scheduling_category ORDER BY sort_order, id',
   )
-  return result.rows.map(mapCategoryRow)
+  return result.rows
+    .filter((row) => !isNoCategoryCategoryRow(row))
+    .map(mapCategoryRow)
 }
 
 async function loadFormCategories(pool, formId, { includeInactive = false } = {}) {
@@ -1570,6 +1549,9 @@ export function createSchedulingHandlers(pool) {
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
+        if (value.formId == null && value.name.trim() === NO_CATEGORY_NAME) {
+          return res.status(400).json({ success: false, message: '"No Category" is reserved' })
+        }
         const maxSort = await pool.query(
           'SELECT COALESCE(MAX(sort_order), -1) + 1 AS next FROM scheduling_category',
         )
@@ -1609,6 +1591,13 @@ export function createSchedulingHandlers(pool) {
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
+        const existing = await pool.query('SELECT * FROM scheduling_category WHERE id = $1 LIMIT 1', [req.params.id])
+        if (existing.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Category not found' })
+        }
+        if (isNoCategoryCategoryRow(existing.rows[0])) {
+          return res.status(400).json({ success: false, message: 'The system "No Category" cannot be edited' })
+        }
         const result = await pool.query(
           `
           UPDATE scheduling_category
@@ -1638,34 +1627,46 @@ export function createSchedulingHandlers(pool) {
 
     async deleteCategory(req, res) {
       try {
-        // Capture classes that referenced this category before the FK cascade
-        // detaches them, so we can re-sync them to "No Category" afterwards.
-        let affectedProgramIds = []
-        try {
-          const affected = await pool.query(
-            `SELECT DISTINCT sf.program_id
-             FROM scheduling_form sf
-             WHERE sf.program_id IS NOT NULL AND sf.deleted_at IS NULL
-               AND sf.id IN (
-                 SELECT form_id FROM scheduling_form_category WHERE category_id = $1
-                 UNION SELECT form_id FROM scheduling_offering WHERE category_id = $1
-                 UNION SELECT form_id FROM scheduling_slot_group WHERE category_id = $1
-                 UNION SELECT form_id FROM scheduling_time_slot WHERE category_id = $1
-               )`,
-            [req.params.id],
-          )
-          affectedProgramIds = affected.rows.map((r) => Number(r.program_id)).filter((id) => Number.isFinite(id))
-        } catch (snapshotErr) {
-          console.error('[scheduling] deleteCategory snapshot:', snapshotErr.message)
+        const existing = await pool.query('SELECT * FROM scheduling_category WHERE id = $1 LIMIT 1', [req.params.id])
+        if (existing.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Category not found' })
         }
-        await pool.query('DELETE FROM scheduling_category WHERE id = $1', [req.params.id])
-        for (const programId of affectedProgramIds) {
-          try {
-            await ensureProgramSchedulingCategoryColumn(pool)
-            await reconcileClasses(pool, { programId })
-          } catch (reErr) {
-            console.error('[scheduling] deleteCategory reconcile:', reErr.message)
+        if (isNoCategoryCategoryRow(existing.rows[0])) {
+          return res.status(400).json({ success: false, message: 'The system "No Category" cannot be deleted' })
+        }
+        // Reassign this category's scheduling data to "No Category" BEFORE the
+        // delete, so the ON DELETE CASCADE on category_id never destroys
+        // offerings / slots / signups. The class's variation simply collapses
+        // into its "No Category" row.
+        const categoryId = Number(req.params.id)
+        const client = await pool.connect()
+        try {
+          await client.query('BEGIN')
+          const noCategoryId = await ensureNoCategoryCategory(client)
+          // Demote selected offerings being un-categorized when the form already
+          // has a selected "No Category" offering (partial unique index).
+          await client.query(
+            `UPDATE scheduling_offering o
+             SET is_selected = FALSE, updated_at = now()
+             WHERE o.category_id = $1 AND o.is_selected = TRUE
+               AND EXISTS (
+                 SELECT 1 FROM scheduling_offering c
+                 WHERE c.form_id = o.form_id AND c.is_selected = TRUE AND c.category_id IS NULL
+               )`,
+            [categoryId],
+          )
+          for (const tbl of ['scheduling_offering', 'scheduling_slot_group', 'scheduling_time_slot']) {
+            await client.query(`UPDATE ${tbl} SET category_id = NULL WHERE category_id = $1`, [categoryId])
           }
+          await client.query('UPDATE scheduling_signup SET category_id = $1 WHERE category_id = $2', [noCategoryId, categoryId])
+          await client.query('DELETE FROM scheduling_form_category WHERE category_id = $1', [categoryId])
+          await client.query('DELETE FROM scheduling_category WHERE id = $1', [categoryId])
+          await client.query('COMMIT')
+        } catch (txErr) {
+          await client.query('ROLLBACK')
+          throw txErr
+        } finally {
+          client.release()
         }
         res.json({ success: true, message: 'Category deleted' })
       } catch (err) {
@@ -1697,7 +1698,6 @@ export function createSchedulingHandlers(pool) {
           `,
           [formId, categoryId],
         )
-        await autoReconcileByForm(pool, formId)
         res.json({ success: true, message: 'Category linked to form' })
       } catch (err) {
         console.error('[scheduling] linkCategoryToForm:', err)
@@ -1752,7 +1752,6 @@ export function createSchedulingHandlers(pool) {
           `,
           [formId, value.categoryId ?? null, startDate, endDate, value.label || null, isFirst],
         )
-        await autoReconcileByForm(pool, formId)
         res.json({ success: true, data: mapOfferingRow(result.rows[0]) })
       } catch (err) {
         console.error('[scheduling] createOffering:', err)
@@ -1978,7 +1977,6 @@ export function createSchedulingHandlers(pool) {
 
         const formRes = await pool.query('SELECT * FROM scheduling_form WHERE id = $1', [req.params.formId])
         const form = formRes.rows[0]
-        await autoReconcileByForm(pool, req.params.formId)
         res.json({
           success: true,
           data: mapSlotGroupRow(groupRow, inserted, 0, form),

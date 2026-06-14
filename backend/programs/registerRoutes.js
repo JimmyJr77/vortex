@@ -1,9 +1,19 @@
 import Joi from 'joi'
-import { ensureDisciplineTagsSchema, ensureProgramSchedulingCategoryColumn, ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
-import { reconcileClasses, setProgramSchedulingCategory } from './reconcile.js'
+import { ensureDisciplineTagsSchema, ensureNoCategoryDefault, ensureProgramSchedulingCategoryColumn, ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
+import { ensureNoCategoryCategory, isNoCategoryCategoryRow } from './noCategory.js'
+import { addVariationCategory, consolidateClasses, reassignVariationCategory, setProgramSchedulingCategory } from './reconcile.js'
 
 const schedulingCategoryUpdateSchema = Joi.object({
   schedulingCategoryId: Joi.number().integer().allow(null).required(),
+})
+
+const variationReassignSchema = Joi.object({
+  fromCategoryId: Joi.number().integer().allow(null).required(),
+  toCategoryId: Joi.number().integer().allow(null).required(),
+})
+
+const variationAddSchema = Joi.object({
+  categoryId: Joi.number().integer().allow(null).required(),
 })
 
 const disciplineTagSchema = Joi.object({
@@ -685,12 +695,83 @@ export function registerProgramsAdminRoutes(app, pool) {
   })
 
   // ============================================================
-  // Classes <-> Scheduling category sync (physical split, one category per row)
+  // Classes <-> Scheduling category variations
+  // One class = one program row + one form. Categories under that form are the
+  // variations, fanned out into one Admin > Classes row each.
   // ============================================================
 
-  // Re-point a single class row's scheduling data to a different category
-  // (or "No Category" when schedulingCategoryId is null). Bidirectional edit
-  // driven by the Admin > Classes Category dropdown.
+  // Re-point a single category variation of a class to a different category,
+  // moving only that variation's scheduling data. Used by the Admin > Classes
+  // edit modal when changing a row's Category.
+  app.put('/api/admin/programs/:id/variations/reassign', async (req, res) => {
+    try {
+      const { error, value } = variationReassignSchema.validate(req.body)
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message })
+      }
+      await ensureProgramsSchedulingSchema(pool)
+      await ensureProgramSchedulingCategoryColumn(pool)
+      await ensureNoCategoryDefault(pool)
+      const programId = Number(req.params.id)
+      if (!Number.isFinite(programId)) {
+        return res.status(400).json({ success: false, message: 'Invalid class id' })
+      }
+      const exists = await pool.query('SELECT id FROM program WHERE id = $1 LIMIT 1', [programId])
+      if (exists.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Class not found' })
+      }
+      const normalize = async (categoryId) => {
+        if (categoryId == null) return null
+        const cat = await pool.query('SELECT id, form_id, name FROM scheduling_category WHERE id = $1 LIMIT 1', [categoryId])
+        if (cat.rows.length === 0) return null
+        return isNoCategoryCategoryRow(cat.rows[0]) ? null : categoryId
+      }
+      const fromCategoryId = await normalize(value.fromCategoryId)
+      const toCategoryId = await normalize(value.toCategoryId)
+      const result = await reassignVariationCategory(pool, programId, fromCategoryId, toCategoryId)
+      res.json({ success: true, data: result })
+    } catch (err) {
+      console.error('[programs] reassign variation:', err)
+      res.status(500).json({ success: false, message: 'Failed to reassign category variation' })
+    }
+  })
+
+  // Add a new category variation to a class (links the category to its form).
+  app.post('/api/admin/programs/:id/variations', async (req, res) => {
+    try {
+      const { error, value } = variationAddSchema.validate(req.body)
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message })
+      }
+      await ensureProgramsSchedulingSchema(pool)
+      await ensureProgramSchedulingCategoryColumn(pool)
+      await ensureNoCategoryDefault(pool)
+      const programId = Number(req.params.id)
+      if (!Number.isFinite(programId)) {
+        return res.status(400).json({ success: false, message: 'Invalid class id' })
+      }
+      const exists = await pool.query('SELECT id FROM program WHERE id = $1 LIMIT 1', [programId])
+      if (exists.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Class not found' })
+      }
+      let categoryId = value.categoryId
+      if (categoryId != null) {
+        const cat = await pool.query('SELECT id, form_id, name FROM scheduling_category WHERE id = $1 LIMIT 1', [categoryId])
+        if (cat.rows.length === 0) {
+          return res.status(400).json({ success: false, message: 'Scheduling category not found' })
+        }
+        if (isNoCategoryCategoryRow(cat.rows[0])) categoryId = null
+      }
+      const result = await addVariationCategory(pool, programId, categoryId)
+      res.json({ success: true, data: result })
+    } catch (err) {
+      console.error('[programs] add variation:', err)
+      res.status(500).json({ success: false, message: 'Failed to add category variation' })
+    }
+  })
+
+  // Re-point ALL of a class form's scheduling data to a single category
+  // (or "No Category" when schedulingCategoryId is null). Legacy helper.
   app.put('/api/admin/programs/:id/scheduling-category', async (req, res) => {
     try {
       const { error, value } = schedulingCategoryUpdateSchema.validate(req.body)
@@ -699,6 +780,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       }
       await ensureProgramsSchedulingSchema(pool)
       await ensureProgramSchedulingCategoryColumn(pool)
+      await ensureNoCategoryDefault(pool)
       const programId = Number(req.params.id)
       if (!Number.isFinite(programId)) {
         return res.status(400).json({ success: false, message: 'Invalid class id' })
@@ -710,9 +792,12 @@ export function registerProgramsAdminRoutes(app, pool) {
       }
 
       if (value.schedulingCategoryId != null) {
-        const cat = await pool.query('SELECT id FROM scheduling_category WHERE id = $1 LIMIT 1', [value.schedulingCategoryId])
+        const cat = await pool.query('SELECT id, form_id, name FROM scheduling_category WHERE id = $1 LIMIT 1', [value.schedulingCategoryId])
         if (cat.rows.length === 0) {
           return res.status(400).json({ success: false, message: 'Scheduling category not found' })
+        }
+        if (isNoCategoryCategoryRow(cat.rows[0])) {
+          value.schedulingCategoryId = null
         }
       }
 
@@ -724,19 +809,21 @@ export function registerProgramsAdminRoutes(app, pool) {
     }
   })
 
-  // Read Scheduling -> rewrite Classes: split merged rows, assign the single
-  // category mapping. Idempotent. Never deletes scheduling data.
+  // Consolidate duplicate class rows (reverse the legacy physical split): merge
+  // program rows sharing a parent + display name back into one class/form.
+  // Idempotent. Never deletes scheduling data.
   app.post('/api/admin/programs/sync-scheduling-categories', async (req, res) => {
     try {
       await ensureProgramsSchedulingSchema(pool)
       await ensureProgramSchedulingCategoryColumn(pool)
+      await ensureNoCategoryDefault(pool)
       const parentProgramId = req.body?.parentProgramId != null ? Number(req.body.parentProgramId) : null
       const programId = req.body?.programId != null ? Number(req.body.programId) : null
-      const stats = await reconcileClasses(pool, { parentProgramId, programId })
+      const stats = await consolidateClasses(pool, { parentProgramId, programId })
       res.json({ success: true, data: stats })
     } catch (err) {
-      console.error('[programs] sync scheduling categories:', err)
-      res.status(500).json({ success: false, message: 'Failed to sync scheduling categories' })
+      console.error('[programs] consolidate classes:', err)
+      res.status(500).json({ success: false, message: 'Failed to consolidate classes' })
     }
   })
 }

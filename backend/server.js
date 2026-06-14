@@ -10450,10 +10450,13 @@ app.post('/api/admin/admins', async (req, res) => {
 app.get('/api/admin/programs', async (req, res) => {
   try {
     await ensureProgramCategoriesSchema()
-    const { ensureProgramsSchedulingSchema, ensureProgramSchedulingCategoryColumn, ensureDisciplineTagsSchema } = await import('./programs/schema.js')
+    const { ensureProgramsSchedulingSchema, ensureProgramSchedulingCategoryColumn, ensureDisciplineTagsSchema, ensureNoCategoryDefault } = await import('./programs/schema.js')
+    const { ensureNoCategoryCategory } = await import('./programs/noCategory.js')
     await ensureProgramsSchedulingSchema(pool)
     await ensureProgramSchedulingCategoryColumn(pool)
+    await ensureNoCategoryDefault(pool)
     await ensureDisciplineTagsSchema(pool)
+    const noCategoryId = await ensureNoCategoryCategory(pool)
     const taxonomy = await resolveProgramTaxonomy()
     const { archived } = req.query
     const programIsActiveSelect = taxonomy.hasProgramIsActive
@@ -10478,7 +10481,7 @@ app.get('/api/admin/programs', async (req, res) => {
         p.archived,
         p.created_at as "createdAt",
         p.updated_at as "updatedAt",
-        p.scheduling_category_id as "schedulingCategoryId",
+        COALESCE(p.scheduling_category_id, ${noCategoryId}) as "schedulingCategoryId",
         COALESCE(scat.name, 'No Category') as "schedulingCategoryName",
         COALESCE((
           SELECT string_agg(dt.name, ', ' ORDER BY dt.sort_order, dt.name)
@@ -10488,7 +10491,7 @@ app.get('/api/admin/programs', async (req, res) => {
         ), '') as "sportTags"
       FROM program p
       LEFT JOIN ${taxonomy.programsTable} pc ON p.${taxonomy.programFkColumn} = pc.id
-      LEFT JOIN scheduling_category scat ON scat.id = p.scheduling_category_id
+      LEFT JOIN scheduling_category scat ON scat.id = COALESCE(p.scheduling_category_id, ${noCategoryId})
     `
     const params = []
     
@@ -10504,10 +10507,66 @@ app.get('/api/admin/programs', async (req, res) => {
 
     const result = await pool.query(query, params)
 
+    // Attach the list of category "variations" for each class, derived from its
+    // single scheduling form. Admin > Classes fans these out into one row each;
+    // a class with no categories shows a single "No Category" row. Other
+    // consumers of this endpoint can ignore the extra `schedulingCategories`.
+    const namedCatsByProgram = new Map()
+    const uncategorizedPrograms = new Set()
+    try {
+      const namedRes = await pool.query(
+        `SELECT sf.program_id AS program_id, sc.id AS id, sc.name AS name
+         FROM scheduling_form sf
+         JOIN (
+           SELECT form_id, category_id FROM scheduling_form_category
+           UNION SELECT form_id, category_id FROM scheduling_offering WHERE category_id IS NOT NULL
+           UNION SELECT form_id, category_id FROM scheduling_slot_group WHERE category_id IS NOT NULL
+           UNION SELECT form_id, category_id FROM scheduling_time_slot WHERE category_id IS NOT NULL
+         ) link ON link.form_id = sf.id
+         JOIN scheduling_category sc ON sc.id = link.category_id
+         WHERE sf.deleted_at IS NULL AND sf.program_id IS NOT NULL AND sc.id <> $1
+         GROUP BY sf.program_id, sc.id, sc.name, sc.sort_order
+         ORDER BY sc.sort_order, sc.name`,
+        [noCategoryId],
+      )
+      for (const r of namedRes.rows) {
+        const pid = Number(r.program_id)
+        if (!namedCatsByProgram.has(pid)) namedCatsByProgram.set(pid, [])
+        namedCatsByProgram.get(pid).push({ id: Number(r.id), name: r.name })
+      }
+      const uncatRes = await pool.query(
+        `SELECT DISTINCT sf.program_id AS program_id
+         FROM scheduling_form sf
+         WHERE sf.deleted_at IS NULL AND sf.program_id IS NOT NULL
+           AND (
+             EXISTS (SELECT 1 FROM scheduling_offering o WHERE o.form_id = sf.id AND o.category_id IS NULL)
+             OR EXISTS (SELECT 1 FROM scheduling_slot_group g WHERE g.form_id = sf.id AND g.category_id IS NULL)
+             OR EXISTS (SELECT 1 FROM scheduling_time_slot t WHERE t.form_id = sf.id AND t.category_id IS NULL)
+           )`,
+      )
+      for (const r of uncatRes.rows) uncategorizedPrograms.add(Number(r.program_id))
+    } catch (catErr) {
+      console.error('Get programs scheduling categories error:', catErr.message)
+    }
+
+    const NO_CATEGORY_REF = { id: null, name: 'No Category' }
+    const rows = result.rows.map((row) => {
+      const named = namedCatsByProgram.get(Number(row.id)) || []
+      let schedulingCategories
+      if (named.length === 0) {
+        schedulingCategories = [NO_CATEGORY_REF]
+      } else if (uncategorizedPrograms.has(Number(row.id))) {
+        schedulingCategories = [NO_CATEGORY_REF, ...named]
+      } else {
+        schedulingCategories = named
+      }
+      return { ...row, schedulingCategories }
+    })
+
     res.json({
       success: true,
-      programs: result.rows,
-      data: result.rows
+      programs: rows,
+      data: rows
     })
   } catch (error) {
     console.error('Get programs error:', error)
@@ -10616,10 +10675,11 @@ app.post('/api/admin/programs', async (req, res) => {
       SELECT column_name 
       FROM information_schema.columns 
       WHERE table_name = 'program' 
-      AND column_name IN ('category_id', 'level_id')
+      AND column_name IN ('category_id', 'level_id', 'scheduling_category_id')
     `)
     const hasCategoryIdColumn = columnCheck.rows.some(row => row.column_name === 'category_id')
     const hasLevelIdColumn = columnCheck.rows.some(row => row.column_name === 'level_id')
+    const hasSchedulingCategoryIdColumn = columnCheck.rows.some(row => row.column_name === 'scheduling_category_id')
 
     // Ensure categoryEnum is a valid enum value before inserting (check against database enum type)
     if (categoryEnum) {
@@ -10676,6 +10736,16 @@ app.post('/api/admin/programs', async (req, res) => {
       value.skillRequirements || null,
       value.isActive !== undefined ? value.isActive : true
     )
+
+    if (hasSchedulingCategoryIdColumn) {
+      const { ensureProgramSchedulingCategoryColumn, ensureNoCategoryDefault } = await import('./programs/schema.js')
+      const { ensureNoCategoryCategory } = await import('./programs/noCategory.js')
+      await ensureProgramSchedulingCategoryColumn(pool)
+      await ensureNoCategoryDefault(pool)
+      const noCategoryId = await ensureNoCategoryCategory(pool)
+      insertColumns.push('scheduling_category_id')
+      insertValues.push(noCategoryId)
+    }
 
     const placeholders = insertValues.map((_, i) => `$${i + 1}`).join(', ')
 

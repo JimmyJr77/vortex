@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Loader2, Plus, X } from 'lucide-react'
 import {
+  addClassVariation,
   createClassEvent,
-  setClassSchedulingCategory,
+  reassignClassVariation,
   updateClassEvent,
   type ClassEvent,
   type ClassEventFormData,
@@ -11,6 +12,8 @@ import {
   adminCreateCategory,
   adminFetchAllCategories,
   adminFetchFormCategories,
+  isNoCategorySelection,
+  NO_CATEGORY_NAME,
   type SchedulingCategory,
 } from '../../utils/schedulingApi'
 
@@ -29,6 +32,11 @@ interface Props {
   editing?: ClassEvent | null
   initialFormData?: ClassEventFormData
   initialSchedulingCategoryId?: number | null
+  // When editing a fanned-out category row: 'reassign' moves that variation's
+  // scheduling data to the newly selected category; 'add' links a new category
+  // variation to the class. Defaults to 'reassign'.
+  variationMode?: 'reassign' | 'add'
+  variationFromCategoryId?: number | null
   submitLabel?: string
   onClose: () => void
   onSaved: () => void
@@ -54,6 +62,8 @@ const ClassEventModal = ({
   editing,
   initialFormData,
   initialSchedulingCategoryId,
+  variationMode = 'reassign',
+  variationFromCategoryId = null,
   submitLabel,
   onClose,
   onSaved,
@@ -141,21 +151,31 @@ const ClassEventModal = ({
 
   const filteredCategories = useMemo(() => {
     const q = categorySearch.trim().toLowerCase()
-    if (!q) return allCategories
-    return allCategories.filter((c) => c.name.toLowerCase().includes(q))
+    const selectable = allCategories.filter((cat) => cat.name !== NO_CATEGORY_NAME || cat.formId != null)
+    if (!q) return selectable
+    return selectable.filter((c) => c.name.toLowerCase().includes(q))
   }, [allCategories, categorySearch])
 
+  const isNoCategorySelected = useMemo(
+    () =>
+      isNoCategorySelection(
+        selectedCategoryId,
+        editing?.schedulingCategoryId === selectedCategoryId ? editing?.schedulingCategoryName : undefined,
+        allCategories,
+      ),
+    [selectedCategoryId, editing?.schedulingCategoryId, editing?.schedulingCategoryName, allCategories],
+  )
+
   const selectedCategoryName = useMemo(() => {
-    if (selectedCategoryId == null) return 'No Category'
+    if (isNoCategorySelected) return NO_CATEGORY_NAME
+    if (selectedCategoryId == null) return NO_CATEGORY_NAME
     const fromMaster = allCategories.find((c) => c.id === selectedCategoryId)?.name
     if (fromMaster) return fromMaster
-    // Fall back to the name the backend already resolved for this class, so an
-    // inactive/missing master entry doesn't make it read "No Category".
     if (editing?.schedulingCategoryId === selectedCategoryId && editing?.schedulingCategoryName) {
       return editing.schedulingCategoryName
     }
-    return 'No Category'
-  }, [allCategories, selectedCategoryId, editing])
+    return NO_CATEGORY_NAME
+  }, [allCategories, selectedCategoryId, editing, isNoCategorySelected])
 
   const handleAddCategory = async () => {
     const name = categorySearch.trim()
@@ -201,11 +221,20 @@ const ClassEventModal = ({
           isActive: parentProgramActive ? form.isActive !== false : false,
         })
       }
-      // Persist the chosen scheduling category directly on the class row
-      // (program.scheduling_category_id) so it shows immediately in the Classes
-      // table and stays consistent on the Scheduling side. This sets the column,
-      // normalizes the form-category link, and re-points any offerings/slots.
-      await setClassSchedulingCategory(saved.id, selectedCategoryId)
+      // Persist the chosen scheduling category as a variation of this class.
+      // - Editing a row: reassign that variation's scheduling data to the new
+      //   category (or add it as a brand-new variation in 'add' mode).
+      // - Creating a class: link the selected category as its first variation.
+      if (editing) {
+        if (variationMode === 'add') {
+          await addClassVariation(saved.id, selectedCategoryId)
+        } else {
+          const fromCategoryId = variationFromCategoryId ?? editing.schedulingCategoryId ?? null
+          await reassignClassVariation(saved.id, fromCategoryId, selectedCategoryId)
+        }
+      } else if (selectedCategoryId != null) {
+        await addClassVariation(saved.id, selectedCategoryId)
+      }
       onSaved()
       onClose()
     } catch (err) {
@@ -269,7 +298,7 @@ const ClassEventModal = ({
                   setCategoryDropdownOpen(true)
                 }}
                 onFocus={() => {
-                  setCategorySearch(selectedCategoryName === 'No Category' ? '' : selectedCategoryName)
+                  setCategorySearch(selectedCategoryName === NO_CATEGORY_NAME ? '' : selectedCategoryName)
                   setCategoryDropdownOpen(true)
                 }}
                 placeholder="Search categories…"
@@ -280,7 +309,7 @@ const ClassEventModal = ({
                   <button
                     type="button"
                     className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
-                      selectedCategoryId == null ? 'bg-red-50 text-vortex-red font-medium' : ''
+                      isNoCategorySelected ? 'bg-red-50 text-vortex-red font-medium' : ''
                     }`}
                     onClick={() => {
                       setSelectedCategoryId(null)

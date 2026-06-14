@@ -14,6 +14,23 @@ export interface SchedulingCategory {
   isActive: boolean
 }
 
+export const NO_CATEGORY_NAME = 'No Category'
+
+export function isNoCategoryCategory(cat: Pick<SchedulingCategory, 'formId' | 'name'>): boolean {
+  return cat.formId == null && cat.name === NO_CATEGORY_NAME
+}
+
+export function isNoCategorySelection(
+  categoryId: number | null | undefined,
+  categoryName?: string | null,
+  categories: SchedulingCategory[] = [],
+): boolean {
+  if (categoryId == null) return true
+  if (categoryName === NO_CATEGORY_NAME) return true
+  const match = categories.find((cat) => cat.id === categoryId)
+  return match != null && isNoCategoryCategory(match)
+}
+
 export interface SchedulingFormCategory {
   id: number | null
   formId: number | null

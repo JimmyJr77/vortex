@@ -1,5 +1,10 @@
 import { adminApiRequest } from './api'
 
+export interface SchedulingCategoryRef {
+  id: number | null
+  name: string
+}
+
 export interface TopProgram {
   id: number
   name: string
@@ -32,6 +37,7 @@ export interface ClassEvent {
   schedulingFormId?: number | null
   schedulingCategoryId?: number | null
   schedulingCategoryName?: string | null
+  schedulingCategories?: SchedulingCategoryRef[]
   sportTags?: string | null
   createdAt: string
   updatedAt: string
@@ -231,16 +237,51 @@ export async function setClassSchedulingCategory(
   }
 }
 
+/**
+ * Re-point a single category variation of a class to a different category
+ * (or "No Category" when null), moving only that variation's scheduling data.
+ */
+export async function reassignClassVariation(
+  classId: number,
+  fromCategoryId: number | null,
+  toCategoryId: number | null,
+): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/programs/${classId}/variations/reassign`, {
+    method: 'PUT',
+    body: JSON.stringify({ fromCategoryId, toCategoryId }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Failed to reassign category variation')
+  }
+}
+
+/** Add a new category variation to a class (links the category to its form). */
+export async function addClassVariation(
+  classId: number,
+  categoryId: number | null,
+): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/programs/${classId}/variations`, {
+    method: 'POST',
+    body: JSON.stringify({ categoryId }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Failed to add category variation')
+  }
+}
+
 export interface SyncSchedulingStats {
-  scanned: number
-  split: number
-  created: number
-  assigned: number
+  groups: number
+  merged: number
+  formsMerged: number
+  removed: number
 }
 
 /**
- * Read Scheduling -> rewrite Classes: split merged rows and assign the single
- * category mapping. Idempotent and never deletes scheduling data.
+ * Consolidate duplicate class rows (reverse the legacy physical split). Merges
+ * program rows that share a parent + display name back into one class/form.
+ * Idempotent and never deletes scheduling data.
  */
 export async function syncSchedulingCategories(opts?: {
   parentProgramId?: number | null
