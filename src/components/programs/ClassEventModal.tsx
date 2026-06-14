@@ -40,6 +40,7 @@ interface Props {
   // variation to the class. Defaults to 'reassign'.
   variationMode?: 'reassign' | 'add'
   variationFromCategoryId?: number | null
+  programPrimarySportId?: number | null
   submitLabel?: string
   onClose: () => void
   onSaved: () => void
@@ -67,6 +68,7 @@ const ClassEventModal = ({
   initialSchedulingCategoryId,
   variationMode = 'reassign',
   variationFromCategoryId = null,
+  programPrimarySportId = null,
   submitLabel,
   onClose,
   onSaved,
@@ -332,11 +334,15 @@ const ClassEventModal = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sport tags</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Additional sport tags</label>
+            <p className="text-xs text-gray-500 mb-2">
+              Primary sport is set on the program. Add cross-training or joint-event tags here.
+            </p>
             <DisciplineTagPicker
               programId={selectedProgramsId}
               programDisplayName={programsDisplayName}
               showHeading={false}
+              excludeTagId={programPrimarySportId}
             />
           </div>
           <div>

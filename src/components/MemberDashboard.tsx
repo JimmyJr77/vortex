@@ -6,6 +6,7 @@ import { getApiUrl } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 import EnrollmentForm from './EnrollmentForm'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
+import { formatSkillLevel } from '../utils/classDisplayUtils'
 import EventAttachedSignup from './EventAttachedSignup'
 
 interface MemberDashboardProps {
@@ -1974,7 +1975,7 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                               )}
                               {program.skillLevel && (
                                 <div>
-                                  <span className="font-medium">Skill Level:</span> {program.skillLevel.replace('_', ' ')}
+                                  <span className="font-medium">Skill Level:</span> {formatSkillLevel(program.skillLevel)}
                                 </div>
                               )}
                               {(program.ageMin !== null || program.ageMax !== null) && (

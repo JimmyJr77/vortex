@@ -113,6 +113,43 @@ export interface SchedulingMonthlyPricing {
   hasPricing: boolean
 }
 
+export interface SignupOrderPreviewClass {
+  id?: number
+  formId: number
+  formTitle: string
+  categoryName: string
+  slotLabel: string
+  slotKey?: string
+  status?: string
+  incrementalMonthly?: number
+  isNew: boolean
+}
+
+export interface SignupOrderPreviewFormSummary {
+  formId: number
+  formTitle: string
+  existingSlotCount: number
+  newSlotCount: number
+  totalSlotCount: number
+  pricingBefore: SchedulingMonthlyPricing | null
+  pricingAfter: SchedulingMonthlyPricing | null
+  incrementalMonthly: number
+  discountMonthly: number
+}
+
+export interface SignupOrderPreview {
+  memberId: number | null
+  existingClasses: SignupOrderPreviewClass[]
+  newSignups: SignupOrderPreviewClass[]
+  formSummaries: SignupOrderPreviewFormSummary[]
+  existingMonthlyTotal: number
+  newSignupMonthlyTotal: number
+  estimatedMonthlyTotal: number
+  totalDiscountMonthly: number
+  hasPricing: boolean
+  disclaimer: string
+}
+
 export interface SchedulingFormSummary {
   id: number
   title: string
@@ -126,6 +163,13 @@ export interface SchedulingFormSummary {
   maxSlotsPerUser?: number | null
   slotCostMonthlyCents?: number
   freeSlotsPerUser?: number
+  pricingOverridesProgram?: boolean
+  formMaxSlotsPerUser?: number | null
+  formSlotCostMonthlyCents?: number
+  formFreeSlotsPerUser?: number
+  programMaxSlotsPerUser?: number | null
+  programSlotCostMonthlyCents?: number
+  programFreeSlotsPerUser?: number
 }
 
 export interface LegacySchedulingForm extends SchedulingFormSummary {
@@ -439,6 +483,33 @@ export async function fetchMySchedulingSignups(email: string): Promise<MemberSch
   return data.signups ?? []
 }
 
+export async function fetchSignupOrderPreview(payload: {
+  formId: number
+  email?: string
+  signupAuthToken?: string
+  signups: Array<{
+    formId: number
+    categoryId: number | null
+    slotGroupId: number
+    timeSlotId?: number
+    formTitle?: string
+    categoryName?: string
+    slotLabel?: string
+  }>
+}): Promise<SignupOrderPreview> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/signups/order-preview`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      formId: payload.formId,
+      email: payload.email?.trim().toLowerCase(),
+      signupAuthToken: payload.signupAuthToken,
+      signups: payload.signups,
+    }),
+  })
+  return parseJson(res)
+}
+
 /** @deprecated Prefer fetchMySchedulingSignups for slot-level state. */
 export async function fetchMySchedulingFormIds(email: string): Promise<number[]> {
   const res = await fetch(`${getApiUrl()}/api/scheduling/my-signups`, {
@@ -653,9 +724,17 @@ export async function adminSaveSchedulingForm(
         maxSlotsPerUser: payload.maxSlotsPerUser ?? null,
         slotCostMonthlyCents: payload.slotCostMonthlyCents ?? 0,
         freeSlotsPerUser: payload.freeSlotsPerUser ?? 0,
+        pricingOverridesProgram: payload.pricingOverridesProgram,
       }),
     },
   )
+  return parseJson(res)
+}
+
+export async function resetClassPricing(formId: number): Promise<SchedulingFormSummary> {
+  const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/pricing/reset`, {
+    method: 'POST',
+  })
   return parseJson(res)
 }
 

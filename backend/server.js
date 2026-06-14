@@ -1377,7 +1377,11 @@ const programUpdateSchema = Joi.object({
 const categorySchema = Joi.object({
   name: Joi.string().min(1).max(100).required(),
   displayName: Joi.string().min(1).max(255).required(),
-  description: Joi.string().max(1000).optional().allow('', null)
+  description: Joi.string().max(1000).optional().allow('', null),
+  primarySportId: Joi.number().integer().allow(null).optional(),
+  pricingMaxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
+  pricingSlotCostMonthlyCents: Joi.number().integer().min(0).optional(),
+  pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
 })
 
 const categoryUpdateSchema = Joi.object({
@@ -1386,6 +1390,10 @@ const categoryUpdateSchema = Joi.object({
   description: Joi.string().max(1000).optional().allow('', null),
   archived: Joi.boolean().optional(),
   isActive: Joi.boolean().optional(),
+  primarySportId: Joi.number().integer().allow(null).optional(),
+  pricingMaxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
+  pricingSlotCostMonthlyCents: Joi.number().integer().min(0).optional(),
+  pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
 })
 
 const levelSchema = Joi.object({
@@ -10452,15 +10460,18 @@ app.post('/api/admin/admins', async (req, res) => {
 app.get('/api/admin/programs', async (req, res) => {
   try {
     await ensureProgramCategoriesSchema()
-    const { ensureProgramsSchedulingSchema, ensureProgramSchedulingCategoryColumn, ensureDisciplineTagsSchema, ensureNoCategoryDefault } = await import('./programs/schema.js')
+    const { ensureProgramsSchedulingSchema, ensureProgramSchedulingCategoryColumn, ensureDisciplineTagsSchema, ensureNoCategoryDefault, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns } = await import('./programs/schema.js')
     const { ensureNoCategoryCategory } = await import('./programs/noCategory.js')
+    const { mapClassPricingFields } = await import('./programs/pricingDefaults.js')
     await ensureProgramsSchedulingSchema(pool)
     await ensureProgramSchedulingCategoryColumn(pool)
     await ensureNoCategoryDefault(pool)
     await ensureDisciplineTagsSchema(pool)
+    await ensurePrimaryDisciplineTagColumn(pool)
+    await ensureProgramPricingColumns(pool)
     const noCategoryId = await ensureNoCategoryCategory(pool)
     const taxonomy = await resolveProgramTaxonomy()
-    const { archived } = req.query
+    const { archived, includePricing } = req.query
     const programIsActiveSelect = taxonomy.hasProgramIsActive
       ? `COALESCE(pc.is_active, TRUE) as "programIsActive",`
       : `TRUE as "programIsActive",`
@@ -10485,11 +10496,13 @@ app.get('/api/admin/programs', async (req, res) => {
         p.updated_at as "updatedAt",
         COALESCE(p.scheduling_category_id, ${noCategoryId}) as "schedulingCategoryId",
         COALESCE(scat.name, 'No Category') as "schedulingCategoryName",
+        primary_dt.name AS "primarySport",
         COALESCE((
           SELECT string_agg(dt.name, ', ' ORDER BY dt.sort_order, dt.name)
           FROM program_discipline_tag pdt
           JOIN discipline_tag dt ON dt.id = pdt.tag_id
           WHERE pdt.programs_id = p.${taxonomy.programFkColumn}
+            AND dt.id IS DISTINCT FROM pc.primary_discipline_tag_id
         ), '') as "sportTags",
         COALESCE((
           SELECT COUNT(*)::int FROM scheduling_offering o
@@ -10501,9 +10514,20 @@ app.get('/api/admin/programs', async (req, res) => {
           INNER JOIN scheduling_form sf ON sf.id = g.form_id AND sf.deleted_at IS NULL
           WHERE sf.program_id = p.id
         ), 0) as "slotCount"
+        ${includePricing === 'true' ? `,
+        sf.id as "schedulingFormId",
+        sf.pricing_overrides_program as "pricingOverridesProgram",
+        sf.max_slots_per_user as "formMaxSlotsPerUser",
+        sf.slot_cost_monthly_cents as "formSlotCostMonthlyCents",
+        sf.free_slots_per_user as "formFreeSlotsPerUser",
+        pc.pricing_max_slots_per_user as "programMaxSlotsPerUser",
+        pc.pricing_slot_cost_monthly_cents as "programSlotCostMonthlyCents",
+        pc.pricing_free_slots_per_user as "programFreeSlotsPerUser"` : ''}
       FROM program p
       LEFT JOIN ${taxonomy.programsTable} pc ON p.${taxonomy.programFkColumn} = pc.id
+      LEFT JOIN discipline_tag primary_dt ON primary_dt.id = pc.primary_discipline_tag_id
       LEFT JOIN scheduling_category scat ON scat.id = COALESCE(p.scheduling_category_id, ${noCategoryId})
+      ${includePricing === 'true' ? `LEFT JOIN scheduling_form sf ON sf.program_id = p.id AND sf.deleted_at IS NULL` : ''}
     `
     const params = []
     
@@ -10572,7 +10596,24 @@ app.get('/api/admin/programs', async (req, res) => {
       } else {
         schedulingCategories = named
       }
-      return { ...row, schedulingCategories }
+      let pricingFields = {}
+      if (includePricing === 'true' && row.schedulingFormId != null) {
+        pricingFields = mapClassPricingFields(
+          {
+            pricing_max_slots_per_user: row.programMaxSlotsPerUser,
+            pricing_slot_cost_monthly_cents: row.programSlotCostMonthlyCents,
+            pricing_free_slots_per_user: row.programFreeSlotsPerUser,
+          },
+          {
+            id: row.schedulingFormId,
+            pricing_overrides_program: row.pricingOverridesProgram,
+            max_slots_per_user: row.formMaxSlotsPerUser,
+            slot_cost_monthly_cents: row.formSlotCostMonthlyCents,
+            free_slots_per_user: row.formFreeSlotsPerUser,
+          },
+        )
+      }
+      return { ...row, schedulingCategories, ...pricingFields }
     })
 
     res.json({
@@ -12174,6 +12215,9 @@ app.get('/api/admin/programs/:programId/iterations/stats', async (req, res) => {
 app.get('/api/admin/categories', async (req, res) => {
   try {
     await ensureProgramCategoriesSchema()
+    const { ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns } = await import('./programs/schema.js')
+    await ensurePrimaryDisciplineTagColumn(pool)
+    await ensureProgramPricingColumns(pool)
     const taxonomy = await resolveProgramTaxonomy()
     const { archived } = req.query
     
@@ -12186,32 +12230,38 @@ app.get('/api/admin/categories', async (req, res) => {
     `, [taxonomy.programsTable])
     const hasDescriptionColumn = columnCheck.rows.length > 0
     const isActiveSelect = taxonomy.hasProgramIsActive
-      ? 'is_active as "isActive",'
+      ? 'p.is_active as "isActive",'
       : 'TRUE as "isActive",'
     
     let query = `
       SELECT 
-        id,
-        name,
-        display_name as "displayName",
-        ${hasDescriptionColumn ? 'description,' : 'NULL as description,'}
+        p.id,
+        p.name,
+        p.display_name as "displayName",
+        ${hasDescriptionColumn ? 'p.description,' : 'NULL as description,'}
         ${isActiveSelect}
-        archived,
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-      FROM ${taxonomy.programsTable}
+        p.archived,
+        p.created_at as "createdAt",
+        p.updated_at as "updatedAt",
+        primary_dt.id as "primarySportId",
+        primary_dt.name as "primarySportName",
+        p.pricing_max_slots_per_user as "pricingMaxSlotsPerUser",
+        p.pricing_slot_cost_monthly_cents as "pricingSlotCostMonthlyCents",
+        p.pricing_free_slots_per_user as "pricingFreeSlotsPerUser"
+      FROM ${taxonomy.programsTable} p
+      LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
     `
     const params = []
     
     if (archived === 'true') {
-      query += ' WHERE archived = $1'
+      query += ' WHERE p.archived = $1'
       params.push(true)
     } else if (archived === 'false') {
-      query += ' WHERE archived = $1'
+      query += ' WHERE p.archived = $1'
       params.push(false)
     }
     
-    query += ' ORDER BY archived ASC, display_name ASC'
+    query += ' ORDER BY p.archived ASC, p.display_name ASC'
     
     const result = await pool.query(query, params)
 
@@ -12241,6 +12291,11 @@ app.post('/api/admin/categories', async (req, res) => {
         errors: error.details.map(detail => detail.message)
       })
     }
+
+    const { ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns } = await import('./programs/schema.js')
+    const { setProgramPrimarySport, getProgramPrimarySportFields } = await import('./programs/primarySport.js')
+    await ensurePrimaryDisciplineTagColumn(pool)
+    await ensureProgramPricingColumns(pool)
 
     const facilityId = await pool.query('SELECT id FROM facility LIMIT 1')
     if (facilityId.rows.length === 0) {
@@ -12293,10 +12348,24 @@ app.post('/api/admin/categories', async (req, res) => {
 
     const result = await pool.query(query, params)
 
+    const created = result.rows[0]
+    if (value.primarySportId !== undefined) {
+      try {
+        await setProgramPrimarySport(pool, created.id, value.primarySportId)
+      } catch (sportErr) {
+        const status = sportErr.statusCode === 400 ? 400 : 500
+        return res.status(status).json({
+          success: false,
+          message: sportErr.message || 'Failed to set primary sport',
+        })
+      }
+    }
+    const primarySport = await getProgramPrimarySportFields(pool, created.id)
+
     res.json({
       success: true,
       message: 'Category created successfully',
-      data: result.rows[0]
+      data: { ...created, ...primarySport }
     })
   } catch (error) {
     if (error.code === '23505') { // Unique violation
@@ -12325,6 +12394,11 @@ app.put('/api/admin/categories/:id', async (req, res) => {
         errors: error.details.map(detail => detail.message)
       })
     }
+
+    const { ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns } = await import('./programs/schema.js')
+    const { setProgramPrimarySport, getProgramPrimarySportFields } = await import('./programs/primarySport.js')
+    await ensurePrimaryDisciplineTagColumn(pool)
+    await ensureProgramPricingColumns(pool)
 
     const updates = []
     const values = []
@@ -12364,48 +12438,118 @@ app.put('/api/admin/categories/:id', async (req, res) => {
       values.push(value.isActive)
     }
 
-    if (updates.length === 0) {
+    if (value.pricingMaxSlotsPerUser !== undefined) {
+      updates.push(`pricing_max_slots_per_user = $${paramCount++}`)
+      values.push(value.pricingMaxSlotsPerUser)
+    }
+    if (value.pricingSlotCostMonthlyCents !== undefined) {
+      updates.push(`pricing_slot_cost_monthly_cents = $${paramCount++}`)
+      values.push(value.pricingSlotCostMonthlyCents)
+    }
+    if (value.pricingFreeSlotsPerUser !== undefined) {
+      updates.push(`pricing_free_slots_per_user = $${paramCount++}`)
+      values.push(value.pricingFreeSlotsPerUser)
+    }
+
+    const hasPricingUpdate =
+      value.pricingMaxSlotsPerUser !== undefined ||
+      value.pricingSlotCostMonthlyCents !== undefined ||
+      value.pricingFreeSlotsPerUser !== undefined
+
+    if (updates.length === 0 && value.primarySportId === undefined && !hasPricingUpdate) {
       return res.status(400).json({
         success: false,
         message: 'No fields to update'
       })
     }
 
-    updates.push(`updated_at = CURRENT_TIMESTAMP`)
-    values.push(id)
+    let row = null
+    if (updates.length > 0) {
+      updates.push(`updated_at = CURRENT_TIMESTAMP`)
+      values.push(id)
 
-    const returnDescription = hasDescriptionColumn ? 'description,' : 'NULL as description,'
-    const returnIsActive = taxonomy.hasProgramIsActive ? 'is_active as "isActive",' : 'TRUE as "isActive",'
-    const result = await pool.query(`
-      UPDATE ${taxonomy.programsTable}
-      SET ${updates.join(', ')}
-      WHERE id = $${paramCount}
-      RETURNING 
-        id,
-        name,
-        display_name as "displayName",
-        ${returnDescription}
-        ${returnIsActive}
-        archived,
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-    `, values)
+      const returnDescription = hasDescriptionColumn ? 'description,' : 'NULL as description,'
+      const returnIsActive = taxonomy.hasProgramIsActive ? 'is_active as "isActive",' : 'TRUE as "isActive",'
+      const result = await pool.query(`
+        UPDATE ${taxonomy.programsTable}
+        SET ${updates.join(', ')}
+        WHERE id = $${paramCount}
+        RETURNING 
+          id,
+          name,
+          display_name as "displayName",
+          ${returnDescription}
+          ${returnIsActive}
+          archived,
+          created_at as "createdAt",
+          updated_at as "updatedAt"
+      `, values)
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Category not found'
-      })
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Category not found'
+        })
+      }
+      row = result.rows[0]
+
+      if (value.isActive === false && taxonomy.hasProgramIsActive) {
+        await deactivateClassesForProgram(Number(id), taxonomy)
+      }
+    } else {
+      const exists = await pool.query(
+        `SELECT id FROM ${taxonomy.programsTable} WHERE id = $1`,
+        [id],
+      )
+      if (exists.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Category not found'
+        })
+      }
     }
 
-    if (value.isActive === false && taxonomy.hasProgramIsActive) {
-      await deactivateClassesForProgram(Number(id), taxonomy)
+    if (value.primarySportId !== undefined) {
+      try {
+        await setProgramPrimarySport(pool, Number(id), value.primarySportId)
+      } catch (sportErr) {
+        const status = sportErr.statusCode === 400 ? 400 : 500
+        return res.status(status).json({
+          success: false,
+          message: sportErr.message || 'Failed to set primary sport',
+        })
+      }
     }
+
+    if (!row) {
+      const fetch = await pool.query(
+        `SELECT id, name, display_name as "displayName",
+          ${hasDescriptionColumn ? 'description,' : 'NULL as description,'}
+          ${taxonomy.hasProgramIsActive ? 'is_active as "isActive",' : 'TRUE as "isActive",'}
+          archived, created_at as "createdAt", updated_at as "updatedAt",
+          pricing_max_slots_per_user as "pricingMaxSlotsPerUser",
+          pricing_slot_cost_monthly_cents as "pricingSlotCostMonthlyCents",
+          pricing_free_slots_per_user as "pricingFreeSlotsPerUser"
+         FROM ${taxonomy.programsTable} WHERE id = $1`,
+        [id],
+      )
+      row = fetch.rows[0]
+    } else {
+      const pricingFetch = await pool.query(
+        `SELECT pricing_max_slots_per_user as "pricingMaxSlotsPerUser",
+          pricing_slot_cost_monthly_cents as "pricingSlotCostMonthlyCents",
+          pricing_free_slots_per_user as "pricingFreeSlotsPerUser"
+         FROM ${taxonomy.programsTable} WHERE id = $1`,
+        [id],
+      )
+      row = { ...row, ...(pricingFetch.rows[0] ?? {}) }
+    }
+    const primarySport = await getProgramPrimarySportFields(pool, id)
 
     res.json({
       success: true,
       message: 'Category updated successfully',
-      data: result.rows[0]
+      data: { ...row, ...primarySport }
     })
   } catch (error) {
     if (error.code === '23505') {

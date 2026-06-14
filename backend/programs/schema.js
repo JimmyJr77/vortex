@@ -115,3 +115,34 @@ export async function ensureNoCategoryDefault(pool) {
   await pool.query(sql)
   noCategoryDefaultReady = true
 }
+
+let primaryDisciplineTagReady = false
+
+export async function ensurePrimaryDisciplineTagColumn(pool) {
+  if (primaryDisciplineTagReady) return
+  await ensureDisciplineTagsSchema(pool)
+  const fs = await import('fs')
+  const path = await import('path')
+  const { fileURLToPath } = await import('url')
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  const migrationPath = path.join(__dirname, '../migrations/add_primary_discipline_tag.sql')
+  if (!fs.existsSync(migrationPath)) return
+  const sql = fs.readFileSync(migrationPath, 'utf8')
+  await pool.query(sql)
+  primaryDisciplineTagReady = true
+}
+
+let programPricingReady = false
+
+export async function ensureProgramPricingColumns(pool) {
+  if (programPricingReady) return
+  const fs = await import('fs')
+  const path = await import('path')
+  const { fileURLToPath } = await import('url')
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  const migrationPath = path.join(__dirname, '../migrations/add_program_pricing_defaults.sql')
+  if (!fs.existsSync(migrationPath)) return
+  const sql = fs.readFileSync(migrationPath, 'utf8')
+  await pool.query(sql)
+  programPricingReady = true
+}

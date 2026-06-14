@@ -10,6 +10,11 @@ export interface TopProgram {
   name: string
   displayName: string
   description?: string | null
+  primarySportId?: number | null
+  primarySportName?: string | null
+  pricingMaxSlotsPerUser?: number | null
+  pricingSlotCostMonthlyCents?: number
+  pricingFreeSlotsPerUser?: number
   archived: boolean
   schedulingActive?: boolean
   schedulingSignupFields?: string[] | null
@@ -39,9 +44,24 @@ export interface ClassEvent {
   schedulingCategoryId?: number | null
   schedulingCategoryName?: string | null
   schedulingCategories?: SchedulingCategoryRef[]
+  primarySport?: string | null
   sportTags?: string | null
   createdAt: string
   updatedAt: string
+}
+
+export interface AdminProgramPricing extends ClassEvent {
+  schedulingFormId?: number | null
+  pricingOverridesProgram?: boolean
+  formMaxSlotsPerUser?: number | null
+  formSlotCostMonthlyCents?: number
+  formFreeSlotsPerUser?: number
+  programMaxSlotsPerUser?: number | null
+  programSlotCostMonthlyCents?: number
+  programFreeSlotsPerUser?: number
+  maxSlotsPerUser?: number | null
+  slotCostMonthlyCents?: number
+  freeSlotsPerUser?: number
 }
 
 export interface ClassEventFormData {
@@ -74,6 +94,7 @@ export async function createTopProgram(payload: {
   name: string
   displayName: string
   description?: string | null
+  primarySportId?: number | null
 }): Promise<TopProgram> {
   const res = await adminApiRequest('/api/admin/programs-top', {
     method: 'POST',
@@ -93,6 +114,10 @@ export async function updateTopProgram(
     schedulingSignupFields: string[] | null
     schedulingMandateWaiver: boolean
     markOverviewSaved: boolean
+    primarySportId: number | null
+    pricingMaxSlotsPerUser: number | null
+    pricingSlotCostMonthlyCents: number
+    pricingFreeSlotsPerUser: number
   }>,
 ): Promise<TopProgram> {
   const res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
@@ -124,6 +149,7 @@ export async function deleteTopProgram(id: number): Promise<void> {
 export async function fetchClassEvents(opts?: {
   programsId?: number
   archived?: boolean
+  includePricing?: boolean
 }): Promise<ClassEvent[]> {
   if (opts?.programsId != null) {
     const qs = opts.archived === undefined ? '' : `?archived=${opts.archived}`
@@ -132,11 +158,29 @@ export async function fetchClassEvents(opts?: {
     )
     return parseJson(res)
   }
-  const qs = opts?.archived === undefined ? '' : `?archived=${opts.archived}`
+  const params = new URLSearchParams()
+  if (opts?.archived !== undefined) params.set('archived', String(opts.archived))
+  if (opts?.includePricing) params.set('includePricing', 'true')
+  const qs = params.toString() ? `?${params.toString()}` : ''
   const res = await adminApiRequest(`/api/admin/programs${qs}`)
   const data = await res.json()
   if (!res.ok || !data.success) throw new Error(data.message || 'Request failed')
   return data.data as ClassEvent[]
+}
+
+export async function fetchAdminProgramsWithPricing(
+  archived = false,
+): Promise<AdminProgramPricing[]> {
+  return fetchClassEvents({ archived, includePricing: true }) as Promise<AdminProgramPricing[]>
+}
+
+export async function resetProgramClassesPricing(programId: number): Promise<number> {
+  const res = await adminApiRequest(`/api/admin/programs-top/${programId}/pricing/reset-classes`, {
+    method: 'POST',
+  })
+  const data = await res.json()
+  if (!res.ok || !data.success) throw new Error(data.message || 'Request failed')
+  return Number(data.resetCount ?? 0)
 }
 
 export async function createClassEvent(

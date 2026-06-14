@@ -1,9 +1,11 @@
 import Joi from 'joi'
-import { ensureDisciplineTagsSchema, ensureNoCategoryDefault, ensureProgramSchedulingCategoryColumn, ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
+import { ensureDisciplineTagsSchema, ensureNoCategoryDefault, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureProgramSchedulingCategoryColumn, ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
 import { ensureNoCategoryCategory, isNoCategoryCategoryRow } from './noCategory.js'
 import { addVariationCategory, consolidateClasses, reassignVariationCategory, setProgramSchedulingCategory } from './reconcile.js'
 import { deleteTopProgramCascade } from './deleteTopProgram.js'
 import { listPublicClassesOffered } from './listPublicClassesOffered.js'
+import { getProgramPrimarySportFields, setProgramPrimarySport } from './primarySport.js'
+import { mapProgramPricingFields, resetAllClassesPricingToProgram } from './pricingDefaults.js'
 
 const schedulingCategoryUpdateSchema = Joi.object({
   schedulingCategoryId: Joi.number().integer().allow(null).required(),
@@ -34,6 +36,7 @@ const topProgramSchema = Joi.object({
   name: Joi.string().min(1).max(100).required(),
   displayName: Joi.string().min(1).max(255).required(),
   description: Joi.string().max(1000).optional().allow('', null),
+  primarySportId: Joi.number().integer().allow(null).optional(),
 })
 
 const classEventSchema = Joi.object({
@@ -58,6 +61,10 @@ const topProgramUpdateSchema = Joi.object({
   schedulingSignupFields: Joi.array().items(Joi.string()).optional().allow(null),
   schedulingMandateWaiver: Joi.boolean().optional(),
   markOverviewSaved: Joi.boolean().optional(),
+  primarySportId: Joi.number().integer().allow(null).optional(),
+  pricingMaxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
+  pricingSlotCostMonthlyCents: Joi.number().integer().min(0).optional(),
+  pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
 })
 
 async function getFacilityId(pool) {
@@ -67,6 +74,8 @@ async function getFacilityId(pool) {
 
 async function createSchedulingFormForClassEvent(pool, classEvent, programsId, schema) {
   if (!schema.hasSchedulingProgramLink) return null
+  const { ensureProgramPricingColumns } = await import('./schema.js')
+  await ensureProgramPricingColumns(pool)
   const existing = await pool.query(
     `SELECT id FROM scheduling_form WHERE program_id = $1 AND deleted_at IS NULL LIMIT 1`,
     [classEvent.id],
@@ -99,11 +108,11 @@ async function createSchedulingFormForClassEvent(pool, classEvent, programsId, s
     vals.push(JSON.stringify(signupFields), mandateWaiver)
   }
   if (schema.hasSchedulingProgramsLink && programsId) {
-    cols.push('programs_id', 'program_id')
-    vals.push(programsId, classEvent.id)
+    cols.push('programs_id', 'program_id', 'pricing_overrides_program')
+    vals.push(programsId, classEvent.id, false)
   } else if (schema.hasSchedulingProgramLink) {
-    cols.push('program_id')
-    vals.push(classEvent.id)
+    cols.push('program_id', 'pricing_overrides_program')
+    vals.push(classEvent.id, false)
   }
 
   const placeholders = vals.map((_, i) => `$${i + 1}`).join(', ')
@@ -132,6 +141,8 @@ export function registerProgramsAdminRoutes(app, pool) {
   app.get('/api/admin/programs/:programsId/class-events', async (req, res) => {
     try {
       await ensureProgramsSchedulingSchema(pool)
+      await ensurePrimaryDisciplineTagColumn(pool)
+      await ensureProgramPricingColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const programsId = Number(req.params.programsId)
       const { archived } = req.query
@@ -187,6 +198,8 @@ export function registerProgramsAdminRoutes(app, pool) {
         return res.status(400).json({ success: false, message: error.details[0].message })
       }
       await ensureProgramsSchedulingSchema(pool)
+      await ensurePrimaryDisciplineTagColumn(pool)
+      await ensureProgramPricingColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const programsId = Number(req.params.programsId)
       if (!Number.isFinite(programsId)) {
@@ -307,6 +320,8 @@ export function registerProgramsAdminRoutes(app, pool) {
   app.get('/api/admin/class-events/:id/scheduling-form', async (req, res) => {
     try {
       await ensureProgramsSchedulingSchema(pool)
+      await ensurePrimaryDisciplineTagColumn(pool)
+      await ensureProgramPricingColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       if (!schema.hasSchedulingProgramLink) {
         return res.status(404).json({ success: false, message: 'Scheduling link not configured' })
@@ -352,6 +367,8 @@ export function registerProgramsAdminRoutes(app, pool) {
   app.get('/api/admin/programs-top', async (req, res) => {
     try {
       await ensureProgramsSchedulingSchema(pool)
+      await ensurePrimaryDisciplineTagColumn(pool)
+      await ensureProgramPricingColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const { archived } = req.query
       const columnCheck = await pool.query(`
@@ -368,11 +385,17 @@ export function registerProgramsAdminRoutes(app, pool) {
         : `, FALSE as "schedulingActive", NULL as "schedulingSignupFields",
            FALSE as "schedulingMandateWaiver", NULL as "schedulingOverviewSavedAt"`
       let query = `
-        SELECT id, name, display_name as "displayName",
-          ${hasDescription ? 'description,' : 'NULL as description,'}
-          archived, created_at as "createdAt", updated_at as "updatedAt"
+        SELECT p.id, p.name, p.display_name as "displayName",
+          ${hasDescription ? 'p.description,' : 'NULL as description,'}
+          p.archived, p.created_at as "createdAt", p.updated_at as "updatedAt",
+          primary_dt.id as "primarySportId",
+          primary_dt.name as "primarySportName",
+          p.pricing_max_slots_per_user as "pricingMaxSlotsPerUser",
+          p.pricing_slot_cost_monthly_cents as "pricingSlotCostMonthlyCents",
+          p.pricing_free_slots_per_user as "pricingFreeSlotsPerUser"
           ${schedCols}
-        FROM ${schema.programsTable}
+        FROM ${schema.programsTable} p
+        LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
       `
       const params = []
       if (archived === 'true') {
@@ -398,6 +421,8 @@ export function registerProgramsAdminRoutes(app, pool) {
         return res.status(400).json({ success: false, message: error.details[0].message })
       }
       await ensureProgramsSchedulingSchema(pool)
+      await ensurePrimaryDisciplineTagColumn(pool)
+      await ensureProgramPricingColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const facilityId = await getFacilityId(pool)
       if (!facilityId) return res.status(500).json({ success: false, message: 'No facility found' })
@@ -434,7 +459,12 @@ export function registerProgramsAdminRoutes(app, pool) {
           ...(hasDescription ? [value.description || null] : []),
         ],
       )
-      res.json({ success: true, data: result.rows[0] })
+      const created = result.rows[0]
+      if (value.primarySportId !== undefined) {
+        await setProgramPrimarySport(pool, created.id, value.primarySportId)
+      }
+      const primarySport = await getProgramPrimarySportFields(pool, created.id)
+      res.json({ success: true, data: { ...created, ...primarySport } })
     } catch (err) {
       if (err.code === '23505') {
         return res.status(409).json({ success: false, message: 'Program with this name already exists' })
@@ -451,6 +481,8 @@ export function registerProgramsAdminRoutes(app, pool) {
         return res.status(400).json({ success: false, message: error.details[0].message })
       }
       await ensureProgramsSchedulingSchema(pool)
+      await ensurePrimaryDisciplineTagColumn(pool)
+      await ensureProgramPricingColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const updates = []
       const values = []
@@ -493,43 +525,119 @@ export function registerProgramsAdminRoutes(app, pool) {
           updates.push(`scheduling_overview_saved_at = COALESCE(scheduling_overview_saved_at, CURRENT_TIMESTAMP)`)
         }
       }
-      if (updates.length === 0) {
+      if (value.pricingMaxSlotsPerUser !== undefined) {
+        updates.push(`pricing_max_slots_per_user = $${n++}`)
+        values.push(value.pricingMaxSlotsPerUser)
+      }
+      if (value.pricingSlotCostMonthlyCents !== undefined) {
+        updates.push(`pricing_slot_cost_monthly_cents = $${n++}`)
+        values.push(value.pricingSlotCostMonthlyCents)
+      }
+      if (value.pricingFreeSlotsPerUser !== undefined) {
+        updates.push(`pricing_free_slots_per_user = $${n++}`)
+        values.push(value.pricingFreeSlotsPerUser)
+      }
+      const hasPricingUpdate =
+        value.pricingMaxSlotsPerUser !== undefined ||
+        value.pricingSlotCostMonthlyCents !== undefined ||
+        value.pricingFreeSlotsPerUser !== undefined
+      if (updates.length === 0 && value.primarySportId === undefined && !hasPricingUpdate) {
         return res.status(400).json({ success: false, message: 'No fields to update' })
       }
-      updates.push('updated_at = CURRENT_TIMESTAMP')
-      values.push(req.params.id)
-      const returnSched = hasSchedulingCols
-        ? `, scheduling_active as "schedulingActive",
-           scheduling_signup_fields as "schedulingSignupFields",
-           scheduling_mandate_waiver as "schedulingMandateWaiver",
-           scheduling_overview_saved_at as "schedulingOverviewSavedAt"`
-        : ''
-      const result = await pool.query(
-        `UPDATE ${schema.programsTable} SET ${updates.join(', ')} WHERE id = $${n}
-         RETURNING id, name, display_name as "displayName", description, archived${returnSched}`,
-        values,
-      )
-      if (result.rows.length === 0) {
-        return res.status(404).json({ success: false, message: 'Program not found' })
-      }
-      if (hasSchedulingCols && value.schedulingActive !== undefined) {
-        await pool.query(
-          `UPDATE scheduling_form
-           SET is_active = $1, updated_at = CURRENT_TIMESTAMP
-           WHERE programs_id = $2 AND deleted_at IS NULL`,
-          [value.schedulingActive, req.params.id],
+
+      let row = null
+      if (updates.length > 0) {
+        updates.push('updated_at = CURRENT_TIMESTAMP')
+        values.push(req.params.id)
+        const returnSched = hasSchedulingCols
+          ? `, scheduling_active as "schedulingActive",
+             scheduling_signup_fields as "schedulingSignupFields",
+             scheduling_mandate_waiver as "schedulingMandateWaiver",
+             scheduling_overview_saved_at as "schedulingOverviewSavedAt"`
+          : ''
+        const result = await pool.query(
+          `UPDATE ${schema.programsTable} SET ${updates.join(', ')} WHERE id = $${n}
+           RETURNING id, name, display_name as "displayName", description, archived${returnSched}`,
+          values,
         )
+        if (result.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Program not found' })
+        }
+        row = result.rows[0]
+        if (hasSchedulingCols && value.schedulingActive !== undefined) {
+          await pool.query(
+            `UPDATE scheduling_form
+             SET is_active = $1, updated_at = CURRENT_TIMESTAMP
+             WHERE programs_id = $2 AND deleted_at IS NULL`,
+            [value.schedulingActive, req.params.id],
+          )
+        }
+      } else {
+        const exists = await pool.query(
+          `SELECT id FROM ${schema.programsTable} WHERE id = $1`,
+          [req.params.id],
+        )
+        if (exists.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Program not found' })
+        }
       }
-      res.json({ success: true, data: result.rows[0] })
+
+      if (value.primarySportId !== undefined) {
+        try {
+          await setProgramPrimarySport(pool, Number(req.params.id), value.primarySportId)
+        } catch (sportErr) {
+          const status = sportErr.statusCode === 400 ? 400 : 500
+          return res.status(status).json({
+            success: false,
+            message: sportErr.message || 'Failed to set primary sport',
+          })
+        }
+      }
+
+      if (!row) {
+        const fetch = await pool.query(
+          `SELECT id, name, display_name as "displayName", description, archived,
+            pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user
+           FROM ${schema.programsTable} WHERE id = $1`,
+          [req.params.id],
+        )
+        row = {
+          ...fetch.rows[0],
+          ...mapProgramPricingFields(fetch.rows[0]),
+        }
+      } else {
+        const pricingFetch = await pool.query(
+          `SELECT pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user
+           FROM ${schema.programsTable} WHERE id = $1`,
+          [req.params.id],
+        )
+        row = { ...row, ...mapProgramPricingFields(pricingFetch.rows[0] ?? {}) }
+      }
+      const primarySport = await getProgramPrimarySportFields(pool, req.params.id)
+      res.json({ success: true, data: { ...row, ...primarySport } })
     } catch (err) {
       console.error('[programs] update top program:', err)
       res.status(500).json({ success: false, message: 'Failed to update program' })
     }
   })
 
+  app.post('/api/admin/programs-top/:id/pricing/reset-classes', async (req, res) => {
+    try {
+      await ensureProgramPricingColumns(pool)
+      const programsId = Number(req.params.id)
+      const resetCount = await resetAllClassesPricingToProgram(pool, programsId)
+      res.json({ success: true, resetCount })
+    } catch (err) {
+      console.error('[programs] reset program class pricing:', err)
+      res.status(500).json({ success: false, message: 'Failed to reset class pricing' })
+    }
+  })
+
   app.patch('/api/admin/programs-top/:id/archive', async (req, res) => {
     try {
       await ensureProgramsSchedulingSchema(pool)
+      await ensurePrimaryDisciplineTagColumn(pool)
+      await ensureProgramPricingColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const archived = Boolean(req.body.archived)
       const result = await pool.query(
@@ -711,6 +819,21 @@ export function registerProgramsAdminRoutes(app, pool) {
         return res.status(400).json({ success: false, message: 'Invalid program or tag id' })
       }
       await ensureDisciplineTagsSchema(pool)
+      await ensurePrimaryDisciplineTagColumn(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const prog = await pool.query(
+        `SELECT primary_discipline_tag_id FROM ${schema.programsTable} WHERE id = $1`,
+        [programsId],
+      )
+      if (prog.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Program not found' })
+      }
+      if (Number(prog.rows[0].primary_discipline_tag_id) === tagId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot add the primary sport as an additional tag',
+        })
+      }
       await pool.query(
         `INSERT INTO program_discipline_tag (programs_id, tag_id)
          VALUES ($1, $2)

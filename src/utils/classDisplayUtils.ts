@@ -5,5 +5,6 @@ export function formatAgeRange(ageMin: number | null, ageMax: number | null): st
 
 export function formatSkillLevel(skillLevel: string | null): string {
   if (!skillLevel) return 'All levels'
-  return skillLevel.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+  const words = skillLevel.replace(/_/g, ' ').trim().toLowerCase()
+  return words.charAt(0).toUpperCase() + words.slice(1)
 }

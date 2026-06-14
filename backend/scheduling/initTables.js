@@ -44,6 +44,10 @@ export async function initSchedulingTables(pool) {
     ALTER TABLE scheduling_form
     ADD COLUMN IF NOT EXISTS program_id BIGINT
   `)
+  await pool.query(`
+    ALTER TABLE scheduling_form
+    ADD COLUMN IF NOT EXISTS pricing_overrides_program BOOLEAN NOT NULL DEFAULT FALSE
+  `)
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS scheduling_category (

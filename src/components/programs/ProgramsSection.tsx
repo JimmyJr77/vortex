@@ -8,6 +8,7 @@ import {
   updateTopProgram,
   type TopProgram,
 } from '../../utils/programsApi'
+import PrimarySportPicker from './PrimarySportPicker'
 
 interface Props {
   selectedProgramId?: number | null
@@ -30,7 +31,12 @@ const ProgramsSection = ({
   const [error, setError] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<TopProgram | null>(null)
-  const [form, setForm] = useState({ name: '', displayName: '', description: '' })
+  const [form, setForm] = useState({
+    name: '',
+    displayName: '',
+    description: '',
+    primarySportId: null as number | null,
+  })
   const [saving, setSaving] = useState(false)
   const [actionId, setActionId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
@@ -65,7 +71,7 @@ const ProgramsSection = ({
 
   const openAdd = () => {
     setEditing(null)
-    setForm({ name: '', displayName: '', description: '' })
+    setForm({ name: '', displayName: '', description: '', primarySportId: null })
     setModalOpen(true)
   }
 
@@ -75,6 +81,7 @@ const ProgramsSection = ({
       name: program.name,
       displayName: program.displayName,
       description: program.description || '',
+      primarySportId: program.primarySportId ?? null,
     })
     setModalOpen(true)
   }
@@ -88,6 +95,7 @@ const ProgramsSection = ({
         await updateTopProgram(editing.id, {
           displayName: form.displayName,
           description: form.description || null,
+          primarySportId: form.primarySportId,
         })
       } else {
         const name =
@@ -97,6 +105,7 @@ const ProgramsSection = ({
           name,
           displayName: form.displayName,
           description: form.description || null,
+          primarySportId: form.primarySportId,
         })
       }
       setModalOpen(false)
@@ -302,6 +311,13 @@ const ProgramsSection = ({
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 rows={2}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Primary sport</label>
+              <PrimarySportPicker
+                value={form.primarySportId}
+                onChange={(primarySportId) => setForm((f) => ({ ...f, primarySportId }))}
               />
             </div>
             <div className="flex justify-end gap-2">

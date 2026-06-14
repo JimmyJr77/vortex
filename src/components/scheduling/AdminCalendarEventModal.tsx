@@ -31,7 +31,8 @@ function formatAgeRange(ageMin: number | null, ageMax: number | null): string {
 
 function formatSkillLevel(level: string | null): string {
   if (!level) return '—'
-  return level.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+  const words = level.replace(/_/g, ' ').trim().toLowerCase()
+  return words.charAt(0).toUpperCase() + words.slice(1)
 }
 
 const DetailRow = ({ label, value }: { label: string; value: React.ReactNode }) => (

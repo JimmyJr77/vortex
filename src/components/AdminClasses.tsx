@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash2, Layers, ArrowUpDown, ArrowUp, ArrowDown, ArrowRight, Table2, RefreshCw, Filter } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import ClassEventModal from './programs/ClassEventModal'
+import PrimarySportPicker from './programs/PrimarySportPicker'
 import type { ClassEvent, SchedulingCategoryRef } from '../utils/programsApi'
 import { fetchDisciplineTags, syncSchedulingCategories, deleteTopProgram, type DisciplineTag } from '../utils/programsApi'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import AdminClassesEventsSpreadsheet from './classes/AdminClassesEventsSpreadsheet'
 import ClassSchedulingExpandPanel from './classes/ClassSchedulingExpandPanel'
+import { formatAgeRange, formatSkillLevel } from '../utils/classDisplayUtils'
 
 interface Program {
   id: number
@@ -27,7 +29,8 @@ interface Program {
   schedulingCategoryId?: number | null // program.scheduling_category_id — legacy single mapping
   schedulingCategoryName?: string | null // Scheduling category label, computed server-side
   schedulingCategories?: SchedulingCategoryRef[] // category variations of this class (from its form)
-  sportTags?: string | null // Comma-joined sport tags from the parent program
+  sportTags?: string | null // Comma-joined additional sport tags from the parent program
+  primarySport?: string | null // Primary sport name from the parent program
   offeringCount?: number
   slotCount?: number
   archived?: boolean // Database column: archived
@@ -40,6 +43,8 @@ interface Category {
   name: string
   displayName: string
   description?: string | null
+  primarySportId?: number | null
+  primarySportName?: string | null
   archived: boolean
   isActive?: boolean
   createdAt: string
@@ -53,15 +58,15 @@ const iconBtnDanger =
 const thClass = 'px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'
 const tdClass = 'px-4 py-3 align-middle text-sm text-gray-900'
 
-type ClassSortField = 'program' | 'class' | 'category' | 'offerings' | 'slots'
+type ClassSortField = 'primarySport' | 'program' | 'class' | 'category' | 'offerings' | 'slots'
 
 type StatusFilter = 'all' | 'active' | 'inactive'
 
 type SkillLevelFilter = 'all' | 'none' | 'EARLY_STAGE' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
 
 const SKILL_LEVEL_FILTER_OPTIONS: { id: Exclude<SkillLevelFilter, 'all'>; label: string }[] = [
-  { id: 'none', label: 'All Levels' },
-  { id: 'EARLY_STAGE', label: 'Early Stage' },
+  { id: 'none', label: 'All levels' },
+  { id: 'EARLY_STAGE', label: 'Early stage' },
   { id: 'BEGINNER', label: 'Beginner' },
   { id: 'INTERMEDIATE', label: 'Intermediate' },
   { id: 'ADVANCED', label: 'Advanced' },
@@ -108,6 +113,10 @@ function expandClassRows(program: Program): ClassRow[] {
   return cats.map((category) => ({ program, category })  )
 }
 
+function programHasPrimarySport(program: Program, tagName: string): boolean {
+  return (program.primarySport?.toLowerCase() ?? '') === tagName.toLowerCase()
+}
+
 function SportTagFilterHeader({
   activeFilterName,
   filterOpen,
@@ -151,6 +160,97 @@ function SportTagFilterHeader({
             onClick={onClearFilter}
           >
             All sports
+          </button>
+          {tagsLoading ? (
+            <p className="px-3 py-2 text-sm text-gray-500 inline-flex items-center gap-2">
+              <Loader2 className="w-3 h-3 animate-spin" /> Loading…
+            </p>
+          ) : allSportTags.length === 0 ? (
+            <p className="px-3 py-2 text-sm text-gray-500">No sport tags yet.</p>
+          ) : (
+            allSportTags.map((tag) => (
+              <button
+                key={tag.id}
+                type="button"
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+                  selectedTagId === tag.id ? 'bg-red-50 text-vortex-red font-medium' : ''
+                }`}
+                onClick={() => onSelectTag(tag.id)}
+              >
+                {tag.name}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PrimarySportFilterHeader({
+  activeFilterName,
+  filterOpen,
+  onToggleFilter,
+  allSportTags,
+  tagsLoading,
+  selectedTagId,
+  onSelectTag,
+  onClearFilter,
+  filterRef,
+  sortConfig,
+  onSort,
+}: {
+  activeFilterName: string | null
+  filterOpen: boolean
+  onToggleFilter: () => void
+  allSportTags: DisciplineTag[]
+  tagsLoading: boolean
+  selectedTagId: number | null
+  onSelectTag: (tagId: number) => void
+  onClearFilter: () => void
+  filterRef: RefObject<HTMLDivElement | null>
+  sortConfig: { field: ClassSortField; direction: 'asc' | 'desc' }
+  onSort: (field: ClassSortField) => void
+}) {
+  const sortIcon =
+    sortConfig.field !== 'primarySport' ? (
+      <ArrowUpDown className="w-3 h-3 ml-1 opacity-50" />
+    ) : sortConfig.direction === 'asc' ? (
+      <ArrowUp className="w-3 h-3 ml-1" />
+    ) : (
+      <ArrowDown className="w-3 h-3 ml-1" />
+    )
+
+  return (
+    <div className="relative flex items-center gap-1" ref={filterRef}>
+      <button
+        type="button"
+        onClick={() => onSort('primarySport')}
+        className="flex items-center hover:text-vortex-red transition-colors"
+      >
+        Primary Sport
+        {sortIcon}
+      </button>
+      <button
+        type="button"
+        onClick={onToggleFilter}
+        className="p-0.5 hover:text-vortex-red transition-colors"
+        aria-label="Filter primary sport"
+      >
+        <Filter
+          className={`w-3 h-3 ${activeFilterName ? 'text-vortex-red' : 'opacity-50'}`}
+        />
+      </button>
+      {filterOpen && (
+        <div className="absolute z-30 top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+          <button
+            type="button"
+            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+              selectedTagId == null ? 'bg-red-50 text-vortex-red font-medium' : ''
+            }`}
+            onClick={onClearFilter}
+          >
+            All primary sports
           </button>
           {tagsLoading ? (
             <p className="px-3 py-2 text-sm text-gray-500 inline-flex items-center gap-2">
@@ -426,16 +526,6 @@ function SortableColumnHeader({
   )
 }
 
-function formatAgeRange(ageMin: number | null, ageMax: number | null): string {
-  if (ageMin == null && ageMax == null) return 'Any age'
-  return `${ageMin ?? 'Any'} – ${ageMax ?? 'Any'}`
-}
-
-function formatSkillLevel(skillLevel: string | null): string {
-  if (!skillLevel) return 'ALL LEVELS'
-  return skillLevel.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-}
-
 function programNameForClass(program: Program, categories: Category[]): string {
   const match = categories.find(
     (c) => c.id === program.categoryId || c.displayName === program.categoryDisplayName,
@@ -461,6 +551,7 @@ function toClassEvent(program: Program, category?: SchedulingCategoryRef | null)
     schedulingCategoryName: category ? category.name : program.schedulingCategoryName ?? null,
     schedulingCategories: program.schedulingCategories,
     sportTags: program.sportTags ?? null,
+    primarySport: program.primarySport ?? null,
     createdAt: program.createdAt,
     updatedAt: program.updatedAt,
   }
@@ -567,6 +658,9 @@ export default function AdminClasses({
   const [sportTagFilterId, setSportTagFilterId] = useState<number | null>(null)
   const [sportTagFilterOpen, setSportTagFilterOpen] = useState(false)
   const sportTagFilterRef = useRef<HTMLDivElement>(null)
+  const [primarySportFilterId, setPrimarySportFilterId] = useState<number | null>(null)
+  const [primarySportFilterOpen, setPrimarySportFilterOpen] = useState(false)
+  const primarySportFilterRef = useRef<HTMLDivElement>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [statusFilterOpen, setStatusFilterOpen] = useState(false)
   const statusFilterRef = useRef<HTMLDivElement>(null)
@@ -721,13 +815,14 @@ export default function AdminClasses({
           name,
           displayName,
           description: categoryFormData.description,
+          primarySportId: categoryFormData.primarySportId ?? null,
         })
       })
       
       if (response.ok) {
         await fetchAllCategories()
         await fetchAllPrograms()
-        setCategoryFormData({ displayName: '', description: '' })
+        setCategoryFormData({ displayName: '', description: '', primarySportId: null })
         setShowCategoryModal(false)
         setEditingCategoryId(null)
       } else {
@@ -884,6 +979,17 @@ export default function AdminClasses({
   }, [sportTagFilterOpen])
 
   useEffect(() => {
+    if (!primarySportFilterOpen) return
+    const handleMouseDown = (e: MouseEvent) => {
+      if (primarySportFilterRef.current && !primarySportFilterRef.current.contains(e.target as Node)) {
+        setPrimarySportFilterOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [primarySportFilterOpen])
+
+  useEffect(() => {
     if (!statusFilterOpen) return
     const handleMouseDown = (e: MouseEvent) => {
       if (statusFilterRef.current && !statusFilterRef.current.contains(e.target as Node)) {
@@ -942,6 +1048,11 @@ export default function AdminClasses({
     if (sportTagFilterId == null) return null
     return allSportTags.find((t) => t.id === sportTagFilterId)?.name ?? null
   }, [sportTagFilterId, allSportTags])
+
+  const activePrimarySportFilterName = useMemo(() => {
+    if (primarySportFilterId == null) return null
+    return allSportTags.find((t) => t.id === primarySportFilterId)?.name ?? null
+  }, [primarySportFilterId, allSportTags])
 
   const activeStatusFilterLabel =
     statusFilter === 'active' ? 'Active' : statusFilter === 'inactive' ? 'Inactive' : null
@@ -1011,6 +1122,9 @@ export default function AdminClasses({
     let cmp = 0
 
     switch (classSortConfig.field) {
+      case 'primarySport':
+        cmp = (a.program.primarySport ?? '').localeCompare(b.program.primarySport ?? '')
+        break
       case 'program':
         cmp = programNameForClass(a.program, categories).localeCompare(programNameForClass(b.program, categories))
         break
@@ -1059,6 +1173,10 @@ export default function AdminClasses({
         const rowCategoryKey = category.id == null ? 'none' : String(category.id)
         if (rowCategoryKey !== categoryFilterKey) return false
       }
+      if (primarySportFilterId != null) {
+        const tagName = allSportTags.find((t) => t.id === primarySportFilterId)?.name
+        if (tagName && !programHasPrimarySport(p, tagName)) return false
+      }
       if (sportTagFilterId != null) {
         const tagName = allSportTags.find((t) => t.id === sportTagFilterId)?.name
         if (tagName && !programHasSportTag(p, tagName)) return false
@@ -1079,6 +1197,7 @@ export default function AdminClasses({
         p.displayName.toLowerCase().includes(q) ||
         programNameForClass(p, categories).toLowerCase().includes(q) ||
         category.name.toLowerCase().includes(q) ||
+        (p.primarySport?.toLowerCase().includes(q) ?? false) ||
         (p.sportTags?.toLowerCase().includes(q) ?? false) ||
         (p.description?.toLowerCase().includes(q) ?? false) ||
         (p.skillRequirements?.toLowerCase().includes(q) ?? false)
@@ -1164,7 +1283,7 @@ export default function AdminClasses({
               type="button"
               onClick={() => {
                 setEditingCategoryId(null)
-                setCategoryFormData({ displayName: '', description: '' })
+                setCategoryFormData({ displayName: '', description: '', primarySportId: null })
                 setShowCategoryModal(true)
               }}
               className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
@@ -1328,6 +1447,7 @@ export default function AdminClasses({
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
                   <thead className="bg-gray-50">
                     <tr>
+                      <th className={thClass}>Primary Sport</th>
                       <th className={thClass}>Sport Tag</th>
                       <th className={thClass}>Program</th>
                       <th className={thClass}>Class</th>
@@ -1348,10 +1468,12 @@ export default function AdminClasses({
                         !classArchiveSearch.trim() ||
                         p.displayName.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
                         programNameForClass(p, categories).toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
-                        category.name.toLowerCase().includes(classArchiveSearch.toLowerCase()),
+                        category.name.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
+                        (p.primarySport?.toLowerCase().includes(classArchiveSearch.toLowerCase()) ?? false),
                       )
                       .map(({ program, category }) => (
                         <tr key={rowKey(program, category)} className="hover:bg-gray-50/80">
+                          <td className={tdClass}>{program.primarySport || '—'}</td>
                           <td className={tdClass}>{formatSportTagDisplay(program.sportTags)}</td>
                           <td className={tdClass}>{programNameForClass(program, categories)}</td>
                           <td className={tdClass}>{program.displayName}</td>
@@ -1407,6 +1529,7 @@ export default function AdminClasses({
                     <thead className="bg-gray-50 sticky top-0 z-10">
                       <tr>
                         <th className={thClass}>Program</th>
+                        <th className={thClass}>Primary Sport</th>
                         <th className={thClass}>Classes</th>
                         <th className={thClass}>Status</th>
                         <th className={`${thClass} w-12 text-center`}>Details</th>
@@ -1422,6 +1545,7 @@ export default function AdminClasses({
                             onClick={() => toggleProgramExpand(category.id)}
                           >
                             <td className={`${tdClass} font-medium`}>{category.displayName}</td>
+                            <td className={tdClass}>{category.primarySportName || '—'}</td>
                             <td className={tdClass}>{classCountForProgram(category.id, category.displayName)}</td>
                             <td className={tdClass}>
                               <StatusLabel active={programIsActiveFlag(category)} />
@@ -1457,6 +1581,7 @@ export default function AdminClasses({
                                       displayName: category.displayName,
                                       description: category.description || '',
                                       isActive: programIsActiveFlag(category),
+                                      primarySportId: category.primarySportId ?? null,
                                     })
                                     setShowCategoryModal(true)
                                   }}
@@ -1480,10 +1605,16 @@ export default function AdminClasses({
                           </tr>
                           {expandedProgramId === category.id && (
                             <tr>
-                              <td colSpan={5} className="px-0 py-0">
-                                <div className="p-6 bg-gray-50 border-t-2 border-vortex-red text-sm text-gray-700">
-                                  <span className="font-semibold text-gray-900">Description</span>
-                                  <p className="mt-1 whitespace-pre-wrap">{category.description || '—'}</p>
+                              <td colSpan={6} className="px-0 py-0">
+                                <div className="p-6 bg-gray-50 border-t-2 border-vortex-red text-sm text-gray-700 space-y-2">
+                                  <div>
+                                    <span className="font-semibold text-gray-900">Primary sport</span>
+                                    <p className="mt-1">{category.primarySportName || '—'}</p>
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-900">Description</span>
+                                    <p className="mt-1 whitespace-pre-wrap">{category.description || '—'}</p>
+                                  </div>
                                 </div>
                               </td>
                             </tr>
@@ -1543,6 +1674,27 @@ export default function AdminClasses({
                   <table className="min-w-full divide-y divide-gray-200 text-sm">
                     <thead className="bg-gray-50 sticky top-0 z-10">
                       <tr>
+                        <th className={thClass}>
+                          <PrimarySportFilterHeader
+                            activeFilterName={activePrimarySportFilterName}
+                            filterOpen={primarySportFilterOpen}
+                            onToggleFilter={() => setPrimarySportFilterOpen((open) => !open)}
+                            allSportTags={allSportTags}
+                            tagsLoading={sportTagsLoading}
+                            selectedTagId={primarySportFilterId}
+                            onSelectTag={(tagId) => {
+                              setPrimarySportFilterId(tagId)
+                              setPrimarySportFilterOpen(false)
+                            }}
+                            onClearFilter={() => {
+                              setPrimarySportFilterId(null)
+                              setPrimarySportFilterOpen(false)
+                            }}
+                            filterRef={primarySportFilterRef}
+                            sortConfig={classSortConfig}
+                            onSort={handleClassSort}
+                          />
+                        </th>
                         <th className={thClass}>
                           <SportTagFilterHeader
                             activeFilterName={activeSportTagFilterName}
@@ -1678,13 +1830,12 @@ export default function AdminClasses({
                     <tbody className="divide-y divide-gray-100">
                       {filteredActiveClassRows.length === 0 ? (
                         <tr>
-                          <td colSpan={10} className="px-4 py-12 text-center text-gray-500">
+                          <td colSpan={11} className="px-4 py-12 text-center text-gray-500">
                             No classes match your search or filter.
                           </td>
                         </tr>
                       ) : (
                       filteredActiveClassRows.map(({ program, category }) => {
-                        const parentProgramActive = parentProgramActiveForClass(program, categories)
                         const key = rowKey(program, category)
                         return (
                         <Fragment key={key}>
@@ -1692,6 +1843,7 @@ export default function AdminClasses({
                             className={`hover:bg-gray-50/80 cursor-pointer ${expandedClassId === key ? 'bg-gray-50/50' : ''}`}
                             onClick={() => toggleClassExpand(key)}
                           >
+                            <td className={tdClass}>{program.primarySport || '—'}</td>
                             <td className={tdClass}>{formatSportTagDisplay(program.sportTags)}</td>
                             <td className={tdClass}>{programNameForClass(program, categories)}</td>
                             <td className={`${tdClass} font-medium`}>{program.displayName}</td>
@@ -1700,12 +1852,7 @@ export default function AdminClasses({
                             <td className={`${tdClass} text-center`}>{program.slotCount ?? 0}</td>
                             <td className={tdClass}>{formatSkillLevel(program.skillLevel)}</td>
                             <td className={tdClass}>
-                              <div className="space-y-1">
-                                <StatusLabel active={classStoredActive(program)} />
-                                {!parentProgramActive && (
-                                  <span className="text-xs text-amber-700 block">Program inactive</span>
-                                )}
-                              </div>
+                              <StatusLabel active={classStoredActive(program)} />
                             </td>
                             <td className={`${tdClass} text-center`} onClick={(e) => e.stopPropagation()}>
                               <button type="button" className={iconBtn} onClick={() => toggleClassExpand(key)} aria-label="Toggle details">
@@ -1741,7 +1888,7 @@ export default function AdminClasses({
                           </tr>
                           {expandedClassId === key && (
                             <tr>
-                              <td colSpan={10} className="px-0 py-0">{renderClassDetailPanel(program)}</td>
+                              <td colSpan={11} className="px-0 py-0">{renderClassDetailPanel(program)}</td>
                             </tr>
                           )}
                         </Fragment>
@@ -1807,6 +1954,15 @@ export default function AdminClasses({
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     placeholder="e.g., Gymnastics"
                     required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Primary sport</label>
+                  <PrimarySportPicker
+                    value={categoryFormData.primarySportId ?? null}
+                    onChange={(primarySportId) =>
+                      setCategoryFormData({ ...categoryFormData, primarySportId })
+                    }
                   />
                 </div>
                 <div>
@@ -1880,6 +2036,11 @@ export default function AdminClasses({
         editing={editingClassEvent}
         variationMode={editingClassEvent ? variationMode : undefined}
         variationFromCategoryId={variationFromCategoryId}
+        programPrimarySportId={
+          categories.find(
+            (c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId),
+          )?.primarySportId ?? null
+        }
         onClose={() => {
           setShowClassModal(false)
           setSelectedCategoryForClass(null)

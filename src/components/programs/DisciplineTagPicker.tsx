@@ -14,12 +14,14 @@ interface Props {
   programId: number
   programDisplayName?: string | null
   showHeading?: boolean
+  excludeTagId?: number | null
 }
 
 const DisciplineTagPicker = ({
   programId,
   programDisplayName,
   showHeading = true,
+  excludeTagId = null,
 }: Props) => {
   const [tags, setTags] = useState<DisciplineTag[]>([])
   const [assignedTags, setAssignedTags] = useState<DisciplineTag[]>([])
@@ -69,15 +71,20 @@ const DisciplineTagPicker = ({
 
   const filteredTags = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!q) return tags
-    return tags.filter((t) => t.name.toLowerCase().includes(q))
-  }, [tags, search])
+    const base = excludeTagId != null ? tags.filter((t) => t.id !== excludeTagId) : tags
+    if (!q) return base
+    return base.filter((t) => t.name.toLowerCase().includes(q))
+  }, [tags, search, excludeTagId])
 
   const canAddNew =
     search.trim().length > 0 &&
     !tags.some((t) => t.name.toLowerCase() === search.trim().toLowerCase())
 
   const assignTag = async (tag: DisciplineTag) => {
+    if (excludeTagId != null && tag.id === excludeTagId) {
+      setError('Primary sport cannot be added as an additional tag')
+      return
+    }
     setSaving(true)
     setError(null)
     try {
@@ -153,11 +160,11 @@ const DisciplineTagPicker = ({
     <div className="space-y-2 w-full">
       {showHeading && (
         <div>
-          <h3 className="text-lg font-bold text-black">Sport Tags</h3>
+          <h3 className="text-lg font-bold text-black">Additional sport tags</h3>
           <p className="text-sm text-gray-600 mt-1">
-            Search and assign sport tags to{' '}
-            <strong>{programDisplayName || 'this program'}</strong>. Tags are saved at the program
-            level and shared by all classes under it.
+            Cross-training and joint-event tags for{' '}
+            <strong>{programDisplayName || 'this program'}</strong>. Primary sport is set on the
+            program; these tags are saved at the program level and shared by all classes under it.
           </p>
         </div>
       )}

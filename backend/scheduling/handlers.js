@@ -13,7 +13,13 @@ import { sendMagicLinkEmail } from './magicLinkEmail.js'
 import { sendPromotionEmail } from './promotionEmail.js'
 import { sendWaitlistEmail } from './waitlistEmail.js'
 import { sendWaiverEmail } from './waiverEmail.js'
+import { buildSignupOrderPreview } from './orderPricing.js'
 import { computeMonthlyPricing } from './pricing.js'
+import {
+  loadEffectivePricingForForm,
+  loadProgramPricingRow,
+  resolveEffectiveFormPricing,
+} from '../programs/pricingDefaults.js'
 import {
   generateMagicToken,
   issueSignupAuthToken,
@@ -165,7 +171,9 @@ async function insertSignupForMember(
   },
 ) {
   const activeCount = await countActiveSignupsForMember(client, formId, memberId)
-  const maxSlots = formRow.max_slots_per_user != null ? Number(formRow.max_slots_per_user) : null
+  const { effectiveDbRow } = await loadEffectivePricingForForm(client, formRow)
+  const maxSlots =
+    effectiveDbRow.max_slots_per_user != null ? Number(effectiveDbRow.max_slots_per_user) : null
   if (maxSlots != null && activeCount >= maxSlots) {
     const err = new Error(
       `Maximum of ${maxSlots} slot${maxSlots === 1 ? '' : 's'} reached for this form`,
@@ -224,7 +232,7 @@ async function insertSignupForMember(
   const signupId = insert.rows[0].id
   const positions = await computeSignupPositions(client, slotGroupId, signupId)
   const totalSlotsAfter = activeCount + 1
-  const pricing = computeMonthlyPricing(formRow, totalSlotsAfter)
+  const pricing = computeMonthlyPricing(effectiveDbRow, totalSlotsAfter)
   positions.pricing = pricing
 
   return {
@@ -381,7 +389,8 @@ function parseSignupFields(row) {
   return [...DEFAULT_SIGNUP_FIELDS]
 }
 
-function mapFormRow(row) {
+function mapFormRow(row, programRow = null) {
+  const effective = resolveEffectiveFormPricing(programRow, row)
   return {
     id: Number(row.id),
     title: row.title,
@@ -392,12 +401,25 @@ function mapFormRow(row) {
     mandateWaiver: Boolean(row.mandate_waiver),
     isActive: row.is_active,
     programsId: row.programs_id != null ? Number(row.programs_id) : null,
-    maxSlotsPerUser: row.max_slots_per_user != null ? Number(row.max_slots_per_user) : null,
-    slotCostMonthlyCents: Number(row.slot_cost_monthly_cents ?? 0),
-    freeSlotsPerUser: Number(row.free_slots_per_user ?? 0),
+    pricingOverridesProgram: effective.pricingOverridesProgram,
+    maxSlotsPerUser: effective.maxSlotsPerUser,
+    slotCostMonthlyCents: effective.slotCostMonthlyCents,
+    freeSlotsPerUser: effective.freeSlotsPerUser,
+    formMaxSlotsPerUser: effective.formMaxSlotsPerUser,
+    formSlotCostMonthlyCents: effective.formSlotCostMonthlyCents,
+    formFreeSlotsPerUser: effective.formFreeSlotsPerUser,
+    programMaxSlotsPerUser: effective.programMaxSlotsPerUser,
+    programSlotCostMonthlyCents: effective.programSlotCostMonthlyCents,
+    programFreeSlotsPerUser: effective.programFreeSlotsPerUser,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
+}
+
+async function mapFormRowWithPricing(db, row) {
+  const programRow =
+    row.programs_id != null ? await loadProgramPricingRow(db, Number(row.programs_id)) : null
+  return mapFormRow(row, programRow)
 }
 
 function programClassOptionKey(formId, categoryId) {
@@ -963,8 +985,11 @@ async function loadFormDetail(
     })
   }
 
+  const programRow =
+    form.programs_id != null ? await loadProgramPricingRow(pool, Number(form.programs_id)) : null
+
   return {
-    ...mapFormRow(form),
+    ...mapFormRow(form, programRow),
     categories: categoriesWithSlots,
     allCategories,
     slotGroups,
@@ -983,6 +1008,7 @@ const formSchema = Joi.object({
   maxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
   slotCostMonthlyCents: Joi.number().integer().min(0).optional(),
   freeSlotsPerUser: Joi.number().integer().min(0).optional(),
+  pricingOverridesProgram: Joi.boolean().optional(),
 })
 
 const categorySchema = Joi.object({
@@ -1149,6 +1175,18 @@ const checkEmailSchema = Joi.object({
 
 const memberSignupsSchema = Joi.object({
   email: Joi.string().email().required(),
+})
+
+const orderPreviewSchema = Joi.object({
+  formId: Joi.number().integer().required(),
+  email: Joi.string().email().optional(),
+  signupAuthToken: Joi.string().trim().optional(),
+  signups: Joi.array().items(signupItemSchema).max(20).default([]),
+}).custom((val, helpers) => {
+  if (!val.signupAuthToken && !val.email) {
+    return helpers.error('any.custom', { message: 'Email or sign-in session is required' })
+  }
+  return val
 })
 
 const authLoginSchema = Joi.object({
@@ -1395,6 +1433,48 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         console.error('[scheduling] listMemberSignedUpForms:', err)
         res.status(500).json({ success: false, message: 'Failed to load signups' })
+      }
+    },
+
+    async previewSignupOrder(req, res) {
+      try {
+        const { error, value } = orderPreviewSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+
+        const formRes = await pool.query(
+          'SELECT id, programs_id FROM scheduling_form WHERE id = $1 AND deleted_at IS NULL',
+          [value.formId],
+        )
+        if (formRes.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Scheduling form not available' })
+        }
+        const formRow = formRes.rows[0]
+
+        let memberId = null
+        if (value.signupAuthToken) {
+          const auth = verifySignupAuthToken(value.signupAuthToken, value.formId, {
+            programsId: formRow.programs_id != null ? Number(formRow.programs_id) : null,
+          })
+          memberId = Number(auth.memberId)
+        } else if (value.email) {
+          const member = await findMemberByEmail(pool, value.email)
+          memberId = member?.id != null ? Number(member.id) : null
+        }
+
+        const preview = await buildSignupOrderPreview(pool, {
+          memberId,
+          newSignups: value.signups,
+        })
+
+        res.json({ success: true, data: preview })
+      } catch (err) {
+        console.error('[scheduling] previewSignupOrder:', err)
+        if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+          return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
+        }
+        res.status(500).json({ success: false, message: 'Failed to load order preview' })
       }
     },
 
@@ -1803,9 +1883,10 @@ export function createSchedulingHandlers(pool) {
 
           for (const [formId, entries] of byForm) {
             const activeCount = await countActiveSignupsForMember(client, formId, memberId)
+            const { effectiveDbRow } = await loadEffectivePricingForForm(client, entries[0].formRow)
             const maxSlots =
-              entries[0].formRow.max_slots_per_user != null
-                ? Number(entries[0].formRow.max_slots_per_user)
+              effectiveDbRow.max_slots_per_user != null
+                ? Number(effectiveDbRow.max_slots_per_user)
                 : null
             if (maxSlots != null && activeCount + entries.length > maxSlots) {
               const err = new Error(
@@ -2080,7 +2161,7 @@ export function createSchedulingHandlers(pool) {
             value.freeSlotsPerUser ?? 0,
           ],
         )
-        res.json({ success: true, data: mapFormRow(result.rows[0]) })
+        res.json({ success: true, data: await mapFormRowWithPricing(pool, result.rows[0]) })
       } catch (err) {
         console.error('[scheduling] createAdminForm:', err)
         res.status(500).json({ success: false, message: 'Failed to create form' })
@@ -2093,6 +2174,42 @@ export function createSchedulingHandlers(pool) {
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
+        const existing = await pool.query(
+          'SELECT * FROM scheduling_form WHERE id = $1 AND deleted_at IS NULL',
+          [req.params.id],
+        )
+        if (existing.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Form not found' })
+        }
+        const formRow = existing.rows[0]
+        const programRow =
+          formRow.programs_id != null
+            ? await loadProgramPricingRow(pool, Number(formRow.programs_id))
+            : null
+
+        let overrides = value.pricingOverridesProgram
+        if (overrides === undefined) {
+          overrides = Boolean(formRow.pricing_overrides_program)
+        }
+
+        let maxSlots =
+          value.maxSlotsPerUser !== undefined ? value.maxSlotsPerUser : formRow.max_slots_per_user
+        let costCents =
+          value.slotCostMonthlyCents !== undefined
+            ? value.slotCostMonthlyCents
+            : Number(formRow.slot_cost_monthly_cents ?? 0)
+        let freeSlots =
+          value.freeSlotsPerUser !== undefined
+            ? value.freeSlotsPerUser
+            : Number(formRow.free_slots_per_user ?? 0)
+
+        if (overrides && !formRow.pricing_overrides_program) {
+          const effective = resolveEffectiveFormPricing(programRow, formRow)
+          if (value.maxSlotsPerUser === undefined) maxSlots = effective.maxSlotsPerUser
+          if (value.slotCostMonthlyCents === undefined) costCents = effective.slotCostMonthlyCents
+          if (value.freeSlotsPerUser === undefined) freeSlots = effective.freeSlotsPerUser
+        }
+
         const result = await pool.query(
           `
           UPDATE scheduling_form
@@ -2101,8 +2218,9 @@ export function createSchedulingHandlers(pool) {
               max_slots_per_user = $6,
               slot_cost_monthly_cents = COALESCE($7, slot_cost_monthly_cents),
               free_slots_per_user = COALESCE($8, free_slots_per_user),
+              pricing_overrides_program = $9,
               updated_at = now()
-          WHERE id = $9 AND deleted_at IS NULL
+          WHERE id = $10 AND deleted_at IS NULL
           RETURNING *
           `,
           [
@@ -2111,19 +2229,40 @@ export function createSchedulingHandlers(pool) {
             formatDateOnly(value.startDate),
             formatDateOnly(value.endDate),
             value.isActive,
-            value.maxSlotsPerUser !== undefined ? value.maxSlotsPerUser : null,
-            value.slotCostMonthlyCents,
-            value.freeSlotsPerUser,
+            maxSlots !== undefined ? maxSlots : null,
+            costCents,
+            freeSlots,
+            overrides,
             req.params.id,
           ],
         )
         if (result.rows.length === 0) {
           return res.status(404).json({ success: false, message: 'Form not found' })
         }
-        res.json({ success: true, data: mapFormRow(result.rows[0]) })
+        res.json({ success: true, data: await mapFormRowWithPricing(pool, result.rows[0]) })
       } catch (err) {
         console.error('[scheduling] updateAdminForm:', err)
         res.status(500).json({ success: false, message: 'Failed to update form' })
+      }
+    },
+
+    async resetAdminFormPricing(req, res) {
+      try {
+        const { resetClassPricingToProgram } = await import('../programs/pricingDefaults.js')
+        const { ensureProgramPricingColumns } = await import('../programs/schema.js')
+        await ensureProgramPricingColumns(pool)
+        const ok = await resetClassPricingToProgram(pool, Number(req.params.id))
+        if (!ok) {
+          return res.status(404).json({ success: false, message: 'Form not found' })
+        }
+        const existing = await pool.query(
+          'SELECT * FROM scheduling_form WHERE id = $1 AND deleted_at IS NULL',
+          [req.params.id],
+        )
+        res.json({ success: true, data: await mapFormRowWithPricing(pool, existing.rows[0]) })
+      } catch (err) {
+        console.error('[scheduling] resetAdminFormPricing:', err)
+        res.status(500).json({ success: false, message: 'Failed to reset pricing' })
       }
     },
 

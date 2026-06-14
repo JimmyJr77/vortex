@@ -4,6 +4,7 @@ import { getApiUrl } from '../utils/api'
 import EnrollmentForm from './EnrollmentForm'
 import ClassDropdown, { type Program } from './ClassDropdown'
 import { formatDateForDisplay } from '../utils/dateUtils'
+import { formatSkillLevel } from '../utils/classDisplayUtils'
 
 // Program interface is now imported from ClassDropdown
 
@@ -334,7 +335,7 @@ export default function AdminEnrollments() {
               )}
               {program.skillLevel && (
                 <div>
-                  <span className="font-medium">Skill Level:</span> {program.skillLevel.replace('_', ' ')}
+                  <span className="font-medium">Skill Level:</span> {formatSkillLevel(program.skillLevel)}
                 </div>
               )}
               {(program.ageMin !== null || program.ageMax !== null) && (

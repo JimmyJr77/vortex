@@ -11,6 +11,7 @@ import {
   fetchMySchedulingSignups,
   fetchProgramSignupOptions,
   fetchPublicSchedulingForm,
+  fetchSignupOrderPreview,
   formatSchedulingOccurrenceLabel,
   loginSchedulingAuth,
   memberSignupSlotKey,
@@ -25,6 +26,7 @@ import {
   type SchedulingFormDetail,
   type SchedulingSignup,
   type SchedulingSignupCompleteDetail,
+  type SignupOrderPreview,
   type SchedulingSlotGroup,
   type SchedulingTimeSlot,
 } from '../utils/schedulingApi'
@@ -559,6 +561,117 @@ function formatMoney(amount: number) {
   return `$${amount.toFixed(2)}`
 }
 
+function SignupOrderPricingSummary({
+  preview,
+  compact,
+}: {
+  preview: SignupOrderPreview
+  compact?: boolean
+}) {
+  if (!preview.hasPricing) return null
+
+  return (
+    <div className="mt-6 space-y-4">
+      {preview.existingClasses.length > 0 && (
+        <div>
+          <h5 className={`font-semibold text-black mb-2 ${compact ? 'text-sm' : 'text-base'}`}>
+            Your current classes
+          </h5>
+          <ul className="space-y-2">
+            {preview.existingClasses.map((item) => (
+              <li
+                key={item.id ?? `${item.formId}-${item.slotLabel}`}
+                className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+              >
+                {item.formTitle && (
+                  <p className="font-semibold text-black">{item.formTitle}</p>
+                )}
+                <p>
+                  {item.categoryName}
+                  {item.slotLabel ? ` — ${item.slotLabel}` : ''}
+                </p>
+                {item.status === 'waitlisted' && (
+                  <p className="text-xs text-amber-700 mt-1">On waitlist</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {preview.formSummaries.length > 0 && (
+        <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm text-gray-700">
+          <h5 className={`font-semibold text-black mb-3 ${compact ? 'text-sm' : 'text-base'}`}>
+            Estimated monthly pricing
+          </h5>
+          <ul className="space-y-3">
+            {preview.formSummaries.map((summary) => (
+              <li key={summary.formId}>
+                <p className="font-semibold text-black">{summary.formTitle}</p>
+                {summary.pricingAfter ? (
+                  <ul className="mt-1 space-y-0.5">
+                    <li>
+                      Slots: {summary.existingSlotCount} current
+                      {summary.newSlotCount > 0
+                        ? ` + ${summary.newSlotCount} new = ${summary.totalSlotCount} total`
+                        : ''}
+                    </li>
+                    {summary.pricingAfter.hasFreeSlots && (
+                      <li>Free slots remaining: {summary.pricingAfter.freeSlotsRemaining}</li>
+                    )}
+                    <li>
+                      Subtotal before discounts:{' '}
+                      {formatMoney(summary.pricingAfter.nonDiscountedMonthly)}/mo
+                    </li>
+                    {summary.discountMonthly > 0 && (
+                      <li className="text-green-700">
+                        Discount: -{formatMoney(summary.discountMonthly)}/mo
+                      </li>
+                    )}
+                    <li>
+                      Class total: {formatMoney(summary.pricingAfter.discountedMonthly)}/mo
+                    </li>
+                    {summary.incrementalMonthly > 0 && (
+                      <li>
+                        Added by this signup: +{formatMoney(summary.incrementalMonthly)}/mo
+                      </li>
+                    )}
+                  </ul>
+                ) : (
+                  <p className="mt-1 text-gray-600">No pricing configured for this class.</p>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-4 pt-3 border-t border-gray-200 space-y-1">
+            {preview.existingClasses.length > 0 && (
+              <p>
+                Current order total: {formatMoney(preview.existingMonthlyTotal)}/mo
+              </p>
+            )}
+            {preview.newSignupMonthlyTotal > 0 && (
+              <p>
+                New signups add: +{formatMoney(preview.newSignupMonthlyTotal)}/mo
+              </p>
+            )}
+            <p className="font-semibold text-black">
+              Estimated total: {formatMoney(preview.estimatedMonthlyTotal)}/mo
+            </p>
+            {preview.totalDiscountMonthly > 0 && (
+              <p className="text-green-700">
+                Total discounts applied: -{formatMoney(preview.totalDiscountMonthly)}/mo
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      <p className="text-xs text-gray-500 italic">{preview.disclaimer}</p>
+    </div>
+  )
+}
+
 interface Props {
   formId: number
   compact?: boolean
@@ -598,6 +711,8 @@ const SchedulingSignupEmbed = ({
   const [accountPassword, setAccountPassword] = useState('')
   const [newAccountPassword, setNewAccountPassword] = useState('')
   const [signupAuthToken, setSignupAuthToken] = useState<string | null>(null)
+  const [orderPreview, setOrderPreview] = useState<SignupOrderPreview | null>(null)
+  const [orderPreviewLoading, setOrderPreviewLoading] = useState(false)
   const [isNewUser, setIsNewUser] = useState(false)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [identityLoading, setIdentityLoading] = useState(false)
@@ -627,6 +742,8 @@ const SchedulingSignupEmbed = ({
     setError(null)
     setIdentityPhase('pending')
     setSignupAuthToken(null)
+    setOrderPreview(null)
+    setOrderPreviewLoading(false)
     setIsNewUser(false)
     setAccountEmail(initialEmail || '')
     setAccountPassword('')
@@ -705,6 +822,60 @@ const SchedulingSignupEmbed = ({
     if (!email) return
     void loadSignedUpSlots(email)
   }, [accountEmail, initialEmail, identityPhase, loadSignedUpSlots])
+
+  useEffect(() => {
+    if (signupPhase !== 'review' || cartItems.length === 0) {
+      setOrderPreview(null)
+      setOrderPreviewLoading(false)
+      return
+    }
+
+    const email =
+      accountEmail.trim() ||
+      (typeof responses.email === 'string' ? responses.email.trim() : '') ||
+      initialEmail?.trim() ||
+      ''
+    if (!signupAuthToken && !email) return
+
+    let cancelled = false
+    setOrderPreviewLoading(true)
+
+    fetchSignupOrderPreview({
+      formId,
+      email: signupAuthToken ? undefined : email,
+      signupAuthToken: signupAuthToken || undefined,
+      signups: cartItems.map((item) => ({
+        formId: item.formId,
+        categoryId: item.categoryId,
+        slotGroupId: item.slotGroupId,
+        timeSlotId: item.timeSlotId,
+        formTitle: item.formTitle,
+        categoryName: item.categoryName,
+        slotLabel: item.slotLabel,
+      })),
+    })
+      .then((preview) => {
+        if (!cancelled) setOrderPreview(preview)
+      })
+      .catch(() => {
+        if (!cancelled) setOrderPreview(null)
+      })
+      .finally(() => {
+        if (!cancelled) setOrderPreviewLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    signupPhase,
+    cartItems,
+    accountEmail,
+    responses.email,
+    initialEmail,
+    signupAuthToken,
+    formId,
+  ])
 
   const isSlotAlreadySignedUp = useCallback(
     (
@@ -1334,7 +1505,11 @@ const SchedulingSignupEmbed = ({
               <p className="text-sm text-gray-600">No classes selected.</p>
             ) : (
               <ul className="space-y-3">
-                {cartItems.map((item) => (
+                {cartItems.map((item) => {
+                  const previewItem = orderPreview?.newSignups.find(
+                    (entry) => entry.slotKey === item.key,
+                  )
+                  return (
                   <li
                     key={item.key}
                     className="flex items-start justify-between gap-3 rounded-xl border border-gray-200 px-4 py-3"
@@ -1351,6 +1526,19 @@ const SchedulingSignupEmbed = ({
                       {item.isFull && (
                         <p className="text-xs text-amber-700 mt-1">Will join waitlist if full</p>
                       )}
+                      {previewItem &&
+                        orderPreview?.hasPricing &&
+                        previewItem.incrementalMonthly != null &&
+                        previewItem.incrementalMonthly > 0 && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            Est. +{formatMoney(previewItem.incrementalMonthly)}/mo
+                          </p>
+                        )}
+                      {previewItem &&
+                        orderPreview?.hasPricing &&
+                        previewItem.incrementalMonthly === 0 && (
+                          <p className="text-xs text-green-700 mt-1">Included at no extra cost</p>
+                        )}
                     </div>
                     <button
                       type="button"
@@ -1368,9 +1556,21 @@ const SchedulingSignupEmbed = ({
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </li>
-                ))}
+                  )
+                })}
               </ul>
             )}
+
+            {orderPreviewLoading && (
+              <div className="flex items-center gap-2 text-sm text-gray-500 mt-4">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading your order and pricing…
+              </div>
+            )}
+            {orderPreview && !orderPreviewLoading && (
+              <SignupOrderPricingSummary preview={orderPreview} compact={compact} />
+            )}
+
             <div className="flex flex-wrap gap-3 mt-5">
               <button
                 type="button"
