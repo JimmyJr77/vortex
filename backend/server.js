@@ -45,7 +45,7 @@ if (fs.existsSync(envLocalPath)) {
 const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'orphaned-scheduling-2026-06-12'
+const API_BUILD_ID = 'admin-calendar-2026-06-14'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -2299,6 +2299,7 @@ app.get('/api/health', (req, res) => {
       highlights: hasRegisteredRoute('/api/admin/highlights'),
       publicHighlights: hasRegisteredRoute('/api/highlights'),
       scheduling: hasRegisteredRoute('/api/admin/scheduling/forms'),
+      schedulingCalendar: hasRegisteredRoute('/api/admin/scheduling/calendar'),
       publicScheduling: hasRegisteredRoute('/api/scheduling/forms'),
       dbQueries: hasRegisteredRoute('/api/admin/db-queries/entities'),
       schools: hasRegisteredRoute('/api/admin/schools'),
@@ -12248,19 +12249,20 @@ app.post('/api/admin/categories', async (req, res) => {
       })
     }
 
-    // Check if description column exists
+    const taxonomy = await resolveProgramTaxonomy()
+
     const columnCheck = await pool.query(`
       SELECT column_name 
       FROM information_schema.columns 
-      WHERE table_name = 'program_categories' 
+      WHERE table_name = $1 
       AND column_name = 'description'
-    `)
+    `, [taxonomy.programsTable])
     const hasDescriptionColumn = columnCheck.rows.length > 0
 
     let query, params
     if (hasDescriptionColumn) {
       query = `
-        INSERT INTO program_categories (facility_id, name, display_name, description)
+        INSERT INTO ${taxonomy.programsTable} (facility_id, name, display_name, description)
         VALUES ($1, $2, $3, $4)
         RETURNING 
           id,
@@ -12274,7 +12276,7 @@ app.post('/api/admin/categories', async (req, res) => {
       params = [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName, value.description || null]
     } else {
       query = `
-        INSERT INTO program_categories (facility_id, name, display_name)
+        INSERT INTO ${taxonomy.programsTable} (facility_id, name, display_name)
         VALUES ($1, $2, $3)
         RETURNING 
           id,
@@ -12432,8 +12434,10 @@ app.patch('/api/admin/categories/:id/archive', async (req, res) => {
       })
     }
 
+    const taxonomy = await resolveProgramTaxonomy()
+
     const result = await pool.query(`
-      UPDATE program_categories 
+      UPDATE ${taxonomy.programsTable}
       SET archived = $1, updated_at = CURRENT_TIMESTAMP
       WHERE id = $2
       RETURNING 
@@ -12463,30 +12467,13 @@ app.patch('/api/admin/categories/:id/archive', async (req, res) => {
   }
 })
 
-// Delete category (admin endpoint)
+// Delete category (admin endpoint) — cascades through programs-top delete
 app.delete('/api/admin/categories/:id', async (req, res) => {
   try {
     const { id } = req.params
-
-    // Check if category has programs
-    const programsCheck = await pool.query(
-      'SELECT COUNT(*) as count FROM program WHERE category_id = $1',
-      [id]
-    )
-
-    if (parseInt(programsCheck.rows[0].count) > 0) {
-      return res.status(409).json({
-        success: false,
-        message: 'Cannot delete category with existing programs. Archive it instead.'
-      })
-    }
-
-    const result = await pool.query(
-      'DELETE FROM program_categories WHERE id = $1 RETURNING id',
-      [id]
-    )
-
-    if (result.rows.length === 0) {
+    const { deleteTopProgramCascade } = await import('./programs/deleteTopProgram.js')
+    const result = await deleteTopProgramCascade(pool, Number(id))
+    if (!result.found) {
       return res.status(404).json({
         success: false,
         message: 'Category not found'
@@ -12495,7 +12482,10 @@ app.delete('/api/admin/categories/:id', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Category deleted successfully'
+      message:
+        result.deletedClasses > 0
+          ? `Category and ${result.deletedClasses} class(es) deleted successfully`
+          : 'Category deleted successfully'
     })
   } catch (error) {
     console.error('Delete category error:', error)

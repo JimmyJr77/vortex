@@ -343,7 +343,7 @@ async function parseJson<T>(response: Response): Promise<T> {
   if (!response.ok || !data.success) {
     if (response.status === 404) {
       throw new Error(
-        'Scheduling API is not available on the server yet. Redeploy the Render backend (vortex-backend) from the latest main branch.',
+        'This scheduling endpoint is not on the server yet (404). Redeploy the Render backend (vortex-backend) from the latest main branch, then confirm /api/health shows schedulingCalendar: true.',
       )
     }
     throw new Error(data.message || 'Request failed')

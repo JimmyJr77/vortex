@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { ensureDisciplineTagsSchema, ensureNoCategoryDefault, ensureProgramSchedulingCategoryColumn, ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
 import { ensureNoCategoryCategory, isNoCategoryCategoryRow } from './noCategory.js'
 import { addVariationCategory, consolidateClasses, reassignVariationCategory, setProgramSchedulingCategory } from './reconcile.js'
+import { deleteTopProgramCascade } from './deleteTopProgram.js'
 
 const schedulingCategoryUpdateSchema = Joi.object({
   schedulingCategoryId: Joi.number().integer().allow(null).required(),
@@ -536,25 +537,17 @@ export function registerProgramsAdminRoutes(app, pool) {
   app.delete('/api/admin/programs-top/:id', async (req, res) => {
     try {
       await ensureProgramsSchedulingSchema(pool)
-      const schema = await resolveProgramsSchema(pool)
-      const refs = await pool.query(
-        `SELECT COUNT(*)::int AS c FROM program WHERE ${schema.programFkColumn} = $1`,
-        [req.params.id],
-      )
-      if (Number(refs.rows[0].c) > 0) {
-        return res.status(409).json({
-          success: false,
-          message: 'Cannot delete: classes or events still reference this program',
-        })
-      }
-      const result = await pool.query(
-        `DELETE FROM ${schema.programsTable} WHERE id = $1 RETURNING id`,
-        [req.params.id],
-      )
-      if (result.rows.length === 0) {
+      const result = await deleteTopProgramCascade(pool, Number(req.params.id))
+      if (!result.found) {
         return res.status(404).json({ success: false, message: 'Program not found' })
       }
-      res.json({ success: true, message: 'Program deleted' })
+      res.json({
+        success: true,
+        message:
+          result.deletedClasses > 0
+            ? `Program and ${result.deletedClasses} class(es) deleted`
+            : 'Program deleted',
+      })
     } catch (err) {
       console.error('[programs] delete top program:', err)
       res.status(500).json({ success: false, message: 'Failed to delete program' })

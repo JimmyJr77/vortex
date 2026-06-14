@@ -4,7 +4,7 @@ import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash
 import { adminApiRequest } from '../utils/api'
 import ClassEventModal from './programs/ClassEventModal'
 import type { ClassEvent, SchedulingCategoryRef } from '../utils/programsApi'
-import { fetchDisciplineTags, syncSchedulingCategories, type DisciplineTag } from '../utils/programsApi'
+import { fetchDisciplineTags, syncSchedulingCategories, deleteTopProgram, type DisciplineTag } from '../utils/programsApi'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import AdminClassesEventsSpreadsheet from './classes/AdminClassesEventsSpreadsheet'
 import ClassSchedulingExpandPanel from './classes/ClassSchedulingExpandPanel'
@@ -785,25 +785,23 @@ export default function AdminClasses({
     }
   }
 
-  const handleDeleteCategory = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
+  const handleDeleteCategory = async (category: Category) => {
+    const count = classCountForProgram(category.id, category.displayName)
+    const message =
+      count > 0
+        ? `Permanently delete "${category.displayName}" and its ${count} class(es)? This cannot be undone.`
+        : `Permanently delete "${category.displayName}"? This cannot be undone.`
+    if (!confirm(message)) {
       return
     }
-    
+
     try {
-      const response = await adminApiRequest(`/api/admin/categories/${id}`, {
-        method: 'DELETE'
-      })
-      
-      if (response.ok) {
-        await fetchAllCategories()
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to delete category')
-      }
+      await deleteTopProgram(category.id)
+      await Promise.all([fetchAllCategories(), fetchAllPrograms()])
+      if (expandedProgramId === category.id) setExpandedProgramId(null)
     } catch (error) {
-      console.error('Error deleting category:', error)
-      alert('Failed to delete category')
+      console.error('Error deleting program:', error)
+      alert(error instanceof Error ? error.message : 'Failed to delete program')
     }
   }
 
@@ -1270,7 +1268,7 @@ export default function AdminClasses({
                               <button type="button" className={iconBtn} title="Unarchive" aria-label="Unarchive" onClick={() => handleArchiveCategory(category.id, false)}>
                                 <Archive className="w-4 h-4" />
                               </button>
-                              <button type="button" className={iconBtnDanger} title="Delete" aria-label="Delete" onClick={() => handleDeleteCategory(category.id)}>
+                              <button type="button" className={iconBtnDanger} title="Delete" aria-label="Delete" onClick={() => handleDeleteCategory(category)}>
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
@@ -1467,6 +1465,15 @@ export default function AdminClasses({
                                 </button>
                                 <button type="button" className={iconBtn} title="Archive program" aria-label="Archive program" onClick={() => handleArchiveCategory(category.id, true)}>
                                   <Archive className="w-4 h-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={iconBtnDanger}
+                                  title="Delete program"
+                                  aria-label="Delete program"
+                                  onClick={() => handleDeleteCategory(category)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
                             </td>

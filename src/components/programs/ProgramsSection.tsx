@@ -125,7 +125,13 @@ const ProgramsSection = ({
   }
 
   const handleDelete = async (program: TopProgram) => {
-    if (!confirm(`Permanently delete "${program.displayName}"?`)) return
+    if (
+      !confirm(
+        `Permanently delete "${program.displayName}" and all of its classes? This cannot be undone.`,
+      )
+    ) {
+      return
+    }
     setActionId(program.id)
     try {
       await deleteTopProgram(program.id)
