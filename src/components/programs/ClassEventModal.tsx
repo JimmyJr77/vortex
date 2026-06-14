@@ -147,8 +147,15 @@ const ClassEventModal = ({
 
   const selectedCategoryName = useMemo(() => {
     if (selectedCategoryId == null) return 'No Category'
-    return allCategories.find((c) => c.id === selectedCategoryId)?.name ?? 'No Category'
-  }, [allCategories, selectedCategoryId])
+    const fromMaster = allCategories.find((c) => c.id === selectedCategoryId)?.name
+    if (fromMaster) return fromMaster
+    // Fall back to the name the backend already resolved for this class, so an
+    // inactive/missing master entry doesn't make it read "No Category".
+    if (editing?.schedulingCategoryId === selectedCategoryId && editing?.schedulingCategoryName) {
+      return editing.schedulingCategoryName
+    }
+    return 'No Category'
+  }, [allCategories, selectedCategoryId, editing])
 
   const handleAddCategory = async () => {
     const name = categorySearch.trim()
