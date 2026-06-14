@@ -80,11 +80,14 @@ function monthBounds(year, month) {
   return { monthStart, monthEnd, lastDay }
 }
 
-function daysInMonth(year, month) {
+function daysInRange(startDate, endDate) {
   const dates = []
-  const { monthStart, lastDay } = monthBounds(year, month)
-  for (let d = 1; d <= lastDay; d++) {
-    dates.push(`${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`)
+  const cur = parseDate(startDate)
+  const last = parseDate(endDate)
+  if (!cur || !last) return dates
+  while (cur <= last) {
+    dates.push(formatDateOnly(cur))
+    cur.setDate(cur.getDate() + 1)
   }
   return dates
 }
@@ -130,9 +133,15 @@ function mapRowToContext(row) {
     programsId: row.programs_id != null ? Number(row.programs_id) : null,
     programName: row.program_name || null,
     className: row.class_name || row.form_title || 'Class',
+    classDescription: row.class_description || null,
+    skillLevel: row.skill_level || null,
+    ageMin: row.age_min != null ? Number(row.age_min) : null,
+    ageMax: row.age_max != null ? Number(row.age_max) : null,
     categoryId: row.category_id != null ? Number(row.category_id) : null,
     categoryName: row.category_name || (row.category_id == null ? 'No Category' : null),
     offeringLabel: row.offering_label || null,
+    offeringStartDate: offeringRange.start,
+    offeringEndDate: offeringRange.end,
     formActive: Boolean(row.form_is_active),
     slotGroupActive: Boolean(row.sg_is_active),
     slotActive: Boolean(row.is_active),
@@ -158,10 +167,59 @@ function buildTbdKey(ctx) {
   return `${ctx.formId}:${ctx.slotGroupId}:${ctx.timeSlotId}`
 }
 
+function buildEventPayload(ctx, date, weekLetter) {
+  return {
+    id: buildEventKey(ctx, date),
+    date,
+    startTime: ctx.startTime,
+    endTime: ctx.endTime,
+    formId: ctx.formId,
+    classEventId: ctx.classEventId,
+    programsId: ctx.programsId,
+    programName: ctx.programName,
+    className: ctx.className,
+    classDescription: ctx.classDescription,
+    skillLevel: ctx.skillLevel,
+    ageMin: ctx.ageMin,
+    ageMax: ctx.ageMax,
+    categoryId: ctx.categoryId,
+    categoryName: ctx.categoryName,
+    offeringLabel: ctx.offeringLabel,
+    offeringStartDate: ctx.offeringStartDate,
+    offeringEndDate: ctx.offeringEndDate,
+    formActive: ctx.formActive,
+    slotGroupActive: ctx.slotGroupActive,
+    slotActive: ctx.slotActive,
+    weekLetter: weekLetter ?? null,
+  }
+}
+
+function buildTbdPayload(ctx) {
+  return {
+    formId: ctx.formId,
+    classEventId: ctx.classEventId,
+    programsId: ctx.programsId,
+    programName: ctx.programName,
+    className: ctx.className,
+    classDescription: ctx.classDescription,
+    categoryId: ctx.categoryId,
+    categoryName: ctx.categoryName,
+    offeringLabel: ctx.offeringLabel,
+    formActive: ctx.formActive,
+    slotGroupActive: ctx.slotGroupActive,
+    scheduleMode: ctx.scheduleMode,
+    weekLetter: ctx.weekLetter,
+    dayOfWeek: ctx.dayOfWeek,
+    dayName: ctx.dayName,
+    startTime: ctx.startTime,
+    endTime: ctx.endTime,
+  }
+}
+
 /**
- * Expand flat DB rows into calendar events for one month.
+ * Expand flat DB rows into calendar events for a date range (inclusive).
  */
-export function expandCalendarMonth({ year, month, rows }) {
+export function expandCalendarRange({ startDate, endDate, rows }) {
   const contexts = rows.map(mapRowToContext)
   const weekLettersByGroup = new Map()
   for (const ctx of contexts) {
@@ -176,59 +234,24 @@ export function expandCalendarMonth({ year, month, rows }) {
   const events = []
   const tbdByKey = new Map()
   const eventKeys = new Set()
-  const monthDays = daysInMonth(year, month)
-  const { monthStart, monthEnd } = monthBounds(year, month)
+  const rangeDays = daysInRange(startDate, endDate)
 
   for (const ctx of contexts) {
     if (ctx.datesTbd) {
       const key = buildTbdKey(ctx)
       if (!tbdByKey.has(key)) {
-        tbdByKey.set(key, {
-          formId: ctx.formId,
-          classEventId: ctx.classEventId,
-          programsId: ctx.programsId,
-          programName: ctx.programName,
-          className: ctx.className,
-          categoryId: ctx.categoryId,
-          categoryName: ctx.categoryName,
-          offeringLabel: ctx.offeringLabel,
-          formActive: ctx.formActive,
-          slotGroupActive: ctx.slotGroupActive,
-          scheduleMode: ctx.scheduleMode,
-          weekLetter: ctx.weekLetter,
-          dayOfWeek: ctx.dayOfWeek,
-          dayName: ctx.dayName,
-          startTime: ctx.startTime,
-          endTime: ctx.endTime,
-        })
+        tbdByKey.set(key, buildTbdPayload(ctx))
       }
       continue
     }
 
     if (ctx.scheduleMode === 'date' && ctx.specificDate) {
-      if (ctx.specificDate < monthStart || ctx.specificDate > monthEnd) continue
+      if (ctx.specificDate < startDate || ctx.specificDate > endDate) continue
       if (!dateInRange(ctx.specificDate, ctx.effectiveStart, ctx.effectiveEnd)) continue
       const key = buildEventKey(ctx, ctx.specificDate)
       if (eventKeys.has(key)) continue
       eventKeys.add(key)
-      events.push({
-        id: key,
-        date: ctx.specificDate,
-        startTime: ctx.startTime,
-        endTime: ctx.endTime,
-        formId: ctx.formId,
-        classEventId: ctx.classEventId,
-        programsId: ctx.programsId,
-        programName: ctx.programName,
-        className: ctx.className,
-        categoryId: ctx.categoryId,
-        categoryName: ctx.categoryName,
-        offeringLabel: ctx.offeringLabel,
-        formActive: ctx.formActive,
-        slotGroupActive: ctx.slotGroupActive,
-        slotActive: ctx.slotActive,
-        weekLetter: null,
-      })
+      events.push(buildEventPayload(ctx, ctx.specificDate, null))
       continue
     }
 
@@ -237,7 +260,7 @@ export function expandCalendarMonth({ year, month, rows }) {
       const hasMultipleWeeks = groupLetters.length > 1
       const occurrenceLetter = ctx.weekLetter || 'A'
 
-      for (const dateStr of monthDays) {
+      for (const dateStr of rangeDays) {
         const d = parseDate(dateStr)
         if (!d || d.getDay() !== ctx.dayOfWeek) continue
         if (!dateInRange(dateStr, ctx.effectiveStart, ctx.effectiveEnd)) continue
@@ -248,24 +271,9 @@ export function expandCalendarMonth({ year, month, rows }) {
         const key = buildEventKey(ctx, dateStr)
         if (eventKeys.has(key)) continue
         eventKeys.add(key)
-        events.push({
-          id: key,
-          date: dateStr,
-          startTime: ctx.startTime,
-          endTime: ctx.endTime,
-          formId: ctx.formId,
-          classEventId: ctx.classEventId,
-          programsId: ctx.programsId,
-          programName: ctx.programName,
-          className: ctx.className,
-          categoryId: ctx.categoryId,
-          categoryName: ctx.categoryName,
-          offeringLabel: ctx.offeringLabel,
-          formActive: ctx.formActive,
-          slotGroupActive: ctx.slotGroupActive,
-          slotActive: ctx.slotActive,
-          weekLetter: hasMultipleWeeks ? occurrenceLetter : null,
-        })
+        events.push(
+          buildEventPayload(ctx, dateStr, hasMultipleWeeks ? occurrenceLetter : null),
+        )
       }
     }
   }
@@ -284,5 +292,21 @@ export function expandCalendarMonth({ year, month, rows }) {
     return (a.startTime || '').localeCompare(b.startTime || '')
   })
 
-  return { year, month, events, tbdPatterns }
+  const startParts = startDate.split('-').map(Number)
+  return {
+    year: startParts[0],
+    month: startParts[1],
+    startDate,
+    endDate,
+    events,
+    tbdPatterns,
+  }
+}
+
+/**
+ * Expand flat DB rows into calendar events for one month.
+ */
+export function expandCalendarMonth({ year, month, rows }) {
+  const { monthStart, monthEnd } = monthBounds(year, month)
+  return expandCalendarRange({ startDate: monthStart, endDate: monthEnd, rows })
 }

@@ -413,13 +413,7 @@ export default function Admin({ onLogout }: AdminProps) {
                 onNavigationIntentConsumed={() => setSchedulingIntent(null)}
               />
             ) : activeTab === 'calendar' ? (
-              <AdminCalendar
-                onOpenScheduling={(intent) => {
-                  setSchedulingIntent(intent)
-                  setSchedulingNavKey((key) => key + 1)
-                  setActiveTab('scheduling')
-                }}
-              />
+              <AdminCalendar />
             ) : activeTab === 'pricing' ? (
               <AdminPricing />
             ) : activeTab === 'signups' ? (

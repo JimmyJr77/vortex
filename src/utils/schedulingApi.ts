@@ -157,9 +157,15 @@ export interface SchedulingCalendarEvent {
   programsId: number | null
   programName: string | null
   className: string
+  classDescription: string | null
+  skillLevel: string | null
+  ageMin: number | null
+  ageMax: number | null
   categoryId: number | null
   categoryName: string | null
   offeringLabel: string | null
+  offeringStartDate: string | null
+  offeringEndDate: string | null
   formActive: boolean
   slotGroupActive: boolean
   slotActive: boolean
@@ -172,6 +178,7 @@ export interface SchedulingCalendarTbd {
   programsId: number | null
   programName: string | null
   className: string
+  classDescription: string | null
   categoryId: number | null
   categoryName: string | null
   offeringLabel: string | null
@@ -188,6 +195,8 @@ export interface SchedulingCalendarTbd {
 export interface SchedulingCalendarMonth {
   year: number
   month: number
+  startDate: string
+  endDate: string
   events: SchedulingCalendarEvent[]
   tbdPatterns: SchedulingCalendarTbd[]
 }
@@ -529,16 +538,23 @@ export async function adminFetchSchedulingForms(): Promise<SchedulingFormSummary
 }
 
 export async function adminFetchSchedulingCalendar(params: {
-  year: number
-  month: number
+  year?: number
+  month?: number
+  startDate?: string
+  endDate?: string
   programsId?: number | null
   formActive?: CalendarFormActiveFilter
 }): Promise<SchedulingCalendarMonth> {
   const qs = new URLSearchParams({
-    year: String(params.year),
-    month: String(params.month),
     formActive: params.formActive ?? 'all',
   })
+  if (params.startDate && params.endDate) {
+    qs.set('startDate', params.startDate)
+    qs.set('endDate', params.endDate)
+  } else if (params.year != null && params.month != null) {
+    qs.set('year', String(params.year))
+    qs.set('month', String(params.month))
+  }
   if (params.programsId != null) {
     qs.set('programsId', String(params.programsId))
   }

@@ -36,7 +36,7 @@ import {
   validateSignupResponses,
 } from './signupFieldCatalog.js'
 import { expandSlotBatch } from './slotExpansion.js'
-import { expandCalendarMonth } from './calendarExpansion.js'
+import { expandCalendarRange } from './calendarExpansion.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { ensureNoCategoryCategory, isNoCategoryCategoryRow, NO_CATEGORY_NAME } from '../programs/noCategory.js'
 
@@ -1943,13 +1943,29 @@ export function createSchedulingHandlers(pool) {
 
     async getAdminCalendar(req, res) {
       try {
-        const year = Number(req.query.year)
-        const month = Number(req.query.month)
-        if (!Number.isInteger(year) || year < 2000 || year > 2100) {
-          return res.status(400).json({ success: false, message: 'Invalid year' })
+        const startDateParam = formatDateOnly(req.query.startDate)
+        const endDateParam = formatDateOnly(req.query.endDate)
+        let startDate = startDateParam
+        let endDate = endDateParam
+
+        if (!startDate || !endDate) {
+          const year = Number(req.query.year)
+          const month = Number(req.query.month)
+          if (!Number.isInteger(year) || year < 2000 || year > 2100) {
+            return res.status(400).json({ success: false, message: 'Invalid year' })
+          }
+          if (!Number.isInteger(month) || month < 1 || month > 12) {
+            return res.status(400).json({ success: false, message: 'Invalid month' })
+          }
+          const monthStart = `${year}-${String(month).padStart(2, '0')}-01`
+          const lastDay = new Date(year, month, 0).getDate()
+          const monthEnd = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+          startDate = monthStart
+          endDate = monthEnd
         }
-        if (!Number.isInteger(month) || month < 1 || month > 12) {
-          return res.status(400).json({ success: false, message: 'Invalid month' })
+
+        if (startDate > endDate) {
+          return res.status(400).json({ success: false, message: 'startDate must be on or before endDate' })
         }
 
         const programsId = req.query.programsId != null ? Number(req.query.programsId) : null
@@ -1969,6 +1985,8 @@ export function createSchedulingHandlers(pool) {
         const filters = [
           'sf.deleted_at IS NULL',
           'sf.program_id IS NOT NULL',
+          'p.archived = FALSE',
+          '(pr.id IS NULL OR pr.archived = FALSE)',
         ]
 
         if (programsId != null) {
@@ -1999,13 +2017,17 @@ export function createSchedulingHandlers(pool) {
             o.end_date AS offering_end_date,
             o.label AS offering_label,
             p.display_name AS class_name,
+            p.description AS class_description,
+            p.skill_level,
+            p.age_min,
+            p.age_max,
             pr.display_name AS program_name,
             COALESCE(sc.name, 'No Category') AS category_name
           FROM scheduling_time_slot ts
           JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
           JOIN scheduling_form sf ON sf.id = ts.form_id
+          JOIN program p ON p.id = sf.program_id
           LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
-          LEFT JOIN program p ON p.id = sf.program_id
           LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
           LEFT JOIN scheduling_category sc ON sc.id = COALESCE(ts.category_id, sg.category_id)
           WHERE ${filters.join(' AND ')}
@@ -2014,7 +2036,7 @@ export function createSchedulingHandlers(pool) {
           params,
         )
 
-        const data = expandCalendarMonth({ year, month, rows: result.rows })
+        const data = expandCalendarRange({ startDate, endDate, rows: result.rows })
         res.json({ success: true, data })
       } catch (err) {
         console.error('[scheduling] getAdminCalendar:', err)
