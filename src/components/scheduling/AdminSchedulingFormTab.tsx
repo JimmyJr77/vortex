@@ -2,51 +2,47 @@ import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import AdminSchedulingSignupFields from './AdminSchedulingSignupFields'
 import { mergeSignupFieldsForSave } from '../../config/schedulingSignupFields'
-import { updateTopProgram, type TopProgram } from '../../utils/programsApi'
-import { defaultForwardFormFields } from '../../utils/schedulingNavigation'
+import { adminUpdateSignupFields } from '../../utils/schedulingApi'
 
 interface Props {
-  program: TopProgram
-  onSaved: (program: TopProgram) => void
+  formId: number
+  initialSignupFields: string[]
+  initialMandateWaiver: boolean
   selectAllFields?: boolean
+  onSaved: () => void | Promise<void>
+  onContinue: () => void
 }
 
-const AdminSchedulingFormTab = ({ program, onSaved, selectAllFields = false }: Props) => {
-  const [signupFields, setSignupFields] = useState<string[]>(() =>
-    selectAllFields
-      ? defaultForwardFormFields()
-      : (program.schedulingSignupFields ?? ['first_name', 'last_name', 'email']),
-  )
-  const [mandateWaiver, setMandateWaiver] = useState(() =>
-    selectAllFields ? true : (program.schedulingMandateWaiver ?? false),
-  )
+const AdminSchedulingFormTab = ({
+  formId,
+  initialSignupFields,
+  initialMandateWaiver,
+  selectAllFields = false,
+  onSaved,
+  onContinue,
+}: Props) => {
+  const [signupFields, setSignupFields] = useState<string[]>(initialSignupFields)
+  const [mandateWaiver, setMandateWaiver] = useState(initialMandateWaiver)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (selectAllFields) {
-      setSignupFields(defaultForwardFormFields())
-      setMandateWaiver(true)
-    } else {
-      setSignupFields(program.schedulingSignupFields ?? ['first_name', 'last_name', 'email'])
-      setMandateWaiver(program.schedulingMandateWaiver ?? false)
-    }
+    setSignupFields(initialSignupFields)
+    setMandateWaiver(initialMandateWaiver)
     setSaved(false)
-  }, [program, selectAllFields])
+  }, [formId, initialSignupFields, initialMandateWaiver, selectAllFields])
 
-  const handleSave = async () => {
+  const handleSaveAndContinue = async () => {
     setSaving(true)
     setError(null)
     setSaved(false)
     try {
       const merged = mergeSignupFieldsForSave(signupFields, mandateWaiver)
-      const updated = await updateTopProgram(program.id, {
-        schedulingSignupFields: merged,
-        schedulingMandateWaiver: mandateWaiver,
-      })
-      onSaved(updated)
+      await adminUpdateSignupFields(formId, merged, mandateWaiver)
+      await onSaved()
       setSaved(true)
+      onContinue()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save')
     } finally {
@@ -56,12 +52,6 @@ const AdminSchedulingFormTab = ({ program, onSaved, selectAllFields = false }: P
 
   return (
     <div className="space-y-6 w-full">
-      <div>
-        <h3 className="text-lg font-bold text-black">Form</h3>
-        <p className="text-sm text-gray-600 mt-1">
-          Default signup fields for new classes and events under this program.
-        </p>
-      </div>
       <AdminSchedulingSignupFields
         selected={signupFields}
         waiverEnabled={mandateWaiver}
@@ -78,12 +68,12 @@ const AdminSchedulingFormTab = ({ program, onSaved, selectAllFields = false }: P
       <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={handleSave}
+          onClick={handleSaveAndContinue}
           disabled={saving}
           className="bg-vortex-red text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-60 inline-flex items-center gap-2"
         >
           {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-          Save form defaults
+          Save &amp; Continue
         </button>
         {saved && <span className="text-green-600 text-sm font-medium">Saved</span>}
       </div>

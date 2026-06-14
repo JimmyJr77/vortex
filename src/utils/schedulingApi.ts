@@ -534,6 +534,17 @@ export async function adminDeleteSchedulingForm(id: number): Promise<void> {
   }
 }
 
+export async function adminSetSchedulingFormActive(
+  formId: number,
+  isActive: boolean,
+): Promise<SchedulingFormSummary> {
+  const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/active`, {
+    method: 'PATCH',
+    body: JSON.stringify({ isActive }),
+  })
+  return parseJson(res)
+}
+
 export async function adminFetchAllCategories(): Promise<SchedulingCategory[]> {
   const res = await adminApiRequest('/api/admin/scheduling/categories')
   return parseJson(res)
@@ -563,16 +574,23 @@ export async function adminLinkCategoryToForm(formId: number, categoryId: number
   }
 }
 
-export async function adminUpdateCategory(id: number, name: string): Promise<SchedulingCategory> {
+export async function adminUpdateCategory(
+  id: number,
+  payload: { name: string; sortOrder?: number; isActive?: boolean },
+): Promise<SchedulingCategory> {
   const res = await adminApiRequest(`/api/admin/scheduling/categories/${id}`, {
     method: 'PUT',
-    body: JSON.stringify({ name }),
+    body: JSON.stringify(payload),
   })
   return parseJson(res)
 }
 
 export async function adminDeleteCategory(id: number): Promise<void> {
-  await adminApiRequest(`/api/admin/scheduling/categories/${id}`, { method: 'DELETE' })
+  const res = await adminApiRequest(`/api/admin/scheduling/categories/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Failed to delete category')
+  }
 }
 
 export type CategorySelection = number | 'none' | null

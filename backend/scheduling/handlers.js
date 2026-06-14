@@ -41,6 +41,39 @@ import { ensureNoCategoryCategory, isNoCategoryCategoryRow, NO_CATEGORY_NAME } f
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
+async function findActiveClassesUsingCategory(pool, categoryId) {
+  const result = await pool.query(
+    `
+    SELECT DISTINCT p.display_name AS "displayName"
+    FROM (
+      SELECT sf.program_id AS class_id
+      FROM scheduling_form_category sfc
+      JOIN scheduling_form sf ON sf.id = sfc.form_id AND sf.deleted_at IS NULL
+      WHERE sfc.category_id = $1 AND sf.program_id IS NOT NULL
+      UNION
+      SELECT p.id AS class_id
+      FROM program p
+      WHERE p.scheduling_category_id = $1
+      UNION
+      SELECT sf.program_id AS class_id
+      FROM scheduling_offering o
+      JOIN scheduling_form sf ON sf.id = o.form_id AND sf.deleted_at IS NULL
+      WHERE o.category_id = $1 AND sf.program_id IS NOT NULL
+      UNION
+      SELECT sf.program_id AS class_id
+      FROM scheduling_slot_group g
+      JOIN scheduling_form sf ON sf.id = g.form_id AND sf.deleted_at IS NULL
+      WHERE g.category_id = $1 AND sf.program_id IS NOT NULL
+    ) links
+    JOIN program p ON p.id = links.class_id
+    WHERE p.archived = FALSE
+      AND COALESCE(p.is_active, TRUE) = TRUE
+    ORDER BY p.display_name
+    `,
+    [categoryId],
+  )
+  return result.rows.map((row) => row.displayName)
+}
 
 async function buildOrphanSnapshot(db, groupId) {
   const groupRes = await db.query(
@@ -2036,6 +2069,28 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async patchAdminFormActive(req, res) {
+      try {
+        const isActive = Boolean(req.body.isActive)
+        const result = await pool.query(
+          `
+          UPDATE scheduling_form
+          SET is_active = $1, updated_at = now()
+          WHERE id = $2 AND deleted_at IS NULL
+          RETURNING *
+          `,
+          [isActive, req.params.id],
+        )
+        if (result.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Form not found' })
+        }
+        res.json({ success: true, data: mapFormRow(result.rows[0]) })
+      } catch (err) {
+        console.error('[scheduling] patchAdminFormActive:', err)
+        res.status(500).json({ success: false, message: 'Failed to update form visibility' })
+      }
+    },
+
     async deleteAdminForm(req, res) {
       try {
         await pool.query(
@@ -2166,11 +2221,21 @@ export function createSchedulingHandlers(pool) {
         if (isNoCategoryCategoryRow(existing.rows[0])) {
           return res.status(400).json({ success: false, message: 'The system "No Category" cannot be deleted' })
         }
+
+        const categoryId = Number(req.params.id)
+        const classNames = await findActiveClassesUsingCategory(pool, categoryId)
+        if (classNames.length > 0) {
+          return res.status(409).json({
+            success: false,
+            message: `This category is still in use by active classes (${classNames.join(', ')}). Remove it from those classes first.`,
+            classes: classNames,
+          })
+        }
+
         // Reassign this category's scheduling data to "No Category" BEFORE the
         // delete, so the ON DELETE CASCADE on category_id never destroys
         // offerings / slots / signups. The class's variation simply collapses
         // into its "No Category" row.
-        const categoryId = Number(req.params.id)
         const client = await pool.connect()
         try {
           await client.query('BEGIN')

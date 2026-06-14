@@ -5,6 +5,7 @@ import {
   adminDeleteCategory,
   adminFetchAllCategories,
   adminUpdateCategory,
+  isNoCategoryCategory,
   type CategorySelection,
   type SchedulingCategory,
 } from '../../utils/schedulingApi'
@@ -25,6 +26,7 @@ const AdminSchedulingCategories = ({ selectedCategory, onSelectCategory, onRefre
   const [editName, setEditName] = useState('')
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const loadCategories = useCallback(async () => {
     const data = await adminFetchAllCategories()
@@ -76,7 +78,7 @@ const AdminSchedulingCategories = ({ selectedCategory, onSelectCategory, onRefre
     if (editingId == null || !editName.trim()) return
     setSaving(true)
     try {
-      await adminUpdateCategory(editingId, editName.trim())
+      await adminUpdateCategory(editingId, { name: editName.trim() })
       cancelEdit()
       await loadCategories()
       await onRefresh()
@@ -86,14 +88,20 @@ const AdminSchedulingCategories = ({ selectedCategory, onSelectCategory, onRefre
   }
 
   const handleDelete = async (cat: SchedulingCategory) => {
-    if (!confirm(`Delete "${cat.name}" globally? This removes it from all forms and deletes associated slots.`)) {
-      return
-    }
+    if (isNoCategoryCategory(cat)) return
     if (editingId === cat.id) cancelEdit()
     if (selectedCategory === cat.id) onSelectCategory(null)
-    await adminDeleteCategory(cat.id)
-    await loadCategories()
-    await onRefresh()
+    setSaving(true)
+    setError(null)
+    try {
+      await adminDeleteCategory(cat.id)
+      await loadCategories()
+      await onRefresh()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to delete category')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleSelectNone = () => {
@@ -133,6 +141,15 @@ const AdminSchedulingCategories = ({ selectedCategory, onSelectCategory, onRefre
           <span>Select <strong>No Category</strong> or a category below to use in Offerings and Slots.</span>
         )}
       </div>
+
+      {error && (
+        <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 px-3 py-2 flex justify-between text-sm">
+          <span>{error}</span>
+          <button type="button" onClick={() => setError(null)} aria-label="Dismiss error">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />

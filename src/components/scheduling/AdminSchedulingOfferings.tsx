@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Loader2, Pencil, Trash2 } from 'lucide-react'
 import {
   adminCreateOffering,
   adminDeleteOffering,
@@ -18,6 +18,7 @@ interface Props {
   selectedCategory: CategorySelection
   selectedOfferingId: number | null
   onOfferingSelect: (offering: SchedulingOffering | null) => void
+  onContinueToSlots?: () => void
 }
 
 const categoryApiId = (selection: CategorySelection): number | null | undefined => {
@@ -31,13 +32,13 @@ const AdminSchedulingOfferings = ({
   selectedCategory,
   selectedOfferingId,
   onOfferingSelect,
+  onContinueToSlots,
 }: Props) => {
   const [categories, setCategories] = useState<SchedulingCategory[]>([])
   const [offerings, setOfferings] = useState<SchedulingOffering[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [showAdd, setShowAdd] = useState(false)
   const [editId, setEditId] = useState<number | null>(null)
   const [draft, setDraft] = useState({ startDate: '', endDate: '', label: '' })
 
@@ -77,7 +78,6 @@ const AdminSchedulingOfferings = ({
 
   const resetDraft = () => {
     setDraft({ startDate: '', endDate: '', label: '' })
-    setShowAdd(false)
     setEditId(null)
   }
 
@@ -115,6 +115,7 @@ const AdminSchedulingOfferings = ({
       const updated = await adminSelectOffering(offering.id)
       onOfferingSelect(updated)
       await loadOfferings()
+      onContinueToSlots?.()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to select offering')
     } finally {
@@ -145,7 +146,6 @@ const AdminSchedulingOfferings = ({
       endDate: dateInputValue(offering.endDate) || offering.endDate,
       label: offering.label || '',
     })
-    setShowAdd(true)
   }
 
   const categoryName = (categoryId: number | null): string =>
@@ -153,163 +153,132 @@ const AdminSchedulingOfferings = ({
       ? 'No Category'
       : (categories.find((c) => c.id === categoryId)?.name ?? `Category #${categoryId}`)
 
-  const newOfferingCategoryName =
-    selectedCategory === 'none' || selectedCategory == null
-      ? 'No Category'
-      : (categories.find((c) => c.id === selectedCategory)?.name ?? 'selected category')
-
-  if (loading && categories.length === 0 && offerings.length === 0) {
-    return <p className="text-gray-500 text-sm">Loading…</p>
-  }
-
   return (
     <div className="space-y-6 w-full">
-      <div>
-        <h3 className="text-lg font-bold text-black">Offerings</h3>
-        <p className="text-sm text-gray-600 mt-1">
-          All offerings for this class. Selecting one builds slots for its category and updates the{' '}
-          <strong>Categories</strong> tab to match. New offerings are added under{' '}
-          <strong>{newOfferingCategoryName}</strong>.
-        </p>
-      </div>
-
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <>
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => {
-                resetDraft()
-                setShowAdd(true)
-              }}
-              className="p-2 rounded-lg bg-vortex-red text-white hover:bg-red-700"
-              title="Add offering dates"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
+      <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50">
+        {editId != null && (
+          <p className="text-sm font-semibold text-gray-800">Editing offering</p>
+        )}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-semibold mb-1">Start date</label>
+            <input
+              type="date"
+              value={draft.startDate}
+              onChange={(e) => setDraft((d) => ({ ...d, startDate: e.target.value }))}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
           </div>
-
-          {showAdd && (
-            <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold mb-1">Start date</label>
-                  <input
-                    type="date"
-                    value={draft.startDate}
-                    onChange={(e) => setDraft((d) => ({ ...d, startDate: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold mb-1">End date</label>
-                  <input
-                    type="date"
-                    value={draft.endDate}
-                    onChange={(e) => setDraft((d) => ({ ...d, endDate: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold mb-1">Label (optional)</label>
-                <input
-                  type="text"
-                  value={draft.label}
-                  onChange={(e) => setDraft((d) => ({ ...d, label: e.target.value }))}
-                  placeholder="e.g. Summer 2026"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                />
-              </div>
-              <div className="flex gap-2 justify-end">
-                <button type="button" onClick={resetDraft} className="px-3 py-1.5 text-sm text-gray-600">
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={saving || !draft.startDate || !draft.endDate}
-                  className="px-4 py-1.5 text-sm bg-vortex-red text-white rounded-lg disabled:opacity-50 inline-flex items-center gap-2"
-                >
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editId ? 'Update' : 'Add'}
-                </button>
-              </div>
-            </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1">End date</label>
+            <input
+              type="date"
+              value={draft.endDate}
+              onChange={(e) => setDraft((d) => ({ ...d, endDate: e.target.value }))}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold mb-1">Label (optional)</label>
+          <input
+            type="text"
+            value={draft.label}
+            onChange={(e) => setDraft((d) => ({ ...d, label: e.target.value }))}
+            placeholder="e.g. Summer 2026"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+        <div className="flex gap-2 justify-end">
+          {editId != null && (
+            <button type="button" onClick={resetDraft} className="px-3 py-1.5 text-sm text-gray-600">
+              Cancel
+            </button>
           )}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || !draft.startDate || !draft.endDate}
+            className="px-4 py-1.5 text-sm bg-vortex-red text-white rounded-lg disabled:opacity-50 inline-flex items-center gap-2"
+          >
+            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+            {editId ? 'Update' : 'Add'}
+          </button>
+        </div>
+      </div>
 
-          {loading ? (
-            <div className="flex justify-center py-6">
-              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-            </div>
-          ) : offerings.length === 0 ? (
-            <p className="text-sm text-gray-500">No offerings yet for this class.</p>
-          ) : (
-            <div className="border border-gray-200 rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-left text-gray-600">
-                  <tr>
-                    <th className="py-2 px-4 font-medium w-8" />
-                    <th className="py-2 px-4 font-medium">Category</th>
-                    <th className="py-2 px-4 font-medium">Dates</th>
-                    <th className="py-2 px-4 font-medium">Label</th>
-                    <th className="py-2 px-4 font-medium w-24">Actions</th>
+      {loading ? (
+        <div className="flex justify-center py-6">
+          <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+        </div>
+      ) : offerings.length === 0 ? (
+        <p className="text-sm text-gray-500">No offerings yet for this class.</p>
+      ) : (
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-left text-gray-600">
+              <tr>
+                <th className="py-2 px-4 font-medium w-8" />
+                <th className="py-2 px-4 font-medium">Category</th>
+                <th className="py-2 px-4 font-medium">Dates</th>
+                <th className="py-2 px-4 font-medium">Label</th>
+                <th className="py-2 px-4 font-medium w-24">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {offerings.map((o) => {
+                const isChecked = selectedOfferingId === o.id
+                return (
+                  <tr
+                    key={o.id}
+                    className={`border-t border-gray-100 ${isChecked ? 'bg-red-50' : ''}`}
+                  >
+                    <td className="py-2 px-4">
+                      <input
+                        type="radio"
+                        name="selected-offering"
+                        checked={isChecked}
+                        onChange={() => handleSelect(o)}
+                        disabled={saving}
+                        title="Select for slot building"
+                      />
+                    </td>
+                    <td className="py-2 px-4 font-medium text-gray-800">
+                      {categoryName(o.categoryId)}
+                    </td>
+                    <td className="py-2 px-4">
+                      {o.startDate} – {o.endDate}
+                    </td>
+                    <td className="py-2 px-4 text-gray-600">{o.label || '—'}</td>
+                    <td className="py-2 px-4">
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          className={iconBtn}
+                          onClick={() => startEdit(o)}
+                          title="Edit"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          className={`${iconBtn} hover:text-red-700`}
+                          onClick={() => handleDelete(o)}
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {offerings.map((o) => {
-                    const isChecked = selectedOfferingId === o.id
-                    return (
-                    <tr
-                      key={o.id}
-                      className={`border-t border-gray-100 ${isChecked ? 'bg-red-50' : ''}`}
-                    >
-                      <td className="py-2 px-4">
-                        <input
-                          type="radio"
-                          name="selected-offering"
-                          checked={isChecked}
-                          onChange={() => handleSelect(o)}
-                          disabled={saving}
-                          title="Select for slot building"
-                        />
-                      </td>
-                      <td className="py-2 px-4 font-medium text-gray-800">
-                        {categoryName(o.categoryId)}
-                      </td>
-                      <td className="py-2 px-4">
-                        {o.startDate} – {o.endDate}
-                      </td>
-                      <td className="py-2 px-4 text-gray-600">{o.label || '—'}</td>
-                      <td className="py-2 px-4">
-                        <div className="flex gap-1">
-                          <button
-                            type="button"
-                            className={iconBtn}
-                            onClick={() => startEdit(o)}
-                            title="Edit"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            className={`${iconBtn} hover:text-red-700`}
-                            onClick={() => handleDelete(o)}
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Loader2, Plus, X } from 'lucide-react'
 import {
   addClassVariation,
@@ -8,10 +8,13 @@ import {
   type ClassEvent,
   type ClassEventFormData,
 } from '../../utils/programsApi'
+import DisciplineTagPicker from './DisciplineTagPicker'
 import {
   adminCreateCategory,
+  adminDeleteCategory,
   adminFetchAllCategories,
   adminFetchFormCategories,
+  isNoCategoryCategory,
   isNoCategorySelection,
   NO_CATEGORY_NAME,
   type SchedulingCategory,
@@ -78,6 +81,8 @@ const ClassEventModal = ({
   const [categorySearch, setCategorySearch] = useState('')
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [addingCategory, setAddingCategory] = useState(false)
+  const [deletingCategoryId, setDeletingCategoryId] = useState<number | null>(null)
+  const categoryComboRef = useRef<HTMLDivElement>(null)
 
   const showProgramDropdown = !lockProgram && availablePrograms.length > 0
 
@@ -149,6 +154,17 @@ const ClassEventModal = ({
     }
   }, [open, editing?.schedulingFormId, editing?.schedulingCategoryId, initialSchedulingCategoryId])
 
+  useEffect(() => {
+    if (!categoryDropdownOpen) return
+    const handleMouseDown = (e: MouseEvent) => {
+      if (categoryComboRef.current && !categoryComboRef.current.contains(e.target as Node)) {
+        setCategoryDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [categoryDropdownOpen])
+
   const filteredCategories = useMemo(() => {
     const q = categorySearch.trim().toLowerCase()
     const selectable = allCategories.filter((cat) => cat.name !== NO_CATEGORY_NAME || cat.formId != null)
@@ -192,6 +208,24 @@ const ClassEventModal = ({
       setError(err instanceof Error ? err.message : 'Failed to create category')
     } finally {
       setAddingCategory(false)
+    }
+  }
+
+  const handleDeleteCategory = async (cat: SchedulingCategory) => {
+    if (isNoCategoryCategory(cat)) return
+    setDeletingCategoryId(cat.id)
+    setError(null)
+    try {
+      await adminDeleteCategory(cat.id)
+      setAllCategories((prev) => prev.filter((c) => c.id !== cat.id))
+      if (selectedCategoryId === cat.id) {
+        setSelectedCategoryId(null)
+        setCategorySearch('')
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete category')
+    } finally {
+      setDeletingCategoryId(null)
     }
   }
 
@@ -288,8 +322,26 @@ const ClassEventModal = ({
             </div>
           )}
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Class or Event Name *</label>
+            <input
+              type="text"
+              value={form.displayName}
+              onChange={(e) => setForm((f) => ({ ...f, displayName: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sport tags</label>
+            <DisciplineTagPicker
+              programId={selectedProgramsId}
+              programDisplayName={programsDisplayName}
+              showHeading={false}
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <div className="relative">
+            <div className="relative" ref={categoryComboRef}>
               <input
                 type="text"
                 value={categoryDropdownOpen ? categorySearch : selectedCategoryName}
@@ -324,22 +376,51 @@ const ClassEventModal = ({
                       <Loader2 className="w-3 h-3 animate-spin" /> Loading…
                     </p>
                   ) : (
-                    filteredCategories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
-                          selectedCategoryId === cat.id ? 'bg-red-50 text-vortex-red font-medium' : ''
-                        }`}
-                        onClick={() => {
-                          setSelectedCategoryId(cat.id)
-                          setCategorySearch(cat.name)
-                          setCategoryDropdownOpen(false)
-                        }}
-                      >
-                        {cat.name}
-                      </button>
-                    ))
+                    filteredCategories.map((cat) => {
+                      const isSelected = selectedCategoryId === cat.id
+                      const canDelete = !isNoCategoryCategory(cat)
+                      return (
+                        <div
+                          key={cat.id}
+                          className={`flex items-center gap-2 px-3 py-2 text-sm ${
+                            isSelected ? 'bg-red-50' : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            className={`flex-1 min-w-0 text-left ${
+                              isSelected ? 'text-vortex-red font-medium' : ''
+                            }`}
+                            onClick={() => {
+                              setSelectedCategoryId(cat.id)
+                              setCategorySearch(cat.name)
+                              setCategoryDropdownOpen(false)
+                            }}
+                          >
+                            {cat.name}
+                          </button>
+                          {canDelete && (
+                            <button
+                              type="button"
+                              disabled={deletingCategoryId === cat.id || addingCategory}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                void handleDeleteCategory(cat)
+                              }}
+                              className="shrink-0 p-1 text-gray-400 hover:text-red-600 disabled:opacity-40"
+                              aria-label={`Delete ${cat.name}`}
+                              title="Delete category"
+                            >
+                              {deletingCategoryId === cat.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <X className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      )
+                    })
                   )}
                   {categorySearch.trim() &&
                     !filteredCategories.some(
@@ -362,16 +443,6 @@ const ClassEventModal = ({
                 </div>
               )}
             </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Class or Event Name *</label>
-            <input
-              type="text"
-              value={form.displayName}
-              onChange={(e) => setForm((f) => ({ ...f, displayName: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              required
-            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Skill level</label>

@@ -16,6 +16,7 @@ interface Props {
   description?: string | null
   skillRequirements?: string | null
   skillLevelLabel?: string
+  ageRangeLabel?: string
   storedActiveLabel?: string
   effectiveActiveLabel?: string
   schedulingFormId?: number | null
@@ -92,6 +93,7 @@ const ClassSchedulingExpandPanel = ({
   description,
   skillRequirements,
   skillLevelLabel,
+  ageRangeLabel,
   storedActiveLabel,
   effectiveActiveLabel,
   schedulingFormId,
@@ -163,8 +165,9 @@ const ClassSchedulingExpandPanel = ({
         </div>
       </div>
 
-      {(skillLevelLabel || storedActiveLabel || effectiveActiveLabel) && (
+      {(skillLevelLabel || ageRangeLabel || storedActiveLabel || effectiveActiveLabel) && (
         <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+          {ageRangeLabel && <span>Age range: {ageRangeLabel}</span>}
           {skillLevelLabel && <span>Skill level: {skillLevelLabel}</span>}
           {storedActiveLabel && <span>Stored: {storedActiveLabel}</span>}
           {effectiveActiveLabel && <span>Effective: {effectiveActiveLabel}</span>}

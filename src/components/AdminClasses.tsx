@@ -1,10 +1,10 @@
-import { useState, useEffect, Fragment, useCallback, useMemo } from 'react'
+import { useState, useEffect, Fragment, useCallback, useMemo, useRef, type RefObject } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash2, Layers, ArrowUpDown, ArrowUp, ArrowDown, ArrowRight, Table2, RefreshCw } from 'lucide-react'
+import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash2, Layers, ArrowUpDown, ArrowUp, ArrowDown, ArrowRight, Table2, RefreshCw, Filter } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import ClassEventModal from './programs/ClassEventModal'
 import type { ClassEvent, SchedulingCategoryRef } from '../utils/programsApi'
-import { syncSchedulingCategories } from '../utils/programsApi'
+import { fetchDisciplineTags, syncSchedulingCategories, type DisciplineTag } from '../utils/programsApi'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import AdminClassesEventsSpreadsheet from './classes/AdminClassesEventsSpreadsheet'
 import ClassSchedulingExpandPanel from './classes/ClassSchedulingExpandPanel'
@@ -28,6 +28,8 @@ interface Program {
   schedulingCategoryName?: string | null // Scheduling category label, computed server-side
   schedulingCategories?: SchedulingCategoryRef[] // category variations of this class (from its form)
   sportTags?: string | null // Comma-joined sport tags from the parent program
+  offeringCount?: number
+  slotCount?: number
   archived?: boolean // Database column: archived
   createdAt: string // Database column: created_at
   updatedAt: string // Database column: updated_at
@@ -51,7 +53,39 @@ const iconBtnDanger =
 const thClass = 'px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'
 const tdClass = 'px-4 py-3 align-middle text-sm text-gray-900'
 
-type ClassSortField = 'sportTag' | 'program' | 'class' | 'category' | 'ageRange' | 'skillLevel' | 'status'
+type ClassSortField = 'program' | 'class' | 'category' | 'offerings' | 'slots'
+
+type StatusFilter = 'all' | 'active' | 'inactive'
+
+type SkillLevelFilter = 'all' | 'none' | 'EARLY_STAGE' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+
+const SKILL_LEVEL_FILTER_OPTIONS: { id: Exclude<SkillLevelFilter, 'all'>; label: string }[] = [
+  { id: 'none', label: 'All Levels' },
+  { id: 'EARLY_STAGE', label: 'Early Stage' },
+  { id: 'BEGINNER', label: 'Beginner' },
+  { id: 'INTERMEDIATE', label: 'Intermediate' },
+  { id: 'ADVANCED', label: 'Advanced' },
+]
+
+function parseSportTags(sportTags: string | null | undefined): string[] {
+  if (!sportTags?.trim()) return []
+  return sportTags.split(',').map((tag) => tag.trim()).filter(Boolean)
+}
+
+function formatSportTagDisplay(sportTags: string | null | undefined): string {
+  const tags = parseSportTags(sportTags)
+  if (tags.length === 0) return '—'
+  if (tags.length === 1) return tags[0]
+  return 'Multiple'
+}
+
+function programHasSportTag(
+  program: Program,
+  tagName: string,
+): boolean {
+  const needle = tagName.toLowerCase()
+  return parseSportTags(program.sportTags).some((name) => name.toLowerCase() === needle)
+}
 
 const NO_CATEGORY_REF: SchedulingCategoryRef = { id: null, name: 'No Category' }
 
@@ -71,7 +105,295 @@ function expandClassRows(program: Program): ClassRow[] {
     program.schedulingCategories && program.schedulingCategories.length > 0
       ? program.schedulingCategories
       : [NO_CATEGORY_REF]
-  return cats.map((category) => ({ program, category }))
+  return cats.map((category) => ({ program, category })  )
+}
+
+function SportTagFilterHeader({
+  activeFilterName,
+  filterOpen,
+  onToggleFilter,
+  allSportTags,
+  tagsLoading,
+  selectedTagId,
+  onSelectTag,
+  onClearFilter,
+  filterRef,
+}: {
+  activeFilterName: string | null
+  filterOpen: boolean
+  onToggleFilter: () => void
+  allSportTags: DisciplineTag[]
+  tagsLoading: boolean
+  selectedTagId: number | null
+  onSelectTag: (tagId: number) => void
+  onClearFilter: () => void
+  filterRef: RefObject<HTMLDivElement | null>
+}) {
+  return (
+    <div className="relative" ref={filterRef}>
+      <button
+        type="button"
+        onClick={onToggleFilter}
+        className="flex items-center hover:text-vortex-red transition-colors"
+      >
+        Sport Tag
+        <Filter
+          className={`w-3 h-3 ml-1 ${activeFilterName ? 'text-vortex-red' : 'opacity-50'}`}
+        />
+      </button>
+      {filterOpen && (
+        <div className="absolute z-30 top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+          <button
+            type="button"
+            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+              selectedTagId == null ? 'bg-red-50 text-vortex-red font-medium' : ''
+            }`}
+            onClick={onClearFilter}
+          >
+            All sports
+          </button>
+          {tagsLoading ? (
+            <p className="px-3 py-2 text-sm text-gray-500 inline-flex items-center gap-2">
+              <Loader2 className="w-3 h-3 animate-spin" /> Loading…
+            </p>
+          ) : allSportTags.length === 0 ? (
+            <p className="px-3 py-2 text-sm text-gray-500">No sport tags yet.</p>
+          ) : (
+            allSportTags.map((tag) => (
+              <button
+                key={tag.id}
+                type="button"
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+                  selectedTagId === tag.id ? 'bg-red-50 text-vortex-red font-medium' : ''
+                }`}
+                onClick={() => onSelectTag(tag.id)}
+              >
+                {tag.name}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function StatusFilterHeader({
+  activeFilterLabel,
+  filterOpen,
+  onToggleFilter,
+  selectedFilter,
+  onSelectFilter,
+  onClearFilter,
+  filterRef,
+}: {
+  activeFilterLabel: string | null
+  filterOpen: boolean
+  onToggleFilter: () => void
+  selectedFilter: StatusFilter
+  onSelectFilter: (filter: StatusFilter) => void
+  onClearFilter: () => void
+  filterRef: RefObject<HTMLDivElement | null>
+}) {
+  const options: { id: StatusFilter; label: string }[] = [
+    { id: 'active', label: 'Active' },
+    { id: 'inactive', label: 'Inactive' },
+  ]
+
+  return (
+    <div className="relative" ref={filterRef}>
+      <button
+        type="button"
+        onClick={onToggleFilter}
+        className="flex items-center hover:text-vortex-red transition-colors"
+      >
+        Status
+        <Filter
+          className={`w-3 h-3 ml-1 ${activeFilterLabel ? 'text-vortex-red' : 'opacity-50'}`}
+        />
+      </button>
+      {filterOpen && (
+        <div className="absolute z-30 top-full left-0 mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+          <button
+            type="button"
+            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+              selectedFilter === 'all' ? 'bg-red-50 text-vortex-red font-medium' : ''
+            }`}
+            onClick={onClearFilter}
+          >
+            All statuses
+          </button>
+          {options.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+                selectedFilter === option.id ? 'bg-red-50 text-vortex-red font-medium' : ''
+              }`}
+              onClick={() => onSelectFilter(option.id)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SkillLevelFilterHeader({
+  activeFilterLabel,
+  filterOpen,
+  onToggleFilter,
+  selectedFilter,
+  onSelectFilter,
+  onClearFilter,
+  filterRef,
+}: {
+  activeFilterLabel: string | null
+  filterOpen: boolean
+  onToggleFilter: () => void
+  selectedFilter: SkillLevelFilter
+  onSelectFilter: (filter: SkillLevelFilter) => void
+  onClearFilter: () => void
+  filterRef: RefObject<HTMLDivElement | null>
+}) {
+  return (
+    <div className="relative" ref={filterRef}>
+      <button
+        type="button"
+        onClick={onToggleFilter}
+        className="flex items-center hover:text-vortex-red transition-colors"
+      >
+        Skill level
+        <Filter
+          className={`w-3 h-3 ml-1 ${activeFilterLabel ? 'text-vortex-red' : 'opacity-50'}`}
+        />
+      </button>
+      {filterOpen && (
+        <div className="absolute z-30 top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+          <button
+            type="button"
+            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+              selectedFilter === 'all' ? 'bg-red-50 text-vortex-red font-medium' : ''
+            }`}
+            onClick={onClearFilter}
+          >
+            All skill levels
+          </button>
+          {SKILL_LEVEL_FILTER_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+                selectedFilter === option.id ? 'bg-red-50 text-vortex-red font-medium' : ''
+              }`}
+              onClick={() => onSelectFilter(option.id)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SortFilterColumnHeader({
+  label,
+  field,
+  sortConfig,
+  onSort,
+  filterOpen,
+  onToggleFilter,
+  activeFilterLabel,
+  filterRef,
+  options,
+  selectedKey,
+  onSelectKey,
+  onClearFilter,
+  clearLabel,
+  optionsLoading,
+}: {
+  label: string
+  field: ClassSortField
+  sortConfig: { field: ClassSortField; direction: 'asc' | 'desc' }
+  onSort: (field: ClassSortField) => void
+  filterOpen: boolean
+  onToggleFilter: () => void
+  activeFilterLabel: string | null
+  filterRef: RefObject<HTMLDivElement | null>
+  options: { key: string; label: string }[]
+  selectedKey: string | null
+  onSelectKey: (key: string) => void
+  onClearFilter: () => void
+  clearLabel: string
+  optionsLoading?: boolean
+}) {
+  const sortIcon =
+    sortConfig.field !== field ? (
+      <ArrowUpDown className="w-3 h-3 opacity-50" />
+    ) : sortConfig.direction === 'asc' ? (
+      <ArrowUp className="w-3 h-3" />
+    ) : (
+      <ArrowDown className="w-3 h-3" />
+    )
+
+  return (
+    <div className="relative flex items-center gap-1" ref={filterRef}>
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        className="flex items-center hover:text-vortex-red transition-colors"
+      >
+        {label}
+        <span className="ml-1">{sortIcon}</span>
+      </button>
+      <button
+        type="button"
+        onClick={onToggleFilter}
+        className="p-0.5 hover:text-vortex-red transition-colors"
+        aria-label={`Filter ${label}`}
+      >
+        <Filter
+          className={`w-3 h-3 ${activeFilterLabel ? 'text-vortex-red' : 'opacity-50'}`}
+        />
+      </button>
+      {filterOpen && (
+        <div className="absolute z-30 top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+          <button
+            type="button"
+            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+              selectedKey == null ? 'bg-red-50 text-vortex-red font-medium' : ''
+            }`}
+            onClick={onClearFilter}
+          >
+            {clearLabel}
+          </button>
+          {optionsLoading ? (
+            <p className="px-3 py-2 text-sm text-gray-500 inline-flex items-center gap-2">
+              <Loader2 className="w-3 h-3 animate-spin" /> Loading…
+            </p>
+          ) : options.length === 0 ? (
+            <p className="px-3 py-2 text-sm text-gray-500">No options yet.</p>
+          ) : (
+            options.map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+                  selectedKey === option.key ? 'bg-red-50 text-vortex-red font-medium' : ''
+                }`}
+                onClick={() => onSelectKey(option.key)}
+              >
+                {option.label}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  )
 }
 
 function SortableColumnHeader({
@@ -166,6 +488,18 @@ function classStoredActive(program: Program): boolean {
   return program.isActive
 }
 
+function StatusLabel({ active }: { active: boolean }) {
+  return (
+    <span
+      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
+        active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+      }`}
+    >
+      {active ? 'Active' : 'Inactive'}
+    </span>
+  )
+}
+
 function ActiveToggle({
   checked,
   disabled,
@@ -228,6 +562,26 @@ export default function AdminClasses({
   })
   const [viewMode, setViewMode] = useState<'default' | 'spreadsheet'>('default')
   const [syncing, setSyncing] = useState(false)
+  const [allSportTags, setAllSportTags] = useState<DisciplineTag[]>([])
+  const [sportTagsLoading, setSportTagsLoading] = useState(false)
+  const [sportTagFilterId, setSportTagFilterId] = useState<number | null>(null)
+  const [sportTagFilterOpen, setSportTagFilterOpen] = useState(false)
+  const sportTagFilterRef = useRef<HTMLDivElement>(null)
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [statusFilterOpen, setStatusFilterOpen] = useState(false)
+  const statusFilterRef = useRef<HTMLDivElement>(null)
+  const [skillLevelFilter, setSkillLevelFilter] = useState<SkillLevelFilter>('all')
+  const [skillLevelFilterOpen, setSkillLevelFilterOpen] = useState(false)
+  const skillLevelFilterRef = useRef<HTMLDivElement>(null)
+  const [programFilterKey, setProgramFilterKey] = useState<string | null>(null)
+  const [programFilterOpen, setProgramFilterOpen] = useState(false)
+  const programFilterRef = useRef<HTMLDivElement>(null)
+  const [classFilterKey, setClassFilterKey] = useState<string | null>(null)
+  const [classFilterOpen, setClassFilterOpen] = useState(false)
+  const classFilterRef = useRef<HTMLDivElement>(null)
+  const [categoryFilterKey, setCategoryFilterKey] = useState<string | null>(null)
+  const [categoryFilterOpen, setCategoryFilterOpen] = useState(false)
+  const categoryFilterRef = useRef<HTMLDivElement>(null)
 
   const fetchAllPrograms = async () => {
     try {
@@ -489,48 +843,7 @@ export default function AdminClasses({
     setExpandedClassId((prev) => (prev === key ? null : key))
   }
 
-  const handleToggleProgramActive = async (category: Category, next: boolean) => {
-    const prevCategories = categories
-    setCategories((cats) =>
-      cats.map((c) => (c.id === category.id ? { ...c, isActive: next } : c)),
-    )
-    try {
-      const response = await adminApiRequest(`/api/admin/categories/${category.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ isActive: next }),
-      })
-      const data = await response.json()
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to update program status')
-      }
-      await Promise.all([fetchAllPrograms(), fetchAllCategories()])
-    } catch (err) {
-      setCategories(prevCategories)
-      alert(err instanceof Error ? err.message : 'Failed to update program status')
-    }
-  }
-
-  const handleToggleClassActive = async (program: Program, next: boolean) => {
-    if (!parentProgramActiveForClass(program, categories) && next) {
-      alert('Activate the program before activating this class.')
-      return
-    }
-    try {
-      const response = await adminApiRequest(`/api/admin/programs/${program.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ isActive: next }),
-      })
-      const data = await response.json()
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to update class status')
-      }
-      await fetchAllPrograms()
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update class status')
-    }
-  }
-
-  const handleOpenScheduling = (program: Program) => {
+  const handleOpenScheduling = (program: Program, category: SchedulingCategoryRef) => {
     if (!program.categoryId) {
       alert('Assign this class to a program before setting up scheduling.')
       return
@@ -538,8 +851,8 @@ export default function AdminClasses({
     onOpenScheduling?.({
       programsId: program.categoryId,
       classEventId: program.id,
-      categorySelection: 'none',
-      targetPanel: 'offerings',
+      categorySelection: category.id ?? 'none',
+      targetPanel: 'form',
     })
   }
 
@@ -553,9 +866,140 @@ export default function AdminClasses({
     fetchAllCategories()
   }, [showArchivedClasses, showArchivedCategories])
 
+  useEffect(() => {
+    setSportTagsLoading(true)
+    fetchDisciplineTags()
+      .then(setAllSportTags)
+      .catch(() => setAllSportTags([]))
+      .finally(() => setSportTagsLoading(false))
+  }, [])
+
+  useEffect(() => {
+    if (!sportTagFilterOpen) return
+    const handleMouseDown = (e: MouseEvent) => {
+      if (sportTagFilterRef.current && !sportTagFilterRef.current.contains(e.target as Node)) {
+        setSportTagFilterOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [sportTagFilterOpen])
+
+  useEffect(() => {
+    if (!statusFilterOpen) return
+    const handleMouseDown = (e: MouseEvent) => {
+      if (statusFilterRef.current && !statusFilterRef.current.contains(e.target as Node)) {
+        setStatusFilterOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [statusFilterOpen])
+
+  useEffect(() => {
+    if (!skillLevelFilterOpen) return
+    const handleMouseDown = (e: MouseEvent) => {
+      if (skillLevelFilterRef.current && !skillLevelFilterRef.current.contains(e.target as Node)) {
+        setSkillLevelFilterOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [skillLevelFilterOpen])
+
+  useEffect(() => {
+    if (!programFilterOpen) return
+    const handleMouseDown = (e: MouseEvent) => {
+      if (programFilterRef.current && !programFilterRef.current.contains(e.target as Node)) {
+        setProgramFilterOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [programFilterOpen])
+
+  useEffect(() => {
+    if (!classFilterOpen) return
+    const handleMouseDown = (e: MouseEvent) => {
+      if (classFilterRef.current && !classFilterRef.current.contains(e.target as Node)) {
+        setClassFilterOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [classFilterOpen])
+
+  useEffect(() => {
+    if (!categoryFilterOpen) return
+    const handleMouseDown = (e: MouseEvent) => {
+      if (categoryFilterRef.current && !categoryFilterRef.current.contains(e.target as Node)) {
+        setCategoryFilterOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [categoryFilterOpen])
+
+  const activeSportTagFilterName = useMemo(() => {
+    if (sportTagFilterId == null) return null
+    return allSportTags.find((t) => t.id === sportTagFilterId)?.name ?? null
+  }, [sportTagFilterId, allSportTags])
+
+  const activeStatusFilterLabel =
+    statusFilter === 'active' ? 'Active' : statusFilter === 'inactive' ? 'Inactive' : null
+
+  const activeSkillLevelFilterLabel =
+    skillLevelFilter === 'all'
+      ? null
+      : (SKILL_LEVEL_FILTER_OPTIONS.find((o) => o.id === skillLevelFilter)?.label ?? null)
+
   const activePrograms = categories.filter((c) => !c.archived)
   const activeClasses = programs.filter((p) => !p.archived)
   const archivedProgramsList = categories.filter((c) => c.archived)
+
+  const programFilterOptions = useMemo(
+    () =>
+      activePrograms
+        .map((c) => ({ key: String(c.id), label: c.displayName }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [activePrograms],
+  )
+
+  const classFilterOptions = useMemo(
+    () =>
+      activeClasses
+        .map((p) => ({ key: String(p.id), label: p.displayName }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [activeClasses],
+  )
+
+  const categoryFilterOptions = useMemo(() => {
+    const seen = new Map<string, string>()
+    for (const program of activeClasses) {
+      for (const { category } of expandClassRows(program)) {
+        const key = category.id == null ? 'none' : String(category.id)
+        if (!seen.has(key)) seen.set(key, category.name)
+      }
+    }
+    return [...seen.entries()]
+      .map(([key, label]) => ({ key, label }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  }, [activeClasses])
+
+  const activeProgramFilterLabel =
+    programFilterKey == null
+      ? null
+      : (programFilterOptions.find((o) => o.key === programFilterKey)?.label ?? null)
+
+  const activeClassFilterLabel =
+    classFilterKey == null
+      ? null
+      : (classFilterOptions.find((o) => o.key === classFilterKey)?.label ?? null)
+
+  const activeCategoryFilterLabel =
+    categoryFilterKey == null
+      ? null
+      : (categoryFilterOptions.find((o) => o.key === categoryFilterKey)?.label ?? null)
 
   const handleClassSort = (field: ClassSortField) => {
     setClassSortConfig((prev) => ({
@@ -569,9 +1013,6 @@ export default function AdminClasses({
     let cmp = 0
 
     switch (classSortConfig.field) {
-      case 'sportTag':
-        cmp = (a.program.sportTags || '').localeCompare(b.program.sportTags || '')
-        break
       case 'program':
         cmp = programNameForClass(a.program, categories).localeCompare(programNameForClass(b.program, categories))
         break
@@ -581,25 +1022,16 @@ export default function AdminClasses({
       case 'category':
         cmp = a.category.name.localeCompare(b.category.name)
         break
-      case 'ageRange': {
-        const aMin = a.program.ageMin ?? Number.MAX_SAFE_INTEGER
-        const bMin = b.program.ageMin ?? Number.MAX_SAFE_INTEGER
-        if (aMin !== bMin) {
-          cmp = aMin - bMin
-        } else {
-          const aMax = a.program.ageMax ?? Number.MAX_SAFE_INTEGER
-          const bMax = b.program.ageMax ?? Number.MAX_SAFE_INTEGER
-          cmp = aMax - bMax
-        }
+      case 'offerings': {
+        const aCount = a.program.offeringCount ?? 0
+        const bCount = b.program.offeringCount ?? 0
+        cmp = aCount - bCount
         break
       }
-      case 'skillLevel':
-        cmp = formatSkillLevel(a.program.skillLevel).localeCompare(formatSkillLevel(b.program.skillLevel))
-        break
-      case 'status': {
-        const aActive = effectiveClassActive(a.program, categories) ? 1 : 0
-        const bActive = effectiveClassActive(b.program, categories) ? 1 : 0
-        cmp = aActive - bActive
+      case 'slots': {
+        const aCount = a.program.slotCount ?? 0
+        const bCount = b.program.slotCount ?? 0
+        cmp = aCount - bCount
         break
       }
     }
@@ -616,6 +1048,33 @@ export default function AdminClasses({
   const filteredActiveClassRows = activeClasses
     .flatMap(expandClassRows)
     .filter(({ program: p, category }) => {
+      if (programFilterKey != null) {
+        const programId = Number(programFilterKey)
+        const matchesProgram =
+          p.categoryId === programId ||
+          programNameForClass(p, categories) ===
+            categories.find((c) => c.id === programId)?.displayName
+        if (!matchesProgram) return false
+      }
+      if (classFilterKey != null && String(p.id) !== classFilterKey) return false
+      if (categoryFilterKey != null) {
+        const rowCategoryKey = category.id == null ? 'none' : String(category.id)
+        if (rowCategoryKey !== categoryFilterKey) return false
+      }
+      if (sportTagFilterId != null) {
+        const tagName = allSportTags.find((t) => t.id === sportTagFilterId)?.name
+        if (tagName && !programHasSportTag(p, tagName)) return false
+      }
+      if (statusFilter === 'active' && !classStoredActive(p)) return false
+      if (statusFilter === 'inactive' && classStoredActive(p)) return false
+      if (skillLevelFilter === 'none' && p.skillLevel != null) return false
+      if (
+        skillLevelFilter !== 'all' &&
+        skillLevelFilter !== 'none' &&
+        p.skillLevel !== skillLevelFilter
+      ) {
+        return false
+      }
       if (!classSearch.trim()) return true
       const q = classSearch.toLowerCase()
       return (
@@ -661,6 +1120,7 @@ export default function AdminClasses({
       description={program.description}
       skillRequirements={program.skillRequirements}
       skillLevelLabel={formatSkillLevel(program.skillLevel)}
+      ageRangeLabel={formatAgeRange(program.ageMin, program.ageMax)}
       storedActiveLabel={classStoredActive(program) ? 'Active' : 'Inactive'}
       effectiveActiveLabel={effectiveClassActive(program, categories) ? 'Active' : 'Inactive'}
     />
@@ -894,7 +1354,7 @@ export default function AdminClasses({
                       )
                       .map(({ program, category }) => (
                         <tr key={rowKey(program, category)} className="hover:bg-gray-50/80">
-                          <td className={tdClass}>{program.sportTags || '—'}</td>
+                          <td className={tdClass}>{formatSportTagDisplay(program.sportTags)}</td>
                           <td className={tdClass}>{programNameForClass(program, categories)}</td>
                           <td className={tdClass}>{program.displayName}</td>
                           <td className={tdClass}>{category.name}</td>
@@ -966,15 +1426,7 @@ export default function AdminClasses({
                             <td className={`${tdClass} font-medium`}>{category.displayName}</td>
                             <td className={tdClass}>{classCountForProgram(category.id, category.displayName)}</td>
                             <td className={tdClass}>
-                              <ActiveToggle
-                                checked={programIsActiveFlag(category)}
-                                onChange={(next) => handleToggleProgramActive(category, next)}
-                                title={
-                                  programIsActiveFlag(category)
-                                    ? 'Deactivate program and all its classes'
-                                    : 'Activate program (classes keep their own settings)'
-                                }
-                              />
+                              <StatusLabel active={programIsActiveFlag(category)} />
                             </td>
                             <td className={`${tdClass} text-center`} onClick={(e) => e.stopPropagation()}>
                               <button type="button" className={iconBtn} onClick={() => toggleProgramExpand(category.id)} aria-label="Toggle details">
@@ -1079,40 +1531,152 @@ export default function AdminClasses({
                 <div className="py-8 text-center text-gray-500 inline-flex items-center gap-2 justify-center w-full">
                   <Loader2 className="w-5 h-5 animate-spin" /> Loading classes…
                 </div>
-              ) : filteredActiveClassRows.length === 0 ? (
-                <div className="py-12 text-center text-gray-500 border border-dashed rounded-xl">No classes match your search.</div>
               ) : (
                 <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
                   <table className="min-w-full divide-y divide-gray-200 text-sm">
                     <thead className="bg-gray-50 sticky top-0 z-10">
                       <tr>
                         <th className={thClass}>
-                          <SortableColumnHeader label="Sport Tag" field="sportTag" sortConfig={classSortConfig} onSort={handleClassSort} />
+                          <SportTagFilterHeader
+                            activeFilterName={activeSportTagFilterName}
+                            filterOpen={sportTagFilterOpen}
+                            onToggleFilter={() => setSportTagFilterOpen((open) => !open)}
+                            allSportTags={allSportTags}
+                            tagsLoading={sportTagsLoading}
+                            selectedTagId={sportTagFilterId}
+                            onSelectTag={(tagId) => {
+                              setSportTagFilterId(tagId)
+                              setSportTagFilterOpen(false)
+                            }}
+                            onClearFilter={() => {
+                              setSportTagFilterId(null)
+                              setSportTagFilterOpen(false)
+                            }}
+                            filterRef={sportTagFilterRef}
+                          />
                         </th>
                         <th className={thClass}>
-                          <SortableColumnHeader label="Program" field="program" sortConfig={classSortConfig} onSort={handleClassSort} />
+                          <SortFilterColumnHeader
+                            label="Program"
+                            field="program"
+                            sortConfig={classSortConfig}
+                            onSort={handleClassSort}
+                            filterOpen={programFilterOpen}
+                            onToggleFilter={() => setProgramFilterOpen((open) => !open)}
+                            activeFilterLabel={activeProgramFilterLabel}
+                            filterRef={programFilterRef}
+                            options={programFilterOptions}
+                            selectedKey={programFilterKey}
+                            onSelectKey={(key) => {
+                              setProgramFilterKey(key)
+                              setProgramFilterOpen(false)
+                            }}
+                            onClearFilter={() => {
+                              setProgramFilterKey(null)
+                              setProgramFilterOpen(false)
+                            }}
+                            clearLabel="All programs"
+                          />
                         </th>
                         <th className={thClass}>
-                          <SortableColumnHeader label="Class" field="class" sortConfig={classSortConfig} onSort={handleClassSort} />
+                          <SortFilterColumnHeader
+                            label="Class"
+                            field="class"
+                            sortConfig={classSortConfig}
+                            onSort={handleClassSort}
+                            filterOpen={classFilterOpen}
+                            onToggleFilter={() => setClassFilterOpen((open) => !open)}
+                            activeFilterLabel={activeClassFilterLabel}
+                            filterRef={classFilterRef}
+                            options={classFilterOptions}
+                            selectedKey={classFilterKey}
+                            onSelectKey={(key) => {
+                              setClassFilterKey(key)
+                              setClassFilterOpen(false)
+                            }}
+                            onClearFilter={() => {
+                              setClassFilterKey(null)
+                              setClassFilterOpen(false)
+                            }}
+                            clearLabel="All classes"
+                          />
                         </th>
                         <th className={thClass}>
-                          <SortableColumnHeader label="Category" field="category" sortConfig={classSortConfig} onSort={handleClassSort} />
+                          <SortFilterColumnHeader
+                            label="Category"
+                            field="category"
+                            sortConfig={classSortConfig}
+                            onSort={handleClassSort}
+                            filterOpen={categoryFilterOpen}
+                            onToggleFilter={() => setCategoryFilterOpen((open) => !open)}
+                            activeFilterLabel={activeCategoryFilterLabel}
+                            filterRef={categoryFilterRef}
+                            options={categoryFilterOptions}
+                            selectedKey={categoryFilterKey}
+                            onSelectKey={(key) => {
+                              setCategoryFilterKey(key)
+                              setCategoryFilterOpen(false)
+                            }}
+                            onClearFilter={() => {
+                              setCategoryFilterKey(null)
+                              setCategoryFilterOpen(false)
+                            }}
+                            clearLabel="All categories"
+                          />
                         </th>
                         <th className={thClass}>
-                          <SortableColumnHeader label="Age range" field="ageRange" sortConfig={classSortConfig} onSort={handleClassSort} />
+                          <SortableColumnHeader label="Offerings" field="offerings" sortConfig={classSortConfig} onSort={handleClassSort} />
                         </th>
                         <th className={thClass}>
-                          <SortableColumnHeader label="Skill level" field="skillLevel" sortConfig={classSortConfig} onSort={handleClassSort} />
+                          <SortableColumnHeader label="Slots" field="slots" sortConfig={classSortConfig} onSort={handleClassSort} />
                         </th>
                         <th className={thClass}>
-                          <SortableColumnHeader label="Status" field="status" sortConfig={classSortConfig} onSort={handleClassSort} />
+                          <SkillLevelFilterHeader
+                            activeFilterLabel={activeSkillLevelFilterLabel}
+                            filterOpen={skillLevelFilterOpen}
+                            onToggleFilter={() => setSkillLevelFilterOpen((open) => !open)}
+                            selectedFilter={skillLevelFilter}
+                            onSelectFilter={(filter) => {
+                              setSkillLevelFilter(filter)
+                              setSkillLevelFilterOpen(false)
+                            }}
+                            onClearFilter={() => {
+                              setSkillLevelFilter('all')
+                              setSkillLevelFilterOpen(false)
+                            }}
+                            filterRef={skillLevelFilterRef}
+                          />
+                        </th>
+                        <th className={thClass}>
+                          <StatusFilterHeader
+                            activeFilterLabel={activeStatusFilterLabel}
+                            filterOpen={statusFilterOpen}
+                            onToggleFilter={() => setStatusFilterOpen((open) => !open)}
+                            selectedFilter={statusFilter}
+                            onSelectFilter={(filter) => {
+                              setStatusFilter(filter)
+                              setStatusFilterOpen(false)
+                            }}
+                            onClearFilter={() => {
+                              setStatusFilter('all')
+                              setStatusFilterOpen(false)
+                            }}
+                            filterRef={statusFilterRef}
+                          />
                         </th>
                         <th className={`${thClass} w-12 text-center`}>Details</th>
                         <th className={`${thClass} w-0`}>Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {filteredActiveClassRows.map(({ program, category }) => {
+                      {filteredActiveClassRows.length === 0 ? (
+                        <tr>
+                          <td colSpan={10} className="px-4 py-12 text-center text-gray-500">
+                            No classes match your search or filter.
+                          </td>
+                        </tr>
+                      ) : (
+                      filteredActiveClassRows.map(({ program, category }) => {
                         const parentProgramActive = parentProgramActiveForClass(program, categories)
                         const key = rowKey(program, category)
                         return (
@@ -1121,26 +1685,16 @@ export default function AdminClasses({
                             className={`hover:bg-gray-50/80 cursor-pointer ${expandedClassId === key ? 'bg-gray-50/50' : ''}`}
                             onClick={() => toggleClassExpand(key)}
                           >
-                            <td className={tdClass}>{program.sportTags || '—'}</td>
+                            <td className={tdClass}>{formatSportTagDisplay(program.sportTags)}</td>
                             <td className={tdClass}>{programNameForClass(program, categories)}</td>
                             <td className={`${tdClass} font-medium`}>{program.displayName}</td>
                             <td className={tdClass}>{category.name}</td>
-                            <td className={tdClass}>{formatAgeRange(program.ageMin, program.ageMax)}</td>
+                            <td className={`${tdClass} text-center`}>{program.offeringCount ?? 0}</td>
+                            <td className={`${tdClass} text-center`}>{program.slotCount ?? 0}</td>
                             <td className={tdClass}>{formatSkillLevel(program.skillLevel)}</td>
                             <td className={tdClass}>
                               <div className="space-y-1">
-                                <ActiveToggle
-                                  checked={classStoredActive(program)}
-                                  disabled={!parentProgramActive}
-                                  onChange={(next) => handleToggleClassActive(program, next)}
-                                  title={
-                                    !parentProgramActive
-                                      ? 'Activate the program first'
-                                      : classStoredActive(program)
-                                        ? 'Deactivate this class'
-                                        : 'Activate this class'
-                                  }
-                                />
+                                <StatusLabel active={classStoredActive(program)} />
                                 {!parentProgramActive && (
                                   <span className="text-xs text-amber-700 block">Program inactive</span>
                                 )}
@@ -1164,7 +1718,10 @@ export default function AdminClasses({
                                   className={iconBtn}
                                   title="Set up scheduling"
                                   aria-label="Set up scheduling"
-                                  onClick={() => handleOpenScheduling(program)}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleOpenScheduling(program, category)
+                                  }}
                                   disabled={!onOpenScheduling || program.categoryId == null}
                                 >
                                   <ArrowRight className="w-4 h-4" />
@@ -1177,12 +1734,13 @@ export default function AdminClasses({
                           </tr>
                           {expandedClassId === key && (
                             <tr>
-                              <td colSpan={9} className="px-0 py-0">{renderClassDetailPanel(program)}</td>
+                              <td colSpan={10} className="px-0 py-0">{renderClassDetailPanel(program)}</td>
                             </tr>
                           )}
                         </Fragment>
                         )
-                      })}
+                      })
+                      )}
                     </tbody>
                   </table>
                 </div>

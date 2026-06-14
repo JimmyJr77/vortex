@@ -611,7 +611,6 @@ const AdminSchedulingSlots = ({
         {categoryName != null && (
           <div className="text-sm text-gray-700">
             Category: <strong>{categoryName}</strong>
-            <span className="text-gray-500 ml-2">(change in Categories tab)</span>
           </div>
         )}
 
@@ -894,29 +893,9 @@ const AdminSchedulingSlots = ({
 
   return (
     <div className="space-y-8">
-      {(categoryName || offeringLabel || offeringStartDate) && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-900">
-          Building slots for{' '}
-          <strong>{categoryName || 'category'}</strong>
-          {offeringStartDate && offeringEndDate && (
-            <>
-              {' '}
-              · <strong>{offeringStartDate} – {offeringEndDate}</strong>
-            </>
-          )}
-          {offeringLabel && <> · {offeringLabel}</>}
-        </div>
-      )}
-      {!canBuild && (
-        <p className="text-gray-600 py-2 text-sm rounded-lg border border-amber-200 bg-amber-50 px-4">
-          Select a category in the <strong>Categories</strong> tab and an offering in{' '}
-          <strong>Offerings</strong> to add a new time slot. Existing slots are listed below.
-        </p>
-      )}
       {canBuild && builderForm}
 
       <div className="border-t border-gray-200 pt-8">
-        <h3 className="text-xl font-bold text-black mb-4">Scheduled slots</h3>
         {scheduledSections.length === 0 ? (
           <p className="text-gray-500 text-sm mb-4">No active scheduled slots right now.</p>
         ) : null}

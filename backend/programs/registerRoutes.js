@@ -142,7 +142,8 @@ export function registerProgramsAdminRoutes(app, pool) {
           p.archived,
           p.created_at as "createdAt",
           p.updated_at as "updatedAt",
-          sf.id as "schedulingFormId"
+          sf.id as "schedulingFormId",
+          sf.is_active as "schedulingFormActive"
         FROM program p
         LEFT JOIN ${schema.programsTable} pr ON p.${schema.programFkColumn} = pr.id
         LEFT JOIN scheduling_form sf ON sf.program_id = p.id AND sf.deleted_at IS NULL
@@ -633,7 +634,44 @@ export function registerProgramsAdminRoutes(app, pool) {
   app.delete('/api/admin/discipline-tags/:id', async (req, res) => {
     try {
       await ensureDisciplineTagsSchema(pool)
-      await pool.query('DELETE FROM discipline_tag WHERE id = $1', [req.params.id])
+      const schema = await resolveProgramsSchema(pool)
+      const tagId = Number(req.params.id)
+      if (!Number.isFinite(tagId)) {
+        return res.status(400).json({ success: false, message: 'Invalid tag id' })
+      }
+
+      const isActiveCol = await pool.query(
+        `SELECT 1 FROM information_schema.columns
+         WHERE table_name = $1 AND column_name = 'is_active' LIMIT 1`,
+        [schema.programsTable],
+      )
+      const activeProgramClause =
+        isActiveCol.rows.length > 0 ? 'AND COALESCE(pc.is_active, TRUE) = TRUE' : ''
+
+      const inUse = await pool.query(
+        `SELECT pc.display_name AS "displayName"
+         FROM program_discipline_tag pdt
+         JOIN ${schema.programsTable} pc ON pc.id = pdt.programs_id
+         WHERE pdt.tag_id = $1
+           AND pc.archived = FALSE
+           ${activeProgramClause}
+         ORDER BY pc.display_name`,
+        [tagId],
+      )
+
+      if (inUse.rows.length > 0) {
+        const programNames = inUse.rows.map((row) => row.displayName)
+        return res.status(409).json({
+          success: false,
+          message: `This tag is still assigned to active programs (${programNames.join(', ')}). Remove it from those programs first.`,
+          programs: programNames,
+        })
+      }
+
+      const result = await pool.query('DELETE FROM discipline_tag WHERE id = $1 RETURNING id', [tagId])
+      if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Discipline tag not found' })
+      }
       res.json({ success: true, message: 'Discipline tag deleted' })
     } catch (err) {
       console.error('[programs] delete discipline tag:', err)

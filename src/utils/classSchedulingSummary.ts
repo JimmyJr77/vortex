@@ -138,6 +138,44 @@ async function buildCategoryDetails(
     .sort((a, b) => a.categoryName.localeCompare(b.categoryName))
 }
 
+export interface ClassSchedulingCounts {
+  offeringCount: number
+  slotCount: number
+}
+
+export async function loadClassSchedulingCounts(
+  classId: number,
+  formId?: number | null,
+): Promise<ClassSchedulingCounts> {
+  try {
+    const resolvedFormId = formId ?? (await fetchClassEventSchedulingFormId(classId))
+    const [offerings, form] = await Promise.all([
+      adminFetchOfferings(resolvedFormId),
+      adminFetchSchedulingForm(resolvedFormId),
+    ])
+    return {
+      offeringCount: offerings.length,
+      slotCount: form.slotGroups.length,
+    }
+  } catch {
+    return { offeringCount: 0, slotCount: 0 }
+  }
+}
+
+export async function loadSchedulingCountsForClasses(
+  classes: Array<{ id: number; schedulingFormId?: number | null }>,
+): Promise<Map<number, ClassSchedulingCounts>> {
+  const uniqueIds = [...new Set(classes.map((c) => c.id))]
+  const entries = await Promise.all(
+    uniqueIds.map(async (id) => {
+      const cls = classes.find((c) => c.id === id)
+      const counts = await loadClassSchedulingCounts(id, cls?.schedulingFormId)
+      return [id, counts] as const
+    }),
+  )
+  return new Map(entries)
+}
+
 export async function loadClassSchedulingDetail(
   classId: number,
   formId?: number | null,

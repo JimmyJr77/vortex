@@ -35,6 +35,7 @@ export interface ClassEvent {
   isActive: boolean
   archived?: boolean
   schedulingFormId?: number | null
+  schedulingFormActive?: boolean
   schedulingCategoryId?: number | null
   schedulingCategoryName?: string | null
   schedulingCategories?: SchedulingCategoryRef[]

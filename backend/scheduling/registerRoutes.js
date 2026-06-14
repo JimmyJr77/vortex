@@ -28,6 +28,7 @@ export function registerSchedulingRoutes(app, pool) {
   app.get('/api/admin/scheduling/forms/:id', h.getAdminForm)
   app.post('/api/admin/scheduling/forms', h.createAdminForm)
   app.put('/api/admin/scheduling/forms/:id', h.updateAdminForm)
+  app.patch('/api/admin/scheduling/forms/:id/active', h.patchAdminFormActive)
   app.put('/api/admin/scheduling/forms/:id/signup-fields', h.updateSignupFields)
   app.delete('/api/admin/scheduling/forms/:id', h.deleteAdminForm)
 

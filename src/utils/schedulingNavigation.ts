@@ -1,10 +1,11 @@
 import { SCHEDULING_SIGNUP_FIELD_CATALOG } from '../config/schedulingSignupFields'
+import type { CategorySelection } from './schedulingApi'
 
 export type SchedulingNavigationIntent = {
   programsId: number
   classEventId: number
-  categorySelection: 'none'
-  targetPanel: 'offerings'
+  categorySelection: CategorySelection
+  targetPanel: 'form'
 }
 
 export function allSignupFieldKeys(): string[] {

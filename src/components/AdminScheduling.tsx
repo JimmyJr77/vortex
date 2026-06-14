@@ -1,23 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Ban, Calendar, Check, Loader2, Mail, MailPlus, X } from 'lucide-react'
-import AdminSchedulingCategories from './scheduling/AdminSchedulingCategories'
-import AdminSchedulingDisciplineTags from './scheduling/AdminSchedulingDisciplineTags'
+import { Calendar, Loader2, X } from 'lucide-react'
 import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
 import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
 import AdminSchedulingFormTab from './scheduling/AdminSchedulingFormTab'
 import AdminSchedulingOfferings from './scheduling/AdminSchedulingOfferings'
-import AdminSchedulingCosts from './scheduling/AdminSchedulingCosts'
 import AdminSchedulingLegacyForms from './scheduling/AdminSchedulingLegacyForms'
 import {
-  adminDeleteSchedulingForm,
   adminFetchSchedulingForm,
   adminFetchSchedulingForms,
   adminFetchSignups,
   adminFetchOrphanedSignups,
-  adminResendSignupEmail,
-  adminUpdateSignupStatus,
-  adminUpdateSignupMemberPassword,
   type SchedulingFormDetail,
   type SchedulingFormSummary,
   type SchedulingSignup,
@@ -25,7 +17,6 @@ import {
   type SchedulingOffering,
   type CategorySelection,
 } from '../utils/schedulingApi'
-import ClassEventsPanel from './programs/ClassEventsPanel'
 import ProgramsSection from './programs/ProgramsSection'
 import {
   fetchClassEventSchedulingFormId,
@@ -40,7 +31,7 @@ import {
   type SchedulingNavigationIntent,
 } from '../utils/schedulingNavigation'
 
-type Panel = 'overview' | 'disciplineTags' | 'form' | 'classEvents' | 'categories' | 'offerings' | 'slots' | 'costs' | 'signups'
+type Panel = 'overview' | 'form' | 'offerings' | 'slots'
 
 interface AdminSchedulingProps {
   navigationIntent?: SchedulingNavigationIntent | null
@@ -49,14 +40,9 @@ interface AdminSchedulingProps {
 
 const PANELS: { id: Panel; label: string }[] = [
   { id: 'overview', label: 'Overview' },
-  { id: 'disciplineTags', label: 'Sport Tags' },
   { id: 'form', label: 'Form' },
-  { id: 'classEvents', label: 'Classes & Events' },
-  { id: 'categories', label: 'Categories' },
   { id: 'offerings', label: 'Offerings' },
   { id: 'slots', label: 'Slots' },
-  { id: 'costs', label: 'Costs' },
-  { id: 'signups', label: 'Signups' },
 ]
 
 const AdminScheduling = ({
@@ -79,16 +65,7 @@ const AdminScheduling = ({
   const [error, setError] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<CategorySelection>(null)
   const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-  const [deleteConfirmText, setDeleteConfirmText] = useState('')
-  const [deleting, setDeleting] = useState(false)
-  const [signupActionId, setSignupActionId] = useState<number | null>(null)
-  const [passwordDrafts, setPasswordDrafts] = useState<Record<number, string>>({})
-  const [passwordSavingId, setPasswordSavingId] = useState<number | null>(null)
   const programsLoaded = useRef(false)
-
-  const iconActionClass =
-    'p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none'
 
   const loadTopPrograms = useCallback(async () => {
     try {
@@ -153,6 +130,8 @@ const AdminScheduling = ({
   const handleSelectClassEvent = useCallback(
     async (event: ClassEvent | null) => {
       setSelectedClassEvent(event)
+      setSelectedCategory(event?.schedulingCategoryId ?? 'none')
+      setSelectedOffering(null)
       setLoading(true)
       setError(null)
       try {
@@ -235,6 +214,7 @@ const AdminScheduling = ({
     let cancelled = false
 
     const boot = async () => {
+      // Re-apply when Classes tab sends a new navigation intent; skip idle reloads.
       if (!navigationIntent && programsLoaded.current) return
 
       setLoading(true)
@@ -279,15 +259,14 @@ const AdminScheduling = ({
 
   const selectedProgram = topPrograms.find((p) => p.id === selectedProgramId) ?? null
 
-  const needsClassEvent = ['offerings', 'slots', 'costs', 'signups'].includes(panel)
+  const needsClassEvent = ['form', 'offerings', 'slots'].includes(panel)
   const showClassEventPrompt = needsClassEvent && !selectedClassEvent
   // Offerings/Slots are scoped to a category; default to "No Category" so the
   // admin is never forced to bounce back to the Categories tab just to proceed.
   const effectiveCategory: CategorySelection = selectedCategory ?? 'none'
 
-  const handleCategorySelect = useCallback((selection: CategorySelection) => {
-    setSelectedCategory(selection)
-    setSelectedOffering(null)
+  const handleOfferingContinueToSlots = useCallback(() => {
+    setPanel('slots')
   }, [])
 
   const categoryApiId =
@@ -299,8 +278,17 @@ const AdminScheduling = ({
       : typeof effectiveCategory === 'number' && detail
         ? (detail.allCategories?.find((c) => c.id === effectiveCategory)?.name ??
           detail.categories.find((c) => c.id === effectiveCategory)?.name ??
+          selectedClassEvent?.schedulingCategoryName ??
           null)
-        : null
+        : typeof effectiveCategory === 'number'
+          ? (selectedClassEvent?.schedulingCategoryName ?? null)
+          : null
+
+  const offeringDisplayName =
+    selectedOffering?.label?.trim() ||
+    (selectedOffering?.startDate && selectedOffering?.endDate
+      ? `${selectedOffering.startDate} – ${selectedOffering.endDate}`
+      : null)
 
   const handleProgramSaved = (updated: TopProgram) => {
     setForwardFormSelectAll(false)
@@ -312,36 +300,6 @@ const AdminScheduling = ({
     if (offering) setSelectedCategory(offering.categoryId ?? 'none')
   }, [])
 
-  const openDeleteConfirm = () => {
-    if (!selectedId) return
-    setDeleteConfirmText('')
-    setDeleteConfirmOpen(true)
-  }
-
-  const closeDeleteConfirm = () => {
-    setDeleteConfirmOpen(false)
-    setDeleteConfirmText('')
-  }
-
-  const handleDeleteForm = async () => {
-    if (!selectedId || deleteConfirmText.trim() !== 'DELETE') return
-    setDeleting(true)
-    setError(null)
-    try {
-      await adminDeleteSchedulingForm(selectedId)
-      closeDeleteConfirm()
-      setSelectedClassEvent(null)
-      setSelectedId(null)
-      setDetail(null)
-      setSignups([])
-      setOrphanedSignups([])
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to delete form')
-    } finally {
-      setDeleting(false)
-    }
-  }
-
   if (loading && topPrograms.length === 0) {
     return (
       <div className="space-y-8">
@@ -351,7 +309,7 @@ const AdminScheduling = ({
             Class &amp; Event Scheduling &amp; Signup Forms
           </h2>
           <p className="text-gray-600 text-sm mt-1">
-            Configure offerings, slots, costs, and signup forms for each class and event.
+            Configure offerings, slots, and signup forms for each class and event.
           </p>
         </div>
         <div className="flex justify-center py-12">
@@ -369,7 +327,7 @@ const AdminScheduling = ({
           Class &amp; Event Scheduling &amp; Signup Forms
         </h2>
         <p className="text-gray-600 text-sm mt-1">
-          Configure offerings, slots, costs, and signup forms for each class and event.
+          Configure offerings, slots, and signup forms for each class and event.
         </p>
       </div>
 
@@ -396,15 +354,21 @@ const AdminScheduling = ({
                   <>
                     {' '}
                     · Class/Event: <strong>{selectedClassEvent.displayName}</strong>
-                    {selectedCategory !== null && (
+                    {categoryDisplayName && (
                       <>
                         {' '}
-                        · Category: <strong>{categoryDisplayName ?? 'Selected'}</strong>
+                        · <strong>{categoryDisplayName}</strong>
+                      </>
+                    )}
+                    {offeringDisplayName && (
+                      <>
+                        {' '}
+                        · <strong>{offeringDisplayName}</strong>
                       </>
                     )}
                   </>
                 ) : (
-                  <span className="text-amber-700"> · Select a class or event in Classes &amp; Events</span>
+                  <span className="text-amber-700"> · Select a class in Overview to continue</span>
                 )}
               </div>
 
@@ -434,45 +398,30 @@ const AdminScheduling = ({
 
               {showClassEventPrompt && (
                 <p className="text-gray-600 py-8">
-                  Select a class or event in the <strong>Classes &amp; Events</strong> tab to manage{' '}
-                  {panel}.
+                  Select a class in <strong>Overview</strong> to manage {panel}.
                 </p>
               )}
 
               {panel === 'overview' && selectedProgram && (
-                <AdminSchedulingOverview program={selectedProgram} onSaved={handleProgramSaved} />
-              )}
-
-              {panel === 'disciplineTags' && selectedProgramId && (
-                <AdminSchedulingDisciplineTags
-                  programId={selectedProgramId}
-                  programDisplayName={selectedProgram?.displayName}
-                />
-              )}
-
-              {panel === 'form' && selectedProgram && (
-                <AdminSchedulingFormTab
+                <AdminSchedulingOverview
                   program={selectedProgram}
-                  selectAllFields={forwardFormSelectAll}
                   onSaved={handleProgramSaved}
-                />
-              )}
-
-              {panel === 'classEvents' && selectedProgramId && (
-                <ClassEventsPanel
-                  programsId={selectedProgramId}
-                  programsDisplayName={selectedProgram?.displayName}
-                  selectedClassEventId={selectedClassEvent?.id ?? null}
                   onSelectClassEvent={handleSelectClassEvent}
-                  onRefresh={refresh}
+                  onOpenForm={() => setPanel('form')}
                 />
               )}
 
-              {panel === 'categories' && (
-                <AdminSchedulingCategories
-                  selectedCategory={selectedCategory}
-                  onSelectCategory={handleCategorySelect}
-                  onRefresh={refresh}
+              {panel === 'form' && selectedClassEvent && selectedId && detail && (
+                <AdminSchedulingFormTab
+                  formId={selectedId}
+                  initialSignupFields={detail.signupFields}
+                  initialMandateWaiver={detail.mandateWaiver}
+                  selectAllFields={forwardFormSelectAll}
+                  onSaved={async () => {
+                    setForwardFormSelectAll(false)
+                    await refresh()
+                  }}
+                  onContinue={() => setPanel('offerings')}
                 />
               )}
 
@@ -482,6 +431,7 @@ const AdminScheduling = ({
                   selectedCategory={effectiveCategory}
                   selectedOfferingId={selectedOffering?.id ?? null}
                   onOfferingSelect={handleOfferingSelect}
+                  onContinueToSlots={handleOfferingContinueToSlots}
                 />
               )}
 
@@ -504,333 +454,12 @@ const AdminScheduling = ({
                   onRefresh={refresh}
                 />
               )}
-
-              {panel === 'costs' && selectedClassEvent && selectedId && detail && (
-                <div className="space-y-6">
-                  <AdminSchedulingCosts formId={selectedId} detail={detail} onSaved={refresh} />
-                  <button
-                    type="button"
-                    onClick={openDeleteConfirm}
-                    className="border border-red-300 text-red-700 px-6 py-2 rounded-lg font-semibold hover:bg-red-50"
-                  >
-                    Delete scheduling form
-                  </button>
-                </div>
-              )}
-
-                            {panel === 'signups' && selectedClassEvent && selectedId && (
-                <div className="overflow-x-auto">
-                  {signups.length === 0 ? (
-                    <p className="text-gray-600 flex items-center gap-2"><Calendar className="w-4 h-4" /> No signups yet.</p>
-                  ) : (
-                    <table className="w-max max-w-none text-sm table-auto border-collapse [&_th]:whitespace-nowrap [&_td]:whitespace-nowrap [&_th]:align-top [&_td]:align-top">
-                      <thead>
-                        <tr className="border-b border-gray-200 text-left text-gray-600">
-                          <th className="py-2 pr-4 w-0">Name</th>
-                          <th className="py-2 pr-4 w-0">Email</th>
-                          <th className="py-2 pr-4 w-0">Account</th>
-                          <th className="py-2 pr-4 w-0">Password</th>
-                          <th className="py-2 pr-4 w-0">Total slots</th>
-                          <th className="py-2 pr-4 w-0">Category</th>
-                          <th className="py-2 pr-4 w-0">Slot</th>
-                          <th className="py-2 pr-4 w-0">Status</th>
-                          <th className="py-2 pr-4 w-0">Position</th>
-                          <th className="py-2 pr-4 w-0">Confirm email</th>
-                          <th className="py-2 pr-4 w-0">Waiver email</th>
-                          <th className="py-2 pr-4 w-0">Other</th>
-                          <th className="py-2 w-0">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {signups.map((s) => {
-                          const slotLines = (s.slotLabel || '—')
-                            .split(';')
-                            .map((line) => line.trim())
-                            .filter(Boolean)
-
-                          return (
-                          <tr key={s.id} className="border-b border-gray-100">
-                            <td className="py-3 pr-4 w-0">
-                              {s.firstName || String(s.responses.first_name || '')}{' '}
-                              {s.lastName || String(s.responses.last_name || '')}
-                            </td>
-                            <td className="py-3 pr-4 w-0">{s.email || String(s.responses.email || '')}</td>
-                            <td className="py-3 pr-4 w-0 text-xs">
-                              {s.memberId ? (
-                                <span>
-                                  #{s.memberId}
-                                  {s.profileComplete === false && (
-                                    <span className="ml-1 text-amber-700 font-medium">Incomplete</span>
-                                  )}
-                                </span>
-                              ) : (
-                                <span className="text-gray-400">—</span>
-                              )}
-                            </td>
-                            <td className="py-3 pr-4 w-0">
-                              {s.memberId ? (
-                                <div className="flex items-center gap-1">
-                                  <input
-                                    type="password"
-                                    placeholder="New password"
-                                    value={passwordDrafts[s.id] ?? ''}
-                                    onChange={(e) =>
-                                      setPasswordDrafts((prev) => ({ ...prev, [s.id]: e.target.value }))
-                                    }
-                                    className="w-28 rounded border border-gray-300 px-2 py-1 text-xs"
-                                  />
-                                  <button
-                                    type="button"
-                                    disabled={
-                                      passwordSavingId === s.id ||
-                                      !(passwordDrafts[s.id]?.length >= 6)
-                                    }
-                                    onClick={async () => {
-                                      setPasswordSavingId(s.id)
-                                      try {
-                                        await adminUpdateSignupMemberPassword(
-                                          s.id,
-                                          passwordDrafts[s.id],
-                                        )
-                                        setPasswordDrafts((prev) => ({ ...prev, [s.id]: '' }))
-                                      } catch (e) {
-                                        alert(e instanceof Error ? e.message : 'Failed to save password')
-                                      } finally {
-                                        setPasswordSavingId(null)
-                                      }
-                                    }}
-                                    className="text-xs text-vortex-red font-semibold hover:underline disabled:opacity-40"
-                                  >
-                                    Save
-                                  </button>
-                                </div>
-                              ) : (
-                                <span className="text-gray-400 text-xs">—</span>
-                              )}
-                            </td>
-                            <td className="py-3 pr-4 w-0 text-xs font-medium">
-                              {s.totalSlotsForUser != null ? s.totalSlotsForUser : '—'}
-                            </td>
-                            <td className="py-3 pr-4 w-0">{s.categoryName}</td>
-                            <td className="py-3 pr-4 w-0">
-                              <div className="inline-flex flex-col gap-0.5">
-                                {slotLines.map((line, lineIndex) => (
-                                  <span key={lineIndex}>{line}</span>
-                                ))}
-                              </div>
-                            </td>
-                            <td className="py-3 pr-4 w-0 capitalize">
-                              {s.status === 'waitlisted' ? (
-                                <span className="text-amber-700">Waitlisted</span>
-                              ) : (
-                                s.status
-                              )}
-                            </td>
-                            <td className="py-3 pr-4 w-0 text-xs text-gray-700">
-                              {s.status === 'confirmed' && s.signupNumber != null && s.maxParticipants != null
-                                ? `#${s.signupNumber} of ${s.maxParticipants}`
-                                : s.status === 'waitlisted' && s.waitlistPosition != null
-                                  ? `Waitlist #${s.waitlistPosition}`
-                                  : '—'}
-                            </td>
-                            <td className="py-3 pr-4 w-0 text-xs">
-                              {s.confirmationEmailSentAt ? (
-                                <span className="text-green-700">Sent</span>
-                              ) : (
-                                <span className="text-gray-400">—</span>
-                              )}
-                            </td>
-                            <td className="py-3 pr-4 w-0 text-xs">
-                              {s.waiverEmailSentAt ? (
-                                <span className="text-green-700">Sent</span>
-                              ) : detail?.mandateWaiver ? (
-                                <span className="text-gray-400">—</span>
-                              ) : (
-                                <span className="text-gray-300">N/A</span>
-                              )}
-                            </td>
-                            <td className="py-3 pr-4 w-0">
-                              {s.adminStub ? (
-                                <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
-                                  AdminStub
-                                </span>
-                              ) : null}
-                            </td>
-                            <td className="py-3 w-0">
-                              <div className="inline-flex items-center gap-1 flex-nowrap">
-                                {(s.status === 'confirmed' || s.status === 'waitlisted') && (
-                                  <button
-                                    type="button"
-                                    title="Resend confirmation email"
-                                    disabled={signupActionId === s.id}
-                                    onClick={async () => {
-                                      setSignupActionId(s.id)
-                                      try {
-                                        const updated = await adminResendSignupEmail(s.id, 'confirmation')
-                                        setSignups((prev) =>
-                                          prev.map((row) => (row.id === s.id ? { ...row, ...updated } : row)),
-                                        )
-                                      } catch (e) {
-                                        alert(e instanceof Error ? e.message : 'Failed to resend confirmation email')
-                                      } finally {
-                                        setSignupActionId(null)
-                                      }
-                                    }}
-                                    className={`${iconActionClass} text-blue-600 hover:text-blue-800`}
-                                    aria-label="Resend confirmation email"
-                                  >
-                                    <Mail className="w-4 h-4" />
-                                  </button>
-                                )}
-                                {detail?.mandateWaiver && (
-                                  <button
-                                    type="button"
-                                    title="Resend waiver email"
-                                    disabled={signupActionId === s.id}
-                                    onClick={async () => {
-                                      setSignupActionId(s.id)
-                                      try {
-                                        const updated = await adminResendSignupEmail(s.id, 'waiver')
-                                        setSignups((prev) =>
-                                          prev.map((row) => (row.id === s.id ? { ...row, ...updated } : row)),
-                                        )
-                                      } catch (e) {
-                                        alert(e instanceof Error ? e.message : 'Failed to resend waiver email')
-                                      } finally {
-                                        setSignupActionId(null)
-                                      }
-                                    }}
-                                    className={`${iconActionClass} text-indigo-600 hover:text-indigo-800`}
-                                    aria-label="Resend waiver email"
-                                  >
-                                    <MailPlus className="w-4 h-4" />
-                                  </button>
-                                )}
-                                {(s.status === 'confirmed' || s.status === 'waitlisted') && (
-                                  <button
-                                    type="button"
-                                    title="Cancel signup"
-                                    disabled={signupActionId === s.id}
-                                    onClick={async () => {
-                                      setSignupActionId(s.id)
-                                      try {
-                                        await adminUpdateSignupStatus(s.id, 'cancelled')
-                                        if (selectedId) {
-                                          await loadSignups(selectedId)
-                                          await loadDetail(selectedId)
-                                        }
-                                      } catch (e) {
-                                        alert(e instanceof Error ? e.message : 'Failed to cancel signup')
-                                      } finally {
-                                        setSignupActionId(null)
-                                      }
-                                    }}
-                                    className={`${iconActionClass} text-red-600 hover:text-red-800`}
-                                    aria-label="Cancel signup"
-                                  >
-                                    <Ban className="w-4 h-4" />
-                                  </button>
-                                )}
-                                {s.status === 'cancelled' && (
-                                  <button
-                                    type="button"
-                                    title="Reconfirm signup"
-                                    disabled={signupActionId === s.id}
-                                    onClick={async () => {
-                                      setSignupActionId(s.id)
-                                      try {
-                                        await adminUpdateSignupStatus(s.id, 'confirmed')
-                                        if (selectedId) {
-                                          await loadSignups(selectedId)
-                                          await loadDetail(selectedId)
-                                        }
-                                      } catch (e) {
-                                        alert(e instanceof Error ? e.message : 'Failed to reconfirm signup')
-                                      } finally {
-                                        setSignupActionId(null)
-                                      }
-                                    }}
-                                    className={`${iconActionClass} text-green-700 hover:text-green-900`}
-                                    aria-label="Reconfirm signup"
-                                  >
-                                    <Check className="w-4 h-4" />
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              )}
             </>
           )}
         </div>
       </div>
 
       <AdminSchedulingLegacyForms onDeleted={() => loadForms()} />
-
-      <AnimatePresence>
-        {deleteConfirmOpen && selectedId && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/75 flex items-center justify-center z-[200] p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
-            >
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Delete scheduling form</h2>
-              <p className="text-gray-700 mb-4">
-                Are you sure you want to delete{' '}
-                <strong>{selectedClassEvent?.displayName || detail?.title || 'this form'}</strong>? It will be removed from the admin
-                portal and public scheduling page. Signups, slots, and other data will remain in the
-                database.
-              </p>
-              <p className="text-gray-600 mb-4 text-sm">
-                To confirm, type <strong>DELETE</strong> below:
-              </p>
-              <input
-                type="text"
-                value={deleteConfirmText}
-                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="Type DELETE to confirm"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500"
-                autoFocus
-              />
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={handleDeleteForm}
-                  disabled={deleteConfirmText.trim() !== 'DELETE' || deleting}
-                  className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                    deleteConfirmText.trim() === 'DELETE' && !deleting
-                      ? 'bg-red-600 hover:bg-red-700 text-white'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                >
-                  {deleting ? 'Deleting…' : 'Delete form'}
-                </button>
-                <button
-                  type="button"
-                  onClick={closeDeleteConfirm}
-                  disabled={deleting}
-                  className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-semibold transition-colors disabled:opacity-60"
-                >
-                  Cancel
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }

@@ -10,6 +10,8 @@ import AdminEvents from './AdminEvents'
 import AdminAnalytics from './AdminAnalytics'
 import AdminHighlights from './AdminHighlights'
 import AdminScheduling from './AdminScheduling'
+import AdminPricing from './AdminPricing'
+import AdminSignups from './AdminSignups'
 import AdminDbQueries from './AdminDbQueries'
 import AdminSchools from './AdminSchools'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
@@ -48,7 +50,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'dbQueries' | 'schools'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'pricing' | 'signups' | 'dbQueries' | 'schools'
 
 
 export default function Admin({ onLogout }: AdminProps) {
@@ -57,6 +59,7 @@ export default function Admin({ onLogout }: AdminProps) {
   const [programs, setPrograms] = useState<Program[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [schedulingIntent, setSchedulingIntent] = useState<SchedulingNavigationIntent | null>(null)
+  const [schedulingNavKey, setSchedulingNavKey] = useState(0)
 
   useEffect(() => {
     if (!getAdminToken()) {
@@ -251,6 +254,40 @@ export default function Admin({ onLogout }: AdminProps) {
                 )}
               </button>
               <button
+                onClick={() => setActiveTab('pricing')}
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'pricing'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Pricing
+                {activeTab === 'pricing' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('signups')}
+                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                  activeTab === 'signups'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                Signups
+                {activeTab === 'signups' && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                    layoutId="activeTab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab('highlights')}
                 className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
                   activeTab === 'highlights'
@@ -353,13 +390,19 @@ export default function Admin({ onLogout }: AdminProps) {
               <AdminSchools />
             ) : activeTab === 'scheduling' ? (
               <AdminScheduling
+                key={`scheduling-${schedulingNavKey}`}
                 navigationIntent={schedulingIntent}
                 onNavigationIntentConsumed={() => setSchedulingIntent(null)}
               />
+            ) : activeTab === 'pricing' ? (
+              <AdminPricing />
+            ) : activeTab === 'signups' ? (
+              <AdminSignups />
             ) : activeTab === 'classes' ? (
               <AdminClasses
                 onOpenScheduling={(intent) => {
                   setSchedulingIntent(intent)
+                  setSchedulingNavKey((key) => key + 1)
                   setActiveTab('scheduling')
                 }}
               />

@@ -10488,7 +10488,17 @@ app.get('/api/admin/programs', async (req, res) => {
           FROM program_discipline_tag pdt
           JOIN discipline_tag dt ON dt.id = pdt.tag_id
           WHERE pdt.programs_id = p.${taxonomy.programFkColumn}
-        ), '') as "sportTags"
+        ), '') as "sportTags",
+        COALESCE((
+          SELECT COUNT(*)::int FROM scheduling_offering o
+          INNER JOIN scheduling_form sf ON sf.id = o.form_id AND sf.deleted_at IS NULL
+          WHERE sf.program_id = p.id
+        ), 0) as "offeringCount",
+        COALESCE((
+          SELECT COUNT(*)::int FROM scheduling_slot_group g
+          INNER JOIN scheduling_form sf ON sf.id = g.form_id AND sf.deleted_at IS NULL
+          WHERE sf.program_id = p.id
+        ), 0) as "slotCount"
       FROM program p
       LEFT JOIN ${taxonomy.programsTable} pc ON p.${taxonomy.programFkColumn} = pc.id
       LEFT JOIN scheduling_category scat ON scat.id = COALESCE(p.scheduling_category_id, ${noCategoryId})
