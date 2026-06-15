@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
+import { fetchPublicSchedulingForm } from '../utils/schedulingApi'
 
 interface Props {
   formId: number
@@ -7,6 +8,24 @@ interface Props {
 
 const EventAttachedSignup = ({ formId }: Props) => {
   const [open, setOpen] = useState(false)
+  const [enrollVisible, setEnrollVisible] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchPublicSchedulingForm(formId, undefined, { fromEvent: true })
+      .then(() => {
+        if (!cancelled) setEnrollVisible(true)
+      })
+      .catch(() => {
+        if (!cancelled) setEnrollVisible(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [formId])
+
+  if (enrollVisible === false) return null
+  if (enrollVisible === null) return null
 
   return (
     <div className="mt-4 pt-4 border-t border-gray-200">

@@ -7,6 +7,7 @@ import GymnasticsHeroRotatingText, {
 } from '../GymnasticsHeroRotatingText'
 import HeroScrollHint from '../HeroScrollHint'
 import { useGymnasticsHeroRotation } from '../useGymnasticsHeroRotation'
+import { ENROLL_PATH } from '../../../config/enrollSites'
 import { GYMNASTICS_FAQS } from '../../../config/gymnasticsFaqs'
 import {
   ArrowRight,
@@ -172,16 +173,15 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                       Highlights
                     </motion.button>
                   )}
-                  <motion.a
-                    href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={heroSecondaryCtaClass}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Enroll Now
-                  </motion.a>
+                  <Link to={ENROLL_PATH} className={heroSecondaryCtaClass}>
+                    <motion.span
+                      className="inline-block"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Enroll Now
+                    </motion.span>
+                  </Link>
                   <Link to="/read-board#schedule" className={heroSecondaryCtaClass}>
                     View Class Schedule
                   </Link>
@@ -268,16 +268,15 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                   Highlights
                 </motion.button>
               )}
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${heroSecondaryCtaClass} w-full max-w-xs`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Enroll Now
-              </motion.a>
+              <Link to={ENROLL_PATH} className={`${heroSecondaryCtaClass} w-full max-w-xs`}>
+                <motion.span
+                  className="inline-block"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Enroll Now
+                </motion.span>
+              </Link>
               <Link
                 to="/read-board#schedule"
                 className={`${heroSecondaryCtaClass} w-full max-w-xs`}
@@ -410,14 +409,12 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                   </li>
                 ))}
               </ul>
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={ENROLL_PATH}
                 className="inline-block w-full mt-auto bg-blue-600 text-white px-6 py-4 rounded-xl font-bold text-center transition-all duration-300 hover:bg-blue-700 hover:scale-[1.02]"
               >
                 Start Your Journey
-              </motion.a>
+              </Link>
             </motion.div>
 
             <motion.div
@@ -449,14 +446,12 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                   </li>
                 ))}
               </ul>
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={ENROLL_PATH}
                 className="inline-block w-full mt-auto bg-vortex-red text-white px-6 py-4 rounded-xl font-bold text-center transition-all duration-300 hover:bg-red-700 hover:scale-[1.02]"
               >
                 Join the Team
-              </motion.a>
+              </Link>
             </motion.div>
           </div>
         </div>
@@ -512,15 +507,13 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                       <ArrowRight className="w-5 h-5" />
                     </Link>
                   )}
-                  <a
-                    href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    to={ENROLL_PATH}
                     className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-white/90 whitespace-nowrap"
                   >
                     Enroll Now
                     <ArrowRight className="w-5 h-5" />
-                  </a>
+                  </Link>
                 </div>
               </motion.div>
             )
@@ -557,14 +550,12 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
             transition={{ delay: 0.3, duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <a
-              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to={ENROLL_PATH}
               className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
             >
               Enroll Now
-            </a>
+            </Link>
             <Link
               to="/read-board#schedule"
               className="inline-block border-2 border-vortex-red bg-transparent text-vortex-red px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"

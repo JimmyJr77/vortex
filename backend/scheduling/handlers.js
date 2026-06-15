@@ -1271,17 +1271,24 @@ export function createSchedulingHandlers(pool) {
 
         const result = await pool.query(
           `
-          SELECT sf.* FROM scheduling_form sf
+          SELECT sf.*, pr.display_name AS program_display_name
+          FROM scheduling_form sf
           LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
           WHERE sf.deleted_at IS NULL
             AND sf.program_id IS NOT NULL
             AND ${formActiveClause}
             AND ${programActiveClause}
-          ORDER BY sf.created_at DESC
+          ORDER BY pr.display_name NULLS LAST, sf.title ASC
           `,
           [site],
         )
-        res.json({ success: true, data: result.rows.map(mapFormRow) })
+        res.json({
+          success: true,
+          data: result.rows.map((row) => ({
+            ...mapFormRow(row),
+            programDisplayName: row.program_display_name ?? null,
+          })),
+        })
       } catch (err) {
         console.error('[scheduling] listPublicForms:', err)
         res.status(500).json({ success: false, message: 'Failed to load scheduling forms' })
@@ -1329,6 +1336,52 @@ export function createSchedulingHandlers(pool) {
     },
 
     /** Other bookable class/category options under the same parent program. */
+    async listPublicOfferings(req, res) {
+      try {
+        const { isEnrollSiteKey } = await import('./enrollSites.js')
+        const site = String(req.query.site || 'athletics')
+        if (!isEnrollSiteKey(site)) {
+          return res.status(400).json({ success: false, message: 'Invalid enroll site' })
+        }
+
+        const formId = Number(req.params.formId)
+        const detail = await loadFormDetail(pool, formId, { site })
+        if (!detail) {
+          return res.status(404).json({ success: false, message: 'Scheduling form not found' })
+        }
+
+        const params = [formId]
+        let where = 'WHERE form_id = $1'
+        if (req.query.categoryId === 'none') {
+          where += ' AND category_id IS NULL'
+        } else if (req.query.categoryId != null && req.query.categoryId !== '') {
+          params.push(Number(req.query.categoryId))
+          where += ` AND category_id = $${params.length}`
+        }
+
+        const result = await pool.query(
+          `SELECT * FROM scheduling_offering ${where} ORDER BY start_date DESC, id DESC`,
+          params,
+        )
+
+        const data = result.rows
+          .map(mapOfferingRow)
+          .filter((offering) =>
+            detail.slotGroups.some(
+              (group) =>
+                group.offeringId === offering.id &&
+                (group.occurrences?.length ?? 0) > 0 &&
+                (group.categoryId ?? null) === offering.categoryId,
+            ),
+          )
+
+        res.json({ success: true, data })
+      } catch (err) {
+        console.error('[scheduling] listPublicOfferings:', err)
+        res.status(500).json({ success: false, message: 'Failed to load offerings' })
+      }
+    },
+
     async getProgramSignupOptions(req, res) {
       try {
         const formId = Number(req.params.id)
@@ -2138,6 +2191,12 @@ export function createSchedulingHandlers(pool) {
           return res.status(400).json({ success: false, message: 'Invalid programId' })
         }
 
+        const { isEnrollSiteKey } = await import('./enrollSites.js')
+        const site = String(req.query.site || 'athletics')
+        if (!isEnrollSiteKey(site)) {
+          return res.status(400).json({ success: false, message: 'Invalid enroll site' })
+        }
+
         const data = await loadSchedulingCalendar(pool, {
           startDate: range.startDate,
           endDate: range.endDate,
@@ -2145,6 +2204,7 @@ export function createSchedulingHandlers(pool) {
           programId,
           formActive: 'active',
           publicOnly: true,
+          site,
         })
         res.json({ success: true, data })
       } catch (err) {

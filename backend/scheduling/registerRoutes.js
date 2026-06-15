@@ -16,6 +16,7 @@ export function registerSchedulingRoutes(app, pool) {
   app.get('/api/public/scheduling/classes', h.listPublicSchedulingClasses)
   app.get('/api/scheduling/forms', h.listPublicForms)
   app.get('/api/scheduling/forms/:id', h.getPublicForm)
+  app.get('/api/scheduling/forms/:formId/offerings', h.listPublicOfferings)
   app.get('/api/scheduling/forms/:id/program-options', h.getProgramSignupOptions)
   app.post('/api/scheduling/auth/check-email', h.checkEmail)
   app.post('/api/scheduling/my-signups', h.listMemberSignedUpForms)

@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
+import { ENROLL_PATH } from '../config/enrollSites'
 import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
-import { TEAM_EMAIL } from '../config/contact'
+import { TEAM_EMAIL, JACKRABBIT_PARENT_PORTAL_URL } from '../config/contact'
 import { trackEvent } from '../utils/analyticsClient'
 import { getHubSiteUrl } from '../utils/crossDomainConsent'
 import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
@@ -144,7 +146,7 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
                 ))}
                 <li>
                   <a
-                    href="https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgId=557920"
+                    href={JACKRABBIT_PARENT_PORTAL_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
@@ -248,16 +250,15 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
               Experience the future of athletic development.
             </p>
-            <motion.a
-              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block btn-primary"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Enroll now
-            </motion.a>
+            <Link to={ENROLL_PATH} className="inline-block btn-primary">
+              <motion.span
+                className="inline-block"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Enroll now
+              </motion.span>
+            </Link>
           </div>
         </motion.div>
 

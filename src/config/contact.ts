@@ -4,6 +4,14 @@ export const TEAM_EMAIL = 'team@vortexathletics.com'
 /** Public phone number (display + tel: link). */
 export const TEAM_PHONE = '+1 (443) 422-4794'
 
+/** Jackrabbit Parent Portal (member account login). */
+export const JACKRABBIT_PARENT_PORTAL_URL =
+  'https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgId=557920'
+
+/** Jackrabbit class registration / enrollment portal. */
+export const JACKRABBIT_CLASS_REGISTRATION_URL =
+  'https://app.jackrabbitclass.com/regv2.asp?id=557920'
+
 /** Canonical NAP (name, address, phone) — keep identical everywhere for local SEO. */
 export const BUSINESS_NAP = {
   name: 'Vortex Athletics',

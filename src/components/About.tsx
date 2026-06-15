@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
+import { ENROLL_PATH } from '../config/enrollSites'
 import { Target, Cpu, Trophy } from 'lucide-react'
 
 // Custom D1 Icon Component
@@ -118,16 +120,18 @@ const About = ({ onSignUpClick }: AboutProps) => {
           </p>
           
           {onSignUpClick && (
-            <motion.a
-              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to={ENROLL_PATH}
               className="inline-block border-2 border-vortex-red text-vortex-red px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
-              Join the Transformation
-            </motion.a>
+              <motion.span
+                className="inline-block"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Join the Transformation
+              </motion.span>
+            </Link>
           )}
         </motion.div>
 

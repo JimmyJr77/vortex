@@ -8,6 +8,7 @@ import {
   Activity,
   Zap,
 } from 'lucide-react'
+import { ENROLL_PATH } from '../config/enrollSites'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
 interface StrengthFitnessProps {
@@ -103,16 +104,18 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
           >
-            <motion.a
-              href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to={ENROLL_PATH}
               className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
-              Enroll Now
-            </motion.a>
+              <motion.span
+                className="inline-flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Enroll Now
+              </motion.span>
+            </Link>
             <Link
               to="/read-board#schedule"
               className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
@@ -360,16 +363,18 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
               Tumbling, skill work, and strength & conditioning at Vortex isn&apos;t about lifting more or just doing more reps. It&apos;s about intentionality and effort. Meticulous coaching and a focus on all aspects of body control are critical differentiators.
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={ENROLL_PATH}
                 className="inline-flex border-2 border-vortex-red bg-vortex-red px-10 py-5 text-lg font-bold text-white rounded-xl transition-all duration-300 hover:bg-red-700 hover:scale-105"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
-                Get Started Today
-              </motion.a>
+                <motion.span
+                  className="inline-block"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Get Started Today
+                </motion.span>
+              </Link>
               <Link
                 to="/read-board#schedule"
                 className="inline-flex border-2 border-vortex-red bg-transparent px-10 py-5 text-lg font-bold text-vortex-red rounded-xl transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"

@@ -183,7 +183,7 @@ const SchedulingCalendarView = ({
   }
 
   const renderSignupButton = (event: SchedulingCalendarEvent, compact = false) => {
-    if (mode !== 'public' || !event.formActive) return null
+    if (mode !== 'public' || !event.enrollVisible) return null
     const url = schedulingSignupPath(event.formId, event.categoryId)
     return (
       <Link
@@ -668,7 +668,7 @@ const SchedulingCalendarView = ({
               })
               const inactive = isTbdInactive(tbd)
               const signupPath =
-                mode === 'public' && tbd.formActive
+                mode === 'public' && tbd.enrollVisible
                   ? schedulingSignupPath(tbd.formId, tbd.categoryId)
                   : null
               return (

@@ -12,6 +12,7 @@ import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
 import { SUMMER_CAMP_2026_WEEKS } from '../apps/gymnastics/data/summerCamp2026'
 import { SUMMER_CAMP_FAQS } from '../config/summerCampFaqs'
 import { GYMNASTICS_ORIGIN } from '../config/gymnasticsSeo'
+import { ENROLL_PATH } from '../config/enrollSites'
 import { buildCanonical, DEFAULT_OG_IMAGE, HUB_ORIGIN, SITE_NAME } from './seo'
 
 /** Any JSON-LD object (loosely typed; serialized into a <script> tag). */
@@ -126,8 +127,7 @@ export const serviceSchema = (params: {
   provider: { '@id': `${HUB_ORIGIN}/#organization` },
 })
 
-const JACKRABBIT_REGISTRATION_URL =
-  'https://app3.jackrabbitclass.com/regv2.asp?id=557920'
+const ENROLL_REGISTRATION_URL = `${HUB_ORIGIN}${ENROLL_PATH}`
 
 export const eventSchema = (params: {
   name: string
@@ -288,7 +288,7 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
           startDate: start,
           endDate: end,
           url,
-          registrationUrl: JACKRABBIT_REGISTRATION_URL,
+          registrationUrl: ENROLL_REGISTRATION_URL,
           providerOrigin: origin,
         }),
       )

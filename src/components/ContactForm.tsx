@@ -11,6 +11,8 @@ import { getAttributionPayload } from '../utils/utmCapture'
 import { getVisitorId, getSessionId } from '../utils/visitorId'
 import { getActiveConsent } from '../utils/consent'
 import { trackEvent } from '../utils/analyticsClient'
+import { Link } from 'react-router-dom'
+import { ENROLL_PATH } from '../config/enrollSites'
 import {
   ATHLETICS_SPORT_INTERESTS,
   ATHLETICS_TRAINING_INTERESTS,
@@ -349,16 +351,18 @@ const ContactForm = ({
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-wrap items-center justify-center gap-3 rounded-lg border border-vortex-red/30 bg-vortex-red/10 px-4 py-2.5 text-center">
               <p className="text-sm text-gray-700 font-medium">If you are looking to Enroll, click here:</p>
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={ENROLL_PATH}
                 className="inline-flex items-center justify-center bg-vortex-red text-white px-4 py-1.5 rounded-md font-semibold text-sm transition-colors hover:bg-red-700"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
               >
+                <motion.span
+                  className="inline-block"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
                 Enroll
-              </motion.a>
+                </motion.span>
+              </Link>
             </div>
 
             <div>

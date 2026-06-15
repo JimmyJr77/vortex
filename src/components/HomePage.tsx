@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ENROLL_PATH } from '../config/enrollSites'
 import { MapPin, Target, Info, Shield } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
@@ -164,16 +165,18 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={ENROLL_PATH}
                 className="inline-block bg-vortex-red text-white px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
-                Reserve Your Spot
-              </motion.a>
+                <motion.span
+                  className="inline-block"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Reserve Your Spot
+                </motion.span>
+              </Link>
             </motion.div>
           )}
         </div>
@@ -559,16 +562,18 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
                 Experience the future of athletic development.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <motion.a
-                  href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  to={ENROLL_PATH}
                   className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                 >
-                  Enroll now
-                </motion.a>
+                  <motion.span
+                    className="inline-block"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Enroll now
+                  </motion.span>
+                </Link>
                 <Link
                   to="/read-board#schedule"
                   className="inline-block border-2 border-vortex-red bg-transparent text-vortex-red px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
@@ -609,16 +614,18 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
             </div>
             
             {onSignUpClick && (
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={ENROLL_PATH}
                 className="inline-block bg-vortex-red text-white px-12 py-6 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
-                Reserve Your Spot Today
-              </motion.a>
+                <motion.span
+                  className="inline-block"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Reserve Your Spot Today
+                </motion.span>
+              </Link>
             )}
           </motion.div>
         </div>

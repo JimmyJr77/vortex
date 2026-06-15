@@ -1,9 +1,15 @@
 /**
  * Public classes-offered overview grouped by top-level program.
  */
-export async function listPublicClassesOffered(pool) {
-  const { resolveProgramsSchema } = await import('./schema.js')
+export async function listPublicClassesOffered(pool, site = 'athletics') {
+  const { isEnrollSiteKey, rowVisibleOnEnrollSite } = await import('../scheduling/enrollSites.js')
+  if (!isEnrollSiteKey(site)) {
+    site = 'athletics'
+  }
+
+  const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import('./schema.js')
   const schema = await resolveProgramsSchema(pool)
+  const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
 
   const columnCheck = await pool.query(
     `
@@ -26,6 +32,10 @@ export async function listPublicClassesOffered(pool) {
     `,
   )
 
+  const programSelect = hasSchedCols
+    ? 'pr.scheduling_enroll_sites, pr.scheduling_active,'
+    : 'NULL AS scheduling_enroll_sites, NULL AS scheduling_active,'
+
   const classesResult = await pool.query(
     `
     SELECT
@@ -37,12 +47,17 @@ export async function listPublicClassesOffered(pool) {
       p.age_min AS "ageMin",
       p.age_max AS "ageMax",
       p.skill_requirements AS "skillRequirements",
-      sf.id AS "formId"
+      sf.id AS "formId",
+      sf.enroll_sites,
+      sf.is_active AS form_is_active,
+      ${programSelect}
+      sf.programs_id
     FROM program p
     LEFT JOIN scheduling_form sf
       ON sf.program_id = p.id
       AND sf.deleted_at IS NULL
       AND sf.is_active = TRUE
+    LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
     WHERE p.archived = FALSE
       AND p.is_active = TRUE
       AND p.${schema.programFkColumn} IS NOT NULL
@@ -57,6 +72,14 @@ export async function listPublicClassesOffered(pool) {
       classesByProgram.set(programsId, [])
     }
     const formId = row.formId != null ? Number(row.formId) : null
+    const formVisible =
+      formId != null && rowVisibleOnEnrollSite(row.enroll_sites, row.form_is_active, site)
+    const programVisible =
+      row.programs_id == null ||
+      !hasSchedCols ||
+      rowVisibleOnEnrollSite(row.scheduling_enroll_sites, row.scheduling_active ?? true, site)
+    const enrollVisible = formVisible && programVisible
+
     classesByProgram.get(programsId).push({
       id: Number(row.id),
       displayName: row.displayName,
@@ -66,7 +89,8 @@ export async function listPublicClassesOffered(pool) {
       ageMax: row.ageMax != null ? Number(row.ageMax) : null,
       skillRequirements: row.skillRequirements ?? null,
       formId,
-      signupUrl: formId != null ? `/enroll?form=${formId}` : null,
+      enrollVisible,
+      signupUrl: enrollVisible && formId != null ? `/enroll?form=${formId}` : null,
     })
   }
 

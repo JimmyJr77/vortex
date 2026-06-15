@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { fetchClassesOffered } from '../../utils/publicClassesApi'
 import { formatAgeRange, formatSkillLevel } from '../../utils/classDisplayUtils'
-import { schedulingSignupPath } from '../../utils/schedulingApi'
 
 const ReadBoardClassesTab = () => {
   const [loading, setLoading] = useState(true)
@@ -114,9 +113,9 @@ const ReadBoardClassesTab = () => {
                           </p>
                         )}
                       </div>
-                      {classItem.formId != null && (
+                      {classItem.signupUrl != null && (
                         <Link
-                          to={schedulingSignupPath(classItem.formId)}
+                          to={classItem.signupUrl}
                           className="shrink-0 inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-semibold text-sm text-white bg-vortex-red hover:bg-red-700 transition-colors"
                         >
                           Sign Up

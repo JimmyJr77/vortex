@@ -11,6 +11,7 @@ import { getSportBrandName, getSportHomeUrl } from '../../utils/sportSite'
 import type { StubSiteConfig } from '../../config/stubSites'
 import { STUB_SITES } from '../../config/stubSites'
 import { GYMNASTICS_HEADER_LOGO } from '../../config/gymnasticsSeo'
+import { getSiteEnrollHref } from '../../utils/enrollSite'
 
 const GYMNASTICS_CONFIG = STUB_SITES['vortex-gymnastics.com']
 
@@ -118,16 +119,18 @@ const GymnasticsHeader = ({
                 Member Portal
               </motion.button>
             ) : (
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={getSiteEnrollHref()}
                 className="bg-vortex-red text-white px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg inline-block flex-1 md:flex-none min-w-[80px] md:min-w-0 text-center"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
-                Enroll
-              </motion.a>
+                <motion.span
+                  className="inline-block"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Enroll
+                </motion.span>
+              </Link>
             )}
 
             <button

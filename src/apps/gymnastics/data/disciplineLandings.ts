@@ -11,8 +11,6 @@ import {
   Zap,
 } from 'lucide-react'
 
-export const JACKRABBIT_URL = 'https://app3.jackrabbitclass.com/regv2.asp?id=557920'
-
 export interface DisciplineTheme {
   heroGradient: string
   heroHighlight: string

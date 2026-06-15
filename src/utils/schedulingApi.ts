@@ -171,6 +171,7 @@ export interface SchedulingFormSummary {
   isActive: boolean
   enrollSites?: EnrollSiteKey[]
   programsId?: number | null
+  programDisplayName?: string | null
   maxSlotsPerUser?: number | null
   slotCostMonthlyCents?: number
   freeSlotsPerUser?: number
@@ -267,6 +268,7 @@ export interface SchedulingCalendarEvent {
   offeringStartDate: string | null
   offeringEndDate: string | null
   formActive: boolean
+  enrollVisible?: boolean
   classActive: boolean
   slotGroupActive: boolean
   slotActive: boolean
@@ -284,6 +286,7 @@ export interface SchedulingCalendarTbd {
   categoryName: string | null
   offeringLabel: string | null
   formActive: boolean
+  enrollVisible?: boolean
   classActive: boolean
   slotGroupActive: boolean
   scheduleMode: 'day' | 'date'
@@ -551,6 +554,20 @@ export async function fetchMySchedulingFormIds(email: string): Promise<number[]>
   return data.formIds ?? []
 }
 
+export async function fetchPublicSchedulingOfferings(
+  formId: number,
+  categoryId?: number | null,
+  site: EnrollSiteKey = getCurrentEnrollSiteKey(),
+): Promise<SchedulingOffering[]> {
+  const params = new URLSearchParams()
+  params.set('site', site)
+  if (categoryId === null) params.set('categoryId', 'none')
+  else if (categoryId != null) params.set('categoryId', String(categoryId))
+  const qs = params.toString() ? `?${params.toString()}` : ''
+  const res = await fetch(`${getApiUrl()}/api/scheduling/forms/${formId}/offerings${qs}`)
+  return parseJson(res)
+}
+
 export async function fetchPublicSchedulingForm(
   id: number,
   categoryId?: number | null,
@@ -690,6 +707,7 @@ export async function fetchPublicSchedulingCalendar(params: {
   if (params.programId != null) {
     qs.set('programId', String(params.programId))
   }
+  qs.set('site', getCurrentEnrollSiteKey())
   const res = await fetch(`${getApiUrl()}/api/scheduling/calendar?${qs.toString()}`)
   return parseJson(res)
 }

@@ -1,4 +1,17 @@
+import { rowVisibleOnEnrollSite } from './enrollSites.js'
+
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+function computeEnrollVisible(row, site) {
+  const formVisible = rowVisibleOnEnrollSite(row.enroll_sites, row.form_is_active, site)
+  if (!formVisible) return false
+  if (row.programs_id == null) return true
+  return rowVisibleOnEnrollSite(
+    row.scheduling_enroll_sites,
+    row.scheduling_active ?? true,
+    site,
+  )
+}
 
 function formatDateOnly(value) {
   if (value == null || value === '') return null
@@ -101,7 +114,7 @@ function getWeekLetterForDate(dateStr, anchorStr, weekLetters) {
   return sorted[idx]
 }
 
-function mapRowToContext(row) {
+function mapRowToContext(row, site = 'athletics') {
   const form = {
     start_date: row.form_start_date,
     end_date: row.form_end_date,
@@ -143,6 +156,7 @@ function mapRowToContext(row) {
     offeringStartDate: offeringRange.start,
     offeringEndDate: offeringRange.end,
     formActive: Boolean(row.form_is_active),
+    enrollVisible: computeEnrollVisible(row, site),
     classActive: row.class_is_active == null ? true : Boolean(row.class_is_active),
     slotGroupActive: Boolean(row.sg_is_active),
     slotActive: Boolean(row.is_active),
@@ -189,6 +203,7 @@ function buildEventPayload(ctx, date, weekLetter) {
     offeringStartDate: ctx.offeringStartDate,
     offeringEndDate: ctx.offeringEndDate,
     formActive: ctx.formActive,
+    enrollVisible: ctx.enrollVisible,
     classActive: ctx.classActive,
     slotGroupActive: ctx.slotGroupActive,
     slotActive: ctx.slotActive,
@@ -208,6 +223,7 @@ function buildTbdPayload(ctx) {
     categoryName: ctx.categoryName,
     offeringLabel: ctx.offeringLabel,
     formActive: ctx.formActive,
+    enrollVisible: ctx.enrollVisible,
     classActive: ctx.classActive,
     slotGroupActive: ctx.slotGroupActive,
     scheduleMode: ctx.scheduleMode,
@@ -222,8 +238,8 @@ function buildTbdPayload(ctx) {
 /**
  * Expand flat DB rows into calendar events for a date range (inclusive).
  */
-export function expandCalendarRange({ startDate, endDate, rows }) {
-  const contexts = rows.map(mapRowToContext)
+export function expandCalendarRange({ startDate, endDate, rows, site = 'athletics' }) {
+  const contexts = rows.map((row) => mapRowToContext(row, site))
   const weekLettersByGroup = new Map()
   for (const ctx of contexts) {
     if (!weekLettersByGroup.has(ctx.slotGroupId)) {

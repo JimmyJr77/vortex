@@ -19,10 +19,15 @@ import {
   School,
 } from 'lucide-react'
 
-/** Primary conversion CTA — always points to the in-house signup flow. */
+import { schedulingEnrollPath } from '../utils/schedulingApi'
+
+/** Top-level program id for Elementary, Middle, & High School Summer Athletic Training. */
+const SUMMER_ATHLETIC_TRAINING_PROGRAMS_ID = 8
+
+/** Primary conversion CTA — deep-links into the Summer Athletic Training enroll form. */
 const SignUpCta = ({ className = '' }: { className?: string }) => (
   <Link
-    to="/enroll"
+    to={schedulingEnrollPath({ programsId: SUMMER_ATHLETIC_TRAINING_PROGRAMS_ID })}
     className={`inline-flex items-center justify-center gap-2 bg-vortex-red border-2 border-vortex-red text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105 ${className}`}
   >
     Enroll Now!
@@ -401,12 +406,7 @@ const SummerAthleticTraining = () => {
               select middle and high schools. This gives athletes a chance to experience structured
               performance training, build confidence, and prepare for next season.
             </p>
-            <Link
-              to="/enroll"
-              className="inline-flex items-center justify-center gap-2 bg-white text-vortex-red px-10 py-5 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-gray-100 hover:scale-105"
-            >
-              Enroll Now!
-            </Link>
+            <SignUpCta className="inline-flex items-center justify-center gap-2 bg-white text-vortex-red px-10 py-5 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-gray-100 hover:scale-105" />
             <p className="text-red-100 text-sm mt-6">
               Spots may be limited. Availability may depend on school, schedule, and program
               capacity.

@@ -10,34 +10,103 @@ import {
 } from '../utils/schedulingApi'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 
+function parseOptionalInt(raw: string | null): number | null | undefined {
+  if (raw == null || raw === '') return undefined
+  const n = Number(raw)
+  return Number.isFinite(n) ? n : undefined
+}
+
+type EnrollProgramGroup = {
+  programsId: number
+  displayName: string
+  forms: SchedulingFormSummary[]
+}
+
+function groupFormsByProgram(forms: SchedulingFormSummary[]): EnrollProgramGroup[] {
+  const byId = new Map<number, EnrollProgramGroup>()
+  for (const form of forms) {
+    const programsId = form.programsId
+    if (programsId == null) continue
+    let group = byId.get(programsId)
+    if (!group) {
+      group = {
+        programsId,
+        displayName: form.programDisplayName?.trim() || form.title,
+        forms: [],
+      }
+      byId.set(programsId, group)
+    }
+    group.forms.push(form)
+  }
+  for (const group of byId.values()) {
+    group.forms.sort((a, b) => a.title.localeCompare(b.title))
+  }
+  return [...byId.values()].sort((a, b) => a.displayName.localeCompare(b.displayName))
+}
+
+const cardClass =
+  'text-left rounded-2xl border p-6 shadow-sm transition-all bg-white border-gray-200 hover:border-vortex-red hover:shadow-md group w-full'
+
 const SchedulingPage = () => {
   const [searchParams] = useSearchParams()
   const urlFormId = useMemo(() => {
-    const raw = searchParams.get('form')
-    if (!raw) return null
-    const n = Number(raw)
-    return Number.isFinite(n) ? n : null
+    const parsed = parseOptionalInt(searchParams.get('form'))
+    return parsed ?? null
   }, [searchParams])
+  const urlProgramsId = useMemo(
+    () => parseOptionalInt(searchParams.get('programsId')),
+    [searchParams],
+  )
+  const urlCategoryId = useMemo(
+    () => parseOptionalInt(searchParams.get('categoryId')),
+    [searchParams],
+  )
   const urlAuthToken = searchParams.get('auth')
   const urlEmail = searchParams.get('email')
 
   const [forms, setForms] = useState<SchedulingFormSummary[]>([])
+  const [selectedProgramId, setSelectedProgramId] = useState<number | null>(null)
   const [selectedFormId, setSelectedFormId] = useState<number | null>(urlFormId)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [signupComplete, setSignupComplete] = useState(false)
 
+  const programs = useMemo(() => groupFormsByProgram(forms), [forms])
+
+  const selectedProgram = useMemo(
+    () => programs.find((program) => program.programsId === selectedProgramId) ?? null,
+    [programs, selectedProgramId],
+  )
+
+  const step = selectedFormId != null ? 'signup' : selectedProgramId != null ? 'class' : 'program'
+
   useEffect(() => {
     fetchPublicSchedulingForms()
       .then((data) => {
         setForms(data)
-        if (urlFormId && data.some((f) => f.id === urlFormId)) {
+        const grouped = groupFormsByProgram(data)
+
+        if (urlFormId != null) {
+          const match = data.find((form) => form.id === urlFormId)
+          if (match?.programsId != null) {
+            setSelectedProgramId(match.programsId)
+            setSelectedFormId(match.id)
+            return
+          }
+        }
+
+        if (urlProgramsId != null && grouped.some((program) => program.programsId === urlProgramsId)) {
+          setSelectedProgramId(urlProgramsId)
+          return
+        }
+
+        if (urlFormId != null && data.some((form) => form.id === urlFormId)) {
           setSelectedFormId(urlFormId)
         }
       })
-      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load forms'))
+      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load enroll options'))
       .finally(() => setLoading(false))
-  }, [urlFormId])
+  }, [urlFormId, urlProgramsId])
 
   const handleSignupComplete = useCallback((detail: SchedulingSignupCompleteDetail) => {
     setSignupComplete(detail.completed)
@@ -46,7 +115,13 @@ const SchedulingPage = () => {
     }
   }, [])
 
-  const returnToList = useCallback(() => {
+  const backToPrograms = useCallback(() => {
+    setSelectedProgramId(null)
+    setSelectedFormId(null)
+    setSignupComplete(false)
+  }, [])
+
+  const backToClasses = useCallback(() => {
     setSelectedFormId(null)
     setSignupComplete(false)
   }, [])
@@ -55,7 +130,12 @@ const SchedulingPage = () => {
     if (urlEmail) saveSchedulingMemberEmail(urlEmail)
   }, [urlEmail])
 
-  const selectedForm = forms.find((f) => f.id === selectedFormId) ?? null
+  const heroSubtitle =
+    step === 'program'
+      ? 'Choose a program to get started.'
+      : step === 'class'
+        ? `Choose a class in ${selectedProgram?.displayName ?? 'this program'}.`
+        : 'Choose a category, offering, and time slot to complete your signup.'
 
   if (loading && forms.length === 0) {
     return (
@@ -65,14 +145,14 @@ const SchedulingPage = () => {
     )
   }
 
-  if (forms.length === 0) {
+  if (programs.length === 0) {
     return (
       <section className="section-padding pt-below-site-header bg-white min-h-[50vh]">
         <div className="container-custom max-w-2xl mx-auto text-center">
           <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h1 className="text-3xl font-display font-bold text-black mb-4">Enroll</h1>
           <p className="text-gray-600">
-            {error || 'No scheduling signups are open right now. Check back soon.'}
+            {error || 'No enroll options are open right now. Check back soon.'}
           </p>
         </div>
       </section>
@@ -88,75 +168,107 @@ const SchedulingPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            Scheduling <span className="text-vortex-red">Sign Up</span>
+            Enroll
           </motion.h1>
-          <p className="text-gray-300 max-w-2xl mx-auto text-lg">
-            {selectedForm
-              ? 'Choose your category, pick a time, and reserve your spot.'
-              : 'Select a signup form to get started.'}
-          </p>
+          <p className="text-gray-300 max-w-2xl mx-auto text-lg">{heroSubtitle}</p>
         </div>
       </section>
 
       <section className="section-padding bg-gray-50">
         <div className="container-custom max-w-3xl mx-auto">
-          {selectedFormId == null ? (
+          {step === 'program' && (
             <div className="space-y-4">
-              <h2 className="text-xl font-display font-bold text-black">Available signups</h2>
+              <h2 className="text-xl font-display font-bold text-black">Program</h2>
               <div className="grid grid-cols-1 gap-4">
-                {forms.map((form) => (
-                    <button
-                      key={form.id}
-                      type="button"
-                      onClick={() => setSelectedFormId(form.id)}
-                      className="text-left rounded-2xl border p-6 shadow-sm transition-all bg-white border-gray-200 hover:border-vortex-red hover:shadow-md group"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <h3 className="text-xl font-display font-bold text-black group-hover:text-vortex-red transition-colors">
-                              {form.title}
-                            </h3>
-                          </div>
-                          {form.description && (
-                            <p className="text-sm mb-3 line-clamp-3 text-gray-600">
-                              {form.description}
-                            </p>
-                          )}
-                          {(form.startDate || form.endDate) && (
-                            <p className="text-sm flex items-center gap-2 text-gray-500">
-                              <Calendar className="w-4 h-4 shrink-0" />
-                              {form.startDate && `Opens ${form.startDate}`}
-                              {form.startDate && form.endDate && ' · '}
-                              {form.endDate && `Closes ${form.endDate}`}
-                            </p>
-                          )}
-                        </div>
-                        <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-vortex-red shrink-0 mt-1" />
+                {programs.map((program) => (
+                  <button
+                    key={program.programsId}
+                    type="button"
+                    onClick={() => setSelectedProgramId(program.programsId)}
+                    className={cardClass}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-xl font-display font-bold text-black group-hover:text-vortex-red transition-colors">
+                          {program.displayName}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-2">
+                          {program.forms.length} class{program.forms.length === 1 ? '' : 'es'} available
+                        </p>
                       </div>
-                    </button>
+                      <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-vortex-red shrink-0 mt-1" />
+                    </div>
+                  </button>
                 ))}
               </div>
             </div>
-          ) : (
-            <div className="space-y-6">
+          )}
+
+          {step === 'class' && selectedProgram && (
+            <div className="space-y-4">
               <button
                 type="button"
-                onClick={returnToList}
+                onClick={backToPrograms}
                 className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-400 hover:text-black transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                {signupComplete ? 'Return' : 'Cancel'}
+                Back to programs
               </button>
-              {selectedForm && (
-                <SchedulingSignupEmbed
-                  key={selectedFormId}
-                  formId={selectedFormId}
-                  initialAuthToken={urlAuthToken}
-                  initialEmail={urlEmail}
-                  onSignupComplete={handleSignupComplete}
-                />
-              )}
+              <h2 className="text-xl font-display font-bold text-black">Classes</h2>
+              <p className="text-sm text-gray-600">{selectedProgram.displayName}</p>
+              <div className="grid grid-cols-1 gap-4">
+                {selectedProgram.forms.map((form) => (
+                  <button
+                    key={form.id}
+                    type="button"
+                    onClick={() => setSelectedFormId(form.id)}
+                    className={cardClass}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-xl font-display font-bold text-black group-hover:text-vortex-red transition-colors">
+                          {form.title}
+                        </h3>
+                        {form.description && (
+                          <p className="text-sm mb-3 line-clamp-3 text-gray-600 mt-2">
+                            {form.description}
+                          </p>
+                        )}
+                        {(form.startDate || form.endDate) && (
+                          <p className="text-sm flex items-center gap-2 text-gray-500">
+                            <Calendar className="w-4 h-4 shrink-0" />
+                            {form.startDate && `Opens ${form.startDate}`}
+                            {form.startDate && form.endDate && ' · '}
+                            {form.endDate && `Closes ${form.endDate}`}
+                          </p>
+                        )}
+                      </div>
+                      <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-vortex-red shrink-0 mt-1" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 'signup' && selectedFormId != null && (
+            <div className="space-y-6">
+              <button
+                type="button"
+                onClick={backToClasses}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-400 hover:text-black transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                {signupComplete ? 'Return to classes' : 'Back to classes'}
+              </button>
+              <SchedulingSignupEmbed
+                key={`${selectedFormId}:${urlCategoryId ?? 'none'}`}
+                formId={selectedFormId}
+                initialCategoryId={urlCategoryId}
+                initialAuthToken={urlAuthToken}
+                initialEmail={urlEmail}
+                onSignupComplete={handleSignupComplete}
+              />
             </div>
           )}
         </div>

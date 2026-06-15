@@ -10,9 +10,9 @@ import {
 } from 'lucide-react'
 import { SUMMER_CAMP_2026_WEEKS, SUMMER_CAMP_HIGHLIGHTS } from '../data/summerCamp2026'
 import { SUMMER_CAMP_FAQS } from '../../../config/summerCampFaqs'
-import { BUSINESS_NAP, GOOGLE_MAPS_URL, TEAM_EMAIL, TEAM_PHONE } from '../../../config/contact'
+import { ENROLL_PATH } from '../../../config/enrollSites'
+import { Link } from 'react-router-dom'
 
-const JACKRABBIT_URL = 'https://app3.jackrabbitclass.com/regv2.asp?id=557920'
 
 const ACCENT_STYLES = {
   red: {
@@ -172,15 +172,19 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
           >
-            <a
-              href={JACKRABBIT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+
+              to={ENROLL_PATH}
+
               className="inline-flex items-center gap-2 bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-red-900/50 hover:bg-red-700 hover:scale-[1.02] transition-all"
+
             >
+
               Register now
               <ArrowRight className="w-5 h-5" />
-            </a>
+            
+
+            </Link>
             {onInquireClick && (
               <button
                 type="button"
@@ -344,15 +348,19 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
             weeks, or what to bring.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <a
-              href={JACKRABBIT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+
+              to={ENROLL_PATH}
+
               className="inline-flex items-center gap-2 bg-black text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-neutral-900 transition-all"
+
             >
+
               Enroll on Jackrabbit
               <ArrowRight className="w-5 h-5" />
-            </a>
+            
+
+            </Link>
             {onInquireClick && (
               <button
                 type="button"
@@ -398,31 +406,13 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
             </h2>
             <ul className="space-y-4 text-neutral-800">
               <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-vortex-red shrink-0 mt-0.5" />
-                <a
-                  href={GOOGLE_MAPS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-vortex-red transition-colors"
-                >
-                  {BUSINESS_NAP.streetAddress}, {BUSINESS_NAP.addressLocality},{' '}
-                  {BUSINESS_NAP.addressRegion} {BUSINESS_NAP.postalCode}
-                </a>
+                <MapPin className="w-5 h-5 text-vortex-red shrink-0 mt-0.5" />a
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-vortex-red shrink-0" />
-                <a
-                  href={`mailto:${TEAM_EMAIL}`}
-                  className="hover:text-vortex-red transition-colors"
-                >
-                  {TEAM_EMAIL}
-                </a>
+                <Mail className="w-5 h-5 text-vortex-red shrink-0" />a
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-vortex-red shrink-0" />
-                <a href="tel:+14434224794" className="hover:text-vortex-red transition-colors">
-                  {TEAM_PHONE}
-                </a>
+                <Phone className="w-5 h-5 text-vortex-red shrink-0" />a
               </li>
             </ul>
             <p className="mt-6 text-sm text-neutral-500">

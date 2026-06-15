@@ -11,8 +11,10 @@ import {
 import { getStubSportSiteUrl } from '../utils/sportSite'
 
 type SportMenuItem =
-  | { label: string; to: string; onHold?: boolean }
-  | { label: string; href: string; external: true }
+  | { label: string; to: string; onHold?: boolean; holdTitle?: string }
+  | { label: string; href: string; external: true; onHold?: boolean; holdTitle?: string }
+
+const BASKETBALL_HOLD_TITLE = 'Vortex Basketball is coming soon'
 
 const SPORT_MENU_ITEMS: SportMenuItem[] = [
   {
@@ -20,11 +22,18 @@ const SPORT_MENU_ITEMS: SportMenuItem[] = [
     href: getGymnasticsSiteUrl(),
     external: true,
   },
-  { label: 'Vortex Ninja', to: '/ninja', onHold: NINJA_PROGRAM_ON_HOLD },
+  {
+    label: 'Vortex Ninja',
+    to: '/ninja',
+    onHold: NINJA_PROGRAM_ON_HOLD,
+    holdTitle: NINJA_HOLD_TITLE,
+  },
   {
     label: 'Basketball',
     href: getStubSportSiteUrl('basketball'),
     external: true,
+    onHold: true,
+    holdTitle: BASKETBALL_HOLD_TITLE,
   },
 ]
 
@@ -89,20 +98,24 @@ const HeroSportsMenu = ({ fullWidth = false }: HeroSportsMenuProps) => {
               fullWidth ? 'left-0 right-0' : 'left-1/2 min-w-[12rem] -translate-x-1/2'
             }`}
           >
-            {SPORT_MENU_ITEMS.map((item) =>
-              'to' in item ? (
-                item.onHold ? (
+            {SPORT_MENU_ITEMS.map((item) => {
+              if (item.onHold) {
+                return (
                   <span
                     key={item.label}
                     role="menuitem"
                     aria-disabled="true"
-                    title={NINJA_HOLD_TITLE}
+                    title={item.holdTitle}
                     className={ninjaOnHoldMenuItemClass}
                   >
                     {item.label}
-                    <span className="sr-only"> (on hold)</span>
+                    <span className="sr-only"> (coming soon)</span>
                   </span>
-                ) : (
+                )
+              }
+
+              if ('to' in item) {
+                return (
                   <Link
                     key={item.label}
                     to={item.to}
@@ -113,7 +126,9 @@ const HeroSportsMenu = ({ fullWidth = false }: HeroSportsMenuProps) => {
                     {item.label}
                   </Link>
                 )
-              ) : (
+              }
+
+              return (
                 <a
                   key={item.label}
                   href={item.href}
@@ -125,8 +140,8 @@ const HeroSportsMenu = ({ fullWidth = false }: HeroSportsMenuProps) => {
                 >
                   {item.label}
                 </a>
-              ),
-            )}
+              )
+            })}
           </motion.div>
         )}
       </AnimatePresence>

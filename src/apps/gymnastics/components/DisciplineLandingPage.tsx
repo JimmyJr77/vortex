@@ -1,10 +1,8 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import {
-  JACKRABBIT_URL,
-  type DisciplineLandingConfig,
-} from '../data/disciplineLandings'
+import { ENROLL_PATH } from '../../../config/enrollSites'
+import { type DisciplineLandingConfig } from '../data/disciplineLandings'
 
 interface DisciplineLandingPageProps {
   config: DisciplineLandingConfig
@@ -47,15 +45,13 @@ const DisciplineLandingPage = ({ config }: DisciplineLandingPageProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <a
-              href={JACKRABBIT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to={ENROLL_PATH}
               className={`inline-flex items-center gap-2 text-white px-10 py-4 rounded-xl font-bold text-lg transition-all ${theme.enrollButton}`}
             >
               Enroll Now
               <ArrowRight className="w-5 h-5" />
-            </a>
+            </Link>
             <Link
               to="/"
               className="inline-flex items-center gap-2 border-2 border-white text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-all"
@@ -144,15 +140,13 @@ const DisciplineLandingPage = ({ config }: DisciplineLandingPageProps) => {
           <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
             Enroll through Jackrabbit or contact us to find the right class level for your athlete.
           </p>
-          <a
-            href={JACKRABBIT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to={ENROLL_PATH}
             className="inline-flex items-center gap-2 bg-vortex-red text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-red-700 transition-all"
           >
             Enroll Now
             <ArrowRight className="w-5 h-5" />
-          </a>
+          </Link>
         </div>
       </section>
     </div>

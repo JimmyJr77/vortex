@@ -11,6 +11,7 @@ import {
   fetchMySchedulingSignups,
   fetchProgramSignupOptions,
   fetchPublicSchedulingForm,
+  fetchPublicSchedulingOfferings,
   fetchSignupOrderPreview,
   formatSchedulingOccurrenceLabel,
   loginSchedulingAuth,
@@ -24,6 +25,7 @@ import {
   type ProgramClassSlotOption,
   type SchedulingFormCategory,
   type SchedulingFormDetail,
+  type SchedulingOffering,
   type SchedulingSignup,
   type SchedulingSignupCompleteDetail,
   type SignupOrderPreview,
@@ -38,13 +40,24 @@ function formatTimeLabel(time: string) {
   return `${hour}:${String(m).padStart(2, '0')} ${period}`
 }
 
+type CategorySlotFilter = {
+  offeringId?: number | null
+  requireOfferingSelection?: boolean
+}
+
 function bookableGroupsForCategory(
   detail: SchedulingFormDetail,
   catId: number | null,
+  filter?: CategorySlotFilter,
 ): SchedulingSlotGroup[] {
-  return (detail.slotGroups ?? []).filter(
-    (group) => (group.categoryId ?? null) === catId,
-  )
+  return (detail.slotGroups ?? []).filter((group) => {
+    if ((group.categoryId ?? null) !== catId) return false
+    if (filter?.requireOfferingSelection && filter.offeringId === undefined) return false
+    if (filter?.offeringId !== undefined) {
+      return (group.offeringId ?? null) === filter.offeringId
+    }
+    return true
+  })
 }
 
 type SlotPickOption = {
@@ -58,8 +71,9 @@ type SlotPickOption = {
 function slotOptionsForCategory(
   detail: SchedulingFormDetail,
   catId: number | null,
+  filter?: CategorySlotFilter,
 ): SlotPickOption[] {
-  return bookableGroupsForCategory(detail, catId).flatMap((group) =>
+  return bookableGroupsForCategory(detail, catId, filter).flatMap((group) =>
     group.occurrences.map((occurrence) => ({
       key: `${group.id}-${occurrence.id}`,
       slotGroupId: group.id,
@@ -713,6 +727,7 @@ interface Props {
   fromEvent?: boolean
   initialAuthToken?: string | null
   initialEmail?: string | null
+  initialCategoryId?: number | null
   onSignupComplete?: (detail: SchedulingSignupCompleteDetail) => void
 }
 
@@ -722,10 +737,14 @@ const SchedulingSignupEmbed = ({
   fromEvent = false,
   initialAuthToken = null,
   initialEmail = null,
+  initialCategoryId,
   onSignupComplete,
 }: Props) => {
   const [formDetail, setFormDetail] = useState<SchedulingFormDetail | null>(null)
   const [categoryId, setCategoryId] = useState<number | null | undefined>(undefined)
+  const [offeringId, setOfferingId] = useState<number | null | undefined>(undefined)
+  const [categoryOfferings, setCategoryOfferings] = useState<SchedulingOffering[]>([])
+  const [offeringsLoading, setOfferingsLoading] = useState(false)
   const [slotGroupId, setSlotGroupId] = useState<number | null>(null)
   const [timeSlotId, setTimeSlotId] = useState<number | null>(null)
   const [responses, setResponses] = useState<Record<string, string | string[]>>({})
@@ -761,6 +780,8 @@ const SchedulingSignupEmbed = ({
     skipAutoSlotRef.current = false
     setLoading(true)
     setCategoryId(undefined)
+    setOfferingId(undefined)
+    setCategoryOfferings([])
     setSlotGroupId(null)
     setTimeSlotId(null)
     setResponses({})
@@ -788,13 +809,36 @@ const SchedulingSignupEmbed = ({
       .then((detail) => {
         setFormDetail(detail)
         const bookable = getBookableCategories(detail)
-        if (bookable.length === 1) {
-          setCategoryId(bookable[0].id ?? null)
+        if (initialCategoryId !== undefined) {
+          const match = bookable.find((c) => (c.id ?? null) === initialCategoryId)
+          if (match) {
+            setCategoryId(match.id ?? null)
+          }
         }
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load form'))
       .finally(() => setLoading(false))
-  }, [formId, fromEvent])
+  }, [formId, fromEvent, initialCategoryId])
+
+  useEffect(() => {
+    if (categoryId === undefined) {
+      setCategoryOfferings([])
+      setOfferingId(undefined)
+      return
+    }
+
+    setOfferingsLoading(true)
+    fetchPublicSchedulingOfferings(formId, categoryId)
+      .then((offerings) => {
+        setCategoryOfferings(offerings)
+        setOfferingId(offerings.length > 0 ? undefined : null)
+      })
+      .catch(() => {
+        setCategoryOfferings([])
+        setOfferingId(null)
+      })
+      .finally(() => setOfferingsLoading(false))
+  }, [formId, categoryId])
 
   useEffect(() => {
     const email =
@@ -932,18 +976,32 @@ const SchedulingSignupEmbed = ({
     [formDetail],
   )
 
+  const requiresOfferingSelection = categoryOfferings.length > 0
+
+  const slotFilter = useMemo((): CategorySlotFilter | undefined => {
+    if (categoryId === undefined) return undefined
+    if (requiresOfferingSelection) {
+      return {
+        requireOfferingSelection: offeringId === undefined,
+        offeringId: offeringId ?? null,
+      }
+    }
+    return undefined
+  }, [categoryId, requiresOfferingSelection, offeringId])
+
   const bookableGroups: SchedulingSlotGroup[] = useMemo(() => {
     if (!formDetail || categoryId === undefined) return []
-    return bookableGroupsForCategory(formDetail, categoryId)
-  }, [formDetail, categoryId])
+    return bookableGroupsForCategory(formDetail, categoryId, slotFilter)
+  }, [formDetail, categoryId, slotFilter])
 
   const slotOptions = useMemo(() => {
     if (!formDetail || categoryId === undefined) return []
-    return slotOptionsForCategory(formDetail, categoryId)
-  }, [formDetail, categoryId])
+    return slotOptionsForCategory(formDetail, categoryId, slotFilter)
+  }, [formDetail, categoryId, slotFilter])
 
   useEffect(() => {
-    if (categoryId === undefined || !formDetail) return
+    if (categoryId === undefined || !formDetail || offeringsLoading) return
+    if (requiresOfferingSelection && offeringId === undefined) return
 
     const categoryChanged = prevCategoryIdRef.current !== categoryId
     prevCategoryIdRef.current = categoryId
@@ -966,7 +1024,15 @@ const SchedulingSignupEmbed = ({
       setSlotGroupId(null)
       setTimeSlotId(null)
     }
-  }, [categoryId, formDetail, slotOptions, isSlotAlreadySignedUp])
+  }, [
+    categoryId,
+    formDetail,
+    slotOptions,
+    isSlotAlreadySignedUp,
+    offeringsLoading,
+    requiresOfferingSelection,
+    offeringId,
+  ])
 
   const showWeekInLabels = useMemo(
     () => schedulingHasMultipleWeeks(bookableGroups),
@@ -992,7 +1058,19 @@ const SchedulingSignupEmbed = ({
   const handleCategorySelect = (catId: number | null) => {
     setSlotGroupId(null)
     setTimeSlotId(null)
+    setOfferingId(undefined)
     setCategoryId(catId)
+    if (!signupAuthToken) {
+      setIdentityPhase('pending')
+      setIsNewUser(false)
+      setMagicLinkSent(false)
+    }
+  }
+
+  const handleOfferingSelect = (nextOfferingId: number) => {
+    setSlotGroupId(null)
+    setTimeSlotId(null)
+    setOfferingId(nextOfferingId)
     if (!signupAuthToken) {
       setIdentityPhase('pending')
       setIsNewUser(false)
@@ -1206,8 +1284,18 @@ const SchedulingSignupEmbed = ({
 
   const slotSelected = categoryId !== undefined && slotGroupId !== null && timeSlotId !== null
   const identityReady = identityPhase === 'ready'
-  const showCategoryPick = bookableCategories.length > 1 && categoryId === undefined
-  const showSlotPick = categoryId !== undefined && timeSlotId === null && slotOptions.length > 0
+  const showCategoryPick = categoryId === undefined && bookableCategories.length > 0
+  const showOfferingPick =
+    categoryId !== undefined &&
+    offeringId === undefined &&
+    requiresOfferingSelection &&
+    !offeringsLoading
+  const showSlotPick =
+    categoryId !== undefined &&
+    !showOfferingPick &&
+    !offeringsLoading &&
+    timeSlotId === null &&
+    slotOptions.length > 0
   const showEmailStep = slotSelected && identityPhase === 'email'
   const showLoginStep = slotSelected && identityPhase === 'login'
   const showNewUserForm = slotSelected && identityReady && isNewUser && signupPhase === 'select'
@@ -1221,6 +1309,18 @@ const SchedulingSignupEmbed = ({
     if (categoryId === undefined || !formDetail) return null
     return formDetail.categories.find((c) => (c.id ?? null) === categoryId)?.name ?? null
   }, [categoryId, formDetail])
+
+  const selectedOfferingLabel = useMemo(() => {
+    if (offeringId == null) return null
+    const offering = categoryOfferings.find((item) => item.id === offeringId)
+    if (!offering) return null
+    return (
+      offering.label?.trim() ||
+      (offering.startDate && offering.endDate
+        ? `${offering.startDate} – ${offering.endDate}`
+        : offering.startDate || offering.endDate || 'Offering')
+    )
+  }, [categoryOfferings, offeringId])
 
   const selectedGroup = useMemo(
     () => bookableGroups.find((g) => g.id === slotGroupId) ?? null,
@@ -1620,7 +1720,7 @@ const SchedulingSignupEmbed = ({
         {showCategoryPick && (
           <div className={sectionClass}>
             <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
-              Choose a category
+              Category
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {bookableCategories.map((cat) => (
@@ -1628,7 +1728,7 @@ const SchedulingSignupEmbed = ({
                   key={cat.id ?? 'none'}
                   type="button"
                   onClick={() => handleCategorySelect(cat.id ?? null)}
-                  className="text-left rounded-xl border-2 p-3 border-gray-200 hover:border-gray-400 transition-all"
+                  className="text-left rounded-xl border-2 p-3 border-gray-200 hover:border-vortex-red transition-all"
                 >
                   <span className="font-bold text-black block text-sm">{cat.name}</span>
                 </button>
@@ -1637,9 +1737,16 @@ const SchedulingSignupEmbed = ({
           </div>
         )}
 
-        {showSlotPick && (
+        {offeringsLoading && categoryId !== undefined && (
+          <div className={`${sectionClass} flex items-center gap-2 text-sm text-gray-500`}>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Loading offerings…
+          </div>
+        )}
+
+        {showOfferingPick && (
           <div className={sectionClass}>
-            {selectedCategoryName && bookableCategories.length > 1 && (
+            {selectedCategoryName && (
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600 mb-3">
                 <span>
                   Category: <span className="font-semibold text-black">{selectedCategoryName}</span>
@@ -1648,6 +1755,7 @@ const SchedulingSignupEmbed = ({
                   type="button"
                   onClick={() => {
                     setCategoryId(undefined)
+                    setOfferingId(undefined)
                     setSlotGroupId(null)
                     setTimeSlotId(null)
                     setIdentityPhase('pending')
@@ -1659,7 +1767,68 @@ const SchedulingSignupEmbed = ({
               </div>
             )}
             <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
-              Choose your time
+              Offering
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {categoryOfferings.map((offering) => {
+                const label =
+                  offering.label?.trim() ||
+                  (offering.startDate && offering.endDate
+                    ? `${offering.startDate} – ${offering.endDate}`
+                    : offering.startDate || offering.endDate || 'Offering')
+                return (
+                  <button
+                    key={offering.id}
+                    type="button"
+                    onClick={() => handleOfferingSelect(offering.id)}
+                    className="text-left rounded-xl border-2 p-3 border-gray-200 hover:border-vortex-red transition-all"
+                  >
+                    <span className="font-bold text-black block text-sm">{label}</span>
+                    {offering.label && offering.startDate && offering.endDate && (
+                      <span className="text-xs text-gray-600 mt-1 block">
+                        {offering.startDate} – {offering.endDate}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {showSlotPick && (
+          <div className={sectionClass}>
+            {selectedCategoryName && (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600 mb-3">
+                <span>
+                  Category: <span className="font-semibold text-black">{selectedCategoryName}</span>
+                </span>
+                {selectedOfferingLabel && (
+                  <span>
+                    Offering:{' '}
+                    <span className="font-semibold text-black">{selectedOfferingLabel}</span>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (requiresOfferingSelection) {
+                      setOfferingId(undefined)
+                    } else {
+                      setCategoryId(undefined)
+                    }
+                    setSlotGroupId(null)
+                    setTimeSlotId(null)
+                    setIdentityPhase('pending')
+                  }}
+                  className="text-vortex-red font-semibold hover:underline"
+                >
+                  {requiresOfferingSelection ? 'Change offering' : 'Change category'}
+                </button>
+              </div>
+            )}
+            <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
+              Time slot
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {slotOptions.map((option) => {
@@ -1707,26 +1876,32 @@ const SchedulingSignupEmbed = ({
           </div>
         )}
 
-        {categoryId !== undefined && slotOptions.length === 0 && (
+        {categoryId !== undefined && !offeringsLoading && !showOfferingPick && slotOptions.length === 0 && (
           <div className={`${sectionClass} text-sm text-gray-600`}>
-            No available times for this category.
-            {bookableCategories.length > 1 && (
-              <button
-                type="button"
-                onClick={() => {
+            No available times for this {requiresOfferingSelection ? 'offering' : 'category'}.
+            <button
+              type="button"
+              onClick={() => {
+                if (requiresOfferingSelection && offeringId != null) {
+                  setOfferingId(undefined)
+                } else {
                   setCategoryId(undefined)
-                  setSlotGroupId(null)
-                  setIdentityPhase('pending')
-                }}
-                className="ml-2 text-vortex-red font-semibold hover:underline"
-              >
-                Choose another category
-              </button>
-            )}
+                  setOfferingId(undefined)
+                }
+                setSlotGroupId(null)
+                setTimeSlotId(null)
+                setIdentityPhase('pending')
+              }}
+              className="ml-2 text-vortex-red font-semibold hover:underline"
+            >
+              {requiresOfferingSelection && offeringId != null
+                ? 'Choose another offering'
+                : 'Choose another category'}
+            </button>
           </div>
         )}
 
-        {slotSelected && selectedGroup && selectedOccurrence && !showCategoryPick && !showSlotPick && (
+        {slotSelected && selectedGroup && selectedOccurrence && !showCategoryPick && !showOfferingPick && !showSlotPick && (
           <div className={`${sectionClass} text-sm text-gray-700`}>
             <span className="font-semibold text-black">Starting slot: </span>
             {selectedCategoryName && <span>{selectedCategoryName} — </span>}

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import NavMenuDivider from '../NavMenuDivider'
 import SportSiteHubMenuLogo from './SportSiteHubMenuLogo'
+import { JACKRABBIT_CLASS_REGISTRATION_URL } from '../../config/contact'
 
 export interface SportSiteMenuLinksProps {
   sportBrandName: string
@@ -60,6 +61,15 @@ const SportSiteMenuLinks = ({
             Member Login
           </button>
         )}
+        <a
+          href={JACKRABBIT_CLASS_REGISTRATION_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onNavigate}
+          className={linkClass}
+        >
+          Jackrabbit Class Login
+        </a>
         <button type="button" onClick={onAdminLoginClick} className={linkClass}>
           Admin Login
         </button>

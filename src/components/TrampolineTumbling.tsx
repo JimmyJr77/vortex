@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Target, Users, Shield, TrendingUp, CheckCircle, ArrowRight, Link as LinkIcon, Award, Zap, Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
+import { ENROLL_PATH } from '../config/enrollSites'
 
 interface TrampolineTumblingProps {
   onSignUpClick: () => void
@@ -148,14 +149,24 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
               transition={{ delay: 0.6, duration: 0.8 }}
             >
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
-                <motion.a
-                  href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+
+                  to={ENROLL_PATH}
+
                   className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+
                 >
+
+                  <motion.span
+
+                    className="inline-block"
+
+                    whileHover={{ scale: 1.05 }}
+
+                    whileTap={{ scale: 0.95 }}
+
+                  >
+
                   <span className="relative z-10 flex items-center space-x-3">
                     <span>Book a Trial Class</span>
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
@@ -166,18 +177,46 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
                     whileHover={{ x: '100%' }}
                     transition={{ duration: 0.6 }}
                   />
-                </motion.a>
+                
 
-                <motion.a
-                  href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  </motion.span>
+
+                </Link>
+
+                <Link
+
+
+                  to={ENROLL_PATH}
+
+
                   className="inline-block border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+
+
                 >
+
+
+                  <motion.span
+
+
+                    className="inline-block"
+
+
+                    whileHover={{ scale: 1.05 }}
+
+
+                    whileTap={{ scale: 0.95 }}
+
+
+                  >
+
                   Request Team Evaluation
-                </motion.a>
+                
+
+
+                  </motion.span>
+
+
+                </Link>
 
                 {!isVideoPlaying && (
                   <motion.button
@@ -265,30 +304,68 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
             >
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+
+                to={ENROLL_PATH}
+
                 className="inline-block bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+
               >
+
+                <motion.span
+
+                  className="inline-block"
+
+                  whileHover={{ scale: 1.05 }}
+
+                  whileTap={{ scale: 0.95 }}
+
+                >
+
                 <span className="flex items-center justify-center space-x-3">
                   <span>Book a Trial Class</span>
                   <ArrowRight className="w-5 h-5" />
                 </span>
-              </motion.a>
+              
 
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+                </motion.span>
+
+              </Link>
+
+              <Link
+
+
+                to={ENROLL_PATH}
+
+
                 className="inline-block border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 w-full max-w-xs"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+
+
               >
+
+
+                <motion.span
+
+
+                  className="inline-block"
+
+
+                  whileHover={{ scale: 1.05 }}
+
+
+                  whileTap={{ scale: 0.95 }}
+
+
+                >
+
                 Request Team Evaluation
-              </motion.a>
+              
+
+
+                </motion.span>
+
+
+              </Link>
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -431,16 +508,30 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
                   <p className="text-gray-700">Badge/level system and showcase days</p>
                 </div>
               </div>
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+
+                to={ENROLL_PATH}
+
                 className="inline-block w-full bg-vortex-red text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+
               >
+
+                <motion.span
+
+                  className="inline-block"
+
+                  whileHover={{ scale: 1.02 }}
+
+                  whileTap={{ scale: 0.98 }}
+
+                >
+
                 Book a Trial Class
-              </motion.a>
+              
+
+                </motion.span>
+
+              </Link>
             </motion.div>
 
             {/* Competition Team Track */}
@@ -475,16 +566,30 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
                   <p className="text-gray-700">Emphasis on strength, shapes, and consistency</p>
                 </div>
               </div>
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+
+                to={ENROLL_PATH}
+
                 className="inline-block w-full border-2 border-vortex-red text-vortex-red px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+
               >
+
+                <motion.span
+
+                  className="inline-block"
+
+                  whileHover={{ scale: 1.02 }}
+
+                  whileTap={{ scale: 0.98 }}
+
+                >
+
                 Request Team Evaluation
-              </motion.a>
+              
+
+                </motion.span>
+
+              </Link>
             </motion.div>
           </div>
 
@@ -750,26 +855,54 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
               Whether you're trying your first flip or aiming for national competition, Vortex T&T has a pathway for you.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+
+                to={ENROLL_PATH}
+
                 className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105 shadow-2xl"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+
               >
+
+                <motion.span
+
+                  className="inline-block"
+
+                  whileHover={{ scale: 1.05 }}
+
+                  whileTap={{ scale: 0.95 }}
+
+                >
+
                 Book a Trial Class
-              </motion.a>
-              <motion.a
-                href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
-                target="_blank"
-                rel="noopener noreferrer"
+              
+
+                </motion.span>
+
+              </Link>
+              <Link
+
+                to={ENROLL_PATH}
+
                 className="inline-block border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+
               >
+
+                <motion.span
+
+                  className="inline-block"
+
+                  whileHover={{ scale: 1.05 }}
+
+                  whileTap={{ scale: 0.95 }}
+
+                >
+
                 Request Team Evaluation
-              </motion.a>
+              
+
+                </motion.span>
+
+              </Link>
             </div>
           </motion.div>
         </div>

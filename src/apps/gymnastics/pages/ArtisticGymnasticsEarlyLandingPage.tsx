@@ -2,12 +2,13 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle, Shield, Users, Sparkles, Heart } from 'lucide-react'
 import HeroBackgroundVideo from '../../../components/HeroBackgroundVideo'
+import { ENROLL_PATH } from '../../../config/enrollSites'
+import { Link } from 'react-router-dom'
 
 interface ArtisticGymnasticsEarlyLandingProps {
   onSignUpClick?: () => void
 }
 
-const JACKRABBIT_URL = 'https://app3.jackrabbitclass.com/regv2.asp?id=557920'
 
 /**
  * Campaign 1: Artistic Gymnastics – Mommy & Me + Preschool (Ages 2–5)
@@ -59,20 +60,43 @@ const ArtisticGymnasticsEarlyLanding = ({ onSignUpClick }: ArtisticGymnasticsEar
           >
             Structured early development gymnastics for ages 2–5, building balance, coordination, and courage from the very first class.
           </motion.p>
-          <motion.a
-            href={JACKRABBIT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-3 bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group mx-auto"
+          <motion.div
+
             initial={{ opacity: 0, y: 30 }}
+
             animate={{ opacity: 1, y: 0 }}
+
             transition={{ delay: 0.4, duration: 0.8 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+
           >
+
+          <Link
+
+            to={ENROLL_PATH}
+
+            className="inline-flex items-center justify-center gap-3 bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group mx-auto"
+
+          >
+
+            <motion.span
+
+              className="inline-block"
+
+              whileHover={{ scale: 1.05 }}
+
+              whileTap={{ scale: 0.95 }}
+
+            >
+
             <span>Start Your Child&apos;s Journey</span>
             <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-          </motion.a>
+          
+
+            </motion.span>
+
+          </Link>
+
+          </motion.div>
 
           {/* Scroll indicator */}
           <motion.div
@@ -326,16 +350,30 @@ const ArtisticGymnasticsEarlyLanding = ({ onSignUpClick }: ArtisticGymnasticsEar
               Book your trial class today.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <motion.a
-                href={JACKRABBIT_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+
+                to={ENROLL_PATH}
+
                 className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+
               >
+
+                <motion.span
+
+                  className="inline-block"
+
+                  whileHover={{ scale: 1.05 }}
+
+                  whileTap={{ scale: 0.95 }}
+
+                >
+
                 Start Here
-              </motion.a>
+              
+
+                </motion.span>
+
+              </Link>
               {onSignUpClick && (
                 <motion.button
                   type="button"

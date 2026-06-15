@@ -47,10 +47,19 @@ export function parseCalendarDateRange(query) {
  *   programId?: number | null,
  *   formActive?: 'all' | 'active' | 'inactive', // admin: filters program.is_active (class status)
  *   publicOnly?: boolean,
+ *   site?: string,
  * }} options
  */
 export async function loadSchedulingCalendar(pool, options) {
-  const { startDate, endDate, programsId = null, programId = null, formActive = 'all', publicOnly = false } = options
+  const {
+    startDate,
+    endDate,
+    programsId = null,
+    programId = null,
+    formActive = 'all',
+    publicOnly = false,
+    site = 'athletics',
+  } = options
 
   const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import('../programs/schema.js')
   const schema = await resolveProgramsSchema(pool)
@@ -85,6 +94,10 @@ export async function loadSchedulingCalendar(pool, options) {
     filters.push(`sf.program_id = $${params.length}`)
   }
 
+  const programEnrollSelect = hasSchedCols
+    ? 'pr.scheduling_enroll_sites, pr.scheduling_active,'
+    : 'NULL AS scheduling_enroll_sites, NULL AS scheduling_active,'
+
   const result = await pool.query(
     `
     SELECT
@@ -95,10 +108,12 @@ export async function loadSchedulingCalendar(pool, options) {
       sg.dates_tbd AS sg_dates_tbd,
       sf.title AS form_title,
       sf.is_active AS form_is_active,
+      sf.enroll_sites,
       sf.start_date AS form_start_date,
       sf.end_date AS form_end_date,
       sf.program_id,
       sf.programs_id,
+      ${programEnrollSelect}
       o.start_date AS offering_start_date,
       o.end_date AS offering_end_date,
       o.label AS offering_label,
@@ -123,7 +138,7 @@ export async function loadSchedulingCalendar(pool, options) {
     params,
   )
 
-  return expandCalendarRange({ startDate, endDate, rows: result.rows })
+  return expandCalendarRange({ startDate, endDate, rows: result.rows, site })
 }
 
 /**
