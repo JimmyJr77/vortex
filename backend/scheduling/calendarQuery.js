@@ -45,7 +45,7 @@ export function parseCalendarDateRange(query) {
  *   endDate: string,
  *   programsId?: number | null,
  *   programId?: number | null,
- *   formActive?: 'all' | 'active' | 'inactive',
+ *   formActive?: 'all' | 'active' | 'inactive', // admin: filters program.is_active (class status)
  *   publicOnly?: boolean,
  * }} options
  */
@@ -71,9 +71,9 @@ export async function loadSchedulingCalendar(pool, options) {
       filters.push('(pr.id IS NULL OR COALESCE(pr.scheduling_active, TRUE) = TRUE)')
     }
   } else if (formActive === 'active') {
-    filters.push('sf.is_active = TRUE')
+    filters.push('p.is_active = TRUE')
   } else if (formActive === 'inactive') {
-    filters.push('sf.is_active = FALSE')
+    filters.push('p.is_active = FALSE')
   }
 
   if (programsId != null) {
@@ -104,6 +104,7 @@ export async function loadSchedulingCalendar(pool, options) {
       o.label AS offering_label,
       p.display_name AS class_name,
       p.description AS class_description,
+      p.is_active AS class_is_active,
       p.skill_level,
       p.age_min,
       p.age_max,

@@ -46,7 +46,7 @@ if (fs.existsSync(envLocalPath)) {
 const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'inquiry-overhaul-2026-06-15'
+const API_BUILD_ID = 'scheduling-enroll-sites-2026-06-15'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -2341,6 +2341,7 @@ app.get('/api/health', (req, res) => {
       notes: hasRegisteredRoute('/api/admin/notes'),
       adminEmailStatus: hasRegisteredRoute('/api/admin/email/status'),
       registrationInquiryOverhaul: true,
+      schedulingEnrollSites: true,
     },
   })
 })

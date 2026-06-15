@@ -2,6 +2,11 @@ import { adminApiRequest, getApiUrl } from './api'
 import { dateInputValue } from './dateUtils'
 import { ENROLL_PATH, type EnrollSiteKey } from '../config/enrollSites'
 import { getCurrentEnrollSiteKey } from './enrollSite'
+import {
+  adaptCategoryUpdateForApi,
+  adaptFormEnrollSitesBody,
+  getSchedulingEnrollApiCapabilities,
+} from './schedulingEnrollApi'
 
 export type { EnrollSiteKey }
 
@@ -246,6 +251,7 @@ export interface SchedulingCalendarEvent {
   offeringStartDate: string | null
   offeringEndDate: string | null
   formActive: boolean
+  classActive: boolean
   slotGroupActive: boolean
   slotActive: boolean
   weekLetter?: string | null
@@ -262,6 +268,7 @@ export interface SchedulingCalendarTbd {
   categoryName: string | null
   offeringLabel: string | null
   formActive: boolean
+  classActive: boolean
   slotGroupActive: boolean
   scheduleMode: 'day' | 'date'
   weekLetter: string | null
@@ -770,9 +777,11 @@ export async function adminSetSchedulingFormEnrollSites(
   formId: number,
   enrollSites: EnrollSiteKey[],
 ): Promise<SchedulingFormSummary> {
+  const capabilities = await getSchedulingEnrollApiCapabilities()
+  const body = adaptFormEnrollSitesBody(enrollSites, capabilities.schedulingEnrollSites)
   const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/active`, {
     method: 'PATCH',
-    body: JSON.stringify({ enrollSites }),
+    body: JSON.stringify(body),
   })
   return parseJson(res)
 }
@@ -822,9 +831,11 @@ export async function adminUpdateCategory(
   id: number,
   payload: { name: string; sortOrder?: number; isActive?: boolean; enrollSites?: EnrollSiteKey[] },
 ): Promise<SchedulingCategory> {
+  const capabilities = await getSchedulingEnrollApiCapabilities()
+  const apiPayload = adaptCategoryUpdateForApi(payload, capabilities.schedulingEnrollSites)
   const res = await adminApiRequest(`/api/admin/scheduling/categories/${id}`, {
     method: 'PUT',
-    body: JSON.stringify(payload),
+    body: JSON.stringify(apiPayload),
   })
   return parseJson(res)
 }

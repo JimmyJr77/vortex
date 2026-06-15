@@ -1,5 +1,9 @@
 import { type EnrollSiteKey } from '../config/enrollSites'
 import { adminApiRequest } from './api'
+import {
+  adaptProgramSchedulingUpdateForApi,
+  getSchedulingEnrollApiCapabilities,
+} from './schedulingEnrollApi'
 
 export interface SchedulingCategoryRef {
   id: number | null
@@ -124,9 +128,11 @@ export async function updateTopProgram(
     pricingFreeSlotsPerUser: number
   }>,
 ): Promise<TopProgram> {
+  const capabilities = await getSchedulingEnrollApiCapabilities()
+  const apiPayload = adaptProgramSchedulingUpdateForApi(payload, capabilities.schedulingEnrollSites)
   const res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
     method: 'PUT',
-    body: JSON.stringify(payload),
+    body: JSON.stringify(apiPayload),
   })
   return parseJson(res)
 }

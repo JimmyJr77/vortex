@@ -105,6 +105,12 @@ const SchedulingCalendarView = ({
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set())
   const isDark = theme === 'dark'
 
+  const isEventInactive = (event: Pick<SchedulingCalendarEvent, 'classActive' | 'formActive'>) =>
+    mode === 'admin' ? !event.classActive : !event.formActive
+
+  const isTbdInactive = (tbd: Pick<SchedulingCalendarTbd, 'classActive' | 'formActive'>) =>
+    mode === 'admin' ? !tbd.classActive : !tbd.formActive
+
   const selectedClassName =
     classFilterId === 'none'
       ? null
@@ -193,7 +199,7 @@ const SchedulingCalendarView = ({
   }
 
   const renderCompactChip = (event: SchedulingCalendarEvent) => {
-    const inactive = !event.formActive
+    const inactive = isEventInactive(event)
     const timeLabel = `${formatTime12(event.startTime)}–${formatTime12(event.endTime)}`
     return (
       <button
@@ -223,7 +229,7 @@ const SchedulingCalendarView = ({
   }
 
   const renderDayListItem = (event: SchedulingCalendarEvent, showSignup = false) => {
-    const inactive = !event.formActive
+    const inactive = isEventInactive(event)
     const timeLabel = `${formatTime12(event.startTime)} – ${formatTime12(event.endTime)}`
     return (
       <div
@@ -660,7 +666,7 @@ const SchedulingCalendarView = ({
                 includeWeek: Boolean(tbd.weekLetter),
                 formatTime: formatTime12,
               })
-              const inactive = !tbd.formActive
+              const inactive = isTbdInactive(tbd)
               const signupPath =
                 mode === 'public' && tbd.formActive
                   ? schedulingSignupPath(tbd.formId, tbd.categoryId)

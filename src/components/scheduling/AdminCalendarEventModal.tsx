@@ -112,12 +112,22 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
             <DetailRow label="Program" value={event.programName || '—'} />
             <DetailRow label="Category" value={event.categoryName || 'No Category'} />
             <DetailRow
-              label="Status"
+              label="Class status"
+              value={
+                event.classActive ? (
+                  <span className="text-green-700 font-medium">Active</span>
+                ) : (
+                  <span className="text-gray-500">Inactive</span>
+                )
+              }
+            />
+            <DetailRow
+              label="Enroll pages"
               value={
                 event.formActive ? (
-                  <span className="text-green-700 font-medium">Active on enroll pages</span>
+                  <span className="text-green-700 font-medium">Visible</span>
                 ) : (
-                  <span className="text-gray-500">Inactive on enroll pages</span>
+                  <span className="text-gray-500">Hidden</span>
                 )
               }
             />
