@@ -21,7 +21,7 @@ import {
 
 import { schedulingEnrollPath } from '../utils/schedulingApi'
 
-/** Top-level program id for Elementary, Middle, & High School Summer Athletic Training. */
+/** Top-level program id for the Summer Athletic Training Program. */
 const SUMMER_ATHLETIC_TRAINING_PROGRAMS_ID = 8
 
 /** Primary conversion CTA — deep-links into the Summer Athletic Training enroll form. */

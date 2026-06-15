@@ -1257,7 +1257,7 @@ export function createSchedulingHandlers(pool) {
         const schema = await resolveProgramsSchema(pool)
         const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
         const programActiveClause = hasSchedCols
-          ? `(sf.programs_id IS NULL OR ${enrollSiteVisibleSql({
+          ? `(COALESCE(sf.programs_id, p.${schema.programFkColumn}) IS NULL OR ${enrollSiteVisibleSql({
               sitesColumn: 'pr.scheduling_enroll_sites',
               legacyColumn: 'pr.scheduling_active',
               siteParam: '$1',
@@ -1271,23 +1271,34 @@ export function createSchedulingHandlers(pool) {
 
         const result = await pool.query(
           `
-          SELECT sf.*, pr.display_name AS program_display_name
+          SELECT
+            sf.*,
+            p.display_name AS class_display_name,
+            pr.display_name AS program_display_name,
+            COALESCE(sf.programs_id, p.${schema.programFkColumn}) AS resolved_programs_id
           FROM scheduling_form sf
-          LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
+          LEFT JOIN program p ON p.id = sf.program_id
+          LEFT JOIN ${schema.programsTable} pr
+            ON pr.id = COALESCE(sf.programs_id, p.${schema.programFkColumn})
           WHERE sf.deleted_at IS NULL
             AND sf.program_id IS NOT NULL
             AND ${formActiveClause}
             AND ${programActiveClause}
-          ORDER BY pr.display_name NULLS LAST, sf.title ASC
+          ORDER BY pr.display_name NULLS LAST, p.display_name NULLS LAST, sf.title ASC
           `,
           [site],
         )
         res.json({
           success: true,
-          data: result.rows.map((row) => ({
-            ...mapFormRow(row),
-            programDisplayName: row.program_display_name ?? null,
-          })),
+          data: result.rows.map((row) => {
+            const resolvedProgramsId =
+              row.resolved_programs_id != null ? Number(row.resolved_programs_id) : null
+            return {
+              ...mapFormRow({ ...row, programs_id: resolvedProgramsId }),
+              programDisplayName: row.program_display_name ?? null,
+              classDisplayName: row.class_display_name ?? null,
+            }
+          }),
         })
       } catch (err) {
         console.error('[scheduling] listPublicForms:', err)

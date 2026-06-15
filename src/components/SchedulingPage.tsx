@@ -31,7 +31,7 @@ function groupFormsByProgram(forms: SchedulingFormSummary[]): EnrollProgramGroup
     if (!group) {
       group = {
         programsId,
-        displayName: form.programDisplayName?.trim() || form.title,
+        displayName: form.programDisplayName?.trim() || 'Program',
         forms: [],
       }
       byId.set(programsId, group)
@@ -227,7 +227,7 @@ const SchedulingPage = () => {
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <h3 className="text-xl font-display font-bold text-black group-hover:text-vortex-red transition-colors">
-                          {form.title}
+                          {form.classDisplayName?.trim() || form.title}
                         </h3>
                         {form.description && (
                           <p className="text-sm mb-3 line-clamp-3 text-gray-600 mt-2">

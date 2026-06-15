@@ -172,6 +172,7 @@ export interface SchedulingFormSummary {
   enrollSites?: EnrollSiteKey[]
   programsId?: number | null
   programDisplayName?: string | null
+  classDisplayName?: string | null
   maxSlotsPerUser?: number | null
   slotCostMonthlyCents?: number
   freeSlotsPerUser?: number
