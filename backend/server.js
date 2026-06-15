@@ -1407,6 +1407,7 @@ const categorySchema = Joi.object({
   pricingMaxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
   pricingSlotCostMonthlyCents: Joi.number().integer().min(0).optional(),
   pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
+  pricingMaxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),
 })
 
 const categoryUpdateSchema = Joi.object({
@@ -1419,6 +1420,7 @@ const categoryUpdateSchema = Joi.object({
   pricingMaxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
   pricingSlotCostMonthlyCents: Joi.number().integer().min(0).optional(),
   pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
+  pricingMaxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),
 })
 
 const levelSchema = Joi.object({
@@ -10583,9 +10585,11 @@ app.get('/api/admin/programs', async (req, res) => {
         sf.max_slots_per_user as "formMaxSlotsPerUser",
         sf.slot_cost_monthly_cents as "formSlotCostMonthlyCents",
         sf.free_slots_per_user as "formFreeSlotsPerUser",
+        sf.max_free_slots_total as "formMaxFreeSlotsTotal",
         pc.pricing_max_slots_per_user as "programMaxSlotsPerUser",
         pc.pricing_slot_cost_monthly_cents as "programSlotCostMonthlyCents",
-        pc.pricing_free_slots_per_user as "programFreeSlotsPerUser"` : ''}
+        pc.pricing_free_slots_per_user as "programFreeSlotsPerUser",
+        pc.pricing_max_free_slots_total as "programMaxFreeSlotsTotal"` : ''}
       FROM program p
       LEFT JOIN ${taxonomy.programsTable} pc ON p.${taxonomy.programFkColumn} = pc.id
       LEFT JOIN discipline_tag primary_dt ON primary_dt.id = pc.primary_discipline_tag_id
@@ -10666,6 +10670,7 @@ app.get('/api/admin/programs', async (req, res) => {
             pricing_max_slots_per_user: row.programMaxSlotsPerUser,
             pricing_slot_cost_monthly_cents: row.programSlotCostMonthlyCents,
             pricing_free_slots_per_user: row.programFreeSlotsPerUser,
+            pricing_max_free_slots_total: row.programMaxFreeSlotsTotal,
           },
           {
             id: row.schedulingFormId,
@@ -10673,6 +10678,7 @@ app.get('/api/admin/programs', async (req, res) => {
             max_slots_per_user: row.formMaxSlotsPerUser,
             slot_cost_monthly_cents: row.formSlotCostMonthlyCents,
             free_slots_per_user: row.formFreeSlotsPerUser,
+            max_free_slots_total: row.formMaxFreeSlotsTotal,
           },
         )
       }
@@ -12310,7 +12316,8 @@ app.get('/api/admin/categories', async (req, res) => {
         primary_dt.name as "primarySportName",
         p.pricing_max_slots_per_user as "pricingMaxSlotsPerUser",
         p.pricing_slot_cost_monthly_cents as "pricingSlotCostMonthlyCents",
-        p.pricing_free_slots_per_user as "pricingFreeSlotsPerUser"
+        p.pricing_free_slots_per_user as "pricingFreeSlotsPerUser",
+        p.pricing_max_free_slots_total as "pricingMaxFreeSlotsTotal"
       FROM ${taxonomy.programsTable} p
       LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
     `
@@ -12513,11 +12520,16 @@ app.put('/api/admin/categories/:id', async (req, res) => {
       updates.push(`pricing_free_slots_per_user = $${paramCount++}`)
       values.push(value.pricingFreeSlotsPerUser)
     }
+    if (value.pricingMaxFreeSlotsTotal !== undefined) {
+      updates.push(`pricing_max_free_slots_total = $${paramCount++}`)
+      values.push(value.pricingMaxFreeSlotsTotal)
+    }
 
     const hasPricingUpdate =
       value.pricingMaxSlotsPerUser !== undefined ||
       value.pricingSlotCostMonthlyCents !== undefined ||
-      value.pricingFreeSlotsPerUser !== undefined
+      value.pricingFreeSlotsPerUser !== undefined ||
+      value.pricingMaxFreeSlotsTotal !== undefined
 
     if (updates.length === 0 && value.primarySportId === undefined && !hasPricingUpdate) {
       return res.status(400).json({
@@ -12592,7 +12604,8 @@ app.put('/api/admin/categories/:id', async (req, res) => {
           archived, created_at as "createdAt", updated_at as "updatedAt",
           pricing_max_slots_per_user as "pricingMaxSlotsPerUser",
           pricing_slot_cost_monthly_cents as "pricingSlotCostMonthlyCents",
-          pricing_free_slots_per_user as "pricingFreeSlotsPerUser"
+          pricing_free_slots_per_user as "pricingFreeSlotsPerUser",
+          pricing_max_free_slots_total as "pricingMaxFreeSlotsTotal"
          FROM ${taxonomy.programsTable} WHERE id = $1`,
         [id],
       )
@@ -12601,7 +12614,8 @@ app.put('/api/admin/categories/:id', async (req, res) => {
       const pricingFetch = await pool.query(
         `SELECT pricing_max_slots_per_user as "pricingMaxSlotsPerUser",
           pricing_slot_cost_monthly_cents as "pricingSlotCostMonthlyCents",
-          pricing_free_slots_per_user as "pricingFreeSlotsPerUser"
+          pricing_free_slots_per_user as "pricingFreeSlotsPerUser",
+          pricing_max_free_slots_total as "pricingMaxFreeSlotsTotal"
          FROM ${taxonomy.programsTable} WHERE id = $1`,
         [id],
       )

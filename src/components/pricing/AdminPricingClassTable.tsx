@@ -43,9 +43,9 @@ const AdminPricingClassTable = ({ program, classes, onRefresh }: Props) => {
                 <td className={`${tdClass} font-medium`}>{classRow.displayName}</td>
                 <td className={tdClass}>
                   {formatSchedulingCosts({
-                    maxSlotsPerUser: classRow.maxSlotsPerUser,
                     slotCostMonthlyCents: classRow.slotCostMonthlyCents,
                     freeSlotsPerUser: classRow.freeSlotsPerUser,
+                    maxFreeSlotsTotal: classRow.maxFreeSlotsTotal,
                   })}
                 </td>
                 <td className={tdClass}>

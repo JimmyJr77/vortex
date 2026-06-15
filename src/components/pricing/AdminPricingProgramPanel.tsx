@@ -37,9 +37,10 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
     setSaved(false)
     try {
       await updateTopProgram(program.id, {
-        pricingMaxSlotsPerUser: values.maxSlotsPerUser === '' ? null : Number(values.maxSlotsPerUser),
         pricingSlotCostMonthlyCents: values.slotCostMonthlyCents,
         pricingFreeSlotsPerUser: values.freeSlotsPerUser,
+        pricingMaxFreeSlotsTotal:
+          values.maxFreeSlotsTotal === '' ? null : Number(values.maxFreeSlotsTotal),
       })
       await onRefresh()
       setSaved(true)
@@ -74,7 +75,12 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
         </p>
       </div>
 
-      <PricingCostsFields values={values} onChange={setValues} />
+      <PricingCostsFields
+        values={values}
+        onChange={setValues}
+        totalFreeSlotsLabel="Total free slots (program-wide)"
+        totalFreeSlotsHelp="Leave empty for unlimited. Caps free slots across all classes and members in this program."
+      />
 
       <div className="flex flex-wrap items-center gap-2">
         <button

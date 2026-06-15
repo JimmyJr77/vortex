@@ -1,37 +1,26 @@
 export interface PricingCostsValues {
-  maxSlotsPerUser: number | ''
   slotCostMonthlyCents: number
   freeSlotsPerUser: number
+  maxFreeSlotsTotal: number | ''
 }
 
 interface Props {
   values: PricingCostsValues
   onChange: (values: PricingCostsValues) => void
   disabled?: boolean
+  totalFreeSlotsLabel?: string
+  totalFreeSlotsHelp?: string
 }
 
-const PricingCostsFields = ({ values, onChange, disabled = false }: Props) => {
+const PricingCostsFields = ({
+  values,
+  onChange,
+  disabled = false,
+  totalFreeSlotsLabel = 'Total free slots',
+  totalFreeSlotsHelp = 'Leave empty for unlimited. Caps free slots granted across all members (first-come, first-served).',
+}: Props) => {
   return (
     <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-semibold mb-1">Max slots per user</label>
-        <input
-          type="number"
-          min={1}
-          placeholder="Unlimited"
-          disabled={disabled}
-          value={values.maxSlotsPerUser}
-          onChange={(e) => {
-            const v = e.target.value
-            onChange({
-              ...values,
-              maxSlotsPerUser: v === '' ? '' : Math.max(1, Number(v)),
-            })
-          }}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 disabled:bg-gray-50"
-        />
-        <p className="text-xs text-gray-500 mt-1">Leave empty for no limit.</p>
-      </div>
       <div>
         <label className="block text-sm font-semibold mb-1">Cost per slot per month ($)</label>
         <input
@@ -65,42 +54,61 @@ const PricingCostsFields = ({ values, onChange, disabled = false }: Props) => {
           className="w-full rounded-lg border border-gray-300 px-4 py-2 disabled:bg-gray-50"
         />
       </div>
+      <div>
+        <label className="block text-sm font-semibold mb-1">{totalFreeSlotsLabel}</label>
+        <input
+          type="number"
+          min={0}
+          placeholder="Unlimited"
+          disabled={disabled}
+          value={values.maxFreeSlotsTotal}
+          onChange={(e) => {
+            const v = e.target.value
+            onChange({
+              ...values,
+              maxFreeSlotsTotal: v === '' ? '' : Math.max(0, Number(v)),
+            })
+          }}
+          className="w-full rounded-lg border border-gray-300 px-4 py-2 disabled:bg-gray-50"
+        />
+        <p className="text-xs text-gray-500 mt-1">{totalFreeSlotsHelp}</p>
+      </div>
     </div>
   )
 }
 
 export function pricingValuesFromProgram(program: {
-  pricingMaxSlotsPerUser?: number | null
   pricingSlotCostMonthlyCents?: number
   pricingFreeSlotsPerUser?: number
+  pricingMaxFreeSlotsTotal?: number | null
 }): PricingCostsValues {
   return {
-    maxSlotsPerUser: program.pricingMaxSlotsPerUser ?? '',
     slotCostMonthlyCents: program.pricingSlotCostMonthlyCents ?? 0,
     freeSlotsPerUser: program.pricingFreeSlotsPerUser ?? 0,
+    maxFreeSlotsTotal: program.pricingMaxFreeSlotsTotal ?? '',
   }
 }
 
 export function pricingValuesFromClass(classRow: {
-  formMaxSlotsPerUser?: number | null
   formSlotCostMonthlyCents?: number
   formFreeSlotsPerUser?: number
-  maxSlotsPerUser?: number | null
+  formMaxFreeSlotsTotal?: number | null
   slotCostMonthlyCents?: number
   freeSlotsPerUser?: number
+  maxFreeSlotsTotal?: number | null
   pricingOverridesProgram?: boolean
 }): PricingCostsValues {
   if (classRow.pricingOverridesProgram) {
     return {
-      maxSlotsPerUser: classRow.formMaxSlotsPerUser ?? '',
       slotCostMonthlyCents: classRow.formSlotCostMonthlyCents ?? 0,
       freeSlotsPerUser: classRow.formFreeSlotsPerUser ?? 0,
+      maxFreeSlotsTotal: classRow.formMaxFreeSlotsTotal ?? '',
     }
   }
   return {
-    maxSlotsPerUser: classRow.maxSlotsPerUser ?? '',
     slotCostMonthlyCents: classRow.slotCostMonthlyCents ?? 0,
     freeSlotsPerUser: classRow.freeSlotsPerUser ?? 0,
+    maxFreeSlotsTotal: classRow.maxFreeSlotsTotal ?? '',
   }
 }
 

@@ -462,12 +462,14 @@ export async function splitClassByCategory(pool, sourceProgramId, { fromCategory
         'max_slots_per_user',
         'slot_cost_monthly_cents',
         'free_slots_per_user',
+        'max_free_slots_total',
         'pricing_overrides_program',
       )
       formInsertVals.push(
         srcFormRow.max_slots_per_user,
         srcFormRow.slot_cost_monthly_cents,
         srcFormRow.free_slots_per_user,
+        srcFormRow.max_free_slots_total ?? null,
         Boolean(srcFormRow.pricing_overrides_program),
       )
     }

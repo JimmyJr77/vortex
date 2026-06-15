@@ -115,9 +115,9 @@ const AdminPricingProgramTable = () => {
                   <td className={`${tdClass} font-medium`}>{program.displayName}</td>
                   <td className={tdClass}>
                     {formatSchedulingCosts({
-                      maxSlotsPerUser: program.pricingMaxSlotsPerUser,
                       slotCostMonthlyCents: program.pricingSlotCostMonthlyCents,
                       freeSlotsPerUser: program.pricingFreeSlotsPerUser,
+                      maxFreeSlotsTotal: program.pricingMaxFreeSlotsTotal,
                     })}
                   </td>
                   <td className={tdClass}>{stats.classCount}</td>

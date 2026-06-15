@@ -1,20 +1,29 @@
-export function computeMonthlyPricing(formRow, totalActiveSlots) {
-  const costCents = Number(formRow?.slot_cost_monthly_cents ?? 0)
-  const freeSlots = Number(formRow?.free_slots_per_user ?? 0)
+export function computeMonthlyPricing(effectiveDbRow, totalActiveSlots, freeSlotsGranted = null) {
+  const costCents = Number(effectiveDbRow?.slot_cost_monthly_cents ?? 0)
+  const freePerUser = Number(effectiveDbRow?.free_slots_per_user ?? 0)
+  const maxFreeTotal =
+    effectiveDbRow?.max_free_slots_total != null
+      ? Number(effectiveDbRow.max_free_slots_total)
+      : null
   const total = Math.max(0, Number(totalActiveSlots) || 0)
   const costPerSlot = costCents / 100
-  const freeUsed = Math.min(total, freeSlots)
-  const paidSlots = Math.max(0, total - freeSlots)
-  const freeRemaining = Math.max(0, freeSlots - total)
+
+  const perUserFree = Math.min(total, freePerUser)
+  const granted =
+    freeSlotsGranted != null ? Math.min(Math.max(0, freeSlotsGranted), total) : perUserFree
+  const paidSlots = Math.max(0, total - granted)
+  const perUserRemaining = Math.max(0, freePerUser - total)
 
   return {
     totalSlots: total,
-    freeSlotsRemaining: freeRemaining,
+    freeSlotsGranted: granted,
+    freeSlotsRemaining: perUserRemaining,
+    globalFreeSlotsCap: maxFreeTotal,
     costPerSlotMonthly: costPerSlot,
     nonDiscountedMonthly: total * costPerSlot,
-    discountMonthly: freeUsed * costPerSlot,
+    discountMonthly: granted * costPerSlot,
     discountedMonthly: paidSlots * costPerSlot,
-    hasFreeSlots: freeSlots > 0,
+    hasFreeSlots: freePerUser > 0 || (maxFreeTotal != null && maxFreeTotal > 0),
     hasPricing: costCents > 0,
   }
 }
@@ -31,7 +40,7 @@ export function formatPricingEmailBlock(pricing) {
   const lines = ['Monthly cost summary:']
   lines.push(`• Slots held: ${pricing.totalSlots}`)
   if (pricing.hasFreeSlots) {
-    lines.push(`• Free slots remaining: ${pricing.freeSlotsRemaining}`)
+    lines.push(`• Free slots remaining (per user): ${pricing.freeSlotsRemaining}`)
   }
   lines.push(`• Non-discounted total: ${formatMoney(pricing.nonDiscountedMonthly)}/mo`)
   if (pricing.discountMonthly > 0) {
@@ -44,7 +53,7 @@ export function formatPricingEmailBlock(pricing) {
   ]
   if (pricing.hasFreeSlots) {
     htmlRows.push(
-      `<tr><td style="padding:6px 12px 6px 0;color:#666;">Free slots remaining</td><td><strong>${pricing.freeSlotsRemaining}</strong></td></tr>`,
+      `<tr><td style="padding:6px 12px 6px 0;color:#666;">Free slots remaining (per user)</td><td><strong>${pricing.freeSlotsRemaining}</strong></td></tr>`,
     )
   }
   htmlRows.push(

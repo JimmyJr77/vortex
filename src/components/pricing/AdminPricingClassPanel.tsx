@@ -9,6 +9,7 @@ import type { AdminProgramPricing, TopProgram } from '../../utils/programsApi'
 import { formatSchedulingCosts } from '../../utils/classSchedulingSummary'
 import PricingCostsFields, {
   pricingValuesFromClass,
+  pricingValuesFromProgram,
   type PricingCostsValues,
 } from './PricingCostsFields'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
@@ -47,17 +48,13 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
   }, [formId, classRow.displayName])
 
   const programDefaultsLabel = formatSchedulingCosts({
-    maxSlotsPerUser: program.pricingMaxSlotsPerUser,
     slotCostMonthlyCents: program.pricingSlotCostMonthlyCents,
     freeSlotsPerUser: program.pricingFreeSlotsPerUser,
+    maxFreeSlotsTotal: program.pricingMaxFreeSlotsTotal,
   })
 
   const handleCustomize = () => {
-    setValues({
-      maxSlotsPerUser: program.pricingMaxSlotsPerUser ?? '',
-      slotCostMonthlyCents: program.pricingSlotCostMonthlyCents ?? 0,
-      freeSlotsPerUser: program.pricingFreeSlotsPerUser ?? 0,
-    })
+    setValues(pricingValuesFromProgram(program))
     setEditing(true)
     setSaved(false)
   }
@@ -74,9 +71,10 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
       await adminSaveSchedulingForm(
         {
           title: formTitle,
-          maxSlotsPerUser: values.maxSlotsPerUser === '' ? null : Number(values.maxSlotsPerUser),
           slotCostMonthlyCents: values.slotCostMonthlyCents,
           freeSlotsPerUser: values.freeSlotsPerUser,
+          maxFreeSlotsTotal:
+            values.maxFreeSlotsTotal === '' ? null : Number(values.maxFreeSlotsTotal),
           pricingOverridesProgram: true,
         },
         formId,
@@ -132,9 +130,9 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
           <p className="text-gray-700">
             Effective pricing:{' '}
             {formatSchedulingCosts({
-              maxSlotsPerUser: classRow.maxSlotsPerUser,
               slotCostMonthlyCents: classRow.slotCostMonthlyCents,
               freeSlotsPerUser: classRow.freeSlotsPerUser,
+              maxFreeSlotsTotal: classRow.maxFreeSlotsTotal,
             })}
           </p>
           <button
@@ -152,7 +150,12 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
               Custom override
             </span>
           )}
-          <PricingCostsFields values={values} onChange={setValues} />
+          <PricingCostsFields
+            values={values}
+            onChange={setValues}
+            totalFreeSlotsLabel="Total free slots (class-wide)"
+            totalFreeSlotsHelp="Leave empty for unlimited. Caps free slots across all members in this class."
+          />
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"

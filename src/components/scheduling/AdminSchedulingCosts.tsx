@@ -4,7 +4,10 @@ import {
   adminSaveSchedulingForm,
   type SchedulingFormDetail,
 } from '../../utils/schedulingApi'
-import PricingCostsFields, { type PricingCostsValues } from '../pricing/PricingCostsFields'
+import PricingCostsFields, {
+  pricingValuesFromClass,
+  type PricingCostsValues,
+} from '../pricing/PricingCostsFields'
 
 interface Props {
   formId: number
@@ -13,21 +16,15 @@ interface Props {
 }
 
 const AdminSchedulingCosts = ({ formId, detail, onSaved }: Props) => {
-  const [values, setValues] = useState<PricingCostsValues>({
-    maxSlotsPerUser: detail.maxSlotsPerUser ?? '',
-    slotCostMonthlyCents: detail.slotCostMonthlyCents ?? 0,
-    freeSlotsPerUser: detail.freeSlotsPerUser ?? 0,
-  })
+  const [values, setValues] = useState<PricingCostsValues>(() =>
+    pricingValuesFromClass({ ...detail, pricingOverridesProgram: true }),
+  )
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setValues({
-      maxSlotsPerUser: detail.maxSlotsPerUser ?? '',
-      slotCostMonthlyCents: detail.slotCostMonthlyCents ?? 0,
-      freeSlotsPerUser: detail.freeSlotsPerUser ?? 0,
-    })
+    setValues(pricingValuesFromClass({ ...detail, pricingOverridesProgram: true }))
     setSaved(false)
   }, [detail])
 
@@ -43,9 +40,10 @@ const AdminSchedulingCosts = ({ formId, detail, onSaved }: Props) => {
           startDate: detail.startDate,
           endDate: detail.endDate,
           isActive: detail.isActive,
-          maxSlotsPerUser: values.maxSlotsPerUser === '' ? null : Number(values.maxSlotsPerUser),
           slotCostMonthlyCents: values.slotCostMonthlyCents,
           freeSlotsPerUser: values.freeSlotsPerUser,
+          maxFreeSlotsTotal:
+            values.maxFreeSlotsTotal === '' ? null : Number(values.maxFreeSlotsTotal),
           pricingOverridesProgram: detail.pricingOverridesProgram ?? true,
         },
         formId,
@@ -65,7 +63,12 @@ const AdminSchedulingCosts = ({ formId, detail, onSaved }: Props) => {
         <h3 className="text-lg font-bold text-black">Costs</h3>
         <p className="text-sm text-gray-600 mt-1">Pricing and slot limits for this class or event.</p>
       </div>
-      <PricingCostsFields values={values} onChange={setValues} />
+      <PricingCostsFields
+        values={values}
+        onChange={setValues}
+        totalFreeSlotsLabel="Total free slots (class-wide)"
+        totalFreeSlotsHelp="Leave empty for unlimited. Caps free slots across all members in this class."
+      />
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex items-center gap-3">
         <button

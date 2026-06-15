@@ -176,13 +176,16 @@ export interface SchedulingFormSummary {
   maxSlotsPerUser?: number | null
   slotCostMonthlyCents?: number
   freeSlotsPerUser?: number
+  maxFreeSlotsTotal?: number | null
   pricingOverridesProgram?: boolean
   formMaxSlotsPerUser?: number | null
   formSlotCostMonthlyCents?: number
   formFreeSlotsPerUser?: number
+  formMaxFreeSlotsTotal?: number | null
   programMaxSlotsPerUser?: number | null
   programSlotCostMonthlyCents?: number
   programFreeSlotsPerUser?: number
+  programMaxFreeSlotsTotal?: number | null
 }
 
 export interface LegacySchedulingForm extends SchedulingFormSummary {
@@ -774,6 +777,7 @@ export async function adminSaveSchedulingForm(
         maxSlotsPerUser: payload.maxSlotsPerUser ?? null,
         slotCostMonthlyCents: payload.slotCostMonthlyCents ?? 0,
         freeSlotsPerUser: payload.freeSlotsPerUser ?? 0,
+        maxFreeSlotsTotal: payload.maxFreeSlotsTotal ?? null,
         pricingOverridesProgram: payload.pricingOverridesProgram,
       }),
     },

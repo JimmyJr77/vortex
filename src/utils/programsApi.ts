@@ -21,6 +21,7 @@ export interface TopProgram {
   pricingMaxSlotsPerUser?: number | null
   pricingSlotCostMonthlyCents?: number
   pricingFreeSlotsPerUser?: number
+  pricingMaxFreeSlotsTotal?: number | null
   archived: boolean
   schedulingActive?: boolean
   schedulingEnrollSites?: EnrollSiteKey[]
@@ -64,12 +65,15 @@ export interface AdminProgramPricing extends ClassEvent {
   formMaxSlotsPerUser?: number | null
   formSlotCostMonthlyCents?: number
   formFreeSlotsPerUser?: number
+  formMaxFreeSlotsTotal?: number | null
   programMaxSlotsPerUser?: number | null
   programSlotCostMonthlyCents?: number
   programFreeSlotsPerUser?: number
+  programMaxFreeSlotsTotal?: number | null
   maxSlotsPerUser?: number | null
   slotCostMonthlyCents?: number
   freeSlotsPerUser?: number
+  maxFreeSlotsTotal?: number | null
 }
 
 export interface ClassEventFormData {
@@ -127,6 +131,7 @@ export async function updateTopProgram(
     pricingMaxSlotsPerUser: number | null
     pricingSlotCostMonthlyCents: number
     pricingFreeSlotsPerUser: number
+    pricingMaxFreeSlotsTotal: number | null
   }>,
 ): Promise<TopProgram> {
   const capabilities = await getSchedulingEnrollApiCapabilities()

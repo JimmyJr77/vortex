@@ -1,5 +1,6 @@
 import { countActiveSignupsForPricingScope } from '../members/createMemberStub.js'
 import { loadEffectivePricingForForm } from '../programs/pricingDefaults.js'
+import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
 import { computeMonthlyPricing } from './pricing.js'
 
 export const SIGNUP_ORDER_PRICING_DISCLAIMER =
@@ -16,14 +17,34 @@ export function pricingScopeKey(formRow) {
   return `form:${Number(formRow.id)}`
 }
 
-function marginalIncrements(existingCount, newCount, effectiveDbRow) {
-  const increments = []
-  for (let i = 1; i <= newCount; i += 1) {
-    const before = computeMonthlyPricing(effectiveDbRow, existingCount + i - 1)
-    const after = computeMonthlyPricing(effectiveDbRow, existingCount + i)
-    increments.push(Math.max(0, after.discountedMonthly - before.discountedMonthly))
+async function buildMarginalPricing(pool, formRow, memberId, existingCount, newCount, effectiveDbRow) {
+  const freeByExtra = new Map()
+  for (let i = 0; i <= newCount; i += 1) {
+    freeByExtra.set(
+      i,
+      await countAllocatedFreeSlotsForMember(pool, formRow, memberId, effectiveDbRow, {
+        extraMemberSignups: i,
+      }),
+    )
   }
-  return increments
+
+  const increments = []
+  const costPerSlot = Number(effectiveDbRow.slot_cost_monthly_cents ?? 0) / 100
+  for (let i = 1; i <= newCount; i += 1) {
+    const freeSlotsBefore = freeByExtra.get(i - 1) ?? 0
+    const freeSlotsAfter = freeByExtra.get(i) ?? 0
+    const paidBefore = existingCount + i - 1 - freeSlotsBefore
+    const paidAfter = existingCount + i - freeSlotsAfter
+    increments.push(Math.max(0, (paidAfter - paidBefore) * costPerSlot))
+  }
+
+  const freeBefore = freeByExtra.get(0) ?? 0
+  const freeAfter = freeByExtra.get(newCount) ?? freeBefore
+  return {
+    increments,
+    pricingBefore: computeMonthlyPricing(effectiveDbRow, existingCount, freeBefore),
+    pricingAfter: computeMonthlyPricing(effectiveDbRow, existingCount + newCount, freeAfter),
+  }
 }
 
 async function loadExistingEnrollments(pool, memberId) {
@@ -185,10 +206,16 @@ export async function buildSignupOrderPreview(pool, { memberId, newSignups = [] 
     const newCount = newEntries.length
     const totalCount = existingCount + newCount
 
-    const pricingBefore = computeMonthlyPricing(meta.effectiveDbRow, existingCount)
-    const pricingAfter = computeMonthlyPricing(meta.effectiveDbRow, totalCount)
+    const formRow = formRows.get(meta.representativeFormId)
+    const { increments, pricingBefore, pricingAfter } = await buildMarginalPricing(
+      pool,
+      formRow,
+      memberId,
+      existingCount,
+      newCount,
+      meta.effectiveDbRow,
+    )
     const incrementalMonthly = Math.max(0, pricingAfter.discountedMonthly - pricingBefore.discountedMonthly)
-    const increments = marginalIncrements(existingCount, newCount, meta.effectiveDbRow)
 
     newEntries.forEach((entry, index) => {
       const key = programSlotSignupKey(

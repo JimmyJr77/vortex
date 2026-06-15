@@ -53,19 +53,19 @@ function categoryNameFor(form: SchedulingFormDetail, categoryId: number | null):
 }
 
 export function formatSchedulingCosts(form: {
-  maxSlotsPerUser?: number | null
   slotCostMonthlyCents?: number
   freeSlotsPerUser?: number
+  maxFreeSlotsTotal?: number | null
 }): string {
   const parts: string[] = []
   if (form.slotCostMonthlyCents && form.slotCostMonthlyCents > 0) {
     parts.push(`$${(form.slotCostMonthlyCents / 100).toFixed(2)}/mo per slot`)
   }
   if (form.freeSlotsPerUser && form.freeSlotsPerUser > 0) {
-    parts.push(`${form.freeSlotsPerUser} free slot${form.freeSlotsPerUser !== 1 ? 's' : ''}`)
+    parts.push(`${form.freeSlotsPerUser} free slot${form.freeSlotsPerUser !== 1 ? 's' : ''} per user`)
   }
-  if (form.maxSlotsPerUser != null && form.maxSlotsPerUser > 0) {
-    parts.push(`max ${form.maxSlotsPerUser} per user`)
+  if (form.maxFreeSlotsTotal != null && form.maxFreeSlotsTotal > 0) {
+    parts.push(`${form.maxFreeSlotsTotal} free slot${form.maxFreeSlotsTotal !== 1 ? 's' : ''} total`)
   }
   return parts.length > 0 ? parts.join(' · ') : '—'
 }

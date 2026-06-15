@@ -73,6 +73,7 @@ const topProgramUpdateSchema = Joi.object({
   pricingMaxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
   pricingSlotCostMonthlyCents: Joi.number().integer().min(0).optional(),
   pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
+  pricingMaxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),
 })
 
 async function getFacilityId(pool) {
@@ -407,7 +408,8 @@ export function registerProgramsAdminRoutes(app, pool) {
           primary_dt.name as "primarySportName",
           p.pricing_max_slots_per_user as "pricingMaxSlotsPerUser",
           p.pricing_slot_cost_monthly_cents as "pricingSlotCostMonthlyCents",
-          p.pricing_free_slots_per_user as "pricingFreeSlotsPerUser"
+          p.pricing_free_slots_per_user as "pricingFreeSlotsPerUser",
+          p.pricing_max_free_slots_total as "pricingMaxFreeSlotsTotal"
           ${schedCols}
         FROM ${schema.programsTable} p
         LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
@@ -564,10 +566,15 @@ export function registerProgramsAdminRoutes(app, pool) {
         updates.push(`pricing_free_slots_per_user = $${n++}`)
         values.push(value.pricingFreeSlotsPerUser)
       }
+      if (value.pricingMaxFreeSlotsTotal !== undefined) {
+        updates.push(`pricing_max_free_slots_total = $${n++}`)
+        values.push(value.pricingMaxFreeSlotsTotal)
+      }
       const hasPricingUpdate =
         value.pricingMaxSlotsPerUser !== undefined ||
         value.pricingSlotCostMonthlyCents !== undefined ||
-        value.pricingFreeSlotsPerUser !== undefined
+        value.pricingFreeSlotsPerUser !== undefined ||
+        value.pricingMaxFreeSlotsTotal !== undefined
       if (updates.length === 0 && value.primarySportId === undefined && !hasPricingUpdate) {
         return res.status(400).json({ success: false, message: 'No fields to update' })
       }
@@ -630,7 +637,8 @@ export function registerProgramsAdminRoutes(app, pool) {
       if (!row) {
         const fetch = await pool.query(
           `SELECT id, name, display_name as "displayName", description, archived,
-            pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user
+            pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
+            pricing_max_free_slots_total
            FROM ${schema.programsTable} WHERE id = $1`,
           [req.params.id],
         )
@@ -640,7 +648,8 @@ export function registerProgramsAdminRoutes(app, pool) {
         }
       } else {
         const pricingFetch = await pool.query(
-          `SELECT pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user
+          `SELECT pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
+                  pricing_max_free_slots_total
            FROM ${schema.programsTable} WHERE id = $1`,
           [req.params.id],
         )

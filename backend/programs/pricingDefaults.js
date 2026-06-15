@@ -5,10 +5,12 @@ export function resolveEffectiveFormPricing(programRow, formRow) {
   const programMax = programRow?.pricing_max_slots_per_user ?? null
   const programCost = Number(programRow?.pricing_slot_cost_monthly_cents ?? 0)
   const programFree = Number(programRow?.pricing_free_slots_per_user ?? 0)
+  const programMaxFreeTotal = programRow?.pricing_max_free_slots_total ?? null
 
   const formMax = formRow?.max_slots_per_user ?? null
   const formCost = Number(formRow?.slot_cost_monthly_cents ?? 0)
   const formFree = Number(formRow?.free_slots_per_user ?? 0)
+  const formMaxFreeTotal = formRow?.max_free_slots_total ?? null
 
   const useProgram = !overrides && programRow != null
 
@@ -19,12 +21,18 @@ export function resolveEffectiveFormPricing(programRow, formRow) {
       : (formMax != null ? Number(formMax) : null),
     slotCostMonthlyCents: useProgram ? programCost : formCost,
     freeSlotsPerUser: useProgram ? programFree : formFree,
+    maxFreeSlotsTotal: useProgram
+      ? (programMaxFreeTotal != null ? Number(programMaxFreeTotal) : null)
+      : (formMaxFreeTotal != null ? Number(formMaxFreeTotal) : null),
     formMaxSlotsPerUser: formMax != null ? Number(formMax) : null,
     formSlotCostMonthlyCents: formCost,
     formFreeSlotsPerUser: formFree,
+    formMaxFreeSlotsTotal: formMaxFreeTotal != null ? Number(formMaxFreeTotal) : null,
     programMaxSlotsPerUser: programMax != null ? Number(programMax) : null,
     programSlotCostMonthlyCents: programCost,
     programFreeSlotsPerUser: programFree,
+    programMaxFreeSlotsTotal:
+      programMaxFreeTotal != null ? Number(programMaxFreeTotal) : null,
   }
 }
 
@@ -34,6 +42,7 @@ export function effectivePricingDbRow(programRow, formRow) {
     max_slots_per_user: resolved.maxSlotsPerUser,
     slot_cost_monthly_cents: resolved.slotCostMonthlyCents,
     free_slots_per_user: resolved.freeSlotsPerUser,
+    max_free_slots_total: resolved.maxFreeSlotsTotal,
   }
 }
 
@@ -41,7 +50,8 @@ export async function loadProgramPricingRow(pool, programsId) {
   if (programsId == null) return null
   const schema = await resolveProgramsSchema(pool)
   const result = await pool.query(
-    `SELECT pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user
+    `SELECT pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
+            pricing_max_free_slots_total
      FROM ${schema.programsTable} WHERE id = $1`,
     [programsId],
   )
@@ -87,6 +97,10 @@ export function mapProgramPricingFields(row) {
       row.pricing_max_slots_per_user != null ? Number(row.pricing_max_slots_per_user) : null,
     pricingSlotCostMonthlyCents: Number(row.pricing_slot_cost_monthly_cents ?? 0),
     pricingFreeSlotsPerUser: Number(row.pricing_free_slots_per_user ?? 0),
+    pricingMaxFreeSlotsTotal:
+      row.pricing_max_free_slots_total != null
+        ? Number(row.pricing_max_free_slots_total)
+        : null,
   }
 }
 
@@ -98,11 +112,14 @@ export function mapClassPricingFields(programRow, formRow) {
     formMaxSlotsPerUser: effective.formMaxSlotsPerUser,
     formSlotCostMonthlyCents: effective.formSlotCostMonthlyCents,
     formFreeSlotsPerUser: effective.formFreeSlotsPerUser,
+    formMaxFreeSlotsTotal: effective.formMaxFreeSlotsTotal,
     programMaxSlotsPerUser: effective.programMaxSlotsPerUser,
     programSlotCostMonthlyCents: effective.programSlotCostMonthlyCents,
     programFreeSlotsPerUser: effective.programFreeSlotsPerUser,
+    programMaxFreeSlotsTotal: effective.programMaxFreeSlotsTotal,
     maxSlotsPerUser: effective.maxSlotsPerUser,
     slotCostMonthlyCents: effective.slotCostMonthlyCents,
     freeSlotsPerUser: effective.freeSlotsPerUser,
+    maxFreeSlotsTotal: effective.maxFreeSlotsTotal,
   }
 }

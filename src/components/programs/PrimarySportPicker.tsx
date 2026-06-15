@@ -2,13 +2,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Loader2, Plus, X } from 'lucide-react'
 import { createDisciplineTag, fetchDisciplineTags, type DisciplineTag } from '../../utils/programsApi'
 
+function normalizeTagId(id: number | string | null | undefined): number | null {
+  if (id == null) return null
+  const n = Number(id)
+  return Number.isFinite(n) ? n : null
+}
+
 interface Props {
   value: number | null
   onChange: (tagId: number | null) => void
   disabled?: boolean
+  /** Shown when value is set but the tag list has not resolved it yet (e.g. stale id). */
+  selectedLabel?: string | null
 }
 
-const PrimarySportPicker = ({ value, onChange, disabled = false }: Props) => {
+const PrimarySportPicker = ({ value, onChange, disabled = false, selectedLabel = null }: Props) => {
   const [tags, setTags] = useState<DisciplineTag[]>([])
   const [search, setSearch] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -17,9 +25,11 @@ const PrimarySportPicker = ({ value, onChange, disabled = false }: Props) => {
   const [error, setError] = useState<string | null>(null)
   const comboRef = useRef<HTMLDivElement>(null)
 
+  const normalizedValue = useMemo(() => normalizeTagId(value), [value])
+
   const selectedTag = useMemo(
-    () => tags.find((t) => t.id === value) ?? null,
-    [tags, value],
+    () => tags.find((t) => t.id === normalizedValue) ?? null,
+    [tags, normalizedValue],
   )
 
   const loadTags = useCallback(async () => {
@@ -94,7 +104,7 @@ const PrimarySportPicker = ({ value, onChange, disabled = false }: Props) => {
 
   const displayValue = dropdownOpen
     ? search
-    : selectedTag?.name ?? (value == null ? 'No primary sport' : '')
+    : selectedTag?.name ?? selectedLabel ?? (normalizedValue == null ? 'No primary sport' : '')
 
   return (
     <div className="space-y-2 w-full">
@@ -128,7 +138,7 @@ const PrimarySportPicker = ({ value, onChange, disabled = false }: Props) => {
             <button
               type="button"
               className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
-                value == null ? 'bg-red-50 text-vortex-red font-medium' : ''
+                normalizedValue == null ? 'bg-red-50 text-vortex-red font-medium' : ''
               }`}
               onClick={handleClear}
             >
@@ -142,7 +152,7 @@ const PrimarySportPicker = ({ value, onChange, disabled = false }: Props) => {
               </p>
             ) : (
               filteredTags.map((tag) => {
-                const isSelected = value === tag.id
+                const isSelected = normalizedValue === tag.id
                 return (
                   <button
                     key={tag.id}

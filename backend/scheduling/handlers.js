@@ -15,6 +15,7 @@ import { sendPromotionEmail } from './promotionEmail.js'
 import { sendWaitlistEmail } from './waitlistEmail.js'
 import { sendWaiverEmail } from './waiverEmail.js'
 import { buildSignupOrderPreview, pricingScopeKey } from './orderPricing.js'
+import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
 import { computeMonthlyPricing } from './pricing.js'
 import {
   loadEffectivePricingForForm,
@@ -233,7 +234,13 @@ async function insertSignupForMember(
   const signupId = insert.rows[0].id
   const positions = await computeSignupPositions(client, slotGroupId, signupId)
   const totalSlotsAfter = activeCount + 1
-  const pricing = computeMonthlyPricing(effectiveDbRow, totalSlotsAfter)
+  const freeGranted = await countAllocatedFreeSlotsForMember(
+    client,
+    formRow,
+    memberId,
+    effectiveDbRow,
+  )
+  const pricing = computeMonthlyPricing(effectiveDbRow, totalSlotsAfter, freeGranted)
   positions.pricing = pricing
 
   return {
@@ -412,12 +419,15 @@ function mapFormRow(row, programRow = null) {
     maxSlotsPerUser: effective.maxSlotsPerUser,
     slotCostMonthlyCents: effective.slotCostMonthlyCents,
     freeSlotsPerUser: effective.freeSlotsPerUser,
+    maxFreeSlotsTotal: effective.maxFreeSlotsTotal,
     formMaxSlotsPerUser: effective.formMaxSlotsPerUser,
     formSlotCostMonthlyCents: effective.formSlotCostMonthlyCents,
     formFreeSlotsPerUser: effective.formFreeSlotsPerUser,
+    formMaxFreeSlotsTotal: effective.formMaxFreeSlotsTotal,
     programMaxSlotsPerUser: effective.programMaxSlotsPerUser,
     programSlotCostMonthlyCents: effective.programSlotCostMonthlyCents,
     programFreeSlotsPerUser: effective.programFreeSlotsPerUser,
+    programMaxFreeSlotsTotal: effective.programMaxFreeSlotsTotal,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -1036,6 +1046,7 @@ const formSchema = Joi.object({
   maxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
   slotCostMonthlyCents: Joi.number().integer().min(0).optional(),
   freeSlotsPerUser: Joi.number().integer().min(0).optional(),
+  maxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),
   pricingOverridesProgram: Joi.boolean().optional(),
 })
 
@@ -2330,12 +2341,17 @@ export function createSchedulingHandlers(pool) {
           value.freeSlotsPerUser !== undefined
             ? value.freeSlotsPerUser
             : Number(formRow.free_slots_per_user ?? 0)
+        let maxFreeTotal =
+          value.maxFreeSlotsTotal !== undefined
+            ? value.maxFreeSlotsTotal
+            : formRow.max_free_slots_total
 
         if (overrides && !formRow.pricing_overrides_program) {
           const effective = resolveEffectiveFormPricing(programRow, formRow)
           if (value.maxSlotsPerUser === undefined) maxSlots = effective.maxSlotsPerUser
           if (value.slotCostMonthlyCents === undefined) costCents = effective.slotCostMonthlyCents
           if (value.freeSlotsPerUser === undefined) freeSlots = effective.freeSlotsPerUser
+          if (value.maxFreeSlotsTotal === undefined) maxFreeTotal = effective.maxFreeSlotsTotal
         }
 
         const result = await pool.query(
@@ -2346,9 +2362,10 @@ export function createSchedulingHandlers(pool) {
               max_slots_per_user = $6,
               slot_cost_monthly_cents = COALESCE($7, slot_cost_monthly_cents),
               free_slots_per_user = COALESCE($8, free_slots_per_user),
-              pricing_overrides_program = $9,
+              max_free_slots_total = $9,
+              pricing_overrides_program = $10,
               updated_at = now()
-          WHERE id = $10 AND deleted_at IS NULL
+          WHERE id = $11 AND deleted_at IS NULL
           RETURNING *
           `,
           [
@@ -2360,6 +2377,7 @@ export function createSchedulingHandlers(pool) {
             maxSlots !== undefined ? maxSlots : null,
             costCents,
             freeSlots,
+            maxFreeTotal !== undefined ? maxFreeTotal : null,
             overrides,
             req.params.id,
           ],

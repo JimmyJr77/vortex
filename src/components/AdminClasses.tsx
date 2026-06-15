@@ -842,7 +842,12 @@ export default function AdminClasses({
     try {
       const response = await adminApiRequest(`/api/admin/categories/${editingCategoryId}`, {
         method: 'PUT',
-        body: JSON.stringify(categoryFormData)
+        body: JSON.stringify({
+          displayName: categoryFormData.displayName,
+          description: categoryFormData.description,
+          isActive: categoryFormData.isActive,
+          primarySportId: categoryFormData.primarySportId ?? null,
+        }),
       })
       
       if (response.ok) {
@@ -1584,7 +1589,10 @@ export default function AdminClasses({
                                       displayName: category.displayName,
                                       description: category.description || '',
                                       isActive: programIsActiveFlag(category),
-                                      primarySportId: category.primarySportId ?? null,
+                                      primarySportId:
+                                        category.primarySportId != null
+                                          ? Number(category.primarySportId)
+                                          : null,
                                     })
                                     setShowCategoryModal(true)
                                   }}
@@ -1962,7 +1970,13 @@ export default function AdminClasses({
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Primary sport</label>
                   <PrimarySportPicker
+                    key={editingCategoryId ?? 'new'}
                     value={categoryFormData.primarySportId ?? null}
+                    selectedLabel={
+                      editingCategoryId != null
+                        ? categories.find((c) => c.id === editingCategoryId)?.primarySportName ?? null
+                        : null
+                    }
                     onChange={(primarySportId) =>
                       setCategoryFormData({ ...categoryFormData, primarySportId })
                     }
