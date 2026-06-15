@@ -181,10 +181,11 @@ function App() {
             element={<ReadBoard />} 
           />
           <Route
-            path="/scheduling"
+            path="/enroll"
             element={<SchedulingPage />}
           />
-          <Route path="/schedule" element={<Navigate to="/scheduling" replace />} />
+          <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
+          <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
         </Routes>
       </Suspense>
       <ContactForm

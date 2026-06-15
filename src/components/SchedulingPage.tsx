@@ -70,7 +70,7 @@ const SchedulingPage = () => {
       <section className="section-padding pt-below-site-header bg-white min-h-[50vh]">
         <div className="container-custom max-w-2xl mx-auto text-center">
           <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h1 className="text-3xl font-display font-bold text-black mb-4">Scheduling</h1>
+          <h1 className="text-3xl font-display font-bold text-black mb-4">Enroll</h1>
           <p className="text-gray-600">
             {error || 'No scheduling signups are open right now. Check back soon.'}
           </p>

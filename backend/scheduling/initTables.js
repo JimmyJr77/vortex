@@ -372,5 +372,14 @@ export async function initSchedulingTables(pool) {
     }
   }
 
+  const enrollSitesMigration = path.join(__dirname, '../migrations/add_scheduling_enroll_sites.sql')
+  if (fs.existsSync(enrollSitesMigration)) {
+    try {
+      await pool.query(fs.readFileSync(enrollSitesMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] enroll sites migration:', err.message)
+    }
+  }
+
   console.log('✅ Scheduling tables ready')
 }

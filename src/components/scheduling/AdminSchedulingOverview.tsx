@@ -10,11 +10,17 @@ import {
 import {
   adminFetchAllCategories,
   adminFetchOfferings,
-  adminSetSchedulingFormActive,
+  adminSetSchedulingFormEnrollSites,
   adminUpdateCategory,
   isNoCategoryCategory,
   type SchedulingCategory,
 } from '../../utils/schedulingApi'
+import {
+  ALL_ENROLL_SITES,
+  normalizeEnrollSites,
+  type EnrollSiteKey,
+} from '../../config/enrollSites'
+import EnrollSiteVisibilityControls from './EnrollSiteVisibilityControls'
 
 interface Props {
   program: TopProgram
@@ -25,11 +31,19 @@ interface Props {
 
 type SetupStatus = 'none' | 'partial' | 'ready'
 
-const SCHEDULING_VISIBILITY_LABEL = 'Show on /scheduling page'
+function programEnrollSites(program: TopProgram): EnrollSiteKey[] {
+  return normalizeEnrollSites(program.schedulingEnrollSites, program.schedulingActive)
+}
 
-function classShowsOnScheduling(classEvent: ClassEvent, programSchedulingActive: boolean): boolean {
-  if (!programSchedulingActive) return false
-  return classEvent.schedulingFormActive !== false
+function classEnrollSites(classEvent: ClassEvent): EnrollSiteKey[] {
+  return normalizeEnrollSites(
+    classEvent.schedulingFormEnrollSites ?? undefined,
+    classEvent.schedulingFormActive,
+  )
+}
+
+function categoryEnrollSites(category: SchedulingCategory): EnrollSiteKey[] {
+  return normalizeEnrollSites(category.enrollSites, category.isActive)
 }
 
 async function classSetupStatus(classEvent: ClassEvent): Promise<SetupStatus> {
@@ -49,7 +63,9 @@ const AdminSchedulingOverview = ({
   onSelectClassEvent,
   onOpenForm,
 }: Props) => {
-  const [schedulingActive, setSchedulingActive] = useState(program.schedulingActive ?? false)
+  const [programEnrollSiteSelection, setProgramEnrollSiteSelection] = useState<EnrollSiteKey[]>(
+    () => programEnrollSites(program),
+  )
   const [savingProgram, setSavingProgram] = useState(false)
   const [programError, setProgramError] = useState<string | null>(null)
   const [classEvents, setClassEvents] = useState<ClassEvent[]>([])
@@ -57,9 +73,11 @@ const AdminSchedulingOverview = ({
   const [setupByClassId, setSetupByClassId] = useState<Record<number, SetupStatus>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [togglingClassId, setTogglingClassId] = useState<number | null>(null)
-  const [togglingCategoryId, setTogglingCategoryId] = useState<number | null>(null)
-  const [bulkTogglingClasses, setBulkTogglingClasses] = useState(false)
+  const [savingClassId, setSavingClassId] = useState<number | null>(null)
+  const [savingCategoryId, setSavingCategoryId] = useState<number | null>(null)
+  const [bulkSavingClasses, setBulkSavingClasses] = useState(false)
+
+  const programVisible = programEnrollSiteSelection.length > 0
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -86,9 +104,9 @@ const AdminSchedulingOverview = ({
   }, [program.id])
 
   useEffect(() => {
-    setSchedulingActive(program.schedulingActive ?? false)
+    setProgramEnrollSiteSelection(programEnrollSites(program))
     void loadData()
-  }, [program.id, program.schedulingActive, loadData])
+  }, [program.id, program.schedulingActive, program.schedulingEnrollSites, loadData])
 
   const programCategories = useMemo(() => {
     const linkedIds = new Set<number>()
@@ -100,27 +118,32 @@ const AdminSchedulingOverview = ({
     return categories.filter((cat) => linkedIds.has(cat.id) && !isNoCategoryCategory(cat))
   }, [classEvents, categories])
 
-  const setClassSchedulingVisible = async (classEvent: ClassEvent, visible: boolean) => {
+  const saveClassEnrollSites = async (classEvent: ClassEvent, enrollSites: EnrollSiteKey[]) => {
     let formId = classEvent.schedulingFormId
     if (!formId) {
       formId = await fetchClassEventSchedulingFormId(classEvent.id)
     }
-    await adminSetSchedulingFormActive(formId, visible)
+    await adminSetSchedulingFormEnrollSites(formId, enrollSites)
     setClassEvents((prev) =>
       prev.map((ev) =>
         ev.id === classEvent.id
-          ? { ...ev, schedulingFormId: formId, schedulingFormActive: visible }
+          ? {
+              ...ev,
+              schedulingFormId: formId,
+              schedulingFormActive: enrollSites.length > 0,
+              schedulingFormEnrollSites: enrollSites,
+            }
           : ev,
       ),
     )
   }
 
-  const handleProgramSchedulingToggle = async (checked: boolean) => {
+  const handleProgramEnrollSitesChange = async (sites: EnrollSiteKey[]) => {
     setSavingProgram(true)
     setProgramError(null)
     try {
-      const updated = await updateTopProgram(program.id, { schedulingActive: checked })
-      setSchedulingActive(updated.schedulingActive ?? false)
+      const updated = await updateTopProgram(program.id, { schedulingEnrollSites: sites })
+      setProgramEnrollSiteSelection(programEnrollSites(updated))
       onSaved(updated)
       await loadData()
     } catch (e) {
@@ -130,57 +153,49 @@ const AdminSchedulingOverview = ({
     }
   }
 
-  const handleClassSchedulingToggle = async (classEvent: ClassEvent, checked: boolean) => {
-    setTogglingClassId(classEvent.id)
+  const handleClassEnrollSitesChange = async (
+    classEvent: ClassEvent,
+    sites: EnrollSiteKey[],
+  ) => {
+    setSavingClassId(classEvent.id)
     try {
-      await setClassSchedulingVisible(classEvent, checked)
+      await saveClassEnrollSites(classEvent, sites)
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to update class visibility on /scheduling')
+      alert(e instanceof Error ? e.message : 'Failed to update class enroll visibility')
     } finally {
-      setTogglingClassId(null)
+      setSavingClassId(null)
     }
   }
 
-  const handleBulkClassSchedulingVisibility = async (visible: boolean) => {
-    if (classEvents.length === 0 || !schedulingActive) return
-    setBulkTogglingClasses(true)
+  const handleBulkClassEnrollSites = async (sites: EnrollSiteKey[]) => {
+    if (classEvents.length === 0 || !programVisible) return
+    setBulkSavingClasses(true)
     try {
-      const updates = await Promise.all(
-        classEvents.map(async (classEvent) => {
-          let formId = classEvent.schedulingFormId
-          if (!formId) {
-            formId = await fetchClassEventSchedulingFormId(classEvent.id)
-          }
-          await adminSetSchedulingFormActive(formId, visible)
-          return { id: classEvent.id, formId, visible }
-        }),
-      )
-      setClassEvents((prev) =>
-        prev.map((ev) => {
-          const hit = updates.find((u) => u.id === ev.id)
-          return hit
-            ? { ...ev, schedulingFormId: hit.formId, schedulingFormActive: hit.visible }
-            : ev
-        }),
-      )
+      await Promise.all(classEvents.map((classEvent) => saveClassEnrollSites(classEvent, sites)))
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Failed to update class visibility')
     } finally {
-      setBulkTogglingClasses(false)
+      setBulkSavingClasses(false)
     }
   }
 
-  const handleCategorySchedulingToggle = async (category: SchedulingCategory, checked: boolean) => {
-    setTogglingCategoryId(category.id)
+  const handleCategoryEnrollSitesChange = async (
+    category: SchedulingCategory,
+    sites: EnrollSiteKey[],
+  ) => {
+    setSavingCategoryId(category.id)
     try {
-      await adminUpdateCategory(category.id, { name: category.name, isActive: checked })
+      const updated = await adminUpdateCategory(category.id, {
+        name: category.name,
+        enrollSites: sites,
+      })
       setCategories((prev) =>
-        prev.map((cat) => (cat.id === category.id ? { ...cat, isActive: checked } : cat)),
+        prev.map((cat) => (cat.id === category.id ? { ...cat, ...updated } : cat)),
       )
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Failed to update category')
     } finally {
-      setTogglingCategoryId(null)
+      setSavingCategoryId(null)
     }
   }
 
@@ -189,7 +204,7 @@ const AdminSchedulingOverview = ({
     onOpenForm()
   }
 
-  const classVisibilityDisabled = !schedulingActive || bulkTogglingClasses
+  const classVisibilityDisabled = !programVisible || bulkSavingClasses
 
   if (loading) {
     return (
@@ -218,21 +233,16 @@ const AdminSchedulingOverview = ({
             Edit title and description in Admin → Classes → Programs.
           </p>
         </div>
-        <label className="flex items-center gap-3 text-sm font-semibold text-black cursor-pointer">
-          <input
-            type="checkbox"
-            checked={schedulingActive}
-            disabled={savingProgram}
-            onChange={(e) => handleProgramSchedulingToggle(e.target.checked)}
-            className="rounded border-gray-300"
-          />
-          {SCHEDULING_VISIBILITY_LABEL}
-        </label>
-        {!schedulingActive && (
+        <EnrollSiteVisibilityControls
+          sites={programEnrollSiteSelection}
+          disabled={savingProgram}
+          onChange={(sites) => void handleProgramEnrollSitesChange(sites)}
+        />
+        {!programVisible && (
           <p className="text-xs text-gray-500">
-            This program and its classes are hidden from the public /scheduling page until you turn
-            this on. Turning it back on selects all classes by default — adjust which ones to show
-            below.
+            This program and its classes are hidden from public enroll pages until you select at
+            least one site. Turning visibility back on selects all classes on all sites by default
+            — adjust which ones to show below.
           </p>
         )}
       </section>
@@ -241,26 +251,22 @@ const AdminSchedulingOverview = ({
         <section>
           <h4 className="text-base font-bold text-black mb-3">Class variations</h4>
           <p className="text-sm text-gray-600 mb-3">
-            Categories linked to classes in this program. Unchecked variations are hidden from
-            signup on /scheduling.
+            Categories linked to classes in this program. Unchecked sites hide that variation from
+            signup on the matching enroll page.
           </p>
           <ul className="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden">
             {programCategories.map((cat) => (
               <li
                 key={cat.id}
-                className="flex items-center justify-between gap-4 px-4 py-3 bg-white text-sm"
+                className="flex flex-col gap-3 px-4 py-3 bg-white text-sm sm:flex-row sm:items-center sm:justify-between"
               >
                 <span className="font-semibold text-black">{cat.name}</span>
-                <label className="flex items-center gap-2 text-gray-700 shrink-0 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={cat.isActive}
-                    disabled={togglingCategoryId === cat.id}
-                    onChange={(e) => handleCategorySchedulingToggle(cat, e.target.checked)}
-                    className="rounded border-gray-300"
-                  />
-                  {SCHEDULING_VISIBILITY_LABEL}
-                </label>
+                <EnrollSiteVisibilityControls
+                  sites={categoryEnrollSites(cat)}
+                  disabled={!programVisible || savingCategoryId === cat.id}
+                  layout="inline"
+                  onChange={(sites) => void handleCategoryEnrollSitesChange(cat, sites)}
+                />
               </li>
             ))}
           </ul>
@@ -276,19 +282,19 @@ const AdminSchedulingOverview = ({
               <button
                 type="button"
                 disabled={classVisibilityDisabled}
-                onClick={() => void handleBulkClassSchedulingVisibility(true)}
+                onClick={() => void handleBulkClassEnrollSites([...ALL_ENROLL_SITES])}
                 className="text-vortex-red hover:underline disabled:opacity-40 disabled:no-underline disabled:cursor-not-allowed"
               >
-                Select all
+                Select all sites
               </button>
               <span className="text-gray-400">|</span>
               <button
                 type="button"
                 disabled={classVisibilityDisabled}
-                onClick={() => void handleBulkClassSchedulingVisibility(false)}
+                onClick={() => void handleBulkClassEnrollSites([])}
                 className="text-vortex-red hover:underline disabled:opacity-40 disabled:no-underline disabled:cursor-not-allowed"
               >
-                Deselect all
+                Clear all sites
               </button>
             </span>
           )}
@@ -299,7 +305,6 @@ const AdminSchedulingOverview = ({
           <ul className="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden">
             {classEvents.map((classEvent) => {
               const setup = setupByClassId[classEvent.id] ?? 'none'
-              const showsOnScheduling = classShowsOnScheduling(classEvent, schedulingActive)
               return (
                 <li key={classEvent.id} className="bg-white">
                   <button
@@ -319,22 +324,16 @@ const AdminSchedulingOverview = ({
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
                   </button>
-                  <div className="px-4 pb-3 flex items-center gap-3 border-t border-gray-100 pt-2">
-                    <label
-                      className={`flex items-center gap-2 text-sm text-gray-700 ${
-                        classVisibilityDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                      }`}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={showsOnScheduling}
-                        disabled={classVisibilityDisabled || togglingClassId === classEvent.id}
-                        onChange={(e) => handleClassSchedulingToggle(classEvent, e.target.checked)}
-                        className="rounded border-gray-300"
-                      />
-                      {SCHEDULING_VISIBILITY_LABEL}
-                    </label>
+                  <div
+                    className="px-4 pb-3 border-t border-gray-100 pt-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <EnrollSiteVisibilityControls
+                      sites={classEnrollSites(classEvent)}
+                      disabled={classVisibilityDisabled || savingClassId === classEvent.id}
+                      layout="inline"
+                      onChange={(sites) => void handleClassEnrollSitesChange(classEvent, sites)}
+                    />
                   </div>
                 </li>
               )

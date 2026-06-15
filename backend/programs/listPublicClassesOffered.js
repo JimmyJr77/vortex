@@ -66,7 +66,7 @@ export async function listPublicClassesOffered(pool) {
       ageMax: row.ageMax != null ? Number(row.ageMax) : null,
       skillRequirements: row.skillRequirements ?? null,
       formId,
-      signupUrl: formId != null ? `/scheduling?form=${formId}` : null,
+      signupUrl: formId != null ? `/enroll?form=${formId}` : null,
     })
   }
 

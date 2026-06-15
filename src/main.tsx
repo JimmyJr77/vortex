@@ -1,11 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import GymnasticsApp from './apps/gymnastics/GymnasticsApp.tsx'
 import ComingSoon from './components/stub/ComingSoon.tsx'
+import SchedulingPage from './components/SchedulingPage.tsx'
 import {
   isStubPreviewOnNonStubHost,
   resolveStubSite,
@@ -82,7 +83,14 @@ if (stubSite?.key === 'gymnastics') {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <HelmetProvider>
-        <ComingSoon config={stubSite} isPreview={stubPreview} />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/enroll" element={<SchedulingPage />} />
+            <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
+            <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
+            <Route path="*" element={<ComingSoon config={stubSite} isPreview={stubPreview} />} />
+          </Routes>
+        </BrowserRouter>
       </HelmetProvider>
     </StrictMode>,
   )

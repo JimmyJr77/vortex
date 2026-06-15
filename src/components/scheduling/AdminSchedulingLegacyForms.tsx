@@ -36,7 +36,7 @@ const AdminSchedulingLegacyForms = ({ onDeleted }: Props) => {
   const handleDelete = async (form: LegacySchedulingForm) => {
     const parts = [
       `Delete "${form.title}"?`,
-      'It will be removed from /scheduling and unlinked from any events.',
+      'It will be removed from public enroll pages and unlinked from any events.',
       form.signupCount > 0
         ? `${form.signupCount} signup(s) will remain in the database for records.`
         : null,

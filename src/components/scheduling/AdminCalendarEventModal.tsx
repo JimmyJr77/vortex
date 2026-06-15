@@ -115,9 +115,9 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
               label="Status"
               value={
                 event.formActive ? (
-                  <span className="text-green-700 font-medium">Active on /scheduling</span>
+                  <span className="text-green-700 font-medium">Active on enroll pages</span>
                 ) : (
-                  <span className="text-gray-500">Inactive on /scheduling</span>
+                  <span className="text-gray-500">Inactive on enroll pages</span>
                 )
               }
             />

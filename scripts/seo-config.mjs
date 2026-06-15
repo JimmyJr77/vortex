@@ -10,6 +10,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/summer-athletic-training', priority: '0.9', changefreq: 'weekly' },
   { path: '/value', priority: '0.7', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
+  { path: '/enroll', priority: '0.8', changefreq: 'weekly' },
   { path: '/scheduling', priority: '0.8', changefreq: 'weekly' },
 ]
 

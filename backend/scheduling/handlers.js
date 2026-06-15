@@ -391,6 +391,11 @@ function parseSignupFields(row) {
 
 function mapFormRow(row, programRow = null) {
   const effective = resolveEffectiveFormPricing(programRow, row)
+  const enrollSites = Array.isArray(row.enroll_sites)
+    ? row.enroll_sites
+    : row.is_active
+      ? ['athletics', 'gymnastics', 'basketball']
+      : []
   return {
     id: Number(row.id),
     title: row.title,
@@ -400,6 +405,7 @@ function mapFormRow(row, programRow = null) {
     signupFields: parseSignupFields(row),
     mandateWaiver: Boolean(row.mandate_waiver),
     isActive: row.is_active,
+    enrollSites,
     programsId: row.programs_id != null ? Number(row.programs_id) : null,
     pricingOverridesProgram: effective.pricingOverridesProgram,
     maxSlotsPerUser: effective.maxSlotsPerUser,
@@ -552,12 +558,18 @@ async function resolveSignupEntryForInsert(pool, entry) {
 }
 
 function mapCategoryRow(row) {
+  const enrollSites = Array.isArray(row.enroll_sites)
+    ? row.enroll_sites
+    : row.is_active
+      ? ['athletics', 'gymnastics', 'basketball']
+      : []
   return {
     id: Number(row.id),
     formId: row.form_id != null ? Number(row.form_id) : null,
     name: row.name,
     sortOrder: row.sort_order,
     isActive: row.is_active,
+    enrollSites,
   }
 }
 
@@ -584,7 +596,7 @@ async function loadAllCategories(pool) {
     .map(mapCategoryRow)
 }
 
-async function loadFormCategories(pool, formId, { includeInactive = false } = {}) {
+async function loadFormCategories(pool, formId, { includeInactive = false, site = null } = {}) {
   const result = await pool.query(
     `
     SELECT DISTINCT c.*
@@ -601,7 +613,15 @@ async function loadFormCategories(pool, formId, { includeInactive = false } = {}
     `,
     [formId],
   )
-  return result.rows.map(mapCategoryRow)
+  const { rowVisibleOnEnrollSite } = await import('./enrollSites.js')
+  return result.rows
+    .map(mapCategoryRow)
+    .filter((cat) => {
+      if (includeInactive) return true
+      if (!cat.isActive) return false
+      if (!site) return true
+      return rowVisibleOnEnrollSite(cat.enrollSites, cat.isActive, site)
+    })
 }
 
 function resolveSlotActiveDates(slot, form) {
@@ -897,16 +917,23 @@ async function sendDemotionEmails(db, demotedRows) {
 async function loadFormDetail(
   pool,
   formId,
-  { includeInactive = false, categoryId, includeAllCategories = false } = {},
+  { includeInactive = false, categoryId, includeAllCategories = false, site = null } = {},
 ) {
   const formRes = await pool.query('SELECT * FROM scheduling_form WHERE id = $1', [formId])
   if (formRes.rows.length === 0) return null
 
   const form = formRes.rows[0]
   if (form.deleted_at) return null
-  if (!includeInactive && !form.is_active) return null
+  if (!includeInactive) {
+    if (site) {
+      const { rowVisibleOnEnrollSite } = await import('./enrollSites.js')
+      if (!rowVisibleOnEnrollSite(form.enroll_sites, form.is_active, site)) return null
+    } else if (!form.is_active) {
+      return null
+    }
+  }
 
-  const categories = await loadFormCategories(pool, formId, { includeInactive })
+  const categories = await loadFormCategories(pool, formId, { includeInactive, site: includeInactive ? null : site })
   const allCategories = includeAllCategories ? await loadAllCategories(pool) : undefined
 
   const slotParams = [formId]
@@ -1016,6 +1043,9 @@ const categorySchema = Joi.object({
   formId: Joi.number().integer().optional().allow(null),
   sortOrder: Joi.number().integer().min(0).optional(),
   isActive: Joi.boolean().optional(),
+  enrollSites: Joi.array()
+    .items(Joi.string().valid('athletics', 'gymnastics', 'basketball'))
+    .optional(),
 })
 
 const offeringSchema = Joi.object({
@@ -1212,27 +1242,43 @@ const memberPasswordSchema = Joi.object({
 
 export function createSchedulingHandlers(pool) {
   return {
-    async listPublicForms(_req, res) {
+    async listPublicForms(req, res) {
       try {
+        const { isEnrollSiteKey, enrollSiteVisibleSql } = await import('./enrollSites.js')
+        const site = String(req.query.site || 'athletics')
+        if (!isEnrollSiteKey(site)) {
+          return res.status(400).json({ success: false, message: 'Invalid enroll site' })
+        }
+
         const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import(
           '../programs/schema.js'
         )
         const schema = await resolveProgramsSchema(pool)
         const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
         const programActiveClause = hasSchedCols
-          ? `(sf.programs_id IS NULL OR COALESCE(pr.scheduling_active, TRUE) = TRUE)`
+          ? `(sf.programs_id IS NULL OR ${enrollSiteVisibleSql({
+              sitesColumn: 'pr.scheduling_enroll_sites',
+              legacyColumn: 'pr.scheduling_active',
+              siteParam: '$1',
+            })})`
           : 'TRUE'
+        const formActiveClause = enrollSiteVisibleSql({
+          sitesColumn: 'sf.enroll_sites',
+          legacyColumn: 'sf.is_active',
+          siteParam: '$1',
+        })
 
         const result = await pool.query(
           `
           SELECT sf.* FROM scheduling_form sf
           LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
           WHERE sf.deleted_at IS NULL
-            AND sf.is_active = TRUE
             AND sf.program_id IS NOT NULL
+            AND ${formActiveClause}
             AND ${programActiveClause}
           ORDER BY sf.created_at DESC
           `,
+          [site],
         )
         res.json({ success: true, data: result.rows.map(mapFormRow) })
       } catch (err) {
@@ -1243,6 +1289,12 @@ export function createSchedulingHandlers(pool) {
 
     async getPublicForm(req, res) {
       try {
+        const { isEnrollSiteKey } = await import('./enrollSites.js')
+        const site = String(req.query.site || 'athletics')
+        if (!isEnrollSiteKey(site)) {
+          return res.status(400).json({ success: false, message: 'Invalid enroll site' })
+        }
+
         const formId = Number(req.params.id)
         let categoryId
         if (req.query.uncategorized === '1') {
@@ -1264,7 +1316,7 @@ export function createSchedulingHandlers(pool) {
           }
         }
 
-        const detail = await loadFormDetail(pool, formId, { categoryId })
+        const detail = await loadFormDetail(pool, formId, { categoryId, site })
         if (!detail) {
           return res.status(404).json({ success: false, message: 'Scheduling form not found' })
         }
@@ -2295,15 +2347,26 @@ export function createSchedulingHandlers(pool) {
 
     async patchAdminFormActive(req, res) {
       try {
-        const isActive = Boolean(req.body.isActive)
+        const { normalizeEnrollSites } = await import('./enrollSites.js')
+        let enrollSites = null
+        if (Array.isArray(req.body.enrollSites)) {
+          enrollSites = normalizeEnrollSites(req.body.enrollSites, false)
+        }
+        const isActive =
+          enrollSites != null ? enrollSites.length > 0 : Boolean(req.body.isActive)
+        if (enrollSites == null && req.body.isActive === false) {
+          enrollSites = []
+        } else if (enrollSites == null && req.body.isActive === true) {
+          enrollSites = normalizeEnrollSites(null, true)
+        }
         const result = await pool.query(
           `
           UPDATE scheduling_form
-          SET is_active = $1, updated_at = now()
-          WHERE id = $2 AND deleted_at IS NULL
+          SET is_active = $1, enroll_sites = $2, updated_at = now()
+          WHERE id = $3 AND deleted_at IS NULL
           RETURNING *
           `,
-          [isActive, req.params.id],
+          [isActive, enrollSites, req.params.id],
         )
         if (result.rows.length === 0) {
           return res.status(404).json({ success: false, message: 'Form not found' })
@@ -2409,20 +2472,35 @@ export function createSchedulingHandlers(pool) {
         if (isNoCategoryCategoryRow(existing.rows[0])) {
           return res.status(400).json({ success: false, message: 'The system "No Category" cannot be edited' })
         }
+        const { normalizeEnrollSites } = await import('./enrollSites.js')
+        let enrollSites = value.enrollSites
+        if (enrollSites !== undefined) {
+          enrollSites = normalizeEnrollSites(enrollSites, false)
+        } else if (value.isActive !== undefined) {
+          enrollSites = normalizeEnrollSites(null, value.isActive)
+        }
+        const isActive =
+          enrollSites != null
+            ? enrollSites.length > 0
+            : value.isActive !== undefined
+              ? value.isActive
+              : existing.rows[0].is_active
         const result = await pool.query(
           `
           UPDATE scheduling_category
           SET name = $1,
               sort_order = COALESCE($2, sort_order),
               is_active = COALESCE($3, is_active),
+              enroll_sites = COALESCE($4, enroll_sites),
               updated_at = now()
-          WHERE id = $4
+          WHERE id = $5
           RETURNING *
           `,
           [
             value.name,
             value.sortOrder ?? null,
-            value.isActive,
+            enrollSites != null ? isActive : value.isActive,
+            enrollSites,
             req.params.id,
           ],
         )

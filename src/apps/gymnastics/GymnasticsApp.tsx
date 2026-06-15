@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState, useEffect } from 'react'
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import GymnasticsHeader from './GymnasticsHeader'
 import GymnasticsSeo from './GymnasticsSeo'
 import ContactForm from '../../components/ContactForm'
@@ -29,6 +29,7 @@ const SummerCamp2026LandingPage = lazy(
 )
 const CampInterestPage = lazy(() => import('./pages/CampInterestPage'))
 const CampInterestThankYouPage = lazy(() => import('./pages/CampInterestThankYouPage'))
+const SchedulingPage = lazy(() => import('../../components/SchedulingPage'))
 const AcroGymnasticsPage = lazy(() => import('./pages/AcroGymnasticsPage'))
 const ArtisticGymnasticsDisciplinePage = lazy(
   () => import('./pages/ArtisticGymnasticsDisciplinePage'),
@@ -226,6 +227,9 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
           />
           <Route path="/camp_interest" element={<CampInterestPage />} />
           <Route path="/camp_interest/thank-you" element={<CampInterestThankYouPage />} />
+          <Route path="/enroll" element={<SchedulingPage />} />
+          <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
+          <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
           <Route
             path="/acro-gymnastics"
             element={<AcroGymnasticsPage onSignUpClick={handleContactClick} />}

@@ -1,3 +1,4 @@
+import { type EnrollSiteKey } from '../config/enrollSites'
 import { adminApiRequest } from './api'
 
 export interface SchedulingCategoryRef {
@@ -17,6 +18,7 @@ export interface TopProgram {
   pricingFreeSlotsPerUser?: number
   archived: boolean
   schedulingActive?: boolean
+  schedulingEnrollSites?: EnrollSiteKey[]
   schedulingSignupFields?: string[] | null
   schedulingMandateWaiver?: boolean
   schedulingOverviewSavedAt?: string | null
@@ -41,6 +43,7 @@ export interface ClassEvent {
   archived?: boolean
   schedulingFormId?: number | null
   schedulingFormActive?: boolean
+  schedulingFormEnrollSites?: EnrollSiteKey[] | null
   schedulingCategoryId?: number | null
   schedulingCategoryName?: string | null
   schedulingCategories?: SchedulingCategoryRef[]
@@ -111,6 +114,7 @@ export async function updateTopProgram(
     description: string | null
     archived: boolean
     schedulingActive: boolean
+    schedulingEnrollSites: EnrollSiteKey[]
     schedulingSignupFields: string[] | null
     schedulingMandateWaiver: boolean
     markOverviewSaved: boolean

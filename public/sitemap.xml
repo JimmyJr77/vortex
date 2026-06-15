@@ -43,6 +43,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.vortexathletics.com/enroll</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.vortexathletics.com/scheduling</loc>
     <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>

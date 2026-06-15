@@ -15,7 +15,7 @@ function escapeHtml(str) {
  * @param {{ email: string; formId: number; formTitle: string; token: string }} params
  */
 export async function sendMagicLinkEmail({ email, formId, formTitle, token }) {
-  const link = `${FRONTEND_URL}/scheduling?form=${formId}&auth=${encodeURIComponent(token)}`
+  const link = `${FRONTEND_URL}/enroll?form=${formId}&auth=${encodeURIComponent(token)}`
   const title = formTitle || 'Vortex Athletics scheduling'
   const subject = `Sign in to complete your signup — ${title}`
 

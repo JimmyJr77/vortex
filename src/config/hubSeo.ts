@@ -60,10 +60,17 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     priority: 0.8,
   },
   {
-    path: '/scheduling',
-    title: 'Scheduling Sign Up | Vortex Athletics Bowie',
+    path: '/enroll',
+    title: 'Enroll | Vortex Athletics Bowie',
     description:
-      'Reserve your spot with Vortex Athletics scheduling sign up in Bowie, MD. Choose your category, day, and time.',
+      'Reserve your spot with Vortex Athletics enrollment in Bowie, MD. Choose your category, day, and time.',
+    priority: 0.8,
+  },
+  {
+    path: '/scheduling',
+    title: 'Enroll | Vortex Athletics Bowie',
+    description:
+      'Reserve your spot with Vortex Athletics enrollment in Bowie, MD. Choose your category, day, and time.',
     priority: 0.8,
   },
 ]

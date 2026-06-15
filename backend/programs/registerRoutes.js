@@ -58,6 +58,9 @@ const topProgramUpdateSchema = Joi.object({
   description: Joi.string().max(1000).optional().allow('', null),
   archived: Joi.boolean().optional(),
   schedulingActive: Joi.boolean().optional(),
+  schedulingEnrollSites: Joi.array()
+    .items(Joi.string().valid('athletics', 'gymnastics', 'basketball'))
+    .optional(),
   schedulingSignupFields: Joi.array().items(Joi.string()).optional().allow(null),
   schedulingMandateWaiver: Joi.boolean().optional(),
   markOverviewSaved: Joi.boolean().optional(),
@@ -168,7 +171,8 @@ export function registerProgramsAdminRoutes(app, pool) {
           p.created_at as "createdAt",
           p.updated_at as "updatedAt",
           sf.id as "schedulingFormId",
-          sf.is_active as "schedulingFormActive"
+          sf.is_active as "schedulingFormActive",
+          sf.enroll_sites as "schedulingFormEnrollSites"
         FROM program p
         LEFT JOIN ${schema.programsTable} pr ON p.${schema.programFkColumn} = pr.id
         LEFT JOIN scheduling_form sf ON sf.program_id = p.id AND sf.deleted_at IS NULL
@@ -379,10 +383,11 @@ export function registerProgramsAdminRoutes(app, pool) {
       const hasSchedulingCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
       const schedCols = hasSchedulingCols
         ? `, scheduling_active as "schedulingActive",
+           scheduling_enroll_sites as "schedulingEnrollSites",
            scheduling_signup_fields as "schedulingSignupFields",
            scheduling_mandate_waiver as "schedulingMandateWaiver",
            scheduling_overview_saved_at as "schedulingOverviewSavedAt"`
-        : `, FALSE as "schedulingActive", NULL as "schedulingSignupFields",
+        : `, FALSE as "schedulingActive", NULL as "schedulingEnrollSites", NULL as "schedulingSignupFields",
            FALSE as "schedulingMandateWaiver", NULL as "schedulingOverviewSavedAt"`
       let query = `
         SELECT p.id, p.name, p.display_name as "displayName",
@@ -437,6 +442,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       const schedValues = hasSchedulingCols ? ', CURRENT_TIMESTAMP' : ''
       const schedReturn = hasSchedulingCols
         ? `, scheduling_active as "schedulingActive",
+           scheduling_enroll_sites as "schedulingEnrollSites",
            scheduling_signup_fields as "schedulingSignupFields",
            scheduling_mandate_waiver as "schedulingMandateWaiver",
            scheduling_overview_saved_at as "schedulingOverviewSavedAt"`
@@ -505,9 +511,20 @@ export function registerProgramsAdminRoutes(app, pool) {
       }
       const hasSchedulingCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
       if (hasSchedulingCols) {
-        if (value.schedulingActive !== undefined) {
+        if (value.schedulingEnrollSites !== undefined) {
+          const { normalizeEnrollSites } = await import('../scheduling/enrollSites.js')
+          const enrollSites = normalizeEnrollSites(value.schedulingEnrollSites, false)
+          updates.push(`scheduling_enroll_sites = $${n++}`)
+          values.push(enrollSites)
+          updates.push(`scheduling_active = $${n++}`)
+          values.push(enrollSites.length > 0)
+        } else if (value.schedulingActive !== undefined) {
+          const { normalizeEnrollSites } = await import('../scheduling/enrollSites.js')
+          const enrollSites = normalizeEnrollSites(null, value.schedulingActive)
           updates.push(`scheduling_active = $${n++}`)
           values.push(value.schedulingActive)
+          updates.push(`scheduling_enroll_sites = $${n++}`)
+          values.push(enrollSites)
         }
         if (value.schedulingSignupFields !== undefined) {
           updates.push(`scheduling_signup_fields = $${n++}`)
@@ -551,6 +568,7 @@ export function registerProgramsAdminRoutes(app, pool) {
         values.push(req.params.id)
         const returnSched = hasSchedulingCols
           ? `, scheduling_active as "schedulingActive",
+             scheduling_enroll_sites as "schedulingEnrollSites",
              scheduling_signup_fields as "schedulingSignupFields",
              scheduling_mandate_waiver as "schedulingMandateWaiver",
              scheduling_overview_saved_at as "schedulingOverviewSavedAt"`
@@ -564,12 +582,17 @@ export function registerProgramsAdminRoutes(app, pool) {
           return res.status(404).json({ success: false, message: 'Program not found' })
         }
         row = result.rows[0]
-        if (hasSchedulingCols && value.schedulingActive !== undefined) {
+        if (hasSchedulingCols && (value.schedulingActive !== undefined || value.schedulingEnrollSites !== undefined)) {
+          const { normalizeEnrollSites } = await import('../scheduling/enrollSites.js')
+          const enrollSites =
+            value.schedulingEnrollSites !== undefined
+              ? normalizeEnrollSites(value.schedulingEnrollSites, false)
+              : normalizeEnrollSites(null, value.schedulingActive)
           await pool.query(
             `UPDATE scheduling_form
-             SET is_active = $1, updated_at = CURRENT_TIMESTAMP
-             WHERE programs_id = $2 AND deleted_at IS NULL`,
-            [value.schedulingActive, req.params.id],
+             SET is_active = $1, enroll_sites = $2, updated_at = CURRENT_TIMESTAMP
+             WHERE programs_id = $3 AND deleted_at IS NULL`,
+            [enrollSites.length > 0, enrollSites, req.params.id],
           )
         }
       } else {

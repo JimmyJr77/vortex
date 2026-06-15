@@ -1,5 +1,9 @@
 import { adminApiRequest, getApiUrl } from './api'
 import { dateInputValue } from './dateUtils'
+import { ENROLL_PATH, type EnrollSiteKey } from '../config/enrollSites'
+import { getCurrentEnrollSiteKey } from './enrollSite'
+
+export type { EnrollSiteKey }
 
 function normalizeSchedulingDate(value: string | null | undefined): string | null {
   const iso = dateInputValue(value)
@@ -12,6 +16,7 @@ export interface SchedulingCategory {
   name: string
   sortOrder: number
   isActive: boolean
+  enrollSites?: EnrollSiteKey[]
 }
 
 export const NO_CATEGORY_NAME = 'No Category'
@@ -159,6 +164,7 @@ export interface SchedulingFormSummary {
   signupFields: string[]
   mandateWaiver: boolean
   isActive: boolean
+  enrollSites?: EnrollSiteKey[]
   programsId?: number | null
   maxSlotsPerUser?: number | null
   slotCostMonthlyCents?: number
@@ -206,7 +212,7 @@ export function schedulingSignupPath(
   if (categoryId != null) {
     params.set('categoryId', String(categoryId))
   }
-  return `/scheduling?${params.toString()}`
+  return `${ENROLL_PATH}?${params.toString()}`
 }
 
 export function buildSchedulingSignupUrl(
@@ -433,8 +439,12 @@ async function parseJson<T>(response: Response): Promise<T> {
   return data.data as T
 }
 
-export async function fetchPublicSchedulingForms(): Promise<SchedulingFormSummary[]> {
-  const res = await fetch(`${getApiUrl()}/api/scheduling/forms`)
+export async function fetchPublicSchedulingForms(
+  site: EnrollSiteKey = getCurrentEnrollSiteKey(),
+): Promise<SchedulingFormSummary[]> {
+  const res = await fetch(
+    `${getApiUrl()}/api/scheduling/forms?site=${encodeURIComponent(site)}`,
+  )
   return parseJson(res)
 }
 
@@ -521,9 +531,10 @@ export async function fetchMySchedulingFormIds(email: string): Promise<number[]>
 export async function fetchPublicSchedulingForm(
   id: number,
   categoryId?: number | null,
-  options?: { fromEvent?: boolean },
+  options?: { fromEvent?: boolean; site?: EnrollSiteKey },
 ): Promise<SchedulingFormDetail> {
   const params = new URLSearchParams()
+  params.set('site', options?.site ?? getCurrentEnrollSiteKey())
   if (categoryId === null) params.set('uncategorized', '1')
   else if (categoryId != null) params.set('categoryId', String(categoryId))
   if (options?.fromEvent) params.set('fromEvent', '1')
@@ -755,6 +766,18 @@ export async function adminDeleteSchedulingForm(id: number): Promise<void> {
   }
 }
 
+export async function adminSetSchedulingFormEnrollSites(
+  formId: number,
+  enrollSites: EnrollSiteKey[],
+): Promise<SchedulingFormSummary> {
+  const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/active`, {
+    method: 'PATCH',
+    body: JSON.stringify({ enrollSites }),
+  })
+  return parseJson(res)
+}
+
+/** @deprecated Use adminSetSchedulingFormEnrollSites */
 export async function adminSetSchedulingFormActive(
   formId: number,
   isActive: boolean,
@@ -797,7 +820,7 @@ export async function adminLinkCategoryToForm(formId: number, categoryId: number
 
 export async function adminUpdateCategory(
   id: number,
-  payload: { name: string; sortOrder?: number; isActive?: boolean },
+  payload: { name: string; sortOrder?: number; isActive?: boolean; enrollSites?: EnrollSiteKey[] },
 ): Promise<SchedulingCategory> {
   const res = await adminApiRequest(`/api/admin/scheduling/categories/${id}`, {
     method: 'PUT',
