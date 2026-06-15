@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Zap, Target, TrendingUp, Shield, Users } from 'lucide-react'
-import { getSiteEnrollHref } from '../utils/enrollSite'
+import { ENROLL_PATH } from '../config/enrollSites'
 import HeroPosterBackground from './HeroPosterBackground'
 
 interface AthleticismAcceleratorProps {
@@ -109,7 +109,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
             >
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
                 <Link
-                  to={getSiteEnrollHref()}
+                  to={ENROLL_PATH}
                   className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
                 >
                   <motion.span
@@ -186,7 +186,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
               transition={{ delay: 0.4, duration: 0.8 }}
             >
               <Link
-                to={getSiteEnrollHref()}
+                to={ENROLL_PATH}
                 className="inline-flex items-center justify-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105 w-full max-w-xs"
               >
                 <motion.span
@@ -567,7 +567,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
-                to={getSiteEnrollHref()}
+                to={ENROLL_PATH}
                 className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
               >
                 <motion.span
