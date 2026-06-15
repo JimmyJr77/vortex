@@ -1232,8 +1232,6 @@ const SchedulingSignupEmbed = ({
     [slotOptions, timeSlotId],
   )
 
-  const buildCartItems = (): SignupCartItem[] => pendingSlotList
-
   const toggleCategorySlot = useCallback(
     (bundle: ProgramClassOption, slot: ProgramClassSlotOption, checked: boolean) => {
       if (isSlotEnrolled(bundle, slot, signedUpSlotKeys)) return
@@ -1540,8 +1538,7 @@ const SchedulingSignupEmbed = ({
                 {cartItems.map((item) => {
                   const itemSlotKey = memberSignupSlotKey(item)
                   const previewItem = orderPreview?.newSignups.find(
-                    (entry) =>
-                      (entry.slotKey ?? memberSignupSlotKey(entry)) === itemSlotKey,
+                    (entry) => entry.slotKey === itemSlotKey,
                   )
                   return (
                   <li
