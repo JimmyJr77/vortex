@@ -15,7 +15,8 @@ export function normalizeEnrollSites(raw, legacyActive) {
 }
 
 export function rowVisibleOnEnrollSite(rawSites, legacyActive, site) {
-  const sites = normalizeEnrollSites(rawSites, legacyActive)
+  if (!legacyActive) return false
+  const sites = normalizeEnrollSites(rawSites, true)
   return sites.includes(site)
 }
 

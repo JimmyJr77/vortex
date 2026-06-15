@@ -21,6 +21,10 @@ import {
   type EnrollSiteKey,
 } from '../../config/enrollSites'
 import EnrollSiteVisibilityControls from './EnrollSiteVisibilityControls'
+import {
+  buildProgramSchedulingUpdatePayload,
+  getSchedulingEnrollApiCapabilities,
+} from '../../utils/schedulingEnrollApi'
 
 interface Props {
   program: TopProgram
@@ -32,18 +36,18 @@ interface Props {
 type SetupStatus = 'none' | 'partial' | 'ready'
 
 function programEnrollSites(program: TopProgram): EnrollSiteKey[] {
-  return normalizeEnrollSites(program.schedulingEnrollSites, program.schedulingActive)
+  if (program.schedulingActive === false) return []
+  return normalizeEnrollSites(program.schedulingEnrollSites, true)
 }
 
 function classEnrollSites(classEvent: ClassEvent): EnrollSiteKey[] {
-  return normalizeEnrollSites(
-    classEvent.schedulingFormEnrollSites ?? undefined,
-    classEvent.schedulingFormActive,
-  )
+  if (classEvent.schedulingFormActive === false) return []
+  return normalizeEnrollSites(classEvent.schedulingFormEnrollSites ?? undefined, true)
 }
 
 function categoryEnrollSites(category: SchedulingCategory): EnrollSiteKey[] {
-  return normalizeEnrollSites(category.enrollSites, category.isActive)
+  if (category.isActive === false) return []
+  return normalizeEnrollSites(category.enrollSites, true)
 }
 
 async function classSetupStatus(classEvent: ClassEvent): Promise<SetupStatus> {
@@ -76,11 +80,20 @@ const AdminSchedulingOverview = ({
   const [savingClassId, setSavingClassId] = useState<number | null>(null)
   const [savingCategoryId, setSavingCategoryId] = useState<number | null>(null)
   const [bulkSavingClasses, setBulkSavingClasses] = useState(false)
+  const [legacyEnrollApi, setLegacyEnrollApi] = useState(false)
 
   const programVisible = programEnrollSiteSelection.length > 0
 
-  const loadData = useCallback(async () => {
-    setLoading(true)
+  useEffect(() => {
+    void getSchedulingEnrollApiCapabilities().then(
+      (capabilities) => setLegacyEnrollApi(!capabilities.schedulingEnrollSites),
+    )
+  }, [])
+
+  const loadData = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) {
+      setLoading(true)
+    }
     setError(null)
     try {
       const [events, cats] = await Promise.all([
@@ -99,14 +112,19 @@ const AdminSchedulingOverview = ({
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load program overview')
     } finally {
-      setLoading(false)
+      if (!opts?.silent) {
+        setLoading(false)
+      }
     }
   }, [program.id])
 
   useEffect(() => {
     setProgramEnrollSiteSelection(programEnrollSites(program))
+  }, [program.id, program.schedulingActive, program.schedulingEnrollSites])
+
+  useEffect(() => {
     void loadData()
-  }, [program.id, program.schedulingActive, program.schedulingEnrollSites, loadData])
+  }, [program.id, loadData])
 
   const programCategories = useMemo(() => {
     const linkedIds = new Set<number>()
@@ -139,14 +157,35 @@ const AdminSchedulingOverview = ({
   }
 
   const handleProgramEnrollSitesChange = async (sites: EnrollSiteKey[]) => {
-    setSavingProgram(true)
     setProgramError(null)
+    const previousSites = programEnrollSiteSelection
+
+    const capabilities = await getSchedulingEnrollApiCapabilities()
+    const { payload, displaySites } = buildProgramSchedulingUpdatePayload(
+      sites,
+      previousSites,
+      capabilities.schedulingEnrollSites,
+    )
+
+    setProgramEnrollSiteSelection(displaySites)
+    setSavingProgram(true)
+
     try {
-      const updated = await updateTopProgram(program.id, { schedulingEnrollSites: sites })
-      setProgramEnrollSiteSelection(programEnrollSites(updated))
-      onSaved(updated)
-      await loadData()
+      const updated = await updateTopProgram(program.id, payload)
+
+      const nextSites = capabilities.schedulingEnrollSites
+        ? programEnrollSites(updated)
+        : displaySites
+
+      setProgramEnrollSiteSelection(nextSites)
+      onSaved({
+        ...updated,
+        schedulingActive: nextSites.length > 0,
+        schedulingEnrollSites: nextSites,
+      })
+      await loadData({ silent: true })
     } catch (e) {
+      setProgramEnrollSiteSelection(previousSites)
       setProgramError(e instanceof Error ? e.message : 'Failed to update program visibility')
     } finally {
       setSavingProgram(false)
@@ -238,6 +277,12 @@ const AdminSchedulingOverview = ({
           disabled={savingProgram}
           onChange={(sites) => void handleProgramEnrollSitesChange(sites)}
         />
+        {legacyEnrollApi && (
+          <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            Enroll visibility is all sites on or all sites off until the production API is
+            updated. Checking any site turns on all three; unchecking any site turns all off.
+          </p>
+        )}
         {!programVisible && (
           <p className="text-xs text-gray-500">
             This program and its classes are hidden from public enroll pages until you select at

@@ -52,14 +52,15 @@ export function mapProgramRow(row, { hasSchedulingCols = false, hasDescription =
     updatedAt: row.updated_at,
   }
   if (!hasSchedulingCols) return base
-  const schedulingEnrollSites = Array.isArray(row.scheduling_enroll_sites)
-    ? row.scheduling_enroll_sites
-    : row.scheduling_active
-      ? ['athletics', 'gymnastics', 'basketball']
-      : []
+  const schedulingActive = Boolean(row.scheduling_active)
+  const schedulingEnrollSites = schedulingActive
+    ? Array.isArray(row.scheduling_enroll_sites) && row.scheduling_enroll_sites.length > 0
+      ? row.scheduling_enroll_sites
+      : ['athletics', 'gymnastics', 'basketball']
+    : []
   return {
     ...base,
-    schedulingActive: Boolean(row.scheduling_active),
+    schedulingActive,
     schedulingEnrollSites,
     schedulingSignupFields: row.scheduling_signup_fields ?? null,
     schedulingMandateWaiver: Boolean(row.scheduling_mandate_waiver),

@@ -29,6 +29,25 @@ export async function getSchedulingEnrollApiCapabilities(): Promise<SchedulingEn
   return cachedCapabilities
 }
 
+export function resolveLegacyProgramEnrollSelection(
+  requestedSites: EnrollSiteKey[],
+  previousSites: EnrollSiteKey[],
+): { apiActive: boolean; displaySites: EnrollSiteKey[] } {
+  if (requestedSites.length === 0) {
+    return { apiActive: false, displaySites: [] }
+  }
+
+  const hadAll = ALL_ENROLL_SITES.every((site) => previousSites.includes(site))
+  const wantsAll = ALL_ENROLL_SITES.every((site) => requestedSites.includes(site))
+
+  // Legacy API only supports all enroll pages on or off.
+  if (hadAll && !wantsAll) {
+    return { apiActive: false, displaySites: [] }
+  }
+
+  return { apiActive: true, displaySites: [...ALL_ENROLL_SITES] }
+}
+
 export function adaptProgramSchedulingUpdateForApi<
   T extends { schedulingEnrollSites?: EnrollSiteKey[]; schedulingActive?: boolean },
 >(payload: T, supportsEnrollSites: boolean): T {
@@ -41,6 +60,25 @@ export function adaptProgramSchedulingUpdateForApi<
     ...rest,
     schedulingActive: schedulingEnrollSites.length > 0,
   } as T
+}
+
+export function buildProgramSchedulingUpdatePayload(
+  requestedSites: EnrollSiteKey[],
+  previousSites: EnrollSiteKey[],
+  supportsEnrollSites: boolean,
+): {
+  payload: { schedulingEnrollSites?: EnrollSiteKey[]; schedulingActive?: boolean }
+  displaySites: EnrollSiteKey[]
+} {
+  if (supportsEnrollSites) {
+    return { payload: { schedulingEnrollSites: requestedSites }, displaySites: requestedSites }
+  }
+
+  const resolved = resolveLegacyProgramEnrollSelection(requestedSites, previousSites)
+  return {
+    payload: { schedulingActive: resolved.apiActive },
+    displaySites: resolved.displaySites,
+  }
 }
 
 export function adaptFormEnrollSitesBody(
@@ -73,6 +111,9 @@ export function enrollSitesFromApiResponse(input: {
   enrollSites?: EnrollSiteKey[] | null
   isActive?: boolean
 }): EnrollSiteKey[] {
+  if (input.schedulingActive === false || input.isActive === false) {
+    return []
+  }
   if (Array.isArray(input.schedulingEnrollSites) && input.schedulingEnrollSites.length > 0) {
     return input.schedulingEnrollSites
   }
