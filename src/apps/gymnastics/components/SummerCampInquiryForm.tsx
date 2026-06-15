@@ -9,6 +9,10 @@ import {
   type InquiryCamper,
 } from '../../../config/inquiryOptions'
 import { getApiUrl } from '../../../utils/api'
+import {
+  adaptRegistrationPayloadForApi,
+  getRegistrationApiCapabilities,
+} from '../../../utils/registrationApi'
 import { getActiveConsent } from '../../../utils/consent'
 import { trackEvent } from '../../../utils/analyticsClient'
 import { getVisitorId, getSessionId } from '../../../utils/visitorId'
@@ -150,10 +154,13 @@ const SummerCampInquiryForm = () => {
       payload.sessionId = getSessionId(consent.analytics)
       Object.assign(payload, attribution)
 
+      const capabilities = await getRegistrationApiCapabilities()
+      const apiPayload = adaptRegistrationPayloadForApi(payload, capabilities.registrationInquiryOverhaul)
+
       const response = await fetch(`${apiUrl}/api/registrations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(apiPayload),
         signal: AbortSignal.timeout(10000),
       })
 

@@ -2,6 +2,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Phone, MapPin, Send, Plus, Trash2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { getApiUrl } from '../utils/api'
+import {
+  adaptRegistrationPayloadForApi,
+  getRegistrationApiCapabilities,
+} from '../utils/registrationApi'
 import { TEAM_EMAIL } from '../config/contact'
 import { getAttributionPayload } from '../utils/utmCapture'
 import { getVisitorId, getSessionId } from '../utils/visitorId'
@@ -162,12 +166,15 @@ const ContactForm = ({
       payload.sessionId = getSessionId(consent.analytics)
       Object.assign(payload, attribution)
 
+      const capabilities = await getRegistrationApiCapabilities()
+      const apiPayload = adaptRegistrationPayloadForApi(payload, capabilities.registrationInquiryOverhaul)
+
       let response: Response
       try {
         response = await fetch(`${apiUrl}/api/registrations`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(apiPayload),
           signal: AbortSignal.timeout(10000),
         })
       } catch (fetchError: unknown) {
