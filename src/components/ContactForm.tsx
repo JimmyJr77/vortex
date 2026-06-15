@@ -340,15 +340,15 @@ const ContactForm = ({
       <div className="p-8">
         {!isSubmitted ? (
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-vortex-red/10 border-2 border-vortex-red/30 rounded-lg p-4 text-center">
-              <p className="text-gray-700 mb-3 font-medium">If you are looking to Enroll, click here:</p>
+            <div className="flex flex-wrap items-center justify-center gap-3 rounded-lg border border-vortex-red/30 bg-vortex-red/10 px-4 py-2.5 text-center">
+              <p className="text-sm text-gray-700 font-medium">If you are looking to Enroll, click here:</p>
               <motion.a
                 href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-vortex-red text-white px-8 py-3 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center justify-center bg-vortex-red text-white px-4 py-1.5 rounded-md font-semibold text-sm transition-colors hover:bg-red-700"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
                 Enroll
               </motion.a>

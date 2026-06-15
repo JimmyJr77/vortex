@@ -10,13 +10,13 @@ const CampInterestPage = () => {
         description="Tell us about your camper's interest in Vortex Gymnastics Summer Camp. We'll follow up with everything you need to get registered."
         canonical={`${GYMNASTICS_ORIGIN}/camp_interest`}
       />
-      <section className="bg-gray-50 py-16 px-4">
-        <div className="max-w-2xl mx-auto text-center mb-10">
+      <section className="bg-gray-50 pt-below-site-header pb-16 px-4">
+        <div className="max-w-2xl mx-auto text-center mb-10 mt-10 md:mt-14">
           <h1 className="text-4xl md:text-5xl font-display font-bold text-black">
             Summer Camp Inquiry
           </h1>
           <p className="text-lg text-gray-600 mt-4">
-            Let us know your campers interests and we&apos;ll follow up with everything you need to
+            Let us know your camper&apos;s interests and we&apos;ll follow up with everything you need to
             get registered.
           </p>
         </div>

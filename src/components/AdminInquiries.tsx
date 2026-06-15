@@ -4,6 +4,48 @@ import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, 
 import { adminApiRequest } from '../utils/api'
 import { notesApi, type Note } from '../utils/adminFeaturesApi'
 import type { InquiryCamper } from '../config/inquiryOptions'
+import { INQUIRY_CLASS_TYPES, LEGACY_INQUIRY_CLASS_TYPES } from '../config/inquiryOptions'
+
+const PROGRAM_INTEREST_VALUES = new Set<string>([
+  ...INQUIRY_CLASS_TYPES,
+  ...LEGACY_INQUIRY_CLASS_TYPES,
+  'Homeschool',
+])
+
+const isProgramInterest = (value: string): boolean => PROGRAM_INTEREST_VALUES.has(value)
+
+const getUserInterestsList = (user: Pick<User, 'interests' | 'interests_array'>): string[] => {
+  if (user.interests_array && user.interests_array.length > 0) {
+    return user.interests_array
+  }
+  if (user.interests) {
+    return user.interests.split(',').map((i) => i.trim()).filter(Boolean)
+  }
+  return []
+}
+
+const getActivityInterests = (user: Pick<User, 'interests' | 'interests_array'>): string[] =>
+  getUserInterestsList(user).filter((interest) => !isProgramInterest(interest))
+
+const getProgramInterests = (user: Pick<User, 'interests' | 'interests_array' | 'class_types'>): string[] => {
+  const fromClassTypes = user.class_types || []
+  const fromInterests = getUserInterestsList(user).filter(isProgramInterest)
+  return [...new Set([...fromClassTypes, ...fromInterests])]
+}
+
+const formatClassType = (classType: string): string => {
+  if (classType === 'Adult Classes') return 'Adult'
+  if (classType === 'Youth Classes' || classType === 'Child Classes') return 'Youth'
+  if (classType === 'Camps' || classType === 'Gymnastics Summer Camp') return 'Camps'
+  if (classType === 'Homeschool Program' || classType === 'Homeschool') return 'Homeschool'
+  if (classType === 'Summer Athletic Development Program') return 'Summer ADP'
+  return classType
+}
+
+const formatClassTypes = (classTypes: string[] | null): string => {
+  if (!classTypes || classTypes.length === 0) return '-'
+  return classTypes.map(formatClassType).join(', ')
+}
 
 interface User {
   id: number
@@ -163,27 +205,25 @@ export default function AdminInquiries() {
   const filteredUsers = sortedUsers.filter(user => {
     // Apply main filter
     if (filter === 'newsletter' && !user.newsletter) return false
-    if (filter === 'interests' && !user.interests && !user.interests_array?.length) return false
+    if (filter === 'interests' && getActivityInterests(user).length === 0 && getProgramInterests(user).length === 0) return false
 
     // Apply interests filter
     if (interestsFilter.length > 0) {
-      const userInterests = user.interests_array && user.interests_array.length > 0
-        ? user.interests_array
-        : (user.interests ? user.interests.split(',').map(i => i.trim()).filter(i => i) : [])
-      const hasMatchingInterest = userInterests.some(interest => 
-        interestsFilter.some(filterInterest => 
-          interest.toLowerCase().includes(filterInterest.toLowerCase()) || 
+      const userInterests = getActivityInterests(user)
+      const hasMatchingInterest = userInterests.some(interest =>
+        interestsFilter.some(filterInterest =>
+          interest.toLowerCase().includes(filterInterest.toLowerCase()) ||
           filterInterest.toLowerCase().includes(interest.toLowerCase())
         )
       )
       if (!hasMatchingInterest) return false
     }
 
-    // Apply class types filter
+    // Apply program interests filter
     if (classTypesFilter.length > 0) {
-      const userClassTypes = (user.class_types || []).map(formatClassType)
-      const hasMatchingClassType = userClassTypes.some(type => classTypesFilter.includes(type))
-      if (!hasMatchingClassType) return false
+      const userProgramInterests = getProgramInterests(user).map(formatClassType)
+      const hasMatchingProgram = userProgramInterests.some((type) => classTypesFilter.includes(type))
+      if (!hasMatchingProgram) return false
     }
 
     return true
@@ -389,13 +429,15 @@ export default function AdminInquiries() {
     })
   }
 
-  const formatInterests = (user: User) => {
-    if (user.interests_array && user.interests_array.length > 0) {
-      return user.interests_array.join(', ')
-    }
-    if (user.interests) {
-      return user.interests
-    }
+  const formatActivityInterests = (user: User) => {
+    const activity = getActivityInterests(user)
+    if (activity.length > 0) return activity.join(', ')
+    return '-'
+  }
+
+  const formatProgramInterests = (user: User) => {
+    const program = getProgramInterests(user)
+    if (program.length > 0) return formatClassTypes(program)
     return '-'
   }
 
@@ -437,20 +479,6 @@ export default function AdminInquiries() {
     return '-'
   }
 
-  const formatClassType = (classType: string): string => {
-    if (classType === 'Adult Classes') return 'Adult'
-    if (classType === 'Youth Classes' || classType === 'Child Classes') return 'Youth'
-    if (classType === 'Camps' || classType === 'Gymnastics Summer Camp') return 'Camps'
-    if (classType === 'Homeschool Program') return 'Homeschool'
-    if (classType === 'Summer Athletic Development Program') return 'Summer ADP'
-    return classType
-  }
-
-  const formatClassTypes = (classTypes: string[] | null): string => {
-    if (!classTypes || classTypes.length === 0) return '-'
-    return classTypes.map(formatClassType).join(', ')
-  }
-
   const formatCampers = (campers: InquiryCamper[] | null | undefined): string => {
     if (!campers || campers.length === 0) return '-'
     return campers
@@ -464,31 +492,20 @@ export default function AdminInquiries() {
       .join('; ') || '-'
   }
 
-  const getAllInterests = (): string[] => {
+  const getAllActivityInterests = (): string[] => {
     const interests = new Set<string>()
     users.forEach(user => {
-      if (user.interests_array && user.interests_array.length > 0) {
-        user.interests_array.forEach(interest => interests.add(interest))
-      } else if (user.interests) {
-        // Split legacy interests string by comma
-        user.interests.split(',').forEach(interest => {
-          const trimmed = interest.trim()
-          if (trimmed) interests.add(trimmed)
-        })
-      }
+      getActivityInterests(user).forEach(interest => interests.add(interest))
     })
     return Array.from(interests).sort()
   }
 
-  const getAllClassTypes = (): string[] => {
+  const getAllProgramInterests = (): string[] => {
     const classTypes = new Set<string>()
     users.forEach(user => {
-      if (user.class_types && user.class_types.length > 0) {
-        user.class_types.forEach(type => {
-          const formatted = formatClassType(type)
-          classTypes.add(formatted)
-        })
-      }
+      getProgramInterests(user).forEach(type => {
+        classTypes.add(formatClassType(type))
+      })
     })
     return Array.from(classTypes).sort()
   }
@@ -555,7 +572,7 @@ export default function AdminInquiries() {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              Interested ({users.filter(u => u.interests || u.interests_array?.length).length})
+              Interested ({users.filter(u => getActivityInterests(u).length > 0 || getProgramInterests(u).length > 0).length})
             </button>
           </div>
         </div>
@@ -650,7 +667,7 @@ export default function AdminInquiries() {
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[200px]">
                     <div className="flex items-center gap-1">
-                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Interests</span>
+                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Activity Interests</span>
                       <div className="relative" ref={interestsFilterRef}>
                         <button
                           onClick={(e) => {
@@ -664,7 +681,7 @@ export default function AdminInquiries() {
                           className={`p-1 rounded hover:bg-gray-200 transition-colors ${
                             interestsFilter.length > 0 ? 'text-vortex-red' : 'text-gray-400'
                           }`}
-                          title="Filter by interests"
+                          title="Filter by activity interests"
                         >
                           <Filter className="w-3 h-3" />
                         </button>
@@ -675,8 +692,8 @@ export default function AdminInquiries() {
                             style={{ top: `${interestsFilterPosition.top}px`, left: `${interestsFilterPosition.left}px` }}
                           >
                             <div className="p-2">
-                              <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Interest</div>
-                              {getAllInterests().map(interest => (
+                              <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Activity Interest</div>
+                              {getAllActivityInterests().map(interest => (
                                 <label key={interest} className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 cursor-pointer">
                                   <input
                                     type="checkbox"
@@ -709,7 +726,7 @@ export default function AdminInquiries() {
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[100px]">
                     <div className="flex items-center gap-1">
-                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Class Types</span>
+                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Program Interests</span>
                       <div className="relative" ref={classTypesFilterRef}>
                         <button
                           onClick={(e) => {
@@ -723,7 +740,7 @@ export default function AdminInquiries() {
                           className={`p-1 rounded hover:bg-gray-200 transition-colors ${
                             classTypesFilter.length > 0 ? 'text-vortex-red' : 'text-gray-400'
                           }`}
-                          title="Filter by class types"
+                          title="Filter by program interests"
                         >
                           <Filter className="w-3 h-3" />
                         </button>
@@ -734,8 +751,8 @@ export default function AdminInquiries() {
                             style={{ top: `${classTypesFilterPosition.top}px`, right: `${classTypesFilterPosition.right}px` }}
                           >
                             <div className="p-2">
-                              <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Class Type</div>
-                              {getAllClassTypes().map(classType => (
+                              <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Program Interest</div>
+                              {getAllProgramInterests().map(classType => (
                                 <label key={classType} className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 cursor-pointer">
                                   <input
                                     type="checkbox"
@@ -852,12 +869,12 @@ export default function AdminInquiries() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
-                        <div className="max-w-[200px] truncate" title={formatInterests(user)}>
-                          {formatInterests(user)}
+                        <div className="max-w-[200px] truncate" title={formatActivityInterests(user)}>
+                          {formatActivityInterests(user)}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 text-center">
-                        {formatClassTypes(user.class_types)}
+                        {formatProgramInterests(user)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
                         <div className="max-w-[120px] truncate" title={user.inquiry_source || undefined}>
@@ -959,24 +976,26 @@ export default function AdminInquiries() {
                                         />
                                       </div>
                                       <div>
-                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Interests (comma-separated)</label>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Activity Interests (comma-separated)</label>
                                         <input
                                           type="text"
-                                          value={editData.interests_array ? editData.interests_array.join(', ') : (editData.interests || '')}
+                                          value={getActivityInterests(editData as User).join(', ')}
                                           onChange={(e) => {
-                                            const interestsList = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0)
-                                            setEditData({ 
-                                              ...editData, 
-                                              interests_array: interestsList.length > 0 ? interestsList : null,
-                                              interests: interestsList.length > 0 ? interestsList.join(', ') : null
+                                            const activityList = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0)
+                                            const programInInterests = getUserInterestsList(editData as User).filter(isProgramInterest)
+                                            const combined = [...activityList, ...programInInterests]
+                                            setEditData({
+                                              ...editData,
+                                              interests_array: combined.length > 0 ? combined : null,
+                                              interests: combined.length > 0 ? combined.join(', ') : null
                                             })
                                           }}
                                           className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
-                                          placeholder="Gymnastics (Artistic), Rhythmic Gymnastics"
+                                          placeholder="Speed & Agility, Gymnastics (Artistic)"
                                         />
                                       </div>
                                       <div>
-                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Class Types (comma-separated)</label>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Program Interests (comma-separated)</label>
                                         <input
                                           type="text"
                                           value={editData.class_types ? editData.class_types.join(', ') : ''}
@@ -1157,22 +1176,16 @@ export default function AdminInquiries() {
                                         <span className="text-gray-600 font-semibold">Athlete Age:</span>
                                         <div className="text-gray-900 mt-1">{formatAthleteAges(user)}</div>
                                       </div>
-                                      {user.interests_array && user.interests_array.length > 0 && (
+                                      {getActivityInterests(user).length > 0 && (
                                         <div className="md:col-span-2">
-                                          <span className="text-gray-600 font-semibold">Interests:</span>
-                                          <div className="text-gray-900 mt-1">{user.interests_array.join(', ')}</div>
+                                          <span className="text-gray-600 font-semibold">Activity Interests:</span>
+                                          <div className="text-gray-900 mt-1">{formatActivityInterests(user)}</div>
                                         </div>
                                       )}
-                                      {!user.interests_array && user.interests && (
-                                        <div className="md:col-span-2">
-                                          <span className="text-gray-600 font-semibold">Interests (Legacy):</span>
-                                          <div className="text-gray-900 mt-1">{user.interests}</div>
-                                        </div>
-                                      )}
-                                      {user.class_types && user.class_types.length > 0 && (
+                                      {getProgramInterests(user).length > 0 && (
                                         <div>
-                                          <span className="text-gray-600 font-semibold">Class Types:</span>
-                                          <div className="text-gray-900 mt-1">{formatClassTypes(user.class_types)}</div>
+                                          <span className="text-gray-600 font-semibold">Program Interests:</span>
+                                          <div className="text-gray-900 mt-1">{formatProgramInterests(user)}</div>
                                         </div>
                                       )}
                                       {user.child_ages && user.child_ages.length > 0 && (

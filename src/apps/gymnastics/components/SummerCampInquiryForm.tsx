@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Mail, MapPin, Phone, Plus, Send, Trash2 } from 'lucide-react'
+import { Plus, Send, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
@@ -8,7 +8,6 @@ import {
   GYMNASTICS_INTERESTS,
   type InquiryCamper,
 } from '../../../config/inquiryOptions'
-import { TEAM_EMAIL } from '../../../config/contact'
 import { getApiUrl } from '../../../utils/api'
 import { getActiveConsent } from '../../../utils/consent'
 import { trackEvent } from '../../../utils/analyticsClient'
@@ -179,16 +178,7 @@ const SummerCampInquiryForm = () => {
   }
 
   return (
-    <div className="w-full flex justify-center px-4">
-      <div className="relative bg-white max-w-2xl w-full rounded-2xl border border-gray-200 shadow-lg">
-        <div className="border-b border-gray-200 px-8 py-6 rounded-t-2xl">
-          <h2 className="text-2xl font-display font-bold text-black">Inquire — Vortex Gymnastics</h2>
-          <p className="text-gray-600 mt-2 text-sm">
-            Complete the form below and our team will follow up with registration details.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto w-full space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">First Name *</label>
@@ -369,30 +359,7 @@ const SummerCampInquiryForm = () => {
               </>
             )}
           </motion.button>
-        </form>
-
-        <div className="bg-gray-50 px-8 py-6 rounded-b-2xl border-t border-gray-100">
-          <div className="space-y-3 text-sm text-gray-600">
-            <div className="flex items-center space-x-2">
-              <MapPin className="w-4 h-4 shrink-0" />
-              <span>4961 Tesla Dr, Ste E, Bowie, MD 20715</span>
-            </div>
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-              <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4 shrink-0" />
-                <span>+1 (443) 422-4794</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Mail className="w-4 h-4 shrink-0" />
-                <a href={`mailto:${TEAM_EMAIL}`} className="hover:text-vortex-red transition-colors">
-                  {TEAM_EMAIL}
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </form>
   )
 }
 
