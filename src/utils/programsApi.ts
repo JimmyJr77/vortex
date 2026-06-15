@@ -326,6 +326,22 @@ export async function addClassVariation(
   }
 }
 
+/** Split one Admin > Classes row into a new independent class with a different category. */
+export async function splitClassByCategory(
+  classId: number,
+  payload: ClassEventFormData & {
+    fromCategoryId: number | null
+    toCategoryId: number | null
+  },
+): Promise<{ newProgramId: number }> {
+  const res = await adminApiRequest(`/api/admin/programs/${classId}/split-by-category`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+  const data = await parseJson<{ newProgramId: number }>(res)
+  return data
+}
+
 export interface SyncSchedulingStats {
   groups: number
   merged: number

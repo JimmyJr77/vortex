@@ -224,6 +224,35 @@ async function resolveClassFormId(client, programId) {
   return res.rows[0]?.id ?? null
 }
 
+async function uniqueInternalName(client, facilityId, categoryEnum, baseName) {
+  for (let attempt = 1; attempt <= 200; attempt++) {
+    const candidate = attempt === 1 ? baseName : `${baseName}_${attempt}`
+    const existing = await client.query(
+      'SELECT 1 FROM program WHERE facility_id = $1 AND category = $2 AND name = $3 LIMIT 1',
+      [facilityId, categoryEnum, candidate],
+    )
+    if (existing.rows.length === 0) return candidate
+  }
+  throw new Error(`Could not derive a unique internal name from "${baseName}"`)
+}
+
+/** Move scheduling rows tagged with one category from one form onto another. */
+async function moveCategorySchedulingBetweenForms(client, fromFormId, toFormId, categoryId, noCategoryId) {
+  if (fromFormId == null || toFormId == null || fromFormId === toFormId) return
+  await demoteConflictingSelectedOfferings(client, fromFormId, toFormId)
+  const signupCat = categoryId == null ? noCategoryId : categoryId
+  for (const tbl of ['scheduling_offering', 'scheduling_slot_group', 'scheduling_time_slot']) {
+    await client.query(
+      `UPDATE ${tbl} SET form_id = $1 WHERE form_id = $2 AND category_id IS NOT DISTINCT FROM $3`,
+      [toFormId, fromFormId, categoryId],
+    )
+  }
+  await client.query(
+    'UPDATE scheduling_signup SET form_id = $1 WHERE form_id = $2 AND category_id = $3',
+    [toFormId, fromFormId, signupCat],
+  )
+}
+
 /** Is `categoryId` still referenced by any scheduling data on the form? */
 async function categoryStillUsed(client, formId, categoryId) {
   if (categoryId == null) return false
@@ -305,6 +334,194 @@ export async function reassignVariationCategory(pool, programId, fromCategoryId,
 
     await client.query('COMMIT')
     return { programId, formId, fromCategoryId: fromOff, toCategoryId: toOff }
+  } catch (err) {
+    await client.query('ROLLBACK')
+    throw err
+  } finally {
+    client.release()
+  }
+}
+
+/**
+ * Split one Admin > Classes row into a brand-new class (new `program` row +
+ * new `scheduling_form`) that matches the source metadata except for the
+ * target scheduling category. Scheduling data tagged with the target category
+ * is moved from the source form onto the new form.
+ *
+ * @param {import('pg').Pool} pool
+ * @param {number} sourceProgramId
+ * @param {{ fromCategoryId: number|null, toCategoryId: number|null, classData: object }} opts
+ */
+export async function splitClassByCategory(pool, sourceProgramId, { fromCategoryId, toCategoryId, classData }) {
+  const schema = await resolveProgramsSchema(pool)
+  const fkCol = schema.programFkColumn
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const noCategoryId = await ensureNoCategoryCategory(client)
+
+    const normalizeCat = (id) => {
+      if (id == null || id === noCategoryId) return null
+      return Number(id)
+    }
+    const fromOff = normalizeCat(fromCategoryId)
+    const toOff = normalizeCat(toCategoryId)
+
+    if (fromOff === toOff) {
+      const err = new Error('Target category must differ from the source row category')
+      err.statusCode = 400
+      throw err
+    }
+
+    const srcRes = await client.query(
+      `SELECT p.*, sf.id AS source_form_id
+       FROM program p
+       LEFT JOIN scheduling_form sf ON sf.program_id = p.id AND sf.deleted_at IS NULL
+       WHERE p.id = $1
+       LIMIT 1`,
+      [sourceProgramId],
+    )
+    if (srcRes.rows.length === 0) {
+      const err = new Error('Source class not found')
+      err.statusCode = 404
+      throw err
+    }
+    const src = srcRes.rows[0]
+    const sourceFormId = src.source_form_id != null ? Number(src.source_form_id) : null
+    const programsId = src[fkCol]
+    const facilityId = src.facility_id
+    const categoryEnum = src.category
+
+    const resolvedSchedulingCategoryId = await resolveSchedulingCategoryId(client, toCategoryId)
+
+    const programCols = await tableColumns(client, 'program')
+    let levelId = src.level_id ?? null
+    if (classData.skillLevel && programCols.has('level_id') && programsId) {
+      const levelResult = await client.query(
+        'SELECT id FROM skill_levels WHERE name = $1 AND category_id = $2 LIMIT 1',
+        [classData.skillLevel, programsId],
+      )
+      levelId = levelResult.rows[0]?.id ?? null
+    }
+
+    const baseName = classData.displayName.toUpperCase().replace(/\s+/g, '_')
+    const internalName = await uniqueInternalName(client, facilityId, categoryEnum, baseName)
+
+    const insertCols = ['facility_id', 'category', fkCol, 'name', 'display_name', 'skill_level']
+    const insertVals = [
+      facilityId,
+      categoryEnum,
+      programsId,
+      internalName,
+      classData.displayName,
+      classData.skillLevel || null,
+    ]
+    if (programCols.has('level_id')) {
+      insertCols.push('level_id')
+      insertVals.push(levelId)
+    }
+    insertCols.push('age_min', 'age_max', 'description', 'skill_requirements', 'is_active')
+    insertVals.push(
+      classData.ageMin ?? null,
+      classData.ageMax ?? null,
+      classData.description || null,
+      classData.skillRequirements || null,
+      classData.isActive !== false,
+    )
+    if (programCols.has('scheduling_category_id')) {
+      insertCols.push('scheduling_category_id')
+      insertVals.push(resolvedSchedulingCategoryId)
+    }
+
+    const placeholders = insertVals.map((_, i) => `$${i + 1}`).join(', ')
+    const newProgramRes = await client.query(
+      `INSERT INTO program (${insertCols.join(', ')}) VALUES (${placeholders}) RETURNING id`,
+      insertVals,
+    )
+    const newProgramId = Number(newProgramRes.rows[0].id)
+
+    let newFormId = null
+    const formCols = await tableColumns(client, 'scheduling_form')
+    const srcFormRow =
+      sourceFormId != null
+        ? (await client.query('SELECT * FROM scheduling_form WHERE id = $1', [sourceFormId])).rows[0]
+        : null
+
+    const formInsertCols = ['title', 'description', 'is_active']
+    const formInsertVals = [
+      classData.displayName,
+      classData.description ?? srcFormRow?.description ?? null,
+      classData.isActive !== false,
+    ]
+    if (formCols.has('signup_fields') && srcFormRow?.signup_fields) {
+      formInsertCols.push('signup_fields', 'mandate_waiver')
+      formInsertVals.push(JSON.stringify(srcFormRow.signup_fields), Boolean(srcFormRow.mandate_waiver))
+    }
+    if (formCols.has('max_slots_per_user') && srcFormRow) {
+      formInsertCols.push(
+        'max_slots_per_user',
+        'slot_cost_monthly_cents',
+        'free_slots_per_user',
+        'pricing_overrides_program',
+      )
+      formInsertVals.push(
+        srcFormRow.max_slots_per_user,
+        srcFormRow.slot_cost_monthly_cents,
+        srcFormRow.free_slots_per_user,
+        Boolean(srcFormRow.pricing_overrides_program),
+      )
+    }
+    if (schema.hasSchedulingProgramsLink && programsId) {
+      formInsertCols.push('programs_id', 'program_id')
+      formInsertVals.push(programsId, newProgramId)
+      if (formCols.has('pricing_overrides_program') && !formInsertCols.includes('pricing_overrides_program')) {
+        formInsertCols.push('pricing_overrides_program')
+        formInsertVals.push(false)
+      }
+    } else if (schema.hasSchedulingProgramLink) {
+      formInsertCols.push('program_id')
+      formInsertVals.push(newProgramId)
+      if (formCols.has('pricing_overrides_program') && !formInsertCols.includes('pricing_overrides_program')) {
+        formInsertCols.push('pricing_overrides_program')
+        formInsertVals.push(false)
+      }
+    }
+
+    const formPlaceholders = formInsertVals.map((_, i) => `$${i + 1}`).join(', ')
+    const newFormRes = await client.query(
+      `INSERT INTO scheduling_form (${formInsertCols.join(', ')}) VALUES (${formPlaceholders}) RETURNING id`,
+      formInsertVals,
+    )
+    newFormId = Number(newFormRes.rows[0].id)
+
+    if (toOff != null) {
+      await client.query(
+        'INSERT INTO scheduling_form_category (form_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [newFormId, toOff],
+      )
+    }
+
+    if (sourceFormId != null) {
+      await moveCategorySchedulingBetweenForms(client, sourceFormId, newFormId, toOff, noCategoryId)
+      if (toOff != null) {
+        const stillUsed = await categoryStillUsed(client, sourceFormId, toOff)
+        if (!stillUsed) {
+          await client.query(
+            'DELETE FROM scheduling_form_category WHERE form_id = $1 AND category_id = $2',
+            [sourceFormId, toOff],
+          )
+        }
+      }
+    }
+
+    await client.query('COMMIT')
+    return {
+      sourceProgramId,
+      newProgramId,
+      newFormId,
+      fromCategoryId: fromOff,
+      toCategoryId: toOff,
+    }
   } catch (err) {
     await client.query('ROLLBACK')
     throw err

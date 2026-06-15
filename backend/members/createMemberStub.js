@@ -174,9 +174,38 @@ export async function countActiveSignupsForMember(db, formId, memberId) {
     `
     SELECT COUNT(*)::int AS cnt
     FROM scheduling_signup
-    WHERE form_id = $1 AND member_id = $2 AND status IN ('confirmed', 'waitlisted')
+    WHERE form_id = $1
+      AND member_id = $2
+      AND orphaned_at IS NULL
+      AND status IN ('confirmed', 'waitlisted')
     `,
     [formId, memberId],
   )
   return Number(res.rows[0]?.cnt ?? 0)
+}
+
+/** Count active signups for pricing limits/discounts (per-form or whole program). */
+export async function countActiveSignupsForPricingScope(db, formRow, memberId) {
+  if (!memberId || !formRow) return 0
+
+  const programsId = formRow.programs_id != null ? Number(formRow.programs_id) : null
+  const overrides = Boolean(formRow.pricing_overrides_program)
+
+  if (!overrides && programsId != null) {
+    const res = await db.query(
+      `
+      SELECT COUNT(*)::int AS cnt
+      FROM scheduling_signup s
+      JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+      WHERE s.member_id = $1
+        AND sf.programs_id = $2
+        AND s.orphaned_at IS NULL
+        AND s.status IN ('confirmed', 'waitlisted')
+      `,
+      [memberId, programsId],
+    )
+    return Number(res.rows[0]?.cnt ?? 0)
+  }
+
+  return countActiveSignupsForMember(db, Number(formRow.id), memberId)
 }

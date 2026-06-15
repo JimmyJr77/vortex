@@ -604,6 +604,38 @@ function SignupOrderPricingSummary({
           <h5 className={`font-semibold text-black mb-3 ${compact ? 'text-sm' : 'text-base'}`}>
             Estimated monthly pricing
           </h5>
+
+          {preview.newSignups.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
+                Classes in this signup ({preview.newSignups.length})
+              </p>
+              <ul className="space-y-2">
+                {preview.newSignups.map((item) => (
+                  <li
+                    key={item.slotKey ?? `${item.formId}-${item.categoryName}-${item.slotLabel}`}
+                    className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2"
+                  >
+                    <div className="min-w-0">
+                      {item.formTitle && (
+                        <p className="font-semibold text-black">{item.formTitle}</p>
+                      )}
+                      <p>
+                        {item.categoryName}
+                        {item.slotLabel ? ` — ${item.slotLabel}` : ''}
+                      </p>
+                    </div>
+                    <p className="shrink-0 text-right font-semibold text-black">
+                      {item.incrementalMonthly != null && item.incrementalMonthly > 0
+                        ? `+${formatMoney(item.incrementalMonthly)}/mo`
+                        : 'Free'}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <ul className="space-y-3">
             {preview.formSummaries.map((summary) => (
               <li key={summary.formId}>
@@ -617,7 +649,10 @@ function SignupOrderPricingSummary({
                         : ''}
                     </li>
                     {summary.pricingAfter.hasFreeSlots && (
-                      <li>Free slots remaining: {summary.pricingAfter.freeSlotsRemaining}</li>
+                      <li>
+                        Free classes remaining after signup:{' '}
+                        {summary.pricingAfter.freeSlotsRemaining}
+                      </li>
                     )}
                     <li>
                       Subtotal before discounts:{' '}
@@ -625,11 +660,11 @@ function SignupOrderPricingSummary({
                     </li>
                     {summary.discountMonthly > 0 && (
                       <li className="text-green-700">
-                        Discount: -{formatMoney(summary.discountMonthly)}/mo
+                        Free class discount: -{formatMoney(summary.discountMonthly)}/mo
                       </li>
                     )}
                     <li>
-                      Class total: {formatMoney(summary.pricingAfter.discountedMonthly)}/mo
+                      Total after discounts: {formatMoney(summary.pricingAfter.discountedMonthly)}/mo
                     </li>
                     {summary.incrementalMonthly > 0 && (
                       <li>
@@ -1299,7 +1334,7 @@ const SchedulingSignupEmbed = ({
       }
     }
     setError(null)
-    setCartItems(buildCartItems())
+    setCartItems([...pendingSlotList])
     setSignupPhase('review')
   }
 
@@ -1503,8 +1538,10 @@ const SchedulingSignupEmbed = ({
             ) : (
               <ul className="space-y-3">
                 {cartItems.map((item) => {
+                  const itemSlotKey = memberSignupSlotKey(item)
                   const previewItem = orderPreview?.newSignups.find(
-                    (entry) => entry.slotKey === item.key,
+                    (entry) =>
+                      (entry.slotKey ?? memberSignupSlotKey(entry)) === itemSlotKey,
                   )
                   return (
                   <li

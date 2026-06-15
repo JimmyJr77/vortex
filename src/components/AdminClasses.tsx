@@ -641,8 +641,9 @@ export default function AdminClasses({
   const [showClassModal, setShowClassModal] = useState(false)
   const [selectedCategoryForClass, setSelectedCategoryForClass] = useState<number | null>(null)
   const [editingClassEvent, setEditingClassEvent] = useState<ClassEvent | null>(null)
-  // The variation a row's edit started from + whether we're reassigning or adding.
-  const [variationMode, setVariationMode] = useState<'reassign' | 'add'>('reassign')
+  const [splitSource, setSplitSource] = useState<ClassEvent | null>(null)
+  // The variation a row's edit started from + whether we're reassigning or splitting.
+  const [variationMode, setVariationMode] = useState<'reassign' | 'split'>('reassign')
   const [variationFromCategoryId, setVariationFromCategoryId] = useState<number | null>(null)
   const [expandedProgramId, setExpandedProgramId] = useState<number | null>(null)
   const [expandedClassId, setExpandedClassId] = useState<string | null>(null)
@@ -913,6 +914,7 @@ export default function AdminClasses({
   }
 
   const handleEditClass = (program: Program, category?: SchedulingCategoryRef) => {
+    setSplitSource(null)
     setEditingClassEvent(toClassEvent(program, category ?? null))
     setVariationMode('reassign')
     setVariationFromCategoryId(category ? category.id : program.schedulingCategoryId ?? null)
@@ -920,10 +922,11 @@ export default function AdminClasses({
     setShowClassModal(true)
   }
 
-  const handleAddVariation = (program: Program) => {
-    setEditingClassEvent(toClassEvent(program, NO_CATEGORY_REF))
-    setVariationMode('add')
-    setVariationFromCategoryId(null)
+  const handleSplitByCategory = (program: Program, category: SchedulingCategoryRef) => {
+    setEditingClassEvent(null)
+    setSplitSource(toClassEvent(program, category))
+    setVariationMode('split')
+    setVariationFromCategoryId(category.id)
     setSelectedCategoryForClass(program.categoryId ?? null)
     setShowClassModal(true)
   }
@@ -1864,7 +1867,7 @@ export default function AdminClasses({
                                 <button type="button" className={iconBtn} title="Edit class" aria-label="Edit class" onClick={() => handleEditClass(program, category)}>
                                   <Edit2 className="w-4 h-4" />
                                 </button>
-                                <button type="button" className={iconBtn} title="Add category variation" aria-label="Add category variation" onClick={() => handleAddVariation(program)}>
+                                <button type="button" className={iconBtn} title="Split into another category" aria-label="Split into another category" onClick={() => handleSplitByCategory(program, category)}>
                                   <Plus className="w-4 h-4" />
                                 </button>
                                 <button
@@ -2020,31 +2023,33 @@ export default function AdminClasses({
       </AnimatePresence>
 
       <ClassEventModal
-        open={showClassModal && (selectedCategoryForClass != null || editingClassEvent != null)}
-        programsId={selectedCategoryForClass ?? editingClassEvent?.programsId ?? editingClassEvent?.categoryId ?? 0}
+        open={showClassModal && (selectedCategoryForClass != null || editingClassEvent != null || splitSource != null)}
+        programsId={selectedCategoryForClass ?? editingClassEvent?.programsId ?? editingClassEvent?.categoryId ?? splitSource?.programsId ?? splitSource?.categoryId ?? 0}
         programsDisplayName={
-          categories.find((c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId))?.displayName
+          categories.find((c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId ?? splitSource?.categoryId))?.displayName
         }
-        lockProgram={selectedCategoryForClass != null || editingClassEvent != null}
+        lockProgram={selectedCategoryForClass != null || editingClassEvent != null || splitSource != null}
         parentProgramActive={
           (() => {
-            const pid = selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId
+            const pid = selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId ?? splitSource?.categoryId ?? splitSource?.programsId
             const parent = categories.find((c) => c.id === pid)
             return parent ? programIsActiveFlag(parent) : true
           })()
         }
         editing={editingClassEvent}
-        variationMode={editingClassEvent ? variationMode : undefined}
+        splitSource={splitSource}
+        variationMode={splitSource ? 'split' : editingClassEvent ? variationMode : undefined}
         variationFromCategoryId={variationFromCategoryId}
         programPrimarySportId={
           categories.find(
-            (c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId),
+            (c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId ?? splitSource?.categoryId ?? splitSource?.programsId),
           )?.primarySportId ?? null
         }
         onClose={() => {
           setShowClassModal(false)
           setSelectedCategoryForClass(null)
           setEditingClassEvent(null)
+          setSplitSource(null)
           setVariationMode('reassign')
           setVariationFromCategoryId(null)
         }}
@@ -2053,6 +2058,7 @@ export default function AdminClasses({
           setShowClassModal(false)
           setSelectedCategoryForClass(null)
           setEditingClassEvent(null)
+          setSplitSource(null)
           setVariationMode('reassign')
           setVariationFromCategoryId(null)
         }}

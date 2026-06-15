@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import Joi from 'joi'
 import {
   countActiveSignupsForMember,
+  countActiveSignupsForPricingScope,
   createMemberStub,
   findMemberByEmail,
   findMemberById,
@@ -13,7 +14,7 @@ import { sendMagicLinkEmail } from './magicLinkEmail.js'
 import { sendPromotionEmail } from './promotionEmail.js'
 import { sendWaitlistEmail } from './waitlistEmail.js'
 import { sendWaiverEmail } from './waiverEmail.js'
-import { buildSignupOrderPreview } from './orderPricing.js'
+import { buildSignupOrderPreview, pricingScopeKey } from './orderPricing.js'
 import { computeMonthlyPricing } from './pricing.js'
 import {
   loadEffectivePricingForForm,
@@ -170,7 +171,7 @@ async function insertSignupForMember(
     adminStub = false,
   },
 ) {
-  const activeCount = await countActiveSignupsForMember(client, formId, memberId)
+  const activeCount = await countActiveSignupsForPricingScope(client, formRow, memberId)
   const { effectiveDbRow } = await loadEffectivePricingForForm(client, formRow)
   const maxSlots =
     effectiveDbRow.max_slots_per_user != null ? Number(effectiveDbRow.max_slots_per_user) : null
@@ -1926,15 +1927,19 @@ export function createSchedulingHandlers(pool) {
             }
           }
 
-          const byForm = new Map()
+          const byPricingScope = new Map()
           for (const resolved of resolvedEntries) {
-            const formId = resolved.entry.formId
-            if (!byForm.has(formId)) byForm.set(formId, [])
-            byForm.get(formId).push(resolved)
+            const scope = pricingScopeKey(resolved.formRow)
+            if (!byPricingScope.has(scope)) byPricingScope.set(scope, [])
+            byPricingScope.get(scope).push(resolved)
           }
 
-          for (const [formId, entries] of byForm) {
-            const activeCount = await countActiveSignupsForMember(client, formId, memberId)
+          for (const [, entries] of byPricingScope) {
+            const activeCount = await countActiveSignupsForPricingScope(
+              client,
+              entries[0].formRow,
+              memberId,
+            )
             const { effectiveDbRow } = await loadEffectivePricingForForm(client, entries[0].formRow)
             const maxSlots =
               effectiveDbRow.max_slots_per_user != null
@@ -1942,7 +1947,7 @@ export function createSchedulingHandlers(pool) {
                 : null
             if (maxSlots != null && activeCount + entries.length > maxSlots) {
               const err = new Error(
-                `Maximum of ${maxSlots} slot${maxSlots === 1 ? '' : 's'} reached for this form`,
+                `Maximum of ${maxSlots} slot${maxSlots === 1 ? '' : 's'} reached for this program`,
               )
               err.code = 'MAX_SLOTS'
               throw err

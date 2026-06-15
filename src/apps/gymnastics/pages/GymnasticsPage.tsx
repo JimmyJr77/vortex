@@ -45,6 +45,8 @@ interface GymnasticsProps {
 const heroCtaClass =
   'inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105'
 
+const heroSecondaryCtaClass = 'btn-secondary inline-flex items-center justify-center gap-2'
+
 const summerCampHeroCtaClass =
   `${heroCtaClass} border-2 border-yellow-400 bg-yellow-400 text-black font-bold hover:bg-yellow-300 hover:border-yellow-300 shadow-lg`
 
@@ -174,16 +176,13 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                     href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`${heroCtaClass} border-2 border-vortex-red bg-transparent text-vortex-red hover:bg-vortex-red/10`}
+                    className={heroSecondaryCtaClass}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     Enroll Now
                   </motion.a>
-                  <Link
-                    to="/read-board#schedule"
-                    className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
-                  >
+                  <Link to="/read-board#schedule" className={heroSecondaryCtaClass}>
                     View Class Schedule
                   </Link>
                   <Link to="/summer-camp-26" className={summerCampHeroCtaClass}>
@@ -273,7 +272,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                 href="https://app3.jackrabbitclass.com/regv2.asp?id=557920"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${heroCtaClass} border-2 border-vortex-red bg-transparent text-vortex-red hover:bg-vortex-red/10 w-full max-w-xs`}
+                className={`${heroSecondaryCtaClass} w-full max-w-xs`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -281,7 +280,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
               </motion.a>
               <Link
                 to="/read-board#schedule"
-                className="inline-flex items-center justify-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105 w-full max-w-xs"
+                className={`${heroSecondaryCtaClass} w-full max-w-xs`}
               >
                 View Class Schedule
               </Link>

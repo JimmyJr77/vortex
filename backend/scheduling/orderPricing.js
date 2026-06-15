@@ -1,4 +1,4 @@
-import { countActiveSignupsForMember } from '../members/createMemberStub.js'
+import { countActiveSignupsForPricingScope } from '../members/createMemberStub.js'
 import { loadEffectivePricingForForm } from '../programs/pricingDefaults.js'
 import { computeMonthlyPricing } from './pricing.js'
 
@@ -7,6 +7,13 @@ export const SIGNUP_ORDER_PRICING_DISCLAIMER =
 
 function programSlotSignupKey(formId, categoryId, slotGroupId, timeSlotId) {
   return `${formId}:${categoryId ?? 'none'}:${slotGroupId}:${timeSlotId ?? 'none'}`
+}
+
+export function pricingScopeKey(formRow) {
+  const programsId = formRow?.programs_id != null ? Number(formRow.programs_id) : null
+  const overrides = Boolean(formRow?.pricing_overrides_program)
+  if (!overrides && programsId != null) return `program:${programsId}`
+  return `form:${Number(formRow.id)}`
 }
 
 function marginalIncrements(existingCount, newCount, effectiveDbRow) {
@@ -59,6 +66,17 @@ async function loadExistingEnrollments(pool, memberId) {
   })
 }
 
+function signupSortKey(entry, formRows) {
+  const formTitle = entry.formTitle || formRows.get(entry.formId)?.title || ''
+  return [
+    formTitle,
+    entry.categoryName || '',
+    entry.slotLabel || '',
+    entry.slotGroupId,
+    entry.timeSlotId ?? 0,
+  ].join('\0')
+}
+
 export async function buildSignupOrderPreview(pool, { memberId, newSignups = [] }) {
   const existing = await loadExistingEnrollments(pool, memberId)
   const existingKeys = new Set(existing.map((entry) => entry.slotKey))
@@ -89,79 +107,135 @@ export async function buildSignupOrderPreview(pool, { memberId, newSignups = [] 
     }
   }
 
-  const newCountByForm = new Map()
-  for (const entry of filteredNew) {
-    newCountByForm.set(entry.formId, (newCountByForm.get(entry.formId) || 0) + 1)
+  const programTitles = new Map()
+  const programIds = new Set(
+    [...formRows.values()]
+      .map((row) => (row.programs_id != null ? Number(row.programs_id) : null))
+      .filter((id) => id != null),
+  )
+  if (programIds.size > 0) {
+    const { resolveProgramsSchema } = await import('../programs/schema.js')
+    const schema = await resolveProgramsSchema(pool)
+    const programsRes = await pool.query(
+      `SELECT id, name FROM ${schema.programsTable} WHERE id = ANY($1::int[])`,
+      [[...programIds]],
+    )
+    for (const row of programsRes.rows) {
+      programTitles.set(Number(row.id), row.name)
+    }
   }
 
+  const scopeMeta = new Map()
+  for (const formRow of formRows.values()) {
+    const scope = pricingScopeKey(formRow)
+    if (scopeMeta.has(scope)) continue
+    const { effectiveDbRow } = await loadEffectivePricingForForm(pool, formRow)
+    const programsId = formRow.programs_id != null ? Number(formRow.programs_id) : null
+    const overrides = Boolean(formRow.pricing_overrides_program)
+    const scopeTitle =
+      !overrides && programsId != null
+        ? programTitles.get(programsId) || formRow.title
+        : formRow.title
+    scopeMeta.set(scope, {
+      scope,
+      scopeTitle,
+      representativeFormId: Number(formRow.id),
+      effectiveDbRow,
+      programsId,
+      usesProgramPricing: !overrides && programsId != null,
+    })
+  }
+
+  const newByScope = new Map()
+  for (const entry of filteredNew) {
+    const formRow = formRows.get(entry.formId)
+    if (!formRow) continue
+    const scope = pricingScopeKey(formRow)
+    if (!newByScope.has(scope)) newByScope.set(scope, [])
+    newByScope.get(scope).push(entry)
+  }
+
+  for (const entries of newByScope.values()) {
+    entries.sort((a, b) => signupSortKey(a, formRows).localeCompare(signupSortKey(b, formRows)))
+  }
+
+  const incrementsBySignupKey = new Map()
   const formSummaries = []
   let existingMonthlyTotal = 0
   let estimatedMonthlyTotal = 0
   let totalDiscountMonthly = 0
   let newSignupMonthlyTotal = 0
 
-  const sortedFormIds = [...formIds].sort((a, b) => {
-    const titleA = formRows.get(a)?.title || ''
-    const titleB = formRows.get(b)?.title || ''
+  const sortedScopes = [...scopeMeta.keys()].sort((a, b) => {
+    const titleA = scopeMeta.get(a)?.scopeTitle || ''
+    const titleB = scopeMeta.get(b)?.scopeTitle || ''
     return titleA.localeCompare(titleB)
   })
 
-  const incrementsByForm = new Map()
+  for (const scope of sortedScopes) {
+    const meta = scopeMeta.get(scope)
+    if (!meta) continue
 
-  for (const formId of sortedFormIds) {
-    const formRow = formRows.get(formId)
-    if (!formRow) continue
-
-    const { effectiveDbRow } = await loadEffectivePricingForForm(pool, formRow)
-    const existingCount = memberId
-      ? await countActiveSignupsForMember(pool, formId, memberId)
-      : 0
-    const newCount = newCountByForm.get(formId) || 0
+    const existingCount = await countActiveSignupsForPricingScope(
+      pool,
+      formRows.get(meta.representativeFormId),
+      memberId,
+    )
+    const newEntries = newByScope.get(scope) || []
+    const newCount = newEntries.length
     const totalCount = existingCount + newCount
 
-    const pricingBefore = computeMonthlyPricing(effectiveDbRow, existingCount)
-    const pricingAfter = computeMonthlyPricing(effectiveDbRow, totalCount)
+    const pricingBefore = computeMonthlyPricing(meta.effectiveDbRow, existingCount)
+    const pricingAfter = computeMonthlyPricing(meta.effectiveDbRow, totalCount)
     const incrementalMonthly = Math.max(0, pricingAfter.discountedMonthly - pricingBefore.discountedMonthly)
+    const increments = marginalIncrements(existingCount, newCount, meta.effectiveDbRow)
+
+    newEntries.forEach((entry, index) => {
+      const key = programSlotSignupKey(
+        entry.formId,
+        entry.categoryId ?? null,
+        entry.slotGroupId,
+        entry.timeSlotId ?? null,
+      )
+      incrementsBySignupKey.set(key, increments[index] ?? 0)
+    })
 
     existingMonthlyTotal += pricingBefore.discountedMonthly
     estimatedMonthlyTotal += pricingAfter.discountedMonthly
     totalDiscountMonthly += pricingAfter.discountMonthly
     newSignupMonthlyTotal += incrementalMonthly
 
-    incrementsByForm.set(formId, marginalIncrements(existingCount, newCount, effectiveDbRow))
-
-    formSummaries.push({
-      formId,
-      formTitle: formRow.title,
-      existingSlotCount: existingCount,
-      newSlotCount: newCount,
-      totalSlotCount: totalCount,
-      pricingBefore: pricingBefore.hasPricing ? pricingBefore : null,
-      pricingAfter: pricingAfter.hasPricing ? pricingAfter : null,
-      incrementalMonthly,
-      discountMonthly: pricingAfter.discountMonthly,
-    })
+    if (existingCount > 0 || newCount > 0) {
+      formSummaries.push({
+        formId: meta.representativeFormId,
+        formTitle: meta.scopeTitle,
+        existingSlotCount: existingCount,
+        newSlotCount: newCount,
+        totalSlotCount: totalCount,
+        pricingBefore: pricingBefore.hasPricing ? pricingBefore : null,
+        pricingAfter: pricingAfter.hasPricing ? pricingAfter : null,
+        incrementalMonthly,
+        discountMonthly: pricingAfter.discountMonthly,
+      })
+    }
   }
 
-  const newSignupIndexByForm = new Map()
   const newSignupItems = filteredNew.map((entry) => {
     const formRow = formRows.get(entry.formId)
-    const index = newSignupIndexByForm.get(entry.formId) || 0
-    newSignupIndexByForm.set(entry.formId, index + 1)
-    const increments = incrementsByForm.get(entry.formId) || []
-    const incrementalMonthly = increments[index] ?? 0
+    const key = programSlotSignupKey(
+      entry.formId,
+      entry.categoryId ?? null,
+      entry.slotGroupId,
+      entry.timeSlotId ?? null,
+    )
+    const incrementalMonthly = incrementsBySignupKey.get(key) ?? 0
 
     return {
       formId: entry.formId,
       formTitle: entry.formTitle || formRow?.title || 'Class',
       categoryName: entry.categoryName || 'No Category',
       slotLabel: entry.slotLabel || '',
-      slotKey: programSlotSignupKey(
-        entry.formId,
-        entry.categoryId ?? null,
-        entry.slotGroupId,
-        entry.timeSlotId ?? null,
-      ),
+      slotKey: key,
       incrementalMonthly,
       isNew: true,
     }

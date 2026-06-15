@@ -4,6 +4,7 @@ import {
   addClassVariation,
   createClassEvent,
   reassignClassVariation,
+  splitClassByCategory,
   updateClassEvent,
   type ClassEvent,
   type ClassEventFormData,
@@ -36,10 +37,12 @@ interface Props {
   initialFormData?: ClassEventFormData
   initialSchedulingCategoryId?: number | null
   // When editing a fanned-out category row: 'reassign' moves that variation's
-  // scheduling data to the newly selected category; 'add' links a new category
-  // variation to the class. Defaults to 'reassign'.
-  variationMode?: 'reassign' | 'add'
+  // scheduling data to the newly selected category; 'split' creates a new
+  // independent class with a different category.
+  variationMode?: 'reassign' | 'split'
   variationFromCategoryId?: number | null
+  /** Source row for split mode (prefills the form; does not update this class on save). */
+  splitSource?: ClassEvent | null
   programPrimarySportId?: number | null
   submitLabel?: string
   onClose: () => void
@@ -68,6 +71,7 @@ const ClassEventModal = ({
   initialSchedulingCategoryId,
   variationMode = 'reassign',
   variationFromCategoryId = null,
+  splitSource = null,
   programPrimarySportId = null,
   submitLabel,
   onClose,
@@ -87,32 +91,41 @@ const ClassEventModal = ({
   const categoryComboRef = useRef<HTMLDivElement>(null)
 
   const showProgramDropdown = !lockProgram && availablePrograms.length > 0
+  const isSplitMode = variationMode === 'split' && splitSource != null
+  const sourceCategoryId = variationFromCategoryId ?? splitSource?.schedulingCategoryId ?? null
+
+  const sameSchedulingCategory = (a: number | null, b: number | null) => a === b
 
   useEffect(() => {
     if (!open) return
+    const prefill = splitSource ?? editing
     const resolvedProgramsId =
-      editing?.programsId ?? editing?.categoryId ?? programsId
+      prefill?.programsId ?? prefill?.categoryId ?? programsId
     setSelectedProgramsId(resolvedProgramsId)
-    if (editing) {
+    if (prefill) {
       setForm({
-        displayName: editing.displayName,
-        skillLevel: editing.skillLevel,
-        ageMin: editing.ageMin,
-        ageMax: editing.ageMax,
-        description: editing.description || '',
-        skillRequirements: editing.skillRequirements || '',
-        isActive: editing.isActive,
+        displayName: prefill.displayName,
+        skillLevel: prefill.skillLevel,
+        ageMin: prefill.ageMin,
+        ageMax: prefill.ageMax,
+        description: prefill.description || '',
+        skillRequirements: prefill.skillRequirements || '',
+        isActive: prefill.isActive,
       })
     } else if (initialFormData) {
       setForm({ ...initialFormData })
     } else {
       setForm(emptyForm())
     }
-    setSelectedCategoryId(initialSchedulingCategoryId ?? editing?.schedulingCategoryId ?? null)
+    if (isSplitMode) {
+      setSelectedCategoryId(null)
+    } else {
+      setSelectedCategoryId(initialSchedulingCategoryId ?? prefill?.schedulingCategoryId ?? null)
+    }
     setCategorySearch('')
     setCategoryDropdownOpen(false)
     setError(null)
-  }, [open, editing, initialFormData, programsId, initialSchedulingCategoryId])
+  }, [open, editing, splitSource, isSplitMode, initialFormData, programsId, initialSchedulingCategoryId])
 
   useEffect(() => {
     if (!open) return
@@ -127,6 +140,11 @@ const ClassEventModal = ({
 
         if (initialSchedulingCategoryId != null) {
           setSelectedCategoryId(initialSchedulingCategoryId)
+          return
+        }
+
+        if (isSplitMode) {
+          setSelectedCategoryId(null)
           return
         }
 
@@ -154,7 +172,74 @@ const ClassEventModal = ({
     return () => {
       cancelled = true
     }
-  }, [open, editing?.schedulingFormId, editing?.schedulingCategoryId, initialSchedulingCategoryId])
+  }, [open, editing?.schedulingFormId, editing?.schedulingCategoryId, initialSchedulingCategoryId, isSplitMode])
+
+  const sourceCategoryName =
+    sourceCategoryId == null
+      ? NO_CATEGORY_NAME
+      : allCategories.find((c) => c.id === sourceCategoryId)?.name ??
+        splitSource?.schedulingCategoryName ??
+        'the current row'
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.displayName?.trim()) {
+      setError('Class or Event Name is required')
+      return
+    }
+    if (isSplitMode && sameSchedulingCategory(selectedCategoryId, sourceCategoryId)) {
+      setError('Choose a different category than the source row')
+      return
+    }
+    setSaving(true)
+    setError(null)
+    try {
+      if (!selectedProgramsId) {
+        setError('Program is required')
+        return
+      }
+      if (isSplitMode && splitSource) {
+        await splitClassByCategory(splitSource.id, {
+          ...form,
+          isActive: parentProgramActive ? form.isActive : false,
+          fromCategoryId: sourceCategoryId,
+          toCategoryId: selectedCategoryId,
+        })
+        onSaved()
+        onClose()
+        return
+      }
+      let saved: ClassEvent
+      if (editing) {
+        saved = await updateClassEvent(editing.id, {
+          ...form,
+          ...(lockProgram ? {} : { programsId: selectedProgramsId }),
+          isActive: parentProgramActive ? form.isActive : false,
+        })
+      } else {
+        saved = await createClassEvent(selectedProgramsId, {
+          ...form,
+          isActive: parentProgramActive ? form.isActive !== false : false,
+        })
+      }
+      if (editing) {
+        const fromCategoryId = variationFromCategoryId ?? editing.schedulingCategoryId ?? null
+        await reassignClassVariation(saved.id, fromCategoryId, selectedCategoryId)
+      } else if (selectedCategoryId != null) {
+        await addClassVariation(saved.id, selectedCategoryId)
+      }
+      onSaved()
+      onClose()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const submitButtonLabel =
+    submitLabel ??
+    (isSplitMode ? 'Create category copy' : editing ? 'Update class/event' : 'Add class/event')
 
   useEffect(() => {
     if (!categoryDropdownOpen) return
@@ -231,58 +316,6 @@ const ClassEventModal = ({
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!form.displayName?.trim()) {
-      setError('Class or Event Name is required')
-      return
-    }
-    setSaving(true)
-    setError(null)
-    try {
-      if (!selectedProgramsId) {
-        setError('Program is required')
-        return
-      }
-      let saved: ClassEvent
-      if (editing) {
-        saved = await updateClassEvent(editing.id, {
-          ...form,
-          ...(lockProgram ? {} : { programsId: selectedProgramsId }),
-          isActive: parentProgramActive ? form.isActive : false,
-        })
-      } else {
-        saved = await createClassEvent(selectedProgramsId, {
-          ...form,
-          isActive: parentProgramActive ? form.isActive !== false : false,
-        })
-      }
-      // Persist the chosen scheduling category as a variation of this class.
-      // - Editing a row: reassign that variation's scheduling data to the new
-      //   category (or add it as a brand-new variation in 'add' mode).
-      // - Creating a class: link the selected category as its first variation.
-      if (editing) {
-        if (variationMode === 'add') {
-          await addClassVariation(saved.id, selectedCategoryId)
-        } else {
-          const fromCategoryId = variationFromCategoryId ?? editing.schedulingCategoryId ?? null
-          await reassignClassVariation(saved.id, fromCategoryId, selectedCategoryId)
-        }
-      } else if (selectedCategoryId != null) {
-        await addClassVariation(saved.id, selectedCategoryId)
-      }
-      onSaved()
-      onClose()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const submitButtonLabel =
-    submitLabel ?? (editing ? 'Update class/event' : 'Add class/event')
-
   if (!open) return null
 
   return (
@@ -292,8 +325,13 @@ const ClassEventModal = ({
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
           <div>
             <h3 className="text-lg font-bold text-black">
-              {editing ? 'Edit class or event' : 'Add class or event'}
+              {isSplitMode ? 'Split class by category' : editing ? 'Edit class or event' : 'Add class or event'}
             </h3>
+            {isSplitMode && (
+              <p className="text-sm text-gray-500 mt-0.5">
+                Creates a new independent class. Source category: {sourceCategoryName}
+              </p>
+            )}
             {programsDisplayName && (
               <p className="text-sm text-gray-500 mt-0.5">Program: {programsDisplayName}</p>
             )}
@@ -347,6 +385,11 @@ const ClassEventModal = ({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            {isSplitMode && (
+              <p className="text-xs text-gray-500 mb-2">
+                Must differ from {sourceCategoryName}. Scheduling data for the chosen category moves to the new class.
+              </p>
+            )}
             <div className="relative" ref={categoryComboRef}>
               <input
                 type="text"

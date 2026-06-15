@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { ensureDisciplineTagsSchema, ensureNoCategoryDefault, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureProgramSchedulingCategoryColumn, ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
 import { ensureNoCategoryCategory, isNoCategoryCategoryRow } from './noCategory.js'
-import { addVariationCategory, consolidateClasses, reassignVariationCategory, setProgramSchedulingCategory } from './reconcile.js'
+import { addVariationCategory, consolidateClasses, reassignVariationCategory, setProgramSchedulingCategory, splitClassByCategory } from './reconcile.js'
 import { deleteTopProgramCascade } from './deleteTopProgram.js'
 import { listPublicClassesOffered } from './listPublicClassesOffered.js'
 import { getProgramPrimarySportFields, setProgramPrimarySport } from './primarySport.js'
@@ -50,6 +50,11 @@ const classEventSchema = Joi.object({
   description: Joi.string().optional().allow('', null),
   skillRequirements: Joi.string().optional().allow('', null),
   isActive: Joi.boolean().optional(),
+})
+
+const splitByCategorySchema = classEventSchema.keys({
+  fromCategoryId: Joi.number().integer().allow(null).required(),
+  toCategoryId: Joi.number().integer().allow(null).required(),
 })
 
 const topProgramUpdateSchema = Joi.object({
@@ -957,6 +962,51 @@ export function registerProgramsAdminRoutes(app, pool) {
     } catch (err) {
       console.error('[programs] add variation:', err)
       res.status(500).json({ success: false, message: 'Failed to add category variation' })
+    }
+  })
+
+  // Split one Admin > Classes row into a brand-new class with a different category.
+  app.post('/api/admin/programs/:id/split-by-category', async (req, res) => {
+    try {
+      const { error, value } = splitByCategorySchema.validate(req.body)
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message })
+      }
+      await ensureProgramsSchedulingSchema(pool)
+      await ensureProgramSchedulingCategoryColumn(pool)
+      await ensureNoCategoryDefault(pool)
+      const programId = Number(req.params.id)
+      if (!Number.isFinite(programId)) {
+        return res.status(400).json({ success: false, message: 'Invalid class id' })
+      }
+      const exists = await pool.query('SELECT id FROM program WHERE id = $1 LIMIT 1', [programId])
+      if (exists.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Class not found' })
+      }
+      const normalize = async (categoryId) => {
+        if (categoryId == null) return null
+        const cat = await pool.query('SELECT id, form_id, name FROM scheduling_category WHERE id = $1 LIMIT 1', [categoryId])
+        if (cat.rows.length === 0) return null
+        return isNoCategoryCategoryRow(cat.rows[0]) ? null : categoryId
+      }
+      const fromCategoryId = await normalize(value.fromCategoryId)
+      const toCategoryId = await normalize(value.toCategoryId)
+      const { fromCategoryId: _from, toCategoryId: _to, ...classData } = value
+      const result = await splitClassByCategory(pool, programId, {
+        fromCategoryId,
+        toCategoryId,
+        classData,
+      })
+      res.json({ success: true, data: result })
+    } catch (err) {
+      if (err.statusCode === 400) {
+        return res.status(400).json({ success: false, message: err.message })
+      }
+      if (err.statusCode === 404) {
+        return res.status(404).json({ success: false, message: err.message })
+      }
+      console.error('[programs] split by category:', err)
+      res.status(500).json({ success: false, message: 'Failed to split class by category' })
     }
   })
 
