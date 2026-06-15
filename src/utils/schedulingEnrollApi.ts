@@ -6,26 +6,37 @@ type SchedulingEnrollApiCapabilities = {
 }
 
 let cachedCapabilities: SchedulingEnrollApiCapabilities | null = null
+/** Set after API rejects per-site enroll payloads (stale production backend). */
+let forceLegacyEnrollSites = false
 
 export function invalidateSchedulingEnrollApiCapabilities(): void {
   cachedCapabilities = null
 }
 
+export function markSchedulingEnrollSitesUnsupported(): void {
+  forceLegacyEnrollSites = true
+  cachedCapabilities = { schedulingEnrollSites: false }
+}
+
 export async function getSchedulingEnrollApiCapabilities(): Promise<SchedulingEnrollApiCapabilities> {
   if (cachedCapabilities) return cachedCapabilities
+
+  if (forceLegacyEnrollSites) {
+    cachedCapabilities = { schedulingEnrollSites: false }
+    return cachedCapabilities
+  }
 
   try {
     const res = await fetch(`${getApiUrl()}/api/health`, { signal: AbortSignal.timeout(5000) })
     if (!res.ok) throw new Error('health check failed')
     const data = (await res.json()) as {
       buildId?: string
-      apiFeatures?: { schedulingEnrollSites?: boolean; scheduling?: boolean }
+      apiFeatures?: { schedulingEnrollSites?: boolean }
     }
     cachedCapabilities = {
       schedulingEnrollSites:
         data.apiFeatures?.schedulingEnrollSites === true ||
-        data.buildId === 'scheduling-enroll-sites-2026-06-15' ||
-        data.apiFeatures?.scheduling === true,
+        data.buildId === 'scheduling-enroll-sites-2026-06-15',
     }
   } catch {
     cachedCapabilities = { schedulingEnrollSites: false }

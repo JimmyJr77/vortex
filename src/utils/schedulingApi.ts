@@ -213,9 +213,25 @@ export function schedulingSignupPath(
   formId: number,
   categoryId?: number | null,
 ): string {
-  const params = new URLSearchParams({ form: String(formId) })
-  if (categoryId != null) {
-    params.set('categoryId', String(categoryId))
+  return schedulingEnrollPath({ formId, categoryId })
+}
+
+export function schedulingEnrollPath(options?: {
+  formId?: number
+  programsId?: number
+  categoryId?: number | null
+}): string {
+  if (!options?.formId && options?.programsId == null) {
+    return ENROLL_PATH
+  }
+  const params = new URLSearchParams()
+  if (options.formId != null) {
+    params.set('form', String(options.formId))
+  } else if (options.programsId != null) {
+    params.set('programsId', String(options.programsId))
+  }
+  if (options.categoryId != null) {
+    params.set('categoryId', String(options.categoryId))
   }
   return `${ENROLL_PATH}?${params.toString()}`
 }

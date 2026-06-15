@@ -165,7 +165,8 @@ const AdminSchedulingOverview = ({
     try {
       const updated = await updateTopProgram(program.id, payload)
 
-      const nextSites = capabilities.schedulingEnrollSites
+      const capabilitiesAfter = await getSchedulingEnrollApiCapabilities()
+      const nextSites = capabilitiesAfter.schedulingEnrollSites
         ? programEnrollSites(updated)
         : sites
 

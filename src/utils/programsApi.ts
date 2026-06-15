@@ -3,7 +3,7 @@ import { adminApiRequest } from './api'
 import {
   adaptProgramSchedulingUpdateForApi,
   getSchedulingEnrollApiCapabilities,
-  invalidateSchedulingEnrollApiCapabilities,
+  markSchedulingEnrollSitesUnsupported,
 } from './schedulingEnrollApi'
 
 export interface SchedulingCategoryRef {
@@ -129,7 +129,7 @@ export async function updateTopProgram(
     pricingFreeSlotsPerUser: number
   }>,
 ): Promise<TopProgram> {
-  let capabilities = await getSchedulingEnrollApiCapabilities()
+  const capabilities = await getSchedulingEnrollApiCapabilities()
   let apiPayload = adaptProgramSchedulingUpdateForApi(payload, capabilities.schedulingEnrollSites)
   let res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
     method: 'PUT',
@@ -143,9 +143,8 @@ export async function updateTopProgram(
   ) {
     const data = await res.json().catch(() => ({}))
     const message = typeof data.message === 'string' ? data.message : ''
-    if (message.includes('schedulingEnrollSites')) {
-      invalidateSchedulingEnrollApiCapabilities()
-      capabilities = await getSchedulingEnrollApiCapabilities()
+    if (message.includes('schedulingEnrollSites') || message.includes('not allowed')) {
+      markSchedulingEnrollSitesUnsupported()
       apiPayload = adaptProgramSchedulingUpdateForApi(payload, false)
       res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
         method: 'PUT',
