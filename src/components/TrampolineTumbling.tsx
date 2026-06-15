@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Target, Users, Shield, TrendingUp, CheckCircle, ArrowRight, Link as LinkIcon, Award, Zap, Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
-import { ENROLL_PATH } from '../config/enrollSites'
+import { getSiteEnrollHref } from '../utils/enrollSite'
 
 interface TrampolineTumblingProps {
   onSignUpClick: () => void
@@ -151,7 +151,7 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
                 <Link
 
-                  to={ENROLL_PATH}
+                  to={getSiteEnrollHref()}
 
                   className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
 
@@ -186,7 +186,7 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
                 <Link
 
 
-                  to={ENROLL_PATH}
+                  to={getSiteEnrollHref()}
 
 
                   className="inline-block border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
@@ -306,7 +306,7 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
             >
               <Link
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
                 className="inline-block bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
 
@@ -335,7 +335,7 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
               <Link
 
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
 
                 className="inline-block border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 w-full max-w-xs"
@@ -510,7 +510,7 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
               </div>
               <Link
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
                 className="inline-block w-full bg-vortex-red text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105"
 
@@ -568,7 +568,7 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
               </div>
               <Link
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
                 className="inline-block w-full border-2 border-vortex-red text-vortex-red px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
 
@@ -857,7 +857,7 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
               <Link
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
                 className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105 shadow-2xl"
 
@@ -881,7 +881,7 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
               </Link>
               <Link
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
                 className="inline-block border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
 

@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ENROLL_PATH } from '../config/enrollSites'
+import { getSiteEnrollHref } from '../utils/enrollSite'
 import { MapPin, Target, Info, Shield } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
@@ -166,7 +166,7 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
               viewport={{ once: true }}
             >
               <Link
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
                 className="inline-block bg-vortex-red text-white px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105"
               >
                 <motion.span
@@ -563,7 +563,7 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
-                  to={ENROLL_PATH}
+                  to={getSiteEnrollHref()}
                   className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
                 >
                   <motion.span
@@ -615,7 +615,7 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
             
             {onSignUpClick && (
               <Link
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
                 className="inline-block bg-vortex-red text-white px-12 py-6 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105"
               >
                 <motion.span

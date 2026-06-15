@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { ENROLL_PATH } from '../../../config/enrollSites'
+import { getSiteEnrollHref } from '../../../utils/enrollSite'
 import { type DisciplineLandingConfig } from '../data/disciplineLandings'
 
 interface DisciplineLandingPageProps {
@@ -46,7 +46,7 @@ const DisciplineLandingPage = ({ config }: DisciplineLandingPageProps) => {
             transition={{ delay: 0.4 }}
           >
             <Link
-              to={ENROLL_PATH}
+              to={getSiteEnrollHref()}
               className={`inline-flex items-center gap-2 text-white px-10 py-4 rounded-xl font-bold text-lg transition-all ${theme.enrollButton}`}
             >
               Enroll Now
@@ -138,10 +138,10 @@ const DisciplineLandingPage = ({ config }: DisciplineLandingPageProps) => {
             {config.readyCta}
           </h2>
           <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
-            Enroll through Jackrabbit or contact us to find the right class level for your athlete.
+            Enroll online or contact us to find the right class level for your athlete.
           </p>
           <Link
-            to={ENROLL_PATH}
+            to={getSiteEnrollHref()}
             className="inline-flex items-center gap-2 bg-vortex-red text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-red-700 transition-all"
           >
             Enroll Now

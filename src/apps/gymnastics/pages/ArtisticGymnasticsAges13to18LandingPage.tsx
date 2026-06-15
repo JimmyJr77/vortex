@@ -1,7 +1,7 @@
 /** Copied for vortex-gymnastics.com — hub original: src/components/ArtisticGymnasticsAges13to18Landing.tsx */
 import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle } from 'lucide-react'
-import { ENROLL_PATH } from '../../../config/enrollSites'
+import { getSiteEnrollHref } from '../../../utils/enrollSite'
 import { Link } from 'react-router-dom'
 
 const HERO_IMAGES = [
@@ -110,7 +110,7 @@ const ArtisticGymnasticsAges13to18Landing = ({ onSignUpClick }: ArtisticGymnasti
 
           <Link
 
-            to={ENROLL_PATH}
+            to={getSiteEnrollHref()}
 
             className="inline-flex items-center justify-center gap-3 bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group mx-auto"
 
@@ -277,7 +277,7 @@ const ArtisticGymnasticsAges13to18Landing = ({ onSignUpClick }: ArtisticGymnasti
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
               <Link
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
                 className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
 

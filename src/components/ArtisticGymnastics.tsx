@@ -14,7 +14,7 @@ import {
   Shield
 } from 'lucide-react'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
-import { ENROLL_PATH } from '../config/enrollSites'
+import { getSiteEnrollHref } from '../utils/enrollSite'
 import { Link } from 'react-router-dom'
 
 interface ArtisticGymnasticsProps {
@@ -140,7 +140,7 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
                 <Link
 
-                  to={ENROLL_PATH}
+                  to={getSiteEnrollHref()}
 
                   className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group relative overflow-hidden"
 
@@ -175,7 +175,7 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
                 <Link
 
 
-                  to={ENROLL_PATH}
+                  to={getSiteEnrollHref()}
 
 
                   className="inline-block border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"
@@ -304,7 +304,7 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
             >
               <Link
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
                 className="inline-block bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 w-full max-w-xs"
 
@@ -333,7 +333,7 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
               <Link
 
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
 
                 className="inline-block border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 w-full max-w-xs"
@@ -605,7 +605,7 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
               </ul>
               <Link
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
                 className="inline-block w-full bg-blue-600 text-white px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:bg-blue-700 hover:scale-105"
 
@@ -668,7 +668,7 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
               </ul>
               <Link
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
                 className="inline-block w-full bg-vortex-red text-white px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:bg-red-700 hover:scale-105"
 
@@ -838,7 +838,7 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
               <Link
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
                 className="inline-block bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 group"
 
@@ -867,7 +867,7 @@ const ArtisticGymnastics = ({ onSignUpClick }: ArtisticGymnasticsProps) => {
               <Link
 
 
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
 
 
                 className="inline-block border-2 border-white text-white px-12 py-6 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-white hover:text-black hover:scale-105"

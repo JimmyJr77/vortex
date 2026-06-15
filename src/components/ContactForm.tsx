@@ -12,7 +12,7 @@ import { getVisitorId, getSessionId } from '../utils/visitorId'
 import { getActiveConsent } from '../utils/consent'
 import { trackEvent } from '../utils/analyticsClient'
 import { Link } from 'react-router-dom'
-import { ENROLL_PATH } from '../config/enrollSites'
+import { getSiteEnrollHref } from '../utils/enrollSite'
 import {
   ATHLETICS_SPORT_INTERESTS,
   ATHLETICS_TRAINING_INTERESTS,
@@ -352,7 +352,7 @@ const ContactForm = ({
             <div className="flex flex-wrap items-center justify-center gap-3 rounded-lg border border-vortex-red/30 bg-vortex-red/10 px-4 py-2.5 text-center">
               <p className="text-sm text-gray-700 font-medium">If you are looking to Enroll, click here:</p>
               <Link
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
                 className="inline-flex items-center justify-center bg-vortex-red text-white px-4 py-1.5 rounded-md font-semibold text-sm transition-colors hover:bg-red-700"
               >
                 <motion.span

@@ -8,7 +8,7 @@ import {
   Activity,
   Zap,
 } from 'lucide-react'
-import { ENROLL_PATH } from '../config/enrollSites'
+import { getSiteEnrollHref } from '../utils/enrollSite'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 
 interface StrengthFitnessProps {
@@ -105,7 +105,7 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
             transition={{ delay: 0.6, duration: 0.8 }}
           >
             <Link
-              to={ENROLL_PATH}
+              to={getSiteEnrollHref()}
               className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
             >
               <motion.span
@@ -364,7 +364,7 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
                 className="inline-flex border-2 border-vortex-red bg-vortex-red px-10 py-5 text-lg font-bold text-white rounded-xl transition-all duration-300 hover:bg-red-700 hover:scale-105"
               >
                 <motion.span

@@ -10,7 +10,7 @@ import {
 } from 'lucide-react'
 import { SUMMER_CAMP_2026_WEEKS, SUMMER_CAMP_HIGHLIGHTS } from '../data/summerCamp2026'
 import { SUMMER_CAMP_FAQS } from '../../../config/summerCampFaqs'
-import { ENROLL_PATH } from '../../../config/enrollSites'
+import { getSiteEnrollHref } from '../../../utils/enrollSite'
 import { Link } from 'react-router-dom'
 
 
@@ -174,7 +174,7 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
           >
             <Link
 
-              to={ENROLL_PATH}
+              to={getSiteEnrollHref()}
 
               className="inline-flex items-center gap-2 bg-vortex-red text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-red-900/50 hover:bg-red-700 hover:scale-[1.02] transition-all"
 
@@ -350,13 +350,13 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
           <div className="flex flex-wrap justify-center gap-4">
             <Link
 
-              to={ENROLL_PATH}
+              to={getSiteEnrollHref()}
 
               className="inline-flex items-center gap-2 bg-black text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-neutral-900 transition-all"
 
             >
 
-              Enroll on Jackrabbit
+              Register now
               <ArrowRight className="w-5 h-5" />
             
 

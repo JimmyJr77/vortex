@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ENROLL_PATH } from '../config/enrollSites'
+import { getSiteEnrollHref } from '../utils/enrollSite'
 import { Target, Cpu, Trophy } from 'lucide-react'
 
 // Custom D1 Icon Component
@@ -121,7 +121,7 @@ const About = ({ onSignUpClick }: AboutProps) => {
           
           {onSignUpClick && (
             <Link
-              to={ENROLL_PATH}
+              to={getSiteEnrollHref()}
               className="inline-block border-2 border-vortex-red text-vortex-red px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
             >
               <motion.span

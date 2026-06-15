@@ -15,7 +15,7 @@ export const SUMMER_CAMP_FAQS: Faq[] = [
   {
     question: 'How do I register for summer camp?',
     answer:
-      'Register online through our Jackrabbit portal. Do not select a class during signup — register without a class and our team will contact you to complete your camp enrollment.',
+      'Register online on our enroll page. Do not select a class during signup — register without a class and our team will contact you to complete your camp enrollment.',
   },
   {
     question: 'Where is summer camp located?',

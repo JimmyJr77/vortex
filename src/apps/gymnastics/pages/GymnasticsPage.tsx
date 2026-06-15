@@ -7,7 +7,7 @@ import GymnasticsHeroRotatingText, {
 } from '../GymnasticsHeroRotatingText'
 import HeroScrollHint from '../HeroScrollHint'
 import { useGymnasticsHeroRotation } from '../useGymnasticsHeroRotation'
-import { ENROLL_PATH } from '../../../config/enrollSites'
+import { getSiteEnrollHref } from '../../../utils/enrollSite'
 import { GYMNASTICS_FAQS } from '../../../config/gymnasticsFaqs'
 import {
   ArrowRight,
@@ -173,7 +173,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                       Highlights
                     </motion.button>
                   )}
-                  <Link to={ENROLL_PATH} className={heroSecondaryCtaClass}>
+                  <Link to={getSiteEnrollHref()} className={heroSecondaryCtaClass}>
                     <motion.span
                       className="inline-block"
                       whileHover={{ scale: 1.05 }}
@@ -268,7 +268,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                   Highlights
                 </motion.button>
               )}
-              <Link to={ENROLL_PATH} className={`${heroSecondaryCtaClass} w-full max-w-xs`}>
+              <Link to={getSiteEnrollHref()} className={`${heroSecondaryCtaClass} w-full max-w-xs`}>
                 <motion.span
                   className="inline-block"
                   whileHover={{ scale: 1.05 }}
@@ -410,7 +410,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                 ))}
               </ul>
               <Link
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
                 className="inline-block w-full mt-auto bg-blue-600 text-white px-6 py-4 rounded-xl font-bold text-center transition-all duration-300 hover:bg-blue-700 hover:scale-[1.02]"
               >
                 Start Your Journey
@@ -447,7 +447,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                 ))}
               </ul>
               <Link
-                to={ENROLL_PATH}
+                to={getSiteEnrollHref()}
                 className="inline-block w-full mt-auto bg-vortex-red text-white px-6 py-4 rounded-xl font-bold text-center transition-all duration-300 hover:bg-red-700 hover:scale-[1.02]"
               >
                 Join the Team
@@ -508,7 +508,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                     </Link>
                   )}
                   <Link
-                    to={ENROLL_PATH}
+                    to={getSiteEnrollHref()}
                     className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-white/90 whitespace-nowrap"
                   >
                     Enroll Now
@@ -551,7 +551,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
             viewport={{ once: true }}
           >
             <Link
-              to={ENROLL_PATH}
+              to={getSiteEnrollHref()}
               className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
             >
               Enroll Now

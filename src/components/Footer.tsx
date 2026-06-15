@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ENROLL_PATH } from '../config/enrollSites'
+import { getSiteEnrollHref } from '../utils/enrollSite'
 import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
 import { TEAM_EMAIL, JACKRABBIT_PARENT_PORTAL_URL } from '../config/contact'
 import { trackEvent } from '../utils/analyticsClient'
@@ -250,7 +250,7 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
               Experience the future of athletic development.
             </p>
-            <Link to={ENROLL_PATH} className="inline-block btn-primary">
+            <Link to={getSiteEnrollHref()} className="inline-block btn-primary">
               <motion.span
                 className="inline-block"
                 whileHover={{ scale: 1.05 }}
