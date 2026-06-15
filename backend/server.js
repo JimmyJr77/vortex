@@ -15,6 +15,7 @@ import { registerAnalyticsRoutes } from './analytics/registerRoutes.js'
 import { initSchedulingTables } from './scheduling/initTables.js'
 import { registerSchedulingRoutes } from './scheduling/registerRoutes.js'
 import { registerProgramsAdminRoutes, registerProgramsPublicRoutes } from './programs/registerRoutes.js'
+import { registerCampRegistrationRoutes } from './campRegistrations/registerRoutes.js'
 import { applyRegistrationAttribution } from './analytics/adminHandlers.js'
 import { initDbFeatureTables } from './dbfeatures/initTables.js'
 import { registerSchoolsRoutes } from './schools/registerRoutes.js'
@@ -227,6 +228,15 @@ export const initDatabase = async () => {
     `)
     await pool.query(`
       ALTER TABLE registrations ADD COLUMN IF NOT EXISTS child_ages INTEGER[]
+    `)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS campers JSONB
+    `)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS submitter_role VARCHAR(50)
+    `)
+    await pool.query(`
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS inquiry_source VARCHAR(500)
     `)
     await pool.query(`
       ALTER TABLE registrations ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE
@@ -1224,8 +1234,23 @@ const registrationSchema = Joi.object({
     Joi.string().max(500) // Legacy field for backward compatibility (single string)
   ).optional().allow(null),
   interest: Joi.string().max(100).optional().allow('', null), // Legacy single interest selection
-  classTypes: Joi.array().items(Joi.string().valid('Adult Classes', 'Child Classes')).optional().allow(null), // Class types array
-  childAges: Joi.array().items(Joi.number().integer().min(1).max(18)).optional().allow(null), // New child ages array
+  classTypes: Joi.array().items(Joi.string().valid(
+    'Adult Classes',
+    'Youth Classes',
+    'Camps',
+    'Homeschool Program',
+    'Child Classes',
+    'Gymnastics Summer Camp',
+    'Summer Athletic Development Program',
+  )).optional().allow(null),
+  childAges: Joi.array().items(Joi.number().integer().min(1).max(18)).optional().allow(null),
+  campers: Joi.array().items(Joi.object({
+    firstName: Joi.string().min(1).max(50).optional().allow('', null),
+    lastName: Joi.string().min(1).max(50).optional().allow('', null),
+    dateOfBirth: Joi.string().isoDate().required(),
+  })).optional().allow(null),
+  submitterRole: Joi.string().valid('Athlete', 'Parent/Guardian', 'Other').optional().allow('', null),
+  inquirySource: Joi.string().max(500).optional().allow('', null),
   message: Joi.string().max(1000).optional().allow('', null),
   newsletter: Joi.boolean().optional().allow(null).default(false),
   visitorId: Joi.string().max(64).optional().allow('', null),
@@ -2258,6 +2283,7 @@ registerAnalyticsRoutes(app, pool)
 registerSchedulingRoutes(app, pool)
 registerProgramsPublicRoutes(app, pool)
 registerProgramsAdminRoutes(app, pool)
+registerCampRegistrationRoutes(app, pool)
 
 app.get('/api/admin/email/status', async (req, res) => {
   try {
@@ -2613,13 +2639,35 @@ app.post('/api/registrations', async (req, res) => {
       }
     }
 
-    // Insert registration
-    // Ensure columns exist before inserting (defensive check)
+    const campersParam =
+      value.campers && value.campers.length > 0
+        ? JSON.stringify(
+            value.campers.map((c) => {
+              const row = {}
+              if (c.firstName) row.firstName = c.firstName
+              if (c.lastName) row.lastName = c.lastName
+              if (c.dateOfBirth) {
+                row.dateOfBirth = String(c.dateOfBirth).slice(0, 10)
+              }
+              return row
+            }),
+          )
+        : null
+
+    let submitterRole = value.submitterRole || null
+    if (!submitterRole) {
+      const campClassTypes = ['Camps', 'Gymnastics Summer Camp']
+      const hasCampClass = value.classTypes?.some((t) => campClassTypes.includes(t))
+      if (hasCampClass || value.inquirySource === '/camp_interest') {
+        submitterRole = 'Parent/Guardian'
+      }
+    }
+
     try {
       const result = await pool.query(`
         INSERT INTO registrations 
-        (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, message)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, campers, message, submitter_role, inquiry_source)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, $13, $14)
         RETURNING id, created_at
       `, [
         value.firstName,
@@ -2627,12 +2675,15 @@ app.post('/api/registrations', async (req, res) => {
         value.email,
         value.phone || null,
         value.athleteAge || null,
-        interestsString, // Legacy field for backward compatibility
-        interestsArray, // New multi-select interests array
-        value.interest || null, // Legacy single interest selection
-        value.classTypes && value.classTypes.length > 0 ? value.classTypes : null, // Class types array
-        value.childAges && value.childAges.length > 0 ? value.childAges : null, // New child ages array
-        value.message || null
+        interestsString,
+        interestsArray,
+        value.interest || null,
+        value.classTypes && value.classTypes.length > 0 ? value.classTypes : null,
+        value.childAges && value.childAges.length > 0 ? value.childAges : null,
+        campersParam,
+        value.message || null,
+        submitterRole,
+        value.inquirySource || null,
       ])
 
       const inquiryId = result.rows[0].id
@@ -2662,13 +2713,16 @@ app.post('/api/registrations', async (req, res) => {
           await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS interest VARCHAR(100)`)
           await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS class_types TEXT[]`)
           await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS child_ages INTEGER[]`)
+          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS campers JSONB`)
+          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS submitter_role VARCHAR(50)`)
+          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS inquiry_source VARCHAR(500)`)
           await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE`)
           
           // Retry the insert
           const result = await pool.query(`
             INSERT INTO registrations 
-            (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, message)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, campers, message, submitter_role, inquiry_source)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, $13, $14)
             RETURNING id, created_at
           `, [
             value.firstName,
@@ -2681,7 +2735,10 @@ app.post('/api/registrations', async (req, res) => {
             value.interest || null,
             value.classTypes && value.classTypes.length > 0 ? value.classTypes : null,
             value.childAges && value.childAges.length > 0 ? value.childAges : null,
-            value.message || null
+            campersParam,
+            value.message || null,
+            submitterRole,
+            value.inquirySource || null,
           ])
           
           const inquiryId = result.rows[0].id
@@ -2835,6 +2892,8 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
       class_types,
       child_ages,
       message,
+      submitter_role,
+      inquiry_source,
       contacted,
       admin_notes,
       follow_up,
@@ -2879,8 +2938,8 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
 
     await pool.query(`
       UPDATE registrations 
-      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, interests_array = $7, interest = $8, class_types = $9, child_ages = $10, message = $11, contacted = $12, admin_notes = $13, lead_status = $14, first_contacted_at = COALESCE(first_contacted_at, $15), follow_up = $16, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $17
+      SET first_name = $1, last_name = $2, email = $3, phone = $4, athlete_age = $5, interests = $6, interests_array = $7, interest = $8, class_types = $9, child_ages = $10, message = $11, submitter_role = $12, inquiry_source = $13, contacted = $14, admin_notes = $15, lead_status = $16, first_contacted_at = COALESCE(first_contacted_at, $17), follow_up = $18, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $19
     `, [
       first_name,
       last_name,
@@ -2893,6 +2952,8 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
       class_types || null,
       child_ages || null,
       message,
+      submitter_role ?? null,
+      inquiry_source ?? null,
       finalContacted,
       finalAdminNotes,
       leadStatus,

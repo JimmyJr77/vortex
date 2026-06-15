@@ -35,6 +35,7 @@ function PageLoader() {
 
 function App() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [inquirySourcePath, setInquirySourcePath] = useState('')
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isMemberLoginOpen, setIsMemberLoginOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(() => hasAdminSession())
@@ -82,6 +83,7 @@ function App() {
 
   const handleContactClick = () => {
     trackEngagement('form_open', 'Contact Form', location.pathname)
+    setInquirySourcePath(location.pathname)
     setIsContactFormOpen(true)
   }
 
@@ -188,6 +190,9 @@ function App() {
       <ContactForm
         isOpen={isContactFormOpen}
         onClose={() => setIsContactFormOpen(false)}
+        title="Athlete Inquiry"
+        inquiryVariant="athletics"
+        inquirySource={inquirySourcePath}
       />
       <Footer 
         onContactClick={handleContactClick} 

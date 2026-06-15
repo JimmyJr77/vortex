@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState, useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import GymnasticsHeader from './GymnasticsHeader'
 import GymnasticsSeo from './GymnasticsSeo'
 import ContactForm from '../../components/ContactForm'
@@ -27,6 +27,8 @@ const GymnasticsReadBoardPage = lazy(() => import('./pages/GymnasticsReadBoardPa
 const SummerCamp2026LandingPage = lazy(
   () => import('./pages/SummerCamp2026LandingPage'),
 )
+const CampInterestPage = lazy(() => import('./pages/CampInterestPage'))
+const CampInterestThankYouPage = lazy(() => import('./pages/CampInterestThankYouPage'))
 const AcroGymnasticsPage = lazy(() => import('./pages/AcroGymnasticsPage'))
 const ArtisticGymnasticsDisciplinePage = lazy(
   () => import('./pages/ArtisticGymnasticsDisciplinePage'),
@@ -53,6 +55,7 @@ interface GymnasticsAppProps {
 
 function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [inquirySourcePath, setInquirySourcePath] = useState('')
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isMemberLoginOpen, setIsMemberLoginOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(
@@ -62,6 +65,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
   const [memberToken, setMemberToken] = useState<string | null>(null)
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
   const {
     highlights,
     isOpen: isHighlightsOpen,
@@ -94,6 +98,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
 
   const handleContactClick = () => {
     trackEngagement('form_open', 'Contact Form', location.pathname)
+    setInquirySourcePath(location.pathname)
     setIsContactFormOpen(true)
   }
 
@@ -216,9 +221,11 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
           <Route
             path="/summer-camp-26"
             element={
-              <SummerCamp2026LandingPage onInquireClick={handleContactClick} />
+              <SummerCamp2026LandingPage onInquireClick={() => navigate('/camp_interest')} />
             }
           />
+          <Route path="/camp_interest" element={<CampInterestPage />} />
+          <Route path="/camp_interest/thank-you" element={<CampInterestThankYouPage />} />
           <Route
             path="/acro-gymnastics"
             element={<AcroGymnasticsPage onSignUpClick={handleContactClick} />}
@@ -248,7 +255,9 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
       <ContactForm
         isOpen={isContactFormOpen}
         onClose={() => setIsContactFormOpen(false)}
-        sportLabel="Gymnastics"
+        title="Gymnastics Inquiry"
+        inquiryVariant="gymnastics"
+        inquirySource={inquirySourcePath}
       />
       <Footer
         onContactClick={handleContactClick}

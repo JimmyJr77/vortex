@@ -849,9 +849,6 @@ const SchedulingSignupEmbed = ({
         categoryId: item.categoryId,
         slotGroupId: item.slotGroupId,
         timeSlotId: item.timeSlotId,
-        formTitle: item.formTitle,
-        categoryName: item.categoryName,
-        slotLabel: item.slotLabel,
       })),
     })
       .then((preview) => {

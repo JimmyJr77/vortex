@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { GraduationCap, PlayCircle, Users, Dumbbell } from 'lucide-react'
 import SeoHead from '../SeoHead'
@@ -54,7 +55,9 @@ const pillars = [
 
 const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
   const seo = getStubSeo(config, { isPreview })
+  const location = useLocation()
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  const [inquirySourcePath, setInquirySourcePath] = useState('')
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isMemberLoginOpen, setIsMemberLoginOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(
@@ -143,7 +146,10 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
       <SeoHead {...seo} />
       <StubHeader
         config={config}
-        onContactClick={() => setIsContactFormOpen(true)}
+        onContactClick={() => {
+          setInquirySourcePath(location.pathname)
+          setIsContactFormOpen(true)
+        }}
         onAdminLoginClick={() => setIsLoginOpen(true)}
         onMemberLoginClick={() => setIsMemberLoginOpen(true)}
       />
@@ -281,7 +287,9 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
       <ContactForm
         isOpen={isContactFormOpen}
         onClose={() => setIsContactFormOpen(false)}
-        sportLabel={config.sportLabel}
+        title="Athlete Inquiry"
+        inquiryVariant="athletics"
+        inquirySource={inquirySourcePath}
       />
       <Login
         isOpen={isLoginOpen}

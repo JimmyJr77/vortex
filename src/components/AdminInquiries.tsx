@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown, Filter, Flag, Check } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import { notesApi, type Note } from '../utils/adminFeaturesApi'
+import type { InquiryCamper } from '../config/inquiryOptions'
 
 interface User {
   id: number
@@ -16,6 +17,9 @@ interface User {
   interest: string | null
   class_types: string[] | null
   child_ages: number[] | null
+  campers: InquiryCamper[] | null
+  submitter_role: string | null
+  inquiry_source: string | null
   message: string | null
   created_at: string
   newsletter: boolean
@@ -41,10 +45,8 @@ export default function AdminInquiries() {
     field: 'created_at', 
     direction: 'desc' 
   })
-  const [ageFilter, setAgeFilter] = useState<number[]>([])
   const [interestsFilter, setInterestsFilter] = useState<string[]>([])
   const [classTypesFilter, setClassTypesFilter] = useState<string[]>([])
-  const [ageFilterOpen, setAgeFilterOpen] = useState(false)
   const [interestsFilterOpen, setInterestsFilterOpen] = useState(false)
   const [classTypesFilterOpen, setClassTypesFilterOpen] = useState(false)
   const [threadNotes, setThreadNotes] = useState<Record<number, Note[]>>({})
@@ -53,10 +55,8 @@ export default function AdminInquiries() {
   const [addingThreadId, setAddingThreadId] = useState<number | null>(null)
   const [togglingContactedId, setTogglingContactedId] = useState<number | null>(null)
   const [togglingFollowUpId, setTogglingFollowUpId] = useState<number | null>(null)
-  const [ageFilterPosition, setAgeFilterPosition] = useState({ top: 0, left: 0 })
   const [interestsFilterPosition, setInterestsFilterPosition] = useState({ top: 0, left: 0 })
   const [classTypesFilterPosition, setClassTypesFilterPosition] = useState({ top: 0, right: 0 })
-  const ageFilterRef = useRef<HTMLDivElement>(null)
   const interestsFilterRef = useRef<HTMLDivElement>(null)
   const classTypesFilterRef = useRef<HTMLDivElement>(null)
 
@@ -93,6 +93,9 @@ export default function AdminInquiries() {
           interest: string | null
           class_types: string[] | null
           child_ages: number[] | null
+          campers: InquiryCamper[] | null
+          submitter_role: string | null
+          inquiry_source: string | null
           message: string | null
           created_at: string
           contacted?: boolean
@@ -162,15 +165,6 @@ export default function AdminInquiries() {
     if (filter === 'newsletter' && !user.newsletter) return false
     if (filter === 'interests' && !user.interests && !user.interests_array?.length) return false
 
-    // Apply age filter
-    if (ageFilter.length > 0) {
-      const userAges = user.child_ages && user.child_ages.length > 0 
-        ? user.child_ages 
-        : (user.athlete_age ? [user.athlete_age] : [])
-      const hasMatchingAge = userAges.some(age => ageFilter.includes(age))
-      if (!hasMatchingAge) return false
-    }
-
     // Apply interests filter
     if (interestsFilter.length > 0) {
       const userInterests = user.interests_array && user.interests_array.length > 0
@@ -239,6 +233,8 @@ export default function AdminInquiries() {
       class_types: merged.class_types,
       child_ages: merged.child_ages,
       message: merged.message,
+      submitter_role: merged.submitter_role ?? null,
+      inquiry_source: merged.inquiry_source ?? null,
       contacted: !!merged.contacted,
       follow_up: !!merged.follow_up,
       admin_notes: merged.admin_notes ?? null,
@@ -403,19 +399,50 @@ export default function AdminInquiries() {
     return '-'
   }
 
-  const formatChildAges = (user: User) => {
+  const ageFromDateOfBirth = (dob: string): number | null => {
+    const normalized = dob.includes('T') ? dob : `${dob}T00:00:00`
+    const birth = new Date(normalized)
+    if (Number.isNaN(birth.getTime())) return null
+
+    const today = new Date()
+    let age = today.getFullYear() - birth.getFullYear()
+    const monthDiff = today.getMonth() - birth.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    return age
+  }
+
+  const formatAthletes = (user: User) => {
+    if (user.campers && user.campers.length > 0) {
+      return formatCampers(user.campers)
+    }
+    return '-'
+  }
+
+  const formatAthleteAges = (user: User) => {
+    if (user.campers && user.campers.length > 0) {
+      const ages = user.campers
+        .map((c) => (c.dateOfBirth ? ageFromDateOfBirth(c.dateOfBirth) : null))
+        .filter((age): age is number => age !== null)
+        .sort((a, b) => a - b)
+      if (ages.length > 0) return ages.join('; ')
+    }
     if (user.child_ages && user.child_ages.length > 0) {
-      return user.child_ages.sort((a, b) => a - b).join(', ')
+      return user.child_ages.sort((a, b) => a - b).join('; ')
     }
     if (user.athlete_age) {
-      return user.athlete_age.toString()
+      return String(user.athlete_age)
     }
     return '-'
   }
 
   const formatClassType = (classType: string): string => {
     if (classType === 'Adult Classes') return 'Adult'
-    if (classType === 'Child Classes') return 'Child'
+    if (classType === 'Youth Classes' || classType === 'Child Classes') return 'Youth'
+    if (classType === 'Camps' || classType === 'Gymnastics Summer Camp') return 'Camps'
+    if (classType === 'Homeschool Program') return 'Homeschool'
+    if (classType === 'Summer Athletic Development Program') return 'Summer ADP'
     return classType
   }
 
@@ -424,16 +451,17 @@ export default function AdminInquiries() {
     return classTypes.map(formatClassType).join(', ')
   }
 
-  const getAllAges = (): number[] => {
-    const ages = new Set<number>()
-    users.forEach(user => {
-      if (user.child_ages && user.child_ages.length > 0) {
-        user.child_ages.forEach(age => ages.add(age))
-      } else if (user.athlete_age) {
-        ages.add(user.athlete_age)
-      }
-    })
-    return Array.from(ages).sort((a, b) => a - b)
+  const formatCampers = (campers: InquiryCamper[] | null | undefined): string => {
+    if (!campers || campers.length === 0) return '-'
+    return campers
+      .map((c) => {
+        if (c.dateOfBirth) return c.dateOfBirth
+        const name = [c.firstName, c.lastName].filter(Boolean).join(' ').trim()
+        if (name) return name
+        return null
+      })
+      .filter(Boolean)
+      .join('; ') || '-'
   }
 
   const getAllInterests = (): string[] => {
@@ -471,9 +499,6 @@ export default function AdminInquiries() {
       const target = event.target as Node
       const isFilterPopup = (target as Element).closest('[data-filter-popup]')
       
-      if (ageFilterOpen && ageFilterRef.current && !ageFilterRef.current.contains(target) && !isFilterPopup) {
-        setAgeFilterOpen(false)
-      }
       if (interestsFilterOpen && interestsFilterRef.current && !interestsFilterRef.current.contains(target) && !isFilterPopup) {
         setInterestsFilterOpen(false)
       }
@@ -484,7 +509,7 @@ export default function AdminInquiries() {
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [ageFilterOpen, interestsFilterOpen, classTypesFilterOpen])
+  }, [interestsFilterOpen, classTypesFilterOpen])
 
   return (
     <motion.div
@@ -582,6 +607,9 @@ export default function AdminInquiries() {
                       Date {getSortIcon('created_at')}
                     </button>
                   </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[100px]">
+                    Role
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[120px]">
                     <button
                       onClick={() => handleSort('last_name')}
@@ -614,64 +642,11 @@ export default function AdminInquiries() {
                       Phone {getSortIcon('phone')}
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[120px]">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Child Ages</span>
-                      <div className="relative" ref={ageFilterRef}>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (!ageFilterOpen && ageFilterRef.current) {
-                              const rect = ageFilterRef.current.getBoundingClientRect()
-                              setAgeFilterPosition({ top: rect.bottom + 4, left: rect.left })
-                            }
-                            setAgeFilterOpen(!ageFilterOpen)
-                          }}
-                          className={`p-1 rounded hover:bg-gray-200 transition-colors ${
-                            ageFilter.length > 0 ? 'text-vortex-red' : 'text-gray-400'
-                          }`}
-                          title="Filter by age"
-                        >
-                          <Filter className="w-3 h-3" />
-                        </button>
-                        {ageFilterOpen && (
-                          <div 
-                            data-filter-popup
-                            className="fixed bg-white border border-gray-300 rounded-lg shadow-xl z-[9999] max-h-60 overflow-y-auto min-w-[150px]"
-                            style={{ top: `${ageFilterPosition.top}px`, left: `${ageFilterPosition.left}px` }}
-                          >
-                            <div className="p-2">
-                              <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Filter by Age</div>
-                              {getAllAges().map(age => (
-                                <label key={age} className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={ageFilter.includes(age)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setAgeFilter([...ageFilter, age])
-                                      } else {
-                                        setAgeFilter(ageFilter.filter(a => a !== age))
-                                      }
-                                    }}
-                                    className="w-4 h-4 text-vortex-red focus:ring-vortex-red border-gray-300 rounded"
-                                  />
-                                  <span className="text-sm text-gray-700">{age}</span>
-                                </label>
-                              ))}
-                              {ageFilter.length > 0 && (
-                                <button
-                                  onClick={() => setAgeFilter([])}
-                                  className="mt-2 w-full text-xs text-vortex-red hover:underline px-2"
-                                >
-                                  Clear filters
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[140px]">
+                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Athletes</span>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[100px]">
+                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Athlete Age</span>
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[200px]">
                     <div className="flex items-center gap-1">
@@ -791,6 +766,9 @@ export default function AdminInquiries() {
                       </div>
                     </div>
                   </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[120px]">
+                    Source
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 min-w-[80px]">
                     Newsletter
                   </th>
@@ -846,6 +824,9 @@ export default function AdminInquiries() {
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                         {formatDate(user.created_at)}
                       </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                        {user.submitter_role || '-'}
+                      </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">
                         {user.last_name}
                       </td>
@@ -860,8 +841,15 @@ export default function AdminInquiries() {
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                         {user.phone || '-'}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 text-center">
-                        {formatChildAges(user)}
+                      <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
+                        <div className="max-w-[140px] truncate" title={formatAthletes(user)}>
+                          {formatAthletes(user)}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
+                        <div className="max-w-[100px] truncate" title={formatAthleteAges(user)}>
+                          {formatAthleteAges(user)}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
                         <div className="max-w-[200px] truncate" title={formatInterests(user)}>
@@ -870,6 +858,11 @@ export default function AdminInquiries() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 text-center">
                         {formatClassTypes(user.class_types)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
+                        <div className="max-w-[120px] truncate" title={user.inquiry_source || undefined}>
+                          {user.inquiry_source || '-'}
+                        </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-center border-r border-gray-200">
                         {user.newsletter ? (
@@ -896,7 +889,7 @@ export default function AdminInquiries() {
                     <AnimatePresence>
                       {expandedId === user.id && (
                         <tr>
-                          <td colSpan={12} className="px-0 py-0">
+                          <td colSpan={15} className="px-0 py-0">
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
@@ -946,32 +939,23 @@ export default function AdminInquiries() {
                                         />
                                       </div>
                                       <div>
-                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Child Ages (comma-separated, or single age for legacy)</label>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Submitter Role</label>
                                         <input
                                           type="text"
-                                          value={
-                                            editData.child_ages && editData.child_ages.length > 0
-                                              ? editData.child_ages.join(', ')
-                                              : (editData.athlete_age ? editData.athlete_age.toString() : '')
-                                          }
-                                          onChange={(e) => {
-                                            const ages = e.target.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
-                                            if (ages.length > 0) {
-                                              setEditData({ 
-                                                ...editData, 
-                                                child_ages: ages,
-                                                athlete_age: ages.length === 1 ? ages[0] : null // Set legacy age if single value
-                                              })
-                                            } else {
-                                              setEditData({ 
-                                                ...editData, 
-                                                child_ages: null,
-                                                athlete_age: null
-                                              })
-                                            }
-                                          }}
+                                          value={editData.submitter_role || ''}
+                                          onChange={(e) => setEditData({ ...editData, submitter_role: e.target.value || null })}
                                           className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
-                                          placeholder="2, 4, 6 or 12"
+                                          placeholder="Athlete, Parent/Guardian, Other"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="text-xs text-gray-600 block mb-1 font-semibold">Inquiry Source</label>
+                                        <input
+                                          type="text"
+                                          value={editData.inquiry_source || ''}
+                                          onChange={(e) => setEditData({ ...editData, inquiry_source: e.target.value || null })}
+                                          className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                                          placeholder="/ninja"
                                         />
                                       </div>
                                       <div>
@@ -1001,7 +985,7 @@ export default function AdminInquiries() {
                                             setEditData({ ...editData, class_types: types.length > 0 ? types : null })
                                           }}
                                           className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
-                                          placeholder="Adult Classes, Child Classes"
+                                          placeholder="Adult Classes, Youth Classes, Camps"
                                         />
                                       </div>
                                       <div>
@@ -1158,8 +1142,20 @@ export default function AdminInquiries() {
                                         <div className="text-gray-900 mt-1">{user.phone || '-'}</div>
                                       </div>
                                       <div>
-                                        <span className="text-gray-600 font-semibold">Child Ages:</span>
-                                        <div className="text-gray-900 mt-1">{formatChildAges(user)}</div>
+                                        <span className="text-gray-600 font-semibold">Role:</span>
+                                        <div className="text-gray-900 mt-1">{user.submitter_role || '-'}</div>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-600 font-semibold">Source:</span>
+                                        <div className="text-gray-900 mt-1">{user.inquiry_source || '-'}</div>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-600 font-semibold">Athletes:</span>
+                                        <div className="text-gray-900 mt-1">{formatAthletes(user)}</div>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-600 font-semibold">Athlete Age:</span>
+                                        <div className="text-gray-900 mt-1">{formatAthleteAges(user)}</div>
                                       </div>
                                       {user.interests_array && user.interests_array.length > 0 && (
                                         <div className="md:col-span-2">

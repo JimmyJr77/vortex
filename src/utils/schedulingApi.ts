@@ -492,9 +492,6 @@ export async function fetchSignupOrderPreview(payload: {
     categoryId: number | null
     slotGroupId: number
     timeSlotId?: number
-    formTitle?: string
-    categoryName?: string
-    slotLabel?: string
   }>
 }): Promise<SignupOrderPreview> {
   const res = await fetch(`${getApiUrl()}/api/scheduling/signups/order-preview`, {

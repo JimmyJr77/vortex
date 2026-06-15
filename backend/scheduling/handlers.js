@@ -1438,7 +1438,7 @@ export function createSchedulingHandlers(pool) {
 
     async previewSignupOrder(req, res) {
       try {
-        const { error, value } = orderPreviewSchema.validate(req.body)
+        const { error, value } = orderPreviewSchema.validate(req.body, { stripUnknown: true })
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
