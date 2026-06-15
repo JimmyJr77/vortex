@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { ExternalLink } from 'lucide-react'
 import SeoHead from '../../../components/SeoHead'
 import { GYMNASTICS_ORIGIN } from '../../../config/gymnasticsSeo'
 import { HUB_ORIGIN } from '../../../utils/seo'
@@ -18,8 +17,8 @@ const CampInterestThankYouPage = () => {
         canonical={`${GYMNASTICS_ORIGIN}/camp_interest/thank-you`}
         robots="noindex, nofollow"
       />
-      <section className="bg-gray-50 min-h-[60vh] flex items-center justify-center px-4 py-16">
-        <div className="max-w-lg w-full text-center bg-white rounded-2xl border border-gray-200 shadow-lg p-10">
+      <section className="bg-gray-50 pt-below-site-header pb-16 px-4">
+        <div className="max-w-lg w-full mx-auto text-center bg-white rounded-2xl border border-gray-200 shadow-lg p-10 mt-10 md:mt-14">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,17 +33,15 @@ const CampInterestThankYouPage = () => {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href={HUB_ORIGIN}
-              className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+              className="inline-flex items-center justify-center bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
             >
               Explore Vortex Athletics
-              <ExternalLink className="w-4 h-4" />
             </a>
             <a
               href={GYMNASTICS_ORIGIN}
-              className="inline-flex items-center justify-center gap-2 bg-white text-vortex-red border-2 border-vortex-red px-6 py-3 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+              className="inline-flex items-center justify-center bg-white text-vortex-red border-2 border-vortex-red px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
             >
               Explore Vortex Gymnastics
-              <ExternalLink className="w-4 h-4" />
             </a>
           </div>
         </div>
