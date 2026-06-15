@@ -8,6 +8,7 @@ import {
   type SchedulingFormSummary,
   type SchedulingSignupCompleteDetail,
 } from '../utils/schedulingApi'
+import { fetchClassesOffered } from '../utils/publicClassesApi'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 
 function parseOptionalInt(raw: string | null): number | null | undefined {
@@ -22,19 +23,42 @@ type EnrollProgramGroup = {
   forms: SchedulingFormSummary[]
 }
 
-function groupFormsByProgram(forms: SchedulingFormSummary[]): EnrollProgramGroup[] {
+function resolveProgramDisplayName(
+  form: SchedulingFormSummary,
+  programNames: Map<number, string>,
+): string {
+  const fromForm = form.programDisplayName?.trim()
+  if (fromForm) return fromForm
+  const programsId = form.programsId
+  if (programsId != null) {
+    const fromLookup = programNames.get(programsId)?.trim()
+    if (fromLookup) return fromLookup
+  }
+  return 'Unknown program'
+}
+
+function groupFormsByProgram(
+  forms: SchedulingFormSummary[],
+  programNames: Map<number, string>,
+): EnrollProgramGroup[] {
   const byId = new Map<number, EnrollProgramGroup>()
   for (const form of forms) {
     const programsId = form.programsId
     if (programsId == null) continue
     let group = byId.get(programsId)
+    const displayName = resolveProgramDisplayName(form, programNames)
     if (!group) {
       group = {
         programsId,
-        displayName: form.programDisplayName?.trim() || 'Program',
+        displayName,
         forms: [],
       }
       byId.set(programsId, group)
+    } else if (
+      group.displayName === 'Unknown program' &&
+      displayName !== 'Unknown program'
+    ) {
+      group.displayName = displayName
     }
     group.forms.push(form)
   }
@@ -65,13 +89,17 @@ const SchedulingPage = () => {
   const urlEmail = searchParams.get('email')
 
   const [forms, setForms] = useState<SchedulingFormSummary[]>([])
+  const [programNames, setProgramNames] = useState<Map<number, string>>(() => new Map())
   const [selectedProgramId, setSelectedProgramId] = useState<number | null>(null)
   const [selectedFormId, setSelectedFormId] = useState<number | null>(urlFormId)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [signupComplete, setSignupComplete] = useState(false)
 
-  const programs = useMemo(() => groupFormsByProgram(forms), [forms])
+  const programs = useMemo(
+    () => groupFormsByProgram(forms, programNames),
+    [forms, programNames],
+  )
 
   const selectedProgram = useMemo(
     () => programs.find((program) => program.programsId === selectedProgramId) ?? null,
@@ -81,10 +109,16 @@ const SchedulingPage = () => {
   const step = selectedFormId != null ? 'signup' : selectedProgramId != null ? 'class' : 'program'
 
   useEffect(() => {
-    fetchPublicSchedulingForms()
-      .then((data) => {
+    Promise.all([fetchPublicSchedulingForms(), fetchClassesOffered()])
+      .then(([data, offered]) => {
+        const names = new Map<number, string>()
+        for (const program of offered.programs) {
+          const label = program.displayName?.trim()
+          if (label) names.set(program.id, label)
+        }
+        setProgramNames(names)
         setForms(data)
-        const grouped = groupFormsByProgram(data)
+        const grouped = groupFormsByProgram(data, names)
 
         if (urlFormId != null) {
           const match = data.find((form) => form.id === urlFormId)
@@ -215,7 +249,6 @@ const SchedulingPage = () => {
                 Back to programs
               </button>
               <h2 className="text-xl font-display font-bold text-black">Classes</h2>
-              <p className="text-sm text-gray-600">{selectedProgram.displayName}</p>
               <div className="grid grid-cols-1 gap-4">
                 {selectedProgram.forms.map((form) => (
                   <button

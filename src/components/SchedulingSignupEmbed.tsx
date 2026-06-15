@@ -814,6 +814,8 @@ const SchedulingSignupEmbed = ({
           if (match) {
             setCategoryId(match.id ?? null)
           }
+        } else if (bookable.length === 1) {
+          setCategoryId(bookable[0].id ?? null)
         }
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load form'))
@@ -831,7 +833,11 @@ const SchedulingSignupEmbed = ({
     fetchPublicSchedulingOfferings(formId, categoryId)
       .then((offerings) => {
         setCategoryOfferings(offerings)
-        setOfferingId(offerings.length > 0 ? undefined : null)
+        if (offerings.length === 1) {
+          setOfferingId(offerings[0].id)
+        } else {
+          setOfferingId(offerings.length > 0 ? undefined : null)
+        }
       })
       .catch(() => {
         setCategoryOfferings([])

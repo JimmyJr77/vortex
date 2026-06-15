@@ -1285,7 +1285,10 @@ export function createSchedulingHandlers(pool) {
           SELECT
             sf.*,
             p.display_name AS class_display_name,
-            pr.display_name AS program_display_name,
+            COALESCE(
+              NULLIF(TRIM(pr.display_name), ''),
+              NULLIF(TRIM(pr.name), '')
+            ) AS program_display_name,
             COALESCE(sf.programs_id, p.${schema.programFkColumn}) AS resolved_programs_id
           FROM scheduling_form sf
           LEFT JOIN program p ON p.id = sf.program_id
