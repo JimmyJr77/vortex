@@ -17,7 +17,7 @@ import {
 } from '../../utils/schedulingApi'
 import {
   ALL_ENROLL_SITES,
-  normalizeEnrollSites,
+  enrollSitesFromRecord,
   type EnrollSiteKey,
 } from '../../config/enrollSites'
 import EnrollSiteVisibilityControls from './EnrollSiteVisibilityControls'
@@ -36,18 +36,18 @@ interface Props {
 type SetupStatus = 'none' | 'partial' | 'ready'
 
 function programEnrollSites(program: TopProgram): EnrollSiteKey[] {
-  if (program.schedulingActive === false) return []
-  return normalizeEnrollSites(program.schedulingEnrollSites, true)
+  return enrollSitesFromRecord(program.schedulingEnrollSites, program.schedulingActive)
 }
 
 function classEnrollSites(classEvent: ClassEvent): EnrollSiteKey[] {
-  if (classEvent.schedulingFormActive === false) return []
-  return normalizeEnrollSites(classEvent.schedulingFormEnrollSites ?? undefined, true)
+  return enrollSitesFromRecord(
+    classEvent.schedulingFormEnrollSites ?? undefined,
+    classEvent.schedulingFormActive,
+  )
 }
 
 function categoryEnrollSites(category: SchedulingCategory): EnrollSiteKey[] {
-  if (category.isActive === false) return []
-  return normalizeEnrollSites(category.enrollSites, true)
+  return enrollSitesFromRecord(category.enrollSites, category.isActive)
 }
 
 async function classSetupStatus(classEvent: ClassEvent): Promise<SetupStatus> {
@@ -80,15 +80,8 @@ const AdminSchedulingOverview = ({
   const [savingClassId, setSavingClassId] = useState<number | null>(null)
   const [savingCategoryId, setSavingCategoryId] = useState<number | null>(null)
   const [bulkSavingClasses, setBulkSavingClasses] = useState(false)
-  const [legacyEnrollApi, setLegacyEnrollApi] = useState(false)
 
   const programVisible = programEnrollSiteSelection.length > 0
-
-  useEffect(() => {
-    void getSchedulingEnrollApiCapabilities().then(
-      (capabilities) => setLegacyEnrollApi(!capabilities.schedulingEnrollSites),
-    )
-  }, [])
 
   const loadData = useCallback(async (opts?: { silent?: boolean }) => {
     if (!opts?.silent) {
@@ -161,13 +154,12 @@ const AdminSchedulingOverview = ({
     const previousSites = programEnrollSiteSelection
 
     const capabilities = await getSchedulingEnrollApiCapabilities()
-    const { payload, displaySites } = buildProgramSchedulingUpdatePayload(
+    const { payload } = buildProgramSchedulingUpdatePayload(
       sites,
-      previousSites,
       capabilities.schedulingEnrollSites,
     )
 
-    setProgramEnrollSiteSelection(displaySites)
+    setProgramEnrollSiteSelection(sites)
     setSavingProgram(true)
 
     try {
@@ -175,7 +167,7 @@ const AdminSchedulingOverview = ({
 
       const nextSites = capabilities.schedulingEnrollSites
         ? programEnrollSites(updated)
-        : displaySites
+        : sites
 
       setProgramEnrollSiteSelection(nextSites)
       onSaved({
@@ -229,7 +221,16 @@ const AdminSchedulingOverview = ({
         enrollSites: sites,
       })
       setCategories((prev) =>
-        prev.map((cat) => (cat.id === category.id ? { ...cat, ...updated } : cat)),
+        prev.map((cat) =>
+          cat.id === category.id
+            ? {
+                ...cat,
+                ...updated,
+                enrollSites: sites,
+                isActive: sites.length > 0,
+              }
+            : cat,
+        ),
       )
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Failed to update category')
@@ -277,12 +278,6 @@ const AdminSchedulingOverview = ({
           disabled={savingProgram}
           onChange={(sites) => void handleProgramEnrollSitesChange(sites)}
         />
-        {legacyEnrollApi && (
-          <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-            Enroll visibility is all sites on or all sites off until the production API is
-            updated. Checking any site turns on all three; unchecking any site turns all off.
-          </p>
-        )}
         {!programVisible && (
           <p className="text-xs text-gray-500">
             This program and its classes are hidden from public enroll pages until you select at

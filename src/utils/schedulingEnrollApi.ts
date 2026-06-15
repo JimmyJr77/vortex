@@ -7,6 +7,10 @@ type SchedulingEnrollApiCapabilities = {
 
 let cachedCapabilities: SchedulingEnrollApiCapabilities | null = null
 
+export function invalidateSchedulingEnrollApiCapabilities(): void {
+  cachedCapabilities = null
+}
+
 export async function getSchedulingEnrollApiCapabilities(): Promise<SchedulingEnrollApiCapabilities> {
   if (cachedCapabilities) return cachedCapabilities
 
@@ -15,37 +19,19 @@ export async function getSchedulingEnrollApiCapabilities(): Promise<SchedulingEn
     if (!res.ok) throw new Error('health check failed')
     const data = (await res.json()) as {
       buildId?: string
-      apiFeatures?: { schedulingEnrollSites?: boolean }
+      apiFeatures?: { schedulingEnrollSites?: boolean; scheduling?: boolean }
     }
     cachedCapabilities = {
       schedulingEnrollSites:
         data.apiFeatures?.schedulingEnrollSites === true ||
-        data.buildId === 'scheduling-enroll-sites-2026-06-15',
+        data.buildId === 'scheduling-enroll-sites-2026-06-15' ||
+        data.apiFeatures?.scheduling === true,
     }
   } catch {
     cachedCapabilities = { schedulingEnrollSites: false }
   }
 
   return cachedCapabilities
-}
-
-export function resolveLegacyProgramEnrollSelection(
-  requestedSites: EnrollSiteKey[],
-  previousSites: EnrollSiteKey[],
-): { apiActive: boolean; displaySites: EnrollSiteKey[] } {
-  if (requestedSites.length === 0) {
-    return { apiActive: false, displaySites: [] }
-  }
-
-  const hadAll = ALL_ENROLL_SITES.every((site) => previousSites.includes(site))
-  const wantsAll = ALL_ENROLL_SITES.every((site) => requestedSites.includes(site))
-
-  // Legacy API only supports all enroll pages on or off.
-  if (hadAll && !wantsAll) {
-    return { apiActive: false, displaySites: [] }
-  }
-
-  return { apiActive: true, displaySites: [...ALL_ENROLL_SITES] }
 }
 
 export function adaptProgramSchedulingUpdateForApi<
@@ -64,21 +50,15 @@ export function adaptProgramSchedulingUpdateForApi<
 
 export function buildProgramSchedulingUpdatePayload(
   requestedSites: EnrollSiteKey[],
-  previousSites: EnrollSiteKey[],
   supportsEnrollSites: boolean,
 ): {
   payload: { schedulingEnrollSites?: EnrollSiteKey[]; schedulingActive?: boolean }
-  displaySites: EnrollSiteKey[]
 } {
   if (supportsEnrollSites) {
-    return { payload: { schedulingEnrollSites: requestedSites }, displaySites: requestedSites }
+    return { payload: { schedulingEnrollSites: requestedSites } }
   }
 
-  const resolved = resolveLegacyProgramEnrollSelection(requestedSites, previousSites)
-  return {
-    payload: { schedulingActive: resolved.apiActive },
-    displaySites: resolved.displaySites,
-  }
+  return { payload: { schedulingActive: requestedSites.length > 0 } }
 }
 
 export function adaptFormEnrollSitesBody(
@@ -114,10 +94,10 @@ export function enrollSitesFromApiResponse(input: {
   if (input.schedulingActive === false || input.isActive === false) {
     return []
   }
-  if (Array.isArray(input.schedulingEnrollSites) && input.schedulingEnrollSites.length > 0) {
+  if (Array.isArray(input.schedulingEnrollSites)) {
     return input.schedulingEnrollSites
   }
-  if (Array.isArray(input.enrollSites) && input.enrollSites.length > 0) {
+  if (Array.isArray(input.enrollSites)) {
     return input.enrollSites
   }
   if (input.schedulingActive || input.isActive) {

@@ -3,6 +3,7 @@ import { adminApiRequest } from './api'
 import {
   adaptProgramSchedulingUpdateForApi,
   getSchedulingEnrollApiCapabilities,
+  invalidateSchedulingEnrollApiCapabilities,
 } from './schedulingEnrollApi'
 
 export interface SchedulingCategoryRef {
@@ -128,12 +129,31 @@ export async function updateTopProgram(
     pricingFreeSlotsPerUser: number
   }>,
 ): Promise<TopProgram> {
-  const capabilities = await getSchedulingEnrollApiCapabilities()
-  const apiPayload = adaptProgramSchedulingUpdateForApi(payload, capabilities.schedulingEnrollSites)
-  const res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
+  let capabilities = await getSchedulingEnrollApiCapabilities()
+  let apiPayload = adaptProgramSchedulingUpdateForApi(payload, capabilities.schedulingEnrollSites)
+  let res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
     method: 'PUT',
     body: JSON.stringify(apiPayload),
   })
+
+  if (
+    !res.ok &&
+    payload.schedulingEnrollSites !== undefined &&
+    capabilities.schedulingEnrollSites
+  ) {
+    const data = await res.json().catch(() => ({}))
+    const message = typeof data.message === 'string' ? data.message : ''
+    if (message.includes('schedulingEnrollSites')) {
+      invalidateSchedulingEnrollApiCapabilities()
+      capabilities = await getSchedulingEnrollApiCapabilities()
+      apiPayload = adaptProgramSchedulingUpdateForApi(payload, false)
+      res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(apiPayload),
+      })
+    }
+  }
+
   return parseJson(res)
 }
 

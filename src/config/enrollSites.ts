@@ -20,9 +20,20 @@ export function normalizeEnrollSites(
   sites: string[] | null | undefined,
   legacyActive?: boolean,
 ): EnrollSiteKey[] {
-  if (Array.isArray(sites) && sites.length > 0) {
+  if (Array.isArray(sites)) {
     return sites.filter(isEnrollSiteKey)
   }
   if (legacyActive) return [...ALL_ENROLL_SITES]
+  return []
+}
+
+/** Read enroll sites from a program/form row; inactive rows always read as []. */
+export function enrollSitesFromRecord(
+  sites: string[] | null | undefined,
+  active: boolean | undefined,
+): EnrollSiteKey[] {
+  if (active === false) return []
+  if (Array.isArray(sites)) return sites.filter(isEnrollSiteKey)
+  if (active) return [...ALL_ENROLL_SITES]
   return []
 }
