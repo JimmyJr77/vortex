@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { DollarSign } from 'lucide-react'
 import AdminPricingProgramTable from './pricing/AdminPricingProgramTable'
 import SportDefaultsPanel from './pricing/SportDefaultsPanel'
+import AdminAdditionalFeesPanel from './pricing/AdminAdditionalFeesPanel'
 import AdminDiscountsPanel from './pricing/AdminDiscountsPanel'
 import AdminPricingRulesOverview from './pricing/AdminPricingRulesOverview'
 
@@ -49,7 +50,8 @@ const AdminPricing = () => {
       </div>
 
       {tab === 'costs' && (
-        <div className="space-y-6">
+        <div className="space-y-4">
+          <AdminAdditionalFeesPanel />
           <SportDefaultsPanel />
           <AdminPricingProgramTable />
         </div>

@@ -180,6 +180,56 @@ export interface OrderDiscountBreakdown {
   totalCents: number
 }
 
+export type AdditionalFeeApplyBasis =
+  | 'per_order'
+  | 'per_slot'
+  | 'per_class'
+  | 'per_offering'
+  | 'per_month'
+  | 'per_year'
+
+export type AdditionalFeeTriggerType = 'each_enrollment' | 'new_member' | 'once_per_year'
+
+export interface AdditionalFee {
+  id: number
+  facilityId: number | null
+  name: string
+  description: string | null
+  amountCents: number
+  applyBasis: AdditionalFeeApplyBasis
+  applyInterval: number
+  triggerType: AdditionalFeeTriggerType
+  scopeLevel: DiscountScopeLevel
+  scopeRefId: number | null
+  active: boolean
+  startsAt: string | null
+  endsAt: string | null
+  priority: number
+  config: Record<string, unknown>
+}
+
+export type AdditionalFeeInput = Omit<AdditionalFee, 'id' | 'facilityId'>
+
+export interface AdditionalFeeLineItem {
+  feeId: number
+  name: string
+  applyBasis: AdditionalFeeApplyBasis
+  applyInterval: number
+  triggerType: AdditionalFeeTriggerType
+  quantity: number
+  amountCents: number
+  recurring: boolean
+  scopeLevel: DiscountScopeLevel
+}
+
+export interface AdditionalFeesBreakdown {
+  enabled: boolean
+  items: AdditionalFeeLineItem[]
+  totalOneTimeCents: number
+  totalMonthlyCents: number
+  totalCents: number
+}
+
 export interface SignupOrderPreview {
   memberId: number | null
   existingClasses: SignupOrderPreviewClass[]
@@ -190,6 +240,9 @@ export interface SignupOrderPreview {
   estimatedMonthlyTotal: number
   totalDiscountMonthly: number
   discounts?: OrderDiscountBreakdown
+  additionalFees?: AdditionalFeesBreakdown
+  additionalFeesMonthly?: number
+  additionalFeesOneTime?: number
   hasPricing: boolean
   disclaimer: string
 }
@@ -917,6 +970,38 @@ export async function adminUpsertSportDefault(
   const res = await adminApiRequest(`/api/admin/scheduling/sport-defaults/${disciplineTagId}`, {
     method: 'PUT',
     body: JSON.stringify(input),
+  })
+  await parseJson(res)
+}
+
+export async function adminFetchAdditionalFees(): Promise<AdditionalFee[]> {
+  const res = await adminApiRequest('/api/admin/scheduling/additional-fees')
+  const data = await parseJson<{ fees: AdditionalFee[] }>(res)
+  return data.fees
+}
+
+export async function adminCreateAdditionalFee(input: AdditionalFeeInput): Promise<AdditionalFee> {
+  const res = await adminApiRequest('/api/admin/scheduling/additional-fees', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+  return parseJson(res)
+}
+
+export async function adminUpdateAdditionalFee(
+  id: number,
+  input: AdditionalFeeInput,
+): Promise<AdditionalFee> {
+  const res = await adminApiRequest(`/api/admin/scheduling/additional-fees/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  })
+  return parseJson(res)
+}
+
+export async function adminDeleteAdditionalFee(id: number): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/scheduling/additional-fees/${id}`, {
+    method: 'DELETE',
   })
   await parseJson(res)
 }

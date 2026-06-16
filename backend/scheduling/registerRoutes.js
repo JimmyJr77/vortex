@@ -1,6 +1,7 @@
 import rateLimit from 'express-rate-limit'
 import { createSchedulingHandlers } from './handlers.js'
 import { createDiscountHandlers } from './discountHandlers.js'
+import { createAdditionalFeeHandlers } from './additionalFeeHandlers.js'
 
 const signupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -13,6 +14,7 @@ const signupLimiter = rateLimit({
 export function registerSchedulingRoutes(app, pool) {
   const h = createSchedulingHandlers(pool)
   const d = createDiscountHandlers(pool)
+  const f = createAdditionalFeeHandlers(pool)
 
   app.get('/api/scheduling/calendar', h.getPublicCalendar)
   app.get('/api/public/scheduling/classes', h.listPublicSchedulingClasses)
@@ -77,6 +79,11 @@ export function registerSchedulingRoutes(app, pool) {
   app.post('/api/admin/scheduling/discount-simulate', d.simulateOrder)
   app.get('/api/admin/scheduling/sport-defaults', d.listSportDefaults)
   app.put('/api/admin/scheduling/sport-defaults/:id', d.upsertSportDefault)
+
+  app.get('/api/admin/scheduling/additional-fees', f.listFees)
+  app.post('/api/admin/scheduling/additional-fees', f.createFee)
+  app.put('/api/admin/scheduling/additional-fees/:id', f.updateFee)
+  app.delete('/api/admin/scheduling/additional-fees/:id', f.deleteFee)
 
   console.log('✅ Scheduling routes registered')
 }

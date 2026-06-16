@@ -131,6 +131,21 @@ export async function buildSignupOrderPreview(
     }
   }
 
+  const slotGroupIds = new Set(filteredNew.map((e) => e.slotGroupId).filter((id) => id != null))
+  const offeringBySlotGroup = new Map()
+  if (slotGroupIds.size > 0) {
+    const groupsRes = await pool.query(
+      `SELECT id, offering_id FROM scheduling_slot_group WHERE id = ANY($1::int[])`,
+      [[...slotGroupIds]],
+    )
+    for (const row of groupsRes.rows) {
+      offeringBySlotGroup.set(
+        Number(row.id),
+        row.offering_id != null ? Number(row.offering_id) : null,
+      )
+    }
+  }
+
   const programTitles = new Map()
   const programIds = new Set(
     [...formRows.values()]
@@ -297,6 +312,19 @@ export async function buildSignupOrderPreview(
     memberContext,
   })
 
+  const additionalFees = await computeAdditionalFeesLayer(pool, {
+    memberId,
+    newSignupItems,
+    formRows,
+    scopeMeta,
+    offeringBySlotGroup,
+    filteredNew,
+    existingCount: existing.length,
+  })
+
+  const additionalFeesMonthly = (additionalFees.totalMonthlyCents ?? 0) / 100
+  const additionalFeesOneTime = (additionalFees.totalOneTimeCents ?? 0) / 100
+
   return {
     memberId: memberId ?? null,
     existingClasses,
@@ -304,9 +332,12 @@ export async function buildSignupOrderPreview(
     formSummaries,
     existingMonthlyTotal,
     newSignupMonthlyTotal,
-    estimatedMonthlyTotal,
+    estimatedMonthlyTotal: estimatedMonthlyTotal + additionalFeesMonthly,
     totalDiscountMonthly,
     discounts,
+    additionalFees,
+    additionalFeesMonthly,
+    additionalFeesOneTime,
     hasPricing: formSummaries.some((summary) => summary.pricingAfter != null),
     disclaimer: SIGNUP_ORDER_PRICING_DISCLAIMER,
   }
@@ -377,4 +408,78 @@ export async function computeDiscountLayer(
   const { computeOrderDiscounts } = await import('./discountEngine.js')
   const result = computeOrderDiscounts({ lines, rules, promoCodes, caps })
   return { enabled: true, ...result }
+}
+
+/**
+ * Layer additional fees (registration, annual, technology, etc.) on the order preview.
+ */
+export async function computeAdditionalFeesLayer(
+  pool,
+  {
+    memberId,
+    newSignupItems,
+    formRows,
+    scopeMeta,
+    offeringBySlotGroup,
+    filteredNew = [],
+    existingCount = 0,
+  },
+) {
+  const empty = {
+    enabled: false,
+    items: [],
+    totalOneTimeCents: 0,
+    totalMonthlyCents: 0,
+    totalCents: 0,
+  }
+  if (!newSignupItems.length) return empty
+
+  let fees = []
+  try {
+    const {
+      loadActiveAdditionalFees,
+      computeOrderAdditionalFees,
+      loadMemberFeeRedemptionKeys,
+    } = await import('./additionalFeesEngine.js')
+    const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
+    const facilityId = facilityRes.rows[0]?.id ?? null
+    fees = await loadActiveAdditionalFees(pool, facilityId)
+    if (!fees.length) return empty
+
+    const isNewMember = existingCount === 0
+    const oncePerYearIds = fees.filter((f) => f.triggerType === 'once_per_year').map((f) => f.id)
+    const redeemedPeriodKeys = await loadMemberFeeRedemptionKeys(pool, memberId, oncePerYearIds)
+
+    const offeringBySignupKey = new Map()
+    for (const entry of filteredNew) {
+      const key = programSlotSignupKey(
+        entry.formId,
+        entry.categoryId ?? null,
+        entry.slotGroupId,
+        entry.timeSlotId ?? null,
+      )
+      offeringBySignupKey.set(key, offeringBySlotGroup.get(entry.slotGroupId) ?? null)
+    }
+
+    const lines = newSignupItems.map((item) => {
+      const formRow = formRows.get(item.formId)
+      const scope = formRow ? scopeMeta.get(pricingScopeKey(formRow)) : null
+      return {
+        key: item.slotKey,
+        formId: item.formId,
+        programId: scope?.programsId ?? null,
+        sportId: scope?.sportId ?? null,
+        offeringId: offeringBySignupKey.get(item.slotKey) ?? null,
+      }
+    })
+
+    return computeOrderAdditionalFees({
+      fees,
+      lines,
+      isNewMember,
+      redeemedPeriodKeys,
+    })
+  } catch {
+    return empty
+  }
 }

@@ -761,6 +761,31 @@ function SignupOrderPricingSummary({
           </div>
         )}
 
+      {preview.additionalFees?.enabled && preview.additionalFees.items.length > 0 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm">
+          <h5 className={`font-semibold text-amber-900 mb-2 ${compact ? 'text-sm' : 'text-base'}`}>
+            Additional fees
+          </h5>
+          <ul className="space-y-1">
+            {preview.additionalFees.items.map((item, i) => (
+              <li key={`fee-${i}`} className="flex justify-between text-amber-900">
+                <span>
+                  {item.name}
+                  {item.quantity > 1 ? ` × ${item.quantity}` : ''}
+                  {item.recurring ? '/mo' : ''}
+                </span>
+                <span>+{formatMoney(item.amountCents / 100)}</span>
+              </li>
+            ))}
+          </ul>
+          {(preview.additionalFeesOneTime ?? 0) > 0 && (
+            <p className="mt-2 text-amber-800">
+              One-time fees at checkout: {formatMoney(preview.additionalFeesOneTime ?? 0)}
+            </p>
+          )}
+        </div>
+      )}
+
       <p className="text-xs text-gray-500 italic">{preview.disclaimer}</p>
     </div>
   )

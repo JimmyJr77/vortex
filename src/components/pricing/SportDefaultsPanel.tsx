@@ -6,6 +6,7 @@ import {
   type CostUnit,
   type SportPricingDefault,
 } from '../../utils/schedulingApi'
+import CollapsiblePricingSection from './CollapsiblePricingSection'
 
 const inputClass = 'w-full h-10 rounded-lg border border-gray-300 px-3 text-sm'
 
@@ -52,12 +53,11 @@ const SportDefaultsPanel = () => {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
-      <h3 className="font-bold text-gray-900 mb-1">Primary sport defaults</h3>
-      <p className="text-sm text-gray-500 mb-3">
-        Base pricing used by programs whose primary sport matches, when the program has no cost of its
-        own. Programs and classes override these.
-      </p>
+    <CollapsiblePricingSection
+      title="Primary sport defaults"
+      description="Base pricing used by programs whose primary sport matches, when the program has no cost of its own. Programs and classes override these."
+      defaultOpen={false}
+    >
       {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
       {loading ? (
         <p className="text-sm text-gray-400">Loading…</p>
@@ -146,7 +146,7 @@ const SportDefaultsPanel = () => {
           </table>
         </div>
       )}
-    </div>
+    </CollapsiblePricingSection>
   )
 }
 
