@@ -578,14 +578,29 @@ function formatMoney(amount: number) {
 function SignupOrderPricingSummary({
   preview,
   compact,
+  variant = 'review',
+  emphasizeCombinedTotal = false,
 }: {
   preview: SignupOrderPreview
   compact?: boolean
+  variant?: 'review' | 'success'
+  emphasizeCombinedTotal?: boolean
 }) {
   if (!preview.hasPricing) return null
 
+  const pricingHeading =
+    variant === 'success' ? 'Monthly pricing summary' : 'Estimated monthly pricing'
+
   return (
     <div className="mt-6 space-y-4">
+      {emphasizeCombinedTotal && (
+        <div className="rounded-xl border-2 border-black bg-white px-4 py-3 text-center sm:text-left">
+          <p className="text-sm text-gray-600">Combined estimated total</p>
+          <p className={`font-display font-bold text-black ${compact ? 'text-xl' : 'text-2xl'}`}>
+            {formatMoney(preview.estimatedMonthlyTotal)}/mo
+          </p>
+        </div>
+      )}
       {preview.existingClasses.length > 0 && (
         <div>
           <h5 className={`font-semibold text-black mb-2 ${compact ? 'text-sm' : 'text-base'}`}>
@@ -616,7 +631,7 @@ function SignupOrderPricingSummary({
       {preview.formSummaries.length > 0 && (
         <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm text-gray-700">
           <h5 className={`font-semibold text-black mb-3 ${compact ? 'text-sm' : 'text-base'}`}>
-            Estimated monthly pricing
+            {pricingHeading}
           </h5>
 
           {preview.newSignups.length > 0 && (
@@ -767,6 +782,8 @@ const SchedulingSignupEmbed = ({
   const [signupAuthToken, setSignupAuthToken] = useState<string | null>(null)
   const [orderPreview, setOrderPreview] = useState<SignupOrderPreview | null>(null)
   const [orderPreviewLoading, setOrderPreviewLoading] = useState(false)
+  const [confirmedOrderPreview, setConfirmedOrderPreview] = useState<SignupOrderPreview | null>(null)
+  const [confirmedOrderPreviewLoading, setConfirmedOrderPreviewLoading] = useState(false)
   const [isNewUser, setIsNewUser] = useState(false)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [identityLoading, setIdentityLoading] = useState(false)
@@ -798,6 +815,8 @@ const SchedulingSignupEmbed = ({
     setSignupAuthToken(null)
     setOrderPreview(null)
     setOrderPreviewLoading(false)
+    setConfirmedOrderPreview(null)
+    setConfirmedOrderPreviewLoading(false)
     setIsNewUser(false)
     setAccountEmail(initialEmail || '')
     setAccountPassword('')
@@ -907,6 +926,7 @@ const SchedulingSignupEmbed = ({
   }, [accountEmail, initialEmail, identityPhase, loadSignedUpSlots])
 
   useEffect(() => {
+    if (success) return
     if (signupPhase !== 'review' || cartItems.length === 0) {
       setOrderPreview(null)
       setOrderPreviewLoading(false)
@@ -948,6 +968,7 @@ const SchedulingSignupEmbed = ({
       cancelled = true
     }
   }, [
+    success,
     signupPhase,
     cartItems,
     accountEmail,
@@ -956,6 +977,32 @@ const SchedulingSignupEmbed = ({
     signupAuthToken,
     formId,
   ])
+
+  const loadConfirmedOrderPreview = useCallback(async () => {
+    const email =
+      accountEmail.trim() ||
+      (typeof responses.email === 'string' ? responses.email.trim() : '') ||
+      initialEmail?.trim() ||
+      ''
+    if (!signupAuthToken && !email) return null
+
+    setConfirmedOrderPreviewLoading(true)
+    try {
+      const preview = await fetchSignupOrderPreview({
+        formId,
+        email: signupAuthToken ? undefined : email,
+        signupAuthToken: signupAuthToken || undefined,
+        signups: [],
+      })
+      setConfirmedOrderPreview(preview)
+      return preview
+    } catch {
+      setConfirmedOrderPreview(null)
+      return null
+    } finally {
+      setConfirmedOrderPreviewLoading(false)
+    }
+  }, [accountEmail, responses.email, initialEmail, signupAuthToken, formId])
 
   const isSlotAlreadySignedUp = useCallback(
     (
@@ -1465,6 +1512,7 @@ const SchedulingSignupEmbed = ({
       setSignupResults(result.signups)
       setSignupResult(result.signups[0] ?? null)
       setSuccess(true)
+      void loadConfirmedOrderPreview()
       const email = accountEmail.trim() || initialEmail?.trim() || ''
       if (email) void loadSignedUpSlots(email, { force: true })
     } catch (err) {
@@ -1548,27 +1596,31 @@ const SchedulingSignupEmbed = ({
             Your parent or guardian will receive a separate waiver email.
           </p>
         )}
-        {signupResult?.pricing?.hasPricing && (
-          <div className="mt-4 text-left rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800">
-            <p className="font-semibold text-black mb-2">Monthly cost summary</p>
-            {signupResult.categoryName && signupResult.slotLabel && (
-              <p className="mb-2 text-gray-600">
-                Slot: {signupResult.categoryName} — {signupResult.slotLabel}
-              </p>
-            )}
-            <ul className="space-y-1">
-              <li>Slots held: {signupResult.pricing.totalSlots}</li>
-              {signupResult.pricing.hasFreeSlots && (
-                <li>Free slots remaining: {signupResult.pricing.freeSlotsRemaining}</li>
-              )}
-              <li>Non-discounted total: {formatMoney(signupResult.pricing.nonDiscountedMonthly)}/mo</li>
-              {signupResult.pricing.discountMonthly > 0 && (
-                <li>Discount: -{formatMoney(signupResult.pricing.discountMonthly)}/mo</li>
-              )}
-              <li className="font-semibold text-black">
-                Your total: {formatMoney(signupResult.pricing.discountedMonthly)}/mo
-              </li>
-            </ul>
+        {(orderPreviewLoading || confirmedOrderPreviewLoading) && !orderPreview && (
+          <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mt-4">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Loading your pricing summary…
+          </div>
+        )}
+        {orderPreview && (
+          <div className="mt-4 text-left">
+            <SignupOrderPricingSummary
+              preview={
+                confirmedOrderPreview?.hasPricing
+                  ? {
+                      ...orderPreview,
+                      existingClasses: confirmedOrderPreview.existingClasses,
+                      formSummaries: confirmedOrderPreview.formSummaries,
+                      existingMonthlyTotal: confirmedOrderPreview.existingMonthlyTotal,
+                      estimatedMonthlyTotal: confirmedOrderPreview.estimatedMonthlyTotal,
+                      totalDiscountMonthly: confirmedOrderPreview.totalDiscountMonthly,
+                    }
+                  : orderPreview
+              }
+              compact={compact}
+              variant="success"
+              emphasizeCombinedTotal={multiple}
+            />
           </div>
         )}
       </div>
