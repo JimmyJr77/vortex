@@ -7,7 +7,7 @@ import {
   type SportPricingDefault,
 } from '../../utils/schedulingApi'
 
-const inputClass = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm'
+const inputClass = 'w-full h-10 rounded-lg border border-gray-300 px-3 text-sm'
 
 const SportDefaultsPanel = () => {
   const [rows, setRows] = useState<SportPricingDefault[]>([])

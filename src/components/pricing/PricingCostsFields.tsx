@@ -15,6 +15,9 @@ interface Props {
   totalFreeSlotsHelp?: string
 }
 
+const controlClass =
+  'w-full h-10 rounded-lg border border-gray-300 px-4 text-sm disabled:bg-gray-50'
+
 const PricingCostsFields = ({
   values,
   onChange,
@@ -39,7 +42,7 @@ const PricingCostsFields = ({
                 slotCostMonthlyCents: Math.round((Number(e.target.value) || 0) * 100),
               })
             }}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 disabled:bg-gray-50"
+            className={controlClass}
           />
         </div>
         <div>
@@ -48,7 +51,7 @@ const PricingCostsFields = ({
             disabled={disabled}
             value={values.costUnit}
             onChange={(e) => onChange({ ...values, costUnit: e.target.value as CostUnit })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 disabled:bg-gray-50"
+            className={controlClass}
           >
             {(Object.keys(COST_UNIT_LABELS) as CostUnit[]).map((u) => (
               <option key={u} value={u}>
@@ -71,7 +74,7 @@ const PricingCostsFields = ({
               freeSlotsPerUser: Math.max(0, Number(e.target.value) || 0),
             })
           }}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 disabled:bg-gray-50"
+          className={controlClass}
         />
       </div>
       <div>
@@ -89,7 +92,7 @@ const PricingCostsFields = ({
               maxFreeSlotsTotal: v === '' ? '' : Math.max(0, Number(v)),
             })
           }}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 disabled:bg-gray-50"
+          className={controlClass}
         />
         <p className="text-xs text-gray-500 mt-1">{totalFreeSlotsHelp}</p>
       </div>
