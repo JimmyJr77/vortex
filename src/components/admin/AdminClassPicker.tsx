@@ -69,6 +69,22 @@ function expandClassPickerRows(events: ClassEvent[]): ClassPickerRow[] {
   return rows
 }
 
+function normalizeProgramId(id: number | string | null | undefined): number {
+  const n = Number(id)
+  return Number.isFinite(n) ? n : 0
+}
+
+/** Match by FK id or display name — mirrors Admin > Classes program filter. */
+function rowMatchesProgram(
+  row: ClassPickerRow,
+  programId: number,
+  programDisplayName?: string,
+): boolean {
+  if (row.programId === programId) return true
+  if (programDisplayName && row.programName === programDisplayName) return true
+  return false
+}
+
 interface Props {
   selectedClassEventId?: number | null
   onSelectClass: (classEvent: ClassEvent) => void
@@ -100,23 +116,29 @@ const AdminClassPicker = ({
       const events = await fetchClassEvents({ archived: false })
       const expandedRows = expandClassPickerRows(events)
 
-      const programMap = new Map(programList.map((p) => [p.id, p]))
+      const programMap = new Map<number, TopProgram>()
+      for (const p of programList) {
+        const id = normalizeProgramId(p.id)
+        if (!id) continue
+        programMap.set(id, { ...p, id })
+      }
       for (const row of expandedRows) {
-        if (!programMap.has(row.programId)) {
-          programMap.set(row.programId, {
-            id: row.programId,
-            name: row.programName,
-            displayName: row.programName,
-            archived: false,
-            createdAt: '',
-            updatedAt: '',
-          })
-        }
+        if (programMap.has(row.programId)) continue
+        const byName = [...programMap.values()].find((p) => p.displayName === row.programName)
+        if (byName) continue
+        programMap.set(row.programId, {
+          id: row.programId,
+          name: row.programName,
+          displayName: row.programName,
+          archived: false,
+          createdAt: '',
+          updatedAt: '',
+        })
       }
 
-      const mergedPrograms = [...programMap.values()].sort((a, b) =>
-        a.displayName.localeCompare(b.displayName),
-      )
+      const mergedPrograms = [...programMap.values()]
+        .filter((p) => expandedRows.some((row) => rowMatchesProgram(row, p.id, p.displayName)))
+        .sort((a, b) => a.displayName.localeCompare(b.displayName))
 
       setPrograms(mergedPrograms)
       setRows(expandedRows)
@@ -136,8 +158,9 @@ const AdminClassPicker = ({
   const filteredRows = useMemo(() => {
     let next = rows
     if (programFilterId !== 'all') {
-      const filterId = Number(programFilterId)
-      next = next.filter((row) => row.programId === filterId)
+      const filterId = normalizeProgramId(programFilterId)
+      const filterDisplayName = programs.find((p) => p.id === filterId)?.displayName
+      next = next.filter((row) => rowMatchesProgram(row, filterId, filterDisplayName))
     }
     const q = search.trim().toLowerCase()
     if (!q) return next
@@ -148,7 +171,7 @@ const AdminClassPicker = ({
         (row.classEvent.schedulingCategoryName || '').toLowerCase().includes(q) ||
         (row.classEvent.sportTags || '').toLowerCase().includes(q),
     )
-  }, [rows, programFilterId, search])
+  }, [rows, programFilterId, search, programs])
 
   const controlClass =
     'w-full h-10 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-vortex-red/30 focus:border-vortex-red'

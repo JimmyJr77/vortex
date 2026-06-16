@@ -38,6 +38,7 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
     try {
       await updateTopProgram(program.id, {
         pricingSlotCostMonthlyCents: values.slotCostMonthlyCents,
+        pricingCostUnit: values.costUnit,
         pricingFreeSlotsPerUser: values.freeSlotsPerUser,
         pricingMaxFreeSlotsTotal:
           values.maxFreeSlotsTotal === '' ? null : Number(values.maxFreeSlotsTotal),

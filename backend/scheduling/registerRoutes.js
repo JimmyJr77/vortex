@@ -1,5 +1,6 @@
 import rateLimit from 'express-rate-limit'
 import { createSchedulingHandlers } from './handlers.js'
+import { createDiscountHandlers } from './discountHandlers.js'
 
 const signupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -11,6 +12,7 @@ const signupLimiter = rateLimit({
 
 export function registerSchedulingRoutes(app, pool) {
   const h = createSchedulingHandlers(pool)
+  const d = createDiscountHandlers(pool)
 
   app.get('/api/scheduling/calendar', h.getPublicCalendar)
   app.get('/api/public/scheduling/classes', h.listPublicSchedulingClasses)
@@ -27,6 +29,7 @@ export function registerSchedulingRoutes(app, pool) {
   app.post('/api/scheduling/auth/verify-token', h.authVerifyToken)
   app.post('/api/scheduling/signups', signupLimiter, h.createSignup)
   app.post('/api/scheduling/signups/batch', signupLimiter, h.createSignupBatch)
+  app.post('/api/scheduling/promo/validate', d.validatePromo)
 
   app.get('/api/admin/scheduling/calendar', h.getAdminCalendar)
   app.get('/api/admin/scheduling/forms', h.listAdminForms)
@@ -65,6 +68,15 @@ export function registerSchedulingRoutes(app, pool) {
   app.patch('/api/admin/scheduling/signups/:id', h.updateSignupStatus)
   app.post('/api/admin/scheduling/signups/:id/resend-email', h.resendSignupEmail)
   app.patch('/api/admin/scheduling/signups/:id/member-password', h.updateSignupMemberPassword)
+
+  app.get('/api/admin/scheduling/discount-rules', d.listRules)
+  app.post('/api/admin/scheduling/discount-rules', d.createRule)
+  app.put('/api/admin/scheduling/discount-rules/:id', d.updateRule)
+  app.delete('/api/admin/scheduling/discount-rules/:id', d.deleteRule)
+  app.put('/api/admin/scheduling/discount-settings', d.updateGlobalSettings)
+  app.post('/api/admin/scheduling/discount-simulate', d.simulateOrder)
+  app.get('/api/admin/scheduling/sport-defaults', d.listSportDefaults)
+  app.put('/api/admin/scheduling/sport-defaults/:id', d.upsertSportDefault)
 
   console.log('✅ Scheduling routes registered')
 }

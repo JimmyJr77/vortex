@@ -732,6 +732,35 @@ function SignupOrderPricingSummary({
         </div>
       )}
 
+      {preview.discounts?.enabled &&
+        (preview.discounts.totalDiscountCents > 0 || preview.discounts.orderDiscounts.length > 0) && (
+          <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-4 text-sm">
+            <h5 className={`font-semibold text-green-900 mb-2 ${compact ? 'text-sm' : 'text-base'}`}>
+              Discounts &amp; promos applied
+            </h5>
+            <ul className="space-y-1">
+              {preview.discounts.lines.flatMap((line) =>
+                line.applied.map((applied, i) => (
+                  <li key={`${line.key}-${i}`} className="flex justify-between text-green-800">
+                    <span>{applied.name}</span>
+                    <span>-{formatMoney(applied.amountCents / 100)}</span>
+                  </li>
+                )),
+              )}
+              {preview.discounts.orderDiscounts.map((d, i) => (
+                <li key={`order-${i}`} className="flex justify-between text-green-800">
+                  <span>{d.name}</span>
+                  <span>-{formatMoney(d.amountCents / 100)}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-2 pt-2 border-t border-green-200 flex justify-between font-semibold text-green-900">
+              <span>Estimated after discounts</span>
+              <span>{formatMoney(preview.discounts.totalCents / 100)}/mo</span>
+            </div>
+          </div>
+        )}
+
       <p className="text-xs text-gray-500 italic">{preview.disclaimer}</p>
     </div>
   )
@@ -788,6 +817,8 @@ const SchedulingSignupEmbed = ({
   const [confirmedOrderPreview, setConfirmedOrderPreview] = useState<SignupOrderPreview | null>(null)
   const [confirmedOrderPreviewLoading, setConfirmedOrderPreviewLoading] = useState(false)
   const [isNewUser, setIsNewUser] = useState(false)
+  const [promoInput, setPromoInput] = useState('')
+  const [appliedPromoCodes, setAppliedPromoCodes] = useState<string[]>([])
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [identityLoading, setIdentityLoading] = useState(false)
   const prevCategoryIdRef = useRef<number | null | undefined>(undefined)
@@ -956,6 +987,8 @@ const SchedulingSignupEmbed = ({
         slotGroupId: item.slotGroupId,
         timeSlotId: item.timeSlotId,
       })),
+      promoCodes: appliedPromoCodes,
+      currentSchool: typeof responses.current_school === 'string' ? responses.current_school : null,
     })
       .then((preview) => {
         if (!cancelled) setOrderPreview(preview)
@@ -976,9 +1009,11 @@ const SchedulingSignupEmbed = ({
     cartItems,
     accountEmail,
     responses.email,
+    responses.current_school,
     initialEmail,
     signupAuthToken,
     formId,
+    appliedPromoCodes,
   ])
 
   const loadConfirmedOrderPreview = useCallback(async () => {
@@ -1547,6 +1582,7 @@ const SchedulingSignupEmbed = ({
         responses: isNewUser ? payload : { email: accountEmail.trim() },
         signupAuthToken: signupAuthToken || undefined,
         password: isNewUser ? newAccountPassword : undefined,
+        promoCodes: appliedPromoCodes,
       })
       setSignupResults(result.signups)
       setSignupResult(result.signups[0] ?? null)
@@ -1770,6 +1806,52 @@ const SchedulingSignupEmbed = ({
                 })}
               </ul>
             )}
+
+            <div className="mt-5">
+              <label className="block text-sm font-semibold text-black mb-1">Promo code</label>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  type="text"
+                  value={promoInput}
+                  onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                  placeholder="Enter code"
+                  className="flex-1 min-w-[8rem] rounded-lg border border-gray-300 px-3 py-2 text-sm uppercase"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const code = promoInput.trim()
+                    if (code && !appliedPromoCodes.includes(code)) {
+                      setAppliedPromoCodes((prev) => [...prev, code])
+                    }
+                    setPromoInput('')
+                  }}
+                  className="px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800"
+                >
+                  Apply
+                </button>
+              </div>
+              {appliedPromoCodes.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {appliedPromoCodes.map((code) => (
+                    <span
+                      key={code}
+                      className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700"
+                    >
+                      {code}
+                      <button
+                        type="button"
+                        onClick={() => setAppliedPromoCodes((prev) => prev.filter((c) => c !== code))}
+                        className="text-gray-400 hover:text-red-600"
+                        aria-label={`Remove ${code}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {orderPreviewLoading && (
               <div className="flex items-center gap-2 text-sm text-gray-500 mt-4">

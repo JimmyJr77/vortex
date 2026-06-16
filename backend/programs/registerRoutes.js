@@ -72,6 +72,9 @@ const topProgramUpdateSchema = Joi.object({
   primarySportId: Joi.number().integer().allow(null).optional(),
   pricingMaxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
   pricingSlotCostMonthlyCents: Joi.number().integer().min(0).optional(),
+  pricingCostUnit: Joi.string()
+    .valid('per_slot', 'per_class', 'per_week', 'per_month', 'per_offering')
+    .optional(),
   pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
   pricingMaxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),
 })
@@ -384,6 +387,8 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensureProgramsSchedulingSchema(pool)
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
+      const { ensureDiscountEngineSchema } = await import('./schema.js')
+      await ensureDiscountEngineSchema(pool)
       const schema = await resolveProgramsSchema(pool)
       const { archived } = req.query
       const columnCheck = await pool.query(`
@@ -408,6 +413,8 @@ export function registerProgramsAdminRoutes(app, pool) {
           primary_dt.name as "primarySportName",
           p.pricing_max_slots_per_user as "pricingMaxSlotsPerUser",
           p.pricing_slot_cost_monthly_cents as "pricingSlotCostMonthlyCents",
+          COALESCE(p.pricing_cost_unit, 'per_month') as "pricingCostUnit",
+          COALESCE(p.pricing_cost_amount_cents, p.pricing_slot_cost_monthly_cents) as "pricingCostAmountCents",
           p.pricing_free_slots_per_user as "pricingFreeSlotsPerUser",
           p.pricing_max_free_slots_total as "pricingMaxFreeSlotsTotal"
           ${schedCols}
@@ -501,6 +508,10 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensureProgramsSchedulingSchema(pool)
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
+      if (value.pricingCostUnit !== undefined || value.pricingSlotCostMonthlyCents !== undefined) {
+        const { ensureDiscountEngineSchema } = await import('./schema.js')
+        await ensureDiscountEngineSchema(pool)
+      }
       const schema = await resolveProgramsSchema(pool)
       const updates = []
       const values = []
@@ -561,6 +572,12 @@ export function registerProgramsAdminRoutes(app, pool) {
       if (value.pricingSlotCostMonthlyCents !== undefined) {
         updates.push(`pricing_slot_cost_monthly_cents = $${n++}`)
         values.push(value.pricingSlotCostMonthlyCents)
+        updates.push(`pricing_cost_amount_cents = $${n++}`)
+        values.push(value.pricingSlotCostMonthlyCents)
+      }
+      if (value.pricingCostUnit !== undefined) {
+        updates.push(`pricing_cost_unit = $${n++}`)
+        values.push(value.pricingCostUnit)
       }
       if (value.pricingFreeSlotsPerUser !== undefined) {
         updates.push(`pricing_free_slots_per_user = $${n++}`)
@@ -573,6 +590,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       const hasPricingUpdate =
         value.pricingMaxSlotsPerUser !== undefined ||
         value.pricingSlotCostMonthlyCents !== undefined ||
+        value.pricingCostUnit !== undefined ||
         value.pricingFreeSlotsPerUser !== undefined ||
         value.pricingMaxFreeSlotsTotal !== undefined
       if (updates.length === 0 && value.primarySportId === undefined && !hasPricingUpdate) {

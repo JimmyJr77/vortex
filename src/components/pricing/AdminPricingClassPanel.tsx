@@ -72,6 +72,7 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
         {
           title: formTitle,
           slotCostMonthlyCents: values.slotCostMonthlyCents,
+          costUnit: values.costUnit,
           freeSlotsPerUser: values.freeSlotsPerUser,
           maxFreeSlotsTotal:
             values.maxFreeSlotsTotal === '' ? null : Number(values.maxFreeSlotsTotal),

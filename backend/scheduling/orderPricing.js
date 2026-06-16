@@ -98,7 +98,10 @@ function signupSortKey(entry, formRows) {
   ].join('\0')
 }
 
-export async function buildSignupOrderPreview(pool, { memberId, newSignups = [] }) {
+export async function buildSignupOrderPreview(
+  pool,
+  { memberId, newSignups = [], promoCodes = [], memberContext = null },
+) {
   const existing = await loadExistingEnrollments(pool, memberId)
   const existingKeys = new Set(existing.map((entry) => entry.slotKey))
 
@@ -150,7 +153,7 @@ export async function buildSignupOrderPreview(pool, { memberId, newSignups = [] 
   for (const formRow of formRows.values()) {
     const scope = pricingScopeKey(formRow)
     if (scopeMeta.has(scope)) continue
-    const { effectiveDbRow } = await loadEffectivePricingForForm(pool, formRow)
+    const { effectiveDbRow, programRow, effective } = await loadEffectivePricingForForm(pool, formRow)
     const programsId = formRow.programs_id != null ? Number(formRow.programs_id) : null
     const overrides = Boolean(formRow.pricing_overrides_program)
     const scopeTitle =
@@ -163,6 +166,11 @@ export async function buildSignupOrderPreview(pool, { memberId, newSignups = [] 
       representativeFormId: Number(formRow.id),
       effectiveDbRow,
       programsId,
+      sportId: programRow?.primary_discipline_tag_id != null ? Number(programRow.primary_discipline_tag_id) : null,
+      offeringId: null,
+      programMaxFreeTotal: effective.maxFreeSlotsTotal ?? null,
+      classMaxFreeTotal: effective.maxFreeSlotsTotal ?? null,
+      maxDiscountRedemptions: effective.maxDiscountRedemptions ?? null,
       usesProgramPricing: !overrides && programsId != null,
     })
   }
@@ -278,6 +286,16 @@ export async function buildSignupOrderPreview(pool, { memberId, newSignups = [] 
     isNew: false,
   }))
 
+  const discounts = await computeDiscountLayer(pool, {
+    memberId,
+    newSignupItems,
+    formRows,
+    scopeMeta,
+    existingCount: existing.length,
+    promoCodes,
+    memberContext,
+  })
+
   return {
     memberId: memberId ?? null,
     existingClasses,
@@ -287,7 +305,71 @@ export async function buildSignupOrderPreview(pool, { memberId, newSignups = [] 
     newSignupMonthlyTotal,
     estimatedMonthlyTotal,
     totalDiscountMonthly,
+    discounts,
     hasPricing: formSummaries.some((summary) => summary.pricingAfter != null),
     disclaimer: SIGNUP_ORDER_PRICING_DISCLAIMER,
   }
+}
+
+/**
+ * Layer the configurable discount/promo engine on top of the resolved per-line list prices.
+ * Returns the engine breakdown plus the surviving estimated total after all discounts.
+ */
+export async function computeDiscountLayer(
+  pool,
+  { memberId, newSignupItems, formRows, scopeMeta, existingCount = 0, promoCodes = [], memberContext = null },
+) {
+  const empty = {
+    enabled: false,
+    lines: [],
+    orderDiscounts: [],
+    freeGrants: [],
+    subtotalCents: 0,
+    totalDiscountCents: 0,
+    totalCents: 0,
+    redemptions: [],
+  }
+  if (!newSignupItems.length) return empty
+
+  let rules = []
+  let caps = {}
+  try {
+    const { loadActiveDiscountRules, loadRedemptionCaps } = await import('./discountEngine.js')
+    const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
+    const facilityId = facilityRes.rows[0]?.id ?? null
+    rules = await loadActiveDiscountRules(pool, facilityId)
+    caps = await loadRedemptionCaps(pool, facilityId)
+  } catch {
+    return empty
+  }
+  if (!rules.length) return empty
+
+  const memberCity = memberContext?.city ?? null
+  const memberSchool = memberContext?.school ?? null
+
+  const lines = newSignupItems.map((item, index) => {
+    const formRow = formRows.get(item.formId)
+    const scope = formRow ? scopeMeta.get(pricingScopeKey(formRow)) : null
+    return {
+      key: item.slotKey,
+      formId: item.formId,
+      programId: scope?.programsId ?? null,
+      sportId: scope?.sportId ?? null,
+      offeringId: scope?.offeringId ?? null,
+      memberId: memberId ?? null,
+      memberCity,
+      memberSchool,
+      classOrdinal: existingCount + index + 1,
+      childOrdinal: 1,
+      baseCents: Math.round((item.incrementalMonthly || 0) * 100),
+      programMaxFreeTotal: scope?.programMaxFreeTotal ?? null,
+      classMaxFreeTotal: scope?.classMaxFreeTotal ?? null,
+      programMaxDiscountRedemptions: scope?.maxDiscountRedemptions ?? null,
+      classMaxDiscountRedemptions: scope?.maxDiscountRedemptions ?? null,
+    }
+  })
+
+  const { computeOrderDiscounts } = await import('./discountEngine.js')
+  const result = computeOrderDiscounts({ lines, rules, promoCodes, caps })
+  return { enabled: true, ...result }
 }

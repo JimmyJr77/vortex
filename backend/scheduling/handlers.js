@@ -19,6 +19,7 @@ import {
 } from './tempPasswordEmail.js'
 import { sendWaiverEmail } from './waiverEmail.js'
 import { buildSignupOrderPreview, pricingScopeKey } from './orderPricing.js'
+import { persistDiscountSnapshot } from './discountEngine.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
 import { computeMonthlyPricing } from './pricing.js'
 import {
@@ -1050,6 +1051,9 @@ const formSchema = Joi.object({
   isActive: Joi.boolean().optional(),
   maxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
   slotCostMonthlyCents: Joi.number().integer().min(0).optional(),
+  costUnit: Joi.string()
+    .valid('per_slot', 'per_class', 'per_week', 'per_month', 'per_offering')
+    .optional(),
   freeSlotsPerUser: Joi.number().integer().min(0).optional(),
   maxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),
   pricingOverridesProgram: Joi.boolean().optional(),
@@ -1141,6 +1145,7 @@ const signupSchema = Joi.object({
   responses: Joi.object().default({}),
   signupAuthToken: Joi.string().trim().optional(),
   password: Joi.string().min(6).optional(),
+  promoCodes: Joi.array().items(Joi.string().trim().max(100)).max(10).default([]),
 }).custom((val, helpers) => {
   if (!val.signupAuthToken && !val.password) {
     return helpers.error('any.custom', { message: 'Sign in or set an account password to continue' })
@@ -1163,6 +1168,7 @@ const batchSignupSchema = Joi.object({
   responses: Joi.object().default({}),
   signupAuthToken: Joi.string().trim().optional(),
   password: Joi.string().min(6).optional(),
+  promoCodes: Joi.array().items(Joi.string().trim().max(100)).max(10).default([]),
 }).custom((val, helpers) => {
   if (!val.signupAuthToken && !val.password) {
     return helpers.error('any.custom', { message: 'Sign in or set an account password to continue' })
@@ -1229,6 +1235,8 @@ const orderPreviewSchema = Joi.object({
   email: Joi.string().email().optional(),
   signupAuthToken: Joi.string().trim().optional(),
   signups: Joi.array().items(signupItemSchema).max(20).default([]),
+  promoCodes: Joi.array().items(Joi.string().trim().max(100)).max(10).default([]),
+  currentSchool: Joi.string().trim().allow('', null).max(200).optional(),
 }).custom((val, helpers) => {
   if (!val.signupAuthToken && !val.email) {
     return helpers.error('any.custom', { message: 'Email or sign-in session is required' })
@@ -1610,9 +1618,21 @@ export function createSchedulingHandlers(pool) {
           memberId = member?.id != null ? Number(member.id) : null
         }
 
+        let memberCity = null
+        if (memberId != null) {
+          try {
+            const mRes = await pool.query('SELECT billing_city FROM member WHERE id = $1', [memberId])
+            memberCity = mRes.rows[0]?.billing_city ?? null
+          } catch {
+            memberCity = null
+          }
+        }
+
         const preview = await buildSignupOrderPreview(pool, {
           memberId,
           newSignups: value.signups,
+          promoCodes: value.promoCodes || [],
+          memberContext: { city: memberCity, school: value.currentSchool || null },
         })
 
         res.json({ success: true, data: preview })
@@ -1884,6 +1904,31 @@ export function createSchedulingHandlers(pool) {
             return res.status(400).json({ success: false, message: 'Could not resolve member account' })
           }
 
+          let discountBreakdown = null
+          try {
+            const preview = await buildSignupOrderPreview(pool, {
+              memberId,
+              newSignups: [
+                {
+                  formId: value.formId,
+                  categoryId: signupCategoryId,
+                  slotGroupId: value.slotGroupId,
+                  timeSlotId: firstOccurrence.id,
+                  formTitle: detail.title,
+                  categoryName: category.name,
+                },
+              ],
+              promoCodes: value.promoCodes || [],
+              memberContext: {
+                city: null,
+                school: responses.current_school != null ? String(responses.current_school).trim() : null,
+              },
+            })
+            discountBreakdown = preview.discounts
+          } catch (previewErr) {
+            console.warn('[scheduling] discount preview at submit:', previewErr.message)
+          }
+
           const signupResult = await insertSignupForMember(client, {
             formId: value.formId,
             formRow,
@@ -1907,6 +1952,21 @@ export function createSchedulingHandlers(pool) {
           await client.query('COMMIT')
 
           const { signupId, signupStatus, positions, pricing } = signupResult
+
+          if (discountBreakdown?.enabled) {
+            const lineKey = programSlotSignupKey(
+              value.formId,
+              signupCategoryId,
+              value.slotGroupId,
+              firstOccurrence.id,
+            )
+            await persistDiscountSnapshot(pool, {
+              breakdown: discountBreakdown,
+              keyToSignupId: { [lineKey]: signupId },
+              fallbackSignupId: signupId,
+            })
+          }
+
           await sendSignupNotificationEmails(pool, {
             signupStatus,
             signupId,
@@ -2104,6 +2164,29 @@ export function createSchedulingHandlers(pool) {
             }
           }
 
+          let discountBreakdown = null
+          try {
+            const preview = await buildSignupOrderPreview(pool, {
+              memberId,
+              newSignups: resolvedEntries.map((resolved) => ({
+                formId: resolved.entry.formId,
+                categoryId: resolved.signupCategoryId,
+                slotGroupId: resolved.entry.slotGroupId,
+                timeSlotId: resolved.firstOccurrence.id,
+                formTitle: resolved.detail.title,
+                categoryName: resolved.category.name,
+              })),
+              promoCodes: value.promoCodes || [],
+              memberContext: {
+                city: null,
+                school: responses.current_school != null ? String(responses.current_school).trim() : null,
+              },
+            })
+            discountBreakdown = preview.discounts
+          } catch (previewErr) {
+            console.warn('[scheduling] discount preview at batch submit:', previewErr.message)
+          }
+
           const signupResults = []
           for (const resolved of resolvedEntries) {
             const signupResult = await insertSignupForMember(client, {
@@ -2130,6 +2213,25 @@ export function createSchedulingHandlers(pool) {
           }
 
           await client.query('COMMIT')
+
+          if (discountBreakdown?.enabled) {
+            const keyToSignupId = {}
+            resolvedEntries.forEach((resolved, index) => {
+              const key = programSlotSignupKey(
+                resolved.entry.formId,
+                resolved.signupCategoryId,
+                resolved.entry.slotGroupId,
+                resolved.firstOccurrence.id,
+              )
+              const signupId = signupResults[index]?.signupId
+              if (signupId != null) keyToSignupId[key] = signupId
+            })
+            await persistDiscountSnapshot(pool, {
+              breakdown: discountBreakdown,
+              keyToSignupId,
+              fallbackSignupId: signupResults[0]?.signupId ?? null,
+            })
+          }
 
           const mappedSignups = []
           for (const signupResult of signupResults) {
@@ -2420,6 +2522,8 @@ export function createSchedulingHandlers(pool) {
           value.maxFreeSlotsTotal !== undefined
             ? value.maxFreeSlotsTotal
             : formRow.max_free_slots_total
+        let costUnit =
+          value.costUnit !== undefined ? value.costUnit : formRow.cost_unit ?? 'per_month'
 
         if (overrides && !formRow.pricing_overrides_program) {
           const effective = resolveEffectiveFormPricing(programRow, formRow)
@@ -2427,6 +2531,7 @@ export function createSchedulingHandlers(pool) {
           if (value.slotCostMonthlyCents === undefined) costCents = effective.slotCostMonthlyCents
           if (value.freeSlotsPerUser === undefined) freeSlots = effective.freeSlotsPerUser
           if (value.maxFreeSlotsTotal === undefined) maxFreeTotal = effective.maxFreeSlotsTotal
+          if (value.costUnit === undefined) costUnit = effective.costUnit
         }
 
         const result = await pool.query(
@@ -2439,6 +2544,8 @@ export function createSchedulingHandlers(pool) {
               free_slots_per_user = COALESCE($8, free_slots_per_user),
               max_free_slots_total = $9,
               pricing_overrides_program = $10,
+              cost_amount_cents = COALESCE($7, cost_amount_cents),
+              cost_unit = COALESCE($12, cost_unit),
               updated_at = now()
           WHERE id = $11 AND deleted_at IS NULL
           RETURNING *
@@ -2455,6 +2562,7 @@ export function createSchedulingHandlers(pool) {
             maxFreeTotal !== undefined ? maxFreeTotal : null,
             overrides,
             req.params.id,
+            costUnit,
           ],
         )
         if (result.rows.length === 0) {

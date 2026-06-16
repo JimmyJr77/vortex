@@ -147,6 +147,39 @@ export interface SignupOrderPreviewFormSummary {
   discountMonthly: number
 }
 
+export interface OrderDiscountAppliedLine {
+  ruleId: number
+  name: string
+  type: string
+  amountCents: number
+  kind: 'discount' | 'free'
+}
+
+export interface OrderDiscountLine {
+  key: string
+  baseCents: number
+  discountCents: number
+  finalCents: number
+  applied: OrderDiscountAppliedLine[]
+}
+
+export interface OrderDiscountSummary {
+  ruleId: number
+  name: string
+  type: string
+  amountCents: number
+}
+
+export interface OrderDiscountBreakdown {
+  enabled: boolean
+  lines: OrderDiscountLine[]
+  orderDiscounts: OrderDiscountSummary[]
+  freeGrants: Array<{ ruleId: number; lineKey: string; unit: string; quantity: number; amountCents: number }>
+  subtotalCents: number
+  totalDiscountCents: number
+  totalCents: number
+}
+
 export interface SignupOrderPreview {
   memberId: number | null
   existingClasses: SignupOrderPreviewClass[]
@@ -156,8 +189,82 @@ export interface SignupOrderPreview {
   newSignupMonthlyTotal: number
   estimatedMonthlyTotal: number
   totalDiscountMonthly: number
+  discounts?: OrderDiscountBreakdown
   hasPricing: boolean
   disclaimer: string
+}
+
+export type CostUnit = 'per_slot' | 'per_class' | 'per_week' | 'per_month' | 'per_offering'
+
+export const COST_UNIT_LABELS: Record<CostUnit, string> = {
+  per_slot: 'Per slot',
+  per_class: 'Per class',
+  per_week: 'Per week',
+  per_month: 'Per month',
+  per_offering: 'Per offering',
+}
+
+export type DiscountType =
+  | 'promo_code'
+  | 'school'
+  | 'city'
+  | 'multi_class'
+  | 'multi_child'
+  | 'free_classes'
+
+export type DiscountAmountType = 'percent' | 'fixed'
+export type DiscountApplyTo = 'per_class' | 'order_total'
+export type DiscountCalcBase = 'pre' | 'post'
+export type DiscountScopeLevel = 'global' | 'sport' | 'program' | 'class' | 'offering'
+
+export interface DiscountRuleTier {
+  id?: number
+  threshold: number
+  amountType: DiscountAmountType
+  amountValue: number
+}
+
+export interface DiscountRuleConfig {
+  code?: string
+  school_names?: string[]
+  match?: 'exact' | 'contains'
+  cities?: string[]
+  grant_unit?: 'days' | 'weeks' | 'months' | 'offering' | 'slot'
+  quantity?: number
+  offering_id?: number | null
+  [key: string]: unknown
+}
+
+export interface DiscountRule {
+  id: number
+  facilityId: number | null
+  name: string
+  description: string | null
+  type: DiscountType
+  amountType: DiscountAmountType
+  amountValue: number
+  applyTo: DiscountApplyTo
+  calcBase: DiscountCalcBase
+  priority: number
+  stackable: boolean
+  exclusivityGroup: string | null
+  maxDiscountCents: number | null
+  scopeLevel: DiscountScopeLevel
+  scopeRefId: number | null
+  active: boolean
+  startsAt: string | null
+  endsAt: string | null
+  maxRedemptions: number | null
+  redeemedCount: number
+  config: DiscountRuleConfig
+  tiers: DiscountRuleTier[]
+}
+
+export type DiscountRuleInput = Omit<DiscountRule, 'id' | 'facilityId' | 'redeemedCount'>
+
+export interface DiscountGlobalSettings {
+  maxFreeUnitsTotal: number | null
+  maxDiscountRedemptionsTotal: number | null
 }
 
 export interface SchedulingFormSummary {
@@ -175,15 +282,18 @@ export interface SchedulingFormSummary {
   classDisplayName?: string | null
   maxSlotsPerUser?: number | null
   slotCostMonthlyCents?: number
+  costUnit?: CostUnit
   freeSlotsPerUser?: number
   maxFreeSlotsTotal?: number | null
   pricingOverridesProgram?: boolean
   formMaxSlotsPerUser?: number | null
   formSlotCostMonthlyCents?: number
+  formCostUnit?: CostUnit | null
   formFreeSlotsPerUser?: number
   formMaxFreeSlotsTotal?: number | null
   programMaxSlotsPerUser?: number | null
   programSlotCostMonthlyCents?: number
+  programCostUnit?: CostUnit | null
   programFreeSlotsPerUser?: number
   programMaxFreeSlotsTotal?: number | null
 }
@@ -535,6 +645,8 @@ export async function fetchSignupOrderPreview(payload: {
     slotGroupId: number
     timeSlotId?: number
   }>
+  promoCodes?: string[]
+  currentSchool?: string | null
 }): Promise<SignupOrderPreview> {
   const res = await fetch(`${getApiUrl()}/api/scheduling/signups/order-preview`, {
     method: 'POST',
@@ -544,7 +656,26 @@ export async function fetchSignupOrderPreview(payload: {
       email: payload.email?.trim().toLowerCase(),
       signupAuthToken: payload.signupAuthToken,
       signups: payload.signups,
+      promoCodes: payload.promoCodes ?? [],
+      currentSchool: payload.currentSchool ?? null,
     }),
+  })
+  return parseJson(res)
+}
+
+export async function validateSchedulingPromoCode(code: string): Promise<{
+  valid: boolean
+  message?: string
+  code?: string
+  ruleId?: number
+  name?: string
+  amountType?: DiscountAmountType
+  amountValue?: number
+}> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/promo/validate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code }),
   })
   return parseJson(res)
 }
@@ -671,6 +802,7 @@ export async function submitSchedulingSignup(payload: {
   responses: Record<string, string | boolean | number | string[]>
   signupAuthToken?: string
   password?: string
+  promoCodes?: string[]
 }): Promise<SchedulingSignup> {
   const res = await fetch(`${getApiUrl()}/api/scheduling/signups`, {
     method: 'POST',
@@ -690,10 +822,110 @@ export async function submitSchedulingSignupBatch(payload: {
   responses: Record<string, string | boolean | number | string[]>
   signupAuthToken?: string
   password?: string
+  promoCodes?: string[]
 }): Promise<{ signups: SchedulingSignup[] }> {
   const res = await fetch(`${getApiUrl()}/api/scheduling/signups/batch`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  return parseJson(res)
+}
+
+export async function adminFetchDiscountRules(): Promise<{
+  rules: DiscountRule[]
+  globalSettings: DiscountGlobalSettings
+}> {
+  const res = await adminApiRequest('/api/admin/scheduling/discount-rules')
+  return parseJson(res)
+}
+
+export async function adminCreateDiscountRule(input: DiscountRuleInput): Promise<DiscountRule> {
+  const res = await adminApiRequest('/api/admin/scheduling/discount-rules', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+  return parseJson(res)
+}
+
+export async function adminUpdateDiscountRule(
+  id: number,
+  input: DiscountRuleInput,
+): Promise<DiscountRule> {
+  const res = await adminApiRequest(`/api/admin/scheduling/discount-rules/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  })
+  return parseJson(res)
+}
+
+export async function adminDeleteDiscountRule(id: number): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/scheduling/discount-rules/${id}`, {
+    method: 'DELETE',
+  })
+  await parseJson(res)
+}
+
+export async function adminUpdateDiscountSettings(
+  settings: DiscountGlobalSettings,
+): Promise<void> {
+  const res = await adminApiRequest('/api/admin/scheduling/discount-settings', {
+    method: 'PUT',
+    body: JSON.stringify(settings),
+  })
+  await parseJson(res)
+}
+
+export interface SportPricingDefault {
+  disciplineTagId: number
+  name: string
+  costAmountCents: number
+  costUnit: CostUnit
+  freeSlotsPerUser: number
+  maxFreeSlotsTotal: number | null
+  maxDiscountRedemptions: number | null
+  configured: boolean
+}
+
+export async function adminFetchSportDefaults(): Promise<SportPricingDefault[]> {
+  const res = await adminApiRequest('/api/admin/scheduling/sport-defaults')
+  return parseJson(res)
+}
+
+export async function adminUpsertSportDefault(
+  disciplineTagId: number,
+  input: {
+    costAmountCents: number
+    costUnit: CostUnit
+    freeSlotsPerUser: number
+    maxFreeSlotsTotal: number | null
+    maxDiscountRedemptions: number | null
+  },
+): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/scheduling/sport-defaults/${disciplineTagId}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  })
+  await parseJson(res)
+}
+
+export async function adminSimulateDiscountOrder(payload: {
+  promoCodes?: string[]
+  lines: Array<{
+    key?: string
+    formId?: number | null
+    programId?: number | null
+    sportId?: number | null
+    offeringId?: number | null
+    memberCity?: string | null
+    memberSchool?: string | null
+    classOrdinal?: number
+    childOrdinal?: number
+    baseCents: number
+  }>
+}): Promise<OrderDiscountBreakdown> {
+  const res = await adminApiRequest('/api/admin/scheduling/discount-simulate', {
+    method: 'POST',
     body: JSON.stringify(payload),
   })
   return parseJson(res)
@@ -791,6 +1023,7 @@ export async function adminSaveSchedulingForm(
         isActive: payload.isActive,
         maxSlotsPerUser: payload.maxSlotsPerUser ?? null,
         slotCostMonthlyCents: payload.slotCostMonthlyCents ?? 0,
+        costUnit: payload.costUnit ?? undefined,
         freeSlotsPerUser: payload.freeSlotsPerUser ?? 0,
         maxFreeSlotsTotal: payload.maxFreeSlotsTotal ?? null,
         pricingOverridesProgram: payload.pricingOverridesProgram,

@@ -390,5 +390,12 @@ export async function initSchedulingTables(pool) {
     }
   }
 
+  try {
+    const { ensureDiscountEngineSchema } = await import('../programs/schema.js')
+    await ensureDiscountEngineSchema(pool)
+  } catch (err) {
+    console.warn('[scheduling] discount engine migration:', err.message)
+  }
+
   console.log('✅ Scheduling tables ready')
 }

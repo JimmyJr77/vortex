@@ -1,0 +1,550 @@
+// Discount + promo rules engine. Pure computation over already-resolved base (list) prices,
+// plus DB helpers for loading rules and enforcing layered caps via the redemption ledger.
+//
+// Amounts: percent rules store amount_value in BASIS POINTS (5000 = 50%, 1250 = 12.5%);
+// fixed rules store amount_value in CENTS. All money is integer cents. Estimate-only.
+
+export const DISCOUNT_TYPES = [
+  'promo_code',
+  'school',
+  'city',
+  'multi_class',
+  'multi_child',
+  'free_classes',
+]
+
+export function discountAmountCents(baseCents, amountType, amountValue) {
+  const base = Math.max(0, Math.round(Number(baseCents) || 0))
+  const value = Math.max(0, Number(amountValue) || 0)
+  if (amountType === 'percent') {
+    return Math.min(base, Math.round((base * value) / 10000))
+  }
+  return Math.min(base, Math.round(value))
+}
+
+function normalizeText(s) {
+  return String(s ?? '').trim().toLowerCase()
+}
+
+/** Tier whose threshold is the greatest <= ordinal (e.g. 3rd class uses the "3" tier, else "2"). */
+function tierForOrdinal(rule, ordinal) {
+  const tiers = (rule.tiers || [])
+    .filter((t) => Number(t.threshold) <= ordinal)
+    .sort((a, b) => Number(b.threshold) - Number(a.threshold))
+  return tiers[0] || null
+}
+
+function withinWindow(rule, now) {
+  if (rule.startsAt && new Date(rule.startsAt).getTime() > now) return false
+  if (rule.endsAt && new Date(rule.endsAt).getTime() < now) return false
+  return true
+}
+
+/** Does a rule's targeting scope match a given line? */
+function scopeMatchesLine(rule, line) {
+  switch (rule.scopeLevel) {
+    case 'global':
+      return true
+    case 'sport':
+      return rule.scopeRefId != null && Number(rule.scopeRefId) === Number(line.sportId)
+    case 'program':
+      return rule.scopeRefId != null && Number(rule.scopeRefId) === Number(line.programId)
+    case 'class':
+      return rule.scopeRefId != null && Number(rule.scopeRefId) === Number(line.formId)
+    case 'offering':
+      return rule.scopeRefId != null && Number(rule.scopeRefId) === Number(line.offeringId)
+    default:
+      return false
+  }
+}
+
+/** Per-line eligibility for line-targeted discount types (school, city, promo, multi_class, free). */
+function lineEligible(rule, line, promoCodesLower) {
+  if (!scopeMatchesLine(rule, line)) return false
+  switch (rule.type) {
+    case 'promo_code': {
+      const code = normalizeText(rule.config?.code)
+      return code !== '' && promoCodesLower.has(code)
+    }
+    case 'school': {
+      const names = (rule.config?.school_names || []).map(normalizeText).filter(Boolean)
+      const target = normalizeText(line.memberSchool)
+      if (!target || names.length === 0) return false
+      return rule.config?.match === 'contains'
+        ? names.some((n) => target.includes(n))
+        : names.includes(target)
+    }
+    case 'city': {
+      const cities = (rule.config?.cities || []).map(normalizeText).filter(Boolean)
+      const target = normalizeText(line.memberCity)
+      if (!target || cities.length === 0) return false
+      return cities.includes(target)
+    }
+    case 'multi_class':
+    case 'free_classes':
+      return true
+    default:
+      return false
+  }
+}
+
+/**
+ * Cap tracker enforces layered limits using existing ledger counts plus this order's tally.
+ * Free grants count "units"; discounts count "redemptions". A rule is skipped if applying it
+ * would exceed any applicable cap.
+ */
+function makeCapTracker(caps) {
+  const used = {
+    freeFacility: caps.freeUnitsFacilityUsed || 0,
+    discountFacility: caps.discountRedemptionsFacilityUsed || 0,
+    byRule: new Map(),
+    byProgramFree: new Map(),
+    byProgramDiscount: new Map(),
+    byClassFree: new Map(),
+    byClassDiscount: new Map(),
+  }
+  for (const [k, v] of Object.entries(caps.ruleRedeemed || {})) used.byRule.set(Number(k), v)
+  for (const [k, v] of Object.entries(caps.programFreeUsed || {})) used.byProgramFree.set(Number(k), v)
+  for (const [k, v] of Object.entries(caps.programDiscountUsed || {})) used.byProgramDiscount.set(Number(k), v)
+  for (const [k, v] of Object.entries(caps.classFreeUsed || {})) used.byClassFree.set(Number(k), v)
+  for (const [k, v] of Object.entries(caps.classDiscountUsed || {})) used.byClassDiscount.set(Number(k), v)
+
+  function get(map, key) {
+    return map.get(Number(key)) || 0
+  }
+
+  return {
+    canApply(rule, line, kind, units = 1) {
+      // Facility-wide caps.
+      if (kind === 'free' && caps.maxFreeUnitsTotal != null && used.freeFacility + units > caps.maxFreeUnitsTotal) {
+        return false
+      }
+      if (kind === 'discount' && caps.maxDiscountRedemptionsTotal != null && used.discountFacility + 1 > caps.maxDiscountRedemptionsTotal) {
+        return false
+      }
+      // Per-rule max redemptions.
+      if (rule.maxRedemptions != null) {
+        const total = (rule.redeemedCount || 0) + get(used.byRule, rule.id)
+        if (total + 1 > rule.maxRedemptions) return false
+      }
+      // Per-program / per-class discount-redemption caps.
+      if (kind === 'discount') {
+        if (line.programMaxDiscountRedemptions != null &&
+            get(used.byProgramDiscount, line.programId) + 1 > line.programMaxDiscountRedemptions) {
+          return false
+        }
+        if (line.classMaxDiscountRedemptions != null &&
+            get(used.byClassDiscount, line.formId) + 1 > line.classMaxDiscountRedemptions) {
+          return false
+        }
+      }
+      // Per-program / per-class free caps.
+      if (kind === 'free') {
+        if (line.programMaxFreeTotal != null &&
+            get(used.byProgramFree, line.programId) + units > line.programMaxFreeTotal) {
+          return false
+        }
+        if (line.classMaxFreeTotal != null &&
+            get(used.byClassFree, line.formId) + units > line.classMaxFreeTotal) {
+          return false
+        }
+      }
+      return true
+    },
+    record(rule, line, kind, units = 1) {
+      if (kind === 'free') {
+        used.freeFacility += units
+        used.byProgramFree.set(Number(line.programId), get(used.byProgramFree, line.programId) + units)
+        used.byClassFree.set(Number(line.formId), get(used.byClassFree, line.formId) + units)
+      } else {
+        used.discountFacility += 1
+        used.byProgramDiscount.set(Number(line.programId), get(used.byProgramDiscount, line.programId) + 1)
+        used.byClassDiscount.set(Number(line.formId), get(used.byClassDiscount, line.formId) + 1)
+      }
+      used.byRule.set(Number(rule.id), get(used.byRule, rule.id) + 1)
+    },
+  }
+}
+
+/**
+ * computeOrderDiscounts: applies the discount pipeline to lines with resolved base prices.
+ *
+ * @param {{
+ *   lines: Array<{ key, formId, programId, sportId, offeringId, memberId,
+ *                  memberCity, memberSchool, classOrdinal, childOrdinal, baseCents,
+ *                  programMaxFreeTotal?, classMaxFreeTotal?,
+ *                  programMaxDiscountRedemptions?, classMaxDiscountRedemptions? }>,
+ *   rules: Array<object>,
+ *   promoCodes?: string[],
+ *   caps?: object,
+ *   now?: number,
+ * }} input
+ */
+export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [], caps = {}, now = Date.now() }) {
+  const promoCodesLower = new Set(promoCodes.map(normalizeText).filter(Boolean))
+  const capTracker = makeCapTracker(caps)
+
+  const activeRules = rules
+    .filter((r) => r.active !== false && withinWindow(r, now))
+    .sort((a, b) => {
+      if (a.calcBase !== b.calcBase) return a.calcBase === 'pre' ? -1 : 1
+      return (a.priority ?? 100) - (b.priority ?? 100)
+    })
+
+  const lineState = lines.map((line) => ({
+    key: line.key,
+    line,
+    baseCents: Math.max(0, Math.round(Number(line.baseCents) || 0)),
+    runningCents: Math.max(0, Math.round(Number(line.baseCents) || 0)),
+    applied: [],
+    exclusivityGroups: new Set(),
+  }))
+  const lineByKey = new Map(lineState.map((ls) => [ls.key, ls]))
+
+  const orderDiscounts = []
+  const freeGrants = []
+  const redemptions = []
+  const subtotalCents = lineState.reduce((sum, ls) => sum + ls.baseCents, 0)
+  let orderRunning = subtotalCents
+
+  function applyToLine(ls, rule, amountType, amountValue, kind = 'discount') {
+    if (rule.exclusivityGroup && ls.exclusivityGroups.has(rule.exclusivityGroup)) return 0
+    if (!rule.stackable && ls.applied.length > 0 && ls.applied.some((a) => a.ruleId !== rule.id)) {
+      // Non-stackable: only apply if nothing else applied to this line.
+      return 0
+    }
+    const base = rule.calcBase === 'post' ? ls.runningCents : ls.baseCents
+    let amount = kind === 'free' ? ls.runningCents : discountAmountCents(base, amountType, amountValue)
+    if (rule.maxDiscountCents != null) amount = Math.min(amount, rule.maxDiscountCents)
+    amount = Math.min(amount, ls.runningCents)
+    if (amount <= 0) return 0
+    if (!capTracker.canApply(rule, ls.line, kind, kind === 'free' ? 1 : 1)) return 0
+
+    ls.runningCents -= amount
+    ls.applied.push({ ruleId: rule.id, name: rule.name, type: rule.type, amountCents: amount, kind })
+    if (rule.exclusivityGroup) ls.exclusivityGroups.add(rule.exclusivityGroup)
+    capTracker.record(rule, ls.line, kind, 1)
+    redemptions.push({
+      ruleId: rule.id,
+      memberId: ls.line.memberId,
+      lineKey: ls.key,
+      programId: ls.line.programId,
+      formId: ls.line.formId,
+      kind,
+      units: kind === 'free' ? 1 : 0,
+      amountCents: amount,
+    })
+    return amount
+  }
+
+  for (const rule of activeRules) {
+    if (rule.applyTo === 'order_total') {
+      // Order-level: compute on order subtotal/running, applied once, distributed across lines.
+      let base = rule.calcBase === 'post' ? orderRunning : subtotalCents
+      // Tiered order-level (multi_class/multi_child) keyed by qualifying count.
+      let amountType = rule.amountType
+      let amountValue = rule.amountValue
+      if (rule.type === 'multi_class' || rule.type === 'multi_child') {
+        const ordinal = rule.type === 'multi_class'
+          ? Math.max(0, ...lineState.map((ls) => ls.line.classOrdinal || 0))
+          : Math.max(0, ...lineState.map((ls) => ls.line.childOrdinal || 0))
+        const tier = tierForOrdinal(rule, ordinal)
+        if (!tier) continue
+        amountType = tier.amountType
+        amountValue = tier.amountValue
+      }
+      // School/city/promo order-level need at least one eligible line.
+      if (['promo_code', 'school', 'city'].includes(rule.type)) {
+        if (!lineState.some((ls) => lineEligible(rule, ls.line, promoCodesLower))) continue
+      }
+      let amount = discountAmountCents(base, amountType, amountValue)
+      if (rule.maxDiscountCents != null) amount = Math.min(amount, rule.maxDiscountCents)
+      amount = Math.min(amount, orderRunning)
+      if (amount <= 0) continue
+      const repLine = lineState[0]?.line
+      if (repLine && !capTracker.canApply(rule, repLine, 'discount')) continue
+
+      orderRunning -= amount
+      orderDiscounts.push({ ruleId: rule.id, name: rule.name, type: rule.type, amountCents: amount })
+      if (repLine) capTracker.record(rule, repLine, 'discount')
+      redemptions.push({
+        ruleId: rule.id,
+        memberId: repLine?.memberId ?? null,
+        lineKey: null,
+        programId: repLine?.programId ?? null,
+        formId: repLine?.formId ?? null,
+        kind: 'discount',
+        units: 0,
+        amountCents: amount,
+      })
+      continue
+    }
+
+    // Per-class rules.
+    for (const ls of lineState) {
+      if (rule.type === 'free_classes') {
+        // Free grant: target by offering/slot when specified, else any matching line.
+        const cfg = rule.config || {}
+        if (cfg.offering_id != null && Number(cfg.offering_id) !== Number(ls.line.offeringId)) continue
+        if (!lineEligible(rule, ls.line, promoCodesLower)) continue
+        const amount = applyToLine(ls, rule, rule.amountType, rule.amountValue, 'free')
+        if (amount > 0) {
+          freeGrants.push({
+            ruleId: rule.id,
+            lineKey: ls.key,
+            unit: cfg.grant_unit || 'slot',
+            quantity: Number(cfg.quantity ?? 1),
+            amountCents: amount,
+          })
+        }
+        continue
+      }
+
+      let amountType = rule.amountType
+      let amountValue = rule.amountValue
+      if (rule.type === 'multi_class') {
+        const tier = tierForOrdinal(rule, ls.line.classOrdinal || 0)
+        if (!tier) continue
+        amountType = tier.amountType
+        amountValue = tier.amountValue
+      } else if (rule.type === 'multi_child') {
+        const tier = tierForOrdinal(rule, ls.line.childOrdinal || 0)
+        if (!tier) continue
+        amountType = tier.amountType
+        amountValue = tier.amountValue
+      } else if (!lineEligible(rule, ls.line, promoCodesLower)) {
+        continue
+      }
+      applyToLine(ls, rule, amountType, amountValue, 'discount')
+    }
+  }
+
+  const lineResults = lineState.map((ls) => ({
+    key: ls.key,
+    baseCents: ls.baseCents,
+    discountCents: ls.baseCents - ls.runningCents,
+    finalCents: ls.runningCents,
+    applied: ls.applied,
+  }))
+
+  const lineDiscountTotal = lineResults.reduce((sum, l) => sum + l.discountCents, 0)
+  const orderDiscountTotal = orderDiscounts.reduce((sum, d) => sum + d.amountCents, 0)
+  const totalDiscountCents = lineDiscountTotal + orderDiscountTotal
+  const totalCents = Math.max(0, subtotalCents - totalDiscountCents)
+
+  return {
+    lines: lineResults,
+    orderDiscounts,
+    freeGrants,
+    redemptions,
+    subtotalCents,
+    totalDiscountCents,
+    totalCents,
+  }
+}
+
+// ---------- DB helpers ----------
+
+export async function loadActiveDiscountRules(pool, facilityId) {
+  let rulesRes
+  try {
+    rulesRes = await pool.query(
+      `SELECT * FROM discount_rule
+       WHERE active = TRUE AND (facility_id = $1 OR facility_id IS NULL)`,
+      [facilityId],
+    )
+  } catch {
+    return []
+  }
+  if (rulesRes.rows.length === 0) return []
+
+  const ruleIds = rulesRes.rows.map((r) => Number(r.id))
+  const tiersRes = await pool.query(
+    `SELECT * FROM discount_rule_tier WHERE rule_id = ANY($1::bigint[]) ORDER BY threshold ASC`,
+    [ruleIds],
+  )
+  const tiersByRule = new Map()
+  for (const t of tiersRes.rows) {
+    const list = tiersByRule.get(Number(t.rule_id)) || []
+    list.push({
+      threshold: Number(t.threshold),
+      amountType: t.amount_type,
+      amountValue: Number(t.amount_value),
+    })
+    tiersByRule.set(Number(t.rule_id), list)
+  }
+
+  return rulesRes.rows.map((r) => ({
+    id: Number(r.id),
+    facilityId: r.facility_id != null ? Number(r.facility_id) : null,
+    name: r.name,
+    description: r.description,
+    type: r.type,
+    amountType: r.amount_type,
+    amountValue: Number(r.amount_value),
+    applyTo: r.apply_to,
+    calcBase: r.calc_base,
+    priority: Number(r.priority ?? 100),
+    stackable: r.stackable !== false,
+    exclusivityGroup: r.exclusivity_group || null,
+    maxDiscountCents: r.max_discount_cents != null ? Number(r.max_discount_cents) : null,
+    scopeLevel: r.scope_level,
+    scopeRefId: r.scope_ref_id != null ? Number(r.scope_ref_id) : null,
+    startsAt: r.starts_at,
+    endsAt: r.ends_at,
+    maxRedemptions: r.max_redemptions != null ? Number(r.max_redemptions) : null,
+    redeemedCount: Number(r.redeemed_count ?? 0),
+    config: r.config || {},
+    tiers: tiersByRule.get(Number(r.id)) || [],
+  }))
+}
+
+/** Aggregate redemption counts for cap enforcement (facility-wide and per program/class/rule). */
+export async function loadRedemptionCaps(pool, facilityId) {
+  const caps = {
+    maxFreeUnitsTotal: null,
+    maxDiscountRedemptionsTotal: null,
+    freeUnitsFacilityUsed: 0,
+    discountRedemptionsFacilityUsed: 0,
+    ruleRedeemed: {},
+    programFreeUsed: {},
+    programDiscountUsed: {},
+    classFreeUsed: {},
+    classDiscountUsed: {},
+  }
+  try {
+    const settingsRes = await pool.query(
+      `SELECT max_free_units_total, max_discount_redemptions_total
+       FROM discount_global_settings WHERE facility_id = $1`,
+      [facilityId],
+    )
+    if (settingsRes.rows[0]) {
+      caps.maxFreeUnitsTotal = settingsRes.rows[0].max_free_units_total
+      caps.maxDiscountRedemptionsTotal = settingsRes.rows[0].max_discount_redemptions_total
+    }
+
+    const totalsRes = await pool.query(
+      `SELECT
+         COALESCE(SUM(units) FILTER (WHERE kind = 'free'), 0) AS free_units,
+         COUNT(*) FILTER (WHERE kind = 'discount') AS discount_count
+       FROM discount_redemption`,
+    )
+    caps.freeUnitsFacilityUsed = Number(totalsRes.rows[0]?.free_units ?? 0)
+    caps.discountRedemptionsFacilityUsed = Number(totalsRes.rows[0]?.discount_count ?? 0)
+
+    const byRuleRes = await pool.query(
+      `SELECT rule_id, COUNT(*) AS c FROM discount_redemption WHERE rule_id IS NOT NULL GROUP BY rule_id`,
+    )
+    for (const row of byRuleRes.rows) caps.ruleRedeemed[Number(row.rule_id)] = Number(row.c)
+
+    const byProgRes = await pool.query(
+      `SELECT program_id, kind, COALESCE(SUM(units),0) AS units, COUNT(*) AS c
+       FROM discount_redemption WHERE program_id IS NOT NULL GROUP BY program_id, kind`,
+    )
+    for (const row of byProgRes.rows) {
+      if (row.kind === 'free') caps.programFreeUsed[Number(row.program_id)] = Number(row.units)
+      else caps.programDiscountUsed[Number(row.program_id)] = Number(row.c)
+    }
+
+    const byClassRes = await pool.query(
+      `SELECT form_id, kind, COALESCE(SUM(units),0) AS units, COUNT(*) AS c
+       FROM discount_redemption WHERE form_id IS NOT NULL GROUP BY form_id, kind`,
+    )
+    for (const row of byClassRes.rows) {
+      if (row.kind === 'free') caps.classFreeUsed[Number(row.form_id)] = Number(row.units)
+      else caps.classDiscountUsed[Number(row.form_id)] = Number(row.c)
+    }
+  } catch {
+    // Tables may not exist yet; return empty caps (no limits).
+  }
+  return caps
+}
+
+/**
+ * Snapshot a computed order breakdown onto the relevant signup rows and write the redemption
+ * ledger. Best-effort: never throws (estimate-only pricing must not block signups).
+ *
+ * @param {object} pool
+ * @param {{ breakdown: object, keyToSignupId: Record<string, number>, fallbackSignupId: number }} args
+ */
+export async function persistDiscountSnapshot(pool, { breakdown, keyToSignupId = {}, fallbackSignupId = null }) {
+  if (!breakdown || !breakdown.enabled) return
+  try {
+    // Per-line snapshot of the resolved breakdown for audit + display.
+    for (const line of breakdown.lines || []) {
+      const signupId = keyToSignupId[line.key] ?? fallbackSignupId
+      if (signupId == null) continue
+      await pool.query(
+        `UPDATE scheduling_signup SET pricing_breakdown = $2::jsonb WHERE id = $1`,
+        [
+          signupId,
+          JSON.stringify({
+            line,
+            orderDiscounts: breakdown.orderDiscounts,
+            totals: {
+              subtotalCents: breakdown.subtotalCents,
+              totalDiscountCents: breakdown.totalDiscountCents,
+              totalCents: breakdown.totalCents,
+            },
+          }),
+        ],
+      )
+    }
+    // Redemption ledger rows + per-rule counters.
+    for (const r of breakdown.redemptions || []) {
+      const signupId = (r.lineKey != null ? keyToSignupId[r.lineKey] : null) ?? fallbackSignupId
+      if (signupId == null) continue
+      await pool.query(
+        `INSERT INTO discount_redemption
+          (rule_id, member_id, signup_id, program_id, form_id, kind, units, amount_cents)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [
+          r.ruleId ?? null,
+          r.memberId ?? null,
+          signupId,
+          r.programId ?? null,
+          r.formId ?? null,
+          r.kind || 'discount',
+          r.units ?? 0,
+          r.amountCents ?? 0,
+        ],
+      )
+      if (r.ruleId != null) {
+        await pool.query(
+          `UPDATE discount_rule SET redeemed_count = redeemed_count + 1, updated_at = now() WHERE id = $1`,
+          [r.ruleId],
+        )
+      }
+    }
+  } catch (err) {
+    console.warn('[scheduling] persistDiscountSnapshot:', err.message)
+  }
+}
+
+/** Persist the computed redemptions for a signup and bump per-rule redeemed_count. */
+export async function recordRedemptions(client, signupId, redemptions = []) {
+  if (!redemptions.length) return
+  for (const r of redemptions) {
+    await client.query(
+      `INSERT INTO discount_redemption
+        (rule_id, member_id, signup_id, program_id, form_id, kind, units, amount_cents)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [
+        r.ruleId ?? null,
+        r.memberId ?? null,
+        signupId,
+        r.programId ?? null,
+        r.formId ?? null,
+        r.kind || 'discount',
+        r.units ?? 0,
+        r.amountCents ?? 0,
+      ],
+    )
+    if (r.ruleId != null) {
+      await client.query(
+        `UPDATE discount_rule SET redeemed_count = redeemed_count + 1, updated_at = now() WHERE id = $1`,
+        [r.ruleId],
+      )
+    }
+  }
+}

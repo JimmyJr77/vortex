@@ -1,4 +1,5 @@
 import { type EnrollSiteKey } from '../config/enrollSites'
+import { type CostUnit } from './schedulingApi'
 import { adminApiRequest } from './api'
 import {
   adaptProgramSchedulingUpdateForApi,
@@ -20,6 +21,8 @@ export interface TopProgram {
   primarySportName?: string | null
   pricingMaxSlotsPerUser?: number | null
   pricingSlotCostMonthlyCents?: number
+  pricingCostUnit?: CostUnit
+  pricingCostAmountCents?: number
   pricingFreeSlotsPerUser?: number
   pricingMaxFreeSlotsTotal?: number | null
   archived: boolean
@@ -64,14 +67,17 @@ export interface AdminProgramPricing extends ClassEvent {
   pricingOverridesProgram?: boolean
   formMaxSlotsPerUser?: number | null
   formSlotCostMonthlyCents?: number
+  formCostUnit?: CostUnit | null
   formFreeSlotsPerUser?: number
   formMaxFreeSlotsTotal?: number | null
   programMaxSlotsPerUser?: number | null
   programSlotCostMonthlyCents?: number
+  programCostUnit?: CostUnit | null
   programFreeSlotsPerUser?: number
   programMaxFreeSlotsTotal?: number | null
   maxSlotsPerUser?: number | null
   slotCostMonthlyCents?: number
+  costUnit?: CostUnit
   freeSlotsPerUser?: number
   maxFreeSlotsTotal?: number | null
 }
@@ -130,6 +136,7 @@ export async function updateTopProgram(
     primarySportId: number | null
     pricingMaxSlotsPerUser: number | null
     pricingSlotCostMonthlyCents: number
+    pricingCostUnit: CostUnit
     pricingFreeSlotsPerUser: number
     pricingMaxFreeSlotsTotal: number | null
   }>,

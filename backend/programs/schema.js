@@ -153,3 +153,21 @@ export async function ensureProgramPricingColumns(pool) {
   await pool.query(sql)
   programPricingReady = true
 }
+
+let discountEngineReady = false
+
+/** Applies the discount/promo engine schema (cost cadence, rules, tiers, ledger, caps). */
+export async function ensureDiscountEngineSchema(pool) {
+  if (discountEngineReady) return
+  await ensureProgramPricingColumns(pool)
+  await ensurePrimaryDisciplineTagColumn(pool)
+  const fs = await import('fs')
+  const path = await import('path')
+  const { fileURLToPath } = await import('url')
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  const migrationPath = path.join(__dirname, '../migrations/add_discount_engine.sql')
+  if (!fs.existsSync(migrationPath)) return
+  const sql = fs.readFileSync(migrationPath, 'utf8')
+  await pool.query(sql)
+  discountEngineReady = true
+}

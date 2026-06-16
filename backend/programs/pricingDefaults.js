@@ -1,48 +1,150 @@
 import { resolveProgramsSchema } from './schema.js'
 
-export function resolveEffectiveFormPricing(programRow, formRow) {
-  const overrides = Boolean(formRow?.pricing_overrides_program)
-  const programMax = programRow?.pricing_max_slots_per_user ?? null
-  const programCost = Number(programRow?.pricing_slot_cost_monthly_cents ?? 0)
-  const programFree = Number(programRow?.pricing_free_slots_per_user ?? 0)
-  const programMaxFreeTotal = programRow?.pricing_max_free_slots_total ?? null
+export const COST_UNITS = ['per_slot', 'per_class', 'per_week', 'per_month', 'per_offering']
 
-  const formMax = formRow?.max_slots_per_user ?? null
-  const formCost = Number(formRow?.slot_cost_monthly_cents ?? 0)
-  const formFree = Number(formRow?.free_slots_per_user ?? 0)
-  const formMaxFreeTotal = formRow?.max_free_slots_total ?? null
+function normalizeCostUnit(unit) {
+  return COST_UNITS.includes(unit) ? unit : 'per_month'
+}
+
+/** Reads a cost {amountCents, unit} from a row that may use new cadence or legacy monthly columns. */
+function readCost(row, { amountKey, unitKey, legacyKey }) {
+  if (!row) return null
+  const amount = row[amountKey]
+  const unit = row[unitKey]
+  if (amount != null && unit != null) {
+    return { amountCents: Number(amount) || 0, unit: normalizeCostUnit(unit) }
+  }
+  const legacy = row[legacyKey]
+  if (legacy != null && Number(legacy) > 0) {
+    return { amountCents: Number(legacy) || 0, unit: 'per_month' }
+  }
+  return null
+}
+
+/**
+ * Resolve effective pricing for a class form using the Class -> Program -> Sport -> 0 cascade.
+ * Cost falls through to the next level only when the current level has no cost configured.
+ */
+export function resolveEffectiveFormPricing(programRow, formRow, sportRow = null) {
+  const overrides = Boolean(formRow?.pricing_overrides_program)
+
+  const formCost = readCost(formRow, {
+    amountKey: 'cost_amount_cents',
+    unitKey: 'cost_unit',
+    legacyKey: 'slot_cost_monthly_cents',
+  })
+  const programCost = readCost(programRow, {
+    amountKey: 'pricing_cost_amount_cents',
+    unitKey: 'pricing_cost_unit',
+    legacyKey: 'pricing_slot_cost_monthly_cents',
+  })
+  const sportCost = readCost(sportRow, {
+    amountKey: 'cost_amount_cents',
+    unitKey: 'cost_unit',
+    legacyKey: null,
+  })
+
+  // Cost cascade: explicit form override first, then program, then sport.
+  let cost
+  if (overrides) {
+    cost = formCost ?? programCost ?? sportCost ?? { amountCents: 0, unit: 'per_month' }
+  } else {
+    cost = programCost ?? sportCost ?? formCost ?? { amountCents: 0, unit: 'per_month' }
+  }
 
   const useProgram = !overrides && programRow != null
 
+  const programMax = programRow?.pricing_max_slots_per_user ?? null
+  const programFree = Number(programRow?.pricing_free_slots_per_user ?? 0)
+  const programMaxFreeTotal = programRow?.pricing_max_free_slots_total ?? null
+  const programMaxRedemptions = programRow?.pricing_max_discount_redemptions ?? null
+
+  const formMax = formRow?.max_slots_per_user ?? null
+  const formFree = Number(formRow?.free_slots_per_user ?? 0)
+  const formMaxFreeTotal = formRow?.max_free_slots_total ?? null
+  const formMaxRedemptions = formRow?.max_discount_redemptions ?? null
+
+  const sportFree = Number(sportRow?.free_slots_per_user ?? 0)
+  const sportMaxFreeTotal = sportRow?.max_free_slots_total ?? null
+  const sportMaxRedemptions = sportRow?.max_discount_redemptions ?? null
+
+  // Free + caps cascade.
+  const freeSlotsPerUser = useProgram
+    ? programFree || sportFree
+    : formFree || (programRow == null ? sportFree : 0)
+  const maxFreeSlotsTotal = useProgram
+    ? (programMaxFreeTotal != null ? Number(programMaxFreeTotal) : (sportMaxFreeTotal != null ? Number(sportMaxFreeTotal) : null))
+    : (formMaxFreeTotal != null ? Number(formMaxFreeTotal) : null)
+  const maxDiscountRedemptions = useProgram
+    ? (programMaxRedemptions != null ? Number(programMaxRedemptions) : (sportMaxRedemptions != null ? Number(sportMaxRedemptions) : null))
+    : (formMaxRedemptions != null ? Number(formMaxRedemptions) : null)
+
+  // Legacy monthly-equivalent for existing displays/computations.
+  const slotCostMonthlyCents = cost.unit === 'per_month' || cost.unit === 'per_slot' ? cost.amountCents : cost.amountCents
+
   return {
     pricingOverridesProgram: overrides,
+    costAmountCents: cost.amountCents,
+    costUnit: cost.unit,
     maxSlotsPerUser: useProgram
       ? (programMax != null ? Number(programMax) : null)
       : (formMax != null ? Number(formMax) : null),
-    slotCostMonthlyCents: useProgram ? programCost : formCost,
-    freeSlotsPerUser: useProgram ? programFree : formFree,
-    maxFreeSlotsTotal: useProgram
-      ? (programMaxFreeTotal != null ? Number(programMaxFreeTotal) : null)
-      : (formMaxFreeTotal != null ? Number(formMaxFreeTotal) : null),
+    slotCostMonthlyCents,
+    freeSlotsPerUser,
+    maxFreeSlotsTotal,
+    maxDiscountRedemptions,
     formMaxSlotsPerUser: formMax != null ? Number(formMax) : null,
-    formSlotCostMonthlyCents: formCost,
+    formSlotCostMonthlyCents: formCost?.amountCents ?? 0,
+    formCostUnit: formCost?.unit ?? null,
     formFreeSlotsPerUser: formFree,
     formMaxFreeSlotsTotal: formMaxFreeTotal != null ? Number(formMaxFreeTotal) : null,
     programMaxSlotsPerUser: programMax != null ? Number(programMax) : null,
-    programSlotCostMonthlyCents: programCost,
+    programSlotCostMonthlyCents: programCost?.amountCents ?? 0,
+    programCostUnit: programCost?.unit ?? null,
     programFreeSlotsPerUser: programFree,
-    programMaxFreeSlotsTotal:
-      programMaxFreeTotal != null ? Number(programMaxFreeTotal) : null,
+    programMaxFreeSlotsTotal: programMaxFreeTotal != null ? Number(programMaxFreeTotal) : null,
   }
 }
 
-export function effectivePricingDbRow(programRow, formRow) {
-  const resolved = resolveEffectiveFormPricing(programRow, formRow)
+/** Synthetic db row for the free-slot allocation + monthly pricing helpers. */
+export function effectivePricingDbRow(programRow, formRow, sportRow = null) {
+  const resolved = resolveEffectiveFormPricing(programRow, formRow, sportRow)
   return {
     max_slots_per_user: resolved.maxSlotsPerUser,
     slot_cost_monthly_cents: resolved.slotCostMonthlyCents,
     free_slots_per_user: resolved.freeSlotsPerUser,
     max_free_slots_total: resolved.maxFreeSlotsTotal,
+    cost_amount_cents: resolved.costAmountCents,
+    cost_unit: resolved.costUnit,
+    max_discount_redemptions: resolved.maxDiscountRedemptions,
+  }
+}
+
+/**
+ * Convert a resolved cost (cadence x amount) into a normalized monthly-equivalent list price for
+ * a single signup line. quantities: slots held, weeks/months in the active range, offerings, classes.
+ */
+export function resolveLineItemCost(resolved, quantities = {}) {
+  const amount = Number(resolved?.costAmountCents ?? resolved?.cost_amount_cents ?? 0) / 100
+  const unit = normalizeCostUnit(resolved?.costUnit ?? resolved?.cost_unit)
+  const slots = Math.max(0, Number(quantities.slots ?? 1))
+  const weeks = Math.max(0, Number(quantities.weeks ?? 0))
+  const months = Math.max(0, Number(quantities.months ?? 1))
+  const offerings = Math.max(0, Number(quantities.offerings ?? 1))
+  const classes = Math.max(0, Number(quantities.classes ?? 1))
+
+  switch (unit) {
+    case 'per_slot':
+      return amount * slots
+    case 'per_class':
+      return amount * classes
+    case 'per_week':
+      return amount * (weeks || 1)
+    case 'per_offering':
+      return amount * offerings
+    case 'per_month':
+    default:
+      return amount * (months || 1)
   }
 }
 
@@ -51,21 +153,42 @@ export async function loadProgramPricingRow(pool, programsId) {
   const schema = await resolveProgramsSchema(pool)
   const result = await pool.query(
     `SELECT pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
-            pricing_max_free_slots_total
+            pricing_max_free_slots_total, pricing_cost_amount_cents, pricing_cost_unit,
+            pricing_max_discount_redemptions, primary_discipline_tag_id
      FROM ${schema.programsTable} WHERE id = $1`,
     [programsId],
   )
   return result.rows[0] ?? null
 }
 
+export async function loadSportPricingRow(pool, disciplineTagId) {
+  if (disciplineTagId == null) return null
+  try {
+    const result = await pool.query(
+      `SELECT cost_amount_cents, cost_unit, free_slots_per_user, max_free_slots_total,
+              max_discount_redemptions
+       FROM sport_pricing_default WHERE discipline_tag_id = $1`,
+      [disciplineTagId],
+    )
+    return result.rows[0] ?? null
+  } catch {
+    return null
+  }
+}
+
 export async function loadEffectivePricingForForm(pool, formRow) {
   const programsId = formRow?.programs_id != null ? Number(formRow.programs_id) : null
   const programRow = programsId != null ? await loadProgramPricingRow(pool, programsId) : null
-  const effective = resolveEffectiveFormPricing(programRow, formRow)
+  const sportId = programRow?.primary_discipline_tag_id != null
+    ? Number(programRow.primary_discipline_tag_id)
+    : null
+  const sportRow = sportId != null ? await loadSportPricingRow(pool, sportId) : null
+  const effective = resolveEffectiveFormPricing(programRow, formRow, sportRow)
   return {
     programRow,
+    sportRow,
     effective,
-    effectiveDbRow: effectivePricingDbRow(programRow, formRow),
+    effectiveDbRow: effectivePricingDbRow(programRow, formRow, sportRow),
   }
 }
 
@@ -101,25 +224,39 @@ export function mapProgramPricingFields(row) {
       row.pricing_max_free_slots_total != null
         ? Number(row.pricing_max_free_slots_total)
         : null,
+    pricingCostAmountCents:
+      row.pricing_cost_amount_cents != null
+        ? Number(row.pricing_cost_amount_cents)
+        : Number(row.pricing_slot_cost_monthly_cents ?? 0),
+    pricingCostUnit: row.pricing_cost_unit ?? 'per_month',
+    pricingMaxDiscountRedemptions:
+      row.pricing_max_discount_redemptions != null
+        ? Number(row.pricing_max_discount_redemptions)
+        : null,
   }
 }
 
-export function mapClassPricingFields(programRow, formRow) {
-  const effective = resolveEffectiveFormPricing(programRow, formRow)
+export function mapClassPricingFields(programRow, formRow, sportRow = null) {
+  const effective = resolveEffectiveFormPricing(programRow, formRow, sportRow)
   return {
     schedulingFormId: formRow?.id != null ? Number(formRow.id) : null,
     pricingOverridesProgram: effective.pricingOverridesProgram,
+    costAmountCents: effective.costAmountCents,
+    costUnit: effective.costUnit,
     formMaxSlotsPerUser: effective.formMaxSlotsPerUser,
     formSlotCostMonthlyCents: effective.formSlotCostMonthlyCents,
+    formCostUnit: effective.formCostUnit,
     formFreeSlotsPerUser: effective.formFreeSlotsPerUser,
     formMaxFreeSlotsTotal: effective.formMaxFreeSlotsTotal,
     programMaxSlotsPerUser: effective.programMaxSlotsPerUser,
     programSlotCostMonthlyCents: effective.programSlotCostMonthlyCents,
+    programCostUnit: effective.programCostUnit,
     programFreeSlotsPerUser: effective.programFreeSlotsPerUser,
     programMaxFreeSlotsTotal: effective.programMaxFreeSlotsTotal,
     maxSlotsPerUser: effective.maxSlotsPerUser,
     slotCostMonthlyCents: effective.slotCostMonthlyCents,
     freeSlotsPerUser: effective.freeSlotsPerUser,
     maxFreeSlotsTotal: effective.maxFreeSlotsTotal,
+    maxDiscountRedemptions: effective.maxDiscountRedemptions,
   }
 }

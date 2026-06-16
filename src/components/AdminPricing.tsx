@@ -1,21 +1,60 @@
+import { useState } from 'react'
 import { DollarSign } from 'lucide-react'
 import AdminPricingProgramTable from './pricing/AdminPricingProgramTable'
+import SportDefaultsPanel from './pricing/SportDefaultsPanel'
+import AdminDiscountsPanel from './pricing/AdminDiscountsPanel'
+
+type PricingTab = 'costs' | 'discounts' | 'promo'
+
+const TABS: Array<{ id: PricingTab; label: string }> = [
+  { id: 'costs', label: 'Costs' },
+  { id: 'discounts', label: 'Discounts' },
+  { id: 'promo', label: 'Promo Codes' },
+]
 
 const AdminPricing = () => {
+  const [tab, setTab] = useState<PricingTab>('costs')
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <DollarSign className="w-7 h-7 text-vortex-red" />
           Pricing
         </h2>
         <p className="text-gray-600 text-sm mt-1">
-          Set program-level default slot costs and limits. Classes inherit program defaults unless
-          customized.
+          Set costs, discounts, and promo codes. Defaults cascade from primary sport to program to
+          class.
         </p>
       </div>
 
-      <AdminPricingProgramTable />
+      <div className="border-b border-gray-200">
+        <nav className="flex gap-6">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`-mb-px border-b-2 px-1 py-2 text-sm font-semibold transition-colors ${
+                tab === t.id
+                  ? 'border-vortex-red text-vortex-red'
+                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {tab === 'costs' && (
+        <div className="space-y-6">
+          <SportDefaultsPanel />
+          <AdminPricingProgramTable />
+        </div>
+      )}
+      {tab === 'discounts' && <AdminDiscountsPanel showFacilityCaps showSimulator />}
+      {tab === 'promo' && <AdminDiscountsPanel typeFilter="promo_code" />}
     </div>
   )
 }
