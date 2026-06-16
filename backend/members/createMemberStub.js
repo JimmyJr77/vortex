@@ -139,15 +139,18 @@ export async function createMemberStub(
   return member.id
 }
 
-export async function updateMemberPassword(client, memberId, password) {
+export async function updateMemberPassword(client, memberId, password, { mustChangePassword = false } = {}) {
   const passwordHash = await bcrypt.hash(password, 10)
   const res = await client.query(
     `
-    UPDATE member SET password_hash = $1, updated_at = NOW()
-    WHERE id = $2
+    UPDATE member
+    SET password_hash = $1,
+        must_change_password = $2,
+        updated_at = NOW()
+    WHERE id = $3
     RETURNING *
     `,
-    [passwordHash, memberId],
+    [passwordHash, Boolean(mustChangePassword), memberId],
   )
   if (res.rows.length === 0) {
     throw new Error('Member not found')

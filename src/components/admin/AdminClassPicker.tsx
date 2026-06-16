@@ -3,7 +3,9 @@ import { Loader2, Search } from 'lucide-react'
 import {
   fetchClassEvents,
   fetchTopPrograms,
+  fetchTopProgramsLegacy,
   type ClassEvent,
+  type SchedulingCategoryRef,
   type TopProgram,
 } from '../../utils/programsApi'
 
@@ -11,6 +13,60 @@ export type ClassPickerRow = {
   classEvent: ClassEvent
   programName: string
   programId: number
+  rowKey: string
+}
+
+const NO_CATEGORY_REF: SchedulingCategoryRef = { id: null, name: 'No Category' }
+
+function expandClassPickerRows(events: ClassEvent[]): ClassPickerRow[] {
+  const rows: ClassPickerRow[] = []
+
+  for (const classEvent of events) {
+    if (classEvent.archived) continue
+
+    const programId = Number(classEvent.categoryId ?? classEvent.programsId ?? 0)
+    if (!programId) continue
+
+    const programName =
+      classEvent.categoryDisplayName ??
+      classEvent.programsDisplayName ??
+      'Unknown program'
+
+    const categories =
+      classEvent.schedulingCategories && classEvent.schedulingCategories.length > 0
+        ? classEvent.schedulingCategories
+        : [
+            {
+              id: classEvent.schedulingCategoryId ?? null,
+              name: classEvent.schedulingCategoryName ?? NO_CATEGORY_REF.name,
+            },
+          ]
+
+    for (const category of categories) {
+      rows.push({
+        classEvent: {
+          ...classEvent,
+          schedulingCategoryId: category.id,
+          schedulingCategoryName: category.name,
+        },
+        programName,
+        programId,
+        rowKey: `${classEvent.id}:${category.id ?? 'none'}`,
+      })
+    }
+  }
+
+  rows.sort((a, b) => {
+    const prog = a.programName.localeCompare(b.programName)
+    if (prog !== 0) return prog
+    const cls = a.classEvent.displayName.localeCompare(b.classEvent.displayName)
+    if (cls !== 0) return cls
+    return (a.classEvent.schedulingCategoryName || '').localeCompare(
+      b.classEvent.schedulingCategoryName || '',
+    )
+  })
+
+  return rows
 }
 
 interface Props {
@@ -33,26 +89,37 @@ const AdminClassPicker = ({
     setLoading(true)
     setError(null)
     try {
-      const programList = (await fetchTopPrograms(false)).filter((p) => !p.archived)
-      setPrograms(programList)
+      let programList: TopProgram[] = []
+      try {
+        programList = await fetchTopPrograms(false)
+      } catch {
+        programList = await fetchTopProgramsLegacy(false)
+      }
+      programList = programList.filter((p) => !p.archived)
 
-      const allRows: ClassPickerRow[] = []
-      for (const program of programList) {
-        const events = await fetchClassEvents({ programsId: program.id, archived: false })
-        for (const classEvent of events) {
-          allRows.push({
-            classEvent,
-            programName: program.displayName,
-            programId: program.id,
+      const events = await fetchClassEvents({ archived: false })
+      const expandedRows = expandClassPickerRows(events)
+
+      const programMap = new Map(programList.map((p) => [p.id, p]))
+      for (const row of expandedRows) {
+        if (!programMap.has(row.programId)) {
+          programMap.set(row.programId, {
+            id: row.programId,
+            name: row.programName,
+            displayName: row.programName,
+            archived: false,
+            createdAt: '',
+            updatedAt: '',
           })
         }
       }
-      allRows.sort((a, b) => {
-        const prog = a.programName.localeCompare(b.programName)
-        if (prog !== 0) return prog
-        return a.classEvent.displayName.localeCompare(b.classEvent.displayName)
-      })
-      setRows(allRows)
+
+      const mergedPrograms = [...programMap.values()].sort((a, b) =>
+        a.displayName.localeCompare(b.displayName),
+      )
+
+      setPrograms(mergedPrograms)
+      setRows(expandedRows)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load classes')
       setPrograms([])
@@ -69,7 +136,8 @@ const AdminClassPicker = ({
   const filteredRows = useMemo(() => {
     let next = rows
     if (programFilterId !== 'all') {
-      next = next.filter((row) => row.programId === programFilterId)
+      const filterId = Number(programFilterId)
+      next = next.filter((row) => row.programId === filterId)
     }
     const q = search.trim().toLowerCase()
     if (!q) return next
@@ -81,6 +149,9 @@ const AdminClassPicker = ({
         (row.classEvent.sportTags || '').toLowerCase().includes(q),
     )
   }, [rows, programFilterId, search])
+
+  const controlClass =
+    'w-full h-10 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-vortex-red/30 focus:border-vortex-red'
 
   return (
     <div className="space-y-4">
@@ -96,7 +167,7 @@ const AdminClassPicker = ({
               const v = e.target.value
               setProgramFilterId(v === 'all' ? 'all' : Number(v))
             }}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            className={`${controlClass} px-3`}
           >
             <option value="all">All programs</option>
             {programs.map((p) => (
@@ -118,7 +189,7 @@ const AdminClassPicker = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by class, program, variation, or sport…"
-              className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm"
+              className={`${controlClass} pl-10 pr-4`}
               autoComplete="off"
             />
           </div>
@@ -152,7 +223,7 @@ const AdminClassPicker = ({
                   const selected = row.classEvent.id === selectedClassEventId
                   return (
                     <tr
-                      key={row.classEvent.id}
+                      key={row.rowKey}
                       onClick={() => onSelectClass(row.classEvent)}
                       className={`border-b border-gray-100 cursor-pointer transition-colors ${
                         selected ? 'bg-red-50' : 'hover:bg-gray-50'

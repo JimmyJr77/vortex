@@ -369,6 +369,7 @@ export interface SchedulingSignup {
   waiverEmailSentAt?: string | null
   promotionEmailSentAt?: string | null
   demotionEmailSentAt?: string | null
+  archivedAt?: string | null
 }
 
 export interface SchedulingEmailCheckResult {
@@ -383,6 +384,7 @@ export interface SchedulingAuthSession {
   signupAuthToken: string
   memberId: number
   profileComplete: boolean
+  mustChangePassword?: boolean
   firstName: string
   lastName: string
   email: string
@@ -619,6 +621,19 @@ export async function loginSchedulingAuth(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ formId, email, password }),
+  })
+  return parseJson(res)
+}
+
+export async function changeSchedulingAuthPassword(
+  formId: number,
+  signupAuthToken: string,
+  password: string,
+): Promise<SchedulingAuthSession> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/auth/change-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ formId, signupAuthToken, password }),
   })
   return parseJson(res)
 }
@@ -992,8 +1007,14 @@ export async function adminDeleteSlotGroup(id: number): Promise<void> {
   }
 }
 
-export async function adminFetchSignups(formId?: number): Promise<SchedulingSignup[]> {
-  const qs = formId ? `?formId=${formId}` : ''
+export async function adminFetchSignups(
+  formId?: number,
+  options?: { archived?: boolean },
+): Promise<SchedulingSignup[]> {
+  const params = new URLSearchParams()
+  if (formId) params.set('formId', String(formId))
+  if (options?.archived) params.set('archived', 'true')
+  const qs = params.toString() ? `?${params.toString()}` : ''
   const res = await adminApiRequest(`/api/admin/scheduling/signups${qs}`)
   return parseJson(res)
 }
@@ -1055,6 +1076,14 @@ export async function adminUpdateSignupStatus(
   return parseJson(res)
 }
 
+export async function adminArchiveSignup(id: number, archived: boolean): Promise<SchedulingSignup> {
+  const res = await adminApiRequest(`/api/admin/scheduling/signups/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ archived }),
+  })
+  return parseJson(res)
+}
+
 export async function adminResendSignupEmail(
   id: number,
   emailType: 'confirmation' | 'waiver',
@@ -1066,18 +1095,27 @@ export async function adminResendSignupEmail(
   return parseJson(res)
 }
 
+export async function adminResetSignupMemberPassword(
+  signupId: number,
+  payload: { mode: 'manual' | 'email_temp'; password?: string },
+): Promise<{ message: string }> {
+  const res = await adminApiRequest(`/api/admin/scheduling/signups/${signupId}/member-password`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+  const data = await res.json()
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || 'Failed to reset password')
+  }
+  return { message: data.message || 'Password updated' }
+}
+
+/** @deprecated Use adminResetSignupMemberPassword */
 export async function adminUpdateSignupMemberPassword(
   signupId: number,
   password: string,
 ): Promise<void> {
-  const res = await adminApiRequest(`/api/admin/scheduling/signups/${signupId}/member-password`, {
-    method: 'PATCH',
-    body: JSON.stringify({ password }),
-  })
-  const data = await res.json()
-  if (!res.ok || !data.success) {
-    throw new Error(data.message || 'Failed to update password')
-  }
+  await adminResetSignupMemberPassword(signupId, { mode: 'manual', password })
 }
 
 export async function adminUpdateSlotGroupMax(

@@ -13,6 +13,10 @@ import { sendDemotionEmail } from './demotionEmail.js'
 import { sendMagicLinkEmail } from './magicLinkEmail.js'
 import { sendPromotionEmail } from './promotionEmail.js'
 import { sendWaitlistEmail } from './waitlistEmail.js'
+import {
+  generateTemporaryPassword,
+  sendTemporaryPasswordEmail,
+} from './tempPasswordEmail.js'
 import { sendWaiverEmail } from './waiverEmail.js'
 import { buildSignupOrderPreview, pricingScopeKey } from './orderPricing.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
@@ -841,6 +845,7 @@ function mapSignupRow(row, positions = {}) {
     waiverEmailSentAt: row.waiver_email_sent_at || null,
     promotionEmailSentAt: row.promotion_email_sent_at || null,
     demotionEmailSentAt: row.demotion_email_sent_at || null,
+    archivedAt: row.archived_at || null,
     pricing: positions.pricing ?? undefined,
   }
 }
@@ -1248,7 +1253,18 @@ const verifyTokenSchema = Joi.object({
   token: Joi.string().required(),
 })
 
-const memberPasswordSchema = Joi.object({
+const memberPasswordUpdateSchema = Joi.object({
+  mode: Joi.string().valid('manual', 'email_temp').required(),
+  password: Joi.when('mode', {
+    is: 'manual',
+    then: Joi.string().min(6).required(),
+    otherwise: Joi.forbidden(),
+  }),
+})
+
+const authChangePasswordSchema = Joi.object({
+  formId: Joi.number().integer().required(),
+  signupAuthToken: Joi.string().trim().required(),
   password: Joi.string().min(6).required(),
 })
 
@@ -1630,6 +1646,7 @@ export function createSchedulingHandlers(pool) {
             signupAuthToken,
             memberId: Number(member.id),
             profileComplete: Boolean(member.profile_complete),
+            mustChangePassword: Boolean(member.must_change_password),
             firstName: member.first_name,
             lastName: member.last_name,
             email: member.email,
@@ -1638,6 +1655,61 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         console.error('[scheduling] authLogin:', err)
         res.status(500).json({ success: false, message: 'Failed to sign in' })
+      }
+    },
+
+    async authChangePassword(req, res) {
+      try {
+        const { error, value } = authChangePasswordSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+
+        const formRes = await pool.query(
+          'SELECT id, programs_id FROM scheduling_form WHERE id = $1 AND deleted_at IS NULL',
+          [value.formId],
+        )
+        if (formRes.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Scheduling form not available' })
+        }
+        const formRow = formRes.rows[0]
+        const auth = verifySignupAuthToken(value.signupAuthToken, value.formId, {
+          programsId: formRow.programs_id != null ? Number(formRow.programs_id) : null,
+        })
+        const memberId = Number(auth.memberId)
+
+        const client = await pool.connect()
+        try {
+          await client.query('BEGIN')
+          await updateMemberPassword(client, memberId, value.password, { mustChangePassword: false })
+          await client.query('COMMIT')
+        } catch (txErr) {
+          await client.query('ROLLBACK')
+          throw txErr
+        } finally {
+          client.release()
+        }
+
+        const member = await findMemberById(pool, memberId)
+        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, member)
+        res.json({
+          success: true,
+          data: {
+            signupAuthToken,
+            memberId,
+            profileComplete: Boolean(member?.profile_complete),
+            mustChangePassword: false,
+            firstName: member?.first_name || '',
+            lastName: member?.last_name || '',
+            email: member?.email || '',
+          },
+        })
+      } catch (err) {
+        console.error('[scheduling] authChangePassword:', err)
+        if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+          return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
+        }
+        res.status(500).json({ success: false, message: err.message || 'Failed to update password' })
       }
     },
 
@@ -3340,8 +3412,11 @@ export function createSchedulingHandlers(pool) {
     async listSignups(req, res) {
       try {
         const formId = req.query.formId ? Number(req.query.formId) : null
+        const archivedOnly =
+          req.query.archived === 'true' || req.query.archived === '1'
         const params = []
         let where = '1=1 AND s.orphaned_at IS NULL'
+        where += archivedOnly ? ' AND s.archived_at IS NOT NULL' : ' AND s.archived_at IS NULL'
         if (formId) {
           params.push(formId)
           where += ` AND s.form_id = $${params.length}`
@@ -3418,6 +3493,38 @@ export function createSchedulingHandlers(pool) {
 
     async updateSignupStatus(req, res) {
       try {
+        if (req.body.archived !== undefined) {
+          const archived = Boolean(req.body.archived)
+          const existing = await pool.query(
+            'SELECT * FROM scheduling_signup WHERE id = $1 AND orphaned_at IS NULL',
+            [req.params.id],
+          )
+          if (existing.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Signup not found' })
+          }
+          const signup = existing.rows[0]
+          if (archived && signup.status !== 'cancelled') {
+            return res.status(400).json({
+              success: false,
+              message: 'Only cancelled signups can be archived',
+            })
+          }
+          const result = await pool.query(
+            `
+            UPDATE scheduling_signup
+            SET archived_at = CASE WHEN $1::boolean THEN now() ELSE NULL END
+            WHERE id = $2
+            RETURNING *
+            `,
+            [archived, req.params.id],
+          )
+          const updatedRow = result.rows[0]
+          const positions = updatedRow?.slot_group_id
+            ? await computeSignupPositions(pool, updatedRow.slot_group_id, updatedRow.id)
+            : {}
+          return res.json({ success: true, data: mapSignupRow(updatedRow, positions) })
+        }
+
         const status = req.body.status
         if (!['confirmed', 'waitlisted', 'cancelled'].includes(status)) {
           return res.status(400).json({ success: false, message: 'Invalid status' })
@@ -3752,7 +3859,7 @@ export function createSchedulingHandlers(pool) {
 
     async updateSignupMemberPassword(req, res) {
       try {
-        const { error, value } = memberPasswordSchema.validate(req.body)
+        const { error, value } = memberPasswordUpdateSchema.validate(req.body)
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
@@ -3766,10 +3873,30 @@ export function createSchedulingHandlers(pool) {
         if (!signup.member_id) {
           return res.status(400).json({ success: false, message: 'Signup has no linked member account' })
         }
+
+        const responses =
+          signup.responses && Object.keys(signup.responses).length > 0
+            ? signup.responses
+            : signup.field_responses || {}
+        const registrantEmail = String(responses.email || signup.email || '').trim()
+        const registrantFirstName = String(responses.first_name || signup.first_name || '').trim()
+
+        let passwordToSet = value.password
+        let mustChangePassword = false
+        let emailed = false
+
+        if (value.mode === 'email_temp') {
+          if (!registrantEmail) {
+            return res.status(400).json({ success: false, message: 'Signup has no email address' })
+          }
+          passwordToSet = generateTemporaryPassword()
+          mustChangePassword = true
+        }
+
         const client = await pool.connect()
         try {
           await client.query('BEGIN')
-          await updateMemberPassword(client, signup.member_id, value.password)
+          await updateMemberPassword(client, signup.member_id, passwordToSet, { mustChangePassword })
           await client.query('COMMIT')
         } catch (txErr) {
           await client.query('ROLLBACK')
@@ -3777,7 +3904,33 @@ export function createSchedulingHandlers(pool) {
         } finally {
           client.release()
         }
-        res.json({ success: true, message: 'Password updated' })
+
+        if (value.mode === 'email_temp') {
+          try {
+            await sendTemporaryPasswordEmail({
+              registrantFirstName,
+              registrantEmail,
+              temporaryPassword: passwordToSet,
+            })
+            emailed = true
+          } catch (emailErr) {
+            console.error('[scheduling] temp password email failed:', emailErr.message)
+            return res.status(503).json({
+              success: false,
+              message: emailErr.message || 'Password updated but failed to send email',
+            })
+          }
+        }
+
+        res.json({
+          success: true,
+          message:
+            value.mode === 'email_temp'
+              ? emailed
+                ? 'Temporary password emailed'
+                : 'Temporary password set'
+              : 'Password updated',
+        })
       } catch (err) {
         console.error('[scheduling] updateSignupMemberPassword:', err)
         res.status(500).json({ success: false, message: err.message || 'Failed to update password' })

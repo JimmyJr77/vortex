@@ -22,6 +22,7 @@ export function registerSchedulingRoutes(app, pool) {
   app.post('/api/scheduling/my-signups', h.listMemberSignedUpForms)
   app.post('/api/scheduling/signups/order-preview', h.previewSignupOrder)
   app.post('/api/scheduling/auth/login', h.authLogin)
+  app.post('/api/scheduling/auth/change-password', h.authChangePassword)
   app.post('/api/scheduling/auth/magic-link', h.authMagicLink)
   app.post('/api/scheduling/auth/verify-token', h.authVerifyToken)
   app.post('/api/scheduling/signups', signupLimiter, h.createSignup)

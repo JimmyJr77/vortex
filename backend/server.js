@@ -985,6 +985,7 @@ export const initDatabase = async () => {
       ADD COLUMN IF NOT EXISTS no_injury_history BOOLEAN DEFAULT FALSE,
       ADD COLUMN IF NOT EXISTS experience TEXT,
       ADD COLUMN IF NOT EXISTS profile_complete BOOLEAN NOT NULL DEFAULT TRUE,
+      ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT FALSE,
       ADD COLUMN IF NOT EXISTS signup_source VARCHAR(32)
     `)
     

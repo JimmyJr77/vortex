@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { Ban, Calendar, Check, Mail, MailPlus } from 'lucide-react'
+import { Archive, Ban, Calendar, Check, Mail, MailPlus } from 'lucide-react'
 import {
+  adminArchiveSignup,
   adminResendSignupEmail,
-  adminUpdateSignupMemberPassword,
   adminUpdateSignupStatus,
   type SchedulingFormDetail,
   type SchedulingSignup,
 } from '../../utils/schedulingApi'
+import AdminSignupPasswordResetModal from './AdminSignupPasswordResetModal'
 
 interface Props {
   signups: SchedulingSignup[]
@@ -20,8 +21,7 @@ const iconActionClass =
 
 const AdminSignupsTable = ({ signups, detail, formId, onRefresh }: Props) => {
   const [signupActionId, setSignupActionId] = useState<number | null>(null)
-  const [passwordDrafts, setPasswordDrafts] = useState<Record<number, string>>({})
-  const [passwordSavingId, setPasswordSavingId] = useState<number | null>(null)
+  const [passwordResetSignup, setPasswordResetSignup] = useState<SchedulingSignup | null>(null)
 
   if (signups.length === 0) {
     return (
@@ -32,7 +32,8 @@ const AdminSignupsTable = ({ signups, detail, formId, onRefresh }: Props) => {
   }
 
   return (
-    <div className="overflow-x-auto">
+    <>
+      <div className="overflow-x-auto">
       <table className="w-max max-w-none text-sm table-auto border-collapse [&_th]:whitespace-nowrap [&_td]:whitespace-nowrap [&_th]:align-top [&_td]:align-top">
         <thead>
           <tr className="border-b border-gray-200 text-left text-gray-600">
@@ -69,9 +70,13 @@ const AdminSignupsTable = ({ signups, detail, formId, onRefresh }: Props) => {
                   {s.memberId ? (
                     <span>
                       #{s.memberId}
-                      {s.profileComplete === false && (
-                        <span className="ml-1 text-amber-700 font-medium">Incomplete</span>
-                      )}
+                      <span
+                        className={`ml-1 font-medium ${
+                          s.profileComplete === false ? 'text-amber-700' : 'text-green-700'
+                        }`}
+                      >
+                        {s.profileComplete === false ? 'Account Stub' : 'Complete'}
+                      </span>
                     </span>
                   ) : (
                     <span className="text-gray-400">—</span>
@@ -79,37 +84,13 @@ const AdminSignupsTable = ({ signups, detail, formId, onRefresh }: Props) => {
                 </td>
                 <td className="py-3 pr-4 w-0">
                   {s.memberId ? (
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="password"
-                        placeholder="New password"
-                        value={passwordDrafts[s.id] ?? ''}
-                        onChange={(e) =>
-                          setPasswordDrafts((prev) => ({ ...prev, [s.id]: e.target.value }))
-                        }
-                        className="w-28 rounded border border-gray-300 px-2 py-1 text-xs"
-                      />
-                      <button
-                        type="button"
-                        disabled={
-                          passwordSavingId === s.id || !(passwordDrafts[s.id]?.length >= 6)
-                        }
-                        onClick={async () => {
-                          setPasswordSavingId(s.id)
-                          try {
-                            await adminUpdateSignupMemberPassword(s.id, passwordDrafts[s.id])
-                            setPasswordDrafts((prev) => ({ ...prev, [s.id]: '' }))
-                          } catch (e) {
-                            alert(e instanceof Error ? e.message : 'Failed to save password')
-                          } finally {
-                            setPasswordSavingId(null)
-                          }
-                        }}
-                        className="text-xs text-vortex-red font-semibold hover:underline disabled:opacity-40"
-                      >
-                        Save
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPasswordResetSignup(s)}
+                      className="text-xs text-vortex-red font-semibold hover:underline"
+                    >
+                      Reset password
+                    </button>
                   ) : (
                     <span className="text-gray-400 text-xs">—</span>
                   )}
@@ -231,26 +212,48 @@ const AdminSignupsTable = ({ signups, detail, formId, onRefresh }: Props) => {
                       </button>
                     )}
                     {s.status === 'cancelled' && (
-                      <button
-                        type="button"
-                        title="Reconfirm signup"
-                        disabled={signupActionId === s.id}
-                        onClick={async () => {
-                          setSignupActionId(s.id)
-                          try {
-                            await adminUpdateSignupStatus(s.id, 'confirmed')
-                            if (formId) await onRefresh()
-                          } catch (e) {
-                            alert(e instanceof Error ? e.message : 'Failed to reconfirm signup')
-                          } finally {
-                            setSignupActionId(null)
-                          }
-                        }}
-                        className={`${iconActionClass} text-green-700 hover:text-green-900`}
-                        aria-label="Reconfirm signup"
-                      >
-                        <Check className="w-4 h-4" />
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          title="Archive signup"
+                          disabled={signupActionId === s.id}
+                          onClick={async () => {
+                            setSignupActionId(s.id)
+                            try {
+                              await adminArchiveSignup(s.id, true)
+                              if (formId) await onRefresh()
+                            } catch (e) {
+                              alert(e instanceof Error ? e.message : 'Failed to archive signup')
+                            } finally {
+                              setSignupActionId(null)
+                            }
+                          }}
+                          className={`${iconActionClass} text-gray-700 hover:text-gray-900`}
+                          aria-label="Archive signup"
+                        >
+                          <Archive className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          title="Reconfirm signup"
+                          disabled={signupActionId === s.id}
+                          onClick={async () => {
+                            setSignupActionId(s.id)
+                            try {
+                              await adminUpdateSignupStatus(s.id, 'confirmed')
+                              if (formId) await onRefresh()
+                            } catch (e) {
+                              alert(e instanceof Error ? e.message : 'Failed to reconfirm signup')
+                            } finally {
+                              setSignupActionId(null)
+                            }
+                          }}
+                          className={`${iconActionClass} text-green-700 hover:text-green-900`}
+                          aria-label="Reconfirm signup"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                      </>
                     )}
                   </div>
                 </td>
@@ -259,7 +262,17 @@ const AdminSignupsTable = ({ signups, detail, formId, onRefresh }: Props) => {
           })}
         </tbody>
       </table>
-    </div>
+      </div>
+
+      {passwordResetSignup && (
+        <AdminSignupPasswordResetModal
+          signup={passwordResetSignup}
+          open={Boolean(passwordResetSignup)}
+          onClose={() => setPasswordResetSignup(null)}
+          onSuccess={onRefresh}
+        />
+      )}
+    </>
   )
 }
 

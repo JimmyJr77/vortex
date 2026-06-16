@@ -7,6 +7,7 @@ import {
 } from '../config/schedulingSignupFields'
 import SchoolAutocompleteInput from './scheduling/SchoolAutocompleteInput'
 import {
+  changeSchedulingAuthPassword,
   checkSchedulingEmail,
   fetchMySchedulingSignups,
   fetchProgramSignupOptions,
@@ -335,7 +336,7 @@ function SignupFieldInput({
   )
 }
 
-type IdentityPhase = 'pending' | 'email' | 'login' | 'ready'
+type IdentityPhase = 'pending' | 'email' | 'login' | 'must_change_password' | 'ready'
 type SignupPhase = 'select' | 'review'
 
 type SignupCartItem = {
@@ -779,6 +780,8 @@ const SchedulingSignupEmbed = ({
   const [accountEmail, setAccountEmail] = useState(initialEmail || '')
   const [accountPassword, setAccountPassword] = useState('')
   const [newAccountPassword, setNewAccountPassword] = useState('')
+  const [forcedNewPassword, setForcedNewPassword] = useState('')
+  const [forcedConfirmPassword, setForcedConfirmPassword] = useState('')
   const [signupAuthToken, setSignupAuthToken] = useState<string | null>(null)
   const [orderPreview, setOrderPreview] = useState<SignupOrderPreview | null>(null)
   const [orderPreviewLoading, setOrderPreviewLoading] = useState(false)
@@ -1209,10 +1212,45 @@ const SchedulingSignupEmbed = ({
       const session = await loginSchedulingAuth(formId, accountEmail.trim(), accountPassword)
       saveSchedulingMemberEmail(accountEmail.trim())
       setSignupAuthToken(session.signupAuthToken)
-      setIdentityPhase('ready')
       setIsNewUser(false)
+      if (session.mustChangePassword) {
+        setForcedNewPassword('')
+        setForcedConfirmPassword('')
+        setIdentityPhase('must_change_password')
+      } else {
+        setIdentityPhase('ready')
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed')
+    } finally {
+      setIdentityLoading(false)
+    }
+  }
+
+  const handleForcedPasswordChange = async () => {
+    if (!signupAuthToken) return
+    if (forcedNewPassword.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
+    if (forcedNewPassword !== forcedConfirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+    setIdentityLoading(true)
+    setError(null)
+    try {
+      const session = await changeSchedulingAuthPassword(
+        formId,
+        signupAuthToken,
+        forcedNewPassword,
+      )
+      setSignupAuthToken(session.signupAuthToken)
+      setForcedNewPassword('')
+      setForcedConfirmPassword('')
+      setIdentityPhase('ready')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update password')
     } finally {
       setIdentityLoading(false)
     }
@@ -1333,6 +1371,7 @@ const SchedulingSignupEmbed = ({
     slotOptions.length > 0
   const showEmailStep = slotSelected && identityPhase === 'email'
   const showLoginStep = slotSelected && identityPhase === 'login'
+  const showMustChangePasswordStep = slotSelected && identityPhase === 'must_change_password'
   const showNewUserForm = slotSelected && identityReady && isNewUser && signupPhase === 'select'
   const showSubmit = slotSelected && identityReady && signupPhase === 'select'
   const showReview = signupPhase === 'review'
@@ -2014,6 +2053,42 @@ const SchedulingSignupEmbed = ({
             >
               {identityLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               Continue
+            </button>
+          </div>
+        )}
+
+        {showMustChangePasswordStep && (
+          <div className={sectionClass}>
+            <h4 className={`font-bold text-black mb-2 ${compact ? 'text-base' : 'text-xl'}`}>
+              Choose a new password
+            </h4>
+            <p className="text-sm text-gray-600 mb-4">
+              Your temporary password must be changed before you can continue.
+            </p>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">New password</label>
+            <input
+              type="password"
+              value={forcedNewPassword}
+              onChange={(e) => setForcedNewPassword(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-vortex-red outline-none mb-3"
+              autoComplete="new-password"
+            />
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm password</label>
+            <input
+              type="password"
+              value={forcedConfirmPassword}
+              onChange={(e) => setForcedConfirmPassword(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-vortex-red outline-none mb-4"
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              disabled={identityLoading}
+              onClick={() => void handleForcedPasswordChange()}
+              className="inline-flex items-center gap-2 bg-vortex-red text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-60"
+            >
+              {identityLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              Save and continue
             </button>
           </div>
         )}

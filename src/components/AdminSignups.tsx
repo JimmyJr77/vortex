@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { ChevronDown, ChevronUp, ClipboardList, Loader2 } from 'lucide-react'
+import AdminArchivedSignupsPanel from './admin/AdminArchivedSignupsPanel'
 import AdminClassPicker from './admin/AdminClassPicker'
 import AdminSignupsTable from './admin/AdminSignupsTable'
 import OrphanedSignupsPanel from './scheduling/OrphanedSignupsPanel'
@@ -23,11 +24,13 @@ const AdminSignups = () => {
   const [formId, setFormId] = useState<number | null>(null)
   const [detail, setDetail] = useState<SchedulingFormDetail | null>(null)
   const [signups, setSignups] = useState<SchedulingSignup[]>([])
+  const [archivedSignups, setArchivedSignups] = useState<SchedulingSignup[]>([])
   const [orphanedSignups, setOrphanedSignups] = useState<SchedulingOrphanedSignup[]>([])
   const [forms, setForms] = useState<SchedulingFormSummary[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [orphanedOpen, setOrphanedOpen] = useState(false)
+  const [archivedOpen, setArchivedOpen] = useState(false)
 
   const loadClassSignups = useCallback(async (classEvent: ClassEvent) => {
     setLoading(true)
@@ -36,20 +39,23 @@ const AdminSignups = () => {
       const id =
         classEvent.schedulingFormId ?? (await fetchClassEventSchedulingFormId(classEvent.id))
       setFormId(id)
-      const [formDetail, signupRows, orphanedRows, allForms] = await Promise.all([
+      const [formDetail, signupRows, archivedRows, orphanedRows, allForms] = await Promise.all([
         adminFetchSchedulingForm(id),
         adminFetchSignups(id),
+        adminFetchSignups(id, { archived: true }),
         adminFetchOrphanedSignups(id),
         adminFetchSchedulingForms(),
       ])
       setDetail(formDetail)
       setSignups(signupRows)
+      setArchivedSignups(archivedRows)
       setOrphanedSignups(orphanedRows)
       setForms(allForms)
     } catch (e) {
       setFormId(null)
       setDetail(null)
       setSignups([])
+      setArchivedSignups([])
       setOrphanedSignups([])
       setError(e instanceof Error ? e.message : 'Failed to load signups')
     } finally {
@@ -60,18 +66,21 @@ const AdminSignups = () => {
   const handleSelectClass = (classEvent: ClassEvent) => {
     setSelectedClassEvent(classEvent)
     setOrphanedOpen(false)
+    setArchivedOpen(false)
     void loadClassSignups(classEvent)
   }
 
   const refresh = async () => {
     if (!formId) return
-    const [formDetail, signupRows, orphanedRows] = await Promise.all([
+    const [formDetail, signupRows, archivedRows, orphanedRows] = await Promise.all([
       adminFetchSchedulingForm(formId),
       adminFetchSignups(formId),
+      adminFetchSignups(formId, { archived: true }),
       adminFetchOrphanedSignups(formId),
     ])
     setDetail(formDetail)
     setSignups(signupRows)
+    setArchivedSignups(archivedRows)
     setOrphanedSignups(orphanedRows)
   }
 
@@ -113,6 +122,33 @@ const AdminSignups = () => {
             formId={formId}
             onRefresh={refresh}
           />
+
+          <div className="border border-gray-200 rounded-xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setArchivedOpen((open) => !open)}
+              className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 text-left"
+            >
+              <span className="font-semibold text-gray-900">
+                Archived signups
+                {archivedSignups.length > 0 && (
+                  <span className="ml-2 text-sm font-normal text-gray-600">
+                    ({archivedSignups.length})
+                  </span>
+                )}
+              </span>
+              {archivedOpen ? (
+                <ChevronUp className="w-5 h-5 text-gray-500" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-500" />
+              )}
+            </button>
+            {archivedOpen && (
+              <div className="p-4 border-t border-gray-200">
+                <AdminArchivedSignupsPanel signups={archivedSignups} onRefresh={refresh} />
+              </div>
+            )}
+          </div>
 
           <div className="border border-gray-200 rounded-xl overflow-hidden">
             <button
