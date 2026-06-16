@@ -770,14 +770,12 @@ const SchedulingSignupEmbed = ({
   const [isNewUser, setIsNewUser] = useState(false)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [identityLoading, setIdentityLoading] = useState(false)
-  const skipAutoSlotRef = useRef(false)
   const prevCategoryIdRef = useRef<number | null | undefined>(undefined)
   const programOptionsFetchKeyRef = useRef<string | null>(null)
   const signedUpSlotsFetchRef = useRef<{ key: string; promise: Promise<void> } | null>(null)
 
   useEffect(() => {
     prevCategoryIdRef.current = undefined
-    skipAutoSlotRef.current = false
     setLoading(true)
     setCategoryId(undefined)
     setOfferingId(undefined)
@@ -1012,29 +1010,13 @@ const SchedulingSignupEmbed = ({
     const categoryChanged = prevCategoryIdRef.current !== categoryId
     prevCategoryIdRef.current = categoryId
 
-    if (skipAutoSlotRef.current) {
-      skipAutoSlotRef.current = false
-      return
-    }
-
-    if (categoryChanged && slotOptions.length === 1) {
-      const only = slotOptions[0]
-      const signedUp =
-        formDetail &&
-        isSlotAlreadySignedUp(formDetail.id, categoryId ?? null, only.slotGroupId, only.timeSlotId)
-      if (!signedUp) {
-        setSlotGroupId(only.slotGroupId)
-        setTimeSlotId(only.timeSlotId)
-      }
-    } else if (categoryChanged) {
+    if (categoryChanged) {
       setSlotGroupId(null)
       setTimeSlotId(null)
     }
   }, [
     categoryId,
     formDetail,
-    slotOptions,
-    isSlotAlreadySignedUp,
     offeringsLoading,
     requiresOfferingSelection,
     offeringId,
@@ -1927,7 +1909,6 @@ const SchedulingSignupEmbed = ({
                 <button
                   type="button"
                   onClick={() => {
-                    skipAutoSlotRef.current = true
                     setSlotGroupId(null)
                     setTimeSlotId(null)
                     setIdentityPhase('pending')
