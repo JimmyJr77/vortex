@@ -13,6 +13,7 @@ import PricingCostsFields, {
   type PricingCostsValues,
 } from './PricingCostsFields'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
+import { normalizeProgramPromoCodes } from './ProgramPromoCodesField'
 
 interface Props {
   classRow: AdminProgramPricing
@@ -52,6 +53,7 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
     freeSlotsPerUser: program.pricingFreeSlotsPerUser,
     maxFreeSlotsTotal: program.pricingMaxFreeSlotsTotal,
   })
+  const programPromoCodes = normalizeProgramPromoCodes(program.pricingPromoCodes)
 
   const handleCustomize = () => {
     setValues(pricingValuesFromProgram(program))
@@ -121,6 +123,14 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
           Program defaults ({program.displayName})
         </p>
         <p className="text-gray-800">{programDefaultsLabel}</p>
+        <p className="text-xs text-gray-600 mt-2">
+          Promo codes:{' '}
+          {programPromoCodes.length > 0 ? (
+            <span className="font-mono">{programPromoCodes.join(', ')}</span>
+          ) : (
+            <span className="italic">none configured</span>
+          )}
+        </p>
       </div>
 
       {inherits && !editing ? (

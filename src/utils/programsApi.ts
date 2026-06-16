@@ -25,6 +25,7 @@ export interface TopProgram {
   pricingCostAmountCents?: number
   pricingFreeSlotsPerUser?: number
   pricingMaxFreeSlotsTotal?: number | null
+  pricingPromoCodes?: string[]
   archived: boolean
   schedulingActive?: boolean
   schedulingEnrollSites?: EnrollSiteKey[]
@@ -139,6 +140,7 @@ export async function updateTopProgram(
     pricingCostUnit: CostUnit
     pricingFreeSlotsPerUser: number
     pricingMaxFreeSlotsTotal: number | null
+    pricingPromoCodes: string[]
   }>,
 ): Promise<TopProgram> {
   const capabilities = await getSchedulingEnrollApiCapabilities()

@@ -3,13 +3,14 @@ import { DollarSign } from 'lucide-react'
 import AdminPricingProgramTable from './pricing/AdminPricingProgramTable'
 import SportDefaultsPanel from './pricing/SportDefaultsPanel'
 import AdminDiscountsPanel from './pricing/AdminDiscountsPanel'
+import AdminPricingRulesOverview from './pricing/AdminPricingRulesOverview'
 
-type PricingTab = 'costs' | 'discounts' | 'promo'
+type PricingTab = 'costs' | 'discounts' | 'rules'
 
 const TABS: Array<{ id: PricingTab; label: string }> = [
   { id: 'costs', label: 'Costs' },
   { id: 'discounts', label: 'Discounts' },
-  { id: 'promo', label: 'Promo Codes' },
+  { id: 'rules', label: 'Rules' },
 ]
 
 const AdminPricing = () => {
@@ -23,8 +24,8 @@ const AdminPricing = () => {
           Pricing
         </h2>
         <p className="text-gray-600 text-sm mt-1">
-          Set costs, discounts, and promo codes. Defaults cascade from primary sport to program to
-          class.
+          Set costs and discounts, then review which rules apply to each program and class.
+          Defaults cascade from primary sport to program to class.
         </p>
       </div>
 
@@ -54,7 +55,7 @@ const AdminPricing = () => {
         </div>
       )}
       {tab === 'discounts' && <AdminDiscountsPanel showFacilityCaps showSimulator />}
-      {tab === 'promo' && <AdminDiscountsPanel typeFilter="promo_code" />}
+      {tab === 'rules' && <AdminPricingRulesOverview />}
     </div>
   )
 }

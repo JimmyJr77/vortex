@@ -77,6 +77,7 @@ const topProgramUpdateSchema = Joi.object({
     .optional(),
   pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
   pricingMaxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),
+  pricingPromoCodes: Joi.array().items(Joi.string().trim().max(100)).optional(),
 })
 
 async function getFacilityId(pool) {
@@ -416,7 +417,8 @@ export function registerProgramsAdminRoutes(app, pool) {
           COALESCE(p.pricing_cost_unit, 'per_month') as "pricingCostUnit",
           COALESCE(p.pricing_cost_amount_cents, p.pricing_slot_cost_monthly_cents) as "pricingCostAmountCents",
           p.pricing_free_slots_per_user as "pricingFreeSlotsPerUser",
-          p.pricing_max_free_slots_total as "pricingMaxFreeSlotsTotal"
+          p.pricing_max_free_slots_total as "pricingMaxFreeSlotsTotal",
+          COALESCE(p.pricing_promo_codes, '[]'::jsonb) as "pricingPromoCodes"
           ${schedCols}
         FROM ${schema.programsTable} p
         LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
@@ -587,12 +589,25 @@ export function registerProgramsAdminRoutes(app, pool) {
         updates.push(`pricing_max_free_slots_total = $${n++}`)
         values.push(value.pricingMaxFreeSlotsTotal)
       }
+      if (value.pricingPromoCodes !== undefined) {
+        const { ensureDiscountEngineSchema } = await import('./schema.js')
+        await ensureDiscountEngineSchema(pool)
+        updates.push(`pricing_promo_codes = $${n++}::jsonb`)
+        values.push(
+          JSON.stringify(
+            (value.pricingPromoCodes || [])
+              .map((c) => String(c).trim().toUpperCase())
+              .filter(Boolean),
+          ),
+        )
+      }
       const hasPricingUpdate =
         value.pricingMaxSlotsPerUser !== undefined ||
         value.pricingSlotCostMonthlyCents !== undefined ||
         value.pricingCostUnit !== undefined ||
         value.pricingFreeSlotsPerUser !== undefined ||
-        value.pricingMaxFreeSlotsTotal !== undefined
+        value.pricingMaxFreeSlotsTotal !== undefined ||
+        value.pricingPromoCodes !== undefined
       if (updates.length === 0 && value.primarySportId === undefined && !hasPricingUpdate) {
         return res.status(400).json({ success: false, message: 'No fields to update' })
       }

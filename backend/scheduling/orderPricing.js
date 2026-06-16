@@ -1,5 +1,5 @@
 import { countActiveSignupsForPricingScope } from '../members/createMemberStub.js'
-import { loadEffectivePricingForForm } from '../programs/pricingDefaults.js'
+import { loadEffectivePricingForForm, parseProgramPromoCodes } from '../programs/pricingDefaults.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
 import { computeMonthlyPricing } from './pricing.js'
 
@@ -171,6 +171,7 @@ export async function buildSignupOrderPreview(
       programMaxFreeTotal: effective.maxFreeSlotsTotal ?? null,
       classMaxFreeTotal: effective.maxFreeSlotsTotal ?? null,
       maxDiscountRedemptions: effective.maxDiscountRedemptions ?? null,
+      programAllowedPromoCodes: parseProgramPromoCodes(programRow),
       usesProgramPricing: !overrides && programsId != null,
     })
   }
@@ -346,6 +347,8 @@ export async function computeDiscountLayer(
 
   const memberCity = memberContext?.city ?? null
   const memberSchool = memberContext?.school ?? null
+  const memberGraduationYear =
+    memberContext?.graduationYear != null ? Number(memberContext.graduationYear) : null
 
   const lines = newSignupItems.map((item, index) => {
     const formRow = formRows.get(item.formId)
@@ -359,6 +362,7 @@ export async function computeDiscountLayer(
       memberId: memberId ?? null,
       memberCity,
       memberSchool,
+      memberGraduationYear,
       classOrdinal: existingCount + index + 1,
       childOrdinal: 1,
       baseCents: Math.round((item.incrementalMonthly || 0) * 100),
@@ -366,6 +370,7 @@ export async function computeDiscountLayer(
       classMaxFreeTotal: scope?.classMaxFreeTotal ?? null,
       programMaxDiscountRedemptions: scope?.maxDiscountRedemptions ?? null,
       classMaxDiscountRedemptions: scope?.maxDiscountRedemptions ?? null,
+      programAllowedPromoCodes: scope?.programAllowedPromoCodes ?? null,
     }
   })
 

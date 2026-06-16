@@ -148,13 +148,20 @@ export function resolveLineItemCost(resolved, quantities = {}) {
   }
 }
 
+export function parseProgramPromoCodes(row) {
+  const raw = row?.pricing_promo_codes
+  if (!raw) return []
+  if (Array.isArray(raw)) return raw.map((c) => String(c).trim().toUpperCase()).filter(Boolean)
+  return []
+}
+
 export async function loadProgramPricingRow(pool, programsId) {
   if (programsId == null) return null
   const schema = await resolveProgramsSchema(pool)
   const result = await pool.query(
     `SELECT pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
             pricing_max_free_slots_total, pricing_cost_amount_cents, pricing_cost_unit,
-            pricing_max_discount_redemptions, primary_discipline_tag_id
+            pricing_max_discount_redemptions, primary_discipline_tag_id, pricing_promo_codes
      FROM ${schema.programsTable} WHERE id = $1`,
     [programsId],
   )
@@ -233,6 +240,7 @@ export function mapProgramPricingFields(row) {
       row.pricing_max_discount_redemptions != null
         ? Number(row.pricing_max_discount_redemptions)
         : null,
+    pricingPromoCodes: parseProgramPromoCodes(row),
   }
 }
 

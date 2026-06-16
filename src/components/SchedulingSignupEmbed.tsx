@@ -989,6 +989,10 @@ const SchedulingSignupEmbed = ({
       })),
       promoCodes: appliedPromoCodes,
       currentSchool: typeof responses.current_school === 'string' ? responses.current_school : null,
+      graduationYear:
+        responses.graduation_year != null && String(responses.graduation_year).trim() !== ''
+          ? Number(responses.graduation_year)
+          : null,
     })
       .then((preview) => {
         if (!cancelled) setOrderPreview(preview)
@@ -1010,6 +1014,7 @@ const SchedulingSignupEmbed = ({
     accountEmail,
     responses.email,
     responses.current_school,
+    responses.graduation_year,
     initialEmail,
     signupAuthToken,
     formId,

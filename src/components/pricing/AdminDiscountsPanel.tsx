@@ -12,11 +12,11 @@ import {
   type DiscountType,
 } from '../../utils/schedulingApi'
 import DiscountRuleEditor from './DiscountRuleEditor'
+import PromoCodeEditor from './PromoCodeEditor'
 import OrderSimulator from './OrderSimulator'
+import { describePromoRuleBenefit, getPromoStatus } from '../../utils/promoDiscountModel'
 
 interface Props {
-  /** When set, only show + create rules of this type (used for the Promo Codes tab). */
-  typeFilter?: DiscountType
   showFacilityCaps?: boolean
   showSimulator?: boolean
 }
@@ -31,6 +31,7 @@ const TYPE_LABELS: Record<DiscountType, string> = {
 }
 
 function describeAmount(rule: DiscountRule): string {
+  if (rule.type === 'promo_code') return describePromoRuleBenefit(rule)
   if (rule.type === 'multi_class' || rule.type === 'multi_child') {
     return `${rule.tiers.length} tier${rule.tiers.length === 1 ? '' : 's'}`
   }
@@ -42,7 +43,7 @@ function describeAmount(rule: DiscountRule): string {
     : `$${(rule.amountValue / 100).toFixed(2)}`
 }
 
-const AdminDiscountsPanel = ({ typeFilter, showFacilityCaps = false, showSimulator = false }: Props) => {
+const AdminDiscountsPanel = ({ showFacilityCaps = false, showSimulator = false }: Props) => {
   const [rules, setRules] = useState<DiscountRule[]>([])
   const [settings, setSettings] = useState<DiscountGlobalSettings>({
     maxFreeUnitsTotal: null,
@@ -51,6 +52,7 @@ const AdminDiscountsPanel = ({ typeFilter, showFacilityCaps = false, showSimulat
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editorOpen, setEditorOpen] = useState(false)
+  const [promoEditorOpen, setPromoEditorOpen] = useState(false)
   const [editingRule, setEditingRule] = useState<DiscountRule | null>(null)
   const [savingSettings, setSavingSettings] = useState(false)
 
@@ -72,7 +74,7 @@ const AdminDiscountsPanel = ({ typeFilter, showFacilityCaps = false, showSimulat
     void load()
   }, [load])
 
-  const visibleRules = typeFilter ? rules.filter((r) => r.type === typeFilter) : rules
+  const visibleRules = rules
 
   const handleSave = async (input: DiscountRuleInput) => {
     if (editingRule) {
@@ -161,19 +163,29 @@ const AdminDiscountsPanel = ({ typeFilter, showFacilityCaps = false, showSimulat
 
       <div className="rounded-xl border border-gray-200 bg-white">
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
-          <h3 className="font-bold text-gray-900">
-            {typeFilter ? TYPE_LABELS[typeFilter] : 'Discount'} rules
-          </h3>
-          <button
-            type="button"
-            onClick={() => {
-              setEditingRule(null)
-              setEditorOpen(true)
-            }}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-vortex-red text-white rounded-lg hover:bg-red-700"
-          >
-            <Plus className="w-4 h-4" /> New
-          </button>
+          <h3 className="font-bold text-gray-900">Discount rules</h3>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setEditingRule(null)
+                setPromoEditorOpen(true)
+              }}
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              <Plus className="w-4 h-4" /> New promo code
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEditingRule(null)
+                setEditorOpen(true)
+              }}
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-vortex-red text-white rounded-lg hover:bg-red-700"
+            >
+              <Plus className="w-4 h-4" /> New rule
+            </button>
+          </div>
         </div>
 
         {error && <p className="px-4 py-2 text-sm text-red-600">{error}</p>}
@@ -186,7 +198,7 @@ const AdminDiscountsPanel = ({ typeFilter, showFacilityCaps = false, showSimulat
             <thead>
               <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
                 <th className="px-4 py-2">Name</th>
-                {!typeFilter && <th className="px-4 py-2">Type</th>}
+                <th className="px-4 py-2">Type</th>
                 <th className="px-4 py-2">Amount</th>
                 <th className="px-4 py-2">Scope</th>
                 <th className="px-4 py-2">Used</th>
@@ -205,7 +217,7 @@ const AdminDiscountsPanel = ({ typeFilter, showFacilityCaps = false, showSimulat
                       </span>
                     )}
                   </td>
-                  {!typeFilter && <td className="px-4 py-2 text-gray-600">{TYPE_LABELS[rule.type]}</td>}
+                  <td className="px-4 py-2 text-gray-600">{TYPE_LABELS[rule.type]}</td>
                   <td className="px-4 py-2 text-gray-600">{describeAmount(rule)}</td>
                   <td className="px-4 py-2 text-gray-600">
                     {rule.applyTo === 'order_total' ? 'Order' : 'Each class'}
@@ -215,13 +227,33 @@ const AdminDiscountsPanel = ({ typeFilter, showFacilityCaps = false, showSimulat
                     {rule.maxRedemptions != null ? ` / ${rule.maxRedemptions}` : ''}
                   </td>
                   <td className="px-4 py-2">
-                    <span
-                      className={`inline-block px-2 py-0.5 rounded-full text-xs ${
-                        rule.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                      }`}
-                    >
-                      {rule.active ? 'Active' : 'Off'}
-                    </span>
+                    {rule.type === 'promo_code' ? (
+                      (() => {
+                        const st = getPromoStatus(rule)
+                        return (
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded-full text-xs ${
+                              st.usableNow
+                                ? 'bg-green-100 text-green-700'
+                                : rule.active
+                                  ? 'bg-amber-50 text-amber-800'
+                                  : 'bg-gray-100 text-gray-500'
+                            }`}
+                            title={st.detail}
+                          >
+                            {st.label}
+                          </span>
+                        )
+                      })()
+                    ) : (
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-xs ${
+                          rule.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                        }`}
+                      >
+                        {rule.active ? 'Active' : 'Off'}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex items-center gap-2 justify-end">
@@ -229,7 +261,8 @@ const AdminDiscountsPanel = ({ typeFilter, showFacilityCaps = false, showSimulat
                         type="button"
                         onClick={() => {
                           setEditingRule(rule)
-                          setEditorOpen(true)
+                          if (rule.type === 'promo_code') setPromoEditorOpen(true)
+                          else setEditorOpen(true)
                         }}
                         className="p-1.5 text-gray-400 hover:text-gray-900"
                       >
@@ -253,12 +286,24 @@ const AdminDiscountsPanel = ({ typeFilter, showFacilityCaps = false, showSimulat
 
       {showSimulator && <OrderSimulator />}
 
+      <PromoCodeEditor
+        open={promoEditorOpen}
+        rule={editingRule?.type === 'promo_code' ? editingRule : null}
+        onSave={handleSave}
+        onClose={() => {
+          setPromoEditorOpen(false)
+          setEditingRule(null)
+        }}
+      />
+
       <DiscountRuleEditor
         open={editorOpen}
-        rule={editingRule}
-        lockedType={typeFilter}
+        rule={editingRule?.type !== 'promo_code' ? editingRule : null}
         onSave={handleSave}
-        onClose={() => setEditorOpen(false)}
+        onClose={() => {
+          setEditorOpen(false)
+          setEditingRule(null)
+        }}
       />
     </div>
   )

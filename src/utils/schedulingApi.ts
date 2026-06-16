@@ -226,6 +226,16 @@ export interface DiscountRuleTier {
 
 export interface DiscountRuleConfig {
   code?: string
+  discountKind?: 'amount' | 'free_access'
+  amount_applies_to?: string
+  benefit_type?: string
+  application_method?: string
+  class_offering_ids?: number[]
+  eligibility_rules?: Array<{
+    field: 'school' | 'graduation_year' | 'grade_level'
+    operator: 'is' | 'is_not' | 'in' | 'not_in'
+    value: string | number | string[] | number[]
+  }>
   school_names?: string[]
   match?: 'exact' | 'contains'
   cities?: string[]
@@ -647,6 +657,7 @@ export async function fetchSignupOrderPreview(payload: {
   }>
   promoCodes?: string[]
   currentSchool?: string | null
+  graduationYear?: number | null
 }): Promise<SignupOrderPreview> {
   const res = await fetch(`${getApiUrl()}/api/scheduling/signups/order-preview`, {
     method: 'POST',
@@ -658,6 +669,7 @@ export async function fetchSignupOrderPreview(payload: {
       signups: payload.signups,
       promoCodes: payload.promoCodes ?? [],
       currentSchool: payload.currentSchool ?? null,
+      graduationYear: payload.graduationYear ?? null,
     }),
   })
   return parseJson(res)

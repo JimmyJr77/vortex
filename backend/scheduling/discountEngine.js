@@ -26,6 +26,94 @@ function normalizeText(s) {
   return String(s ?? '').trim().toLowerCase()
 }
 
+/** US high school grade (9–12) from graduation year, or null if out of range. */
+function inferGradeFromGraduationYear(gradYear, now = new Date()) {
+  const y = Number(gradYear)
+  if (!Number.isFinite(y)) return null
+  const month = now.getMonth()
+  const schoolYearEnd = month >= 6 ? now.getFullYear() + 1 : now.getFullYear()
+  const yearsUntilGrad = y - schoolYearEnd
+  if (yearsUntilGrad < 0) return null
+  const grade = 12 - yearsUntilGrad
+  if (grade < 9 || grade > 12) return null
+  return grade
+}
+
+function ruleValueList(value) {
+  if (Array.isArray(value)) return value
+  if (value === '' || value == null) return []
+  return [value]
+}
+
+function matchesEligibilityRule(rule, line) {
+  const values = ruleValueList(rule.value)
+  if (values.length === 0) return true
+
+  let actual = null
+  switch (rule.field) {
+    case 'school':
+      actual = normalizeText(line.memberSchool)
+      break
+    case 'graduation_year':
+      actual = line.memberGraduationYear != null ? Number(line.memberGraduationYear) : null
+      break
+    case 'grade_level': {
+      const direct = line.memberGradeLevel != null ? Number(line.memberGradeLevel) : null
+      actual =
+        direct != null && Number.isFinite(direct)
+          ? direct
+          : inferGradeFromGraduationYear(line.memberGraduationYear)
+      break
+    }
+    default:
+      return true
+  }
+  if (actual == null || actual === '') return false
+
+  const op = rule.operator || 'is'
+  if (rule.field === 'school') {
+    const targets = values.map(normalizeText).filter(Boolean)
+    const hit = targets.some((t) => actual === t || actual.includes(t))
+    if (op === 'is' || op === 'in') return hit
+    if (op === 'is_not' || op === 'not_in') return !hit
+    return hit
+  }
+
+  const nums = values.map(Number).filter((n) => Number.isFinite(n))
+  const n = Number(actual)
+  if (op === 'is') return nums.length > 0 && n === nums[0]
+  if (op === 'is_not') return nums.length > 0 && n !== nums[0]
+  if (op === 'in') return nums.includes(n)
+  if (op === 'not_in') return !nums.includes(n)
+  return true
+}
+
+/** AND-combined eligibility rules stored on promo config. */
+function passesEligibilityRules(rule, line) {
+  const rules = rule.config?.eligibility_rules
+  if (!Array.isArray(rules) || rules.length === 0) return true
+  return rules.every((r) => matchesEligibilityRule(r, line))
+}
+
+function isPromoFreeAccess(rule) {
+  return rule.type === 'promo_code' && rule.config?.discountKind === 'free_access'
+}
+
+function isFreeGrantRule(rule) {
+  return rule.type === 'free_classes' || isPromoFreeAccess(rule)
+}
+
+function offeringMatchesRule(rule, line) {
+  const cfg = rule.config || {}
+  const ids = Array.isArray(cfg.class_offering_ids)
+    ? cfg.class_offering_ids.map(Number)
+    : cfg.offering_id != null
+      ? [Number(cfg.offering_id)]
+      : []
+  if (ids.length === 0) return true
+  return line.offeringId != null && ids.includes(Number(line.offeringId))
+}
+
 /** Tier whose threshold is the greatest <= ordinal (e.g. 3rd class uses the "3" tier, else "2"). */
 function tierForOrdinal(rule, ordinal) {
   const tiers = (rule.tiers || [])
@@ -61,10 +149,20 @@ function scopeMatchesLine(rule, line) {
 /** Per-line eligibility for line-targeted discount types (school, city, promo, multi_class, free). */
 function lineEligible(rule, line, promoCodesLower) {
   if (!scopeMatchesLine(rule, line)) return false
+  if (!passesEligibilityRules(rule, line)) return false
   switch (rule.type) {
     case 'promo_code': {
       const code = normalizeText(rule.config?.code)
-      return code !== '' && promoCodesLower.has(code)
+      if (code === '' || !promoCodesLower.has(code)) return false
+      // Program-scoped allowlist: only listed codes apply to this program's classes.
+      // Universal discounts (multi-child, etc.) are separate rule types and always apply.
+      const allowed = line.programAllowedPromoCodes
+      if (Array.isArray(allowed)) {
+        if (allowed.length === 0) return false
+        const allowedSet = new Set(allowed.map(normalizeText))
+        if (!allowedSet.has(code)) return false
+      }
+      return true
     }
     case 'school': {
       const names = (rule.config?.school_names || []).map(normalizeText).filter(Boolean)
@@ -282,17 +380,17 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
 
     // Per-class rules.
     for (const ls of lineState) {
-      if (rule.type === 'free_classes') {
-        // Free grant: target by offering/slot when specified, else any matching line.
+      if (isFreeGrantRule(rule)) {
         const cfg = rule.config || {}
-        if (cfg.offering_id != null && Number(cfg.offering_id) !== Number(ls.line.offeringId)) continue
+        if (!offeringMatchesRule(rule, ls.line)) continue
         if (!lineEligible(rule, ls.line, promoCodesLower)) continue
         const amount = applyToLine(ls, rule, rule.amountType, rule.amountValue, 'free')
         if (amount > 0) {
+          const unit = cfg.grant_unit || cfg.benefit_type || 'slot'
           freeGrants.push({
             ruleId: rule.id,
             lineKey: ls.key,
-            unit: cfg.grant_unit || 'slot',
+            unit,
             quantity: Number(cfg.quantity ?? 1),
             amountCents: amount,
           })

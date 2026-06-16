@@ -1237,6 +1237,7 @@ const orderPreviewSchema = Joi.object({
   signups: Joi.array().items(signupItemSchema).max(20).default([]),
   promoCodes: Joi.array().items(Joi.string().trim().max(100)).max(10).default([]),
   currentSchool: Joi.string().trim().allow('', null).max(200).optional(),
+  graduationYear: Joi.number().integer().min(2000).max(2100).allow(null).optional(),
 }).custom((val, helpers) => {
   if (!val.signupAuthToken && !val.email) {
     return helpers.error('any.custom', { message: 'Email or sign-in session is required' })
@@ -1632,7 +1633,11 @@ export function createSchedulingHandlers(pool) {
           memberId,
           newSignups: value.signups,
           promoCodes: value.promoCodes || [],
-          memberContext: { city: memberCity, school: value.currentSchool || null },
+          memberContext: {
+            city: memberCity,
+            school: value.currentSchool || null,
+            graduationYear: value.graduationYear ?? null,
+          },
         })
 
         res.json({ success: true, data: preview })
@@ -1922,6 +1927,10 @@ export function createSchedulingHandlers(pool) {
               memberContext: {
                 city: null,
                 school: responses.current_school != null ? String(responses.current_school).trim() : null,
+                graduationYear:
+                  responses.graduation_year != null && responses.graduation_year !== ''
+                    ? Number(responses.graduation_year)
+                    : null,
               },
             })
             discountBreakdown = preview.discounts
@@ -2180,6 +2189,10 @@ export function createSchedulingHandlers(pool) {
               memberContext: {
                 city: null,
                 school: responses.current_school != null ? String(responses.current_school).trim() : null,
+                graduationYear:
+                  responses.graduation_year != null && responses.graduation_year !== ''
+                    ? Number(responses.graduation_year)
+                    : null,
               },
             })
             discountBreakdown = preview.discounts

@@ -6,6 +6,7 @@ import PricingCostsFields, {
   pricingValuesFromProgram,
   type PricingCostsValues,
 } from './PricingCostsFields'
+import ProgramPromoCodesField, { normalizeProgramPromoCodes } from './ProgramPromoCodesField'
 import AdminPricingClassTable from './AdminPricingClassTable'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
 
@@ -17,6 +18,9 @@ interface Props {
 
 const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
   const [values, setValues] = useState<PricingCostsValues>(() => pricingValuesFromProgram(program))
+  const [promoCodes, setPromoCodes] = useState<string[]>(() =>
+    normalizeProgramPromoCodes(program.pricingPromoCodes),
+  )
   const [saving, setSaving] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,6 +29,7 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
 
   useEffect(() => {
     setValues(pricingValuesFromProgram(program))
+    setPromoCodes(normalizeProgramPromoCodes(program.pricingPromoCodes))
     setSaved(false)
     setError(null)
   }, [program])
@@ -42,6 +47,7 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
         pricingFreeSlotsPerUser: values.freeSlotsPerUser,
         pricingMaxFreeSlotsTotal:
           values.maxFreeSlotsTotal === '' ? null : Number(values.maxFreeSlotsTotal),
+        pricingPromoCodes: promoCodes,
       })
       await onRefresh()
       setSaved(true)
@@ -82,6 +88,8 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
         totalFreeSlotsLabel="Total free slots (program-wide)"
         totalFreeSlotsHelp="Leave empty for unlimited. Caps free slots across all classes and members in this program."
       />
+
+      <ProgramPromoCodesField selectedCodes={promoCodes} onChange={setPromoCodes} />
 
       <div className="flex flex-wrap items-center gap-2">
         <button
