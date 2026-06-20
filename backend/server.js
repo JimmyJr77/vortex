@@ -48,7 +48,7 @@ if (fs.existsSync(envLocalPath)) {
 const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'scheduling-additional-fees-2026-06-20'
+const API_BUILD_ID = 'scheduling-free-passes-2026-06-20'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -2342,6 +2342,8 @@ app.get('/api/health', (req, res) => {
       scheduling: hasRegisteredRoute('/api/admin/scheduling/forms'),
       schedulingCalendar: hasRegisteredRoute('/api/admin/scheduling/calendar'),
       schedulingAdditionalFees: hasRegisteredRoute('/api/admin/scheduling/additional-fees'),
+      schedulingFreePasses: hasRegisteredRoute('/api/admin/scheduling/free-passes'),
+      schedulingBenefitSelections: hasRegisteredRoute('/api/admin/scheduling/pricing-benefit-selections'),
       memberPricingSummary: hasRegisteredRoute('/api/admin/scheduling/members/:memberId/pricing-summary'),
       publicScheduling: hasRegisteredRoute('/api/scheduling/forms'),
       dbQueries: hasRegisteredRoute('/api/admin/db-queries/entities'),

@@ -34,31 +34,34 @@ void initCrossDomainConsent().then((merged) => {
   }
 })
 
-// Inject CDN preconnect link for performance
+// Optional CDN hint: dns-prefetch only (preconnect errors when the CDN host is not set up yet).
 const cdnBaseUrl = import.meta.env.VITE_CDN_BASE_URL
-if (cdnBaseUrl) {
+const cdnPreconnect = import.meta.env.VITE_CDN_PRECONNECT === 'true'
+if (cdnBaseUrl && import.meta.env.PROD) {
   try {
     const cdnUrl = new URL(cdnBaseUrl)
     const cdnOrigin = `${cdnUrl.protocol}//${cdnUrl.host}`
-    
-    // Check if preconnect link already exists
-    const existingLink = document.querySelector(`link[rel="preconnect"][href="${cdnOrigin}"]`)
-    if (!existingLink) {
-      // Add preconnect link
-      const preconnectLink = document.createElement('link')
-      preconnectLink.rel = 'preconnect'
-      preconnectLink.href = cdnOrigin
-      preconnectLink.crossOrigin = 'anonymous'
-      document.head.appendChild(preconnectLink)
-      
-      // Also add dns-prefetch as fallback
-      const dnsPrefetchLink = document.createElement('link')
-      dnsPrefetchLink.rel = 'dns-prefetch'
-      dnsPrefetchLink.href = cdnOrigin
-      document.head.appendChild(dnsPrefetchLink)
+
+    if (cdnPreconnect) {
+      const existingPreconnect = document.querySelector(`link[rel="preconnect"][href="${cdnOrigin}"]`)
+      if (!existingPreconnect) {
+        const preconnectLink = document.createElement('link')
+        preconnectLink.rel = 'preconnect'
+        preconnectLink.href = cdnOrigin
+        preconnectLink.crossOrigin = 'anonymous'
+        document.head.appendChild(preconnectLink)
+      }
+    } else {
+      const existingPrefetch = document.querySelector(`link[rel="dns-prefetch"][href="${cdnOrigin}"]`)
+      if (!existingPrefetch) {
+        const dnsPrefetchLink = document.createElement('link')
+        dnsPrefetchLink.rel = 'dns-prefetch'
+        dnsPrefetchLink.href = cdnOrigin
+        document.head.appendChild(dnsPrefetchLink)
+      }
     }
   } catch (error) {
-    console.warn('Failed to parse CDN URL for preconnect:', error)
+    console.warn('Failed to parse CDN URL for prefetch:', error)
   }
 }
 
