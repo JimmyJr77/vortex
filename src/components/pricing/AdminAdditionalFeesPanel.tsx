@@ -10,6 +10,7 @@ import {
   type AdditionalFeeInput,
 } from '../../utils/schedulingApi'
 import { fetchDisciplineTags, fetchTopPrograms } from '../../utils/programsApi'
+import { getApiUrl } from '../../utils/api'
 import CollapsiblePricingSection from './CollapsiblePricingSection'
 import AdditionalFeeEditor from './AdditionalFeeEditor'
 import {
@@ -17,6 +18,20 @@ import {
   describeFeeApplication,
   describeFeeScope,
 } from '../../utils/additionalFeeModel'
+
+const BACKEND_DEPLOY_HINT =
+  'Additional fees API is not on the server yet. Redeploy the Render backend (vortex-backend) from the latest main branch, then confirm /api/health shows schedulingAdditionalFees: true.'
+
+async function isAdditionalFeesApiAvailable(): Promise<boolean> {
+  try {
+    const res = await fetch(`${getApiUrl()}/api/health`, { signal: AbortSignal.timeout(8000) })
+    if (!res.ok) return false
+    const data = (await res.json()) as { apiFeatures?: { schedulingAdditionalFees?: boolean } }
+    return data.apiFeatures?.schedulingAdditionalFees === true
+  } catch {
+    return false
+  }
+}
 
 const AdminAdditionalFeesPanel = () => {
   const [fees, setFees] = useState<AdditionalFee[]>([])
@@ -32,6 +47,10 @@ const AdminAdditionalFeesPanel = () => {
     setLoading(true)
     setError(null)
     try {
+      if (!(await isAdditionalFeesApiAvailable())) {
+        setError(BACKEND_DEPLOY_HINT)
+        return
+      }
       const [feeRows, sportRows, programRows, formRows] = await Promise.all([
         adminFetchAdditionalFees(),
         fetchDisciplineTags(),
