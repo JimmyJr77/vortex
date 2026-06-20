@@ -15,8 +15,11 @@ interface Props {
   onClose: () => void
 }
 
-const inputClass =
-  'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-vortex-red focus:outline-none'
+const fieldClass =
+  'w-full h-10 rounded-lg border border-gray-300 px-3 text-sm focus:border-vortex-red focus:outline-none box-border'
+
+const textareaClass =
+  'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-vortex-red focus:outline-none box-border'
 
 function dateInputValue(iso: string | null | undefined): string {
   return iso ? iso.slice(0, 10) : ''
@@ -51,6 +54,7 @@ function toForm(t: FreePassTemplate | null): FreePassTemplateInput {
       stackable: t.stackable,
       exclusivityGroup: t.exclusivityGroup,
       maxRedemptions: t.maxRedemptions,
+      maxRedemptionsPerMember: t.maxRedemptionsPerMember,
       config: t.config ?? {},
     }
   }
@@ -73,6 +77,7 @@ function toForm(t: FreePassTemplate | null): FreePassTemplateInput {
     stackable: true,
     exclusivityGroup: null,
     maxRedemptions: null,
+    maxRedemptionsPerMember: null,
     config: {},
   }
 }
@@ -149,7 +154,7 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             <label className="block text-xs font-semibold mb-1 text-gray-600">Name</label>
             <input
               required
-              className={inputClass}
+              className={fieldClass}
               value={form.name}
               onChange={(e) => update({ name: e.target.value })}
             />
@@ -158,7 +163,7 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
           <div>
             <label className="block text-xs font-semibold mb-1 text-gray-600">Description</label>
             <textarea
-              className={inputClass}
+              className={textareaClass}
               rows={2}
               value={form.description ?? ''}
               onChange={(e) => update({ description: e.target.value })}
@@ -169,7 +174,7 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             <div>
               <label className="block text-xs font-semibold mb-1 text-gray-600">Benefit</label>
               <select
-                className={inputClass}
+                className={fieldClass}
                 value={form.benefitUnit}
                 onChange={(e) => update({ benefitUnit: e.target.value as FreePassBenefitUnit })}
               >
@@ -185,7 +190,7 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
               <input
                 type="number"
                 min={1}
-                className={inputClass}
+                className={fieldClass}
                 value={form.benefitQuantity}
                 onChange={(e) => update({ benefitQuantity: Math.max(1, Number(e.target.value) || 1) })}
               />
@@ -196,7 +201,7 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             <div>
               <label className="block text-xs font-semibold mb-1 text-gray-600">Day of week</label>
               <select
-                className={inputClass}
+                className={fieldClass}
                 value={form.dayOfWeek ?? ''}
                 onChange={(e) =>
                   update({
@@ -227,7 +232,7 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
               Offering ids (optional filter, comma-separated)
             </label>
             <input
-              className={inputClass}
+              className={fieldClass}
               placeholder="e.g. 12, 15"
               value={offeringIdsText}
               onChange={(e) => setOfferingIdsText(e.target.value)}
@@ -257,7 +262,7 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             <div>
               <label className="block text-xs text-gray-500 mb-1">Promo code (optional)</label>
               <input
-                className={inputClass}
+                className={fieldClass}
                 placeholder="TRYFREE"
                 value={String(form.issuance?.promo_code ?? '')}
                 onChange={(e) => updateIssuance({ promo_code: e.target.value.trim().toUpperCase() })}
@@ -291,7 +296,7 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
               <label className="block text-xs font-semibold mb-1 text-gray-600">Valid from (optional)</label>
               <input
                 type="date"
-                className={inputClass}
+                className={fieldClass}
                 value={dateInputValue(form.startsAt)}
                 onChange={(e) =>
                   update({
@@ -305,7 +310,7 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
               <label className="block text-xs font-semibold mb-1 text-gray-600">Valid through (optional)</label>
               <input
                 type="date"
-                className={inputClass}
+                className={fieldClass}
                 value={dateInputValue(form.endsAt)}
                 onChange={(e) =>
                   update({
@@ -319,20 +324,49 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold mb-1 text-gray-600">Max redemptions</label>
-            <input
-              type="number"
-              min={0}
-              placeholder="Unlimited"
-              className={inputClass}
-              value={form.maxRedemptions ?? ''}
-              onChange={(e) =>
-                update({
-                  maxRedemptions: e.target.value === '' ? null : Math.max(0, Number(e.target.value)),
-                })
-              }
-            />
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+            <div>
+              <p className="text-sm font-bold text-gray-900">Max redemptions</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Set either limit alone or both. Example: 1 per person and 20 facility-wide means each
+                member can use the pass once, and only 20 total uses are available gym-wide.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold mb-1 text-gray-600">Per person</label>
+                <input
+                  type="number"
+                  min={1}
+                  placeholder="Unlimited"
+                  className={fieldClass}
+                  value={form.maxRedemptionsPerMember ?? ''}
+                  onChange={(e) =>
+                    update({
+                      maxRedemptionsPerMember:
+                        e.target.value === '' ? null : Math.max(1, Number(e.target.value)),
+                    })
+                  }
+                />
+                <p className="text-xs text-gray-500 mt-1">Max uses per member. Leave empty for no limit.</p>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1 text-gray-600">Facility max</label>
+                <input
+                  type="number"
+                  min={1}
+                  placeholder="Unlimited"
+                  className={fieldClass}
+                  value={form.maxRedemptions ?? ''}
+                  onChange={(e) =>
+                    update({
+                      maxRedemptions: e.target.value === '' ? null : Math.max(1, Number(e.target.value)),
+                    })
+                  }
+                />
+                <p className="text-xs text-gray-500 mt-1">Total uses across all members. Leave empty for no limit.</p>
+              </div>
+            </div>
           </div>
 
           <label className="flex items-center gap-2 text-sm">

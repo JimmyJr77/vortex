@@ -143,6 +143,10 @@ export function mapPassTemplateRow(r) {
     stackable: r.stackable !== false,
     exclusivityGroup: r.exclusivity_group ?? null,
     maxRedemptions: r.max_redemptions != null ? Number(r.max_redemptions) : null,
+    maxRedemptionsPerMember:
+      r.config?.max_redemptions_per_member != null
+        ? Number(r.config.max_redemptions_per_member)
+        : null,
     redeemedCount: Number(r.redeemed_count ?? 0),
     config: r.config ?? {},
     createdAt: r.created_at,
@@ -443,6 +447,22 @@ export function applyFreePassLayer({
   const maxFacilityFree = caps.maxFreeUnitsTotal ?? null
   const ruleRedeemed = { ...(caps.ruleRedeemed || {}) }
   const usedExclusivity = new Set()
+  const memberOrderRedeemed = new Map()
+
+  const memberRedemptionCount = (templateId, memberId) => {
+    if (memberId == null) return 0
+    const historic =
+      caps.memberRedeemedByTemplate?.get(Number(templateId))?.get(Number(memberId)) ?? 0
+    const orderKey = `${templateId}:${memberId}`
+    const inOrder = memberOrderRedeemed.get(orderKey) ?? 0
+    return historic + inOrder
+  }
+
+  const recordMemberRedemption = (templateId, memberId) => {
+    if (memberId == null) return
+    const orderKey = `${templateId}:${memberId}`
+    memberOrderRedeemed.set(orderKey, (memberOrderRedeemed.get(orderKey) ?? 0) + 1)
+  }
 
   const items = []
   const redemptions = []
@@ -477,6 +497,11 @@ export function applyFreePassLayer({
       if (template.maxRedemptions != null) {
         const used = (template.redeemedCount || 0) + (ruleRedeemed[template.id] || 0)
         if (used >= template.maxRedemptions) continue
+      }
+      if (template.maxRedemptionsPerMember != null && line.memberId != null) {
+        if (memberRedemptionCount(template.id, line.memberId) >= template.maxRedemptionsPerMember) {
+          continue
+        }
       }
       if (maxFacilityFree != null && facilityFreeUsed >= maxFacilityFree) continue
 
@@ -532,6 +557,7 @@ export function applyFreePassLayer({
 
       facilityFreeUsed += 1
       ruleRedeemed[template.id] = (ruleRedeemed[template.id] || 0) + 1
+      recordMemberRedemption(template.id, line.memberId)
       if (template.exclusivityGroup) usedExclusivity.add(template.exclusivityGroup)
       if (!template.stackable) break
     }
@@ -572,6 +598,20 @@ export async function loadFreePassCaps(pool, facilityId) {
     for (const row of byTemplate.rows) {
       caps.ruleRedeemed[Number(row.pass_template_id)] = Number(row.c)
     }
+    const memberByTemplate = new Map()
+    const byMember = await pool.query(
+      `SELECT pass_template_id, member_id, COUNT(*)::int AS c
+       FROM free_pass_redemption
+       WHERE pass_template_id IS NOT NULL AND member_id IS NOT NULL
+       GROUP BY pass_template_id, member_id`,
+    )
+    for (const row of byMember.rows) {
+      const templateId = Number(row.pass_template_id)
+      const memberId = Number(row.member_id)
+      if (!memberByTemplate.has(templateId)) memberByTemplate.set(templateId, new Map())
+      memberByTemplate.get(templateId).set(memberId, Number(row.c))
+    }
+    caps.memberRedeemedByTemplate = memberByTemplate
   } catch {
     /* tables may not exist yet */
   }

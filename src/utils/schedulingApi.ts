@@ -281,6 +281,7 @@ export interface FreePassTemplate {
   stackable: boolean
   exclusivityGroup: string | null
   maxRedemptions: number | null
+  maxRedemptionsPerMember: number | null
   redeemedCount: number
   config: Record<string, unknown>
 }

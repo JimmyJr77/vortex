@@ -133,9 +133,17 @@ const AdminFreePassesPanel = () => {
                     {t.debitsFreeClassAllowance && ' · debits allowance'}
                     {Boolean(t.eligibility?.new_member) && ' · new enrollees only'}
                   </td>
-                  <td className="px-4 py-2 text-gray-600">
-                    {t.redeemedCount}
-                    {t.maxRedemptions != null ? ` / ${t.maxRedemptions}` : ''}
+                  <td className="px-4 py-2 text-gray-600 text-xs">
+                    <span className="block">{t.redeemedCount} used</span>
+                    {(t.maxRedemptionsPerMember != null || t.maxRedemptions != null) && (
+                      <span className="text-gray-500">
+                        {t.maxRedemptionsPerMember != null
+                          ? `${t.maxRedemptionsPerMember} per person`
+                          : null}
+                        {t.maxRedemptionsPerMember != null && t.maxRedemptions != null ? ' · ' : null}
+                        {t.maxRedemptions != null ? `${t.maxRedemptions} facility max` : null}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-2">
                     <span

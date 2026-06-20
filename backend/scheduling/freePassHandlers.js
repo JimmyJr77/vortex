@@ -46,8 +46,19 @@ const templateSchema = Joi.object({
   stackable: Joi.boolean().default(true),
   exclusivityGroup: Joi.string().trim().allow('', null).max(100).optional(),
   maxRedemptions: Joi.number().integer().min(0).allow(null).optional(),
+  maxRedemptionsPerMember: Joi.number().integer().min(1).allow(null).optional(),
   config: Joi.object().default({}),
 })
+
+function buildPassConfig(value) {
+  const config = { ...(value.config ?? {}) }
+  if (value.maxRedemptionsPerMember != null) {
+    config.max_redemptions_per_member = value.maxRedemptionsPerMember
+  } else {
+    delete config.max_redemptions_per_member
+  }
+  return config
+}
 
 const attachmentSchema = Joi.object({
   scopeLevel: Joi.string().valid('program', 'class').required(),
@@ -114,7 +125,7 @@ function templateToDb(value) {
     stackable: value.stackable !== false,
     exclusivity_group: value.exclusivityGroup || null,
     max_redemptions: value.maxRedemptions ?? null,
-    config: JSON.stringify(value.config ?? {}),
+    config: JSON.stringify(buildPassConfig(value)),
   }
 }
 
