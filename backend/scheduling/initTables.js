@@ -406,5 +406,14 @@ export async function initSchedulingTables(pool) {
     }
   }
 
+  const benefitSelectionMigration = path.join(__dirname, '../migrations/add_pricing_benefit_selection.sql')
+  if (fs.existsSync(benefitSelectionMigration)) {
+    try {
+      await pool.query(fs.readFileSync(benefitSelectionMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] benefit selection migration:', err.message)
+    }
+  }
+
   console.log('✅ Scheduling tables ready')
 }

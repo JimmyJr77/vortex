@@ -299,6 +299,27 @@ export interface FreePassAttachment {
   sortOrder: number
 }
 
+export type BenefitScopeLevel = 'sport' | 'program' | 'class' | 'category'
+
+export interface PricingBenefitSelection {
+  id?: number
+  scopeLevel: BenefitScopeLevel
+  scopeRefId: number
+  benefitType: 'discount_rule' | 'free_pass'
+  benefitId: number
+  autoApply: boolean
+  allowMemberCode: boolean
+  sortOrder: number
+}
+
+export interface PricingBenefitSelectionInput {
+  benefitType: 'discount_rule' | 'free_pass'
+  benefitId: number
+  autoApply: boolean
+  allowMemberCode: boolean
+  sortOrder?: number
+}
+
 export interface MemberFreePassGrant {
   id: number
   memberId: number
@@ -1173,6 +1194,28 @@ export async function adminSavePassAttachments(payload: {
   }>
 }): Promise<FreePassAttachment[]> {
   const res = await adminApiRequest('/api/admin/scheduling/pricing-pass-attachments', {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+  return parseJson(res)
+}
+
+export async function adminFetchBenefitSelections(
+  scopeLevel: BenefitScopeLevel,
+  scopeRefId: number,
+): Promise<PricingBenefitSelection[]> {
+  const res = await adminApiRequest(
+    `/api/admin/scheduling/pricing-benefit-selections?scopeLevel=${scopeLevel}&scopeRefId=${scopeRefId}`,
+  )
+  return parseJson(res)
+}
+
+export async function adminSaveBenefitSelections(payload: {
+  scopeLevel: BenefitScopeLevel
+  scopeRefId: number
+  selections: PricingBenefitSelectionInput[]
+}): Promise<PricingBenefitSelection[]> {
+  const res = await adminApiRequest('/api/admin/scheduling/pricing-benefit-selections', {
     method: 'PUT',
     body: JSON.stringify(payload),
   })

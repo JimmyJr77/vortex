@@ -6,10 +6,9 @@ import PricingCostsFields, {
   pricingValuesFromProgram,
   type PricingCostsValues,
 } from './PricingCostsFields'
-import ProgramPromoCodesField, { normalizeProgramPromoCodes } from './ProgramPromoCodesField'
 import AdminPricingClassTable from './AdminPricingClassTable'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
-import FreePassAttachmentSection from './FreePassAttachmentSection'
+import PricingBenefitSelectionField from './PricingBenefitSelectionField'
 
 interface Props {
   program: TopProgram
@@ -19,9 +18,6 @@ interface Props {
 
 const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
   const [values, setValues] = useState<PricingCostsValues>(() => pricingValuesFromProgram(program))
-  const [promoCodes, setPromoCodes] = useState<string[]>(() =>
-    normalizeProgramPromoCodes(program.pricingPromoCodes),
-  )
   const [saving, setSaving] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,7 +26,6 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
 
   useEffect(() => {
     setValues(pricingValuesFromProgram(program))
-    setPromoCodes(normalizeProgramPromoCodes(program.pricingPromoCodes))
     setSaved(false)
     setError(null)
   }, [program])
@@ -48,7 +43,6 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
         pricingFreeSlotsPerUser: values.freeSlotsPerUser,
         pricingMaxFreeSlotsTotal:
           values.maxFreeSlotsTotal === '' ? null : Number(values.maxFreeSlotsTotal),
-        pricingPromoCodes: promoCodes,
       })
       await onRefresh()
       setSaved(true)
@@ -90,7 +84,11 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
         totalFreeSlotsHelp="Leave empty for unlimited. Caps free slots across all classes and members in this program."
       />
 
-      <ProgramPromoCodesField selectedCodes={promoCodes} onChange={setPromoCodes} />
+      <PricingBenefitSelectionField
+        scopeLevel="program"
+        scopeRefId={program.id}
+        title="Program discounts & free passes"
+      />
 
       <div className="flex flex-wrap items-center gap-2">
         <button
@@ -114,12 +112,6 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-
-      <FreePassAttachmentSection
-        scopeLevel="program"
-        scopeRefId={program.id}
-        title="Program free passes"
-      />
 
       <div>
         <h4 className="text-base font-bold text-black mb-3">Classes</h4>

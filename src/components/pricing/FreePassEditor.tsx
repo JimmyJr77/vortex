@@ -201,43 +201,10 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">Scope</label>
-              <select
-                className={inputClass}
-                value={form.scopeLevel}
-                onChange={(e) =>
-                  update({
-                    scopeLevel: e.target.value as FreePassTemplateInput['scopeLevel'],
-                    scopeRefId: e.target.value === 'global' ? null : form.scopeRefId,
-                  })
-                }
-              >
-                <option value="global">Global</option>
-                <option value="sport">Sport (tag id)</option>
-                <option value="program">Program</option>
-                <option value="class">Class (form id)</option>
-                <option value="offering">Offering</option>
-              </select>
-            </div>
-            {form.scopeLevel !== 'global' && (
-              <div>
-                <label className="block text-xs font-semibold mb-1 text-gray-600">Scope ref id</label>
-                <input
-                  type="number"
-                  min={1}
-                  className={inputClass}
-                  value={form.scopeRefId ?? ''}
-                  onChange={(e) =>
-                    update({
-                      scopeRefId: e.target.value === '' ? null : Number(e.target.value),
-                    })
-                  }
-                />
-              </div>
-            )}
-          </div>
+          <p className="text-xs text-gray-500 rounded-lg border border-dashed border-gray-200 px-3 py-2">
+            Wire this pass to sports, programs, classes, or categories under Pricing → Costs.
+            Member grants and promo codes still work when configured below.
+          </p>
 
           <div>
             <label className="block text-xs font-semibold mb-1 text-gray-600">

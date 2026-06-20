@@ -10,6 +10,62 @@ import {
 export const SIGNUP_ORDER_PRICING_DISCLAIMER =
   'Pricing shown is a rough estimate and may not reflect your actual billing, current rates, or all discounts that apply to your account.'
 
+async function resolveLineCostBenefits(
+  pool,
+  { sportId, programId, formId, categoryId, programPromoCodes },
+  discountRules = [],
+) {
+  const {
+    resolveBenefitSelectionsForLine,
+    mergeLegacyProgramPromos,
+    enrichPromoCodesFromSelections,
+  } = await import('./benefitSelection.js')
+
+  let resolved = await resolveBenefitSelectionsForLine(pool, {
+    sportId,
+    programId,
+    formId,
+    categoryId,
+  })
+  resolved = mergeLegacyProgramPromos(resolved, programPromoCodes)
+  if (discountRules.length) {
+    resolved = enrichPromoCodesFromSelections(resolved, discountRules)
+  }
+
+  if (!resolved.usesCostSelections && formId != null) {
+    const formRes = await pool.query(`SELECT * FROM scheduling_form WHERE id = $1`, [formId])
+    const formRow = formRes.rows[0]
+    if (formRow) {
+      const { loadAttachmentsForForm } = await import('./freePassEngine.js')
+      const legacy = await loadAttachmentsForForm(pool, formRow)
+      resolved.freePassAttachments = legacy.map((a) => ({
+        passTemplateId: a.passTemplateId,
+        autoApply: a.autoApply,
+        allowMemberCode: false,
+      }))
+    }
+  } else {
+    resolved.freePassAttachments = resolved.freePassAttachments.map((a) => {
+      const sel = resolved.selections.find(
+        (s) => s.benefitType === 'free_pass' && s.benefitId === a.passTemplateId,
+      )
+      return {
+        passTemplateId: a.passTemplateId,
+        autoApply: a.autoApply,
+        allowMemberCode: sel?.allowMemberCode !== false,
+      }
+    })
+  }
+
+  return {
+    costUsesSelections: resolved.usesCostSelections,
+    costDiscountRuleIds: resolved.discountRuleIds,
+    costAllowedPromoCodes: [...resolved.allowedPromoCodes],
+    autoPromoCodes: [...resolved.autoPromoCodes],
+    freePassAttachments: resolved.freePassAttachments,
+  }
+}
+
 function programSlotSignupKey(formId, categoryId, slotGroupId, timeSlotId) {
   return `${formId}:${categoryId ?? 'none'}:${slotGroupId}:${timeSlotId ?? 'none'}`
 }
@@ -499,7 +555,6 @@ export async function computeFreePassLayer(
     const {
       applyFreePassLayer,
       loadActivePassTemplates,
-      loadAttachmentsForForm,
       loadCalendarRowsForSlotGroups,
       loadFreePassCaps,
       loadMemberPassGrants,
@@ -511,6 +566,17 @@ export async function computeFreePassLayer(
     const templates = await loadActivePassTemplates(pool, facilityId)
     const grants = memberId ? await loadMemberPassGrants(pool, memberId) : []
     const caps = await loadFreePassCaps(pool, facilityId)
+
+    const categoryBySlotKey = new Map()
+    for (const entry of filteredNew) {
+      const key = programSlotSignupKey(
+        entry.formId,
+        entry.categoryId ?? null,
+        entry.slotGroupId,
+        entry.timeSlotId ?? null,
+      )
+      categoryBySlotKey.set(key, entry.categoryId ?? null)
+    }
 
     const slotGroupIds = [
       ...new Set(
@@ -528,21 +594,28 @@ export async function computeFreePassLayer(
       }
     }
 
-    const allAttachments = []
-    for (const formRow of formRows.values()) {
-      const attachments = await loadAttachmentsForForm(pool, formRow)
-      allAttachments.push(...attachments)
-    }
-
     const memberCity = memberContext?.city ?? null
     const memberSchool = memberContext?.school ?? null
     const memberGraduationYear =
       memberContext?.graduationYear != null ? Number(memberContext.graduationYear) : null
 
-    const lines = newSignupItems.map((item, index) => {
+    const lines = []
+    for (const item of newSignupItems) {
       const formRow = formRows.get(item.formId)
       const scope = formRow ? scopeMeta.get(pricingScopeKey(formRow)) : null
-      return {
+      const categoryId = categoryBySlotKey.get(item.slotKey) ?? null
+      const costBenefits = await resolveLineCostBenefits(
+        pool,
+        {
+          sportId: scope?.sportId ?? null,
+          programId: scope?.programsId ?? null,
+          formId: item.formId,
+          categoryId,
+          programPromoCodes: scope?.programAllowedPromoCodes ?? [],
+        },
+        [],
+      )
+      lines.push({
         key: item.slotKey,
         formId: item.formId,
         programId: scope?.programsId ?? null,
@@ -555,14 +628,16 @@ export async function computeFreePassLayer(
         memberSchool,
         memberGraduationYear,
         baseCents: Math.round((item.incrementalMonthly || 0) * 100),
-      }
-    })
+        costUsesSelections: costBenefits.costUsesSelections,
+        freePassAttachments: costBenefits.freePassAttachments,
+      })
+    }
 
     const result = applyFreePassLayer({
       lines,
       templates,
       grants,
-      attachments: allAttachments,
+      attachments: [],
       promoCodes,
       caps,
       offeringsById,
@@ -636,10 +711,34 @@ export async function computeDiscountLayer(
   const memberGraduationYear =
     memberContext?.graduationYear != null ? Number(memberContext.graduationYear) : null
 
-  const lines = newSignupItems.map((item, index) => {
+  const categoryBySlotKey = new Map()
+  for (const item of newSignupItems) {
+    const parts = String(item.slotKey || '').split(':')
+    const categoryPart = parts[1]
+    categoryBySlotKey.set(
+      item.slotKey,
+      categoryPart && categoryPart !== 'none' ? Number(categoryPart) : null,
+    )
+  }
+
+  const lines = []
+  for (let index = 0; index < newSignupItems.length; index += 1) {
+    const item = newSignupItems[index]
     const formRow = formRows.get(item.formId)
     const scope = formRow ? scopeMeta.get(pricingScopeKey(formRow)) : null
-    return {
+    const categoryId = categoryBySlotKey.get(item.slotKey) ?? null
+    const costBenefits = await resolveLineCostBenefits(
+      pool,
+      {
+        sportId: scope?.sportId ?? null,
+        programId: scope?.programsId ?? null,
+        formId: item.formId,
+        categoryId,
+        programPromoCodes: scope?.programAllowedPromoCodes ?? [],
+      },
+      rules,
+    )
+    lines.push({
       key: item.slotKey,
       formId: item.formId,
       programId: scope?.programsId ?? null,
@@ -657,8 +756,12 @@ export async function computeDiscountLayer(
       programMaxDiscountRedemptions: scope?.maxDiscountRedemptions ?? null,
       classMaxDiscountRedemptions: scope?.maxDiscountRedemptions ?? null,
       programAllowedPromoCodes: scope?.programAllowedPromoCodes ?? null,
-    }
-  })
+      costUsesSelections: costBenefits.costUsesSelections,
+      costDiscountRuleIds: costBenefits.costDiscountRuleIds,
+      costAllowedPromoCodes: costBenefits.costAllowedPromoCodes,
+      autoPromoCodes: costBenefits.autoPromoCodes,
+    })
+  }
 
   const { computeOrderDiscounts } = await import('./discountEngine.js')
   const result = computeOrderDiscounts({ lines, rules, promoCodes, caps })

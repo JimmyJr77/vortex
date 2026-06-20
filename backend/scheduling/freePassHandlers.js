@@ -11,6 +11,10 @@ import {
   mapPassTemplateRow,
   issueMemberPassGrant,
 } from './freePassEngine.js'
+import {
+  loadBenefitSelectionsForScope,
+  saveBenefitSelectionsForScope,
+} from './benefitSelection.js'
 
 async function getFacilityId(pool) {
   const res = await pool.query('SELECT id FROM facility LIMIT 1')
@@ -252,7 +256,17 @@ export function createFreePassHandlers(pool) {
         if (!scopeLevel || !Number.isFinite(scopeRefId)) {
           return res.status(400).json({ success: false, message: 'scopeLevel and scopeRefId required' })
         }
-        const attachments = await loadAttachmentsForScope(pool, scopeLevel, scopeRefId)
+        const selections = await loadBenefitSelectionsForScope(pool, scopeLevel, scopeRefId)
+        const attachments = selections
+          .filter((s) => s.benefitType === 'free_pass')
+          .map((s) => ({
+            id: s.id,
+            scopeLevel,
+            scopeRefId,
+            passTemplateId: s.benefitId,
+            autoApply: s.autoApply,
+            sortOrder: s.sortOrder,
+          }))
         res.json({ success: true, data: attachments })
       } catch (err) {
         console.error('[freePass] getAttachments:', err)
@@ -266,30 +280,39 @@ export function createFreePassHandlers(pool) {
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
-        const client = await pool.connect()
-        try {
-          await client.query('BEGIN')
-          await client.query(
-            `DELETE FROM pricing_pass_attachment WHERE scope_level = $1 AND scope_ref_id = $2`,
-            [value.scopeLevel, value.scopeRefId],
-          )
-          for (const a of value.attachments) {
-            await client.query(
-              `INSERT INTO pricing_pass_attachment
-                 (scope_level, scope_ref_id, pass_template_id, auto_apply, sort_order)
-               VALUES ($1, $2, $3, $4, $5)`,
-              [value.scopeLevel, value.scopeRefId, a.passTemplateId, a.autoApply !== false, a.sortOrder ?? 0],
-            )
-          }
-          await client.query('COMMIT')
-        } catch (e) {
-          await client.query('ROLLBACK')
-          throw e
-        } finally {
-          client.release()
-        }
-        const attachments = await loadAttachmentsForScope(pool, value.scopeLevel, value.scopeRefId)
-        res.json({ success: true, data: attachments })
+        const existing = await loadBenefitSelectionsForScope(pool, value.scopeLevel, value.scopeRefId)
+        const nonPass = existing.filter((s) => s.benefitType !== 'free_pass')
+        const passSelections = value.attachments.map((a, i) => ({
+          benefitType: 'free_pass',
+          benefitId: a.passTemplateId,
+          autoApply: a.autoApply !== false,
+          allowMemberCode: false,
+          sortOrder: a.sortOrder ?? i,
+        }))
+        await saveBenefitSelectionsForScope(pool, value.scopeLevel, value.scopeRefId, [
+          ...nonPass.map((s) => ({
+            benefitType: s.benefitType,
+            benefitId: s.benefitId,
+            autoApply: s.autoApply,
+            allowMemberCode: s.allowMemberCode,
+            sortOrder: s.sortOrder,
+          })),
+          ...passSelections,
+        ])
+        const attachments = await loadBenefitSelectionsForScope(pool, value.scopeLevel, value.scopeRefId)
+        res.json({
+          success: true,
+          data: attachments
+            .filter((s) => s.benefitType === 'free_pass')
+            .map((s) => ({
+              id: s.id,
+              scopeLevel: value.scopeLevel,
+              scopeRefId: value.scopeRefId,
+              passTemplateId: s.benefitId,
+              autoApply: s.autoApply,
+              sortOrder: s.sortOrder,
+            })),
+        })
       } catch (err) {
         console.error('[freePass] putAttachments:', err)
         res.status(500).json({ success: false, message: 'Failed to save attachments' })
@@ -344,20 +367,39 @@ export function createFreePassHandlers(pool) {
         const memberId = value.lines[0]?.memberId ?? null
         const grants = memberId ? await loadMemberPassGrants(pool, memberId) : []
 
-        const lines = value.lines.map((l, i) => ({
-          key: l.key ?? `line-${i}`,
-          formId: l.formId ?? null,
-          programId: l.programId ?? null,
-          sportId: l.sportId ?? null,
-          offeringId: l.offeringId ?? null,
-          slotGroupId: l.slotGroupId ?? null,
-          timeSlotId: l.timeSlotId ?? null,
-          memberId: l.memberId ?? null,
-          memberCity: l.memberCity ?? null,
-          memberSchool: l.memberSchool ?? null,
-          memberGraduationYear: l.memberGraduationYear ?? null,
-          baseCents: l.baseCents,
-        }))
+        const lines = []
+        for (let i = 0; i < value.lines.length; i += 1) {
+          const l = value.lines[i]
+          const { resolveBenefitSelectionsForLine } = await import('./benefitSelection.js')
+          const resolved = await resolveBenefitSelectionsForLine(pool, {
+            sportId: l.sportId ?? null,
+            programId: l.programId ?? null,
+            formId: l.formId ?? null,
+            categoryId: l.categoryId ?? null,
+          })
+          lines.push({
+            key: l.key ?? `line-${i}`,
+            formId: l.formId ?? null,
+            programId: l.programId ?? null,
+            sportId: l.sportId ?? null,
+            offeringId: l.offeringId ?? null,
+            slotGroupId: l.slotGroupId ?? null,
+            timeSlotId: l.timeSlotId ?? null,
+            memberId: l.memberId ?? null,
+            memberCity: l.memberCity ?? null,
+            memberSchool: l.memberSchool ?? null,
+            memberGraduationYear: l.memberGraduationYear ?? null,
+            baseCents: l.baseCents,
+            costUsesSelections: resolved.usesCostSelections,
+            freePassAttachments: resolved.freePassAttachments.map((a) => ({
+              passTemplateId: a.passTemplateId,
+              autoApply: a.autoApply,
+              allowMemberCode: resolved.selections.find(
+                (s) => s.benefitType === 'free_pass' && s.benefitId === a.passTemplateId,
+              )?.allowMemberCode !== false,
+            })),
+          })
+        }
 
         const result = applyFreePassLayer({
           lines,

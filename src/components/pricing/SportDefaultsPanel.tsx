@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import {
   COST_UNIT_LABELS,
   adminFetchSportDefaults,
@@ -7,6 +7,7 @@ import {
   type SportPricingDefault,
 } from '../../utils/schedulingApi'
 import CollapsiblePricingSection from './CollapsiblePricingSection'
+import PricingBenefitSelectionField from './PricingBenefitSelectionField'
 
 const inputClass = 'w-full h-10 rounded-lg border border-gray-300 px-3 text-sm'
 
@@ -15,6 +16,7 @@ const SportDefaultsPanel = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [savingId, setSavingId] = useState<number | null>(null)
+  const [expandedBenefitsId, setExpandedBenefitsId] = useState<number | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -71,12 +73,14 @@ const SportDefaultsPanel = () => {
                 <th className="px-2 py-2">Cadence</th>
                 <th className="px-2 py-2">Free / user</th>
                 <th className="px-2 py-2">Max free total</th>
+                <th className="px-2 py-2">Benefits</th>
                 <th className="px-2 py-2" />
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.disciplineTagId} className="border-b border-gray-50">
+                <Fragment key={row.disciplineTagId}>
+                <tr className="border-b border-gray-50">
                   <td className="px-2 py-2 font-medium text-gray-900">{row.name}</td>
                   <td className="px-2 py-2">
                     <input
@@ -130,6 +134,19 @@ const SportDefaultsPanel = () => {
                       }
                     />
                   </td>
+                  <td className="px-2 py-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedBenefitsId((prev) =>
+                          prev === row.disciplineTagId ? null : row.disciplineTagId,
+                        )
+                      }
+                      className="px-2 py-1 text-xs border border-gray-300 rounded-lg hover:bg-gray-50"
+                    >
+                      {expandedBenefitsId === row.disciplineTagId ? 'Hide' : 'Edit'}
+                    </button>
+                  </td>
                   <td className="px-2 py-2 text-right">
                     <button
                       type="button"
@@ -141,6 +158,19 @@ const SportDefaultsPanel = () => {
                     </button>
                   </td>
                 </tr>
+                {expandedBenefitsId === row.disciplineTagId && (
+                  <tr key={`${row.disciplineTagId}-benefits`}>
+                    <td colSpan={7} className="px-2 py-3 bg-gray-50">
+                      <PricingBenefitSelectionField
+                        scopeLevel="sport"
+                        scopeRefId={row.disciplineTagId}
+                        title={`${row.name} — discounts & free passes`}
+                        compact
+                      />
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               ))}
             </tbody>
           </table>

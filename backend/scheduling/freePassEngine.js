@@ -361,26 +361,55 @@ export function computePassCreditCents({
   return 0
 }
 
-function candidateTemplatesForLine({ templates, attachments, grants, promoCodes, line, isNewMember }) {
-  const attachmentIds = new Set(attachments.filter((a) => a.autoApply).map((a) => a.passTemplateId))
+function candidateTemplatesForLine({
+  templates,
+  attachments = [],
+  grants,
+  promoCodes,
+  line,
+  isNewMember,
+  costSelectionMode = false,
+}) {
+  const attachmentById = new Map(attachments.map((a) => [a.passTemplateId, a]))
   const grantTemplateIds = new Set(grants.map((g) => g.passTemplateId))
 
   return templates.filter((t) => {
     if (!templateInWindow(t)) return false
-    if (!scopeMatches(t, line)) return false
+
+    const att = attachmentById.get(t.id)
+    const isSelected = att != null
+    const hasGrant = grantTemplateIds.has(t.id)
+
+    if (costSelectionMode) {
+      if (!hasGrant && !isSelected) return false
+    } else if (!scopeMatches(t, line)) {
+      return false
+    }
+
     if (!offeringIdsMatch(t, line)) return false
     if (!passesEligibility(t, line, { isNewMember })) return false
 
-    const hasGrant = grantTemplateIds.has(t.id)
-    const isAttached = attachmentIds.has(t.id)
+    const autoApply = att?.autoApply ?? false
+    const allowMemberCode = att?.allowMemberCode !== false
     const autoEnroll = isAutoOnEnrollTemplate(t)
     const promoMatch = promoCodeMatches(t, promoCodes)
 
     if (isAdminOnlyTemplate(t) && !hasGrant) return false
     if (hasGrant) return true
-    if (isAttached && autoEnroll) return true
-    if (promoMatch && t.issuance?.promo_code) return true
-    if (autoEnroll && t.scopeLevel === 'global') return true
+    if (isSelected && autoApply) return true
+
+    if (promoMatch && t.issuance?.promo_code) {
+      if (costSelectionMode) return isSelected && allowMemberCode
+      return true
+    }
+
+    if (!costSelectionMode) {
+      const autoAttachmentIds = new Set(
+        attachments.filter((a) => a.autoApply).map((a) => a.passTemplateId),
+      )
+      if (autoAttachmentIds.has(t.id) && autoEnroll) return true
+      if (autoEnroll && t.scopeLevel === 'global') return true
+    }
     return false
   })
 }
@@ -430,13 +459,17 @@ export function applyFreePassLayer({
     const slotGroupId = line.slotGroupId ?? null
     const timeSlotRows = slotGroupId != null ? timeSlotsByGroup.get(Number(slotGroupId)) || [] : []
 
+    const lineAttachments = line.freePassAttachments ?? attachments
+    const costSelectionMode = Boolean(line.costUsesSelections)
+
     const candidates = candidateTemplatesForLine({
       templates,
-      attachments,
+      attachments: lineAttachments,
       grants,
       promoCodes,
       line,
       isNewMember,
+      costSelectionMode,
     }).sort((a, b) => Number(a.id) - Number(b.id))
 
     for (const template of candidates) {

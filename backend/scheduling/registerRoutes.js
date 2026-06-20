@@ -3,6 +3,7 @@ import { createSchedulingHandlers } from './handlers.js'
 import { createDiscountHandlers } from './discountHandlers.js'
 import { createAdditionalFeeHandlers } from './additionalFeeHandlers.js'
 import { createFreePassHandlers } from './freePassHandlers.js'
+import { createBenefitSelectionHandlers } from './benefitSelectionHandlers.js'
 
 const signupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -17,6 +18,7 @@ export function registerSchedulingRoutes(app, pool) {
   const d = createDiscountHandlers(pool)
   const f = createAdditionalFeeHandlers(pool)
   const fp = createFreePassHandlers(pool)
+  const bs = createBenefitSelectionHandlers(pool)
 
   app.get('/api/scheduling/calendar', h.getPublicCalendar)
   app.get('/api/public/scheduling/classes', h.listPublicSchedulingClasses)
@@ -94,6 +96,8 @@ export function registerSchedulingRoutes(app, pool) {
   app.delete('/api/admin/scheduling/free-passes/:id', fp.deleteTemplate)
   app.get('/api/admin/scheduling/pricing-pass-attachments', fp.getAttachments)
   app.put('/api/admin/scheduling/pricing-pass-attachments', fp.putAttachments)
+  app.get('/api/admin/scheduling/pricing-benefit-selections', bs.getSelections)
+  app.put('/api/admin/scheduling/pricing-benefit-selections', bs.putSelections)
   app.get('/api/admin/scheduling/members/:memberId/free-passes', fp.listMemberGrants)
   app.post('/api/admin/scheduling/members/:memberId/free-passes', fp.issueMemberGrant)
   app.post('/api/admin/scheduling/free-passes/simulate', fp.simulate)

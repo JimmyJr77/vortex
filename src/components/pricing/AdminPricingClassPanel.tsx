@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import {
+  adminFetchFormCategories,
   adminFetchSchedulingForm,
   adminSaveSchedulingForm,
   resetClassPricing,
+  type SchedulingCategory,
 } from '../../utils/schedulingApi'
 import type { AdminProgramPricing, TopProgram } from '../../utils/programsApi'
 import { formatSchedulingCosts } from '../../utils/classSchedulingSummary'
@@ -13,8 +15,7 @@ import PricingCostsFields, {
   type PricingCostsValues,
 } from './PricingCostsFields'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
-import FreePassAttachmentSection from './FreePassAttachmentSection'
-import { normalizeProgramPromoCodes } from './ProgramPromoCodesField'
+import PricingBenefitSelectionField from './PricingBenefitSelectionField'
 
 interface Props {
   classRow: AdminProgramPricing
@@ -31,6 +32,7 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
   const [saved, setSaved] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
   const [formTitle, setFormTitle] = useState(classRow.displayName)
+  const [categories, setCategories] = useState<SchedulingCategory[]>([])
 
   const inherits = !classRow.pricingOverridesProgram
   const formId = classRow.schedulingFormId
@@ -47,6 +49,9 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
     void adminFetchSchedulingForm(formId)
       .then((form) => setFormTitle(form.title))
       .catch(() => setFormTitle(classRow.displayName))
+    void adminFetchFormCategories(formId)
+      .then(setCategories)
+      .catch(() => setCategories([]))
   }, [formId, classRow.displayName])
 
   const programDefaultsLabel = formatSchedulingCosts({
@@ -54,7 +59,6 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
     freeSlotsPerUser: program.pricingFreeSlotsPerUser,
     maxFreeSlotsTotal: program.pricingMaxFreeSlotsTotal,
   })
-  const programPromoCodes = normalizeProgramPromoCodes(program.pricingPromoCodes)
 
   const handleCustomize = () => {
     setValues(pricingValuesFromProgram(program))
@@ -124,14 +128,6 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
           Program defaults ({program.displayName})
         </p>
         <p className="text-gray-800">{programDefaultsLabel}</p>
-        <p className="text-xs text-gray-600 mt-2">
-          Promo codes:{' '}
-          {programPromoCodes.length > 0 ? (
-            <span className="font-mono">{programPromoCodes.join(', ')}</span>
-          ) : (
-            <span className="italic">none configured</span>
-          )}
-        </p>
       </div>
 
       {inherits && !editing ? (
@@ -208,7 +204,26 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {formId != null && (
-        <FreePassAttachmentSection scopeLevel="class" scopeRefId={formId} />
+        <PricingBenefitSelectionField
+          scopeLevel="class"
+          scopeRefId={formId}
+          title="Class discounts & free passes"
+        />
+      )}
+
+      {categories.length > 0 && (
+        <div className="space-y-3">
+          <h5 className="text-sm font-bold text-gray-900">Category-level benefits</h5>
+          {categories.map((cat) => (
+            <PricingBenefitSelectionField
+              key={cat.id}
+              scopeLevel="category"
+              scopeRefId={cat.id}
+              title={cat.name}
+              compact
+            />
+          ))}
+        </div>
       )}
 
       <ConfirmPricingActionModal

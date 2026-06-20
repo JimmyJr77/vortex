@@ -148,19 +148,28 @@ function scopeMatchesLine(rule, line) {
 
 /** Per-line eligibility for line-targeted discount types (school, city, promo, multi_class, free). */
 function lineEligible(rule, line, promoCodesLower) {
-  if (!scopeMatchesLine(rule, line)) return false
+  if (line.costUsesSelections) {
+    if (!line.costDiscountRuleIds?.has(Number(rule.id))) return false
+  } else if (!scopeMatchesLine(rule, line)) {
+    return false
+  }
   if (!passesEligibilityRules(rule, line)) return false
   switch (rule.type) {
     case 'promo_code': {
       const code = normalizeText(rule.config?.code)
       if (code === '' || !promoCodesLower.has(code)) return false
-      // Program-scoped allowlist: only listed codes apply to this program's classes.
-      // Universal discounts (multi-child, etc.) are separate rule types and always apply.
-      const allowed = line.programAllowedPromoCodes
-      if (Array.isArray(allowed)) {
-        if (allowed.length === 0) return false
+      if (line.costUsesSelections) {
+        const allowed = line.costAllowedPromoCodes
+        if (!Array.isArray(allowed) || allowed.length === 0) return false
         const allowedSet = new Set(allowed.map(normalizeText))
         if (!allowedSet.has(code)) return false
+      } else {
+        const allowed = line.programAllowedPromoCodes
+        if (Array.isArray(allowed)) {
+          if (allowed.length === 0) return false
+          const allowedSet = new Set(allowed.map(normalizeText))
+          if (!allowedSet.has(code)) return false
+        }
       }
       return true
     }
@@ -282,6 +291,19 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
   const promoCodesLower = new Set(promoCodes.map(normalizeText).filter(Boolean))
   const capTracker = makeCapTracker(caps)
 
+  function promoCodesForLine(line) {
+    const set = new Set(promoCodesLower)
+    if (Array.isArray(line.autoPromoCodes)) {
+      for (const c of line.autoPromoCodes) set.add(normalizeText(c))
+    }
+    return set
+  }
+
+  function orderRuleAllowedByCosts(rule) {
+    if (!lineState.some((ls) => ls.line.costUsesSelections)) return true
+    return lineState.some((ls) => ls.line.costDiscountRuleIds?.has(Number(rule.id)))
+  }
+
   const activeRules = rules
     .filter((r) => r.active !== false && withinWindow(r, now))
     .sort((a, b) => {
@@ -337,6 +359,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
 
   for (const rule of activeRules) {
     if (rule.applyTo === 'order_total') {
+      if (!orderRuleAllowedByCosts(rule)) continue
       // Order-level: compute on order subtotal/running, applied once, distributed across lines.
       let base = rule.calcBase === 'post' ? orderRunning : subtotalCents
       // Tiered order-level (multi_class/multi_child) keyed by qualifying count.
@@ -353,7 +376,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       }
       // School/city/promo order-level need at least one eligible line.
       if (['promo_code', 'school', 'city'].includes(rule.type)) {
-        if (!lineState.some((ls) => lineEligible(rule, ls.line, promoCodesLower))) continue
+        if (!lineState.some((ls) => lineEligible(rule, ls.line, promoCodesForLine(ls.line)))) continue
       }
       let amount = discountAmountCents(base, amountType, amountValue)
       if (rule.maxDiscountCents != null) amount = Math.min(amount, rule.maxDiscountCents)
@@ -383,7 +406,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       if (isFreeGrantRule(rule)) {
         const cfg = rule.config || {}
         if (!offeringMatchesRule(rule, ls.line)) continue
-        if (!lineEligible(rule, ls.line, promoCodesLower)) continue
+        if (!lineEligible(rule, ls.line, promoCodesForLine(ls.line))) continue
         const amount = applyToLine(ls, rule, rule.amountType, rule.amountValue, 'free')
         if (amount > 0) {
           const unit = cfg.grant_unit || cfg.benefit_type || 'slot'
@@ -401,16 +424,18 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       let amountType = rule.amountType
       let amountValue = rule.amountValue
       if (rule.type === 'multi_class') {
+        if (ls.line.costUsesSelections && !ls.line.costDiscountRuleIds?.has(Number(rule.id))) continue
         const tier = tierForOrdinal(rule, ls.line.classOrdinal || 0)
         if (!tier) continue
         amountType = tier.amountType
         amountValue = tier.amountValue
       } else if (rule.type === 'multi_child') {
+        if (ls.line.costUsesSelections && !ls.line.costDiscountRuleIds?.has(Number(rule.id))) continue
         const tier = tierForOrdinal(rule, ls.line.childOrdinal || 0)
         if (!tier) continue
         amountType = tier.amountType
         amountValue = tier.amountValue
-      } else if (!lineEligible(rule, ls.line, promoCodesLower)) {
+      } else if (!lineEligible(rule, ls.line, promoCodesForLine(ls.line))) {
         continue
       }
       applyToLine(ls, rule, amountType, amountValue, 'discount')
