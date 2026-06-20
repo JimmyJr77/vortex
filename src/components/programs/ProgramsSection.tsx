@@ -24,10 +24,10 @@ type ProgramSortMode =
   | 'active_program_name'
 
 const SORT_OPTIONS: Array<{ value: ProgramSortMode; label: string }> = [
-  { value: 'program_name', label: 'Program Name' },
-  { value: 'sport_program_name', label: 'Sport/Program Name' },
   { value: 'active_sport_program_name', label: 'Active/Sport/Program Name' },
   { value: 'active_program_name', label: 'Active/Program Name' },
+  { value: 'sport_program_name', label: 'Sport/Program Name' },
+  { value: 'program_name', label: 'Program Name' },
 ]
 
 function compareProgramName(a: TopProgram, b: TopProgram): number {
@@ -108,7 +108,7 @@ const ProgramsSection = ({
   const [saving, setSaving] = useState(false)
   const [actionId, setActionId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
-  const [sortMode, setSortMode] = useState<ProgramSortMode>('program_name')
+  const [sortMode, setSortMode] = useState<ProgramSortMode>('active_sport_program_name')
 
   const displayedPrograms = useMemo(() => {
     const q = search.trim().toLowerCase()
