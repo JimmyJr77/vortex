@@ -99,6 +99,7 @@ function toForm(t: FreePassTemplate | null): FreePassTemplateInput {
       scopeRefId: t.scopeRefId,
       dayOfWeek: t.dayOfWeek,
       offeringIds: t.offeringIds ?? [],
+      sportIds: t.sportIds ?? [],
       eligibility: t.eligibility ?? {},
       issuance: t.issuance ?? {},
       debitsFreeClassAllowance: t.debitsFreeClassAllowance,
@@ -122,9 +123,10 @@ function toForm(t: FreePassTemplate | null): FreePassTemplateInput {
     scopeRefId: null,
     dayOfWeek: null,
     offeringIds: [],
+    sportIds: [],
     eligibility: {},
-    issuance: { auto_on_enroll: false, admin_only: false },
-    debitsFreeClassAllowance: false,
+    issuance: { admin_only: false, apply_to_all_classes_by_default: false },
+    debitsFreeClassAllowance: true,
     stackable: true,
     exclusivityGroup: null,
     maxRedemptions: null,
@@ -326,18 +328,18 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
-                checked={Boolean(form.issuance?.auto_on_enroll)}
-                onChange={(e) => updateIssuance({ auto_on_enroll: e.target.checked, admin_only: false })}
+                checked={Boolean(form.issuance?.apply_to_all_classes_by_default)}
+                onChange={(e) =>
+                  updateIssuance({ apply_to_all_classes_by_default: e.target.checked })
+                }
               />
-              Auto-apply on enroll (when attached to class/program)
+              Apply to all classes by default
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
                 checked={Boolean(form.issuance?.admin_only)}
-                onChange={(e) =>
-                  updateIssuance({ admin_only: e.target.checked, auto_on_enroll: false })
-                }
+                onChange={(e) => updateIssuance({ admin_only: e.target.checked })}
               />
               Admin issue only
             </label>
@@ -490,16 +492,18 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
 
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
             <div>
-              <p className="text-sm font-bold text-gray-900">Class offerings (optional)</p>
+              <p className="text-sm font-bold text-gray-900">Class offerings & sports (optional)</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Restrict which class sessions this pass can apply to. Search and add active or
-                upcoming offerings. Leave empty to allow any offering where this pass is attached
-                under Pricing → Costs.
+                Restrict where this pass can apply. Add a sport to cover all classes with that primary
+                sport, or add specific offerings. Leave empty to allow any class where this pass is
+                attached under Pricing → Costs.
               </p>
             </div>
             <ClassOfferingMultiSelect
-              value={form.offeringIds ?? []}
-              onChange={(offeringIds) => update({ offeringIds })}
+              offeringIds={form.offeringIds ?? []}
+              sportIds={form.sportIds ?? []}
+              onOfferingIdsChange={(offeringIds) => update({ offeringIds })}
+              onSportIdsChange={(sportIds) => update({ sportIds })}
             />
           </div>
 
@@ -507,15 +511,24 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             <div>
               <p className="text-sm font-bold text-gray-900">Schools (optional)</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Restrict by member school from signup. Level filters and named schools only match
-                schools in your database — custom write-in schools are excluded.
+                Leave everything unchecked to ignore school filtering. Selecting any option engages
+                the filter. Applies to all schools includes every school in your database, including
+                those without a level tag. Level checkboxes restrict to high, middle, or elementary
+                only — named schools further narrow the list.
               </p>
             </div>
-            <label className="flex items-center gap-2 text-sm">
+            <label
+              className="flex items-center gap-2 text-sm cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault()
+                setAllSchools(!allSchools)
+              }}
+            >
               <input
                 type="checkbox"
                 checked={allSchools}
-                onChange={(e) => setAllSchools(e.target.checked)}
+                readOnly
+                className="pointer-events-none"
               />
               Applies to all schools
             </label>

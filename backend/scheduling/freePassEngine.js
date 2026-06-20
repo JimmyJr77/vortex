@@ -96,19 +96,30 @@ function resolveMemberSchool(memberSchool, knownSchools = []) {
   return null
 }
 
+function schoolFilterEngaged(eligibility) {
+  if (eligibility.all_schools === true) return true
+  if (normalizeSchoolLevels(eligibility.school_levels).length > 0) return true
+  const rules = eligibility.eligibility_rules || eligibility.rules
+  if (!Array.isArray(rules)) return false
+  return rules.some((r) => r.field === 'school')
+}
+
 function passesEligibility(template, line, { isFirstTimeEnrollee = false, knownSchools = [] } = {}) {
   const eligibility = template.eligibility || {}
   if (eligibility.new_member === true && !isFirstTimeEnrollee) return false
 
+  const schoolFilterActive = schoolFilterEngaged(eligibility)
   const levels = normalizeSchoolLevels(eligibility.school_levels)
   const matchedSchool = resolveMemberSchool(line.memberSchool, knownSchools)
 
-  if (eligibility.all_schools === true && !matchedSchool) return false
-
-  if (levels.length > 0) {
-    if (!matchedSchool) return false
-    const level = matchedSchool.level ? String(matchedSchool.level).toLowerCase() : null
-    if (!level || !levels.includes(level)) return false
+  if (schoolFilterActive) {
+    if (eligibility.all_schools === true) {
+      if (!matchedSchool) return false
+    } else if (levels.length > 0) {
+      if (!matchedSchool) return false
+      const level = matchedSchool.level ? String(matchedSchool.level).toLowerCase() : null
+      if (!level || !levels.includes(level)) return false
+    }
   }
 
   const rules = eligibility.eligibility_rules || eligibility.rules
@@ -158,10 +169,25 @@ function scopeMatches(template, line) {
   return false
 }
 
-function offeringIdsMatch(template, line) {
-  const ids = (template.offeringIds || []).map(Number).filter((n) => Number.isFinite(n))
-  if (ids.length === 0) return true
-  return line.offeringId != null && ids.includes(Number(line.offeringId))
+function offeringOrSportScopeMatch(template, line) {
+  const offeringIds = (template.offeringIds || []).map(Number).filter((n) => Number.isFinite(n))
+  const sportIds = (template.sportIds || []).map(Number).filter((n) => Number.isFinite(n))
+  const hasOfferingFilter = offeringIds.length > 0
+  const hasSportFilter = sportIds.length > 0
+  if (!hasOfferingFilter && !hasSportFilter) return true
+
+  let matches = false
+  if (
+    hasOfferingFilter &&
+    line.offeringId != null &&
+    offeringIds.includes(Number(line.offeringId))
+  ) {
+    matches = true
+  }
+  if (hasSportFilter && line.sportId != null && sportIds.includes(Number(line.sportId))) {
+    matches = true
+  }
+  return matches
 }
 
 function promoCodeMatches(template, promoCodes = []) {
@@ -203,6 +229,7 @@ export function mapPassTemplateRow(r) {
     scopeRefId: r.scope_ref_id != null ? Number(r.scope_ref_id) : null,
     dayOfWeek: r.day_of_week != null ? Number(r.day_of_week) : null,
     offeringIds: Array.isArray(r.offering_ids) ? r.offering_ids.map(Number) : [],
+    sportIds: Array.isArray(r.config?.sport_ids) ? r.config.sport_ids.map(Number) : [],
     eligibility: r.eligibility ?? {},
     issuance: r.issuance ?? {},
     debitsFreeClassAllowance: Boolean(r.debits_free_class_allowance),
@@ -529,7 +556,7 @@ function candidateTemplatesForLine({
       return false
     }
 
-    if (!offeringIdsMatch(t, line)) return false
+    if (!offeringOrSportScopeMatch(t, line)) return false
     if (!passesEligibility(t, line, { isFirstTimeEnrollee, knownSchools })) return false
 
     const autoApply = att?.autoApply ?? false

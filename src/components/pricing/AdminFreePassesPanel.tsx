@@ -142,16 +142,16 @@ const AdminFreePassesPanel = () => {
                   <td className="px-4 py-2 text-gray-600 text-xs">
                     {t.issuance?.admin_only
                       ? 'Admin only'
-                      : t.issuance?.auto_on_enroll
-                        ? 'Auto on enroll'
-                        : t.issuance?.promo_code
-                          ? `Promo: ${t.issuance.promo_code}`
-                          : 'Manual'}
+                      : t.issuance?.promo_code
+                        ? `Promo: ${t.issuance.promo_code}`
+                        : 'Manual'}
+                    {Boolean(t.issuance?.apply_to_all_classes_by_default) && ' · all classes by default'}
                     {t.debitsFreeClassAllowance && ' · debits allowance'}
                     {Boolean(t.eligibility?.new_member) && ' · new enrollees only'}
                     {schoolFilterCount > 0 && ` · ${schoolFilterCount} school(s)`}
                     {appliesToAllSchools(t.eligibility) && ' · all database schools'}
                     {levelLabels && ` · ${levelLabels}`}
+                    {(t.sportIds?.length ?? 0) > 0 && ` · ${t.sportIds!.length} sport(s)`}
                     {(t.offeringIds?.length ?? 0) > 0 && ` · ${t.offeringIds!.length} offering(s)`}
                   </td>
                   <td className="px-4 py-2 text-gray-600 text-xs">

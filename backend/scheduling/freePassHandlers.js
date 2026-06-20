@@ -42,9 +42,10 @@ const templateSchema = Joi.object({
   scopeRefId: Joi.number().integer().allow(null).optional(),
   dayOfWeek: Joi.number().integer().min(0).max(6).allow(null).optional(),
   offeringIds: Joi.array().items(Joi.number().integer()).default([]),
+  sportIds: Joi.array().items(Joi.number().integer()).default([]),
   eligibility: Joi.object().default({}),
   issuance: Joi.object().default({}),
-  debitsFreeClassAllowance: Joi.boolean().default(false),
+  debitsFreeClassAllowance: Joi.boolean().default(true),
   stackable: Joi.boolean().default(true),
   exclusivityGroup: Joi.string().trim().allow('', null).max(100).optional(),
   maxRedemptions: Joi.number().integer().min(0).allow(null).optional(),
@@ -81,6 +82,9 @@ function buildPassConfig(value) {
     if (Object.keys(cleaned).length > 0) config.max_redemptions_per_school = cleaned
     else delete config.max_redemptions_per_school
   }
+  const sportIds = (value.sportIds ?? []).map(Number).filter((n) => Number.isFinite(n) && n > 0)
+  if (sportIds.length > 0) config.sport_ids = sportIds
+  else delete config.sport_ids
   return config
 }
 

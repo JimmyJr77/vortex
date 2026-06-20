@@ -100,7 +100,8 @@ const FreePassAttachmentSection = ({
       <div>
         <h4 className="text-sm font-bold text-gray-900">{title}</h4>
         <p className="text-xs text-gray-500 mt-0.5">
-          Attached passes auto-apply at enrollment when configured for auto-on-enroll.
+          Choose which pass templates are available for this {scopeLevel}. Auto-apply at enrollment
+          is configured per class when scheduling.
         </p>
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}

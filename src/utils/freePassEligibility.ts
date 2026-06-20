@@ -12,7 +12,9 @@ export const SCHOOL_LEVEL_OPTIONS: Array<{ value: SchoolLevelFilter; label: stri
   { value: 'elementary', label: 'Elementary school' },
 ]
 
-const SCHOOL_LEVEL_SET = new Set<SchoolLevelFilter>(['high', 'middle', 'elementary'])
+export const ALL_SCHOOL_LEVELS: SchoolLevelFilter[] = ['high', 'middle', 'elementary']
+
+const SCHOOL_LEVEL_SET = new Set<SchoolLevelFilter>(ALL_SCHOOL_LEVELS)
 
 type EligibilityRecord = Record<string, unknown> & {
   eligibility_rules?: EligibilityRule[]
@@ -22,6 +24,17 @@ type EligibilityRecord = Record<string, unknown> & {
 function eligibilityRules(eligibility: EligibilityRecord | undefined): EligibilityRule[] {
   const rules = eligibility?.eligibility_rules ?? eligibility?.rules
   return Array.isArray(rules) ? rules : []
+}
+
+function withoutNamedSchoolRules(eligibility: EligibilityRecord): EligibilityRecord {
+  const otherRules = eligibilityRules(eligibility).filter((r) => r.field !== 'school')
+  const next: EligibilityRecord = { ...eligibility, eligibility_rules: otherRules }
+  if (next.rules) {
+    const legacyOther = eligibilityRules({ rules: next.rules }).filter((r) => r.field !== 'school')
+    if (legacyOther.length > 0) next.rules = legacyOther
+    else delete next.rules
+  }
+  return next
 }
 
 export function schoolNamesFromEligibility(eligibility: EligibilityRecord | undefined): string[] {
@@ -35,6 +48,12 @@ export function schoolNamesFromEligibility(eligibility: EligibilityRecord | unde
 
 export function appliesToAllSchools(eligibility: EligibilityRecord | undefined): boolean {
   return eligibility?.all_schools === true
+}
+
+export function schoolFilterEngaged(eligibility: EligibilityRecord | undefined): boolean {
+  if (appliesToAllSchools(eligibility)) return true
+  if (schoolLevelsFromEligibility(eligibility).length > 0) return true
+  return schoolNamesFromEligibility(eligibility).length > 0
 }
 
 export function schoolLevelsFromEligibility(
@@ -53,9 +72,16 @@ export function mergeSchoolLevels(
 ): EligibilityRecord {
   const base = { ...(eligibility ?? {}) }
   const unique = [...new Set(levels.filter((l) => SCHOOL_LEVEL_SET.has(l)))]
-  if (unique.length > 0) base.school_levels = unique
-  else delete base.school_levels
-  return base
+  const next = { ...base }
+  if (unique.length > 0) next.school_levels = unique
+  else delete next.school_levels
+
+  if (next.all_schools === true) {
+    const hasAllLevels = ALL_SCHOOL_LEVELS.every((level) => unique.includes(level))
+    if (!hasAllLevels) delete next.all_schools
+  }
+
+  return next
 }
 
 export function mergeAppliesToAllSchools(
@@ -64,8 +90,11 @@ export function mergeAppliesToAllSchools(
 ): EligibilityRecord {
   const base = { ...(eligibility ?? {}) }
   if (allSchools) {
-    base.all_schools = true
-    return mergeSchoolEligibility(base, [])
+    return {
+      ...withoutNamedSchoolRules(base),
+      all_schools: true,
+      school_levels: [...ALL_SCHOOL_LEVELS],
+    }
   }
   const next = { ...base }
   delete next.all_schools
@@ -79,12 +108,20 @@ export function mergeSchoolEligibility(
   const base = { ...(eligibility ?? {}) }
   const otherRules = eligibilityRules(base).filter((r) => r.field !== 'school')
   const names = [...new Set(schoolNames.map((n) => n.trim()).filter(Boolean))]
-  delete base.all_schools
-  const eligibility_rules =
-    names.length > 0
-      ? [...otherRules, { field: 'school', operator: 'in', value: names }]
-      : otherRules
-  return { ...base, eligibility_rules }
+  const next: EligibilityRecord = {
+    ...base,
+    eligibility_rules:
+      names.length > 0
+        ? [...otherRules, { field: 'school', operator: 'in', value: names }]
+        : otherRules,
+  }
+  if (next.rules) {
+    const legacyOther = (Array.isArray(next.rules) ? next.rules : []).filter((r) => r.field !== 'school')
+    if (legacyOther.length > 0) next.rules = legacyOther
+    else delete next.rules
+  }
+  if (names.length > 0) delete next.all_schools
+  return next
 }
 
 function normalizeSchoolKey(name: string): string {

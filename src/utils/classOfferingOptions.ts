@@ -3,6 +3,7 @@ import {
   adminFetchOfferings,
   adminFetchSchedulingForms,
 } from './schedulingApi'
+import { fetchDisciplineTags } from './programsApi'
 
 export interface ClassOfferingOption {
   id: number
@@ -12,6 +13,11 @@ export interface ClassOfferingOption {
   startDate: string
   endDate: string
   label: string
+}
+
+export interface SportScopeOption {
+  id: number
+  name: string
 }
 
 export function todayDateString(): string {
@@ -29,6 +35,17 @@ export function offeringDisplayLabel(o: ClassOfferingOption): string {
 
 export function offeringSearchHaystack(o: ClassOfferingOption): string {
   return [o.formTitle, o.categoryName, o.label, o.startDate, o.endDate].join(' ').toLowerCase()
+}
+
+export function sportSearchHaystack(s: SportScopeOption): string {
+  return s.name.toLowerCase()
+}
+
+export async function loadSportScopeOptions(): Promise<SportScopeOption[]> {
+  const tags = await fetchDisciplineTags()
+  return tags
+    .map((tag) => ({ id: tag.id, name: tag.name }))
+    .sort((a, b) => a.name.localeCompare(b.name))
 }
 
 export async function loadClassOfferingOptions(): Promise<ClassOfferingOption[]> {

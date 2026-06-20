@@ -282,6 +282,7 @@ export interface FreePassTemplate {
   scopeRefId: number | null
   dayOfWeek: number | null
   offeringIds: number[]
+  sportIds: number[]
   eligibility: Record<string, unknown>
   issuance: Record<string, unknown>
   debitsFreeClassAllowance: boolean

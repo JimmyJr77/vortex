@@ -142,7 +142,7 @@ const SchoolMultiSelect = ({
       )}
       {loadError && <p className="text-xs text-red-600">{loadError}</p>}
 
-      {value.length > 0 ? (
+      {value.length > 0 && (
         <ul className="flex flex-wrap gap-2">
           {value.map((name) => {
             const school = schoolByName.get(name.toLowerCase())
@@ -168,11 +168,10 @@ const SchoolMultiSelect = ({
             )
           })}
         </ul>
-      ) : (
-        <p className="text-xs text-gray-500">
-          {emptyHint ?? 'No schools selected — pass can apply to members from any school.'}
-        </p>
       )}
+      {value.length === 0 && emptyHint ? (
+        <p className="text-xs text-gray-500">{emptyHint}</p>
+      ) : null}
     </div>
   )
 }
