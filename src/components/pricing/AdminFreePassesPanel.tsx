@@ -99,6 +99,7 @@ const AdminFreePassesPanel = () => {
               <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
                 <th className="px-4 py-2">Name</th>
                 <th className="px-4 py-2">Benefit</th>
+                <th className="px-4 py-2">Valid</th>
                 <th className="px-4 py-2">Issuance</th>
                 <th className="px-4 py-2">Used</th>
                 <th className="px-4 py-2">Status</th>
@@ -111,6 +112,17 @@ const AdminFreePassesPanel = () => {
                   <td className="px-4 py-2 font-medium text-gray-900">{t.name}</td>
                   <td className="px-4 py-2 text-gray-600">{describePass(t)}</td>
                   <td className="px-4 py-2 text-gray-600 text-xs">
+                    {t.startsAt || t.endsAt ? (
+                      <>
+                        {t.startsAt ? t.startsAt.slice(0, 10) : '—'}
+                        {' → '}
+                        {t.endsAt ? t.endsAt.slice(0, 10) : 'Permanent'}
+                      </>
+                    ) : (
+                      'Permanent'
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-gray-600 text-xs">
                     {t.issuance?.admin_only
                       ? 'Admin only'
                       : t.issuance?.auto_on_enroll
@@ -119,6 +131,7 @@ const AdminFreePassesPanel = () => {
                           ? `Promo: ${t.issuance.promo_code}`
                           : 'Manual'}
                     {t.debitsFreeClassAllowance && ' · debits allowance'}
+                    {Boolean(t.eligibility?.new_member) && ' · new enrollees only'}
                   </td>
                   <td className="px-4 py-2 text-gray-600">
                     {t.redeemedCount}

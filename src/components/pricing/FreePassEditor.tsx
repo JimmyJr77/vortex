@@ -18,6 +18,18 @@ interface Props {
 const inputClass =
   'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-vortex-red focus:outline-none'
 
+function dateInputValue(iso: string | null | undefined): string {
+  return iso ? iso.slice(0, 10) : ''
+}
+
+function startDateToIso(dateStr: string): string {
+  return new Date(`${dateStr}T00:00:00`).toISOString()
+}
+
+function endDateToIso(dateStr: string): string {
+  return new Date(`${dateStr}T23:59:59`).toISOString()
+}
+
 function toForm(t: FreePassTemplate | null): FreePassTemplateInput {
   if (t) {
     return {
@@ -97,6 +109,10 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
 
   const updateIssuance = (patch: Record<string, unknown>) => {
     setForm((prev) => ({ ...prev, issuance: { ...prev.issuance, ...patch } }))
+  }
+
+  const updateEligibility = (patch: Record<string, unknown>) => {
+    setForm((prev) => ({ ...prev, eligibility: { ...prev.eligibility, ...patch } }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -258,32 +274,48 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             Count against member free-class allowance
           </label>
 
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={Boolean(form.eligibility?.new_member)}
+              onChange={(e) => updateEligibility({ new_member: e.target.checked })}
+            />
+            First-time enrollees only
+          </label>
+          <p className="text-xs text-gray-500 -mt-2">
+            Applies only when the member has no existing confirmed or waitlisted enrollments.
+          </p>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">Valid from</label>
+              <label className="block text-xs font-semibold mb-1 text-gray-600">Valid from (optional)</label>
               <input
                 type="date"
                 className={inputClass}
-                value={form.startsAt ? form.startsAt.slice(0, 10) : ''}
+                value={dateInputValue(form.startsAt)}
                 onChange={(e) =>
                   update({
-                    startsAt: e.target.value ? new Date(e.target.value).toISOString() : null,
+                    startsAt: e.target.value ? startDateToIso(e.target.value) : null,
                   })
                 }
               />
+              <p className="text-xs text-gray-500 mt-1">Leave empty to start immediately.</p>
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">Valid through</label>
+              <label className="block text-xs font-semibold mb-1 text-gray-600">Valid through (optional)</label>
               <input
                 type="date"
                 className={inputClass}
-                value={form.endsAt ? form.endsAt.slice(0, 10) : ''}
+                value={dateInputValue(form.endsAt)}
                 onChange={(e) =>
                   update({
-                    endsAt: e.target.value ? new Date(e.target.value).toISOString() : null,
+                    endsAt: e.target.value ? endDateToIso(e.target.value) : null,
                   })
                 }
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Leave empty for a permanent pass with no end date.
+              </p>
             </div>
           </div>
 

@@ -582,7 +582,7 @@ const PromoCodeEditor = ({ open, rule, onSave, onClose }: Props) => {
                   value={form.endsAt ?? ''}
                   onChange={(e) => update({ endsAt: e.target.value || null })}
                 />
-                <p className="text-xs text-gray-400 mt-1">Leave empty for no end limit</p>
+                <p className="text-xs text-gray-400 mt-1">Leave empty for no end limit (permanent code)</p>
               </div>
             </div>
 
