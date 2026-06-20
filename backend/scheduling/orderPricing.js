@@ -396,10 +396,35 @@ export async function buildSignupOrderPreview(
       categoryName: entry.categoryName || 'No Category',
       slotLabel: entry.slotLabel || '',
       slotKey: key,
+      slotGroupId: entry.slotGroupId,
+      timeSlotId: entry.timeSlotId ?? null,
+      offeringId: offeringBySlotGroup.get(entry.slotGroupId) ?? null,
       incrementalMonthly,
       hoursPerMonth: hoursPerMonth > 0 ? Math.round(hoursPerMonth * 100) / 100 : null,
       isNew: true,
     }
+  })
+
+  const freePasses = await computeFreePassLayer(pool, {
+    memberId,
+    newSignupItems,
+    formRows,
+    scopeMeta,
+    offeringBySlotGroup,
+    filteredNew,
+    promoCodes,
+    memberContext,
+    existingCount: existing.length,
+  })
+
+  const discounts = await computeDiscountLayer(pool, {
+    memberId,
+    newSignupItems: freePasses.adjustedSignupItems,
+    formRows,
+    scopeMeta,
+    existingCount: existing.length,
+    promoCodes,
+    memberContext,
   })
 
   const existingClasses = existing.map((entry) => ({
@@ -411,16 +436,6 @@ export async function buildSignupOrderPreview(
     status: entry.status,
     isNew: false,
   }))
-
-  const discounts = await computeDiscountLayer(pool, {
-    memberId,
-    newSignupItems,
-    formRows,
-    scopeMeta,
-    existingCount: existing.length,
-    promoCodes,
-    memberContext,
-  })
 
   const additionalFees = await computeAdditionalFeesLayer(pool, {
     memberId,
@@ -438,18 +453,148 @@ export async function buildSignupOrderPreview(
   return {
     memberId: memberId ?? null,
     existingClasses,
-    newSignups: newSignupItems,
+    newSignups: freePasses.adjustedSignupItems,
     formSummaries,
     existingMonthlyTotal,
     newSignupMonthlyTotal,
-    estimatedMonthlyTotal: estimatedMonthlyTotal + additionalFeesMonthly,
+    estimatedMonthlyTotal: estimatedMonthlyTotal + additionalFeesMonthly - (freePasses.totalCreditCents ?? 0) / 100,
     totalDiscountMonthly,
+    freePasses,
     discounts,
     additionalFees,
     additionalFeesMonthly,
     additionalFeesOneTime,
     hasPricing: formSummaries.some((summary) => summary.pricingAfter != null),
     disclaimer: SIGNUP_ORDER_PRICING_DISCLAIMER,
+  }
+}
+
+/**
+ * Layer free pass entitlements on signup lines before discounts.
+ */
+export async function computeFreePassLayer(
+  pool,
+  {
+    memberId,
+    newSignupItems,
+    formRows,
+    scopeMeta,
+    offeringBySlotGroup,
+    filteredNew = [],
+    promoCodes = [],
+    memberContext = null,
+    existingCount = 0,
+  },
+) {
+  const empty = {
+    enabled: false,
+    items: [],
+    totalCreditCents: 0,
+    redemptions: [],
+    adjustedSignupItems: newSignupItems,
+  }
+  if (!newSignupItems.length) return empty
+
+  try {
+    const {
+      applyFreePassLayer,
+      loadActivePassTemplates,
+      loadAttachmentsForForm,
+      loadCalendarRowsForSlotGroups,
+      loadFreePassCaps,
+      loadMemberPassGrants,
+      loadOfferingById,
+    } = await import('./freePassEngine.js')
+
+    const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
+    const facilityId = facilityRes.rows[0]?.id ?? null
+    const templates = await loadActivePassTemplates(pool, facilityId)
+    const grants = memberId ? await loadMemberPassGrants(pool, memberId) : []
+    const caps = await loadFreePassCaps(pool, facilityId)
+
+    const slotGroupIds = [
+      ...new Set(
+        filteredNew.map((e) => e.slotGroupId).filter((id) => id != null),
+      ),
+    ]
+    const calendarRowsByGroup = await loadCalendarRowsForSlotGroups(pool, slotGroupIds)
+
+    const offeringsById = new Map()
+    for (const entry of filteredNew) {
+      const oid = offeringBySlotGroup.get(entry.slotGroupId)
+      if (oid != null && !offeringsById.has(oid)) {
+        const offering = await loadOfferingById(pool, oid)
+        if (offering) offeringsById.set(oid, offering)
+      }
+    }
+
+    const allAttachments = []
+    for (const formRow of formRows.values()) {
+      const attachments = await loadAttachmentsForForm(pool, formRow)
+      allAttachments.push(...attachments)
+    }
+
+    const memberCity = memberContext?.city ?? null
+    const memberSchool = memberContext?.school ?? null
+    const memberGraduationYear =
+      memberContext?.graduationYear != null ? Number(memberContext.graduationYear) : null
+
+    const lines = newSignupItems.map((item, index) => {
+      const formRow = formRows.get(item.formId)
+      const scope = formRow ? scopeMeta.get(pricingScopeKey(formRow)) : null
+      return {
+        key: item.slotKey,
+        formId: item.formId,
+        programId: scope?.programsId ?? null,
+        sportId: scope?.sportId ?? null,
+        offeringId: item.offeringId ?? null,
+        slotGroupId: item.slotGroupId ?? null,
+        timeSlotId: item.timeSlotId ?? null,
+        memberId: memberId ?? null,
+        memberCity,
+        memberSchool,
+        memberGraduationYear,
+        baseCents: Math.round((item.incrementalMonthly || 0) * 100),
+      }
+    })
+
+    const result = applyFreePassLayer({
+      lines,
+      templates,
+      grants,
+      attachments: allAttachments,
+      promoCodes,
+      caps,
+      offeringsById,
+      timeSlotsByGroup: calendarRowsByGroup,
+      isNewMember: existingCount === 0,
+    })
+
+    const creditByKey = new Map()
+    for (const item of result.items) {
+      creditByKey.set(item.lineKey, (creditByKey.get(item.lineKey) || 0) + item.creditCents)
+    }
+
+    const adjustedSignupItems = newSignupItems.map((item) => {
+      const creditCents = creditByKey.get(item.slotKey) || 0
+      const passItems = result.items.filter((p) => p.lineKey === item.slotKey)
+      return {
+        ...item,
+        incrementalMonthly: Math.max(0, (item.incrementalMonthly || 0) - creditCents / 100),
+        passCreditCents: creditCents,
+        passItems,
+      }
+    })
+
+    return {
+      enabled: result.enabled,
+      items: result.items,
+      totalCreditCents: result.totalCreditCents,
+      redemptions: result.redemptions,
+      adjustedSignupItems,
+    }
+  } catch {
+    return empty
   }
 }
 

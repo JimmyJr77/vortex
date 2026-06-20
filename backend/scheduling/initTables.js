@@ -397,5 +397,14 @@ export async function initSchedulingTables(pool) {
     console.warn('[scheduling] discount engine migration:', err.message)
   }
 
+  const freePassesMigration = path.join(__dirname, '../migrations/add_free_passes.sql')
+  if (fs.existsSync(freePassesMigration)) {
+    try {
+      await pool.query(fs.readFileSync(freePassesMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] free passes migration:', err.message)
+    }
+  }
+
   console.log('✅ Scheduling tables ready')
 }

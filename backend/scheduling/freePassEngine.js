@@ -1,0 +1,608 @@
+// Free pass entitlement engine: templates, member grants, calendar proration, redemption ledger.
+
+import { expandCalendarRange } from './calendarExpansion.js'
+import { hoursPerMonthForEnrollment, WEEKS_PER_MONTH } from './slotHours.js'
+
+export const BENEFIT_UNITS = ['slot', 'offering', 'day', 'week', 'month', 'hour']
+export const APPLICATION_METHODS = ['waive_enrollment', 'monthly_prorate']
+export const SCOPE_LEVELS = ['global', 'sport', 'program', 'class', 'offering']
+
+function normalizeText(s) {
+  return String(s ?? '').trim().toLowerCase()
+}
+
+function inferGradeFromGraduationYear(gradYear, now = new Date()) {
+  const y = Number(gradYear)
+  if (!Number.isFinite(y)) return null
+  const month = now.getMonth()
+  const schoolYearEnd = month >= 6 ? now.getFullYear() + 1 : now.getFullYear()
+  const yearsUntilGrad = y - schoolYearEnd
+  if (yearsUntilGrad < 0) return null
+  const grade = 12 - yearsUntilGrad
+  if (grade < 9 || grade > 12) return null
+  return grade
+}
+
+function ruleValueList(value) {
+  if (Array.isArray(value)) return value
+  if (value === '' || value == null) return []
+  return [value]
+}
+
+function matchesEligibilityRule(rule, line) {
+  const values = ruleValueList(rule.value)
+  if (values.length === 0) return true
+
+  let actual = null
+  switch (rule.field) {
+    case 'school':
+      actual = normalizeText(line.memberSchool)
+      break
+    case 'graduation_year':
+      actual = line.memberGraduationYear != null ? Number(line.memberGraduationYear) : null
+      break
+    case 'grade_level': {
+      const direct = line.memberGradeLevel != null ? Number(line.memberGradeLevel) : null
+      actual =
+        direct != null && Number.isFinite(direct)
+          ? direct
+          : inferGradeFromGraduationYear(line.memberGraduationYear)
+      break
+    }
+    default:
+      return true
+  }
+  if (actual == null || actual === '') return false
+
+  const op = rule.operator || 'is'
+  if (rule.field === 'school') {
+    const targets = values.map(normalizeText).filter(Boolean)
+    const hit = targets.some((t) => actual === t || actual.includes(t))
+    if (op === 'is' || op === 'in') return hit
+    if (op === 'is_not' || op === 'not_in') return !hit
+    return hit
+  }
+
+  const nums = values.map(Number).filter((n) => Number.isFinite(n))
+  const n = Number(actual)
+  if (op === 'is') return nums.length > 0 && n === nums[0]
+  if (op === 'is_not') return nums.length > 0 && n !== nums[0]
+  if (op === 'in') return nums.includes(n)
+  if (op === 'not_in') return !nums.includes(n)
+  return true
+}
+
+function passesEligibility(template, line, { isNewMember = false } = {}) {
+  const eligibility = template.eligibility || {}
+  if (eligibility.new_member === true && !isNewMember) return false
+  const rules = eligibility.eligibility_rules || eligibility.rules
+  if (!Array.isArray(rules) || rules.length === 0) return true
+  return rules.every((r) => matchesEligibilityRule(r, line))
+}
+
+function templateInWindow(template, now = Date.now()) {
+  if (!template.active) return false
+  const t = now
+  if (template.startsAt && new Date(template.startsAt).getTime() > t) return false
+  if (template.endsAt && new Date(template.endsAt).getTime() < t) return false
+  return true
+}
+
+function scopeMatches(template, line) {
+  const level = template.scopeLevel || 'global'
+  const refId = template.scopeRefId != null ? Number(template.scopeRefId) : null
+  if (level === 'global') return true
+  if (level === 'sport') return refId != null && Number(line.sportId) === refId
+  if (level === 'program') return refId != null && Number(line.programId) === refId
+  if (level === 'class') return refId != null && Number(line.formId) === refId
+  if (level === 'offering') return refId != null && Number(line.offeringId) === refId
+  return false
+}
+
+function offeringIdsMatch(template, line) {
+  const ids = (template.offeringIds || []).map(Number).filter((n) => Number.isFinite(n))
+  if (ids.length === 0) return true
+  return line.offeringId != null && ids.includes(Number(line.offeringId))
+}
+
+function promoCodeMatches(template, promoCodes = []) {
+  const code = template.issuance?.promo_code
+  if (!code) return true
+  const normalized = String(code).trim().toUpperCase()
+  if (!normalized) return true
+  return promoCodes.map((c) => String(c).trim().toUpperCase()).includes(normalized)
+}
+
+function isAdminOnlyTemplate(template) {
+  return template.issuance?.admin_only === true
+}
+
+function isAutoOnEnrollTemplate(template) {
+  return template.issuance?.auto_on_enroll === true
+}
+
+export function mapPassTemplateRow(r) {
+  return {
+    id: Number(r.id),
+    facilityId: r.facility_id != null ? Number(r.facility_id) : null,
+    name: r.name,
+    description: r.description ?? null,
+    active: r.active !== false,
+    startsAt: r.starts_at ?? null,
+    endsAt: r.ends_at ?? null,
+    benefitUnit: r.benefit_unit,
+    benefitQuantity: Number(r.benefit_quantity ?? 1),
+    applicationMethod: r.application_method ?? 'waive_enrollment',
+    scopeLevel: r.scope_level ?? 'global',
+    scopeRefId: r.scope_ref_id != null ? Number(r.scope_ref_id) : null,
+    dayOfWeek: r.day_of_week != null ? Number(r.day_of_week) : null,
+    offeringIds: Array.isArray(r.offering_ids) ? r.offering_ids.map(Number) : [],
+    eligibility: r.eligibility ?? {},
+    issuance: r.issuance ?? {},
+    debitsFreeClassAllowance: Boolean(r.debits_free_class_allowance),
+    stackable: r.stackable !== false,
+    exclusivityGroup: r.exclusivity_group ?? null,
+    maxRedemptions: r.max_redemptions != null ? Number(r.max_redemptions) : null,
+    redeemedCount: Number(r.redeemed_count ?? 0),
+    config: r.config ?? {},
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  }
+}
+
+export function mapMemberPassRow(r) {
+  return {
+    id: Number(r.id),
+    memberId: Number(r.member_id),
+    passTemplateId: Number(r.pass_template_id),
+    quantityGranted: Number(r.quantity_granted ?? 1),
+    quantityRemaining: Number(r.quantity_remaining ?? 0),
+    issuedAt: r.issued_at,
+    expiresAt: r.expires_at ?? null,
+    issuedBy: r.issued_by ?? 'admin',
+    sourceRef: r.source_ref ?? null,
+    templateName: r.template_name ?? null,
+  }
+}
+
+export async function loadActivePassTemplates(pool, facilityId) {
+  const res = await pool.query(
+    `SELECT * FROM free_pass_template
+     WHERE ($1::bigint IS NULL OR facility_id = $1) AND active = TRUE
+     ORDER BY name ASC`,
+    [facilityId],
+  )
+  return res.rows.map(mapPassTemplateRow).filter((t) => templateInWindow(t))
+}
+
+export async function loadMemberPassGrants(pool, memberId) {
+  if (!memberId) return []
+  const res = await pool.query(
+    `
+    SELECT m.*, t.name AS template_name
+    FROM member_free_pass m
+    JOIN free_pass_template t ON t.id = m.pass_template_id
+    WHERE m.member_id = $1
+      AND m.quantity_remaining > 0
+      AND (m.expires_at IS NULL OR m.expires_at > now())
+      AND t.active = TRUE
+    ORDER BY m.issued_at ASC
+    `,
+    [memberId],
+  )
+  return res.rows.map(mapMemberPassRow)
+}
+
+export async function loadAttachmentsForScope(pool, scopeLevel, scopeRefId) {
+  const res = await pool.query(
+    `SELECT * FROM pricing_pass_attachment
+     WHERE scope_level = $1 AND scope_ref_id = $2
+     ORDER BY sort_order ASC, id ASC`,
+    [scopeLevel, scopeRefId],
+  )
+  return res.rows.map((r) => ({
+    id: Number(r.id),
+    scopeLevel: r.scope_level,
+    scopeRefId: Number(r.scope_ref_id),
+    passTemplateId: Number(r.pass_template_id),
+    autoApply: r.auto_apply !== false,
+    sortOrder: Number(r.sort_order ?? 0),
+  }))
+}
+
+export async function loadAttachmentsForForm(pool, formRow) {
+  const formId = Number(formRow.id)
+  const programsId = formRow.programs_id != null ? Number(formRow.programs_id) : null
+  const classAttachments = await loadAttachmentsForScope(pool, 'class', formId)
+  const programAttachments =
+    programsId != null ? await loadAttachmentsForScope(pool, 'program', programsId) : []
+  return [...programAttachments, ...classAttachments]
+}
+
+export async function loadOfferingById(pool, offeringId) {
+  if (offeringId == null) return null
+  const res = await pool.query(
+    `SELECT id, form_id, category_id, start_date, end_date, label FROM scheduling_offering WHERE id = $1`,
+    [offeringId],
+  )
+  const row = res.rows[0]
+  if (!row) return null
+  return {
+    id: Number(row.id),
+    formId: Number(row.form_id),
+    categoryId: row.category_id != null ? Number(row.category_id) : null,
+    startDate: String(row.start_date).slice(0, 10),
+    endDate: String(row.end_date).slice(0, 10),
+    label: row.label ?? '',
+  }
+}
+
+export async function loadTimeSlotRowsForGroup(pool, slotGroupId) {
+  if (slotGroupId == null) return []
+  const map = await loadCalendarRowsForSlotGroups(pool, [slotGroupId])
+  return map.get(Number(slotGroupId)) || []
+}
+
+export async function loadCalendarRowsForSlotGroups(pool, slotGroupIds) {
+  const ids = [...new Set(slotGroupIds.map((id) => Number(id)).filter((id) => Number.isFinite(id)))]
+  if (ids.length === 0) return new Map()
+
+  const res = await pool.query(
+    `
+    SELECT ts.*, sg.form_id, sg.is_active AS sg_is_active,
+           sg.active_start AS sg_active_start, sg.active_end AS sg_active_end,
+           sg.dates_tbd AS sg_dates_tbd,
+           sf.title AS form_title, sf.start_date AS form_start_date,
+           sf.end_date AS form_end_date, sf.is_active AS form_is_active,
+           sf.programs_id, sf.enroll_sites AS form_enroll_sites,
+           o.start_date AS offering_start_date, o.end_date AS offering_end_date,
+           o.label AS offering_label
+    FROM scheduling_time_slot ts
+    JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
+    JOIN scheduling_form sf ON sf.id = sg.form_id
+    LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
+    WHERE ts.slot_group_id = ANY($1::int[]) AND ts.is_active = TRUE
+    ORDER BY ts.slot_group_id, ts.id
+    `,
+    [ids],
+  )
+
+  const byGroup = new Map()
+  for (const row of res.rows) {
+    const gid = Number(row.slot_group_id)
+    if (!byGroup.has(gid)) byGroup.set(gid, [])
+    byGroup.get(gid).push(row)
+  }
+  return byGroup
+}
+
+function monthBoundsForOffering(offering) {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = now.getMonth() + 1
+  const monthStart = `${y}-${String(m).padStart(2, '0')}-01`
+  const lastDay = new Date(y, m, 0).getDate()
+  const monthEnd = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+  if (!offering) return { startDate: monthStart, endDate: monthEnd }
+  const startDate = offering.startDate > monthStart ? offering.startDate : monthStart
+  const endDate = offering.endDate < monthEnd ? offering.endDate : monthEnd
+  if (startDate > endDate) return { startDate: offering.startDate, endDate: offering.endDate }
+  return { startDate, endDate }
+}
+
+function countOccurrencesInRange(rows, { startDate, endDate, dayOfWeek = null }) {
+  const expanded = expandCalendarRange({ startDate, endDate, rows, site: 'athletics' })
+  const events = expanded.events || []
+  if (dayOfWeek == null) return events.length
+  return events.filter((e) => {
+    const d = new Date(`${e.date}T12:00:00`)
+    return d.getDay() === dayOfWeek
+  }).length
+}
+
+/**
+ * Compute monthly credit in cents for a pass applied to a line.
+ */
+export function computePassCreditCents({
+  template,
+  lineBaseCents,
+  offering = null,
+  timeSlotRows = [],
+  slotGroupId = null,
+  timeSlotId = null,
+}) {
+  const base = Math.max(0, Math.round(Number(lineBaseCents) || 0))
+  if (base <= 0) return 0
+
+  const unit = template.benefitUnit || 'slot'
+  const qty = Math.max(1, Number(template.benefitQuantity) || 1)
+  const method = template.applicationMethod || 'waive_enrollment'
+
+  if (unit === 'slot' || unit === 'offering') {
+    return method === 'waive_enrollment' ? base : base
+  }
+
+  if (unit === 'week') {
+    const weeksPerMonth = WEEKS_PER_MONTH
+    const fraction = Math.min(1, qty / weeksPerMonth)
+    return Math.round(base * fraction)
+  }
+
+  if (unit === 'month') {
+    return Math.round(base * Math.min(1, qty))
+  }
+
+  if (unit === 'hour') {
+    const hoursPerMonth = hoursPerMonthForEnrollment(timeSlotRows, {
+      timeSlotId: line.timeSlotId ?? null,
+    })
+    if (hoursPerMonth <= 0) return 0
+    const freeHours = Math.min(hoursPerMonth, qty)
+    return Math.round(base * (freeHours / hoursPerMonth))
+  }
+
+  if (unit === 'day') {
+    const { startDate, endDate } = monthBoundsForOffering(offering)
+    const groupRows = slotGroupId
+      ? timeSlotRows.filter((r) => Number(r.slot_group_id) === Number(slotGroupId))
+      : timeSlotRows
+    const totalOccurrences = countOccurrencesInRange(groupRows, { startDate, endDate })
+    if (totalOccurrences <= 0) return 0
+
+    const dow = template.dayOfWeek
+    const freeOccurrences =
+      dow != null
+        ? Math.min(qty, countOccurrencesInRange(groupRows, { startDate, endDate, dayOfWeek: dow }))
+        : Math.min(qty, totalOccurrences)
+
+    return Math.round(base * (freeOccurrences / totalOccurrences))
+  }
+
+  return 0
+}
+
+function candidateTemplatesForLine({ templates, attachments, grants, promoCodes, line, isNewMember }) {
+  const attachmentIds = new Set(attachments.filter((a) => a.autoApply).map((a) => a.passTemplateId))
+  const grantTemplateIds = new Set(grants.map((g) => g.passTemplateId))
+
+  return templates.filter((t) => {
+    if (!templateInWindow(t)) return false
+    if (!scopeMatches(t, line)) return false
+    if (!offeringIdsMatch(t, line)) return false
+    if (!passesEligibility(t, line, { isNewMember })) return false
+
+    const hasGrant = grantTemplateIds.has(t.id)
+    const isAttached = attachmentIds.has(t.id)
+    const autoEnroll = isAutoOnEnrollTemplate(t)
+    const promoMatch = promoCodeMatches(t, promoCodes)
+
+    if (isAdminOnlyTemplate(t) && !hasGrant) return false
+    if (hasGrant) return true
+    if (isAttached && autoEnroll) return true
+    if (promoMatch && t.issuance?.promo_code) return true
+    if (autoEnroll && t.scopeLevel === 'global') return true
+    return false
+  })
+}
+
+export function applyFreePassLayer({
+  lines = [],
+  templates = [],
+  grants = [],
+  attachments = [],
+  promoCodes = [],
+  caps = {},
+  offeringsById = new Map(),
+  timeSlotsByGroup = new Map(),
+  isNewMember = false,
+}) {
+  const empty = {
+    enabled: false,
+    items: [],
+    totalCreditCents: 0,
+    redemptions: [],
+    linesAfter: lines.map((l) => ({ ...l, baseCents: l.baseCents, passCreditCents: 0, finalCents: l.baseCents })),
+  }
+  if (!lines.length || (!templates.length && !grants.length)) return empty
+
+  const grantByTemplate = new Map()
+  for (const g of grants) {
+    if (!grantByTemplate.has(g.passTemplateId)) grantByTemplate.set(g.passTemplateId, g)
+  }
+
+  let facilityFreeUsed = caps.freeUnitsFacilityUsed || 0
+  const maxFacilityFree = caps.maxFreeUnitsTotal ?? null
+  const ruleRedeemed = { ...(caps.ruleRedeemed || {}) }
+  const usedExclusivity = new Set()
+
+  const items = []
+  const redemptions = []
+  const linesAfter = lines.map((line) => ({
+    ...line,
+    passCreditCents: 0,
+    finalCents: line.baseCents,
+    appliedPasses: [],
+  }))
+
+  for (const lineState of linesAfter) {
+    const line = lineState
+    const offering = line.offeringId != null ? offeringsById.get(Number(line.offeringId)) : null
+    const slotGroupId = line.slotGroupId ?? null
+    const timeSlotRows = slotGroupId != null ? timeSlotsByGroup.get(Number(slotGroupId)) || [] : []
+
+    const candidates = candidateTemplatesForLine({
+      templates,
+      attachments,
+      grants,
+      promoCodes,
+      line,
+      isNewMember,
+    }).sort((a, b) => Number(a.id) - Number(b.id))
+
+    for (const template of candidates) {
+      if (template.exclusivityGroup && usedExclusivity.has(template.exclusivityGroup)) continue
+      if (template.maxRedemptions != null) {
+        const used = (template.redeemedCount || 0) + (ruleRedeemed[template.id] || 0)
+        if (used >= template.maxRedemptions) continue
+      }
+      if (maxFacilityFree != null && facilityFreeUsed >= maxFacilityFree) continue
+
+      const grant = grantByTemplate.get(template.id)
+      if (grant && grant.quantityRemaining <= 0) continue
+
+      const credit = computePassCreditCents({
+        template,
+        lineBaseCents: lineState.baseCents - lineState.passCreditCents,
+        offering,
+        timeSlotRows,
+        slotGroupId,
+        timeSlotId: line.timeSlotId ?? null,
+      })
+      if (credit <= 0) continue
+
+      const applied = Math.min(credit, lineState.baseCents - lineState.passCreditCents)
+      if (applied <= 0) continue
+
+      lineState.passCreditCents += applied
+      lineState.finalCents = Math.max(0, lineState.baseCents - lineState.passCreditCents)
+      lineState.appliedPasses.push({
+        templateId: template.id,
+        templateName: template.name,
+        creditCents: applied,
+        debitsFreeClassAllowance: template.debitsFreeClassAllowance,
+        benefitUnit: template.benefitUnit,
+      })
+
+      items.push({
+        lineKey: line.key,
+        templateId: template.id,
+        templateName: template.name,
+        creditCents: applied,
+        benefitUnit: template.benefitUnit,
+        prorated: template.applicationMethod === 'monthly_prorate',
+      })
+
+      redemptions.push({
+        lineKey: line.key,
+        memberPassId: grant?.id ?? null,
+        passTemplateId: template.id,
+        memberId: line.memberId ?? null,
+        units: 1,
+        amountCentsCredited: applied,
+        context: {
+          offeringId: line.offeringId ?? null,
+          dayOfWeek: template.dayOfWeek,
+          slotGroupId,
+        },
+        debitsFreeClassAllowance: template.debitsFreeClassAllowance,
+      })
+
+      facilityFreeUsed += 1
+      ruleRedeemed[template.id] = (ruleRedeemed[template.id] || 0) + 1
+      if (template.exclusivityGroup) usedExclusivity.add(template.exclusivityGroup)
+      if (!template.stackable) break
+    }
+  }
+
+  const totalCreditCents = linesAfter.reduce((s, l) => s + l.passCreditCents, 0)
+  return {
+    enabled: items.length > 0,
+    items,
+    totalCreditCents,
+    redemptions,
+    linesAfter,
+  }
+}
+
+export async function loadFreePassCaps(pool, facilityId) {
+  const caps = {
+    maxFreeUnitsTotal: null,
+    freeUnitsFacilityUsed: 0,
+    ruleRedeemed: {},
+  }
+  try {
+    const settingsRes = await pool.query(
+      `SELECT max_free_units_total FROM discount_global_settings WHERE facility_id = $1`,
+      [facilityId],
+    )
+    if (settingsRes.rows[0]) {
+      caps.maxFreeUnitsTotal = settingsRes.rows[0].max_free_units_total
+    }
+    const freeRes = await pool.query(
+      `SELECT COALESCE(SUM(units), 0)::int AS total FROM free_pass_redemption`,
+    )
+    caps.freeUnitsFacilityUsed = Number(freeRes.rows[0]?.total ?? 0)
+    const byTemplate = await pool.query(
+      `SELECT pass_template_id, COUNT(*)::int AS c FROM free_pass_redemption
+       WHERE pass_template_id IS NOT NULL GROUP BY pass_template_id`,
+    )
+    for (const row of byTemplate.rows) {
+      caps.ruleRedeemed[Number(row.pass_template_id)] = Number(row.c)
+    }
+  } catch {
+    /* tables may not exist yet */
+  }
+  return caps
+}
+
+export async function persistFreePassRedemptions(pool, { signupId, memberId, redemptions = [] }) {
+  if (!redemptions.length) return []
+  const inserted = []
+  for (const r of redemptions) {
+    const res = await pool.query(
+      `INSERT INTO free_pass_redemption
+         (member_pass_id, pass_template_id, member_id, signup_id, units, amount_cents_credited, context)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id`,
+      [
+        r.memberPassId ?? null,
+        r.passTemplateId ?? null,
+        memberId ?? r.memberId ?? null,
+        signupId ?? null,
+        r.units ?? 1,
+        r.amountCentsCredited ?? 0,
+        JSON.stringify(r.context ?? {}),
+      ],
+    )
+    inserted.push(Number(res.rows[0].id))
+
+    if (r.memberPassId) {
+      await pool.query(
+        `UPDATE member_free_pass
+         SET quantity_remaining = GREATEST(0, quantity_remaining - $1)
+         WHERE id = $2`,
+        [r.units ?? 1, r.memberPassId],
+      )
+    }
+    if (r.passTemplateId) {
+      await pool.query(
+        `UPDATE free_pass_template SET redeemed_count = redeemed_count + 1, updated_at = now()
+         WHERE id = $1`,
+        [r.passTemplateId],
+      )
+    }
+  }
+  return inserted
+}
+
+export async function issueMemberPassGrant(pool, { memberId, passTemplateId, quantity = 1, issuedBy = 'admin', sourceRef = null, expiresAt = null }) {
+  const templateRes = await pool.query(`SELECT * FROM free_pass_template WHERE id = $1`, [passTemplateId])
+  if (!templateRes.rows[0]) return null
+  const template = mapPassTemplateRow(templateRes.rows[0])
+  const grantDays = template.config?.grant_expires_days
+  let exp = expiresAt
+  if (!exp && grantDays != null && Number(grantDays) > 0) {
+    const d = new Date()
+    d.setDate(d.getDate() + Number(grantDays))
+    exp = d.toISOString()
+  }
+  const qty = Math.max(1, Number(quantity) || 1)
+  const res = await pool.query(
+    `INSERT INTO member_free_pass
+       (member_id, pass_template_id, quantity_granted, quantity_remaining, expires_at, issued_by, source_ref)
+     VALUES ($1, $2, $3, $3, $4, $5, $6)
+     RETURNING *`,
+    [memberId, passTemplateId, qty, exp, issuedBy, sourceRef],
+  )
+  return mapMemberPassRow({ ...res.rows[0], template_name: template.name })
+}

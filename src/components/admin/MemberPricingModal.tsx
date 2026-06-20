@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 import {
+  adminFetchFreePasses,
+  adminFetchMemberFreePasses,
   adminFetchMemberPricingSummary,
+  adminIssueMemberFreePass,
+  type FreePassTemplate,
+  type MemberFreePassGrant,
   type MemberPricingSummary,
   type SignupOrderPreview,
 } from '../../utils/schedulingApi'
@@ -105,6 +110,99 @@ function PricingBody({ preview }: { preview: SignupOrderPreview }) {
   )
 }
 
+function MemberGrantsPanel({
+  memberId,
+  onIssued,
+}: {
+  memberId: number
+  onIssued: () => void
+}) {
+  const [grants, setGrants] = useState<MemberFreePassGrant[]>([])
+  const [templates, setTemplates] = useState<FreePassTemplate[]>([])
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | ''>('')
+  const [issuing, setIssuing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const loadGrants = useCallback(async () => {
+    try {
+      const [g, t] = await Promise.all([
+        adminFetchMemberFreePasses(memberId),
+        adminFetchFreePasses(),
+      ])
+      setGrants(g)
+      setTemplates(t.filter((p) => p.active))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load passes')
+    }
+  }, [memberId])
+
+  useEffect(() => {
+    void loadGrants()
+  }, [loadGrants])
+
+  const issue = async () => {
+    if (selectedTemplateId === '') return
+    setIssuing(true)
+    setError(null)
+    try {
+      await adminIssueMemberFreePass(memberId, { passTemplateId: Number(selectedTemplateId) })
+      setSelectedTemplateId('')
+      await loadGrants()
+      onIssued()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to issue pass')
+    } finally {
+      setIssuing(false)
+    }
+  }
+
+  return (
+    <div className="mt-5 pt-4 border-t border-gray-100">
+      <h4 className="text-sm font-semibold text-gray-900 mb-2">Free pass grants</h4>
+      {grants.length > 0 ? (
+        <ul className="space-y-1 text-sm mb-3">
+          {grants.map((g) => (
+            <li key={g.id} className="flex justify-between text-gray-700">
+              <span>{g.templateName ?? `Pass #${g.passTemplateId}`}</span>
+              <span className="text-gray-500">{g.quantityRemaining} left</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-gray-500 mb-3">No active grants.</p>
+      )}
+      <div className="flex gap-2 items-end">
+        <div className="flex-1">
+          <label className="block text-xs text-gray-500 mb-1">Issue pass</label>
+          <select
+            className="w-full h-9 rounded-lg border border-gray-300 px-2 text-sm"
+            value={selectedTemplateId}
+            onChange={(e) =>
+              setSelectedTemplateId(e.target.value === '' ? '' : Number(e.target.value))
+            }
+          >
+            <option value="">Select template…</option>
+            {templates.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          type="button"
+          disabled={issuing || selectedTemplateId === ''}
+          onClick={() => void issue()}
+          className="h-9 px-3 text-sm bg-vortex-red text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+        >
+          {issuing ? '…' : 'Issue'}
+        </button>
+      </div>
+      {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
+    </div>
+  )
+}
+
 const MemberPricingModal = ({ memberId, memberLabel, onClose }: Props) => {
   const [data, setData] = useState<MemberPricingSummary | null>(null)
   const [loading, setLoading] = useState(false)
@@ -171,6 +269,7 @@ const MemberPricingModal = ({ memberId, memberLabel, onClose }: Props) => {
           {data && !loading && (
             <>
               <PricingBody preview={data.preview} />
+              <MemberGrantsPanel memberId={memberId} onIssued={() => void load()} />
               {storedDiscounts.length > 0 && (
                 <div className="mt-5 pt-4 border-t border-gray-100">
                   <h4 className="text-sm font-semibold text-gray-900 mb-2">

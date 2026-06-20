@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   adminFetchDiscountRules,
+  adminFetchFreePasses,
+  DAY_OF_WEEK_LABELS,
+  FREE_PASS_BENEFIT_LABELS,
   type DiscountRule,
   type DiscountScopeLevel,
   type DiscountType,
+  type FreePassTemplate,
 } from '../../utils/schedulingApi'
 import { fetchDisciplineTags, fetchTopPrograms, type TopProgram } from '../../utils/programsApi'
 import { adminFetchSchedulingForms } from '../../utils/schedulingApi'
@@ -173,6 +177,7 @@ function RuleStatusBadge({ rule }: { rule: DiscountRule }) {
 
 const AdminPricingRulesOverview = () => {
   const [rules, setRules] = useState<DiscountRule[]>([])
+  const [freePasses, setFreePasses] = useState<FreePassTemplate[]>([])
   const [programs, setPrograms] = useState<TopProgram[]>([])
   const [forms, setForms] = useState<Array<{ id: number; title: string; programsId?: number | null; programDisplayName?: string | null }>>([])
   const [sports, setSports] = useState<Array<{ id: number; name: string }>>([])
@@ -184,13 +189,15 @@ const AdminPricingRulesOverview = () => {
     setLoading(true)
     setError(null)
     try {
-      const [discountData, programRows, formRows, sportRows] = await Promise.all([
+      const [discountData, passRows, programRows, formRows, sportRows] = await Promise.all([
         adminFetchDiscountRules(),
+        adminFetchFreePasses(),
         fetchTopPrograms(false),
         adminFetchSchedulingForms(),
         fetchDisciplineTags(),
       ])
       setRules(discountData.rules)
+      setFreePasses(passRows)
       setPrograms(programRows)
       setForms(
         formRows.map((f) => ({
@@ -245,16 +252,40 @@ const AdminPricingRulesOverview = () => {
       <div className="rounded-xl border border-gray-200 bg-white p-4">
         <h3 className="font-bold text-gray-900">Rules in play</h3>
         <p className="text-sm text-gray-600 mt-1">
-          Overview of every promotion and discount rule and where it applies. Create or edit rules
-          on the <span className="font-medium">Discounts</span> tab; assign promo codes to programs
-          on the <span className="font-medium">Costs</span> tab.
+          Overview of promotions, discounts, and free passes. Create discounts on the{' '}
+          <span className="font-medium">Discounts</span> tab; free passes on{' '}
+          <span className="font-medium">Free Passes</span>; assign promo codes on{' '}
+          <span className="font-medium">Costs</span>.
         </p>
         {!loading && (
           <p className="text-xs text-gray-500 mt-2">
-            {rules.length} rule{rules.length === 1 ? '' : 's'} · {activeCount} active
+            {rules.length} discount rule{rules.length === 1 ? '' : 's'} · {freePasses.length} free
+            pass{freePasses.length === 1 ? '' : 'es'} · {activeCount} active rules
           </p>
         )}
       </div>
+
+      {freePasses.length > 0 && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 overflow-hidden">
+          <div className="px-4 py-3 border-b border-emerald-100">
+            <h4 className="font-semibold text-emerald-900">Free passes</h4>
+          </div>
+          <ul className="divide-y divide-emerald-100 text-sm">
+            {freePasses.map((p) => (
+              <li key={p.id} className="px-4 py-2 flex justify-between gap-4">
+                <span className="font-medium text-gray-900">{p.name}</span>
+                <span className="text-gray-600 text-right">
+                  {p.benefitQuantity} {FREE_PASS_BENEFIT_LABELS[p.benefitUnit]}
+                  {p.benefitUnit === 'day' && p.dayOfWeek != null
+                    ? ` (${DAY_OF_WEEK_LABELS[p.dayOfWeek]})`
+                    : ''}
+                  {p.scopeLevel !== 'global' ? ` · ${p.scopeLevel}` : ''}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center gap-2">
         <label className="text-xs font-semibold text-gray-600">Filter by type</label>

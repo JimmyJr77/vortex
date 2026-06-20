@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { Play } from 'lucide-react'
-import { adminSimulateDiscountOrder, type OrderDiscountBreakdown } from '../../utils/schedulingApi'
+import {
+  adminSimulateDiscountOrder,
+  adminSimulateFreePasses,
+  type FreePassBreakdown,
+  type OrderDiscountBreakdown,
+} from '../../utils/schedulingApi'
 
 const inputClass =
   'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-vortex-red focus:outline-none'
@@ -17,6 +22,7 @@ const OrderSimulator = () => {
   const [city, setCity] = useState('')
   const [school, setSchool] = useState('')
   const [result, setResult] = useState<OrderDiscountBreakdown | null>(null)
+  const [passResult, setPassResult] = useState<FreePassBreakdown | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -37,6 +43,16 @@ const OrderSimulator = () => {
         lines,
       })
       setResult(breakdown)
+      try {
+        setPassResult(
+          await adminSimulateFreePasses({
+            promoCodes: promo.trim() ? [promo.trim()] : [],
+            lines,
+          }),
+        )
+      } catch {
+        setPassResult(null)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Simulation failed')
     } finally {
@@ -136,6 +152,18 @@ const OrderSimulator = () => {
             <span>Estimated total</span>
             <span>{dollars(result.totalCents)}</span>
           </div>
+        </div>
+      )}
+
+      {passResult?.enabled && passResult.totalCreditCents > 0 && (
+        <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm space-y-1">
+          <p className="font-semibold text-emerald-900">Free pass credits</p>
+          {passResult.items.map((item, i) => (
+            <div key={i} className="flex justify-between text-emerald-800">
+              <span>{item.templateName}</span>
+              <span>-{dollars(item.creditCents)}</span>
+            </div>
+          ))}
         </div>
       )}
     </div>

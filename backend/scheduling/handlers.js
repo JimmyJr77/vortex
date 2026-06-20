@@ -26,6 +26,7 @@ import {
   hoursPerMonthForEnrollment,
   loadTimeSlotsBySlotGroupIds,
 } from './slotHours.js'
+import { persistFreePassRedemptions } from './freePassEngine.js'
 import {
   loadEffectivePricingForForm,
   loadProgramPricingRow,
@@ -2020,6 +2021,7 @@ export function createSchedulingHandlers(pool) {
           }
 
           let discountBreakdown = null
+          let freePassBreakdown = null
           try {
             const preview = await buildSignupOrderPreview(pool, {
               memberId,
@@ -2044,6 +2046,7 @@ export function createSchedulingHandlers(pool) {
               },
             })
             discountBreakdown = preview.discounts
+            freePassBreakdown = preview.freePasses
           } catch (previewErr) {
             console.warn('[scheduling] discount preview at submit:', previewErr.message)
           }
@@ -2071,6 +2074,23 @@ export function createSchedulingHandlers(pool) {
           await client.query('COMMIT')
 
           const { signupId, signupStatus, positions, pricing } = signupResult
+
+          if (freePassBreakdown?.enabled && freePassBreakdown.redemptions?.length) {
+            const lineKey = programSlotSignupKey(
+              value.formId,
+              signupCategoryId,
+              value.slotGroupId,
+              firstOccurrence.id,
+            )
+            const lineRedemptions = freePassBreakdown.redemptions.filter(
+              (r) => r.lineKey === lineKey || r.lineKey == null,
+            )
+            await persistFreePassRedemptions(pool, {
+              signupId,
+              memberId,
+              redemptions: lineRedemptions,
+            })
+          }
 
           if (discountBreakdown?.enabled) {
             const lineKey = programSlotSignupKey(
@@ -2284,6 +2304,7 @@ export function createSchedulingHandlers(pool) {
           }
 
           let discountBreakdown = null
+          let freePassBreakdown = null
           try {
             const preview = await buildSignupOrderPreview(pool, {
               memberId,
@@ -2306,6 +2327,7 @@ export function createSchedulingHandlers(pool) {
               },
             })
             discountBreakdown = preview.discounts
+            freePassBreakdown = preview.freePasses
           } catch (previewErr) {
             console.warn('[scheduling] discount preview at batch submit:', previewErr.message)
           }
@@ -2336,6 +2358,28 @@ export function createSchedulingHandlers(pool) {
           }
 
           await client.query('COMMIT')
+
+          if (freePassBreakdown?.enabled && freePassBreakdown.redemptions?.length) {
+            for (let index = 0; index < resolvedEntries.length; index += 1) {
+              const resolved = resolvedEntries[index]
+              const signupId = signupResults[index]?.signupId
+              if (signupId == null) continue
+              const lineKey = programSlotSignupKey(
+                resolved.entry.formId,
+                resolved.signupCategoryId,
+                resolved.entry.slotGroupId,
+                resolved.firstOccurrence.id,
+              )
+              const lineRedemptions = freePassBreakdown.redemptions.filter((r) => r.lineKey === lineKey)
+              if (lineRedemptions.length) {
+                await persistFreePassRedemptions(pool, {
+                  signupId,
+                  memberId,
+                  redemptions: lineRedemptions,
+                })
+              }
+            }
+          }
 
           if (discountBreakdown?.enabled) {
             const keyToSignupId = {}

@@ -13,6 +13,7 @@ import PricingCostsFields, {
   type PricingCostsValues,
 } from './PricingCostsFields'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
+import FreePassAttachmentSection from './FreePassAttachmentSection'
 import { normalizeProgramPromoCodes } from './ProgramPromoCodesField'
 
 interface Props {
@@ -205,6 +206,10 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
       )}
 
       {error && <p className="text-sm text-red-600">{error}</p>}
+
+      {formId != null && (
+        <FreePassAttachmentSection scopeLevel="class" scopeRefId={formId} />
+      )}
 
       <ConfirmPricingActionModal
         open={confirmReset}

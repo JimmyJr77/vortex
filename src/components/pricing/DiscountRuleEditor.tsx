@@ -241,7 +241,9 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
                 value={form.type}
                 onChange={(e) => update({ type: e.target.value as DiscountType })}
               >
-                {(Object.keys(TYPE_LABELS) as DiscountType[]).map((t) => (
+                {(Object.keys(TYPE_LABELS) as DiscountType[])
+                  .filter((t) => t !== 'free_classes' || form.type === 'free_classes')
+                  .map((t) => (
                   <option key={t} value={t}>
                     {TYPE_LABELS[t]}
                   </option>

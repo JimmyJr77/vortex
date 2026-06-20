@@ -132,8 +132,13 @@ export interface SignupOrderPreviewClass {
   categoryName: string
   slotLabel: string
   slotKey?: string
+  slotGroupId?: number
+  timeSlotId?: number | null
+  offeringId?: number | null
   status?: string
   incrementalMonthly?: number
+  passCreditCents?: number
+  passItems?: FreePassLineItem[]
   hoursPerMonth?: number | null
   isNew: boolean
 }
@@ -242,6 +247,7 @@ export interface SignupOrderPreview {
   newSignupMonthlyTotal: number
   estimatedMonthlyTotal: number
   totalDiscountMonthly: number
+  freePasses?: FreePassBreakdown
   discounts?: OrderDiscountBreakdown
   additionalFees?: AdditionalFeesBreakdown
   additionalFeesMonthly?: number
@@ -249,6 +255,97 @@ export interface SignupOrderPreview {
   hasPricing: boolean
   disclaimer: string
 }
+
+export type FreePassBenefitUnit = 'slot' | 'offering' | 'day' | 'week' | 'month' | 'hour'
+export type FreePassApplicationMethod = 'waive_enrollment' | 'monthly_prorate'
+export type FreePassScopeLevel = 'global' | 'sport' | 'program' | 'class' | 'offering'
+
+export interface FreePassTemplate {
+  id: number
+  facilityId: number | null
+  name: string
+  description: string | null
+  active: boolean
+  startsAt: string | null
+  endsAt: string | null
+  benefitUnit: FreePassBenefitUnit
+  benefitQuantity: number
+  applicationMethod: FreePassApplicationMethod
+  scopeLevel: FreePassScopeLevel
+  scopeRefId: number | null
+  dayOfWeek: number | null
+  offeringIds: number[]
+  eligibility: Record<string, unknown>
+  issuance: Record<string, unknown>
+  debitsFreeClassAllowance: boolean
+  stackable: boolean
+  exclusivityGroup: string | null
+  maxRedemptions: number | null
+  redeemedCount: number
+  config: Record<string, unknown>
+}
+
+export type FreePassTemplateInput = Omit<
+  FreePassTemplate,
+  'id' | 'facilityId' | 'redeemedCount'
+>
+
+export interface FreePassAttachment {
+  id?: number
+  scopeLevel: 'program' | 'class'
+  scopeRefId: number
+  passTemplateId: number
+  autoApply: boolean
+  sortOrder: number
+}
+
+export interface MemberFreePassGrant {
+  id: number
+  memberId: number
+  passTemplateId: number
+  quantityGranted: number
+  quantityRemaining: number
+  issuedAt: string
+  expiresAt: string | null
+  issuedBy: 'promo' | 'admin' | 'auto'
+  sourceRef: string | null
+  templateName: string | null
+}
+
+export interface FreePassLineItem {
+  lineKey: string
+  templateId: number
+  templateName: string
+  creditCents: number
+  benefitUnit: FreePassBenefitUnit
+  prorated?: boolean
+}
+
+export interface FreePassBreakdown {
+  enabled: boolean
+  items: FreePassLineItem[]
+  totalCreditCents: number
+  redemptions: Array<Record<string, unknown>>
+}
+
+export const FREE_PASS_BENEFIT_LABELS: Record<FreePassBenefitUnit, string> = {
+  slot: 'Slot (full enrollment)',
+  offering: 'Offering (full run)',
+  day: 'Day(s)',
+  week: 'Week(s)',
+  month: 'Month(s)',
+  hour: 'Hour(s)',
+}
+
+export const DAY_OF_WEEK_LABELS = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+]
 
 export type CostUnit =
   | 'per_slot'
@@ -1023,6 +1120,103 @@ export async function adminDeleteAdditionalFee(id: number): Promise<void> {
     method: 'DELETE',
   })
   await parseJson(res)
+}
+
+export async function adminFetchFreePasses(): Promise<FreePassTemplate[]> {
+  const res = await adminApiRequest('/api/admin/scheduling/free-passes')
+  return parseJson(res)
+}
+
+export async function adminCreateFreePass(input: FreePassTemplateInput): Promise<FreePassTemplate> {
+  const res = await adminApiRequest('/api/admin/scheduling/free-passes', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+  return parseJson(res)
+}
+
+export async function adminUpdateFreePass(
+  id: number,
+  input: FreePassTemplateInput,
+): Promise<FreePassTemplate> {
+  const res = await adminApiRequest(`/api/admin/scheduling/free-passes/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  })
+  return parseJson(res)
+}
+
+export async function adminDeleteFreePass(id: number): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/scheduling/free-passes/${id}`, {
+    method: 'DELETE',
+  })
+  await parseJson(res)
+}
+
+export async function adminFetchPassAttachments(
+  scopeLevel: 'program' | 'class',
+  scopeRefId: number,
+): Promise<FreePassAttachment[]> {
+  const res = await adminApiRequest(
+    `/api/admin/scheduling/pricing-pass-attachments?scopeLevel=${scopeLevel}&scopeRefId=${scopeRefId}`,
+  )
+  return parseJson(res)
+}
+
+export async function adminSavePassAttachments(payload: {
+  scopeLevel: 'program' | 'class'
+  scopeRefId: number
+  attachments: Array<{
+    passTemplateId: number
+    autoApply?: boolean
+    sortOrder?: number
+  }>
+}): Promise<FreePassAttachment[]> {
+  const res = await adminApiRequest('/api/admin/scheduling/pricing-pass-attachments', {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+  return parseJson(res)
+}
+
+export async function adminFetchMemberFreePasses(memberId: number): Promise<MemberFreePassGrant[]> {
+  const res = await adminApiRequest(`/api/admin/scheduling/members/${memberId}/free-passes`)
+  return parseJson(res)
+}
+
+export async function adminIssueMemberFreePass(
+  memberId: number,
+  payload: { passTemplateId: number; quantity?: number; expiresAt?: string | null; sourceRef?: string },
+): Promise<MemberFreePassGrant> {
+  const res = await adminApiRequest(`/api/admin/scheduling/members/${memberId}/free-passes`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+  return parseJson(res)
+}
+
+export async function adminSimulateFreePasses(payload: {
+  promoCodes?: string[]
+  isNewMember?: boolean
+  lines: Array<{
+    key?: string
+    formId?: number | null
+    programId?: number | null
+    sportId?: number | null
+    offeringId?: number | null
+    slotGroupId?: number | null
+    timeSlotId?: number | null
+    memberId?: number | null
+    memberSchool?: string | null
+    memberGraduationYear?: number | null
+    baseCents: number
+  }>
+}): Promise<FreePassBreakdown> {
+  const res = await adminApiRequest('/api/admin/scheduling/free-passes/simulate', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+  return parseJson(res)
 }
 
 export interface MemberPricingSignupRow {

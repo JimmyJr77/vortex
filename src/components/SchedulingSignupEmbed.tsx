@@ -654,6 +654,16 @@ function SignupOrderPricingSummary({
                         {item.categoryName}
                         {item.slotLabel ? ` — ${item.slotLabel}` : ''}
                       </p>
+                      {item.passItems && item.passItems.length > 0 && (
+                        <ul className="mt-1 text-xs text-emerald-700">
+                          {item.passItems.map((p, i) => (
+                            <li key={i}>
+                              Free pass: {p.templateName} −{formatMoney(p.creditCents / 100)}/mo
+                              {p.prorated ? ' (prorated)' : ''}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                     <p className="shrink-0 text-right font-semibold text-black">
                       {item.incrementalMonthly != null && item.incrementalMonthly > 0
@@ -728,6 +738,29 @@ function SignupOrderPricingSummary({
                 Total discounts applied: -{formatMoney(preview.totalDiscountMonthly)}/mo
               </p>
             )}
+          </div>
+        </div>
+      )}
+
+      {preview.freePasses?.enabled && preview.freePasses.totalCreditCents > 0 && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm">
+          <h5 className={`font-semibold text-emerald-900 mb-2 ${compact ? 'text-sm' : 'text-base'}`}>
+            Free passes applied
+          </h5>
+          <ul className="space-y-1">
+            {preview.freePasses.items.map((item, i) => (
+              <li key={i} className="flex justify-between text-emerald-800">
+                <span>
+                  {item.templateName}
+                  {item.prorated ? ' (prorated)' : ''}
+                </span>
+                <span>-{formatMoney(item.creditCents / 100)}/mo</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-2 pt-2 border-t border-emerald-200 flex justify-between font-semibold text-emerald-900">
+            <span>Pass credits</span>
+            <span>-{formatMoney(preview.freePasses.totalCreditCents / 100)}/mo</span>
           </div>
         </div>
       )}

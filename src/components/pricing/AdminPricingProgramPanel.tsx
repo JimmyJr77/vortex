@@ -9,6 +9,7 @@ import PricingCostsFields, {
 import ProgramPromoCodesField, { normalizeProgramPromoCodes } from './ProgramPromoCodesField'
 import AdminPricingClassTable from './AdminPricingClassTable'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
+import FreePassAttachmentSection from './FreePassAttachmentSection'
 
 interface Props {
   program: TopProgram
@@ -113,6 +114,12 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
+
+      <FreePassAttachmentSection
+        scopeLevel="program"
+        scopeRefId={program.id}
+        title="Program free passes"
+      />
 
       <div>
         <h4 className="text-base font-bold text-black mb-3">Classes</h4>
