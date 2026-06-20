@@ -73,7 +73,7 @@ const topProgramUpdateSchema = Joi.object({
   pricingMaxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
   pricingSlotCostMonthlyCents: Joi.number().integer().min(0).optional(),
   pricingCostUnit: Joi.string()
-    .valid('per_slot', 'per_class', 'per_week', 'per_month', 'per_offering')
+    .valid('per_slot', 'per_class', 'per_week', 'per_month', 'per_offering', 'per_hour')
     .optional(),
   pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
   pricingMaxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),

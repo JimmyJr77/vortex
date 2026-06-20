@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Edit2, Search, Users, Loader2, Trash2 } from 'lucide-react'
+import { Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Edit2, Search, Users, Loader2, Trash2, DollarSign } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import MemberFormSection from './MemberFormSection'
 import MemberSchoolsNotes from './MemberSchoolsNotes'
+import MemberPricingModal from './admin/MemberPricingModal'
 import { formatDateForInput, formatDateForDisplay, formatTimestampDate, calculateAge, isAdult } from '../utils/dateUtils'
 
 // Member-related interfaces
@@ -218,6 +219,8 @@ export default function AdminMembers() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [memberToDelete, setMemberToDelete] = useState<{ id: number; name: string } | null>(null)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [pricingMember, setPricingMember] = useState<UnifiedMember | null>(null)
+  const [seedingDevMembers, setSeedingDevMembers] = useState(false)
   
   // Family state (still needed for member creation modal)
   const [, setFamilies] = useState<Family[]>([])
@@ -482,6 +485,36 @@ export default function AdminMembers() {
       setFixingAppUsers(false)
     }
   }, [])
+
+  const seedDevTestMembers = useCallback(async () => {
+    if (
+      !confirm(
+        'Load 15 dev-only test members? Existing dev test members will be replaced. Password for all: Vortex25!',
+      )
+    ) {
+      return
+    }
+    setSeedingDevMembers(true)
+    try {
+      const response = await adminApiRequest('/api/admin/dev/seed-test-members', {
+        method: 'POST',
+        body: JSON.stringify({ replace: true }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        alert(
+          `Created ${data.data?.created ?? 0} dev test members.\n\nPassword for all accounts: Vortex25!\n\nThese members only appear in local/dev — not production.`,
+        )
+        await fetchMembers()
+      } else {
+        alert(data.message || 'Failed to seed dev test members')
+      }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Failed to seed dev test members')
+    } finally {
+      setSeedingDevMembers(false)
+    }
+  }, [fetchMembers])
   
   // Fetch functions
   const fetchFamilies = useCallback(async () => {
@@ -2670,6 +2703,22 @@ export default function AdminMembers() {
                 <span className="text-xs font-semibold px-1">Fix logins</span>
               )}
             </button>
+            {import.meta.env.DEV && (
+              <button
+                type="button"
+                onClick={() => void seedDevTestMembers()}
+                disabled={seedingDevMembers}
+                title="Load 15 dev test members (password: Vortex25!)"
+                aria-label="Load dev test members"
+                className={`${memberIconBtn} text-amber-800 hover:bg-amber-50 border border-amber-200`}
+              >
+                {seedingDevMembers ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <span className="text-xs font-semibold px-1">Dev members</span>
+                )}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => {
@@ -2791,6 +2840,15 @@ export default function AdminMembers() {
                               onClick={() => handleViewUnifiedMember(member)}
                             >
                               <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              className={`${memberIconBtn} text-emerald-700 hover:bg-emerald-50`}
+                              title="Registrations & pricing"
+                              aria-label="Registrations and pricing"
+                              onClick={() => setPricingMember(member)}
+                            >
+                              <DollarSign className="w-4 h-4" />
                             </button>
                             <button
                               type="button"
@@ -4634,6 +4692,14 @@ export default function AdminMembers() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {pricingMember && (
+        <MemberPricingModal
+          memberId={pricingMember.id}
+          memberLabel={`${pricingMember.firstName} ${pricingMember.lastName}`.trim()}
+          onClose={() => setPricingMember(null)}
+        />
+      )}
     </>
   )
 }

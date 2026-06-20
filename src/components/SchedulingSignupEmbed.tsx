@@ -1804,6 +1804,14 @@ const SchedulingSignupEmbed = ({
                       )}
                       {previewItem &&
                         orderPreview?.hasPricing &&
+                        previewItem.hoursPerMonth != null &&
+                        previewItem.hoursPerMonth > 0 && (
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            ~{previewItem.hoursPerMonth.toFixed(1)} billable hr/mo
+                          </p>
+                        )}
+                      {previewItem &&
+                        orderPreview?.hasPricing &&
                         previewItem.incrementalMonthly != null &&
                         previewItem.incrementalMonthly > 0 && (
                           <p className="text-xs text-gray-600 mt-1">

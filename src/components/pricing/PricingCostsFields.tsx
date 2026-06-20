@@ -1,4 +1,4 @@
-import { COST_UNIT_LABELS, type CostUnit } from '../../utils/schedulingApi'
+import { COST_AMOUNT_LABELS, COST_UNIT_LABELS, type CostUnit } from '../../utils/schedulingApi'
 
 export interface PricingCostsValues {
   slotCostMonthlyCents: number
@@ -29,7 +29,9 @@ const PricingCostsFields = ({
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold mb-1">Cost ($)</label>
+          <label className="block text-sm font-semibold mb-1">
+            {COST_AMOUNT_LABELS[values.costUnit]}
+          </label>
           <input
             type="number"
             min={0}
@@ -44,6 +46,12 @@ const PricingCostsFields = ({
             }}
             className={controlClass}
           />
+          {values.costUnit === 'per_hour' && (
+            <p className="text-xs text-gray-500 mt-1">
+              Billable hours are computed from each class&apos;s scheduled time slots (session length
+              × weekly frequency).
+            </p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-semibold mb-1">Cadence</label>

@@ -18,10 +18,14 @@ import {
   sendTemporaryPasswordEmail,
 } from './tempPasswordEmail.js'
 import { sendWaiverEmail } from './waiverEmail.js'
-import { buildSignupOrderPreview, pricingScopeKey } from './orderPricing.js'
+import { buildSignupOrderPreview, loadMemberScopeSignups, pricingScopeKey } from './orderPricing.js'
 import { persistDiscountSnapshot } from './discountEngine.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
 import { computeMonthlyPricing } from './pricing.js'
+import {
+  hoursPerMonthForEnrollment,
+  loadTimeSlotsBySlotGroupIds,
+} from './slotHours.js'
 import {
   loadEffectivePricingForForm,
   loadProgramPricingRow,
@@ -245,7 +249,25 @@ async function insertSignupForMember(
     memberId,
     effectiveDbRow,
   )
-  const pricing = computeMonthlyPricing(effectiveDbRow, totalSlotsAfter, freeGranted)
+
+  const pricingOptions = {}
+  if ((effectiveDbRow?.cost_unit ?? 'per_month') === 'per_hour') {
+    const memberSignups = await loadMemberScopeSignups(client, formRow, memberId)
+    const groupIds = [...new Set(memberSignups.map((s) => s.slotGroupId))]
+    const timeSlotsByGroup = await loadTimeSlotsBySlotGroupIds(client, groupIds)
+    pricingOptions.slotHoursPerMonth = memberSignups.map((s) =>
+      hoursPerMonthForEnrollment(timeSlotsByGroup.get(s.slotGroupId) || [], {
+        timeSlotId: s.timeSlotId,
+      }),
+    )
+  }
+
+  const pricing = computeMonthlyPricing(
+    effectiveDbRow,
+    totalSlotsAfter,
+    freeGranted,
+    pricingOptions,
+  )
   positions.pricing = pricing
 
   return {
@@ -1052,7 +1074,7 @@ const formSchema = Joi.object({
   maxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
   slotCostMonthlyCents: Joi.number().integer().min(0).optional(),
   costUnit: Joi.string()
-    .valid('per_slot', 'per_class', 'per_week', 'per_month', 'per_offering')
+    .valid('per_slot', 'per_class', 'per_week', 'per_month', 'per_offering', 'per_hour')
     .optional(),
   freeSlotsPerUser: Joi.number().integer().min(0).optional(),
   maxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),
@@ -1589,6 +1611,94 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         console.error('[scheduling] listMemberSignedUpForms:', err)
         res.status(500).json({ success: false, message: 'Failed to load signups' })
+      }
+    },
+
+    async adminMemberPricingSummary(req, res) {
+      try {
+        const memberId = Number(req.params.memberId)
+        if (!Number.isFinite(memberId)) {
+          return res.status(400).json({ success: false, message: 'Invalid member id' })
+        }
+
+        const memberRes = await pool.query(
+          `SELECT id, first_name, last_name, billing_city FROM member WHERE id = $1`,
+          [memberId],
+        )
+        if (memberRes.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Member not found' })
+        }
+        const memberRow = memberRes.rows[0]
+
+        let school = null
+        let graduationYear = null
+        try {
+          const signupRes = await pool.query(
+            `SELECT responses FROM scheduling_signup
+             WHERE member_id = $1 AND orphaned_at IS NULL
+             ORDER BY created_at DESC LIMIT 1`,
+            [memberId],
+          )
+          const raw = signupRes.rows[0]?.responses
+          const responses = typeof raw === 'string' ? JSON.parse(raw) : raw
+          if (responses?.current_school) school = String(responses.current_school).trim()
+          if (responses?.graduation_year != null && responses.graduation_year !== '') {
+            graduationYear = Number(responses.graduation_year)
+          }
+        } catch {
+          /* optional context */
+        }
+
+        const preview = await buildSignupOrderPreview(pool, {
+          memberId,
+          newSignups: [],
+          promoCodes: [],
+          memberContext: {
+            city: memberRow.billing_city ?? null,
+            school,
+            graduationYear: Number.isFinite(graduationYear) ? graduationYear : null,
+          },
+        })
+
+        const signupRes = await pool.query(
+          `
+          SELECT s.id, s.pricing_breakdown, sf.title AS form_title,
+                 COALESCE(sc.name, 'No Category') AS category_name,
+                 COALESCE(ts.display_label, sg.display_label, '') AS slot_label
+          FROM scheduling_signup s
+          JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+          LEFT JOIN scheduling_category sc ON sc.id = s.category_id
+          JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
+          LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
+          WHERE s.member_id = $1
+            AND s.orphaned_at IS NULL
+            AND s.status IN ('confirmed', 'waitlisted')
+          ORDER BY sf.title, category_name, s.id
+          `,
+          [memberId],
+        )
+
+        res.json({
+          success: true,
+          data: {
+            member: {
+              id: Number(memberRow.id),
+              firstName: memberRow.first_name,
+              lastName: memberRow.last_name,
+            },
+            preview,
+            signupRows: signupRes.rows.map((row) => ({
+              id: Number(row.id),
+              formTitle: row.form_title,
+              categoryName: row.category_name,
+              slotLabel: row.slot_label,
+              pricingBreakdown: row.pricing_breakdown ?? null,
+            })),
+          },
+        })
+      } catch (err) {
+        console.error('[scheduling] adminMemberPricingSummary:', err)
+        res.status(500).json({ success: false, message: 'Failed to load member pricing' })
       }
     },
 

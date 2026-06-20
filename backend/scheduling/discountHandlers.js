@@ -397,7 +397,7 @@ export function createDiscountHandlers(pool) {
         const schema = Joi.object({
           costAmountCents: Joi.number().integer().min(0).default(0),
           costUnit: Joi.string()
-            .valid('per_slot', 'per_class', 'per_week', 'per_month', 'per_offering')
+            .valid('per_slot', 'per_class', 'per_week', 'per_month', 'per_offering', 'per_hour')
             .default('per_month'),
           freeSlotsPerUser: Joi.number().integer().min(0).default(0),
           maxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),

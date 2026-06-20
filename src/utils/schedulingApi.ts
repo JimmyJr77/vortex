@@ -121,6 +121,8 @@ export interface SchedulingMonthlyPricing {
   discountedMonthly: number
   hasFreeSlots: boolean
   hasPricing: boolean
+  hoursPerSlotMonthly?: number | null
+  costUnit?: CostUnit | null
 }
 
 export interface SignupOrderPreviewClass {
@@ -132,6 +134,7 @@ export interface SignupOrderPreviewClass {
   slotKey?: string
   status?: string
   incrementalMonthly?: number
+  hoursPerMonth?: number | null
   isNew: boolean
 }
 
@@ -247,7 +250,13 @@ export interface SignupOrderPreview {
   disclaimer: string
 }
 
-export type CostUnit = 'per_slot' | 'per_class' | 'per_week' | 'per_month' | 'per_offering'
+export type CostUnit =
+  | 'per_slot'
+  | 'per_class'
+  | 'per_week'
+  | 'per_month'
+  | 'per_offering'
+  | 'per_hour'
 
 export const COST_UNIT_LABELS: Record<CostUnit, string> = {
   per_slot: 'Per slot',
@@ -255,6 +264,16 @@ export const COST_UNIT_LABELS: Record<CostUnit, string> = {
   per_week: 'Per week',
   per_month: 'Per month',
   per_offering: 'Per offering',
+  per_hour: 'Per hour',
+}
+
+export const COST_AMOUNT_LABELS: Record<CostUnit, string> = {
+  per_slot: 'Cost ($)',
+  per_class: 'Cost ($)',
+  per_week: 'Cost per week ($)',
+  per_month: 'Cost per month ($)',
+  per_offering: 'Cost per offering ($)',
+  per_hour: 'Cost per hour ($)',
 }
 
 export type DiscountType =
@@ -1004,6 +1023,29 @@ export async function adminDeleteAdditionalFee(id: number): Promise<void> {
     method: 'DELETE',
   })
   await parseJson(res)
+}
+
+export interface MemberPricingSignupRow {
+  id: number
+  formTitle: string
+  categoryName: string
+  slotLabel: string
+  pricingBreakdown: {
+    line?: OrderDiscountLine
+    orderDiscounts?: OrderDiscountSummary[]
+    totals?: { subtotalCents: number; totalDiscountCents: number; totalCents: number }
+  } | null
+}
+
+export interface MemberPricingSummary {
+  member: { id: number; firstName: string; lastName: string }
+  preview: SignupOrderPreview
+  signupRows: MemberPricingSignupRow[]
+}
+
+export async function adminFetchMemberPricingSummary(memberId: number): Promise<MemberPricingSummary> {
+  const res = await adminApiRequest(`/api/admin/scheduling/members/${memberId}/pricing-summary`)
+  return parseJson(res)
 }
 
 export async function adminSimulateDiscountOrder(payload: {

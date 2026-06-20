@@ -1,7 +1,11 @@
-import { countActiveSignupsForPricingScope } from '../members/createMemberStub.js'
 import { loadEffectivePricingForForm, parseProgramPromoCodes } from '../programs/pricingDefaults.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
-import { computeMonthlyPricing } from './pricing.js'
+import { computeMonthlyPricingFromCosts } from './pricing.js'
+import {
+  hoursPerMonthForEnrollment,
+  loadTimeSlotsBySlotGroupIds,
+  monthlySlotCostDollars,
+} from './slotHours.js'
 
 export const SIGNUP_ORDER_PRICING_DISCLAIMER =
   'Pricing shown is a rough estimate and may not reflect your actual billing, current rates, or all discounts that apply to your account.'
@@ -17,9 +21,90 @@ export function pricingScopeKey(formRow) {
   return `form:${Number(formRow.id)}`
 }
 
-async function buildMarginalPricing(pool, formRow, memberId, existingCount, newCount, effectiveDbRow) {
+export async function loadMemberScopeSignups(pool, formRow, memberId) {
+  if (!memberId || !formRow) return []
+
+  const programsId = formRow.programs_id != null ? Number(formRow.programs_id) : null
+  const overrides = Boolean(formRow.pricing_overrides_program)
+  const formId = Number(formRow.id)
+
+  const baseSelect = `
+    SELECT s.id, s.slot_group_id, s.time_slot_id, s.created_at
+    FROM scheduling_signup s
+  `
+
+  let result
+  if (!overrides && programsId != null) {
+    result = await pool.query(
+      `${baseSelect}
+       JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+       WHERE sf.programs_id = $1
+         AND s.member_id = $2
+         AND s.orphaned_at IS NULL
+         AND s.status IN ('confirmed', 'waitlisted')
+       ORDER BY s.created_at ASC, s.id ASC`,
+      [programsId, memberId],
+    )
+  } else {
+    result = await pool.query(
+      `${baseSelect}
+       WHERE s.form_id = $1
+         AND s.member_id = $2
+         AND s.orphaned_at IS NULL
+         AND s.status IN ('confirmed', 'waitlisted')
+       ORDER BY s.created_at ASC, s.id ASC`,
+      [formId, memberId],
+    )
+  }
+
+  return result.rows.map((row) => ({
+    id: Number(row.id),
+    slotGroupId: Number(row.slot_group_id),
+    timeSlotId: row.time_slot_id != null ? Number(row.time_slot_id) : null,
+    createdAt: row.created_at,
+  }))
+}
+
+function signupHoursPerMonth(entry, timeSlotsByGroup) {
+  const slots = timeSlotsByGroup.get(Number(entry.slotGroupId)) || []
+  return hoursPerMonthForEnrollment(slots, { timeSlotId: entry.timeSlotId ?? null })
+}
+
+function signupMonthlyCostDollars(entry, effectiveDbRow, timeSlotsByGroup) {
+  const unit = effectiveDbRow?.cost_unit ?? 'per_month'
+  if (unit === 'per_hour') {
+    return monthlySlotCostDollars(effectiveDbRow, signupHoursPerMonth(entry, timeSlotsByGroup))
+  }
+  return monthlySlotCostDollars(effectiveDbRow, 1)
+}
+
+function pricingMetaFromRow(effectiveDbRow, hoursPerSlotMonthly = null) {
+  return {
+    freeSlotsPerUser: effectiveDbRow?.free_slots_per_user,
+    maxFreeSlotsTotal: effectiveDbRow?.max_free_slots_total,
+    costUnit: effectiveDbRow?.cost_unit ?? 'per_month',
+    hoursPerSlotMonthly,
+  }
+}
+
+async function buildMarginalPricing(
+  pool,
+  formRow,
+  memberId,
+  newEntries,
+  effectiveDbRow,
+  timeSlotsByGroup,
+) {
+  const memberSignups = await loadMemberScopeSignups(pool, formRow, memberId)
+  const existingCosts = memberSignups.map((s) =>
+    signupMonthlyCostDollars(s, effectiveDbRow, timeSlotsByGroup),
+  )
+  const existingHours = memberSignups.map((s) => signupHoursPerMonth(s, timeSlotsByGroup))
+  const newCosts = newEntries.map((e) => signupMonthlyCostDollars(e, effectiveDbRow, timeSlotsByGroup))
+  const newHours = newEntries.map((e) => signupHoursPerMonth(e, timeSlotsByGroup))
+
   const freeByExtra = new Map()
-  for (let i = 0; i <= newCount; i += 1) {
+  for (let i = 0; i <= newEntries.length; i += 1) {
     freeByExtra.set(
       i,
       await countAllocatedFreeSlotsForMember(pool, formRow, memberId, effectiveDbRow, {
@@ -29,21 +114,43 @@ async function buildMarginalPricing(pool, formRow, memberId, existingCount, newC
   }
 
   const increments = []
-  const costPerSlot = Number(effectiveDbRow.slot_cost_monthly_cents ?? 0) / 100
-  for (let i = 1; i <= newCount; i += 1) {
-    const freeSlotsBefore = freeByExtra.get(i - 1) ?? 0
-    const freeSlotsAfter = freeByExtra.get(i) ?? 0
-    const paidBefore = existingCount + i - 1 - freeSlotsBefore
-    const paidAfter = existingCount + i - freeSlotsAfter
-    increments.push(Math.max(0, (paidAfter - paidBefore) * costPerSlot))
+  for (let i = 1; i <= newEntries.length; i += 1) {
+    const costsBefore = [...existingCosts, ...newCosts.slice(0, i - 1)]
+    const costsAfter = [...existingCosts, ...newCosts.slice(0, i)]
+    const hoursBefore = [...existingHours, ...newHours.slice(0, i - 1)]
+    const hoursAfter = [...existingHours, ...newHours.slice(0, i)]
+    const before = computeMonthlyPricingFromCosts(
+      costsBefore,
+      freeByExtra.get(i - 1) ?? 0,
+      pricingMetaFromRow(effectiveDbRow, hoursBefore[0] ?? null),
+    )
+    const after = computeMonthlyPricingFromCosts(
+      costsAfter,
+      freeByExtra.get(i) ?? 0,
+      pricingMetaFromRow(effectiveDbRow, hoursAfter[0] ?? null),
+    )
+    increments.push(Math.max(0, after.discountedMonthly - before.discountedMonthly))
   }
 
   const freeBefore = freeByExtra.get(0) ?? 0
-  const freeAfter = freeByExtra.get(newCount) ?? freeBefore
+  const freeAfter = freeByExtra.get(newEntries.length) ?? freeBefore
+  const allCosts = [...existingCosts, ...newCosts]
+  const allHours = [...existingHours, ...newHours]
+
   return {
     increments,
-    pricingBefore: computeMonthlyPricing(effectiveDbRow, existingCount, freeBefore),
-    pricingAfter: computeMonthlyPricing(effectiveDbRow, existingCount + newCount, freeAfter),
+    pricingBefore: computeMonthlyPricingFromCosts(
+      existingCosts,
+      freeBefore,
+      pricingMetaFromRow(effectiveDbRow, existingHours[0] ?? null),
+    ),
+    pricingAfter: computeMonthlyPricingFromCosts(
+      allCosts,
+      freeAfter,
+      pricingMetaFromRow(effectiveDbRow, allHours[0] ?? null),
+    ),
+    existingCount: memberSignups.length,
+    newCount: newEntries.length,
   }
 }
 
@@ -82,6 +189,8 @@ async function loadExistingEnrollments(pool, memberId) {
       categoryName: row.category_name,
       slotLabel: row.occurrence_display_label || row.group_display_label || '',
       status: row.status,
+      slotGroupId,
+      timeSlotId,
       slotKey: programSlotSignupKey(formId, categoryId, slotGroupId, timeSlotId),
     }
   })
@@ -131,7 +240,12 @@ export async function buildSignupOrderPreview(
     }
   }
 
-  const slotGroupIds = new Set(filteredNew.map((e) => e.slotGroupId).filter((id) => id != null))
+  const slotGroupIds = new Set([
+    ...existing.map((e) => e.slotGroupId),
+    ...filteredNew.map((e) => e.slotGroupId),
+  ].filter((id) => id != null))
+  const timeSlotsByGroup = await loadTimeSlotsBySlotGroupIds(pool, [...slotGroupIds])
+
   const offeringBySlotGroup = new Map()
   if (slotGroupIds.size > 0) {
     const groupsRes = await pool.query(
@@ -221,24 +335,18 @@ export async function buildSignupOrderPreview(
     const meta = scopeMeta.get(scope)
     if (!meta) continue
 
-    const existingCount = await countActiveSignupsForPricingScope(
-      pool,
-      formRows.get(meta.representativeFormId),
-      memberId,
-    )
     const newEntries = newByScope.get(scope) || []
-    const newCount = newEntries.length
-    const totalCount = existingCount + newCount
-
     const formRow = formRows.get(meta.representativeFormId)
-    const { increments, pricingBefore, pricingAfter } = await buildMarginalPricing(
-      pool,
-      formRow,
-      memberId,
-      existingCount,
-      newCount,
-      meta.effectiveDbRow,
-    )
+    const { increments, pricingBefore, pricingAfter, existingCount, newCount } =
+      await buildMarginalPricing(
+        pool,
+        formRow,
+        memberId,
+        newEntries,
+        meta.effectiveDbRow,
+        timeSlotsByGroup,
+      )
+    const totalCount = existingCount + newCount
     const incrementalMonthly = Math.max(0, pricingAfter.discountedMonthly - pricingBefore.discountedMonthly)
 
     newEntries.forEach((entry, index) => {
@@ -280,6 +388,7 @@ export async function buildSignupOrderPreview(
       entry.timeSlotId ?? null,
     )
     const incrementalMonthly = incrementsBySignupKey.get(key) ?? 0
+    const hoursPerMonth = signupHoursPerMonth(entry, timeSlotsByGroup)
 
     return {
       formId: entry.formId,
@@ -288,6 +397,7 @@ export async function buildSignupOrderPreview(
       slotLabel: entry.slotLabel || '',
       slotKey: key,
       incrementalMonthly,
+      hoursPerMonth: hoursPerMonth > 0 ? Math.round(hoursPerMonth * 100) / 100 : null,
       isNew: true,
     }
   })

@@ -1,6 +1,13 @@
 import { resolveProgramsSchema } from './schema.js'
 
-export const COST_UNITS = ['per_slot', 'per_class', 'per_week', 'per_month', 'per_offering']
+export const COST_UNITS = [
+  'per_slot',
+  'per_class',
+  'per_week',
+  'per_month',
+  'per_offering',
+  'per_hour',
+]
 
 function normalizeCostUnit(unit) {
   return COST_UNITS.includes(unit) ? unit : 'per_month'
@@ -132,6 +139,7 @@ export function resolveLineItemCost(resolved, quantities = {}) {
   const months = Math.max(0, Number(quantities.months ?? 1))
   const offerings = Math.max(0, Number(quantities.offerings ?? 1))
   const classes = Math.max(0, Number(quantities.classes ?? 1))
+  const hours = Math.max(0, Number(quantities.hours ?? 0))
 
   switch (unit) {
     case 'per_slot':
@@ -142,6 +150,8 @@ export function resolveLineItemCost(resolved, quantities = {}) {
       return amount * (weeks || 1)
     case 'per_offering':
       return amount * offerings
+    case 'per_hour':
+      return amount * (hours || 1)
     case 'per_month':
     default:
       return amount * (months || 1)

@@ -80,6 +80,7 @@ export function registerSchedulingRoutes(app, pool) {
   app.get('/api/admin/scheduling/sport-defaults', d.listSportDefaults)
   app.put('/api/admin/scheduling/sport-defaults/:id', d.upsertSportDefault)
 
+  app.get('/api/admin/scheduling/members/:memberId/pricing-summary', h.adminMemberPricingSummary)
   app.get('/api/admin/scheduling/additional-fees', f.listFees)
   app.post('/api/admin/scheduling/additional-fees', f.createFee)
   app.put('/api/admin/scheduling/additional-fees/:id', f.updateFee)

@@ -25,6 +25,8 @@ import { appendStaffNote } from './notes/handlers.js'
 import { setMemberSchools } from './schools/handlers.js'
 import { getEmailConfigSummary, isEmailConfigured, verifySmtpConnection } from './email/sendEmail.js'
 import { refreshMemberProfileComplete } from './members/createMemberStub.js'
+import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
+import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
 
 const { Pool } = pkg
 
@@ -2287,6 +2289,7 @@ registerSchedulingRoutes(app, pool)
 registerProgramsPublicRoutes(app, pool)
 registerProgramsAdminRoutes(app, pool)
 registerCampRegistrationRoutes(app, pool)
+registerDevMemberRoutes(app, pool)
 
 app.get('/api/admin/email/status', async (req, res) => {
   try {
@@ -2339,6 +2342,7 @@ app.get('/api/health', (req, res) => {
       scheduling: hasRegisteredRoute('/api/admin/scheduling/forms'),
       schedulingCalendar: hasRegisteredRoute('/api/admin/scheduling/calendar'),
       schedulingAdditionalFees: hasRegisteredRoute('/api/admin/scheduling/additional-fees'),
+      memberPricingSummary: hasRegisteredRoute('/api/admin/scheduling/members/:memberId/pricing-summary'),
       publicScheduling: hasRegisteredRoute('/api/scheduling/forms'),
       dbQueries: hasRegisteredRoute('/api/admin/db-queries/entities'),
       schools: hasRegisteredRoute('/api/admin/schools'),
@@ -3154,6 +3158,13 @@ app.get('/api/admin/members', async (req, res) => {
       // Filter by active/archived
       if (!showArchivedBool) {
         query += ` AND m.is_active = TRUE`
+      }
+
+      // Dev-only seed members are hidden in production
+      if (process.env.NODE_ENV === 'production') {
+        paramCount++
+        query += ` AND (m.internal_flags IS NULL OR m.internal_flags <> $${paramCount})`
+        params.push(DEV_TEST_FLAG)
       }
       
       // Search filter
