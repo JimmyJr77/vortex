@@ -17,6 +17,74 @@ interface Props {
   compact?: boolean
 }
 
+type ProgramSortMode =
+  | 'program_name'
+  | 'sport_program_name'
+  | 'active_sport_program_name'
+  | 'active_program_name'
+
+const SORT_OPTIONS: Array<{ value: ProgramSortMode; label: string }> = [
+  { value: 'program_name', label: 'Program Name' },
+  { value: 'sport_program_name', label: 'Sport/Program Name' },
+  { value: 'active_sport_program_name', label: 'Active/Sport/Program Name' },
+  { value: 'active_program_name', label: 'Active/Program Name' },
+]
+
+function compareProgramName(a: TopProgram, b: TopProgram): number {
+  return a.displayName.localeCompare(b.displayName, undefined, { sensitivity: 'base' })
+}
+
+function compareSportThenProgram(a: TopProgram, b: TopProgram): number {
+  const sportA = a.primarySportName?.trim() || '\uFFFF'
+  const sportB = b.primarySportName?.trim() || '\uFFFF'
+  const sportCmp = sportA.localeCompare(sportB, undefined, { sensitivity: 'base' })
+  if (sportCmp !== 0) return sportCmp
+  return compareProgramName(a, b)
+}
+
+function compareActiveFirst(a: TopProgram, b: TopProgram): number {
+  const activeA = a.schedulingActive ? 0 : 1
+  const activeB = b.schedulingActive ? 0 : 1
+  return activeA - activeB
+}
+
+function sortPrograms(programs: TopProgram[], mode: ProgramSortMode): TopProgram[] {
+  const copy = [...programs]
+  switch (mode) {
+    case 'program_name':
+      return copy.sort(compareProgramName)
+    case 'sport_program_name':
+      return copy.sort(compareSportThenProgram)
+    case 'active_program_name':
+      return copy.sort((a, b) => {
+        const activeCmp = compareActiveFirst(a, b)
+        return activeCmp !== 0 ? activeCmp : compareProgramName(a, b)
+      })
+    case 'active_sport_program_name':
+      return copy.sort((a, b) => {
+        const activeCmp = compareActiveFirst(a, b)
+        return activeCmp !== 0 ? activeCmp : compareSportThenProgram(a, b)
+      })
+    default:
+      return copy
+  }
+}
+
+function programListItemClass(selected: boolean, schedulingActive: boolean, compact: boolean): string {
+  if (compact) {
+    if (selected) {
+      return 'w-full text-left rounded-lg px-4 py-3 border transition-colors border-vortex-red bg-red-50 text-black font-semibold'
+    }
+    if (schedulingActive) {
+      return 'w-full text-left rounded-lg px-4 py-3 border transition-colors border-green-300 bg-green-50 text-gray-900 hover:border-green-400'
+    }
+    return 'w-full text-left rounded-lg px-4 py-3 border transition-colors border-gray-200 hover:border-gray-400 text-gray-700'
+  }
+  return `flex items-center justify-between gap-3 px-4 py-3 border-t border-gray-100 first:border-t-0 ${
+    selected ? 'bg-red-50' : schedulingActive ? 'bg-green-50/60' : 'hover:bg-gray-50'
+  }`
+}
+
 const iconBtn =
   'p-1.5 rounded hover:bg-gray-100 text-gray-600 hover:text-gray-900 disabled:opacity-40'
 
@@ -40,17 +108,22 @@ const ProgramsSection = ({
   const [saving, setSaving] = useState(false)
   const [actionId, setActionId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
+  const [sortMode, setSortMode] = useState<ProgramSortMode>('program_name')
 
-  const filteredPrograms = useMemo(() => {
+  const displayedPrograms = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!q) return programs
-    return programs.filter(
-      (program) =>
-        program.displayName.toLowerCase().includes(q) ||
-        program.name.toLowerCase().includes(q) ||
-        (program.description?.toLowerCase().includes(q) ?? false),
-    )
-  }, [programs, search])
+    let next = programs
+    if (q) {
+      next = programs.filter(
+        (program) =>
+          program.displayName.toLowerCase().includes(q) ||
+          program.name.toLowerCase().includes(q) ||
+          (program.primarySportName?.toLowerCase().includes(q) ?? false) ||
+          (program.description?.toLowerCase().includes(q) ?? false),
+      )
+    }
+    return sortPrograms(next, sortMode)
+  }, [programs, search, sortMode])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -185,39 +258,53 @@ const ProgramsSection = ({
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {compact && (
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          <input
-            type="search"
-            placeholder="Search programs…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm"
-          />
+        <div className="space-y-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <input
+              type="search"
+              placeholder="Search programs…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="program-sort" className="sr-only">
+              Sort programs
+            </label>
+            <select
+              id="program-sort"
+              value={sortMode}
+              onChange={(e) => setSortMode(e.target.value as ProgramSortMode)}
+              className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm text-gray-700 bg-white"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 
       {programs.length === 0 ? (
         <p className="text-sm text-gray-500 py-4">No programs yet.</p>
-      ) : filteredPrograms.length === 0 ? (
+      ) : displayedPrograms.length === 0 ? (
         <p className="text-sm text-gray-500 py-4">No programs match your search.</p>
       ) : (
         <div className={compact ? 'space-y-2' : 'border border-gray-200 rounded-xl overflow-hidden'}>
-          {filteredPrograms.map((program) => {
+          {displayedPrograms.map((program) => {
             const selected = selectedProgramId === program.id
+            const schedulingActive = program.schedulingActive === true
             return (
               <div
                 key={program.id}
                 className={
                   compact
-                    ? `w-full text-left rounded-lg px-4 py-3 border transition-colors ${
-                        selected
-                          ? 'border-vortex-red bg-red-50 text-black font-semibold'
-                          : 'border-gray-200 hover:border-gray-400 text-gray-700'
-                      }`
-                    : `flex items-center justify-between gap-3 px-4 py-3 border-t border-gray-100 first:border-t-0 ${
-                        selected ? 'bg-red-50' : 'hover:bg-gray-50'
-                      }`
+                    ? programListItemClass(selected, schedulingActive, true)
+                    : programListItemClass(selected, schedulingActive, false)
                 }
               >
                 {compact ? (
