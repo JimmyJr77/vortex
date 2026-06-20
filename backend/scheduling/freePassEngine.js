@@ -77,9 +77,40 @@ export function memberIsFirstTimeEnrollee(existingEnrollments = []) {
   return !existingEnrollments.some((entry) => entry.status === 'confirmed')
 }
 
-function passesEligibility(template, line, { isFirstTimeEnrollee = false } = {}) {
+function normalizeSchoolLevels(raw) {
+  const allowed = new Set(['high', 'middle', 'elementary'])
+  if (!Array.isArray(raw)) return []
+  return raw.map((v) => String(v).toLowerCase()).filter((v) => allowed.has(v))
+}
+
+function resolveMemberSchool(memberSchool, knownSchools = []) {
+  const key = normalizeText(memberSchool)
+  if (!key) return null
+  for (const school of knownSchools) {
+    const dbKey = normalizeText(school.name)
+    if (!dbKey) continue
+    if (key === dbKey || key.includes(dbKey) || dbKey.includes(key)) {
+      return school
+    }
+  }
+  return null
+}
+
+function passesEligibility(template, line, { isFirstTimeEnrollee = false, knownSchools = [] } = {}) {
   const eligibility = template.eligibility || {}
   if (eligibility.new_member === true && !isFirstTimeEnrollee) return false
+
+  const levels = normalizeSchoolLevels(eligibility.school_levels)
+  const matchedSchool = resolveMemberSchool(line.memberSchool, knownSchools)
+
+  if (eligibility.all_schools === true && !matchedSchool) return false
+
+  if (levels.length > 0) {
+    if (!matchedSchool) return false
+    const level = matchedSchool.level ? String(matchedSchool.level).toLowerCase() : null
+    if (!level || !levels.includes(level)) return false
+  }
+
   const rules = eligibility.eligibility_rules || eligibility.rules
   if (!Array.isArray(rules) || rules.length === 0) return true
   return rules.every((r) => matchesEligibilityRule(r, line))
@@ -437,6 +468,41 @@ export function computePassCreditCents({
   return 0
 }
 
+function maxRedemptionsForSchool(template, memberSchool) {
+  const limits = template.config?.max_redemptions_per_school
+  if (!limits || typeof limits !== 'object') return null
+  const key = normalizeText(memberSchool)
+  if (!key) return null
+  for (const [name, value] of Object.entries(limits)) {
+    if (normalizeText(name) === key) {
+      const n = Number(value)
+      return Number.isFinite(n) && n > 0 ? n : null
+    }
+  }
+  return null
+}
+
+export async function loadActiveSchools(pool) {
+  try {
+    const res = await pool.query(
+      `SELECT name, level FROM school WHERE is_active = TRUE ORDER BY name ASC`,
+    )
+    return res.rows
+      .map((row) => ({
+        name: String(row.name).trim(),
+        level: row.level ? String(row.level).toLowerCase() : null,
+      }))
+      .filter((school) => school.name)
+  } catch {
+    return []
+  }
+}
+
+export async function loadActiveSchoolNames(pool) {
+  const schools = await loadActiveSchools(pool)
+  return schools.map((school) => school.name)
+}
+
 function candidateTemplatesForLine({
   templates,
   attachments = [],
@@ -444,6 +510,7 @@ function candidateTemplatesForLine({
   promoCodes,
   line,
   isFirstTimeEnrollee,
+  knownSchools = [],
   costSelectionMode = false,
 }) {
   const attachmentById = new Map(attachments.map((a) => [a.passTemplateId, a]))
@@ -463,7 +530,7 @@ function candidateTemplatesForLine({
     }
 
     if (!offeringIdsMatch(t, line)) return false
-    if (!passesEligibility(t, line, { isFirstTimeEnrollee })) return false
+    if (!passesEligibility(t, line, { isFirstTimeEnrollee, knownSchools })) return false
 
     const autoApply = att?.autoApply ?? false
     const allowMemberCode = att?.allowMemberCode !== false
@@ -500,6 +567,7 @@ export function applyFreePassLayer({
   offeringsById = new Map(),
   timeSlotsByGroup = new Map(),
   isFirstTimeEnrollee = false,
+  knownSchools = [],
 }) {
   const empty = {
     enabled: false,
@@ -520,6 +588,7 @@ export function applyFreePassLayer({
   const ruleRedeemed = { ...(caps.ruleRedeemed || {}) }
   const usedExclusivity = new Set()
   const memberOrderRedeemed = new Map()
+  const schoolOrderRedeemed = new Map()
 
   const memberRedemptionCount = (templateId, memberId) => {
     if (memberId == null) return 0
@@ -534,6 +603,20 @@ export function applyFreePassLayer({
     if (memberId == null) return
     const orderKey = `${templateId}:${memberId}`
     memberOrderRedeemed.set(orderKey, (memberOrderRedeemed.get(orderKey) ?? 0) + 1)
+  }
+
+  const schoolRedemptionCount = (templateId, schoolKey) => {
+    if (!schoolKey) return 0
+    const historic =
+      caps.schoolRedeemedByTemplate?.get(Number(templateId))?.get(schoolKey) ?? 0
+    const orderKey = `${templateId}:${schoolKey}`
+    return historic + (schoolOrderRedeemed.get(orderKey) ?? 0)
+  }
+
+  const recordSchoolRedemption = (templateId, schoolKey) => {
+    if (!schoolKey) return
+    const orderKey = `${templateId}:${schoolKey}`
+    schoolOrderRedeemed.set(orderKey, (schoolOrderRedeemed.get(orderKey) ?? 0) + 1)
   }
 
   const items = []
@@ -561,6 +644,7 @@ export function applyFreePassLayer({
       promoCodes,
       line,
       isFirstTimeEnrollee,
+      knownSchools,
       costSelectionMode,
     }).sort((a, b) => Number(a.id) - Number(b.id))
 
@@ -574,6 +658,11 @@ export function applyFreePassLayer({
         if (memberRedemptionCount(template.id, line.memberId) >= template.maxRedemptionsPerMember) {
           continue
         }
+      }
+      const schoolLimit = maxRedemptionsForSchool(template, line.memberSchool)
+      if (schoolLimit != null && line.memberSchool) {
+        const schoolKey = normalizeText(line.memberSchool)
+        if (schoolRedemptionCount(template.id, schoolKey) >= schoolLimit) continue
       }
       if (maxFacilityFree != null && facilityFreeUsed >= maxFacilityFree) continue
 
@@ -623,6 +712,7 @@ export function applyFreePassLayer({
           offeringId: line.offeringId ?? null,
           dayOfWeek: template.dayOfWeek,
           slotGroupId,
+          memberSchool: line.memberSchool ?? null,
         },
         debitsFreeClassAllowance: template.debitsFreeClassAllowance,
       })
@@ -630,6 +720,9 @@ export function applyFreePassLayer({
       facilityFreeUsed += 1
       ruleRedeemed[template.id] = (ruleRedeemed[template.id] || 0) + 1
       recordMemberRedemption(template.id, line.memberId)
+      if (line.memberSchool) {
+        recordSchoolRedemption(template.id, normalizeText(line.memberSchool))
+      }
       if (template.exclusivityGroup) usedExclusivity.add(template.exclusivityGroup)
       if (!template.stackable) break
     }
@@ -684,6 +777,25 @@ export async function loadFreePassCaps(pool, facilityId) {
       memberByTemplate.get(templateId).set(memberId, Number(row.c))
     }
     caps.memberRedeemedByTemplate = memberByTemplate
+    const schoolByTemplate = new Map()
+    const bySchool = await pool.query(
+      `SELECT pass_template_id,
+              lower(trim(context->>'memberSchool')) AS school_key,
+              COUNT(*)::int AS c
+       FROM free_pass_redemption
+       WHERE pass_template_id IS NOT NULL
+         AND context->>'memberSchool' IS NOT NULL
+         AND trim(context->>'memberSchool') <> ''
+       GROUP BY pass_template_id, lower(trim(context->>'memberSchool'))`,
+    )
+    for (const row of bySchool.rows) {
+      const templateId = Number(row.pass_template_id)
+      const schoolKey = String(row.school_key).trim()
+      if (!schoolKey) continue
+      if (!schoolByTemplate.has(templateId)) schoolByTemplate.set(templateId, new Map())
+      schoolByTemplate.get(templateId).set(schoolKey, Number(row.c))
+    }
+    caps.schoolRedeemedByTemplate = schoolByTemplate
   } catch {
     /* tables may not exist yet */
   }

@@ -8,6 +8,7 @@ import {
   loadAttachmentsForScope,
   loadFreePassCaps,
   loadMemberPassGrants,
+  loadActiveSchools,
   mapPassTemplateRow,
   issueMemberPassGrant,
   passValidationWindowError,
@@ -68,6 +69,17 @@ function buildPassConfig(value) {
   } else {
     delete config.benefit_start_date
     delete config.benefit_end_date
+  }
+  const perSchool = config.max_redemptions_per_school
+  if (perSchool && typeof perSchool === 'object') {
+    const cleaned = {}
+    for (const [name, value] of Object.entries(perSchool)) {
+      const n = Number(value)
+      const key = String(name).trim().toLowerCase()
+      if (key && Number.isFinite(n) && n > 0) cleaned[key] = Math.floor(n)
+    }
+    if (Object.keys(cleaned).length > 0) config.max_redemptions_per_school = cleaned
+    else delete config.max_redemptions_per_school
   }
   return config
 }
@@ -458,6 +470,7 @@ export function createFreePassHandlers(pool) {
 
         const isFirstTimeEnrollee =
           value.isFirstTimeEnrollee ?? value.isNewMember ?? false
+        const knownSchools = await loadActiveSchools(pool)
 
         const result = applyFreePassLayer({
           lines,
@@ -467,6 +480,7 @@ export function createFreePassHandlers(pool) {
           promoCodes: value.promoCodes,
           caps,
           isFirstTimeEnrollee,
+          knownSchools,
         })
         res.json({ success: true, data: result })
       } catch (err) {

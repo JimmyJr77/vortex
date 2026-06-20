@@ -2,10 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 import { schoolsApi, type School } from '../../utils/adminFeaturesApi'
 
+import type { SchoolLevelFilter } from '../../utils/freePassEligibility'
+
 interface Props {
   value: string[]
   onChange: (names: string[]) => void
   disabled?: boolean
+  emptyHint?: string
+  levelFilter?: SchoolLevelFilter[]
 }
 
 const fieldClass =
@@ -15,7 +19,13 @@ function schoolHaystack(s: School): string {
   return [s.name, s.location ?? '', s.level ?? ''].join(' ').toLowerCase()
 }
 
-const SchoolMultiSelect = ({ value, onChange, disabled = false }: Props) => {
+const SchoolMultiSelect = ({
+  value,
+  onChange,
+  disabled = false,
+  emptyHint,
+  levelFilter = [],
+}: Props) => {
   const [allSchools, setAllSchools] = useState<School[]>([])
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -57,12 +67,17 @@ const SchoolMultiSelect = ({ value, onChange, disabled = false }: Props) => {
 
   const selectableSchools = useMemo(() => {
     const q = query.trim().toLowerCase()
+    const levelSet = new Set(levelFilter)
     return allSchools.filter((s) => {
       if (selectedSet.has(s.name.toLowerCase())) return false
+      if (levelSet.size > 0) {
+        const level = s.level ? String(s.level).toLowerCase() : null
+        if (!level || !levelSet.has(level as SchoolLevelFilter)) return false
+      }
       if (!q) return true
       return schoolHaystack(s).includes(q)
     })
-  }, [allSchools, query, selectedSet])
+  }, [allSchools, query, selectedSet, levelFilter])
 
   const addSchool = (name: string) => {
     const trimmed = name.trim()
@@ -154,7 +169,9 @@ const SchoolMultiSelect = ({ value, onChange, disabled = false }: Props) => {
           })}
         </ul>
       ) : (
-        <p className="text-xs text-gray-500">No schools selected — pass can apply to members from any school.</p>
+        <p className="text-xs text-gray-500">
+          {emptyHint ?? 'No schools selected — pass can apply to members from any school.'}
+        </p>
       )}
     </div>
   )

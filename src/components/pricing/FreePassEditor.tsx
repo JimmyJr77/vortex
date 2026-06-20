@@ -9,7 +9,18 @@ import {
   type FreePassTemplate,
   type FreePassTemplateInput,
 } from '../../utils/schedulingApi'
-import { mergeSchoolEligibility, schoolNamesFromEligibility } from '../../utils/freePassEligibility'
+import {
+  appliesToAllSchools,
+  mergeAppliesToAllSchools,
+  mergeMaxRedemptionForSchool,
+  mergeSchoolEligibility,
+  mergeSchoolLevels,
+  maxRedemptionsPerSchoolFromConfig,
+  SCHOOL_LEVEL_OPTIONS,
+  schoolLevelsFromEligibility,
+  schoolNamesFromEligibility,
+  type SchoolLevelFilter,
+} from '../../utils/freePassEligibility'
 import {
   benefitDatesFromConfig,
   mergeBenefitDatesConfig,
@@ -180,17 +191,59 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
     setForm((prev) => ({ ...prev, issuance: { ...prev.issuance, ...patch } }))
   }
 
-  const updateEligibility = (patch: Record<string, unknown>) => {
-    setForm((prev) => ({ ...prev, eligibility: { ...prev.eligibility, ...patch } }))
-  }
-
   const schoolNames = schoolNamesFromEligibility(form.eligibility)
+  const allSchools = appliesToAllSchools(form.eligibility)
+  const schoolLevels = schoolLevelsFromEligibility(form.eligibility)
+  const perSchoolLimits = maxRedemptionsPerSchoolFromConfig(form.config)
   const benefitDates = benefitDatesFromConfig(form.config)
 
   const setSchoolNames = (names: string[]) => {
+    setForm((prev) => {
+      const eligibility = mergeSchoolEligibility(prev.eligibility, names)
+      const allowed = new Set(names.map((n) => n.trim().toLowerCase()).filter(Boolean))
+      const limits = maxRedemptionsPerSchoolFromConfig(prev.config)
+      const config = { ...(prev.config ?? {}) }
+      const pruned: Record<string, number> = {}
+      for (const [key, value] of Object.entries(limits)) {
+        if (allowed.has(key)) pruned[key] = value
+      }
+      if (Object.keys(pruned).length > 0) config.max_redemptions_per_school = pruned
+      else delete config.max_redemptions_per_school
+      return { ...prev, eligibility, config }
+    })
+  }
+
+  const setAllSchools = (checked: boolean) => {
     setForm((prev) => ({
       ...prev,
-      eligibility: mergeSchoolEligibility(prev.eligibility, names),
+      eligibility: mergeAppliesToAllSchools(prev.eligibility, checked),
+      config: checked
+        ? (() => {
+            const next = { ...(prev.config ?? {}) }
+            delete next.max_redemptions_per_school
+            return next
+          })()
+        : prev.config,
+    }))
+  }
+
+  const toggleSchoolLevel = (level: SchoolLevelFilter, checked: boolean) => {
+    setForm((prev) => {
+      const current = schoolLevelsFromEligibility(prev.eligibility)
+      const nextLevels = checked
+        ? [...current, level]
+        : current.filter((l) => l !== level)
+      return {
+        ...prev,
+        eligibility: mergeSchoolLevels(prev.eligibility, nextLevels),
+      }
+    })
+  }
+
+  const setPerSchoolMax = (schoolName: string, max: number | null) => {
+    setForm((prev) => ({
+      ...prev,
+      config: mergeMaxRedemptionForSchool(prev.config, schoolName, max),
     }))
   }
 
@@ -257,6 +310,58 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
               value={form.description ?? ''}
               onChange={(e) => update({ description: e.target.value })}
             />
+          </div>
+
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+            <p className="text-xs font-semibold text-gray-600">Issuance</p>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Promo code (optional)</label>
+              <input
+                className={fieldClass}
+                placeholder="TRYFREE"
+                value={String(form.issuance?.promo_code ?? '')}
+                onChange={(e) => updateIssuance({ promo_code: e.target.value.trim().toUpperCase() })}
+              />
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={Boolean(form.issuance?.auto_on_enroll)}
+                onChange={(e) => updateIssuance({ auto_on_enroll: e.target.checked, admin_only: false })}
+              />
+              Auto-apply on enroll (when attached to class/program)
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={Boolean(form.issuance?.admin_only)}
+                onChange={(e) =>
+                  updateIssuance({ admin_only: e.target.checked, auto_on_enroll: false })
+                }
+              />
+              Admin issue only
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.debitsFreeClassAllowance}
+                onChange={(e) => update({ debitsFreeClassAllowance: e.target.checked })}
+              />
+              Count against member free-class allowance
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={Boolean(form.eligibility?.new_member)}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    eligibility: { ...prev.eligibility, new_member: e.target.checked },
+                  }))
+                }
+              />
+              First-time enrollees only
+            </label>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -402,65 +507,42 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             <div>
               <p className="text-sm font-bold text-gray-900">Schools (optional)</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Restrict this pass to members whose school matches one of the selected schools (from
-                signup). Leave empty to allow any school.
+                Restrict by member school from signup. Level filters and named schools only match
+                schools in your database — custom write-in schools are excluded.
               </p>
             </div>
-            <SchoolMultiSelect value={schoolNames} onChange={setSchoolNames} />
-          </div>
-
-          <div className="border-t border-gray-100 pt-3 space-y-2">
-            <p className="text-xs font-semibold text-gray-600">Issuance</p>
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
-                checked={Boolean(form.issuance?.auto_on_enroll)}
-                onChange={(e) => updateIssuance({ auto_on_enroll: e.target.checked, admin_only: false })}
+                checked={allSchools}
+                onChange={(e) => setAllSchools(e.target.checked)}
               />
-              Auto-apply on enroll (when attached to class/program)
+              Applies to all schools
             </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={Boolean(form.issuance?.admin_only)}
-                onChange={(e) =>
-                  updateIssuance({ admin_only: e.target.checked, auto_on_enroll: false })
-                }
-              />
-              Admin issue only
-            </label>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Promo code (optional)</label>
-              <input
-                className={fieldClass}
-                placeholder="TRYFREE"
-                value={String(form.issuance?.promo_code ?? '')}
-                onChange={(e) => updateIssuance({ promo_code: e.target.value.trim().toUpperCase() })}
-              />
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              {SCHOOL_LEVEL_OPTIONS.map(({ value, label }) => (
+                <label key={value} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={schoolLevels.includes(value)}
+                    onChange={(e) => toggleSchoolLevel(value, e.target.checked)}
+                  />
+                  {label}
+                </label>
+              ))}
             </div>
+            <SchoolMultiSelect
+              value={schoolNames}
+              onChange={setSchoolNames}
+              disabled={allSchools}
+              levelFilter={schoolLevels}
+              emptyHint={
+                allSchools
+                  ? 'All database schools qualify — no individual selection needed.'
+                  : undefined
+              }
+            />
           </div>
-
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.debitsFreeClassAllowance}
-              onChange={(e) => update({ debitsFreeClassAllowance: e.target.checked })}
-            />
-            Count against member free-class allowance
-          </label>
-
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={Boolean(form.eligibility?.new_member)}
-              onChange={(e) => updateEligibility({ new_member: e.target.checked })}
-            />
-            First-time enrollees only
-          </label>
-          <p className="text-xs text-gray-500 -mt-2">
-            Applies only when the member has no confirmed class enrollments. Waitlisted members still
-            qualify.
-          </p>
 
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
             <div>
@@ -505,6 +587,37 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
                 <p className="text-xs text-gray-500 mt-1">Total uses across all members. Leave empty for no limit.</p>
               </div>
             </div>
+            {schoolNames.length > 0 && !allSchools && (
+              <div className="border-t border-gray-200 pt-3 space-y-2">
+                <p className="text-xs font-semibold text-gray-600">Per selected school</p>
+                <p className="text-xs text-gray-500">
+                  Facility-wide cap for each school listed above. Leave empty for no limit.
+                </p>
+                {schoolNames.map((name) => {
+                  const key = name.trim().toLowerCase()
+                  return (
+                    <div key={name} className="grid grid-cols-2 gap-3 items-center">
+                      <span className="text-sm text-gray-800 truncate" title={name}>
+                        {name}
+                      </span>
+                      <input
+                        type="number"
+                        min={1}
+                        placeholder="Unlimited"
+                        className={fieldClass}
+                        value={perSchoolLimits[key] ?? ''}
+                        onChange={(e) =>
+                          setPerSchoolMax(
+                            name,
+                            e.target.value === '' ? null : Math.max(1, Number(e.target.value)),
+                          )
+                        }
+                      />
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">

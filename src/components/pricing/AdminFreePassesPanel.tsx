@@ -11,7 +11,12 @@ import {
   type FreePassTemplateInput,
 } from '../../utils/schedulingApi'
 import FreePassEditor from './FreePassEditor'
-import { schoolNamesFromEligibility } from '../../utils/freePassEligibility'
+import {
+  appliesToAllSchools,
+  schoolLevelsFromEligibility,
+  schoolNamesFromEligibility,
+  SCHOOL_LEVEL_OPTIONS,
+} from '../../utils/freePassEligibility'
 import { describeBenefitDateRange } from '../../utils/freePassBenefitDates'
 
 function describePass(t: FreePassTemplate): string {
@@ -115,6 +120,10 @@ const AdminFreePassesPanel = () => {
             <tbody>
               {templates.map((t) => {
                 const schoolFilterCount = schoolNamesFromEligibility(t.eligibility).length
+                const levelFilters = schoolLevelsFromEligibility(t.eligibility)
+                const levelLabels = levelFilters
+                  .map((l) => SCHOOL_LEVEL_OPTIONS.find((o) => o.value === l)?.label ?? l)
+                  .join(', ')
                 return (
                 <tr key={t.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                   <td className="px-4 py-2 font-medium text-gray-900">{t.name}</td>
@@ -141,6 +150,8 @@ const AdminFreePassesPanel = () => {
                     {t.debitsFreeClassAllowance && ' · debits allowance'}
                     {Boolean(t.eligibility?.new_member) && ' · new enrollees only'}
                     {schoolFilterCount > 0 && ` · ${schoolFilterCount} school(s)`}
+                    {appliesToAllSchools(t.eligibility) && ' · all database schools'}
+                    {levelLabels && ` · ${levelLabels}`}
                     {(t.offeringIds?.length ?? 0) > 0 && ` · ${t.offeringIds!.length} offering(s)`}
                   </td>
                   <td className="px-4 py-2 text-gray-600 text-xs">

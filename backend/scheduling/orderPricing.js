@@ -559,6 +559,7 @@ export async function computeFreePassLayer(
       loadFreePassCaps,
       loadMemberPassGrants,
       loadOfferingById,
+      loadActiveSchools,
       memberIsFirstTimeEnrollee,
     } = await import('./freePassEngine.js')
 
@@ -567,6 +568,7 @@ export async function computeFreePassLayer(
     const templates = await loadActivePassTemplates(pool, facilityId)
     const grants = memberId ? await loadMemberPassGrants(pool, memberId) : []
     const caps = await loadFreePassCaps(pool, facilityId)
+    const knownSchools = await loadActiveSchools(pool)
 
     const categoryBySlotKey = new Map()
     for (const entry of filteredNew) {
@@ -644,6 +646,7 @@ export async function computeFreePassLayer(
       offeringsById,
       timeSlotsByGroup: calendarRowsByGroup,
       isFirstTimeEnrollee: memberIsFirstTimeEnrollee(existingEnrollments),
+      knownSchools,
     })
 
     const creditByKey = new Map()
