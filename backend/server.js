@@ -1152,7 +1152,20 @@ export const initDatabase = async () => {
         updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_emergency_contact_member ON emergency_contact(member_id)`)
+    // Legacy installs created emergency_contact with athlete_id only (migration 003).
+    await pool.query(`
+      ALTER TABLE emergency_contact
+      ADD COLUMN IF NOT EXISTS member_id BIGINT REFERENCES member(id) ON DELETE CASCADE
+    `)
+    await pool.query(`
+      ALTER TABLE emergency_contact
+      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    `)
+    try {
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_emergency_contact_member ON emergency_contact(member_id)`)
+    } catch (indexError) {
+      console.warn('[initDatabase] Could not create index on emergency_contact.member_id (column may not exist):', indexError.message)
+    }
     
     // Function to update family_is_active status
     await pool.query(`
