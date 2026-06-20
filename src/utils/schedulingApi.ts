@@ -256,7 +256,14 @@ export interface SignupOrderPreview {
   disclaimer: string
 }
 
-export type FreePassBenefitUnit = 'slot' | 'offering' | 'day' | 'week' | 'month' | 'hour'
+export type FreePassBenefitUnit =
+  | 'slot'
+  | 'offering'
+  | 'day'
+  | 'week'
+  | 'month'
+  | 'hour'
+  | 'specific_date'
 export type FreePassApplicationMethod = 'waive_enrollment' | 'monthly_prorate'
 export type FreePassScopeLevel = 'global' | 'sport' | 'program' | 'class' | 'offering'
 
@@ -357,6 +364,7 @@ export const FREE_PASS_BENEFIT_LABELS: Record<FreePassBenefitUnit, string> = {
   week: 'Week(s)',
   month: 'Month(s)',
   hour: 'Hour(s)',
+  specific_date: 'Specific date(s)',
 }
 
 export const DAY_OF_WEEK_LABELS = [
@@ -1241,6 +1249,8 @@ export async function adminIssueMemberFreePass(
 
 export async function adminSimulateFreePasses(payload: {
   promoCodes?: string[]
+  isFirstTimeEnrollee?: boolean
+  /** @deprecated use isFirstTimeEnrollee */
   isNewMember?: boolean
   lines: Array<{
     key?: string

@@ -415,5 +415,17 @@ export async function initSchedulingTables(pool) {
     }
   }
 
+  const freePassSpecificDateMigration = path.join(
+    __dirname,
+    '../migrations/add_free_pass_specific_date.sql',
+  )
+  if (fs.existsSync(freePassSpecificDateMigration)) {
+    try {
+      await pool.query(fs.readFileSync(freePassSpecificDateMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] free pass specific date migration:', err.message)
+    }
+  }
+
   console.log('✅ Scheduling tables ready')
 }

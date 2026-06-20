@@ -470,7 +470,7 @@ export async function buildSignupOrderPreview(
     filteredNew,
     promoCodes,
     memberContext,
-    existingCount: existing.length,
+    existingEnrollments: existing,
   })
 
   const discounts = await computeDiscountLayer(pool, {
@@ -539,7 +539,7 @@ export async function computeFreePassLayer(
     filteredNew = [],
     promoCodes = [],
     memberContext = null,
-    existingCount = 0,
+    existingEnrollments = [],
   },
 ) {
   const empty = {
@@ -559,6 +559,7 @@ export async function computeFreePassLayer(
       loadFreePassCaps,
       loadMemberPassGrants,
       loadOfferingById,
+      memberIsFirstTimeEnrollee,
     } = await import('./freePassEngine.js')
 
     const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
@@ -642,7 +643,7 @@ export async function computeFreePassLayer(
       caps,
       offeringsById,
       timeSlotsByGroup: calendarRowsByGroup,
-      isNewMember: existingCount === 0,
+      isFirstTimeEnrollee: memberIsFirstTimeEnrollee(existingEnrollments),
     })
 
     const creditByKey = new Map()

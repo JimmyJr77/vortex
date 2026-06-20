@@ -11,12 +11,18 @@ import {
   type FreePassTemplateInput,
 } from '../../utils/schedulingApi'
 import FreePassEditor from './FreePassEditor'
+import { schoolNamesFromEligibility } from '../../utils/freePassEligibility'
+import { describeBenefitDateRange } from '../../utils/freePassBenefitDates'
 
 function describePass(t: FreePassTemplate): string {
   const unit = FREE_PASS_BENEFIT_LABELS[t.benefitUnit] ?? t.benefitUnit
   let s = `${t.benefitQuantity} ${unit}`
   if (t.benefitUnit === 'day' && t.dayOfWeek != null) {
     s += ` (${DAY_OF_WEEK_LABELS[t.dayOfWeek]})`
+  }
+  if (t.benefitUnit === 'specific_date') {
+    const range = describeBenefitDateRange(t.config)
+    if (range) s += ` · ${range}`
   }
   if (t.scopeLevel !== 'global') {
     s += ` · ${t.scopeLevel}${t.scopeRefId != null ? ` #${t.scopeRefId}` : ''}`
@@ -107,7 +113,9 @@ const AdminFreePassesPanel = () => {
               </tr>
             </thead>
             <tbody>
-              {templates.map((t) => (
+              {templates.map((t) => {
+                const schoolFilterCount = schoolNamesFromEligibility(t.eligibility).length
+                return (
                 <tr key={t.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                   <td className="px-4 py-2 font-medium text-gray-900">{t.name}</td>
                   <td className="px-4 py-2 text-gray-600">{describePass(t)}</td>
@@ -132,6 +140,8 @@ const AdminFreePassesPanel = () => {
                           : 'Manual'}
                     {t.debitsFreeClassAllowance && ' · debits allowance'}
                     {Boolean(t.eligibility?.new_member) && ' · new enrollees only'}
+                    {schoolFilterCount > 0 && ` · ${schoolFilterCount} school(s)`}
+                    {(t.offeringIds?.length ?? 0) > 0 && ` · ${t.offeringIds!.length} offering(s)`}
                   </td>
                   <td className="px-4 py-2 text-gray-600 text-xs">
                     <span className="block">{t.redeemedCount} used</span>
@@ -176,7 +186,8 @@ const AdminFreePassesPanel = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         )}

@@ -18,6 +18,7 @@ import {
   getPromoStatus,
   type EligibilityRule,
 } from '../../utils/promoDiscountModel'
+import { describeBenefitDateRange } from '../../utils/freePassBenefitDates'
 
 const TYPE_LABELS: Record<DiscountType, string> = {
   promo_code: 'Promo code',
@@ -278,6 +279,9 @@ const AdminPricingRulesOverview = () => {
                   {p.benefitQuantity} {FREE_PASS_BENEFIT_LABELS[p.benefitUnit]}
                   {p.benefitUnit === 'day' && p.dayOfWeek != null
                     ? ` (${DAY_OF_WEEK_LABELS[p.dayOfWeek]})`
+                    : ''}
+                  {p.benefitUnit === 'specific_date' && describeBenefitDateRange(p.config)
+                    ? ` (${describeBenefitDateRange(p.config)})`
                     : ''}
                   {p.scopeLevel !== 'global' ? ` · ${p.scopeLevel}` : ''}
                 </span>

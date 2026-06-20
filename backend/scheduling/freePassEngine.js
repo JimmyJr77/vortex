@@ -3,7 +3,7 @@
 import { expandCalendarRange } from './calendarExpansion.js'
 import { hoursPerMonthForEnrollment, WEEKS_PER_MONTH } from './slotHours.js'
 
-export const BENEFIT_UNITS = ['slot', 'offering', 'day', 'week', 'month', 'hour']
+export const BENEFIT_UNITS = ['slot', 'offering', 'day', 'week', 'month', 'hour', 'specific_date']
 export const APPLICATION_METHODS = ['waive_enrollment', 'monthly_prorate']
 export const SCOPE_LEVELS = ['global', 'sport', 'program', 'class', 'offering']
 
@@ -72,9 +72,14 @@ function matchesEligibilityRule(rule, line) {
   return true
 }
 
-function passesEligibility(template, line, { isNewMember = false } = {}) {
+/** True when the member has no confirmed (active) class enrollments; waitlisted-only still qualifies. */
+export function memberIsFirstTimeEnrollee(existingEnrollments = []) {
+  return !existingEnrollments.some((entry) => entry.status === 'confirmed')
+}
+
+function passesEligibility(template, line, { isFirstTimeEnrollee = false } = {}) {
   const eligibility = template.eligibility || {}
-  if (eligibility.new_member === true && !isNewMember) return false
+  if (eligibility.new_member === true && !isFirstTimeEnrollee) return false
   const rules = eligibility.eligibility_rules || eligibility.rules
   if (!Array.isArray(rules) || rules.length === 0) return true
   return rules.every((r) => matchesEligibilityRule(r, line))
@@ -82,10 +87,33 @@ function passesEligibility(template, line, { isNewMember = false } = {}) {
 
 function templateInWindow(template, now = Date.now()) {
   if (!template.active) return false
+  return isPassWithinValidationWindow({
+    startsAt: template.startsAt,
+    endsAt: template.endsAt,
+    now,
+  })
+}
+
+export function isPassWithinValidationWindow({ startsAt, endsAt, now = Date.now() }) {
   const t = now
-  if (template.startsAt && new Date(template.startsAt).getTime() > t) return false
-  if (template.endsAt && new Date(template.endsAt).getTime() < t) return false
+  if (startsAt && new Date(startsAt).getTime() > t) return false
+  if (endsAt && new Date(endsAt).getTime() < t) return false
   return true
+}
+
+export function passValidationWindowError({ startsAt, endsAt, now = Date.now() }) {
+  if (startsAt && new Date(startsAt).getTime() > now) {
+    return 'This pass is not valid yet. Adjust Valid from or turn off Active.'
+  }
+  if (endsAt && new Date(endsAt).getTime() < now) {
+    return 'This pass has expired. Adjust Valid through or turn off Active.'
+  }
+  return null
+}
+
+export function effectivePassActive({ active, startsAt, endsAt, now = Date.now() }) {
+  if (!active) return false
+  return isPassWithinValidationWindow({ startsAt, endsAt, now })
 }
 
 function scopeMatches(template, line) {
@@ -122,14 +150,21 @@ function isAutoOnEnrollTemplate(template) {
 }
 
 export function mapPassTemplateRow(r) {
+  const startsAt = r.starts_at ?? null
+  const endsAt = r.ends_at ?? null
+  const active = effectivePassActive({
+    active: r.active !== false,
+    startsAt,
+    endsAt,
+  })
   return {
     id: Number(r.id),
     facilityId: r.facility_id != null ? Number(r.facility_id) : null,
     name: r.name,
     description: r.description ?? null,
-    active: r.active !== false,
-    startsAt: r.starts_at ?? null,
-    endsAt: r.ends_at ?? null,
+    active,
+    startsAt,
+    endsAt,
     benefitUnit: r.benefit_unit,
     benefitQuantity: Number(r.benefit_quantity ?? 1),
     applicationMethod: r.application_method ?? 'waive_enrollment',
@@ -294,6 +329,22 @@ function monthBoundsForOffering(offering) {
   return { startDate, endDate }
 }
 
+function benefitDateBounds(template) {
+  const cfg = template.config ?? {}
+  const start = cfg.benefit_start_date ? String(cfg.benefit_start_date).slice(0, 10) : null
+  const endRaw = cfg.benefit_end_date ? String(cfg.benefit_end_date).slice(0, 10) : start
+  if (!start) return null
+  const end = endRaw && endRaw >= start ? endRaw : start
+  return { startDate: start, endDate: end }
+}
+
+function intersectDateRanges(a, b) {
+  const startDate = a.startDate > b.startDate ? a.startDate : b.startDate
+  const endDate = a.endDate < b.endDate ? a.endDate : b.endDate
+  if (startDate > endDate) return null
+  return { startDate, endDate }
+}
+
 function countOccurrencesInRange(rows, { startDate, endDate, dayOfWeek = null }) {
   const expanded = expandCalendarRange({ startDate, endDate, rows, site: 'athletics' })
   const events = expanded.events || []
@@ -362,6 +413,27 @@ export function computePassCreditCents({
     return Math.round(base * (freeOccurrences / totalOccurrences))
   }
 
+  if (unit === 'specific_date') {
+    const benefitBounds = benefitDateBounds(template)
+    if (!benefitBounds) return 0
+
+    const monthBounds = monthBoundsForOffering(offering)
+    const creditBounds = intersectDateRanges(benefitBounds, monthBounds)
+    if (!creditBounds) return 0
+
+    const groupRows = slotGroupId
+      ? timeSlotRows.filter((r) => Number(r.slot_group_id) === Number(slotGroupId))
+      : timeSlotRows
+    const totalOccurrences = countOccurrencesInRange(groupRows, monthBounds)
+    if (totalOccurrences <= 0) return 0
+
+    const matchedOccurrences = countOccurrencesInRange(groupRows, creditBounds)
+    if (matchedOccurrences <= 0) return 0
+
+    const freeOccurrences = Math.min(qty, matchedOccurrences)
+    return Math.round(base * (freeOccurrences / totalOccurrences))
+  }
+
   return 0
 }
 
@@ -371,7 +443,7 @@ function candidateTemplatesForLine({
   grants,
   promoCodes,
   line,
-  isNewMember,
+  isFirstTimeEnrollee,
   costSelectionMode = false,
 }) {
   const attachmentById = new Map(attachments.map((a) => [a.passTemplateId, a]))
@@ -391,7 +463,7 @@ function candidateTemplatesForLine({
     }
 
     if (!offeringIdsMatch(t, line)) return false
-    if (!passesEligibility(t, line, { isNewMember })) return false
+    if (!passesEligibility(t, line, { isFirstTimeEnrollee })) return false
 
     const autoApply = att?.autoApply ?? false
     const allowMemberCode = att?.allowMemberCode !== false
@@ -427,7 +499,7 @@ export function applyFreePassLayer({
   caps = {},
   offeringsById = new Map(),
   timeSlotsByGroup = new Map(),
-  isNewMember = false,
+  isFirstTimeEnrollee = false,
 }) {
   const empty = {
     enabled: false,
@@ -488,7 +560,7 @@ export function applyFreePassLayer({
       grants,
       promoCodes,
       line,
-      isNewMember,
+      isFirstTimeEnrollee,
       costSelectionMode,
     }).sort((a, b) => Number(a.id) - Number(b.id))
 

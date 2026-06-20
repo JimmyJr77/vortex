@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
+import ClassOfferingMultiSelect from './ClassOfferingMultiSelect'
+import SchoolMultiSelect from './SchoolMultiSelect'
 import {
   DAY_OF_WEEK_LABELS,
   FREE_PASS_BENEFIT_LABELS,
@@ -7,6 +9,11 @@ import {
   type FreePassTemplate,
   type FreePassTemplateInput,
 } from '../../utils/schedulingApi'
+import { mergeSchoolEligibility, schoolNamesFromEligibility } from '../../utils/freePassEligibility'
+import {
+  benefitDatesFromConfig,
+  mergeBenefitDatesConfig,
+} from '../../utils/freePassBenefitDates'
 
 interface Props {
   open: boolean
@@ -33,12 +40,45 @@ function endDateToIso(dateStr: string): string {
   return new Date(`${dateStr}T23:59:59`).toISOString()
 }
 
+function isWithinValidationWindow(
+  startsAt: string | null | undefined,
+  endsAt: string | null | undefined,
+  now = Date.now(),
+): boolean {
+  if (startsAt && new Date(startsAt).getTime() > now) return false
+  if (endsAt && new Date(endsAt).getTime() < now) return false
+  return true
+}
+
+function validationWindowError(
+  startsAt: string | null | undefined,
+  endsAt: string | null | undefined,
+  now = Date.now(),
+): string | null {
+  if (startsAt && new Date(startsAt).getTime() > now) {
+    return 'This pass is not valid yet. Adjust Valid from or turn off Active.'
+  }
+  if (endsAt && new Date(endsAt).getTime() < now) {
+    return 'This pass has expired. Adjust Valid through or turn off Active.'
+  }
+  return null
+}
+
+function effectiveActive(
+  active: boolean,
+  startsAt: string | null | undefined,
+  endsAt: string | null | undefined,
+): boolean {
+  if (!active) return false
+  return isWithinValidationWindow(startsAt, endsAt)
+}
+
 function toForm(t: FreePassTemplate | null): FreePassTemplateInput {
   if (t) {
     return {
       name: t.name,
       description: t.description,
-      active: t.active,
+      active: effectiveActive(t.active, t.startsAt, t.endsAt),
       startsAt: t.startsAt,
       endsAt: t.endsAt,
       benefitUnit: t.benefitUnit,
@@ -86,13 +126,11 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
   const [form, setForm] = useState<FreePassTemplateInput>(() => toForm(template))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [offeringIdsText, setOfferingIdsText] = useState('')
 
   useEffect(() => {
     if (open) {
       const next = toForm(template)
       setForm(next)
-      setOfferingIdsText((next.offeringIds ?? []).join(', '))
       setError(null)
     }
   }, [open, template])
@@ -105,11 +143,37 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
       if (patch.benefitUnit === 'day' && next.applicationMethod === 'waive_enrollment') {
         next.applicationMethod = 'monthly_prorate'
       }
+      if (patch.benefitUnit === 'specific_date') {
+        next.applicationMethod = 'monthly_prorate'
+        next.dayOfWeek = null
+      }
       if (patch.benefitUnit === 'slot' || patch.benefitUnit === 'offering') {
         next.applicationMethod = 'waive_enrollment'
       }
+      if (patch.benefitUnit && patch.benefitUnit !== 'specific_date') {
+        next.config = mergeBenefitDatesConfig(next.config, { startDate: null, endDate: null })
+      }
+      if (
+        (patch.startsAt !== undefined || patch.endsAt !== undefined) &&
+        next.active &&
+        !isWithinValidationWindow(next.startsAt ?? null, next.endsAt ?? null)
+      ) {
+        next.active = false
+      }
       return next
     })
+  }
+
+  const handleActiveChange = (checked: boolean) => {
+    if (checked) {
+      const msg = validationWindowError(form.startsAt ?? null, form.endsAt ?? null)
+      if (msg) {
+        setError(msg)
+        return
+      }
+    }
+    setError(null)
+    update({ active: checked })
   }
 
   const updateIssuance = (patch: Record<string, unknown>) => {
@@ -120,16 +184,41 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
     setForm((prev) => ({ ...prev, eligibility: { ...prev.eligibility, ...patch } }))
   }
 
+  const schoolNames = schoolNamesFromEligibility(form.eligibility)
+  const benefitDates = benefitDatesFromConfig(form.config)
+
+  const setSchoolNames = (names: string[]) => {
+    setForm((prev) => ({
+      ...prev,
+      eligibility: mergeSchoolEligibility(prev.eligibility, names),
+    }))
+  }
+
+  const setBenefitDates = (startDate: string | null, endDate: string | null) => {
+    setForm((prev) => ({
+      ...prev,
+      config: mergeBenefitDatesConfig(prev.config, { startDate, endDate }),
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
     setError(null)
     try {
-      const offeringIds = offeringIdsText
-        .split(/[,\s]+/)
-        .map((s) => Number(s.trim()))
-        .filter((n) => Number.isFinite(n) && n > 0)
-      await onSave({ ...form, offeringIds })
+      const payload = { ...form }
+      if (payload.active) {
+        const windowError = validationWindowError(payload.startsAt ?? null, payload.endsAt ?? null)
+        if (windowError) {
+          setError(windowError)
+          return
+        }
+      }
+      if (payload.benefitUnit === 'specific_date' && !benefitDatesFromConfig(payload.config).startDate) {
+        setError('Select a benefit date (or date range) for Specific date passes.')
+        return
+      }
+      await onSave(payload)
       onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save')
@@ -186,7 +275,9 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">Quantity</label>
+              <label className="block text-xs font-semibold mb-1 text-gray-600">
+                {form.benefitUnit === 'specific_date' ? 'Max sessions' : 'Quantity'}
+              </label>
               <input
                 type="number"
                 min={1}
@@ -194,8 +285,73 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
                 value={form.benefitQuantity}
                 onChange={(e) => update({ benefitQuantity: Math.max(1, Number(e.target.value) || 1) })}
               />
+              {form.benefitUnit === 'specific_date' && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Maximum class sessions to credit within the selected dates.
+                </p>
+              )}
             </div>
           </div>
+
+          {form.benefitUnit === 'specific_date' && (
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+              <div>
+                <p className="text-sm font-bold text-gray-900">Benefit dates</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Pick a single date or a range. Monthly credit is prorated from scheduled class
+                  occurrences on those dates within the offering.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold mb-1 text-gray-600">Date</label>
+                  <input
+                    type="date"
+                    required
+                    className={fieldClass}
+                    value={benefitDates.startDate ?? ''}
+                    onChange={(e) =>
+                      setBenefitDates(
+                        e.target.value || null,
+                        benefitDates.endDate && benefitDates.endDate >= (e.target.value || '')
+                          ? benefitDates.endDate
+                          : e.target.value || null,
+                      )
+                    }
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Required. Start of the free period.</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1 text-gray-600">
+                    Through (optional)
+                  </label>
+                  <input
+                    type="date"
+                    className={fieldClass}
+                    min={benefitDates.startDate ?? undefined}
+                    value={
+                      benefitDates.endDate &&
+                      benefitDates.startDate &&
+                      benefitDates.endDate !== benefitDates.startDate
+                        ? benefitDates.endDate
+                        : ''
+                    }
+                    onChange={(e) =>
+                      setBenefitDates(
+                        benefitDates.startDate,
+                        e.target.value && e.target.value >= (benefitDates.startDate ?? '')
+                          ? e.target.value
+                          : benefitDates.startDate,
+                      )
+                    }
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Leave empty for a single date. Set an end date for a range.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {form.benefitUnit === 'day' && (
             <div>
@@ -227,16 +383,30 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             Member grants and promo codes still work when configured below.
           </p>
 
-          <div>
-            <label className="block text-xs font-semibold mb-1 text-gray-600">
-              Offering ids (optional filter, comma-separated)
-            </label>
-            <input
-              className={fieldClass}
-              placeholder="e.g. 12, 15"
-              value={offeringIdsText}
-              onChange={(e) => setOfferingIdsText(e.target.value)}
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+            <div>
+              <p className="text-sm font-bold text-gray-900">Class offerings (optional)</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Restrict which class sessions this pass can apply to. Search and add active or
+                upcoming offerings. Leave empty to allow any offering where this pass is attached
+                under Pricing → Costs.
+              </p>
+            </div>
+            <ClassOfferingMultiSelect
+              value={form.offeringIds ?? []}
+              onChange={(offeringIds) => update({ offeringIds })}
             />
+          </div>
+
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+            <div>
+              <p className="text-sm font-bold text-gray-900">Schools (optional)</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Restrict this pass to members whose school matches one of the selected schools (from
+                signup). Leave empty to allow any school.
+              </p>
+            </div>
+            <SchoolMultiSelect value={schoolNames} onChange={setSchoolNames} />
           </div>
 
           <div className="border-t border-gray-100 pt-3 space-y-2">
@@ -288,41 +458,9 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             First-time enrollees only
           </label>
           <p className="text-xs text-gray-500 -mt-2">
-            Applies only when the member has no existing confirmed or waitlisted enrollments.
+            Applies only when the member has no confirmed class enrollments. Waitlisted members still
+            qualify.
           </p>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">Valid from (optional)</label>
-              <input
-                type="date"
-                className={fieldClass}
-                value={dateInputValue(form.startsAt)}
-                onChange={(e) =>
-                  update({
-                    startsAt: e.target.value ? startDateToIso(e.target.value) : null,
-                  })
-                }
-              />
-              <p className="text-xs text-gray-500 mt-1">Leave empty to start immediately.</p>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">Valid through (optional)</label>
-              <input
-                type="date"
-                className={fieldClass}
-                value={dateInputValue(form.endsAt)}
-                onChange={(e) =>
-                  update({
-                    endsAt: e.target.value ? endDateToIso(e.target.value) : null,
-                  })
-                }
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Leave empty for a permanent pass with no end date.
-              </p>
-            </div>
-          </div>
 
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
             <div>
@@ -369,14 +507,55 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.active}
-              onChange={(e) => update({ active: e.target.checked })}
-            />
-            Active
-          </label>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+            <div>
+              <p className="text-sm font-bold text-gray-900">Validation dates</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Active passes only work within these dates. Outside the window, Active is turned off
+                automatically.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold mb-1 text-gray-600">Valid from (optional)</label>
+                <input
+                  type="date"
+                  className={fieldClass}
+                  value={dateInputValue(form.startsAt)}
+                  onChange={(e) =>
+                    update({
+                      startsAt: e.target.value ? startDateToIso(e.target.value) : null,
+                    })
+                  }
+                />
+                <p className="text-xs text-gray-500 mt-1">Leave empty to start immediately.</p>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1 text-gray-600">Valid through (optional)</label>
+                <input
+                  type="date"
+                  className={fieldClass}
+                  value={dateInputValue(form.endsAt)}
+                  onChange={(e) =>
+                    update({
+                      endsAt: e.target.value ? endDateToIso(e.target.value) : null,
+                    })
+                  }
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Leave empty for a permanent pass with no end date.
+                </p>
+              </div>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.active}
+                onChange={(e) => handleActiveChange(e.target.checked)}
+              />
+              Active
+            </label>
+          </div>
 
           <div className="flex justify-end gap-2 pt-2">
             <button

@@ -10,6 +10,7 @@ import {
   loadMemberPassGrants,
   mapPassTemplateRow,
   issueMemberPassGrant,
+  passValidationWindowError,
 } from './freePassEngine.js'
 import {
   loadBenefitSelectionsForScope,
@@ -57,7 +58,32 @@ function buildPassConfig(value) {
   } else {
     delete config.max_redemptions_per_member
   }
+  if (value.benefitUnit === 'specific_date') {
+    const start = config.benefit_start_date ? String(config.benefit_start_date).slice(0, 10) : null
+    const endRaw = config.benefit_end_date ? String(config.benefit_end_date).slice(0, 10) : start
+    if (start) {
+      config.benefit_start_date = start
+      config.benefit_end_date = endRaw && endRaw >= start ? endRaw : start
+    }
+  } else {
+    delete config.benefit_start_date
+    delete config.benefit_end_date
+  }
   return config
+}
+
+function assertBenefitDatesForUnit(value) {
+  if (value.benefitUnit !== 'specific_date') return null
+  const start = value.config?.benefit_start_date
+  if (!start || !String(start).trim()) {
+    return 'Select a benefit date (or date range) for Specific date passes.'
+  }
+  return null
+}
+
+function assertActiveWithinValidationWindow(value) {
+  if (!value.active) return null
+  return passValidationWindowError({ startsAt: value.startsAt ?? null, endsAt: value.endsAt ?? null })
 }
 
 const attachmentSchema = Joi.object({
@@ -83,7 +109,9 @@ const grantSchema = Joi.object({
 
 const simulateSchema = Joi.object({
   promoCodes: Joi.array().items(Joi.string().trim()).default([]),
-  isNewMember: Joi.boolean().default(false),
+  isFirstTimeEnrollee: Joi.boolean().default(false),
+  /** @deprecated use isFirstTimeEnrollee */
+  isNewMember: Joi.boolean().optional(),
   lines: Joi.array()
     .items(
       Joi.object({
@@ -153,6 +181,14 @@ export function createFreePassHandlers(pool) {
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
+        const windowError = assertActiveWithinValidationWindow(value)
+        if (windowError) {
+          return res.status(400).json({ success: false, message: windowError })
+        }
+        const benefitDateError = assertBenefitDatesForUnit(value)
+        if (benefitDateError) {
+          return res.status(400).json({ success: false, message: benefitDateError })
+        }
         const facilityId = await getFacilityId(pool)
         const db = templateToDb(value)
         const result = await pool.query(
@@ -199,6 +235,14 @@ export function createFreePassHandlers(pool) {
         const { error, value } = templateSchema.validate(req.body, { stripUnknown: true })
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const windowError = assertActiveWithinValidationWindow(value)
+        if (windowError) {
+          return res.status(400).json({ success: false, message: windowError })
+        }
+        const benefitDateError = assertBenefitDatesForUnit(value)
+        if (benefitDateError) {
+          return res.status(400).json({ success: false, message: benefitDateError })
         }
         const db = templateToDb(value)
         const result = await pool.query(
@@ -412,6 +456,9 @@ export function createFreePassHandlers(pool) {
           })
         }
 
+        const isFirstTimeEnrollee =
+          value.isFirstTimeEnrollee ?? value.isNewMember ?? false
+
         const result = applyFreePassLayer({
           lines,
           templates,
@@ -419,7 +466,7 @@ export function createFreePassHandlers(pool) {
           attachments: [],
           promoCodes: value.promoCodes,
           caps,
-          isNewMember: value.isNewMember,
+          isFirstTimeEnrollee,
         })
         res.json({ success: true, data: result })
       } catch (err) {
