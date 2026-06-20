@@ -495,7 +495,16 @@ export function computePassCreditCents({
   return 0
 }
 
+function perSchoolLimitsEnabled(config) {
+  if (!config) return false
+  if (config.per_school_max_redemptions_enabled === false) return false
+  if (config.per_school_max_redemptions_enabled === true) return true
+  const limits = config.max_redemptions_per_school
+  return limits && typeof limits === 'object' && Object.keys(limits).length > 0
+}
+
 function maxRedemptionsForSchool(template, memberSchool) {
+  if (!perSchoolLimitsEnabled(template.config)) return null
   const limits = template.config?.max_redemptions_per_school
   if (!limits || typeof limits !== 'object') return null
   const key = normalizeText(memberSchool)

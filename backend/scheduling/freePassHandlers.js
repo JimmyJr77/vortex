@@ -72,7 +72,7 @@ function buildPassConfig(value) {
     delete config.benefit_end_date
   }
   const perSchool = config.max_redemptions_per_school
-  if (perSchool && typeof perSchool === 'object') {
+  if (config.per_school_max_redemptions_enabled === true && perSchool && typeof perSchool === 'object') {
     const cleaned = {}
     for (const [name, value] of Object.entries(perSchool)) {
       const n = Number(value)
@@ -81,6 +81,16 @@ function buildPassConfig(value) {
     }
     if (Object.keys(cleaned).length > 0) config.max_redemptions_per_school = cleaned
     else delete config.max_redemptions_per_school
+    const capSchools = config.per_school_redemption_schools
+    if (Array.isArray(capSchools)) {
+      const names = capSchools.map((s) => String(s).trim()).filter(Boolean)
+      if (names.length > 0) config.per_school_redemption_schools = names
+      else delete config.per_school_redemption_schools
+    }
+  } else {
+    delete config.per_school_max_redemptions_enabled
+    delete config.max_redemptions_per_school
+    delete config.per_school_redemption_schools
   }
   const sportIds = (value.sportIds ?? []).map(Number).filter((n) => Number.isFinite(n) && n > 0)
   if (sportIds.length > 0) config.sport_ids = sportIds

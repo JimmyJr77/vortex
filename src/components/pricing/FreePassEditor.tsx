@@ -13,9 +13,13 @@ import {
   appliesToAllSchools,
   mergeAppliesToAllSchools,
   mergeMaxRedemptionForSchool,
+  mergePerSchoolMaxRedemptionsEnabled,
+  mergePerSchoolRedemptionSchools,
   mergeSchoolEligibility,
   mergeSchoolLevels,
   maxRedemptionsPerSchoolFromConfig,
+  perSchoolMaxRedemptionsEnabled,
+  perSchoolRedemptionSchoolNames,
   SCHOOL_LEVEL_OPTIONS,
   schoolLevelsFromEligibility,
   schoolNamesFromEligibility,
@@ -197,35 +201,21 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
   const allSchools = appliesToAllSchools(form.eligibility)
   const schoolLevels = schoolLevelsFromEligibility(form.eligibility)
   const perSchoolLimits = maxRedemptionsPerSchoolFromConfig(form.config)
+  const perSchoolMaxEnabled = perSchoolMaxRedemptionsEnabled(form.config)
+  const perSchoolCapSchoolNames = perSchoolRedemptionSchoolNames(form.config)
   const benefitDates = benefitDatesFromConfig(form.config)
 
   const setSchoolNames = (names: string[]) => {
-    setForm((prev) => {
-      const eligibility = mergeSchoolEligibility(prev.eligibility, names)
-      const allowed = new Set(names.map((n) => n.trim().toLowerCase()).filter(Boolean))
-      const limits = maxRedemptionsPerSchoolFromConfig(prev.config)
-      const config = { ...(prev.config ?? {}) }
-      const pruned: Record<string, number> = {}
-      for (const [key, value] of Object.entries(limits)) {
-        if (allowed.has(key)) pruned[key] = value
-      }
-      if (Object.keys(pruned).length > 0) config.max_redemptions_per_school = pruned
-      else delete config.max_redemptions_per_school
-      return { ...prev, eligibility, config }
-    })
+    setForm((prev) => ({
+      ...prev,
+      eligibility: mergeSchoolEligibility(prev.eligibility, names),
+    }))
   }
 
   const setAllSchools = (checked: boolean) => {
     setForm((prev) => ({
       ...prev,
       eligibility: mergeAppliesToAllSchools(prev.eligibility, checked),
-      config: checked
-        ? (() => {
-            const next = { ...(prev.config ?? {}) }
-            delete next.max_redemptions_per_school
-            return next
-          })()
-        : prev.config,
     }))
   }
 
@@ -246,6 +236,20 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
     setForm((prev) => ({
       ...prev,
       config: mergeMaxRedemptionForSchool(prev.config, schoolName, max),
+    }))
+  }
+
+  const setPerSchoolMaxEnabled = (enabled: boolean) => {
+    setForm((prev) => ({
+      ...prev,
+      config: mergePerSchoolMaxRedemptionsEnabled(prev.config, enabled),
+    }))
+  }
+
+  const setPerSchoolCapSchools = (names: string[]) => {
+    setForm((prev) => ({
+      ...prev,
+      config: mergePerSchoolRedemptionSchools(prev.config, names),
     }))
   }
 
@@ -511,10 +515,11 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             <div>
               <p className="text-sm font-bold text-gray-900">Schools (optional)</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Leave everything unchecked to ignore school filtering. Selecting any option engages
-                the filter. Applies to all schools includes every school in your database, including
-                those without a level tag. Level checkboxes restrict to high, middle, or elementary
-                only — named schools further narrow the list.
+                Leave everything unchecked to apply this pass to everyone — including adults and
+                members without a school on file. Selecting any option below restricts who qualifies.
+                Applies to all schools limits the pass to members whose school matches an active
+                school in your database. Level checkboxes and named schools narrow eligibility
+                further.
               </p>
             </div>
             <label
@@ -549,11 +554,6 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
               onChange={setSchoolNames}
               disabled={allSchools}
               levelFilter={schoolLevels}
-              emptyHint={
-                allSchools
-                  ? 'All database schools qualify — no individual selection needed.'
-                  : undefined
-              }
             />
           </div>
 
@@ -600,35 +600,51 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
                 <p className="text-xs text-gray-500 mt-1">Total uses across all members. Leave empty for no limit.</p>
               </div>
             </div>
-            {schoolNames.length > 0 && !allSchools && (
-              <div className="border-t border-gray-200 pt-3 space-y-2">
-                <p className="text-xs font-semibold text-gray-600">Per selected school</p>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={perSchoolMaxEnabled}
+                onChange={(e) => setPerSchoolMaxEnabled(e.target.checked)}
+              />
+              Per school
+            </label>
+            {perSchoolMaxEnabled && (
+              <div className="border-t border-gray-200 pt-3 space-y-3">
                 <p className="text-xs text-gray-500">
-                  Facility-wide cap for each school listed above. Leave empty for no limit.
+                  Set a facility-wide redemption cap for each school. Members from other schools are
+                  not counted toward that school&apos;s limit.
                 </p>
-                {schoolNames.map((name) => {
-                  const key = name.trim().toLowerCase()
-                  return (
-                    <div key={name} className="grid grid-cols-2 gap-3 items-center">
-                      <span className="text-sm text-gray-800 truncate" title={name}>
-                        {name}
-                      </span>
-                      <input
-                        type="number"
-                        min={1}
-                        placeholder="Unlimited"
-                        className={fieldClass}
-                        value={perSchoolLimits[key] ?? ''}
-                        onChange={(e) =>
-                          setPerSchoolMax(
-                            name,
-                            e.target.value === '' ? null : Math.max(1, Number(e.target.value)),
-                          )
-                        }
-                      />
-                    </div>
-                  )
-                })}
+                <SchoolMultiSelect
+                  value={perSchoolCapSchoolNames}
+                  onChange={setPerSchoolCapSchools}
+                />
+                {perSchoolCapSchoolNames.length > 0 && (
+                  <div className="space-y-2">
+                    {perSchoolCapSchoolNames.map((name) => {
+                      const key = name.trim().toLowerCase()
+                      return (
+                        <div key={name} className="grid grid-cols-2 gap-3 items-center">
+                          <span className="text-sm text-gray-800 truncate" title={name}>
+                            {name}
+                          </span>
+                          <input
+                            type="number"
+                            min={1}
+                            placeholder="Unlimited"
+                            className={fieldClass}
+                            value={perSchoolLimits[key] ?? ''}
+                            onChange={(e) =>
+                              setPerSchoolMax(
+                                name,
+                                e.target.value === '' ? null : Math.max(1, Number(e.target.value)),
+                              )
+                            }
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -169,3 +169,56 @@ export function schoolDisplayNameForLimitKey(
   const found = schoolNames.find((n) => normalizeSchoolKey(n) === key)
   return found ?? key
 }
+
+export function perSchoolMaxRedemptionsEnabled(
+  config: Record<string, unknown> | undefined,
+): boolean {
+  if (config?.per_school_max_redemptions_enabled === false) return false
+  if (config?.per_school_max_redemptions_enabled === true) return true
+  return Object.keys(maxRedemptionsPerSchoolFromConfig(config)).length > 0
+}
+
+export function perSchoolRedemptionSchoolNames(
+  config: Record<string, unknown> | undefined,
+): string[] {
+  const fromList = config?.per_school_redemption_schools
+  if (Array.isArray(fromList) && fromList.length > 0) {
+    return fromList.map(String).filter(Boolean)
+  }
+  const limits = maxRedemptionsPerSchoolFromConfig(config)
+  return Object.keys(limits)
+}
+
+export function mergePerSchoolMaxRedemptionsEnabled(
+  config: Record<string, unknown> | undefined,
+  enabled: boolean,
+): Record<string, unknown> {
+  const next = { ...(config ?? {}) }
+  if (enabled) {
+    next.per_school_max_redemptions_enabled = true
+    return next
+  }
+  delete next.per_school_max_redemptions_enabled
+  delete next.max_redemptions_per_school
+  delete next.per_school_redemption_schools
+  return next
+}
+
+export function mergePerSchoolRedemptionSchools(
+  config: Record<string, unknown> | undefined,
+  schoolNames: string[],
+): Record<string, unknown> {
+  const next = { ...(config ?? {}) }
+  const names = [...new Set(schoolNames.map((n) => n.trim()).filter(Boolean))]
+  const limits = { ...maxRedemptionsPerSchoolFromConfig(next) }
+  const allowed = new Set(names.map(normalizeSchoolKey))
+  const pruned: Record<string, number> = {}
+  for (const [key, value] of Object.entries(limits)) {
+    if (allowed.has(key)) pruned[key] = value
+  }
+  if (Object.keys(pruned).length > 0) next.max_redemptions_per_school = pruned
+  else delete next.max_redemptions_per_school
+  if (names.length > 0) next.per_school_redemption_schools = names
+  else delete next.per_school_redemption_schools
+  return next
+}
