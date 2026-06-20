@@ -6,6 +6,10 @@ import {
   DISCOUNT_TYPES,
 } from './discountEngine.js'
 import { ensureDiscountEngineSchema } from '../programs/schema.js'
+import {
+  ensureDiscountRulePromoCode,
+  loadOccupiedPromoCodes,
+} from './promoCodeRegistry.js'
 
 async function getFacilityId(pool) {
   const res = await pool.query('SELECT id FROM facility LIMIT 1')
@@ -172,6 +176,8 @@ export function createDiscountHandlers(pool) {
         const { error, value } = ruleSchema.validate(req.body, { stripUnknown: true })
         if (error) return res.status(400).json({ success: false, message: error.details[0].message })
         const facilityId = await getFacilityId(pool)
+        const occupied = await loadOccupiedPromoCodes(pool, facilityId)
+        const withPromo = ensureDiscountRulePromoCode(value, occupied)
 
         await client.query('BEGIN')
         const insert = await client.query(
@@ -183,28 +189,28 @@ export function createDiscountHandlers(pool) {
            RETURNING id`,
           [
             facilityId,
-            value.name,
-            value.description || null,
-            value.type,
-            value.amountType,
-            value.amountValue,
-            value.applyTo,
-            value.calcBase,
-            value.priority,
-            value.stackable,
-            value.exclusivityGroup || null,
-            value.maxDiscountCents ?? null,
-            value.scopeLevel,
-            value.scopeRefId ?? null,
-            value.active,
-            value.startsAt ?? null,
-            value.endsAt ?? null,
-            value.maxRedemptions ?? null,
-            value.config || {},
+            withPromo.name,
+            withPromo.description || null,
+            withPromo.type,
+            withPromo.amountType,
+            withPromo.amountValue,
+            withPromo.applyTo,
+            withPromo.calcBase,
+            withPromo.priority,
+            withPromo.stackable,
+            withPromo.exclusivityGroup || null,
+            withPromo.maxDiscountCents ?? null,
+            withPromo.scopeLevel,
+            withPromo.scopeRefId ?? null,
+            withPromo.active,
+            withPromo.startsAt ?? null,
+            withPromo.endsAt ?? null,
+            withPromo.maxRedemptions ?? null,
+            withPromo.config || {},
           ],
         )
         const ruleId = Number(insert.rows[0].id)
-        await replaceTiers(client, ruleId, value.tiers || [])
+        await replaceTiers(client, ruleId, withPromo.tiers || [])
         await client.query('COMMIT')
         const rule = await loadRuleWithTiers(pool, ruleId)
         res.json({ success: true, data: rule })
@@ -227,6 +233,9 @@ export function createDiscountHandlers(pool) {
         const id = Number(req.params.id)
         const { error, value } = ruleSchema.validate(req.body, { stripUnknown: true })
         if (error) return res.status(400).json({ success: false, message: error.details[0].message })
+        const facilityId = await getFacilityId(pool)
+        const occupied = await loadOccupiedPromoCodes(pool, facilityId, { excludeDiscountId: id })
+        const withPromo = ensureDiscountRulePromoCode(value, occupied)
 
         await client.query('BEGIN')
         const upd = await client.query(
@@ -238,31 +247,31 @@ export function createDiscountHandlers(pool) {
            WHERE id=$1 RETURNING id`,
           [
             id,
-            value.name,
-            value.description || null,
-            value.type,
-            value.amountType,
-            value.amountValue,
-            value.applyTo,
-            value.calcBase,
-            value.priority,
-            value.stackable,
-            value.exclusivityGroup || null,
-            value.maxDiscountCents ?? null,
-            value.scopeLevel,
-            value.scopeRefId ?? null,
-            value.active,
-            value.startsAt ?? null,
-            value.endsAt ?? null,
-            value.maxRedemptions ?? null,
-            value.config || {},
+            withPromo.name,
+            withPromo.description || null,
+            withPromo.type,
+            withPromo.amountType,
+            withPromo.amountValue,
+            withPromo.applyTo,
+            withPromo.calcBase,
+            withPromo.priority,
+            withPromo.stackable,
+            withPromo.exclusivityGroup || null,
+            withPromo.maxDiscountCents ?? null,
+            withPromo.scopeLevel,
+            withPromo.scopeRefId ?? null,
+            withPromo.active,
+            withPromo.startsAt ?? null,
+            withPromo.endsAt ?? null,
+            withPromo.maxRedemptions ?? null,
+            withPromo.config || {},
           ],
         )
         if (upd.rows.length === 0) {
           await client.query('ROLLBACK')
           return res.status(404).json({ success: false, message: 'Discount rule not found' })
         }
-        await replaceTiers(client, id, value.tiers || [])
+        await replaceTiers(client, id, withPromo.tiers || [])
         await client.query('COMMIT')
         const rule = await loadRuleWithTiers(pool, id)
         res.json({ success: true, data: rule })

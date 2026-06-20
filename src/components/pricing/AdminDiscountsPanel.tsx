@@ -5,8 +5,6 @@ import {
   adminDeleteDiscountRule,
   adminFetchDiscountRules,
   adminUpdateDiscountRule,
-  adminUpdateDiscountSettings,
-  type DiscountGlobalSettings,
   type DiscountRule,
   type DiscountRuleInput,
   type DiscountType,
@@ -17,7 +15,6 @@ import OrderSimulator from './OrderSimulator'
 import { describePromoRuleBenefit, getPromoStatus } from '../../utils/promoDiscountModel'
 
 interface Props {
-  showFacilityCaps?: boolean
   showSimulator?: boolean
 }
 
@@ -43,18 +40,13 @@ function describeAmount(rule: DiscountRule): string {
     : `$${(rule.amountValue / 100).toFixed(2)}`
 }
 
-const AdminDiscountsPanel = ({ showFacilityCaps = false, showSimulator = false }: Props) => {
+const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
   const [rules, setRules] = useState<DiscountRule[]>([])
-  const [settings, setSettings] = useState<DiscountGlobalSettings>({
-    maxFreeUnitsTotal: null,
-    maxDiscountRedemptionsTotal: null,
-  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editorOpen, setEditorOpen] = useState(false)
   const [promoEditorOpen, setPromoEditorOpen] = useState(false)
   const [editingRule, setEditingRule] = useState<DiscountRule | null>(null)
-  const [savingSettings, setSavingSettings] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -62,7 +54,6 @@ const AdminDiscountsPanel = ({ showFacilityCaps = false, showSimulator = false }
     try {
       const data = await adminFetchDiscountRules()
       setRules(data.rules)
-      setSettings(data.globalSettings)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load discounts')
     } finally {
@@ -95,72 +86,8 @@ const AdminDiscountsPanel = ({ showFacilityCaps = false, showSimulator = false }
     }
   }
 
-  const saveSettings = async (next: DiscountGlobalSettings) => {
-    setSettings(next)
-    setSavingSettings(true)
-    try {
-      await adminUpdateDiscountSettings(next)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to save caps')
-    } finally {
-      setSavingSettings(false)
-    }
-  }
-
   return (
     <div className="space-y-6">
-      {showFacilityCaps && (
-        <div className="rounded-xl border border-gray-200 bg-white p-4">
-          <h3 className="font-bold text-gray-900 mb-1">Facility-wide caps</h3>
-          <p className="text-sm text-gray-500 mb-3">
-            Hard limits across all classes and programs (first-come, first-served). Leave empty for
-            unlimited.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">
-                Max free items total
-              </label>
-              <input
-                type="number"
-                min={0}
-                placeholder="Unlimited"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                value={settings.maxFreeUnitsTotal ?? ''}
-                onChange={(e) =>
-                  setSettings((s) => ({
-                    ...s,
-                    maxFreeUnitsTotal: e.target.value === '' ? null : Math.max(0, Number(e.target.value)),
-                  }))
-                }
-                onBlur={() => void saveSettings(settings)}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">
-                Max discount redemptions total
-              </label>
-              <input
-                type="number"
-                min={0}
-                placeholder="Unlimited"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                value={settings.maxDiscountRedemptionsTotal ?? ''}
-                onChange={(e) =>
-                  setSettings((s) => ({
-                    ...s,
-                    maxDiscountRedemptionsTotal:
-                      e.target.value === '' ? null : Math.max(0, Number(e.target.value)),
-                  }))
-                }
-                onBlur={() => void saveSettings(settings)}
-              />
-            </div>
-          </div>
-          {savingSettings && <p className="text-xs text-gray-400 mt-2">Saving…</p>}
-        </div>
-      )}
-
       <div className="rounded-xl border border-gray-200 bg-white">
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <h3 className="font-bold text-gray-900">Discount rules</h3>

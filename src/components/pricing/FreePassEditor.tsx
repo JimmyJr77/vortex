@@ -324,10 +324,18 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
               <label className="block text-xs text-gray-500 mb-1">Promo code (optional)</label>
               <input
                 className={fieldClass}
-                placeholder="TRYFREE"
+                placeholder="Auto-generated on save"
                 value={String(form.issuance?.promo_code ?? '')}
-                onChange={(e) => updateIssuance({ promo_code: e.target.value.trim().toUpperCase() })}
+                onChange={(e) =>
+                  updateIssuance({
+                    promo_code: e.target.value.trim().toUpperCase(),
+                    promo_code_auto_generated: false,
+                  })
+                }
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Used at checkout and listed on the Promo Codes tab. Auto-generated if left blank.
+              </p>
             </div>
             <label className="flex items-center gap-2 text-sm">
               <input

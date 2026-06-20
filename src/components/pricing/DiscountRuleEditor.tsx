@@ -272,8 +272,30 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
               className={`${inputClass} uppercase`}
               placeholder="SUMMER25"
               value={String(form.config.code ?? '')}
-              onChange={(e) => updateConfig({ code: e.target.value.trim() })}
+              onChange={(e) => updateConfig({ code: e.target.value.trim(), promo_code_auto_generated: false })}
             />
+            <p className="text-xs text-gray-500 mt-1">Auto-generated on save if left blank.</p>
+          </div>
+        )}
+
+        {form.type !== 'promo_code' && (
+          <div>
+            <label className="block text-xs font-semibold mb-1 text-gray-600">Promo code (optional)</label>
+            <input
+              type="text"
+              className={`${inputClass} uppercase`}
+              placeholder="Auto-generated on save"
+              value={String(form.config.promo_code ?? '')}
+              onChange={(e) =>
+                updateConfig({
+                  promo_code: e.target.value.trim().toUpperCase(),
+                  promo_code_auto_generated: false,
+                })
+              }
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Tracking code for this discount. Auto-generated if left blank.
+            </p>
           </div>
         )}
 

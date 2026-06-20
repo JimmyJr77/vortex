@@ -17,6 +17,10 @@ import {
   loadBenefitSelectionsForScope,
   saveBenefitSelectionsForScope,
 } from './benefitSelection.js'
+import {
+  ensureFreePassPromoCode,
+  loadOccupiedPromoCodes,
+} from './promoCodeRegistry.js'
 
 async function getFacilityId(pool) {
   const res = await pool.query('SELECT id FROM facility LIMIT 1')
@@ -216,7 +220,9 @@ export function createFreePassHandlers(pool) {
           return res.status(400).json({ success: false, message: benefitDateError })
         }
         const facilityId = await getFacilityId(pool)
-        const db = templateToDb(value)
+        const occupied = await loadOccupiedPromoCodes(pool, facilityId)
+        const withPromo = ensureFreePassPromoCode(value, occupied)
+        const db = templateToDb(withPromo)
         const result = await pool.query(
           `INSERT INTO free_pass_template
              (facility_id, name, description, active, starts_at, ends_at,
@@ -270,7 +276,10 @@ export function createFreePassHandlers(pool) {
         if (benefitDateError) {
           return res.status(400).json({ success: false, message: benefitDateError })
         }
-        const db = templateToDb(value)
+        const facilityId = await getFacilityId(pool)
+        const occupied = await loadOccupiedPromoCodes(pool, facilityId, { excludePassId: id })
+        const withPromo = ensureFreePassPromoCode(value, occupied)
+        const db = templateToDb(withPromo)
         const result = await pool.query(
           `UPDATE free_pass_template SET
              name=$1, description=$2, active=$3, starts_at=$4, ends_at=$5,

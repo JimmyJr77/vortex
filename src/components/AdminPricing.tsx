@@ -6,14 +6,16 @@ import AdminAdditionalFeesPanel from './pricing/AdminAdditionalFeesPanel'
 import AdminDiscountsPanel from './pricing/AdminDiscountsPanel'
 import AdminFreePassesPanel from './pricing/AdminFreePassesPanel'
 import AdminPricingRulesOverview from './pricing/AdminPricingRulesOverview'
+import AdminPromoCodesPanel from './pricing/AdminPromoCodesPanel'
 
-type PricingTab = 'costs' | 'discounts' | 'free_passes' | 'rules'
+type PricingTab = 'costs' | 'discounts' | 'free_passes' | 'rules' | 'promo_codes'
 
 const TABS: Array<{ id: PricingTab; label: string }> = [
   { id: 'costs', label: 'Costs' },
   { id: 'discounts', label: 'Discounts' },
   { id: 'free_passes', label: 'Free Passes' },
   { id: 'rules', label: 'Rules' },
+  { id: 'promo_codes', label: 'Promo Codes' },
 ]
 
 const AdminPricing = () => {
@@ -58,9 +60,10 @@ const AdminPricing = () => {
           <AdminPricingProgramTable />
         </div>
       )}
-      {tab === 'discounts' && <AdminDiscountsPanel showFacilityCaps showSimulator />}
+      {tab === 'discounts' && <AdminDiscountsPanel showSimulator />}
       {tab === 'free_passes' && <AdminFreePassesPanel />}
       {tab === 'rules' && <AdminPricingRulesOverview />}
+      {tab === 'promo_codes' && <AdminPromoCodesPanel />}
     </div>
   )
 }

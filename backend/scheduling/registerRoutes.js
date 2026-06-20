@@ -3,6 +3,7 @@ import { createSchedulingHandlers } from './handlers.js'
 import { createDiscountHandlers } from './discountHandlers.js'
 import { createAdditionalFeeHandlers } from './additionalFeeHandlers.js'
 import { createFreePassHandlers } from './freePassHandlers.js'
+import { createPromoCodeHandlers } from './promoCodeHandlers.js'
 import { createBenefitSelectionHandlers } from './benefitSelectionHandlers.js'
 
 const signupLimiter = rateLimit({
@@ -18,6 +19,7 @@ export function registerSchedulingRoutes(app, pool) {
   const d = createDiscountHandlers(pool)
   const f = createAdditionalFeeHandlers(pool)
   const fp = createFreePassHandlers(pool)
+  const pc = createPromoCodeHandlers(pool)
   const bs = createBenefitSelectionHandlers(pool)
 
   app.get('/api/scheduling/calendar', h.getPublicCalendar)
@@ -81,6 +83,7 @@ export function registerSchedulingRoutes(app, pool) {
   app.delete('/api/admin/scheduling/discount-rules/:id', d.deleteRule)
   app.put('/api/admin/scheduling/discount-settings', d.updateGlobalSettings)
   app.post('/api/admin/scheduling/discount-simulate', d.simulateOrder)
+  app.get('/api/admin/scheduling/promo-codes', pc.listPromoCodes)
   app.get('/api/admin/scheduling/sport-defaults', d.listSportDefaults)
   app.put('/api/admin/scheduling/sport-defaults/:id', d.upsertSportDefault)
 
