@@ -176,3 +176,34 @@ export function enrichPromoCodesFromSelections(resolved, discountRules = []) {
   }
   return resolved
 }
+
+/** One-time migration of legacy program promo codes into benefit selections. */
+export async function migrateProgramPromoCodesToSelections(pool, programId, promoCodes = []) {
+  const codes = (promoCodes || []).map((c) => String(c).trim().toUpperCase()).filter(Boolean)
+  if (!codes.length) return
+
+  const existing = await loadBenefitSelectionsForScope(pool, 'program', programId)
+  if (existing.length > 0) return
+
+  const rulesRes = await pool.query(
+    `SELECT id, config FROM discount_rule WHERE type = 'promo_code' AND active = TRUE`,
+  )
+  const selections = []
+  for (const code of codes) {
+    const rule = rulesRes.rows.find(
+      (r) => String(r.config?.code ?? '').trim().toUpperCase() === code,
+    )
+    if (rule) {
+      selections.push({
+        benefitType: 'discount_rule',
+        benefitId: Number(rule.id),
+        autoApply: false,
+        allowMemberCode: true,
+        sortOrder: selections.length,
+      })
+    }
+  }
+  if (selections.length) {
+    await saveBenefitSelectionsForScope(pool, 'program', programId, selections)
+  }
+}
