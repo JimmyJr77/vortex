@@ -1,0 +1,55 @@
+---
+description: When investigating DB/schema/connectivity, record superseded tables, columns, APIs, and dead links in DATABASE_ARCHITECTURE §10
+alwaysApply: true
+---
+
+# Database cleanup backlog — mandatory recording
+
+Whenever you **research, debug, or implement** anything involving:
+
+- database connections, pools, or env (`DATABASE_URL`, `pg` Pool, SSL)
+- schema, migrations, `initDatabase` / `initPlatformTables` / `run-migration.js`
+- SQL errors (missing column/table, FK failures, 500s from `pool.query`)
+- data paths: coach rosters, enrollments, assignments, scheduling ↔ program links
+- API routes that read/write Postgres (`/api/coach/*`, `/api/member/*`, `/api/admin/*` backed by SQL)
+
+you MUST **record superseded or orphaned artifacts** you discover — do not only fix the immediate bug.
+
+## What to record
+
+Log candidates in [docs/DATABASE_ARCHITECTURE.md](docs/DATABASE_ARCHITECTURE.md) **§10 Cleanup backlog**:
+
+| Kind | Examples |
+|------|----------|
+| Tables / columns | `class_iteration`, `coach_class_assignment.class_iteration_id`, unused FKs |
+| APIs / routes | `legacy-forms`, iteration enrollment endpoints, 404 routes still called from UI |
+| Boot / migration drift | DDL in `server.js` duplicating migrations, files not in `initPlatformTables` |
+| App fields / UI labels | Dropdowns bound to dead columns; filters using wrong `program_id` vs `programs_id` |
+| Dual paths | `member_program` vs `scheduling_signup` both resolving the same concept |
+
+For each finding add a **table row or bullet** with:
+
+1. **Object** (table, column, route, file)
+2. **Status**: `Superseded` | `Active (legacy)` | `Removed` | `Candidate`
+3. **Replacement** (canonical table/API)
+4. **Evidence** (file path or error message)
+5. **Pre-drop check** (SQL or “verify zero rows”) if DDL removal is implied
+
+Do **not** drop schema or delete routes in the same change unless the user explicitly asked for cleanup. Default: **document only**.
+
+## Already removed
+
+Do not re-add items confirmed dropped in §10.1–10.3 or migrations `007` / `009`. Mark new discoveries as additions under the right §10 subsection.
+
+## Same change as schema edits
+
+If you **add/alter** database objects in the same task, also follow
+[database-architecture.mdc](database-architecture.mdc) (Parts 1–9). §10 is for **removal candidates**, not new schema.
+
+## Entry template (copy into §10)
+
+```markdown
+| `{name}` | Candidate | `{replacement}` | {one-line evidence + path} |
+```
+
+After recording, mention in the user summary what was added to §10 (brief list).

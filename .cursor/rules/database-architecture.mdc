@@ -22,3 +22,7 @@ Rules:
 - Keep boot-applied SQL idempotent (`IF NOT EXISTS`, `ON CONFLICT`, enum-add guards) and say so.
 - Cite real file paths, table/column, and migration names; do not let the doc drift from reality.
 - This doc is the source of truth for DB structure — do not substitute transient plan files.
+
+When investigating DB issues (connections, migrations, SQL errors, data-path bugs), also follow
+[database-cleanup-backlog.mdc](database-cleanup-backlog.mdc): record superseded tables, columns,
+APIs, and dead UI links in **§10** — do not drop without explicit user request.

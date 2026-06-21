@@ -64,7 +64,7 @@ flowchart TB
     A --> A1["inline Module 0-2 DDL (facility, app_user, program, class, member, ...)"]
     A --> A2["initAnalyticsTables()"]
     A --> A3["initSchedulingTables() (+ re-runs some add_*.sql)"]
-    A --> A4["initPlatformTables() -> 008-025 incl. coaching"]
+    A --> A4["initPlatformTables() -> 008-030 incl. coaching"]
     A --> A5["family active-status trigger"]
     SS["startServer()"] --> A
     SS --> H["initDbFeatureTables() (schools, notes, saved_query + seeds)"]
@@ -86,7 +86,7 @@ flowchart TB
 Runs on every server start; idempotent SQL, **no `schema_migrations` tracking**.
 - Inline DDL duplicates much of modules `001`–`005` (facility, app_user, program/class/class_iteration, member/family/member_program/emergency_contact/parent_guardian_authority).
 - Calls `initAnalyticsTables()` ([backend/analytics/initTables.js](../backend/analytics/initTables.js)) and `initSchedulingTables()` ([backend/scheduling/initTables.js](../backend/scheduling/initTables.js)) — the latter also re-applies several scheduling `add_*.sql` files and `ensureDiscountEngineSchema`.
-- Calls **`initPlatformTables(pool)`** ([backend/platform/initTables.js](../backend/platform/initTables.js)) which executes migrations **`008`–`025`** (incl. all `coaching.*`) from disk on every boot.
+- Calls **`initPlatformTables(pool)`** ([backend/platform/initTables.js](../backend/platform/initTables.js)) which executes migrations **`008`–`030`** (incl. all `coaching.*` + coach assignment scheduling link) from disk on every boot.
 - Creates the family active-status trigger inline.
 - `initDbFeatureTables(pool)` ([backend/dbfeatures/initTables.js](../backend/dbfeatures/initTables.js)) creates `school`/`member_school`/`note`/`saved_query` and seeds schools.
 
@@ -179,7 +179,7 @@ adds `coaching.notification` (`recipient_member_id` / `recipient_user_id` FKs).
 **`024`** adds `message_thread` / `message`. **`025`** adds `goal` / `achievement`. **Loose
 BIGINT refs (no FK)** are deliberate for polymorphic/calendar wiring:
 `plan_assignment.target_id`/`assignable_id` (polymorphic by `*_type`),
-`session.facility_id`/`coach_user_id`/`assignment_id`/`program_id`/`class_iteration_id`,
+`session.facility_id`/`coach_user_id`/`assignment_id`/`program_id`/`class_iteration_id` (legacy — see §10.1),
 `session_attendance.member_id`, `personal_record.source_result_id`, and `exercise_tag.facet_id`
 (validated in app, not by FK).
 
@@ -233,7 +233,113 @@ facility.
 
 1. **Two definitions of early schema**: modules `001`–`005` exist both as numbered SQL (for `migrate:all`/fresh DB) and as inline DDL in `initDatabase()`. Keep them consistent if you change core tables.
 2. **`006`/`007` are not boot-applied** — triggers/views/legacy-drops only land via `run-migration.js`.
-3. **`initPlatformTables` re-runs `008`–`025` every boot** — anything added there must be idempotent.
+3. **`initPlatformTables` re-runs `008`–`030` every boot** — anything added there must be idempotent.
 4. **`programs` vs `program`** — confirm the table/column the query targets.
 5. **Coaching uses mixed FK strictness** — polymorphic/calendar columns are intentionally loose BIGINTs.
 6. **Boot-applied files may lag `schema_migrations`** until `migrate:all` runs; this is expected.
+
+---
+
+## 10. Cleanup backlog (legacy / candidate removal)
+
+Items below are **not** dropped automatically. They are tracked here so we can migrate data, remove app
+dependencies, then delete schema in a numbered migration. **Verify production row counts and code
+references before dropping anything.**
+
+Status key: **Active (legacy)** = still read/written in some paths · **Superseded** = replacement
+exists · **Removed** = already dropped in a migration.
+
+### 10.1 Class iterations & pre-scheduling class models (high priority)
+
+| Object | Status | Superseded by | Notes |
+|--------|--------|---------------|-------|
+| `public.class_iteration` | Superseded | `scheduling_form` + `scheduling_offering` + `scheduling_time_slot` | Day/time “iterations” per program; still created on **every boot** in [server.js](../backend/server.js) and via `add_class_iteration_table.sql`. Member/coach UIs no longer assign coaches via iterations. |
+| `member_program.iteration_id` | Active (legacy) | `scheduling_signup` (via `form_id` / `offering_id`) | FK to `class_iteration`. Still used by admin/member enrollment flows (`/api/members/enroll`, `EnrollmentForm`) and as a **fallback** in coach roster SQL. |
+| `coach_class_assignment.class_iteration_id` | Active (legacy) | `coach_class_assignment.scheduling_form_id` ([030](../backend/migrations/030_coach_class_scheduling_form.sql)) | Nullable; kept in CHECK constraint for old rows. **Reassign** coaches in Admin → Coach Management using program + scheduling class, then drop column. |
+| `coaching.session.class_iteration_id` | Active (legacy) | `scheduling_form_id` (column does not exist yet) | Loose BIGINT in [021](../backend/migrations/021_coaching_sessions_attendance.sql); coach session APIs still accept `class_iteration_id`. |
+| `public.class` | Superseded | `scheduling_*` graph | Module 1 “scheduled class instances” (`day_of_week`, `start_time`). Rarely used; analytics joins in [analytics/adminHandlers.js](../backend/analytics/adminHandlers.js). |
+
+**Suggested removal order (after data audit):**
+
+1. Migrate any remaining `coach_class_assignment` rows off `class_iteration_id` → `scheduling_form_id`.
+2. Stop writing `member_program.iteration_id`; backfill enrollments into `scheduling_signup` where missing.
+3. Remove member/admin **iteration picker** APIs (`/api/members/programs/:programId/iterations`, admin class-iteration endpoints in server.js).
+4. Drop FK columns: `member_program.iteration_id`, `coach_class_assignment.class_iteration_id`, `coaching.session.class_iteration_id`.
+5. Drop table `class_iteration`; remove boot DDL in server.js and `run-class-iteration-migration.js`.
+6. Evaluate dropping `public.class` after analytics queries use scheduling tables.
+
+### 10.2 Enrollment dual-path (`member_program` vs scheduling)
+
+| Object | Status | Notes |
+|--------|--------|-------|
+| `public.member_program` | Active (legacy) | Admin enrollment and older member flows. Coach rosters **prefer** `scheduling_signup` but still UNION `member_program`. Do not drop until all enrollments are scheduling signups or explicitly migrated. |
+| `athlete_program` | Removed | Migrated to `member_program` ([005](../backend/migrations/005_unified_member_table.sql)); drop confirmed in [007](../backend/migrations/007_drop_all_legacy_member_tables.sql). |
+
+### 10.3 Member / identity tables (mostly done)
+
+| Object | Status | Notes |
+|--------|--------|-------|
+| `members`, `athlete`, `member_children`, `athlete_program` | Removed | [007](../backend/migrations/007_drop_all_legacy_member_tables.sql). See [LEGACY_TABLE_CLEANUP_SUMMARY.md](../backend/LEGACY_TABLE_CLEANUP_SUMMARY.md). |
+| `family_guardian` | Removed | Dropped in [009](../backend/migrations/009_family_identity_cleanup.sql). Canonical link: `family_member`. |
+| `family.primary_*` / legacy guardian columns on `family` | Removed | [009](../backend/migrations/009_family_identity_cleanup.sql). |
+| `member.parent_guardian_ids` + `parent_guardian_authority` | Active | **Keep** — used for minors messaging and guardian access. |
+
+### 10.4 Application / API surfaces to retire (no DDL until callers gone)
+
+| Surface | Location | Replacement |
+|---------|----------|-------------|
+| `GET /api/admin/scheduling/legacy-forms` | [scheduling/handlers.js](../backend/scheduling/handlers.js) | `GET /api/admin/scheduling/forms` |
+| Class iteration enrollment UI | `EnrollmentForm`, member enroll with `iterationId` | Scheduling signup / admin scheduling enroll |
+| Coach assign “iteration” roster branches | [coachRoster.js](../backend/platform/coachRoster.js), [assignmentTargets.js](../backend/platform/assignmentTargets.js) | `scheduling_form_id` + `scheduling_signup` only |
+| Inline `class_iteration` boot DDL | [server.js](../backend/server.js) ~lines 716–750, 9500+, 12376+ | Remove when table dropped |
+
+### 10.5 Migration / boot hygiene (tech debt, not user data)
+
+| Item | Issue | Action |
+|------|--------|--------|
+| `030_coach_class_scheduling_form.sql` | Not in [initPlatformTables](../backend/platform/initTables.js) list until recently | Also applied via `ensureCoachClassAssignmentSchema()` at boot — add to init list or keep single ensure path. |
+| Duplicate DDL for `001`–`005` | Inline in `initDatabase()` **and** numbered migrations | When editing core tables, update **both** or consolidate long-term. |
+| `006` / `007` not boot-applied | Athlete-status triggers, legacy drops | Run `npm run migrate:all` on each environment so ledger matches reality. |
+| `member.status = 'legacy'` | Column **value**, not a table | Semantic label for non-enrolled stubs; rename only if product wants clearer vocabulary. |
+
+### 10.6 Pre-drop verification queries (run on staging/production)
+
+```sql
+-- Rows still tied to class_iteration
+SELECT COUNT(*) FROM coach_class_assignment WHERE class_iteration_id IS NOT NULL;
+SELECT COUNT(*) FROM member_program WHERE iteration_id IS NOT NULL;
+SELECT COUNT(*) FROM coaching.session WHERE class_iteration_id IS NOT NULL;
+SELECT COUNT(*) FROM class_iteration;
+
+-- Coach assignments without scheduling class (program-only is OK)
+SELECT COUNT(*) FROM coach_class_assignment
+  WHERE scheduling_form_id IS NULL AND class_iteration_id IS NULL;
+
+-- Enrollments only in member_program (no scheduling signup)
+SELECT COUNT(*) FROM member_program mp
+WHERE NOT EXISTS (
+  SELECT 1 FROM scheduling_signup s
+  WHERE s.member_id = mp.member_id AND s.orphaned_at IS NULL
+);
+```
+
+When a cleanup migration ships, update this section (mark **Removed**, cite migration number) and
+adjust §4 relationship diagrams (e.g. remove `class_iteration` from the ER chart when dropped).
+
+### 10.7 Agent recording protocol (mandatory)
+
+Cursor rule [`.cursor/rules/database-cleanup-backlog.mdc`](../.cursor/rules/database-cleanup-backlog.mdc)
+(`alwaysApply: true`) requires agents to append new findings here during any DB/connectivity/SQL-backed
+API investigation — not only when editing migration files.
+
+**Add under the matching §10 subsection** (or create a new subsection if needed):
+
+```markdown
+| `{object}` | Candidate \| Active (legacy) \| Superseded | `{canonical replacement}` | Evidence: `{path or error}` |
+```
+
+- **Do not delete** schema or routes in the same turn unless the user explicitly requested cleanup.
+- **Do not duplicate** rows already listed as Removed in §10.1–10.3.
+- After adding rows, run or suggest the §10.6 verification queries when removal is implied.
+- If the finding also changes live schema, update Parts 1–9 in the same PR (see
+  [database-architecture.mdc](../.cursor/rules/database-architecture.mdc)).
