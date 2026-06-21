@@ -2,6 +2,61 @@
  * Coach roster resolution: scheduling signups (offerings/class times) + legacy member_program.
  */
 
+let coachAssignmentSchemaPromise = null
+
+/** Applies migration 030 columns/indexes when DB has not run the SQL migration yet. */
+export async function ensureCoachClassAssignmentSchema(pool) {
+  if (!coachAssignmentSchemaPromise) {
+    coachAssignmentSchemaPromise = applyCoachClassAssignmentSchema(pool).catch((err) => {
+      coachAssignmentSchemaPromise = null
+      throw err
+    })
+  }
+  return coachAssignmentSchemaPromise
+}
+
+async function applyCoachClassAssignmentSchema(pool) {
+  await pool.query(`
+    ALTER TABLE coach_class_assignment
+      ADD COLUMN IF NOT EXISTS scheduling_form_id BIGINT REFERENCES scheduling_form(id) ON DELETE CASCADE
+  `)
+  await pool.query(`
+    ALTER TABLE coach_class_assignment
+      DROP CONSTRAINT IF EXISTS coach_class_assignment_check
+  `)
+  try {
+    await pool.query(`
+      ALTER TABLE coach_class_assignment
+        ADD CONSTRAINT coach_class_assignment_target_check
+        CHECK (
+          program_id IS NOT NULL
+          OR scheduling_form_id IS NOT NULL
+          OR class_iteration_id IS NOT NULL
+        )
+    `)
+  } catch (err) {
+    if (!/already exists/i.test(String(err.message))) throw err
+  }
+  await pool.query(`
+    ALTER TABLE coach_class_assignment
+      DROP CONSTRAINT IF EXISTS coach_class_assignment_coach_user_id_program_id_class_iteration_id_key
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_class_assignment_program_only
+      ON coach_class_assignment (coach_user_id, program_id)
+      WHERE scheduling_form_id IS NULL AND class_iteration_id IS NULL
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_class_assignment_scheduling_form
+      ON coach_class_assignment (coach_user_id, scheduling_form_id)
+      WHERE scheduling_form_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_coach_class_assignment_scheduling_form
+      ON coach_class_assignment (scheduling_form_id)
+  `)
+}
+
 export async function getCoachClassAssignment(pool, assignmentId, coachUserId) {
   const r = await pool.query(
     `SELECT * FROM coach_class_assignment WHERE id = $1 AND coach_user_id = $2`,
@@ -161,6 +216,7 @@ export async function queryCoachRosterMembers(pool, {
 
 /** Members for plan_assignment when target_type = 'class' (target_id = coach_class_assignment.id). */
 export async function getMembersForCoachClassTarget(pool, coachClassAssignmentId, facilityId) {
+  await ensureCoachClassAssignmentSchema(pool)
   const a = await pool.query(
     `SELECT program_id, scheduling_form_id, class_iteration_id FROM coach_class_assignment WHERE id = $1`,
     [coachClassAssignmentId],
@@ -183,6 +239,7 @@ export async function getMembersForCoachClassTarget(pool, coachClassAssignmentId
 
 /** Coach user IDs linked to a member via program enrollment (scheduling + legacy). */
 export async function queryCoachUserIdsForMember(pool, memberId, facilityId) {
+  await ensureCoachClassAssignmentSchema(pool)
   const r = await pool.query(
     `
       SELECT DISTINCT cca.coach_user_id
@@ -226,6 +283,7 @@ export async function queryCoachUserIdsForMember(pool, memberId, facilityId) {
 
 /** All member IDs across coach's assigned classes (scheduling + legacy). */
 export async function queryCoachAssignedMemberIds(pool, coachUserId, facilityId) {
+  await ensureCoachClassAssignmentSchema(pool)
   const classes = await pool.query(
     `SELECT program_id, scheduling_form_id, class_iteration_id FROM coach_class_assignment WHERE coach_user_id = $1`,
     [coachUserId],

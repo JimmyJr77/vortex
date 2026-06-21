@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-import { getCoachClassAssignment, queryCoachRosterMembers, queryCoachMemberPickerList } from './coachRoster.js'
+import { getCoachClassAssignment, queryCoachRosterMembers, queryCoachMemberPickerList, ensureCoachClassAssignmentSchema } from './coachRoster.js'
 import { queryAssignDrilldown } from './assignmentTargets.js'
 
 function tokenFrom(req) {
@@ -369,10 +369,7 @@ async function countMasterAdmins(pool) {
 }
 
 async function ensureCoachOperationalTables(pool) {
-  await pool.query(`
-    ALTER TABLE coach_class_assignment
-      ADD COLUMN IF NOT EXISTS scheduling_form_id BIGINT REFERENCES scheduling_form(id) ON DELETE CASCADE
-  `)
+  await ensureCoachClassAssignmentSchema(pool)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS coach_roster_note (
       id BIGSERIAL PRIMARY KEY,
@@ -675,6 +672,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   app.get('/api/admin/coaches', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
+    await ensureCoachClassAssignmentSchema(pool)
     const coaches = await pool.query(
       `
         SELECT
@@ -1294,6 +1292,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   app.get('/api/coach/classes', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {
+    await ensureCoachClassAssignmentSchema(pool)
     const result = await pool.query(
       `
         SELECT

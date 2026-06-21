@@ -31,6 +31,7 @@ import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
 import { initPlatformTables } from './platform/initTables.js'
 import { registerPlatformRoutes } from './platform/registerRoutes.js'
 import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
+import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
 import { generateTemporaryPassword, sendTemporaryPasswordEmail } from './scheduling/tempPasswordEmail.js'
 import { logWarn, reportError } from './observability/logger.js'
 
@@ -14011,6 +14012,11 @@ const startServer = async () => {
       await initDbFeatureTables(pool)
     } catch (featureInitError) {
       console.error(`[Server ${workerId}] DB feature tables init failed:`, featureInitError)
+    }
+    try {
+      await ensureCoachClassAssignmentSchema(pool)
+    } catch (coachSchemaError) {
+      console.error(`[Server ${workerId}] Coach assignment schema init failed:`, coachSchemaError)
     }
     console.log(`[Server ${workerId}] Database initialization complete`)
     
