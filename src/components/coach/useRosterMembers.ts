@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react'
-import { coachFetch } from '../../coach/api'
-import type { CoachClass, RosterMember } from './useCoachClasses'
-
-export interface SimpleMember {
-  id: number
-  name: string
-}
+import { fetchCoachMemberOptions, type SimpleMember } from './fetchCoachMemberOptions'
 
 /** Aggregates a de-duplicated member list across all of a coach's classes. */
 export function useRosterMembers() {
@@ -16,17 +10,8 @@ export function useRosterMembers() {
     let active = true
     ;(async () => {
       try {
-        const classes = await coachFetch<CoachClass[]>('/api/coach/classes')
-        const rosters = await Promise.all(
-          classes.map((c) => coachFetch<RosterMember[]>(`/api/coach/classes/${c.id}/roster`).catch(() => [] as RosterMember[])),
-        )
-        const map = new Map<number, SimpleMember>()
-        for (const roster of rosters) {
-          for (const m of roster) {
-            map.set(m.id, { id: m.id, name: `${m.first_name} ${m.last_name}`.trim() })
-          }
-        }
-        if (active) setMembers([...map.values()].sort((a, b) => a.name.localeCompare(b.name)))
+        const list = await fetchCoachMemberOptions('my_classes')
+        if (active) setMembers(list)
       } catch {
         if (active) setMembers([])
       } finally {

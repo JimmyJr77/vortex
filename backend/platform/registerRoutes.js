@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-import { getCoachClassAssignment, queryCoachRosterMembers } from './coachRoster.js'
+import { getCoachClassAssignment, queryCoachRosterMembers, queryCoachMemberPickerList } from './coachRoster.js'
+import { queryAssignDrilldown } from './assignmentTargets.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -1267,6 +1268,40 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       [req.platformAuth.user.id],
     )
     res.json({ success: true, data: result.rows })
+  })
+
+  app.get('/api/coach/members', ...requirePermission(pool, jwtSecret, 'plans.assign'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const scope = String(req.query.scope || 'my_classes') === 'all' ? 'all' : 'my_classes'
+      const members = await queryCoachMemberPickerList(pool, {
+        coachUserId,
+        facilityId,
+        scope,
+      })
+      res.json({ success: true, data: members })
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message })
+    }
+  })
+
+  app.get('/api/coach/assign/drilldown', ...requirePermission(pool, jwtSecret, 'plans.assign'), async (req, res) => {
+    try {
+      const sportId = req.query.sportId != null ? Number(req.query.sportId) : null
+      const programId = req.query.programId != null ? Number(req.query.programId) : null
+      const formId = req.query.formId != null ? Number(req.query.formId) : null
+      const categoryId = req.query.categoryId != null ? Number(req.query.categoryId) : null
+      const data = await queryAssignDrilldown(pool, req.platformAuth.user.facility_id, {
+        sportId: Number.isFinite(sportId) ? sportId : null,
+        programId: Number.isFinite(programId) ? programId : null,
+        formId: Number.isFinite(formId) ? formId : null,
+        categoryId: Number.isFinite(categoryId) ? categoryId : null,
+      })
+      res.json({ success: true, data })
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message })
+    }
   })
 
   app.get('/api/coach/classes/:id/roster', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {

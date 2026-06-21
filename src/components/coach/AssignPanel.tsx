@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Send } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
-import { useCoachClasses } from './useCoachClasses'
+import ClassDrilldownTarget, { type AssignGroupTarget } from './ClassDrilldownTarget'
+import { fetchCoachMemberOptions } from './fetchCoachMemberOptions'
+import SearchCombobox, { type SearchComboboxOption } from './SearchCombobox'
 import type { Workout } from '../../coach/types'
 
 interface Assignment {
@@ -21,11 +23,6 @@ interface MemberOption {
   name: string
 }
 
-interface TargetOption {
-  id: number
-  label: string
-}
-
 interface NoteTemplate {
   id: number
   label: string
@@ -38,40 +35,42 @@ interface ExerciseOption {
 }
 
 type AssignableType = 'workout' | 'training_program' | 'challenge' | 'video_submission'
-type TargetType = 'member' | 'class' | 'primary_sport' | 'program' | 'offering' | 'category' | 'scheduling_class'
+type AudienceType = 'member' | 'group'
 type MemberScope = 'my_classes' | 'all'
 type VideoItemMode = 'exercise' | 'custom'
 
-const TARGET_LABELS: Record<TargetType, string> = {
+const TARGET_LABELS: Record<string, string> = {
   member: 'Athlete',
   class: 'Class',
   primary_sport: 'Sport',
   program: 'Program',
   offering: 'Offering',
   category: 'Category',
-  scheduling_class: 'Specific class',
+  scheduling_class: 'Class session',
 }
 
 export default function AssignPanel() {
-  const classes = useCoachClasses()
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [programs, setPrograms] = useState<Array<{ id: number; title: string }>>([])
   const [challenges, setChallenges] = useState<Array<{ id: number; title: string }>>([])
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [members, setMembers] = useState<MemberOption[]>([])
-  const [targetOptions, setTargetOptions] = useState<TargetOption[]>([])
   const [noteTemplates, setNoteTemplates] = useState<NoteTemplate[]>([])
+  const [allExercises, setAllExercises] = useState<ExerciseOption[]>([])
   const [exerciseSearch, setExerciseSearch] = useState('')
-  const [exerciseOptions, setExerciseOptions] = useState<ExerciseOption[]>([])
-  const [targetSearch, setTargetSearch] = useState('')
+  const [exercisesLoading, setExercisesLoading] = useState(false)
+  const [memberSearch, setMemberSearch] = useState('')
+  const [membersLoading, setMembersLoading] = useState(false)
 
   const [assignableType, setAssignableType] = useState<AssignableType>('workout')
   const [assignableId, setAssignableId] = useState('')
   const [videoItemMode, setVideoItemMode] = useState<VideoItemMode>('exercise')
   const [customTitle, setCustomTitle] = useState('')
-  const [targetType, setTargetType] = useState<TargetType>('member')
+  const [audienceType, setAudienceType] = useState<AudienceType>('member')
   const [memberScope, setMemberScope] = useState<MemberScope>('my_classes')
+  const [targetType, setTargetType] = useState('member')
   const [targetId, setTargetId] = useState('')
+  const [targetLabel, setTargetLabel] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [notes, setNotes] = useState('')
   const [selectedTemplateId, setSelectedTemplateId] = useState('')
@@ -97,32 +96,26 @@ export default function AssignPanel() {
   }, [])
 
   const loadMembers = useCallback(async (scope: MemberScope) => {
+    setMembersLoading(true)
     try {
-      setMembers(await coachFetch<MemberOption[]>(`/api/coach/members?scope=${scope}`))
-    } catch {
+      setMembers(await fetchCoachMemberOptions(scope))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load athletes')
       setMembers([])
+    } finally {
+      setMembersLoading(false)
     }
   }, [])
 
-  const loadTargetOptions = useCallback(async (type: TargetType) => {
-    if (type === 'member' || type === 'class') {
-      setTargetOptions([])
-      return
-    }
+  const loadAllExercises = useCallback(async () => {
+    setExercisesLoading(true)
     try {
-      setTargetOptions(await coachFetch<TargetOption[]>(`/api/coach/assign/target-options?type=${type}`))
+      const rows = await coachFetch<ExerciseOption[]>(`/api/coach/exercises`)
+      setAllExercises(rows.map((e) => ({ id: Number(e.id), name: e.name })))
     } catch {
-      setTargetOptions([])
-    }
-  }, [])
-
-  const loadExercises = useCallback(async (q: string) => {
-    try {
-      const params = q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ''
-      const rows = await coachFetch<ExerciseOption[]>(`/api/coach/exercises${params}`)
-      setExerciseOptions(rows.map((e) => ({ id: Number(e.id), name: e.name })))
-    } catch {
-      setExerciseOptions([])
+      setAllExercises([])
+    } finally {
+      setExercisesLoading(false)
     }
   }, [])
 
@@ -148,44 +141,76 @@ export default function AssignPanel() {
   }, [loadLibrary, loadAssignments, loadNoteTemplates])
 
   useEffect(() => {
-    if (targetType === 'member') void loadMembers(memberScope)
-    else if (targetType === 'class') setTargetOptions(classes.map((c) => ({
-      id: c.id,
-      label: c.program_name || c.class_iteration_label || `Class ${c.id}`,
-    })))
-    else void loadTargetOptions(targetType)
-    setTargetId('')
-    setTargetSearch('')
-  }, [targetType, memberScope, classes, loadMembers, loadTargetOptions])
+    if (audienceType === 'member') void loadMembers(memberScope)
+  }, [audienceType, memberScope, loadMembers])
 
   useEffect(() => {
-    if (assignableType !== 'video_submission') return
-    const t = window.setTimeout(() => void loadExercises(exerciseSearch), assignableType === 'video_submission' && !exerciseSearch ? 0 : 250)
-    return () => window.clearTimeout(t)
-  }, [assignableType, exerciseSearch, loadExercises])
+    if (assignableType === 'video_submission' && videoItemMode === 'exercise' && allExercises.length === 0 && !exercisesLoading) {
+      void loadAllExercises()
+    }
+  }, [assignableType, videoItemMode, allExercises.length, exercisesLoading, loadAllExercises])
+
+  const filteredExercises = useMemo(() => {
+    const q = exerciseSearch.trim().toLowerCase()
+    const list = q ? allExercises.filter((e) => e.name.toLowerCase().includes(q)) : allExercises
+    return list.slice(0, 40)
+  }, [allExercises, exerciseSearch])
+
+  const exerciseComboboxOptions = useMemo<SearchComboboxOption[]>(
+    () => filteredExercises.map((e) => ({ key: String(e.id), label: e.name })),
+    [filteredExercises],
+  )
+
+  const filteredMembers = useMemo(() => {
+    const q = memberSearch.trim().toLowerCase()
+    if (!q) return members
+    return members.filter((m) => m.name.toLowerCase().includes(q))
+  }, [members, memberSearch])
+
+  const memberComboboxOptions = useMemo<SearchComboboxOption[]>(
+    () => filteredMembers.map((m) => ({ key: String(m.id), label: m.name })),
+    [filteredMembers],
+  )
 
   const assignableOptions = assignableType === 'workout' ? workouts.map((w) => ({ id: w.id as number, title: w.title }))
     : assignableType === 'training_program' ? programs
     : assignableType === 'challenge' ? challenges
     : []
 
-  const filteredTargetOptions = useMemo(() => {
-    const q = targetSearch.trim().toLowerCase()
-    const base = targetType === 'member'
-      ? members.map((m) => ({ id: m.id, label: m.name }))
-      : targetOptions
-    if (!q) return base
-    return base.filter((o) => o.label.toLowerCase().includes(q))
-  }, [targetType, members, targetOptions, targetSearch])
-
   const resetForm = () => {
     setAssignableId('')
     setCustomTitle('')
     setTargetId('')
+    setTargetLabel('')
+    setTargetType('member')
     setDueDate('')
     setNotes('')
     setSelectedTemplateId('')
     setExerciseSearch('')
+    setMemberSearch('')
+  }
+
+  const selectExercise = (exercise: ExerciseOption) => {
+    setAssignableId(String(exercise.id))
+    setExerciseSearch(exercise.name)
+  }
+
+  const selectMember = (member: MemberOption) => {
+    setTargetType('member')
+    setTargetId(String(member.id))
+    setTargetLabel(member.name)
+    setMemberSearch(member.name)
+  }
+
+  const onGroupTargetChange = (target: AssignGroupTarget | null) => {
+    if (!target) {
+      setTargetId('')
+      setTargetLabel('')
+      return
+    }
+    setTargetType(target.target_type)
+    setTargetId(String(target.target_id))
+    setTargetLabel(target.label)
   }
 
   const saveNoteTemplate = async () => {
@@ -229,7 +254,7 @@ export default function AssignPanel() {
       }
 
       if (!targetId) {
-        setError('Select a target.')
+        setError('Select who to assign to.')
         setSaving(false)
         return
       }
@@ -253,8 +278,8 @@ export default function AssignPanel() {
 
   const formatAssignmentRow = (a: Assignment) => {
     const label = a.assignable_title || a.title || `${a.assignable_type} #${a.assignable_id ?? 'custom'}`
-  const targetLabel = `${TARGET_LABELS[a.target_type as TargetType] || a.target_type} #${a.target_id}`
-    return `${label} → ${targetLabel}`
+    const targetLabel = TARGET_LABELS[a.target_type] || a.target_type
+    return `${label} → ${targetLabel} #${a.target_id}`
   }
 
   return (
@@ -293,39 +318,45 @@ export default function AssignPanel() {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setVideoItemMode('exercise')}
+                  onClick={() => {
+                    setVideoItemMode('exercise')
+                    setCustomTitle('')
+                  }}
                   className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${videoItemMode === 'exercise' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
                 >
                   Library exercise
                 </button>
                 <button
                   type="button"
-                  onClick={() => setVideoItemMode('custom')}
+                  onClick={() => {
+                    setVideoItemMode('custom')
+                    setAssignableId('')
+                    setExerciseSearch('')
+                  }}
                   className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${videoItemMode === 'custom' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
                 >
                   Custom name
                 </button>
               </div>
               {videoItemMode === 'exercise' ? (
-                <>
-                  <input
-                    type="search"
-                    value={exerciseSearch}
-                    onChange={(e) => setExerciseSearch(e.target.value)}
-                    placeholder="Search exercises…"
-                    className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm"
-                  />
-                  <select
-                    value={assignableId}
-                    onChange={(e) => setAssignableId(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-2 py-1.5"
-                  >
-                    <option value="">Select exercise…</option>
-                    {exerciseOptions.map((e) => (
-                      <option key={e.id} value={e.id}>{e.name}</option>
-                    ))}
-                  </select>
-                </>
+                <SearchCombobox
+                  value={exerciseSearch}
+                  onChange={(value) => {
+                    setExerciseSearch(value)
+                    setAssignableId('')
+                  }}
+                  onSelect={(opt) => {
+                    const exercise = allExercises.find((e) => String(e.id) === opt.key)
+                    if (exercise) selectExercise(exercise)
+                  }}
+                  options={exerciseComboboxOptions}
+                  loading={exercisesLoading}
+                  placeholder="Search library exercises…"
+                  emptyMessage="No exercises match your search."
+                  onFocus={() => {
+                    if (allExercises.length === 0) void loadAllExercises()
+                  }}
+                />
               ) : (
                 <input
                   value={customTitle}
@@ -348,55 +379,80 @@ export default function AssignPanel() {
           <label className="text-sm block">
             <span className="block text-xs font-semibold text-gray-500 mb-1">Assign to</span>
             <select
-              value={targetType}
-              onChange={(e) => setTargetType(e.target.value as TargetType)}
+              value={audienceType}
+              onChange={(e) => {
+                const next = e.target.value as AudienceType
+                setAudienceType(next)
+                setTargetId('')
+                setTargetLabel('')
+                setTargetType(next === 'member' ? 'member' : 'primary_sport')
+                setMemberSearch('')
+              }}
               className="w-full border border-gray-300 rounded px-2 py-1.5"
             >
               <option value="member">Individual athlete</option>
-              <option value="class">Class</option>
-              <option value="primary_sport">Sport</option>
-              <option value="program">Program</option>
-              <option value="offering">Offering</option>
-              <option value="category">Category</option>
-              <option value="scheduling_class">Specific class</option>
+              <option value="group">Class</option>
             </select>
           </label>
 
-          {targetType === 'member' && (
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setMemberScope('my_classes')}
-                className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${memberScope === 'my_classes' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
-              >
-                My athletes
-              </button>
-              <button
-                type="button"
-                onClick={() => setMemberScope('all')}
-                className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${memberScope === 'all' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
-              >
-                Any athlete
-              </button>
-            </div>
+          {audienceType === 'member' ? (
+            <>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMemberScope('my_classes')
+                    setTargetId('')
+                    setTargetLabel('')
+                    setMemberSearch('')
+                  }}
+                  className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${memberScope === 'my_classes' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
+                >
+                  My athletes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMemberScope('all')
+                    setTargetId('')
+                    setTargetLabel('')
+                    setMemberSearch('')
+                  }}
+                  className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${memberScope === 'all' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
+                >
+                  Any athlete
+                </button>
+              </div>
+              <label className="text-sm block">
+                <span className="block text-xs font-semibold text-gray-500 mb-1">Athlete</span>
+                <SearchCombobox
+                  value={memberSearch}
+                  onChange={(value) => {
+                    setMemberSearch(value)
+                    setTargetId('')
+                    setTargetLabel('')
+                  }}
+                  onSelect={(opt) => {
+                    const member = members.find((m) => String(m.id) === opt.key)
+                    if (member) selectMember(member)
+                  }}
+                  options={memberComboboxOptions}
+                  loading={membersLoading}
+                  placeholder="Search athletes…"
+                  emptyMessage="No athletes match your search."
+                  loadingMessage="Loading athletes…"
+                />
+              </label>
+            </>
+          ) : (
+            <ClassDrilldownTarget onTargetChange={onGroupTargetChange} />
           )}
 
-          <label className="text-sm block">
-            <span className="block text-xs font-semibold text-gray-500 mb-1">Target</span>
-            <input
-              type="search"
-              value={targetSearch}
-              onChange={(e) => setTargetSearch(e.target.value)}
-              placeholder="Search target…"
-              className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm mb-1"
-            />
-            <select value={targetId} onChange={(e) => setTargetId(e.target.value)} className="w-full border border-gray-300 rounded px-2 py-1.5">
-              <option value="">Select…</option>
-              {filteredTargetOptions.map((o) => (
-                <option key={o.id} value={o.id}>{o.label}</option>
-              ))}
-            </select>
-          </label>
+          {targetLabel && (
+            <p className="text-xs text-gray-600 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
+              Target: <span className="font-semibold">{targetLabel}</span>
+            </p>
+          )}
 
           <label className="text-sm block">
             <span className="block text-xs font-semibold text-gray-500 mb-1">Due date</span>

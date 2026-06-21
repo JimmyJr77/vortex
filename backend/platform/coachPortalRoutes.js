@@ -19,6 +19,7 @@ import { registerCoachingPhaseGHRoutes } from './coachPhaseGHRoutes.js'
 import {
   queryAssignmentTargetMemberIds,
   queryAssignTargetOptions,
+  queryAssignDrilldown,
   planAssignmentMemberMatchSql,
 } from './assignmentTargets.js'
 import {
@@ -1465,6 +1466,22 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   // ==========================================================
   // PLAN ASSIGNMENT & COMPLETION
   // ==========================================================
+  app.get('/api/coach/members', ...can('plans.assign'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const scope = String(req.query.scope || 'my_classes') === 'all' ? 'all' : 'my_classes'
+      const members = await queryCoachMemberPickerList(pool, {
+        coachUserId,
+        facilityId,
+        scope,
+      })
+      ok(res, members)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
   app.get('/api/coach/assignments', ...can('plans.assign'), async (req, res) => {
     try {
       const result = await pool.query(
@@ -1776,6 +1793,20 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         facilityId: req.platformAuth.user.facility_id,
       })
       ok(res, options)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/assign/drilldown', ...can('plans.assign'), async (req, res) => {
+    try {
+      const data = await queryAssignDrilldown(pool, req.platformAuth.user.facility_id, {
+        sportId: num(req.query.sportId),
+        programId: num(req.query.programId),
+        formId: num(req.query.formId),
+        categoryId: num(req.query.categoryId),
+      })
+      ok(res, data)
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -2629,22 +2660,6 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   // ==========================================================
   // MESSAGING (Phase G)
   // ==========================================================
-
-  app.get('/api/coach/members', auth, async (req, res) => {
-    try {
-      const facilityId = req.platformAuth.user.facility_id
-      const coachUserId = Number(req.platformAuth.user.id)
-      const scope = String(req.query.scope || 'my_classes') === 'all' ? 'all' : 'my_classes'
-      const members = await queryCoachMemberPickerList(pool, {
-        coachUserId,
-        facilityId,
-        scope,
-      })
-      ok(res, members)
-    } catch (error) {
-      bad(res, error.message, 500)
-    }
-  })
 
   async function appendThreadMessage(threadId, { senderUserId, senderMemberId, body }) {
     const inserted = await pool.query(

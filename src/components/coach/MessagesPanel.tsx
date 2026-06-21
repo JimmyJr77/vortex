@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Loader2, MessageSquare, Plus } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
+import { fetchCoachMemberOptions } from './fetchCoachMemberOptions'
 
 interface MemberOption {
   id: number
@@ -53,7 +54,7 @@ export default function MessagesPanel() {
   const loadMemberOptions = useCallback(async (scope: MemberPickerScope) => {
     setMembersLoading(true)
     try {
-      setMembers(await coachFetch<MemberOption[]>(`/api/coach/members?scope=${scope}`))
+      setMembers(await fetchCoachMemberOptions(scope))
     } catch {
       setMembers([])
     } finally {
