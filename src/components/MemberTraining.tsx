@@ -219,6 +219,8 @@ export function MemberProgressTab() {
   const [data, setData] = useState<ProgressData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [goals, setGoals] = useState<Array<{ id: number; title: string; description?: string | null; target_date?: string | null }>>([])
+  const [achievements, setAchievements] = useState<Array<{ id: number; kind: string; label: string; description?: string | null; achieved_at: string }>>([])
 
   useEffect(() => {
     coachFetch<ProgressData>('/api/member/training/progress')
@@ -226,15 +228,6 @@ export function MemberProgressTab() {
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load progress'))
       .finally(() => setLoading(false))
   }, [])
-
-  if (loading) return <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading progress...</div>
-
-  const trendData = (data?.results ?? []).map((r) => ({ date: new Date(r.tested_at).toLocaleDateString(), [r.assessment_name]: r.value_numeric }))
-  const skillData = (data?.skills ?? []).map((s) => ({ name: s.skill_label || s.exercise_name || 'Skill', score: s.score ?? 0 }))
-  const prs = data?.prs ?? []
-
-  const [goals, setGoals] = useState<Array<{ id: number; title: string; description?: string | null; target_date?: string | null }>>([])
-  const [achievements, setAchievements] = useState<Array<{ id: number; kind: string; label: string; description?: string | null; achieved_at: string }>>([])
 
   useEffect(() => {
     coachFetch<Array<{ id: number; title: string; description?: string | null; target_date?: string | null }>>('/api/member/training/goals')
@@ -244,6 +237,12 @@ export function MemberProgressTab() {
       .then(setAchievements)
       .catch(() => {})
   }, [])
+
+  if (loading) return <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading progress...</div>
+
+  const trendData = (data?.results ?? []).map((r) => ({ date: new Date(r.tested_at).toLocaleDateString(), [r.assessment_name]: r.value_numeric }))
+  const skillData = (data?.skills ?? []).map((s) => ({ name: s.skill_label || s.exercise_name || 'Skill', score: s.score ?? 0 }))
+  const prs = data?.prs ?? []
 
   return (
     <div className="space-y-4">
