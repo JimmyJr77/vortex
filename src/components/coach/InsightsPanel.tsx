@@ -214,7 +214,7 @@ export default function InsightsPanel() {
           </select>
           <select value={classId} onChange={(e) => setClassId(e.target.value ? Number(e.target.value) : '')} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <option value="">Class analytics...</option>
-            {classes.map((c) => <option key={c.id} value={c.id}>{c.program_name || c.class_iteration_label || `Class ${c.id}`}</option>)}
+            {classes.map((c) => <option key={c.id} value={c.id}>{c.assignment_label || c.class_name || c.program_name || `Class ${c.id}`}</option>)}
           </select>
           <button type="button" onClick={() => void getNudge()} disabled={memberId === ''} className="flex items-center gap-2 bg-black text-white px-3 py-2 rounded-lg text-sm font-semibold disabled:opacity-60">
             <Sparkles className="w-4 h-4 text-vortex-red" /> AI Nudge

@@ -4,9 +4,10 @@ import { coachFetch } from '../../coach/api'
 export interface CoachClass {
   id: number
   program_id?: number | null
-  class_iteration_id?: number | null
+  scheduling_form_id?: number | null
   program_name?: string | null
-  class_iteration_label?: string | null
+  class_name?: string | null
+  assignment_label?: string | null
 }
 
 export interface RosterMember {

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, MessageSquare, Plus } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { fetchCoachMemberOptions } from './fetchCoachMemberOptions'
+import SearchCombobox, { type SearchComboboxOption } from './SearchCombobox'
 
 interface MemberOption {
   id: number
@@ -48,19 +49,42 @@ export default function MessagesPanel() {
   const [sending, setSending] = useState(false)
   const [newOpen, setNewOpen] = useState(false)
   const [newMemberId, setNewMemberId] = useState<number | ''>('')
+  const [newMemberSearch, setNewMemberSearch] = useState('')
   const [newSubject, setNewSubject] = useState('')
   const [newBody, setNewBody] = useState('')
+  const [memberLoadError, setMemberLoadError] = useState<string | null>(null)
 
   const loadMemberOptions = useCallback(async (scope: MemberPickerScope) => {
     setMembersLoading(true)
+    setMemberLoadError(null)
     try {
-      setMembers(await fetchCoachMemberOptions(scope))
-    } catch {
+      const list = await fetchCoachMemberOptions(scope)
+      setMembers(list)
+      if (list.length === 0) {
+        setMemberLoadError(
+          scope === 'my_classes'
+            ? 'No athletes found in your classes. Try “Any athlete” or check class assignments.'
+            : 'No active athletes found at this facility.',
+        )
+      }
+    } catch (err) {
       setMembers([])
+      setMemberLoadError(err instanceof Error ? err.message : 'Failed to load athletes')
     } finally {
       setMembersLoading(false)
     }
   }, [])
+
+  const memberComboboxOptions = useMemo<SearchComboboxOption[]>(
+    () => members.map((m) => ({ key: String(m.id), label: m.name })),
+    [members],
+  )
+
+  const filteredMemberOptions = useMemo(() => {
+    const q = newMemberSearch.trim().toLowerCase()
+    if (!q) return memberComboboxOptions
+    return memberComboboxOptions.filter((m) => m.label.toLowerCase().includes(q))
+  }, [memberComboboxOptions, newMemberSearch])
 
   useEffect(() => {
     void loadMemberOptions(memberScope)
@@ -69,6 +93,7 @@ export default function MessagesPanel() {
   useEffect(() => {
     if (newMemberId !== '' && !members.some((m) => m.id === newMemberId)) {
       setNewMemberId('')
+      setNewMemberSearch('')
     }
   }, [members, newMemberId])
 
@@ -147,6 +172,7 @@ export default function MessagesPanel() {
       setNewSubject('')
       setNewBody('')
       setNewMemberId('')
+      setNewMemberSearch('')
       void loadThreads()
       await openThread(data.thread.id)
     } catch (err) {
@@ -182,14 +208,22 @@ export default function MessagesPanel() {
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => setMemberScope('my_classes')}
+              onClick={() => {
+                setMemberScope('my_classes')
+                setNewMemberId('')
+                setNewMemberSearch('')
+              }}
               className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${memberScope === 'my_classes' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
             >
               My classes
             </button>
             <button
               type="button"
-              onClick={() => setMemberScope('all')}
+              onClick={() => {
+                setMemberScope('all')
+                setNewMemberId('')
+                setNewMemberSearch('')
+              }}
               className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${memberScope === 'all' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
             >
               Any athlete
@@ -200,17 +234,33 @@ export default function MessagesPanel() {
               ? 'Athletes enrolled in programs you teach.'
               : 'All active athletes at your facility.'}
           </p>
-          <select
-            value={newMemberId}
-            onChange={(e) => setNewMemberId(e.target.value ? Number(e.target.value) : '')}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-            disabled={membersLoading}
-          >
-            <option value="">Select athlete…</option>
-            {members.map((m) => (
-              <option key={m.id} value={m.id}>{m.name}</option>
-            ))}
-          </select>
+          {memberLoadError && (
+            <div className="text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+              {memberLoadError}
+            </div>
+          )}
+          <label className="text-sm block">
+            <span className="block text-xs font-semibold text-gray-500 mb-1">Athlete</span>
+            <SearchCombobox
+              value={newMemberSearch}
+              onChange={(value) => {
+                setNewMemberSearch(value)
+                setNewMemberId('')
+              }}
+              onSelect={(opt) => {
+                const member = members.find((m) => String(m.id) === opt.key)
+                if (member) {
+                  setNewMemberId(member.id)
+                  setNewMemberSearch(member.name)
+                }
+              }}
+              options={filteredMemberOptions}
+              loading={membersLoading}
+              placeholder="Search athletes…"
+              emptyMessage="No athletes match your search."
+              loadingMessage="Loading athletes…"
+            />
+          </label>
           <input
             value={newSubject}
             onChange={(e) => setNewSubject(e.target.value)}
@@ -225,7 +275,7 @@ export default function MessagesPanel() {
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
           />
           <div className="flex gap-2">
-            <button type="button" onClick={() => void startThread()} disabled={sending} className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60">
+            <button type="button" onClick={() => void startThread()} disabled={sending || newMemberId === ''} className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60">
               Send
             </button>
             <button type="button" onClick={() => setNewOpen(false)} className="px-4 py-2 rounded-lg text-sm border border-gray-300">

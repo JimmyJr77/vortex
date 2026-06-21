@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Plus, Trash2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
@@ -13,8 +13,9 @@ interface Coach {
     id: number
     programId?: number | null
     programName?: string | null
-    classIterationId?: number | null
-    classIterationLabel?: string | null
+    schedulingFormId?: number | null
+    className?: string | null
+    assignmentLabel?: string | null
   }>
 }
 
@@ -31,13 +32,18 @@ export default function AdminCoaches() {
   const [coaches, setCoaches] = useState<Coach[]>([])
   const [users, setUsers] = useState<Option[]>([])
   const [programs, setPrograms] = useState<Option[]>([])
-  const [iterations, setIterations] = useState<Option[]>([])
+  const [schedulingClasses, setSchedulingClasses] = useState<Option[]>([])
   const [selectedCoachId, setSelectedCoachId] = useState<number | ''>('')
   const [programId, setProgramId] = useState<number | ''>('')
-  const [classIterationId, setClassIterationId] = useState<number | ''>('')
+  const [schedulingFormId, setSchedulingFormId] = useState<number | ''>('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const classesForProgram = useMemo(() => {
+    if (!programId) return schedulingClasses
+    return schedulingClasses.filter((c) => c.program_id === programId)
+  }, [schedulingClasses, programId])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -53,7 +59,7 @@ export default function AdminCoaches() {
       setCoaches(coachesJson.data ?? [])
       setUsers(optionsJson.data?.users ?? [])
       setPrograms(optionsJson.data?.programs ?? [])
-      setIterations(optionsJson.data?.iterations ?? [])
+      setSchedulingClasses(optionsJson.data?.schedulingClasses ?? [])
       setSelectedCoachId((current) => current || optionsJson.data?.users?.[0]?.id || '')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load coach management')
@@ -66,8 +72,14 @@ export default function AdminCoaches() {
     void load()
   }, [load])
 
+  useEffect(() => {
+    if (schedulingFormId !== '' && !classesForProgram.some((c) => c.id === schedulingFormId)) {
+      setSchedulingFormId('')
+    }
+  }, [classesForProgram, schedulingFormId])
+
   const addAssignment = async () => {
-    if (!selectedCoachId || (!programId && !classIterationId)) return
+    if (!selectedCoachId || (!programId && !schedulingFormId)) return
     setSaving(true)
     setError(null)
     try {
@@ -75,7 +87,7 @@ export default function AdminCoaches() {
         method: 'POST',
         body: JSON.stringify({
           programId: programId || null,
-          classIterationId: classIterationId || null,
+          schedulingFormId: schedulingFormId || null,
         }),
       })
       if (!res.ok) {
@@ -83,7 +95,7 @@ export default function AdminCoaches() {
         throw new Error(data.message || 'Failed to assign coach')
       }
       setProgramId('')
-      setClassIterationId('')
+      setSchedulingFormId('')
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to assign coach')
@@ -113,7 +125,9 @@ export default function AdminCoaches() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Coach Management</h2>
-        <p className="text-sm text-gray-600">Assign coach accounts to programs. Rosters include all members enrolled via scheduling (offerings/class times) for that program.</p>
+        <p className="text-sm text-gray-600">
+          Assign coaches to a program or a specific scheduling class. Rosters use enrollments from scheduling signups for that program or class.
+        </p>
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
@@ -125,18 +139,40 @@ export default function AdminCoaches() {
             <option value="">Select coach</option>
             {users.map((user) => <option key={user.id} value={user.id}>{user.full_name || user.email}</option>)}
           </select>
-          <select value={programId} onChange={(e) => setProgramId(Number(e.target.value) || '')} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-            <option value="">Program</option>
+          <select
+            value={programId}
+            onChange={(e) => {
+              const next = Number(e.target.value) || ''
+              setProgramId(next)
+              setSchedulingFormId('')
+            }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">Program (optional)</option>
             {programs.map((program) => <option key={program.id} value={program.id}>{program.display_name}</option>)}
           </select>
-          <select value={classIterationId} onChange={(e) => setClassIterationId(Number(e.target.value) || '')} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-            <option value="">Class iteration</option>
-            {iterations.map((iteration) => <option key={iteration.id} value={iteration.id}>{iteration.label}</option>)}
+          <select
+            value={schedulingFormId}
+            onChange={(e) => {
+              const next = Number(e.target.value) || ''
+              setSchedulingFormId(next)
+              if (next) {
+                const match = schedulingClasses.find((c) => c.id === next)
+                if (match?.program_id) setProgramId(match.program_id)
+              }
+            }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">Class (scheduling)</option>
+            {classesForProgram.map((cls) => <option key={cls.id} value={cls.id}>{cls.label}</option>)}
           </select>
           <button type="button" onClick={() => void addAssignment()} disabled={saving} className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white rounded-lg px-4 py-2 font-semibold disabled:opacity-60">
             <Plus className="w-4 h-4" /> Assign
           </button>
         </div>
+        <p className="text-xs text-gray-500">
+          Pick a program for all classes in that program, or choose a specific class. You can select a class without a program — its program is inferred automatically.
+        </p>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
@@ -156,7 +192,7 @@ export default function AdminCoaches() {
                 <p className="text-sm text-gray-500">No assignments yet.</p>
               ) : coach.assignments.map((assignment) => (
                 <div key={assignment.id} className="flex items-center justify-between gap-3 rounded-lg bg-gray-50 px-3 py-2 text-sm">
-                  <span>{assignment.classIterationLabel || assignment.programName || 'Assignment'}</span>
+                  <span>{assignment.assignmentLabel || assignment.className || assignment.programName || 'Assignment'}</span>
                   <button type="button" onClick={() => void removeAssignment(assignment.id)} className="text-red-600 hover:text-red-700" aria-label="Remove assignment">
                     <Trash2 className="w-4 h-4" />
                   </button>

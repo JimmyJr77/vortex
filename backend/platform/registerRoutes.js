@@ -141,6 +141,20 @@ function requirePermission(pool, jwtSecret, permission) {
   ]
 }
 
+function requireAnyPermission(pool, jwtSecret, permissions) {
+  const auth = authMiddleware(pool, jwtSecret)
+  return [
+    auth,
+    (req, res, next) => {
+      if (permissions.some((permission) => hasPermission(req.platformAuth, permission))) {
+        next()
+        return
+      }
+      return res.status(403).json({ success: false, message: 'Insufficient permissions' })
+    },
+  ]
+}
+
 async function ensureBillingAccount(pool, familyId) {
   const existing = await pool.query(
     `SELECT * FROM family_billing_account WHERE family_id = $1`,
@@ -355,6 +369,10 @@ async function countMasterAdmins(pool) {
 }
 
 async function ensureCoachOperationalTables(pool) {
+  await pool.query(`
+    ALTER TABLE coach_class_assignment
+      ADD COLUMN IF NOT EXISTS scheduling_form_id BIGINT REFERENCES scheduling_form(id) ON DELETE CASCADE
+  `)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS coach_roster_note (
       id BIGSERIAL PRIMARY KEY,
@@ -672,8 +690,13 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
                 'id', cca.id,
                 'programId', cca.program_id,
                 'programName', p.display_name,
-                'classIterationId', cca.class_iteration_id,
-                'classIterationLabel', CASE WHEN ci.id IS NOT NULL THEN p.display_name || ' - Iteration ' || ci.iteration_number::text ELSE NULL END
+                'schedulingFormId', cca.scheduling_form_id,
+                'className', sf.title,
+                'assignmentLabel', CASE
+                  WHEN sf.id IS NOT NULL THEN COALESCE(p.display_name, 'Program') || ' — ' || sf.title
+                  WHEN p.id IS NOT NULL THEN p.display_name
+                  ELSE 'Assignment'
+                END
               )
             ) FILTER (WHERE cca.id IS NOT NULL),
             '[]'
@@ -682,7 +705,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         JOIN coach_profile cp ON cp.user_id = au.id
         LEFT JOIN coach_class_assignment cca ON cca.coach_user_id = au.id
         LEFT JOIN program p ON p.id = cca.program_id
-        LEFT JOIN class_iteration ci ON ci.id = cca.class_iteration_id
+        LEFT JOIN scheduling_form sf ON sf.id = cca.scheduling_form_id AND sf.deleted_at IS NULL
         WHERE au.facility_id = $1
         GROUP BY au.id, cp.bio, cp.is_active
         ORDER BY au.full_name, au.email
@@ -693,7 +716,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   app.get('/api/admin/coaches/options', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
-    const [users, programs, iterations] = await Promise.all([
+    const facilityId = req.platformAuth.user.facility_id
+    const [users, programs, schedulingClasses] = await Promise.all([
       pool.query(
         `
           SELECT DISTINCT au.id, au.full_name, au.email
@@ -704,21 +728,23 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             AND (au.role::text = 'COACH' OR aur.role::text = 'COACH')
           ORDER BY au.full_name, au.email
         `,
-        [req.platformAuth.user.facility_id],
+        [facilityId],
       ),
       pool.query(
         `SELECT id, display_name FROM program WHERE facility_id = $1 AND COALESCE(archived, false) = FALSE ORDER BY display_name`,
-        [req.platformAuth.user.facility_id],
+        [facilityId],
       ),
       pool.query(
         `
-          SELECT ci.id, ci.program_id, p.display_name || ' - Iteration ' || ci.iteration_number::text as label
-          FROM class_iteration ci
-          JOIN program p ON p.id = ci.program_id
+          SELECT sf.id, sf.program_id, sf.title AS label
+          FROM scheduling_form sf
+          JOIN program p ON p.id = sf.program_id
           WHERE p.facility_id = $1
-          ORDER BY p.display_name, ci.iteration_number
+            AND sf.deleted_at IS NULL
+            AND COALESCE(sf.is_active, TRUE) = TRUE
+          ORDER BY p.display_name, sf.title
         `,
-        [req.platformAuth.user.facility_id],
+        [facilityId],
       ),
     ])
     res.json({
@@ -726,7 +752,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       data: {
         users: users.rows,
         programs: programs.rows,
-        iterations: iterations.rows,
+        schedulingClasses: schedulingClasses.rows,
       },
     })
   })
@@ -752,21 +778,41 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.post('/api/admin/coaches/:userId/assignments', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
     const userId = Number(req.params.userId)
-    const programId = req.body?.programId == null ? null : Number(req.body.programId)
-    const classIterationId = req.body?.classIterationId == null ? null : Number(req.body.classIterationId)
-    if (!Number.isFinite(userId) || (!Number.isFinite(programId) && !Number.isFinite(classIterationId))) {
-      return res.status(400).json({ success: false, message: 'Coach and program or class iteration are required.' })
+    const facilityId = req.platformAuth.user.facility_id
+    let programId = req.body?.programId == null ? null : Number(req.body.programId)
+    const schedulingFormId = req.body?.schedulingFormId == null ? null : Number(req.body.schedulingFormId)
+    if (!Number.isFinite(userId) || (!Number.isFinite(programId) && !Number.isFinite(schedulingFormId))) {
+      return res.status(400).json({ success: false, message: 'Coach and a program or class are required.' })
+    }
+    if (Number.isFinite(schedulingFormId)) {
+      const formCheck = await pool.query(
+        `
+          SELECT sf.id, sf.program_id
+          FROM scheduling_form sf
+          JOIN program p ON p.id = sf.program_id
+          WHERE sf.id = $1 AND p.facility_id = $2 AND sf.deleted_at IS NULL
+        `,
+        [schedulingFormId, facilityId],
+      )
+      if (formCheck.rows.length === 0) {
+        return res.status(400).json({ success: false, message: 'Selected class not found.' })
+      }
+      const formProgramId = Number(formCheck.rows[0].program_id)
+      if (Number.isFinite(programId) && programId !== formProgramId) {
+        return res.status(400).json({ success: false, message: 'Selected class does not belong to the chosen program.' })
+      }
+      programId = formProgramId
     }
     await pool.query(`INSERT INTO coach_profile (user_id) VALUES ($1) ON CONFLICT (user_id) DO UPDATE SET is_active = TRUE, updated_at = now()`, [userId])
     await pool.query(`INSERT INTO app_user_role (user_id, role) VALUES ($1, 'COACH'::user_role) ON CONFLICT DO NOTHING`, [userId])
     const created = await pool.query(
       `
-        INSERT INTO coach_class_assignment (coach_user_id, program_id, class_iteration_id)
+        INSERT INTO coach_class_assignment (coach_user_id, program_id, scheduling_form_id)
         VALUES ($1, $2, $3)
         ON CONFLICT DO NOTHING
         RETURNING *
       `,
-      [userId, Number.isFinite(programId) ? programId : null, Number.isFinite(classIterationId) ? classIterationId : null],
+      [userId, Number.isFinite(programId) ? programId : null, Number.isFinite(schedulingFormId) ? schedulingFormId : null],
     )
     res.json({ success: true, data: created.rows[0] ?? null })
   })
@@ -1253,24 +1299,26 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         SELECT
           cca.id,
           cca.program_id,
-          cca.class_iteration_id,
+          cca.scheduling_form_id,
           p.display_name as program_name,
+          sf.title as class_name,
           CASE
-            WHEN ci.id IS NOT NULL THEN 'Iteration ' || ci.iteration_number::text
-            ELSE NULL
-          END as class_iteration_label
+            WHEN sf.id IS NOT NULL THEN COALESCE(p.display_name, 'Program') || ' — ' || sf.title
+            WHEN p.id IS NOT NULL THEN p.display_name
+            ELSE 'Class assignment'
+          END as assignment_label
         FROM coach_class_assignment cca
         LEFT JOIN program p ON p.id = cca.program_id
-        LEFT JOIN class_iteration ci ON ci.id = cca.class_iteration_id
+        LEFT JOIN scheduling_form sf ON sf.id = cca.scheduling_form_id AND sf.deleted_at IS NULL
         WHERE cca.coach_user_id = $1
-        ORDER BY p.display_name, ci.iteration_number
+        ORDER BY p.display_name, sf.title
       `,
       [req.platformAuth.user.id],
     )
     res.json({ success: true, data: result.rows })
   })
 
-  app.get('/api/coach/members', ...requirePermission(pool, jwtSecret, 'plans.assign'), async (req, res) => {
+  app.get('/api/coach/members', ...requireAnyPermission(pool, jwtSecret, ['coach_portal.access', 'plans.assign']), async (req, res) => {
     try {
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
@@ -1315,6 +1363,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
     const roster = await queryCoachRosterMembers(pool, {
       programId: a.program_id,
+      schedulingFormId: a.scheduling_form_id,
       classIterationId: a.class_iteration_id,
       facilityId,
       assignmentId,
@@ -1359,4 +1408,4 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   console.log('✅ Platform access, billing, waiver, and coach routes registered')
 }
 
-export { authMiddleware, requirePermission, hasPermission }
+export { authMiddleware, requirePermission, requireAnyPermission, hasPermission }

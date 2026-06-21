@@ -10,11 +10,48 @@ export async function getCoachClassAssignment(pool, assignmentId, coachUserId) {
   return r.rows[0] ?? null
 }
 
-/** Member IDs enrolled in a coach's program assignment (scheduling + legacy). */
-export async function queryCoachRosterMemberIds(pool, { programId, classIterationId, facilityId }) {
+function rosterSignupFilterSql(programIdx, formIdx, iterIdx) {
+  return `
+    AND (
+      ($${formIdx}::bigint IS NOT NULL AND s.form_id = $${formIdx})
+      OR (
+        $${formIdx}::bigint IS NULL
+        AND $${programIdx}::bigint IS NOT NULL
+        AND sf.program_id = $${programIdx}
+      )
+    )
+  `
+}
+
+function rosterMemberProgramFilterSql(programIdx, iterIdx) {
+  return `
+    AND (
+      ($${iterIdx}::bigint IS NOT NULL AND mp.iteration_id = $${iterIdx})
+      OR (
+        $${iterIdx}::bigint IS NULL
+        AND $${programIdx}::bigint IS NOT NULL
+        AND mp.program_id = $${programIdx}
+      )
+      OR (
+        $${programIdx}::bigint IS NULL
+        AND $${iterIdx}::bigint IS NOT NULL
+        AND mp.iteration_id = $${iterIdx}
+      )
+    )
+  `
+}
+
+/** Member IDs enrolled in a coach's program/class assignment (scheduling + legacy). */
+export async function queryCoachRosterMemberIds(pool, {
+  programId,
+  schedulingFormId,
+  classIterationId,
+  facilityId,
+}) {
   const pid = programId != null ? Number(programId) : null
+  const formId = schedulingFormId != null ? Number(schedulingFormId) : null
   const iterId = classIterationId != null ? Number(classIterationId) : null
-  if (!pid && !iterId) return []
+  if (!pid && !formId && !iterId) return []
 
   const r = await pool.query(
     `
@@ -23,29 +60,25 @@ export async function queryCoachRosterMemberIds(pool, { programId, classIteratio
         FROM scheduling_signup s
         JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
         JOIN member m ON m.id = s.member_id
-        WHERE m.facility_id = $3
+        WHERE m.facility_id = $4
           AND m.is_active = TRUE
           AND s.member_id IS NOT NULL
           AND s.orphaned_at IS NULL
           AND s.status IN ('confirmed', 'waitlisted')
-          AND ($1::bigint IS NOT NULL AND sf.program_id = $1)
+          ${rosterSignupFilterSql(1, 2, 3)}
 
         UNION
 
         SELECT DISTINCT m.id
         FROM member_program mp
         JOIN member m ON m.id = mp.member_id
-        WHERE m.facility_id = $3
+        WHERE m.facility_id = $4
           AND m.is_active = TRUE
-          AND (
-            ($2::bigint IS NOT NULL AND mp.iteration_id = $2)
-            OR ($2::bigint IS NULL AND $1::bigint IS NOT NULL AND mp.program_id = $1)
-            OR ($1::bigint IS NULL AND $2::bigint IS NOT NULL AND mp.iteration_id = $2)
-          )
+          ${rosterMemberProgramFilterSql(1, 3)}
       )
       SELECT id FROM roster_ids
     `,
-    [pid, iterId, facilityId],
+    [pid, formId, iterId, facilityId],
   )
   return r.rows.map((row) => Number(row.id))
 }
@@ -53,12 +86,14 @@ export async function queryCoachRosterMemberIds(pool, { programId, classIteratio
 /** Full roster rows for coach UI (waivers, attendance notes). */
 export async function queryCoachRosterMembers(pool, {
   programId,
+  schedulingFormId,
   classIterationId,
   facilityId,
   assignmentId,
   coachUserId,
 }) {
   const pid = programId != null ? Number(programId) : null
+  const formId = schedulingFormId != null ? Number(schedulingFormId) : null
   const iterId = classIterationId != null ? Number(classIterationId) : null
 
   const r = await pool.query(
@@ -68,25 +103,21 @@ export async function queryCoachRosterMembers(pool, {
         FROM scheduling_signup s
         JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
         JOIN member m ON m.id = s.member_id
-        WHERE m.facility_id = $3
+        WHERE m.facility_id = $4
           AND m.is_active = TRUE
           AND s.member_id IS NOT NULL
           AND s.orphaned_at IS NULL
           AND s.status IN ('confirmed', 'waitlisted')
-          AND ($1::bigint IS NOT NULL AND sf.program_id = $1)
+          ${rosterSignupFilterSql(1, 2, 3)}
 
         UNION
 
         SELECT DISTINCT m.id
         FROM member_program mp
         JOIN member m ON m.id = mp.member_id
-        WHERE m.facility_id = $3
+        WHERE m.facility_id = $4
           AND m.is_active = TRUE
-          AND (
-            ($2::bigint IS NOT NULL AND mp.iteration_id = $2)
-            OR ($2::bigint IS NULL AND $1::bigint IS NOT NULL AND mp.program_id = $1)
-            OR ($1::bigint IS NULL AND $2::bigint IS NOT NULL AND mp.iteration_id = $2)
-          )
+          ${rosterMemberProgramFilterSql(1, 3)}
       )
       SELECT
         m.id,
@@ -117,26 +148,28 @@ export async function queryCoachRosterMembers(pool, {
           AND (wt.active_to IS NULL OR wt.active_to > now())
       ) accepted_waivers ON TRUE
       LEFT JOIN coach_roster_note crn
-        ON crn.assignment_id = $4
+        ON crn.assignment_id = $5
        AND crn.member_id = m.id
-       AND crn.coach_user_id = $5
+       AND crn.coach_user_id = $6
        AND crn.note_date = CURRENT_DATE
       ORDER BY m.last_name, m.first_name
     `,
-    [pid, iterId, facilityId, assignmentId, coachUserId],
+    [pid, formId, iterId, facilityId, assignmentId, coachUserId],
   )
   return r.rows
 }
 
 /** Members for plan_assignment when target_type = 'class' (target_id = coach_class_assignment.id). */
 export async function getMembersForCoachClassTarget(pool, coachClassAssignmentId, facilityId) {
-  const a = await pool.query(`SELECT program_id, class_iteration_id FROM coach_class_assignment WHERE id = $1`, [
-    coachClassAssignmentId,
-  ])
+  const a = await pool.query(
+    `SELECT program_id, scheduling_form_id, class_iteration_id FROM coach_class_assignment WHERE id = $1`,
+    [coachClassAssignmentId],
+  )
   if (a.rows.length === 0) return []
   const row = a.rows[0]
   const ids = await queryCoachRosterMemberIds(pool, {
     programId: row.program_id,
+    schedulingFormId: row.scheduling_form_id,
     classIterationId: row.class_iteration_id,
     facilityId,
   })
@@ -163,15 +196,25 @@ export async function queryCoachUserIdsForMember(pool, memberId, facilityId) {
           WHERE s.member_id = $1
             AND s.orphaned_at IS NULL
             AND s.status IN ('confirmed', 'waitlisted')
-            AND cca.program_id IS NOT NULL
-            AND sf.program_id = cca.program_id
+            AND (
+              (cca.scheduling_form_id IS NOT NULL AND s.form_id = cca.scheduling_form_id)
+              OR (
+                cca.scheduling_form_id IS NULL
+                AND cca.program_id IS NOT NULL
+                AND sf.program_id = cca.program_id
+              )
+            )
         )
         OR EXISTS (
           SELECT 1 FROM member_program mp
           WHERE mp.member_id = $1
             AND (
-              (cca.program_id IS NOT NULL AND mp.program_id = cca.program_id)
-              OR (cca.class_iteration_id IS NOT NULL AND mp.iteration_id = cca.class_iteration_id)
+              (cca.class_iteration_id IS NOT NULL AND mp.iteration_id = cca.class_iteration_id)
+              OR (
+                cca.class_iteration_id IS NULL
+                AND cca.program_id IS NOT NULL
+                AND mp.program_id = cca.program_id
+              )
             )
         )
       )
@@ -184,13 +227,14 @@ export async function queryCoachUserIdsForMember(pool, memberId, facilityId) {
 /** All member IDs across coach's assigned classes (scheduling + legacy). */
 export async function queryCoachAssignedMemberIds(pool, coachUserId, facilityId) {
   const classes = await pool.query(
-    `SELECT program_id, class_iteration_id FROM coach_class_assignment WHERE coach_user_id = $1`,
+    `SELECT program_id, scheduling_form_id, class_iteration_id FROM coach_class_assignment WHERE coach_user_id = $1`,
     [coachUserId],
   )
   const idSet = new Set()
   for (const c of classes.rows) {
     const ids = await queryCoachRosterMemberIds(pool, {
       programId: c.program_id,
+      schedulingFormId: c.scheduling_form_id,
       classIterationId: c.class_iteration_id,
       facilityId,
     })
@@ -220,4 +264,31 @@ export async function queryCoachMemberPickerList(pool, { coachUserId, facilityId
     id: Number(m.id),
     name: `${m.first_name || ''} ${m.last_name || ''}`.trim() || `Member ${m.id}`,
   }))
+}
+
+/** Parent/guardian member IDs when the athlete is under 18. */
+export async function queryMinorChildGuardianMemberIds(pool, childMemberId) {
+  const r = await pool.query(
+    `
+      SELECT DISTINCT guardian_id AS id
+      FROM (
+        SELECT unnest(m.parent_guardian_ids) AS guardian_id
+        FROM member m
+        WHERE m.id = $1
+          AND m.date_of_birth IS NOT NULL
+          AND m.date_of_birth > (CURRENT_DATE - INTERVAL '18 years')
+        UNION
+        SELECT pga.parent_member_id AS guardian_id
+        FROM parent_guardian_authority pga
+        JOIN member child ON child.id = pga.child_member_id
+        WHERE pga.child_member_id = $1
+          AND pga.has_legal_authority = TRUE
+          AND child.date_of_birth IS NOT NULL
+          AND child.date_of_birth > (CURRENT_DATE - INTERVAL '18 years')
+      ) guardians
+      WHERE guardian_id IS NOT NULL
+    `,
+    [childMemberId],
+  )
+  return r.rows.map((row) => Number(row.id)).filter((id) => Number.isFinite(id))
 }

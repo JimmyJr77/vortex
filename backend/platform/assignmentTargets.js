@@ -337,8 +337,14 @@ export function planAssignmentMemberMatchSql(memberIdx, familyIdx) {
             WHERE s.member_id = $${memberIdx}
               AND s.orphaned_at IS NULL
               AND s.status IN ('confirmed', 'waitlisted')
-              AND cca.program_id IS NOT NULL
-              AND sf.program_id = cca.program_id
+              AND (
+                (cca.scheduling_form_id IS NOT NULL AND s.form_id = cca.scheduling_form_id)
+                OR (
+                  cca.scheduling_form_id IS NULL
+                  AND cca.program_id IS NOT NULL
+                  AND sf.program_id = cca.program_id
+                )
+              )
           )
           OR EXISTS (
             SELECT 1 FROM member_program mp

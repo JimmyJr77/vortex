@@ -60,8 +60,13 @@ export default function RosterPanel() {
           <div className="divide-y divide-gray-100">
             {classes.map((c) => (
               <button key={c.id} type="button" onClick={() => setSelectedClassId(c.id)} className={`w-full px-4 py-3 text-left hover:bg-gray-50 ${selectedClassId === c.id ? 'bg-red-50' : ''}`}>
-                <div className="font-semibold text-gray-900">{c.program_name || 'Class'}</div>
-                <div className="text-xs text-gray-500">{c.class_iteration_label || 'Program assignment'}</div>
+                <div className="font-semibold text-gray-900">{c.assignment_label || c.class_name || c.program_name || 'Class'}</div>
+                {c.class_name && c.program_name && (
+                  <div className="text-xs text-gray-500">{c.program_name}</div>
+                )}
+                {!c.class_name && c.program_name && (
+                  <div className="text-xs text-gray-500">All classes in program</div>
+                )}
               </button>
             ))}
             {classes.length === 0 && <div className="p-4 text-sm text-gray-500">No assigned classes yet.</div>}

@@ -11,7 +11,7 @@
 // ============================================================
 
 import crypto from 'crypto'
-import { authMiddleware, requirePermission } from './registerRoutes.js'
+import { authMiddleware, requirePermission, requireAnyPermission } from './registerRoutes.js'
 import { sendEmail, isEmailConfigured } from '../email/sendEmail.js'
 import { llmProgressNarrative } from './aiService.js'
 import { buildProgressReportPdf } from './pdfReport.js'
@@ -27,6 +27,7 @@ import {
   getMembersForCoachClassTarget,
   queryCoachUserIdsForMember,
   queryCoachMemberPickerList,
+  queryMinorChildGuardianMemberIds,
 } from './coachRoster.js'
 
 function ok(res, data) {
@@ -85,6 +86,7 @@ function computeWorkoutMinutes(blocks) {
 export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   const auth = authMiddleware(pool, jwtSecret)
   const can = (permission) => requirePermission(pool, jwtSecret, permission)
+  const canAny = (permissions) => requireAnyPermission(pool, jwtSecret, permissions)
 
   // ==========================================================
   // TAXONOMY
@@ -1466,7 +1468,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   // ==========================================================
   // PLAN ASSIGNMENT & COMPLETION
   // ==========================================================
-  app.get('/api/coach/members', ...can('plans.assign'), async (req, res) => {
+  app.get('/api/coach/members', ...canAny(['coach_portal.access', 'plans.assign']), async (req, res) => {
     try {
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
@@ -2674,6 +2676,12 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     return inserted.rows[0]
   }
 
+  async function memberCanAccessMessageThread(viewerMemberId, threadMemberId) {
+    if (Number(threadMemberId) === Number(viewerMemberId)) return true
+    const guardianIds = await queryMinorChildGuardianMemberIds(pool, threadMemberId)
+    return guardianIds.includes(Number(viewerMemberId))
+  }
+
   async function notifyNewMessage(thread, message, senderIsCoach) {
     const preview = String(message.body || '').slice(0, 160)
     try {
@@ -2686,6 +2694,36 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           body: preview,
           payload: { thread_id: thread.id, message_id: message.id },
         })
+
+        const guardianIds = await queryMinorChildGuardianMemberIds(pool, thread.member_id)
+        if (guardianIds.length > 0) {
+          const athleteRow = await pool.query(
+            `SELECT first_name, last_name FROM public.member WHERE id = $1`,
+            [thread.member_id],
+          )
+          const athleteName = athleteRow.rows[0]
+            ? `${athleteRow.rows[0].first_name || ''} ${athleteRow.rows[0].last_name || ''}`.trim()
+            : 'your athlete'
+          const parentTitle = thread.subject || `Coach message for ${athleteName}`
+          await Promise.all(
+            guardianIds
+              .filter((guardianId) => guardianId !== Number(thread.member_id))
+              .map((guardianId) =>
+                createInAppNotification({
+                  facilityId: thread.facility_id,
+                  recipientMemberId: guardianId,
+                  kind: 'message',
+                  title: parentTitle,
+                  body: preview,
+                  payload: {
+                    thread_id: thread.id,
+                    message_id: message.id,
+                    child_member_id: thread.member_id,
+                  },
+                }),
+              ),
+          )
+        }
       } else if (thread.coach_user_id) {
         await createInAppNotification({
           facilityId: thread.facility_id,
@@ -2721,6 +2759,22 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     )
     return { thread: thread.rows[0], messages: messages.rows }
   }
+
+  app.get('/api/coach/messages/member-options', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const scope = String(req.query.scope || 'my_classes') === 'all' ? 'all' : 'my_classes'
+      const members = await queryCoachMemberPickerList(pool, {
+        coachUserId,
+        facilityId,
+        scope,
+      })
+      ok(res, members)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
 
   app.get('/api/coach/messages', auth, async (req, res) => {
     try {
@@ -2858,14 +2912,33 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const result = await pool.query(
         `
           SELECT t.*,
+            athlete.first_name,
+            athlete.last_name,
             lm.body AS last_message_body,
             lm.created_at AS last_message_created_at
           FROM coaching.message_thread t
+          JOIN public.member athlete ON athlete.id = t.member_id
           LEFT JOIN LATERAL (
             SELECT body, created_at FROM coaching.message
             WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
           ) lm ON TRUE
-          WHERE t.facility_id = $1 AND t.member_id = $2 AND t.status = 'open'
+          WHERE t.facility_id = $1 AND t.status = 'open'
+            AND (
+              t.member_id = $2
+              OR (
+                athlete.date_of_birth IS NOT NULL
+                AND athlete.date_of_birth > (CURRENT_DATE - INTERVAL '18 years')
+                AND (
+                  $2 = ANY(athlete.parent_guardian_ids)
+                  OR EXISTS (
+                    SELECT 1 FROM parent_guardian_authority pga
+                    WHERE pga.child_member_id = athlete.id
+                      AND pga.parent_member_id = $2
+                      AND pga.has_legal_authority = TRUE
+                  )
+                )
+              )
+            )
           ORDER BY t.last_message_at DESC NULLS LAST, t.created_at DESC
         `,
         [facilityId, memberId],
@@ -2883,10 +2956,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const facilityId = ctx.user.facility_id
       const threadId = num(req.params.threadId)
       const threadCheck = await pool.query(
-        `SELECT id FROM coaching.message_thread WHERE id = $1 AND facility_id = $2 AND member_id = $3`,
-        [threadId, facilityId, memberId],
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
       )
       if (threadCheck.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadCheck.rows[0]
+      if (!await memberCanAccessMessageThread(memberId, thread.member_id)) {
+        return bad(res, 'Thread not found.', 404)
+      }
       const data = await loadThreadMessages(threadId, facilityId)
       ok(res, data)
     } catch (error) {
@@ -2941,11 +3018,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const body = String(req.body?.body || '').trim()
       if (!body) return bad(res, 'body is required.')
       const threadRes = await pool.query(
-        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2 AND member_id = $3`,
-        [threadId, facilityId, memberId],
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
       )
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
+      if (!await memberCanAccessMessageThread(memberId, thread.member_id)) {
+        return bad(res, 'Thread not found.', 404)
+      }
       const message = await appendThreadMessage(threadId, { senderMemberId: memberId, body })
       void notifyNewMessage(thread, message, false)
       ok(res, message)
