@@ -16,22 +16,38 @@ interface NotificationBellProps {
   apiPrefix: 'coach' | 'member'
 }
 
+const MAX_LOAD_ATTEMPTS = 4
+
 export default function NotificationBell({ apiPrefix }: NotificationBellProps) {
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<NotificationRow[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const base = `/api/${apiPrefix}/notifications`
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (attempt = 0) => {
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current)
+      retryTimerRef.current = null
+    }
     setLoading(true)
     try {
       const data = await coachFetch<{ notifications: NotificationRow[]; unreadCount: number }>(base)
       setNotifications(data.notifications)
       setUnreadCount(data.unreadCount)
-    } catch {
-      /* best-effort */
+    } catch (err) {
+      const message = err instanceof Error ? err.message : ''
+      const shouldRetry =
+        attempt < MAX_LOAD_ATTEMPTS
+        && /502|503|504|failed to fetch|network/i.test(message)
+      if (shouldRetry) {
+        retryTimerRef.current = setTimeout(() => {
+          void load(attempt + 1)
+        }, 1500 * (attempt + 1))
+        return
+      }
     } finally {
       setLoading(false)
     }
@@ -39,6 +55,9 @@ export default function NotificationBell({ apiPrefix }: NotificationBellProps) {
 
   useEffect(() => {
     void load()
+    return () => {
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
+    }
   }, [load])
 
   useEffect(() => {

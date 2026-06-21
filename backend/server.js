@@ -32,6 +32,7 @@ import { initPlatformTables } from './platform/initTables.js'
 import { registerPlatformRoutes } from './platform/registerRoutes.js'
 import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
 import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
+import { ensureCoachingNotificationSchema } from './platform/coachingSchemaEnsure.js'
 import { generateTemporaryPassword, sendTemporaryPasswordEmail } from './scheduling/tempPasswordEmail.js'
 import { logWarn, reportError } from './observability/logger.js'
 
@@ -14017,6 +14018,11 @@ const startServer = async () => {
       await ensureCoachClassAssignmentSchema(pool)
     } catch (coachSchemaError) {
       console.error(`[Server ${workerId}] Coach assignment schema init failed:`, coachSchemaError)
+    }
+    try {
+      await ensureCoachingNotificationSchema(pool)
+    } catch (notificationSchemaError) {
+      console.error(`[Server ${workerId}] Coaching notification schema init failed:`, notificationSchemaError)
     }
     console.log(`[Server ${workerId}] Database initialization complete`)
     

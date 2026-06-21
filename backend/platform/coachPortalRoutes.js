@@ -29,6 +29,7 @@ import {
   queryCoachMemberPickerList,
   queryMinorChildGuardianMemberIds,
 } from './coachRoster.js'
+import { ensureCoachingNotificationSchema } from './coachingSchemaEnsure.js'
 
 function ok(res, data) {
   res.json({ success: true, data })
@@ -2534,6 +2535,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/coach/notifications', auth, async (req, res) => {
     try {
+      await ensureCoachingNotificationSchema(pool)
       const userId = Number(req.platformAuth.user.id)
       const facilityId = req.platformAuth.user.facility_id
       const unreadOnly = req.query.unreadOnly === 'true'
@@ -2596,6 +2598,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/member/notifications', auth, async (req, res) => {
     try {
+      await ensureCoachingNotificationSchema(pool)
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
       const facilityId = ctx.user.facility_id
