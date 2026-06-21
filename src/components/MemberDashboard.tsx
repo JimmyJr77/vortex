@@ -3,10 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { LogOut, Home, Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getApiUrl } from '../utils/api'
-import MemberFormSection from './MemberFormSection'
-import EnrollmentForm from './EnrollmentForm'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
-import { formatSkillLevel } from '../utils/classDisplayUtils'
+import ClassesOfferedList from './classes/ClassesOfferedList'
+import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
 import EventAttachedSignup from './EventAttachedSignup'
 import { MemberTrainingTab, MemberProgressTab } from './MemberTraining'
 
@@ -50,6 +49,7 @@ interface UnifiedMember {
   familyIsActive?: boolean
   familyId?: number | null
   familyName?: string | null
+  relationshipLabel?: string | null
   username?: string | null
   roles: Array<{ id: string; role: string }> | string[]
   enrollments: Array<{
@@ -63,30 +63,6 @@ interface UnifiedMember {
   updatedAt?: string
 }
 
-
-interface Category {
-  id: number
-  name: string
-  displayName: string
-  description?: string | null
-  archived: boolean
-}
-
-interface Program {
-  id: number
-  categoryId?: number | null
-  categoryName?: string | null
-  categoryDisplayName?: string | null
-  name: string
-  displayName: string
-  skillLevel: string | null
-  ageMin: number | null
-  ageMax: number | null
-  description: string | null
-  skillRequirements: string | null
-  isActive: boolean
-  archived?: boolean
-}
 
 interface Event {
   id: string | number
@@ -229,26 +205,16 @@ export default function MemberDashboard({
   }
   
   const [editingFamilyMembers, setEditingFamilyMembers] = useState<FamilyMemberData[]>([])
-  const [expandedFamilyMemberId, setExpandedFamilyMemberId] = useState<string | null>(null)
+  const [, setExpandedFamilyMemberId] = useState<string | null>(null)
   const [editingMemberId, setEditingMemberId] = useState<number | null>(null)
-  const [availableParentGuardians, setAvailableParentGuardians] = useState<Array<{
-    id: number
-    firstName: string
-    lastName: string
-    email?: string
-    phone?: string
-  }>>([])
   
   // Classes tab state
   const [enrollments, setEnrollments] = useState<any[]>([])
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false)
-  const [classes, setClasses] = useState<Program[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [classesLoading, setClassesLoading] = useState(false)
-  const [classSearchQuery, setClassSearchQuery] = useState('')
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<number | 'all'>('all')
-  const [showEnrollModal, setShowEnrollModal] = useState(false)
-  const [selectedClassForEnrollment, setSelectedClassForEnrollment] = useState<Program | null>(null)
+  const [enrollmentView, setEnrollmentView] = useState<'class' | 'member'>('class')
+  const [classesOffered, setClassesOffered] = useState<PublicProgramOffered[]>([])
+  const [classesOfferedLoading, setClassesOfferedLoading] = useState(false)
+  const [classesOfferedError, setClassesOfferedError] = useState<string | null>(null)
   
   // Events tab state
   const [events, setEvents] = useState<Event[]>([])
@@ -375,17 +341,6 @@ export default function MemberDashboard({
     return parts.join(', ') || ''
   }
 
-  const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '')
-    const limited = digits.slice(0, 10)
-    if (limited.length <= 3) {
-      return limited
-    } else if (limited.length <= 6) {
-      return `${limited.slice(0, 3)}-${limited.slice(3)}`
-    } else {
-      return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`
-    }
-  }
 
   const cleanPhoneNumber = (phone: string): string => {
     return phone.replace(/\D/g, '')
@@ -533,377 +488,21 @@ export default function MemberDashboard({
     }))
   }, [])
   
-  // Wrapper for toggling member expand/collapse
-  const handleToggleMemberExpand = useCallback((memberId: string) => {
-    setExpandedFamilyMemberId(prev => prev === memberId ? null : memberId)
-  }, [])
-  
-  const handleSectionContinue = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
-    setEditingFamilyMembers(prev => prev.map(member => {
-      if (member.id === memberId) {
-        if (section === 'contactInfo') {
-          const sectionData = member.sections.contactInfo
-          return {
-            ...member,
-            firstName: sectionData.tempData.firstName,
-            lastName: sectionData.tempData.lastName,
-            email: sectionData.tempData.email,
-            phone: sectionData.tempData.phone,
-            addressStreet: sectionData.tempData.addressStreet,
-            addressCity: sectionData.tempData.addressCity,
-            addressState: sectionData.tempData.addressState,
-            addressZip: sectionData.tempData.addressZip,
-            sections: {
-              ...member.sections,
-              contactInfo: { ...sectionData, isExpanded: false },
-              loginSecurity: { ...member.sections.loginSecurity, isExpanded: true },
-              personalData: member.sections.personalData || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory } },
-              parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians: member.parentGuardians || (member.parentGuardianIds ? member.parentGuardianIds.map(id => ({ id, relationship: '' })) : []) } },
-              waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } },
-              previousClasses: member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
-            }
-          }
-        } else if (section === 'loginSecurity') {
-          const sectionData = member.sections.loginSecurity
-          return {
-            ...member,
-            username: sectionData.tempData.username,
-            password: sectionData.tempData.password,
-            sections: {
-              ...member.sections,
-              loginSecurity: { ...sectionData, isExpanded: false },
-              personalData: { ...(member.sections.personalData || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory } }), isExpanded: true }
-            }
-          }
-        } else if (section === 'personalData') {
-          const personalData = member.sections.personalData?.tempData || { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory }
-          const updatedMember = {
-            ...member,
-            dateOfBirth: personalData.dateOfBirth,
-            gender: personalData.gender,
-            medicalConcerns: personalData.medicalConcerns,
-            injuryHistoryDate: personalData.injuryHistoryDate,
-            injuryHistoryBodyPart: personalData.injuryHistoryBodyPart,
-            injuryHistoryNotes: personalData.injuryHistoryNotes,
-            noInjuryHistory: personalData.noInjuryHistory,
-            sections: {
-              ...member.sections,
-              personalData: { ...(member.sections.personalData || { isExpanded: false, tempData: personalData }), isExpanded: false },
-              parentGuardians: member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians: member.parentGuardians || (member.parentGuardianIds ? member.parentGuardianIds.map(id => ({ id, relationship: '' })) : []) } },
-              waivers: member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } },
-              previousClasses: member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
-            }
-          }
-          
-          // Check if child - if so, expand parent/guardian section next, otherwise expand waivers
-          if (personalData.dateOfBirth) {
-            // Use dateUtils for consistent date handling
-            const birthDateObj = parseDateOnly(personalData.dateOfBirth)
-            if (birthDateObj) {
-              const today = new Date()
-              const age = today.getFullYear() - birthDateObj.getFullYear() - 
-                (today.getMonth() < birthDateObj.getMonth() || 
-                 (today.getMonth() === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate()) ? 1 : 0)
-              
-              if (age < 18) {
-                updatedMember.sections.parentGuardians = { ...updatedMember.sections.parentGuardians, isExpanded: true }
-              } else {
-                updatedMember.sections.waivers = { ...updatedMember.sections.waivers, isExpanded: true }
-              }
-            } else {
-              updatedMember.sections.waivers = { ...updatedMember.sections.waivers, isExpanded: true }
-            }
-          } else {
-            updatedMember.sections.waivers = { ...updatedMember.sections.waivers, isExpanded: true }
-          }
-          
-          return updatedMember
-        } else if (section === 'parentGuardians') {
-          let parentGuardians = member.sections.parentGuardians?.tempData?.parentGuardians || []
-          if (parentGuardians.length === 0 && member.parentGuardianIds) {
-            parentGuardians = member.parentGuardianIds.map((id: number) => ({ id, relationship: '' }))
-          }
-          return {
-            ...member,
-            parentGuardians,
-            parentGuardianIds: parentGuardians.map(pg => pg.id),
-            sections: {
-              ...member.sections,
-              parentGuardians: { ...(member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians: [] } }), isExpanded: false, tempData: { parentGuardians } },
-              waivers: { ...(member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }), isExpanded: true }
-            }
-          }
-        } else if (section === 'waivers') {
-          const waiverData = member.sections.waivers?.tempData || { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null }
-          return {
-            ...member,
-            hasCompletedWaivers: waiverData.hasCompletedWaivers,
-            waiverCompletionDate: waiverData.waiverCompletionDate,
-            sections: {
-              ...member.sections,
-              waivers: { ...(member.sections.waivers || { isExpanded: false, tempData: waiverData }), isExpanded: false },
-              statusVerification: { ...member.sections.statusVerification, isExpanded: true }
-            }
-          }
-        } else if (section === 'statusVerification') {
-          return {
-            ...member,
-            sections: {
-              ...member.sections,
-              statusVerification: { isExpanded: false },
-              previousClasses: { ...(member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }), isExpanded: true }
-            }
-          }
-        } else if (section === 'previousClasses') {
-          const experience = member.sections.previousClasses?.tempData?.experience || member.experience
-          return {
-            ...member,
-            experience,
-            sections: {
-              ...member.sections,
-              previousClasses: { ...(member.sections.previousClasses || { isExpanded: false, tempData: { experience } }), isExpanded: false }
-            }
-          }
-        } else {
-          return member
-        }
-      }
-      return member
-    }))
-  }
-  
-  const handleSectionMinimize = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
-    setEditingFamilyMembers(prev => prev.map(member => {
-      if (member.id === memberId) {
-        if (section === 'contactInfo') {
-          const sectionData = member.sections.contactInfo
-          return {
-            ...member,
-            firstName: sectionData.tempData.firstName,
-            lastName: sectionData.tempData.lastName,
-            email: sectionData.tempData.email,
-            phone: sectionData.tempData.phone,
-            addressStreet: sectionData.tempData.addressStreet,
-            addressCity: sectionData.tempData.addressCity,
-            addressState: sectionData.tempData.addressState,
-            addressZip: sectionData.tempData.addressZip,
-            sections: {
-              ...member.sections,
-              contactInfo: { ...sectionData, isExpanded: false }
-            }
-          }
-        } else if (section === 'loginSecurity') {
-          const sectionData = member.sections.loginSecurity
-          return {
-            ...member,
-            username: sectionData.tempData.username,
-            password: sectionData.tempData.password,
-            sections: {
-              ...member.sections,
-              loginSecurity: { ...sectionData, isExpanded: false }
-            }
-          }
-        } else {
-          return {
-            ...member,
-            sections: {
-              ...member.sections,
-              statusVerification: { isExpanded: false }
-            }
-          }
-        }
-      }
-      return member
-    }))
-  }
-  
-  const handleSectionCancel = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
-    setEditingFamilyMembers(prev => prev.map(member => {
-      if (member.id === memberId) {
-        if (section === 'contactInfo') {
-          return {
-            ...member,
-            sections: {
-              ...member.sections,
-              contactInfo: {
-                isExpanded: false,
-                tempData: {
-                  firstName: member.firstName,
-                  lastName: member.lastName,
-                  email: member.email,
-                  phone: member.phone,
-                  addressStreet: member.addressStreet,
-                  addressCity: member.addressCity,
-                  addressState: member.addressState,
-                  addressZip: member.addressZip
-                }
-              }
-            }
-          }
-        } else if (section === 'loginSecurity') {
-          return {
-            ...member,
-            sections: {
-              ...member.sections,
-              loginSecurity: {
-                isExpanded: false,
-                tempData: {
-                  username: member.username,
-                  password: member.password
-                }
-              }
-            }
-          }
-        } else {
-          return {
-            ...member,
-            sections: {
-              ...member.sections,
-              statusVerification: {
-                isExpanded: false
-              }
-            }
-          }
-        }
-      }
-      return member
-    }))
-  }
-  
-  const handleToggleSection = (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => {
-    setEditingFamilyMembers(prev => prev.map(member => {
-      if (member.id === memberId) {
-        if (section === 'contactInfo') {
-          const sectionData = member.sections.contactInfo
-          if (!sectionData.isExpanded) {
-            return {
-              ...member,
-              sections: {
-                ...member.sections,
-                contactInfo: {
-                  isExpanded: true,
-                  tempData: {
-                    firstName: member.firstName,
-                    lastName: member.lastName,
-                    email: member.email,
-                    phone: member.phone,
-                    addressStreet: member.addressStreet,
-                    addressCity: member.addressCity,
-                    addressState: member.addressState,
-                    addressZip: member.addressZip
-                  }
-                }
-              }
-            }
-          } else {
-            return {
-              ...member,
-              sections: {
-                ...member.sections,
-                contactInfo: { ...sectionData, isExpanded: false }
-              }
-            }
-          }
-        } else if (section === 'loginSecurity') {
-          const sectionData = member.sections.loginSecurity
-          if (!sectionData.isExpanded) {
-            return {
-              ...member,
-              sections: {
-                ...member.sections,
-                loginSecurity: {
-                  isExpanded: true,
-                  tempData: {
-                    username: member.username,
-                    password: member.password
-                  }
-                }
-              }
-            }
-          } else {
-            return {
-              ...member,
-              sections: {
-                ...member.sections,
-                loginSecurity: { ...sectionData, isExpanded: false }
-              }
-            }
-          }
-        } else if (section === 'personalData') {
-          const sectionData = member.sections.personalData || { isExpanded: false, tempData: { dateOfBirth: member.dateOfBirth, gender: member.gender, medicalConcerns: member.medicalConcerns, injuryHistoryDate: member.injuryHistoryDate, injuryHistoryBodyPart: member.injuryHistoryBodyPart, injuryHistoryNotes: member.injuryHistoryNotes, noInjuryHistory: member.noInjuryHistory } }
-          return {
-            ...member,
-            sections: {
-              ...member.sections,
-              personalData: { ...sectionData, isExpanded: !sectionData.isExpanded }
-            }
-          }
-        } else if (section === 'parentGuardians') {
-          let parentGuardians = member.sections.parentGuardians?.tempData?.parentGuardians || []
-          if (parentGuardians.length === 0 && member.parentGuardianIds) {
-            parentGuardians = member.parentGuardianIds.map((id: number) => ({ id, relationship: '' }))
-          }
-          const sectionData = member.sections.parentGuardians || { isExpanded: false, tempData: { parentGuardians } }
-          return {
-            ...member,
-            sections: {
-              ...member.sections,
-              parentGuardians: { ...sectionData, isExpanded: !sectionData.isExpanded }
-            }
-          }
-        } else if (section === 'waivers') {
-          const sectionData = member.sections.waivers || { isExpanded: false, tempData: { hasCompletedWaivers: member.hasCompletedWaivers || false, waiverCompletionDate: member.waiverCompletionDate || null } }
-          return {
-            ...member,
-            sections: {
-              ...member.sections,
-              waivers: { ...sectionData, isExpanded: !sectionData.isExpanded }
-            }
-          }
-        } else if (section === 'previousClasses') {
-          const sectionData = member.sections.previousClasses || { isExpanded: false, tempData: { experience: member.experience } }
-          return {
-            ...member,
-            sections: {
-              ...member.sections,
-              previousClasses: { ...sectionData, isExpanded: !sectionData.isExpanded }
-            }
-          }
-        } else {
-          const sectionData = member.sections.statusVerification
-          return {
-            ...member,
-            sections: {
-              ...member.sections,
-              statusVerification: { ...sectionData, isExpanded: !sectionData.isExpanded }
-            }
-          }
-        }
-      }
-      return member
-    }))
-  }
-  
-  const handleFinishedWithMember = (memberId: string) => {
-    setEditingFamilyMembers(prev => {
-      const updated = prev.map(member => {
-        if (member.id === memberId) {
-          return { ...member, isFinished: true }
-        }
-        return member
-      })
-      if (expandedFamilyMemberId === memberId) {
-        const firstUnfinished = updated.find(m => !m.isFinished)
-        if (firstUnfinished) {
-          setExpandedFamilyMemberId(firstUnfinished.id)
-        } else {
-          setExpandedFamilyMemberId(null)
-        }
-      }
-      return updated
-    })
-  }
 
+  // Light edit-form field updater (writes into contactInfo.tempData consumed by handleSaveMemberEdit)
+  const updateEditContact = useCallback((memberId: string, field: string, value: string) => {
+    handleUpdateMember(memberId, (prev) => ({
+      ...prev,
+      sections: {
+        ...prev.sections,
+        contactInfo: {
+          ...prev.sections.contactInfo,
+          tempData: { ...prev.sections.contactInfo.tempData, [field]: value },
+        },
+      },
+    }))
+  }, [handleUpdateMember])
+  
   // Handle save member edit - adapted for member endpoints
   const handleSaveMemberEdit = async () => {
     if (editingFamilyMembers.length === 0) {
@@ -991,15 +590,6 @@ export default function MemberDashboard({
     }
   }
 
-  // Generate username (simplified - not used in member portal)
-  const generateUsername = async (_firstName: string, _lastName: string = ''): Promise<string> => {
-    return ''
-  }
-
-  // Search parent guardians (simplified - not used in member portal)
-  const searchParentGuardians = useCallback(async (_query: string) => {
-    setAvailableParentGuardians([])
-  }, [])
 
   useEffect(() => {
     fetchProfileData()
@@ -1008,8 +598,7 @@ export default function MemberDashboard({
   useEffect(() => {
     if (activeTab === 'classes') {
       fetchEnrollments()
-      fetchClasses()
-      fetchCategories()
+      loadClassesOffered()
     } else if (activeTab === 'events') {
       fetchEvents()
       fetchEnrollments() // Need enrollments for filtering
@@ -1082,6 +671,7 @@ export default function MemberDashboard({
         familyIsActive: member.familyIsActive || member.family_is_active,
         familyId: member.familyId || member.family_id,
         familyName: member.familyName || member.family_name,
+        relationshipLabel: member.relationshipLabel || member.relationship_label || null,
         username: member.username,
         roles: member.roles || [],
         enrollments: member.enrollments || [],
@@ -1125,6 +715,7 @@ export default function MemberDashboard({
             familyIsActive: fm.familyIsActive || fm.family_is_active,
             familyId: fm.familyId || fm.family_id,
             familyName: fm.familyName || fm.family_name,
+            relationshipLabel: fm.relationshipLabel || fm.relationship_label || null,
             username: fm.username,
             roles: fm.roles || [],
             enrollments: fm.enrollments || [],
@@ -1386,113 +977,19 @@ export default function MemberDashboard({
     }
   }
 
-  const fetchClasses = async () => {
+  const loadClassesOffered = async () => {
     try {
-      setClassesLoading(true)
-      const response = await fetch(`${apiUrl}/api/members/programs`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        const programs = data.programs || data.data || []
-        setClasses(programs.filter((p: Program) => !p.archived && p.isActive))
-      } else {
-        console.error('Failed to fetch classes:', response.status, response.statusText)
-        setClasses([])
-      }
+      setClassesOfferedLoading(true)
+      setClassesOfferedError(null)
+      const data = await fetchClassesOffered()
+      setClassesOffered(data.programs)
     } catch (error) {
-      console.error('Error fetching classes:', error)
-      setClasses([])
+      setClassesOffered([])
+      setClassesOfferedError(error instanceof Error ? error.message : 'Failed to load classes')
     } finally {
-      setClassesLoading(false)
+      setClassesOfferedLoading(false)
     }
   }
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch(`${apiUrl}/api/members/categories`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        const categories = data.categories || data.data || []
-        setCategories(categories.filter((c: Category) => !c.archived))
-      } else {
-        console.error('Failed to fetch categories:', response.status, response.statusText)
-        setCategories([])
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-      setCategories([])
-    }
-  }
-
-  // Filter classes based on search and category/class selection
-  const filteredClasses = classes.filter((program: Program) => {
-    // Category/Class filter - handle both category ID and program ID
-    if (selectedCategoryFilter !== 'all') {
-      // Check if selectedCategoryFilter is a program ID (if it matches a program ID, show only that program)
-      const matchingProgram = classes.find(p => p.id === selectedCategoryFilter)
-      if (matchingProgram) {
-        // Filter to show only this specific program
-        return program.id === selectedCategoryFilter
-      }
-      
-      // Otherwise, treat it as a category ID
-      if (program.categoryId != null) {
-        if (program.categoryId !== selectedCategoryFilter && String(program.categoryId) !== String(selectedCategoryFilter)) {
-          // Also check categoryDisplayName as fallback
-          const selectedCategory = categories.find(c => c.id === selectedCategoryFilter)
-          if (selectedCategory) {
-            if (program.categoryDisplayName !== selectedCategory.displayName) {
-              return false
-            }
-          } else {
-            return false
-          }
-        }
-      } else {
-        // If categoryId is null, try to match by categoryDisplayName
-        const selectedCategory = categories.find(c => c.id === selectedCategoryFilter)
-        if (selectedCategory && program.categoryDisplayName !== selectedCategory.displayName) {
-          return false
-        } else if (!selectedCategory) {
-          return false
-        }
-      }
-    }
-    
-    // Search filter - search through all class details
-    if (classSearchQuery.trim()) {
-      const query = classSearchQuery.toLowerCase()
-      const programCategory = categories.find(c => 
-        c.id === program.categoryId || 
-        c.displayName === program.categoryDisplayName ||
-        c.name === program.categoryName
-      )
-      const searchableText = [
-        program.displayName,
-        program.name,
-        program.description || '',
-        program.skillRequirements || '',
-        program.categoryDisplayName || '',
-        program.categoryName || '',
-        programCategory?.displayName || '',
-        programCategory?.name || '',
-        program.skillLevel || ''
-      ].join(' ').toLowerCase()
-      
-      return searchableText.includes(query)
-    }
-    
-    return true
-  })
 
   // Helper function to check if an event should be shown based on tags and family member enrollments
   const isEventRelevant = (event: Event): boolean => {
@@ -2027,82 +1524,97 @@ export default function MemberDashboard({
                   ) : error ? (
                     <div className="text-center py-12 text-red-600">{error}</div>
                   ) : members.length === 0 ? (
-                    <div className="text-center py-12 text-gray-600">No members found</div>
+                    <div className="py-12 text-center text-gray-500 border border-dashed border-gray-300 rounded-xl">No family members found</div>
                   ) : (
-                    <div className="space-y-4">
-                      {members.map((member) => {
-                        const hasEnrollments = member.enrollments && member.enrollments.length > 0
-                        const enrollmentStatus = hasEnrollments ? 'Athlete' : 'Non-Participant'
-                        const rolesList = Array.isArray(member.roles)
-                          ? member.roles.map(r => typeof r === 'string' ? r : r.role).join(', ')
-                          : 'No roles'
-                        
-                        return (
-                          <div 
-                            key={member.id}
-                            className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-                          >
-                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <div className="text-black font-semibold text-lg">
+                    <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
+                      <table className="w-full text-sm border-collapse min-w-[820px]">
+                        <thead>
+                          <tr className="border-b border-gray-200 text-left text-gray-600 bg-gray-50">
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Member</th>
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Contact</th>
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Age</th>
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Relationship</th>
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Enrolled In</th>
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Status</th>
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap w-0 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {members.map((member) => {
+                            const isCurrent = member.id === profileData?.id
+                            const rolesArr = Array.isArray(member.roles)
+                              ? member.roles.map((r) => (typeof r === 'string' ? r : r.role))
+                              : []
+                            const isGuardian = rolesArr.includes('PARENT_GUARDIAN')
+                            const hasEnrollments = !!(member.enrollments && member.enrollments.length > 0)
+                            const relationship = member.relationshipLabel || (isGuardian ? 'Guardian' : hasEnrollments ? 'Athlete' : 'Member')
+                            return (
+                              <tr key={member.id} className="border-b border-gray-100 hover:bg-gray-50/80">
+                                <td className="py-3 px-4 align-middle">
+                                  <div className="font-semibold text-gray-900 flex items-center gap-2">
                                     {member.firstName} {member.lastName}
+                                    {isCurrent && (
+                                      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">You</span>
+                                    )}
                                   </div>
-                                  <span className="px-2 py-1 rounded text-xs font-semibold bg-green-600 text-white">
-                                    Active
-                                  </span>
-                                  {hasEnrollments && (
-                                    <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-600 text-white">
-                                      {enrollmentStatus}
-                                    </span>
+                                  {member.username && (
+                                    <div className="text-xs text-gray-500 mt-0.5">@{member.username}</div>
                                   )}
-                                </div>
-                                {member.email && (
-                                  <div className="text-gray-600 text-sm mt-1">{member.email}</div>
-                                )}
-                                {member.phone && (
-                                  <div className="text-gray-600 text-sm">{member.phone}</div>
-                                )}
-                                {member.age !== null && member.age !== undefined && (
-                                  <div className="text-gray-600 text-sm">Age: {member.age}</div>
-                                )}
-                                <div className="text-gray-500 text-xs mt-1">
-                                  Roles: {rolesList} • Status: {member.status}
-                                  {member.familyName && ` • Family: ${member.familyName}`}
-                                  {member.familyId && ` (ID: ${member.familyId})`}
-                                </div>
-                                {hasEnrollments && (
-                                  <div className="text-gray-500 text-xs mt-1">
-                                    Enrolled in: {member.enrollments.map(e => e.program_display_name).join(', ')}
+                                </td>
+                                <td className="py-3 px-4 align-middle text-gray-700">
+                                  {member.email ? <div>{member.email}</div> : <span className="text-gray-400">—</span>}
+                                  {member.phone && <div className="text-xs text-gray-500">{member.phone}</div>}
+                                </td>
+                                <td className="py-3 px-4 align-middle text-gray-700">
+                                  {member.age ?? '—'}
+                                </td>
+                                <td className="py-3 px-4 align-middle">
+                                  <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${isGuardian ? 'bg-vortex-red/10 text-vortex-red' : 'bg-gray-100 text-gray-700'}`}>
+                                    {relationship}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4 align-middle text-gray-700 max-w-[220px]">
+                                  {hasEnrollments ? (
+                                    <span className="text-xs">{member.enrollments.map((e) => e.program_display_name).join(', ')}</span>
+                                  ) : (
+                                    <span className="text-gray-400">—</span>
+                                  )}
+                                </td>
+                                <td className="py-3 px-4 align-middle">
+                                  <div className="flex flex-wrap gap-1">
+                                    <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700">Active</span>
+                                    {hasEnrollments && (
+                                      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">Athlete</span>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                              <div className="flex gap-2">
-                                <motion.button
-                                  onClick={() => handleViewMember(member)}
-                                  className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-blue-600 text-white hover:bg-blue-700"
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                >
-                                  <Eye className="w-4 h-4" />
-                                  <span>View</span>
-                                </motion.button>
-                                {(isAdult() || member.id === profileData?.id) && (
-                                  <motion.button
-                                    onClick={() => handleEditMember(member)}
-                                    className="flex items-center space-x-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors bg-green-600 text-white hover:bg-green-700"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                  >
-                                    <Edit2 className="w-4 h-4" />
-                                    <span>Edit</span>
-                                  </motion.button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
+                                </td>
+                                <td className="py-3 px-4 align-middle">
+                                  <div className="flex items-center justify-end gap-0.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleViewMember(member)}
+                                      title="View member"
+                                      className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                    </button>
+                                    {(isAdult() || member.id === profileData?.id) && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleEditMember(member)}
+                                        title="Edit member"
+                                        className="p-2 rounded-lg text-emerald-700 hover:bg-emerald-50"
+                                      >
+                                        <Edit2 className="w-4 h-4" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>
@@ -2119,25 +1631,47 @@ export default function MemberDashboard({
                   {billingLoading ? (
                     <div className="text-center py-8 text-gray-600">Loading payment history...</div>
                   ) : billingPayments.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">No payments recorded yet.</div>
+                    <div className="py-8 text-center text-gray-500 border border-dashed border-gray-300 rounded-xl">No payments recorded yet.</div>
                   ) : (
-                    <div className="divide-y divide-gray-100">
-                      {billingPayments.map((payment) => (
-                        <div key={payment.id} className="py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                          <div>
-                            <div className="font-semibold text-gray-900">
-                              {payment.method || 'Payment'}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {new Date(payment.paidAt).toLocaleDateString()}
-                              {payment.note ? ` · ${payment.note}` : ''}
-                              {payment.externalReference ? ` · Ref ${payment.externalReference}` : ''}
-                              {payment.externalStatus ? ` · ${payment.externalStatus}` : ''}
-                            </div>
-                          </div>
-                          <div className="text-lg font-bold text-gray-900">{formatMoney(payment.amountCents)}</div>
-                        </div>
-                      ))}
+                    <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
+                      <table className="w-full text-sm border-collapse min-w-[640px]">
+                        <thead>
+                          <tr className="border-b border-gray-200 text-left text-gray-600 bg-gray-50">
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Date</th>
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Method</th>
+                            <th className="py-3 px-4 font-semibold">Reference / Note</th>
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Status</th>
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap text-right">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {billingPayments.map((payment) => (
+                            <tr key={payment.id} className="border-b border-gray-100 hover:bg-gray-50/80">
+                              <td className="py-3 px-4 align-middle whitespace-nowrap text-gray-700">
+                                {new Date(payment.paidAt).toLocaleDateString()}
+                              </td>
+                              <td className="py-3 px-4 align-middle text-gray-900 font-medium">
+                                {payment.method || 'Payment'}
+                              </td>
+                              <td className="py-3 px-4 align-middle text-gray-600">
+                                {payment.externalReference && <span>Ref {payment.externalReference}</span>}
+                                {payment.note && <span>{payment.externalReference ? ' · ' : ''}{payment.note}</span>}
+                                {!payment.externalReference && !payment.note && <span className="text-gray-400">—</span>}
+                              </td>
+                              <td className="py-3 px-4 align-middle">
+                                {payment.externalStatus ? (
+                                  <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">{payment.externalStatus}</span>
+                                ) : (
+                                  <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700">Reconciled</span>
+                                )}
+                              </td>
+                              <td className="py-3 px-4 align-middle text-right font-bold text-gray-900 whitespace-nowrap">
+                                {formatMoney(payment.amountCents)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>
@@ -2155,15 +1689,35 @@ export default function MemberDashboard({
               >
                 {/* Current Enrollments */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
-                    Current Enrollments
-                  </h2>
-                  
+                  <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
+                      Current Enrollments
+                    </h2>
+                    {enrollments.length > 0 && (
+                      <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => setEnrollmentView('class')}
+                          className={`px-4 py-2 text-sm font-semibold transition-colors ${enrollmentView === 'class' ? 'bg-vortex-red text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                        >
+                          By Class
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEnrollmentView('member')}
+                          className={`px-4 py-2 text-sm font-semibold transition-colors ${enrollmentView === 'member' ? 'bg-vortex-red text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                        >
+                          By Family Member
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   {enrollmentsLoading ? (
                     <div className="text-center py-12 text-gray-600">Loading enrollments...</div>
                   ) : enrollments.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">No enrollments yet. Browse classes below to enroll.</div>
-                  ) : (
+                    <div className="text-center py-8 text-gray-500">No enrollments yet. Sign up for a class from the offerings below.</div>
+                  ) : enrollmentView === 'class' ? (
                   (() => {
                     // Group enrollments by program_id
                     const enrollmentsByProgram = enrollments.reduce((acc, enrollment) => {
@@ -2275,144 +1829,112 @@ export default function MemberDashboard({
                       </div>
                     )
                   })()
+                ) : (
+                  (() => {
+                    // Group enrollments by member
+                    const enrollmentsByMember = enrollments.reduce((acc, enrollment) => {
+                      const memberId = enrollment.member_id
+                      if (!acc[memberId]) {
+                        acc[memberId] = []
+                      }
+                      acc[memberId].push(enrollment)
+                      return acc
+                    }, {} as Record<number, typeof enrollments>)
+
+                    const memberIds = Object.keys(enrollmentsByMember).map(Number).sort((a, b) => {
+                      // Current user first
+                      if (a === profileData?.id) return -1
+                      if (b === profileData?.id) return 1
+                      const aFirst = enrollmentsByMember[a][0]
+                      const bFirst = enrollmentsByMember[b][0]
+                      const aName = `${aFirst?.member_first_name || ''} ${aFirst?.member_last_name || ''}`.trim()
+                      const bName = `${bFirst?.member_first_name || ''} ${bFirst?.member_last_name || ''}`.trim()
+                      return aName.localeCompare(bName)
+                    })
+
+                    return (
+                      <div className="space-y-6">
+                        {memberIds.map((memberId) => {
+                          const memberEnrollments = enrollmentsByMember[memberId]
+                          const firstEnrollment = memberEnrollments[0]
+                          const isCurrentUser = memberId === profileData?.id
+                          const memberName = (firstEnrollment.member_first_name && firstEnrollment.member_last_name)
+                            ? `${firstEnrollment.member_first_name} ${firstEnrollment.member_last_name}`
+                            : (isCurrentUser ? 'You' : 'Member')
+
+                          return (
+                            <div key={memberId} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                              {/* Red top section with member name */}
+                              <div className="bg-vortex-red p-4 md:p-6">
+                                <h3 className="text-2xl font-display font-bold text-white">
+                                  {memberName}{isCurrentUser && ' (You)'}
+                                </h3>
+                              </div>
+                              {/* White bottom section with this member's classes */}
+                              <div className="p-4 md:p-6">
+                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                  <h4 className="text-lg font-display font-semibold text-black mb-4">
+                                    Enrolled Classes ({memberEnrollments.length})
+                                  </h4>
+                                  <div className="space-y-2">
+                                    {memberEnrollments.map((enrollment: any) => {
+                                      const programDisplayName = enrollment.program_display_name || enrollment.program_name || 'Unknown Class'
+                                      const selectedDaysArray = Array.isArray(enrollment.selected_days)
+                                        ? enrollment.selected_days
+                                        : (typeof enrollment.selected_days === 'string'
+                                            ? JSON.parse(enrollment.selected_days || '[]')
+                                            : [])
+
+                                      return (
+                                        <div key={enrollment.id} className="bg-white rounded-lg p-3 border border-gray-200">
+                                          <h5 className="font-semibold text-black mb-1">
+                                            {programDisplayName}
+                                          </h5>
+                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
+                                            <div>
+                                              <span className="font-medium">Days Per Week:</span> {enrollment.days_per_week || 'N/A'}
+                                            </div>
+                                            {selectedDaysArray.length > 0 && (
+                                              <div>
+                                                <span className="font-medium">Selected Days:</span> {selectedDaysArray.join(', ')}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )
+                  })()
                 )}
                 </div>
 
-                {/* Search and Filter Section */}
+                {/* Classes Offered */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
-                    Browse Classes
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-2">
+                    Classes <span className="text-vortex-red">Offered</span>
                   </h2>
-                  <div className="space-y-4">
-                    {/* Search Bar */}
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Search classes by name, description, requirements, category..."
-                        value={classSearchQuery}
-                        onChange={(e) => setClassSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent"
-                      />
-                    </div>
-                    
-                    {/* Filter Dropdown */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Category or Class</label>
-                      <select
-                        value={selectedCategoryFilter === 'all' ? 'all' : String(selectedCategoryFilter)}
-                        onChange={(e) => {
-                          const value = e.target.value
-                          setSelectedCategoryFilter(value === 'all' ? 'all' : parseInt(value, 10))
-                        }}
-                        className="w-full px-3 py-2 bg-white text-black rounded border border-gray-300"
-                      >
-                        <option value="all">All Categories</option>
-                        {categories.map(cat => (
-                          <option key={`cat_${cat.id}`} value={String(cat.id)}>{cat.displayName}</option>
-                        ))}
-                        <option disabled className="border-t border-gray-300 my-1">──────────────</option>
-                        {(() => {
-                          // Group programs by category
-                          const groupedByCategory = classes.reduce((acc, program) => {
-                            let categoryName = 'Uncategorized'
-                            if (program.categoryDisplayName) {
-                              categoryName = program.categoryDisplayName
-                            } else if (program.categoryName) {
-                              categoryName = program.categoryName
-                            }
-                            if (!acc[categoryName]) {
-                              acc[categoryName] = []
-                            }
-                            acc[categoryName].push(program)
-                            return acc
-                          }, {} as Record<string, Program[]>)
-                          
-                          const sortedCategories = Object.keys(groupedByCategory).sort()
-                          
-                          return sortedCategories.map(categoryName => {
-                            const categoryPrograms = groupedByCategory[categoryName].sort((a, b) => {
-                              return a.displayName.localeCompare(b.displayName)
-                            })
-                            return (
-                              <optgroup key={categoryName} label={categoryName}>
-                                {categoryPrograms.map(program => (
-                                  <option key={program.id} value={String(program.id)}>
-                                    {program.displayName}
-                                  </option>
-                                ))}
-                              </optgroup>
-                            )
-                          })
-                        })()}
-                      </select>
-                    </div>
-                  </div>
-                </div>
+                  <p className="text-gray-600 mb-6">
+                    Browse the classes offered at your facility and sign up. Availability is managed through your facility's classes and schedule.
+                  </p>
 
-                {/* Filtered Classes List */}
-                <div className="space-y-6">
-                  {classesLoading ? (
-                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                      <div className="text-center py-12 text-gray-600">Loading classes...</div>
-                    </div>
-                  ) : filteredClasses.length === 0 ? (
-                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                      <div className="text-center py-12 text-gray-500">
-                        {classSearchQuery || selectedCategoryFilter !== 'all' 
-                          ? 'No classes found matching your search criteria'
-                          : 'No classes available at this time'}
-                      </div>
-                    </div>
-                  ) : (
-                    filteredClasses.map((program) => {
-                      return (
-                        <div key={program.id} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                          {/* Red top section with white text (title) */}
-                          <div className="bg-vortex-red p-4 md:p-6">
-                            <h3 className="text-2xl font-display font-bold text-white">
-                              {program.displayName}
-                            </h3>
-                          </div>
-                          {/* White bottom section with black text (description/details) */}
-                          <div className="p-4 md:p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-black mb-4">
-                              {program.description && (
-                                <div className="md:col-span-2">
-                                  <span className="font-medium">Description:</span> {program.description}
-                                </div>
-                              )}
-                              {program.skillLevel && (
-                                <div>
-                                  <span className="font-medium">Skill Level:</span> {formatSkillLevel(program.skillLevel)}
-                                </div>
-                              )}
-                              {(program.ageMin !== null || program.ageMax !== null) && (
-                                <div>
-                                  <span className="font-medium">Age Range:</span>{' '}
-                                  {program.ageMin !== null ? program.ageMin : 'Any'} - {program.ageMax !== null ? program.ageMax : 'Any'}
-                                </div>
-                              )}
-                              {program.skillRequirements && (
-                                <div className="md:col-span-2">
-                                  <span className="font-medium">Requirements:</span> {program.skillRequirements}
-                                </div>
-                              )}
-                            </div>
-                            <button
-                              onClick={() => {
-                                setSelectedClassForEnrollment(program)
-                                setShowEnrollModal(true)
-                              }}
-                              className="flex items-center gap-2 px-4 py-2 bg-vortex-red hover:bg-red-700 rounded text-white text-sm font-medium transition-colors"
-                            >
-                              <UserPlus className="w-4 h-4" />
-                              Enroll
-                            </button>
-                          </div>
-                        </div>
-                      )
-                    })
+                  {classesOfferedLoading && (
+                    <div className="text-center py-12 text-gray-600">Loading classes…</div>
+                  )}
+                  {classesOfferedError && (
+                    <div className="text-center py-8 text-red-600">{classesOfferedError}</div>
+                  )}
+                  {!classesOfferedLoading && !classesOfferedError && classesOffered.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">No classes are listed at this time.</div>
+                  )}
+                  {!classesOfferedLoading && !classesOfferedError && classesOffered.length > 0 && (
+                    <ClassesOfferedList programs={classesOffered} animate={false} className="space-y-8" />
                   )}
                 </div>
               </motion.div>
@@ -2854,24 +2376,24 @@ export default function MemberDashboard({
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           >
+          <motion.div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => {
+              setShowViewModal(false)
+              setViewingMember(null)
+              setViewingMemberFamilyData(null)
+            }}
+          />
             <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => {
-                setShowViewModal(false)
-                setViewingMember(null)
-                setViewingMemberFamilyData(null)
-              }}
-            />
-            <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-6xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
-              initial={{ scale: 0.9, opacity: 0 }}
+              className="relative bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">
-                  View Member: {viewingMember.firstName} {viewingMember.lastName}
+              <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900">
+                  {viewingMember.firstName} {viewingMember.lastName}
                 </h3>
                 <button
                   onClick={() => {
@@ -2879,53 +2401,53 @@ export default function MemberDashboard({
                     setViewingMember(null)
                     setViewingMemberFamilyData(null)
                   }}
-                  className="text-gray-400 hover:text-white"
+                  className="p-2 hover:bg-gray-100 rounded-full text-gray-500"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
                 {/* Family Information */}
                 {viewingMember.familyId && (
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="text-lg font-semibold text-white mb-3">Family Information</h4>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Family Information</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <span className="text-sm font-semibold text-gray-300">Family Name:</span>
-                        <div className="text-white">{viewingMember.familyName || 'N/A'}</div>
+                        <span className="text-xs font-semibold text-gray-500">Family Name:</span>
+                        <div className="text-gray-900">{viewingMember.familyName || 'N/A'}</div>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {/* Member Basic Information */}
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="text-lg font-semibold text-white mb-3">Basic Information</h4>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Basic Information</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">First Name:</span>
-                      <div className="text-white">{viewingMember.firstName}</div>
+                      <span className="text-xs font-semibold text-gray-500">First Name:</span>
+                      <div className="text-gray-900">{viewingMember.firstName}</div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Last Name:</span>
-                      <div className="text-white">{viewingMember.lastName}</div>
+                      <span className="text-xs font-semibold text-gray-500">Last Name:</span>
+                      <div className="text-gray-900">{viewingMember.lastName}</div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Email:</span>
-                      <div className="text-white">{viewingMember.email || 'N/A'}</div>
+                      <span className="text-xs font-semibold text-gray-500">Email:</span>
+                      <div className="text-gray-900">{viewingMember.email || 'N/A'}</div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Phone:</span>
-                      <div className="text-white">{viewingMember.phone || 'N/A'}</div>
+                      <span className="text-xs font-semibold text-gray-500">Phone:</span>
+                      <div className="text-gray-900">{viewingMember.phone || 'N/A'}</div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Username:</span>
-                      <div className="text-white">{viewingMember.username || 'N/A'}</div>
+                      <span className="text-xs font-semibold text-gray-500">Username:</span>
+                      <div className="text-gray-900">{viewingMember.username || 'N/A'}</div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
-                      <div className="text-white">
+                      <span className="text-xs font-semibold text-gray-500">Date of Birth:</span>
+                      <div className="text-gray-900">
                         {viewingMember.dateOfBirth 
                           ? formatDateForDisplay(viewingMember.dateOfBirth)
                           : 'N/A'}
@@ -2933,56 +2455,56 @@ export default function MemberDashboard({
                     </div>
                     {viewingMember.age !== null && viewingMember.age !== undefined && (
                       <div>
-                        <span className="text-sm font-semibold text-gray-300">Age:</span>
-                        <div className="text-white">{viewingMember.age}</div>
+                        <span className="text-xs font-semibold text-gray-500">Age:</span>
+                        <div className="text-gray-900">{viewingMember.age}</div>
                       </div>
                     )}
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Address:</span>
-                      <div className="text-white">{viewingMember.address || 'N/A'}</div>
+                      <span className="text-xs font-semibold text-gray-500">Address:</span>
+                      <div className="text-gray-900">{viewingMember.address || 'N/A'}</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Status and Roles */}
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="text-lg font-semibold text-white mb-3">Status and Roles</h4>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Status and Roles</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Status:</span>
+                      <span className="text-xs font-semibold text-gray-500">Status:</span>
                       <div className="mt-1">
                         <span className={`px-2 py-1 rounded text-xs font-semibold ${
                           viewingMember.isActive 
-                            ? 'bg-green-600 text-white' 
-                            : 'bg-gray-500 text-white'
+                            ? 'bg-green-50 text-green-700' 
+                            : 'bg-gray-100 text-gray-600'
                         }`}>
                           {viewingMember.isActive ? 'Active' : 'Archived'}
                         </span>
                       </div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Enrollment Status:</span>
+                      <span className="text-xs font-semibold text-gray-500">Enrollment Status:</span>
                       <div className="mt-1">
                         <span className={`px-2 py-1 rounded text-xs font-semibold ${
                           viewingMember.status === 'athlete' || viewingMember.status === 'enrolled'
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-gray-500 text-white'
+                            ? 'bg-blue-50 text-blue-700' 
+                            : 'bg-gray-100 text-gray-600'
                         }`}>
                           {viewingMember.status || 'Non-Participant'}
                         </span>
                       </div>
                     </div>
                     <div className="md:col-span-2">
-                      <span className="text-sm font-semibold text-gray-300">Roles:</span>
+                      <span className="text-xs font-semibold text-gray-500">Roles:</span>
                       <div className="mt-1 flex flex-wrap gap-2">
                         {viewingMember.roles && viewingMember.roles.length > 0 ? (
                           viewingMember.roles.map((role, idx) => (
-                            <span key={idx} className="px-2 py-1 rounded text-xs font-semibold bg-purple-600 text-white">
+                            <span key={idx} className="px-2 py-1 rounded text-xs font-semibold bg-purple-50 text-purple-700">
                               {typeof role === 'string' ? role : role.role}
                             </span>
                           ))
                         ) : (
-                          <span className="text-gray-400 text-sm">No roles assigned</span>
+                          <span className="text-gray-500 text-sm">No roles assigned</span>
                         )}
                       </div>
                     </div>
@@ -2990,8 +2512,8 @@ export default function MemberDashboard({
                 </div>
 
                 {/* Enrollments */}
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="text-lg font-semibold text-white mb-3">Active Enrollments</h4>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Active Enrollments</h4>
                   {viewingMember.enrollments && viewingMember.enrollments.length > 0 ? (
                     <div className="space-y-2">
                       {viewingMember.enrollments.map((enrollment: any) => {
@@ -3002,16 +2524,16 @@ export default function MemberDashboard({
                               : [])
                         const enrollmentDate = enrollment.createdAt || enrollment.created_at
                         return (
-                          <div key={enrollment.id} className="bg-gray-600 p-3 rounded">
-                            <div className="text-white font-medium">
+                          <div key={enrollment.id} className="bg-white border border-gray-200 rounded-lg p-3">
+                            <div className="text-gray-900 font-medium">
                               {enrollment.program_display_name || enrollment.programDisplayName || 'Unknown Class'}
                             </div>
-                            <div className="text-gray-400 text-sm mt-1">
+                            <div className="text-gray-500 text-sm mt-1">
                               {enrollment.days_per_week || enrollment.daysPerWeek} day{(enrollment.days_per_week || enrollment.daysPerWeek) !== 1 ? 's' : ''}/week
                               {selectedDaysArray.length > 0 && ` • ${selectedDaysArray.join(', ')}`}
                             </div>
                             {enrollmentDate && (
-                              <div className="text-gray-400 text-xs mt-1">
+                              <div className="text-gray-500 text-xs mt-1">
                                 Enrolled: {formatTimeSince(enrollmentDate)}
                               </div>
                             )}
@@ -3020,10 +2542,10 @@ export default function MemberDashboard({
                       })}
                     </div>
                   ) : (
-                    <div className="text-gray-400 text-sm">No active enrollments</div>
+                    <div className="text-gray-500 text-sm">No active enrollments</div>
                   )}
                   {viewingMember.enrollments && viewingMember.enrollments.length > 0 && (
-                    <div className="mt-3 text-sm text-gray-300">
+                    <div className="mt-3 text-sm text-gray-600">
                       <span className="font-semibold">Last Enrollment:</span> {formatTimeSince(
                         getMostRecentEnrollmentDate(viewingMember.enrollments.map((e: any) => ({ 
                           created_at: e.created_at, 
@@ -3036,8 +2558,8 @@ export default function MemberDashboard({
 
                 {/* Family Members */}
                 {viewingMemberFamilyData && viewingMemberFamilyData.members && viewingMemberFamilyData.members.length > 0 && (
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="text-lg font-semibold text-white mb-3">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
                       Family Members ({viewingMemberFamilyData.members.length})
                     </h4>
                     <div className="space-y-3">
@@ -3046,49 +2568,49 @@ export default function MemberDashboard({
                         return (
                           <div 
                             key={familyMember.id} 
-                            className={`bg-gray-600 p-4 rounded ${isCurrentMember ? 'ring-2 ring-blue-500' : ''}`}
+                            className={`bg-white border rounded-lg p-4 ${isCurrentMember ? 'border-blue-300 ring-1 ring-blue-200' : 'border-gray-200'}`}
                           >
                             {isCurrentMember && (
-                              <div className="text-xs text-blue-400 font-semibold mb-2">(Current Member)</div>
+                              <div className="text-xs text-blue-700 font-semibold mb-2">(Current Member)</div>
                             )}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               <div>
-                                <span className="text-sm font-semibold text-gray-300">Name:</span>
-                                <div className="text-white">{familyMember.firstName} {familyMember.lastName}</div>
+                                <span className="text-xs font-semibold text-gray-500">Name:</span>
+                                <div className="text-gray-900">{familyMember.firstName} {familyMember.lastName}</div>
                               </div>
                               {familyMember.email && (
                                 <div>
-                                  <span className="text-sm font-semibold text-gray-300">Email:</span>
-                                  <div className="text-white">{familyMember.email}</div>
+                                  <span className="text-xs font-semibold text-gray-500">Email:</span>
+                                  <div className="text-gray-900">{familyMember.email}</div>
                                 </div>
                               )}
                               {familyMember.phone && (
                                 <div>
-                                  <span className="text-sm font-semibold text-gray-300">Phone:</span>
-                                  <div className="text-white">{familyMember.phone}</div>
+                                  <span className="text-xs font-semibold text-gray-500">Phone:</span>
+                                  <div className="text-gray-900">{familyMember.phone}</div>
                                 </div>
                               )}
                               {familyMember.dateOfBirth && (
                                 <div>
-                                  <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
-                                  <div className="text-white">
+                                  <span className="text-xs font-semibold text-gray-500">Date of Birth:</span>
+                                  <div className="text-gray-900">
                                     {formatDateForDisplay(familyMember.dateOfBirth)}
                                   </div>
                                 </div>
                               )}
                               {familyMember.age !== null && familyMember.age !== undefined && (
                                 <div>
-                                  <span className="text-sm font-semibold text-gray-300">Age:</span>
-                                  <div className="text-white">{familyMember.age}</div>
+                                  <span className="text-xs font-semibold text-gray-500">Age:</span>
+                                  <div className="text-gray-900">{familyMember.age}</div>
                                 </div>
                               )}
                               <div>
-                                <span className="text-sm font-semibold text-gray-300">Status:</span>
+                                <span className="text-xs font-semibold text-gray-500">Status:</span>
                                 <div className="mt-1">
                                   <span className={`px-2 py-1 rounded text-xs font-semibold ${
                                     familyMember.isActive 
-                                      ? 'bg-green-600 text-white' 
-                                      : 'bg-gray-500 text-white'
+                                      ? 'bg-green-50 text-green-700' 
+                                      : 'bg-gray-100 text-gray-600'
                                   }`}>
                                     {familyMember.isActive ? 'Active' : 'Archived'}
                                   </span>
@@ -3104,32 +2626,32 @@ export default function MemberDashboard({
 
                 {/* Additional Information */}
                 {(viewingMember.medicalNotes || viewingMember.internalFlags) && (
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="text-lg font-semibold text-white mb-3">Additional Information</h4>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Additional Information</h4>
                     {viewingMember.medicalNotes && (
                       <div className="mb-3">
-                        <span className="text-sm font-semibold text-gray-300">Medical Notes:</span>
-                        <div className="text-white mt-1">{viewingMember.medicalNotes}</div>
+                        <span className="text-xs font-semibold text-gray-500">Medical Notes:</span>
+                        <div className="text-gray-900 mt-1">{viewingMember.medicalNotes}</div>
                       </div>
                     )}
                     {viewingMember.internalFlags && (
                       <div>
-                        <span className="text-sm font-semibold text-gray-300">Internal Flags:</span>
-                        <div className="text-white mt-1">{viewingMember.internalFlags}</div>
+                        <span className="text-xs font-semibold text-gray-500">Internal Flags:</span>
+                        <div className="text-gray-900 mt-1">{viewingMember.internalFlags}</div>
                       </div>
                     )}
                   </div>
                 )}
               </div>
 
-              <div className="flex gap-3 mt-6">
+              <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 bg-gray-50">
                 <button
                   onClick={() => {
                     setShowViewModal(false)
                     setViewingMember(null)
                     setViewingMemberFamilyData(null)
                   }}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg font-semibold"
                 >
                   Close
                 </button>
@@ -3139,8 +2661,9 @@ export default function MemberDashboard({
                       setShowViewModal(false)
                       handleEditMember(viewingMember)
                     }}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-vortex-red text-white rounded-lg font-semibold hover:bg-red-700"
                   >
+                    <Edit2 className="w-4 h-4" />
                     Edit Member
                   </button>
                 )}
@@ -3157,10 +2680,10 @@ export default function MemberDashboard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
           >
             <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="absolute inset-0"
               onClick={() => {
                 setShowEditModal(false)
                 setEditingMemberId(null)
@@ -3169,15 +2692,15 @@ export default function MemberDashboard({
               }}
             />
             <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
-              initial={{ scale: 0.9, opacity: 0 }}
+              className="relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">
-                  Edit Member
+              <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900">
+                  Edit {editingFamilyMembers[0].firstName || 'Member'}
                 </h3>
                 <button
                   onClick={() => {
@@ -3186,42 +2709,110 @@ export default function MemberDashboard({
                     setEditingFamilyMembers([])
                     setExpandedFamilyMemberId(null)
                   }}
-                  className="text-gray-400 hover:text-white"
+                  className="p-2 hover:bg-gray-100 rounded-full text-gray-500"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-6">
-                {editingFamilyMembers.map((member, memberIndex) => (
-                  <MemberFormSection
-                    key={member.id}
-                    member={member}
-                    memberIndex={memberIndex}
-                    isExpanded={expandedFamilyMemberId === member.id}
-                    onToggleExpand={handleToggleMemberExpand}
-                    onUpdateMember={handleUpdateMember}
-                    onToggleSection={handleToggleSection}
-                    onSectionContinue={handleSectionContinue}
-                    onSectionMinimize={handleSectionMinimize}
-                    onSectionCancel={handleSectionCancel}
-                    onFinishedWithMember={handleFinishedWithMember}
-                    generateUsername={generateUsername}
-                    formatPhoneNumber={formatPhoneNumber}
-                    availableParentGuardians={availableParentGuardians}
-                    onSearchParentGuardians={searchParentGuardians}
-                    allFamilyMembers={editingFamilyMembers}
-                  />
-                ))}
-              </div>
+              {(() => {
+                const member = editingFamilyMembers[0]
+                const contact = member.sections.contactInfo.tempData
+                const isCurrentMember = editingMemberId === profileData?.id
+                const field = (key: string, fallback?: string | null) =>
+                  (contact as Record<string, string | undefined>)[key] ?? fallback ?? ''
+                return (
+                  <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">First name</label>
+                        <input
+                          type="text"
+                          value={field('firstName', member.firstName)}
+                          onChange={(e) => updateEditContact(member.id, 'firstName', e.target.value)}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Last name</label>
+                        <input
+                          type="text"
+                          value={field('lastName', member.lastName)}
+                          onChange={(e) => updateEditContact(member.id, 'lastName', e.target.value)}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input
+                          type="email"
+                          value={field('email', member.email)}
+                          onChange={(e) => updateEditContact(member.id, 'email', e.target.value)}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                        <input
+                          type="tel"
+                          value={field('phone', member.phone)}
+                          onChange={(e) => updateEditContact(member.id, 'phone', e.target.value)}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                        />
+                      </div>
+                    </div>
 
-              <div className="flex gap-2 mt-6">
-                <button
-                  onClick={handleSaveMemberEdit}
-                  className="flex-1 bg-vortex-red hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                >
-                  Save Changes
-                </button>
+                    {isCurrentMember && (
+                      <div className="border-t border-gray-100 pt-4 space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Street address</label>
+                          <input
+                            type="text"
+                            value={field('addressStreet', member.addressStreet)}
+                            onChange={(e) => updateEditContact(member.id, 'addressStreet', e.target.value)}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="sm:col-span-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                            <input
+                              type="text"
+                              value={field('addressCity', member.addressCity)}
+                              onChange={(e) => updateEditContact(member.id, 'addressCity', e.target.value)}
+                              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                            <input
+                              type="text"
+                              value={field('addressState', member.addressState)}
+                              onChange={(e) => updateEditContact(member.id, 'addressState', e.target.value)}
+                              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">ZIP</label>
+                            <input
+                              type="text"
+                              value={field('addressZip', member.addressZip)}
+                              onChange={(e) => updateEditContact(member.id, 'addressZip', e.target.value)}
+                              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-vortex-red focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-xs text-gray-500">
+                      To change a member's family relationship or move them between families, contact your facility administrator.
+                    </p>
+                  </div>
+                )
+              })()}
+
+              <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 bg-gray-50">
                 <button
                   onClick={() => {
                     setShowEditModal(false)
@@ -3229,9 +2820,15 @@ export default function MemberDashboard({
                     setEditingFamilyMembers([])
                     setExpandedFamilyMemberId(null)
                   }}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg font-semibold"
                 >
                   Cancel
+                </button>
+                <button
+                  onClick={handleSaveMemberEdit}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-vortex-red text-white rounded-lg font-semibold hover:bg-red-700"
+                >
+                  Save Changes
                 </button>
               </div>
             </motion.div>
@@ -3239,48 +2836,6 @@ export default function MemberDashboard({
         )}
       </AnimatePresence>
 
-      {/* Enrollment Modal */}
-      {showEnrollModal && selectedClassForEnrollment && (
-        <EnrollmentForm
-          program={selectedClassForEnrollment}
-          familyMembers={familyMembers}
-          currentUserId={profileData?.id}
-          currentUserName={profileData ? `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || profileData.email : undefined}
-          onEnroll={async (enrollmentData) => {
-            try {
-              const response = await fetch(`${apiUrl}/api/members/enroll`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(enrollmentData)
-              })
-              
-              if (response.ok) {
-                const data = await response.json()
-                alert(data.message || 'Successfully enrolled in class!')
-                setShowEnrollModal(false)
-                setSelectedClassForEnrollment(null)
-                // Refresh enrollments and profile data
-                await fetchEnrollments()
-                await fetchProfileData()
-              } else {
-                const data = await response.json()
-                alert(data.message || 'Failed to enroll in class')
-              }
-            } catch (error) {
-              console.error('Error enrolling in class:', error)
-              alert('Failed to enroll in class. Please try again.')
-            }
-          }}
-          onCancel={() => {
-            setShowEnrollModal(false)
-            setSelectedClassForEnrollment(null)
-          }}
-          isOpen={showEnrollModal}
-        />
-      )}
     </div>
   )
 }

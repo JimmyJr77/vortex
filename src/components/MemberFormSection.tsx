@@ -206,15 +206,15 @@ export default function MemberFormSection({
   }
 
   return (
-    <div className="bg-gray-700 p-4 rounded">
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
       <div className="flex justify-between items-center mb-4">
-        <h4 className="font-semibold text-white">
+        <h4 className="font-semibold text-gray-900">
           {memberTitle}
         </h4>
         <button
           type="button"
           onClick={() => onToggleExpand(member.id)}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="text-gray-400 hover:text-gray-700 transition-colors"
         >
           {isExpanded ? (
             <ChevronUp className="w-5 h-5" />
@@ -227,50 +227,50 @@ export default function MemberFormSection({
       {isExpanded && (
         <>
           {/* 1. Contact Information Section */}
-          <div className="mb-4 border border-gray-600 rounded">
+          <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
             <button
               type="button"
               onClick={() => onToggleSection(member.id, 'contactInfo')}
-              className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+              className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold flex justify-between items-center rounded-t"
             >
               <span>1. Contact Information</span>
               <span>{member.sections.contactInfo.isExpanded ? '−' : '+'}</span>
             </button>
             {member.sections.contactInfo.isExpanded && (
-              <div className="p-4 bg-gray-800">
+              <div className="p-4 bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
                     <input
                       type="text"
                       value={member.sections.contactInfo.tempData.firstName}
                       onChange={(e) => handleContactInfoChange('firstName', e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
                     <input
                       type="text"
                       value={member.sections.contactInfo.tempData.lastName}
                       onChange={(e) => handleContactInfoChange('lastName', e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
                     <input
                       type="email"
                       value={member.sections.contactInfo.tempData.email}
                       onChange={(e) => handleContactInfoChange('email', e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Phone *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
                     <input
                       type="tel"
                       value={member.sections.contactInfo.tempData.phone}
@@ -280,49 +280,49 @@ export default function MemberFormSection({
                       }}
                       placeholder="###-###-####"
                       maxLength={12}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       autoComplete="off"
                       required
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Street</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Street</label>
                     <input
                       type="text"
                       value={member.sections.contactInfo.tempData.addressStreet}
                       onChange={(e) => handleContactInfoChange('addressStreet', e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       placeholder="Street address"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">City</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
                     <input
                       type="text"
                       value={member.sections.contactInfo.tempData.addressCity}
                       onChange={(e) => handleContactInfoChange('addressCity', e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       placeholder="City"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">State</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
                     <input
                       type="text"
                       value={member.sections.contactInfo.tempData.addressState}
                       onChange={(e) => handleContactInfoChange('addressState', e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       placeholder="State"
                       maxLength={2}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Zip</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Zip</label>
                     <input
                       type="text"
                       value={member.sections.contactInfo.tempData.addressZip}
                       onChange={(e) => handleContactInfoChange('addressZip', e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       placeholder="ZIP code"
                     />
                   </div>
@@ -338,7 +338,7 @@ export default function MemberFormSection({
                   <button
                     type="button"
                     onClick={() => onSectionMinimize(member.id, 'contactInfo')}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold transition-colors"
                   >
                     Minimize
                   </button>
@@ -355,40 +355,40 @@ export default function MemberFormSection({
           </div>
 
           {/* 2. Login & Security Section */}
-          <div className="mb-4 border border-gray-600 rounded">
+          <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
             <button
               type="button"
               onClick={() => onToggleSection(member.id, 'loginSecurity')}
-              className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+              className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold flex justify-between items-center rounded-t"
             >
               <span>2. Login & Security</span>
               <span>{member.sections.loginSecurity.isExpanded ? '−' : '+'}</span>
             </button>
             {member.sections.loginSecurity.isExpanded && (
-              <div className="p-4 bg-gray-800">
+              <div className="p-4 bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Username *</label>
                     <input
                       type="text"
                       value={member.sections.loginSecurity.tempData.username}
                       onChange={(e) => updateSectionTempData('loginSecurity', { username: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
                     <input
                       type="password"
                       value={member.sections.loginSecurity.tempData.password}
                       onChange={(e) => updateSectionTempData('loginSecurity', { password: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       required
                       minLength={6}
                       autoComplete="new-password"
                     />
-                    <p className="text-xs text-gray-400 mt-1">Default: vortex</p>
+                    <p className="text-xs text-gray-500 mt-1">Default: vortex</p>
                   </div>
                 </div>
                 <div className="flex gap-2 mt-4">
@@ -402,7 +402,7 @@ export default function MemberFormSection({
                   <button
                     type="button"
                     onClick={() => onSectionMinimize(member.id, 'loginSecurity')}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold transition-colors"
                   >
                     Minimize
                   </button>
@@ -419,20 +419,20 @@ export default function MemberFormSection({
           </div>
 
           {/* 3. Personal Data Section */}
-          <div className="mb-4 border border-gray-600 rounded">
+          <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
             <button
               type="button"
               onClick={() => onToggleSection(member.id, 'personalData')}
-              className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+              className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold flex justify-between items-center rounded-t"
             >
-              <span>3. Personal Data <span className="text-red-400">*</span></span>
+              <span>3. Personal Data <span className="text-red-500">*</span></span>
               <span>{member.sections.personalData?.isExpanded ? '−' : '+'}</span>
             </button>
             {member.sections.personalData?.isExpanded && (
-              <div className="p-4 bg-gray-800">
+              <div className="p-4 bg-white">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Gender *
                     </label>
                     <select
@@ -444,7 +444,7 @@ export default function MemberFormSection({
                         }))
                         updateSectionTempData('personalData', { gender: e.target.value })
                       }}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       required
                     >
                       <option value="">Select Gender</option>
@@ -455,7 +455,7 @@ export default function MemberFormSection({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Date of Birth *
                     </label>
                     <input
@@ -468,19 +468,19 @@ export default function MemberFormSection({
                         }))
                         updateSectionTempData('personalData', { dateOfBirth: e.target.value })
                       }}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       max={getTodayDateString()} // Can't be in the future
                       required
                     />
                     {member.dateOfBirth && calculateAge(member.dateOfBirth) !== null && (
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-xs text-gray-500 mt-1">
                         Age: {calculateAge(member.dateOfBirth)} years old
                         {isChild() && <span className="text-yellow-400 ml-2">(Child - Parent/Guardian required)</span>}
                       </p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Medical Concerns *
                     </label>
                     <textarea
@@ -492,14 +492,14 @@ export default function MemberFormSection({
                         }))
                         updateSectionTempData('personalData', { medicalConcerns: e.target.value })
                       }}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       rows={3}
                       placeholder="Enter any medical concerns or conditions (enter 'None' if none)"
                       required
                     />
                   </div>
-                  <div className="border-t border-gray-600 pt-4">
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  <div className="border-t border-gray-200 pt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       History of Injury *
                     </label>
                     <div className="mb-4">
@@ -522,9 +522,9 @@ export default function MemberFormSection({
                               injuryHistoryNotes: e.target.checked ? '' : (member.sections.personalData?.tempData?.injuryHistoryNotes || '')
                             })
                           }}
-                          className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                          className="w-4 h-4 text-vortex-red bg-white border-gray-300 rounded focus:ring-vortex-red"
                         />
-                        <span className="text-sm font-semibold text-gray-300">
+                        <span className="text-sm font-medium text-gray-700">
                           No history of injury *
                         </span>
                       </label>
@@ -532,7 +532,7 @@ export default function MemberFormSection({
                     {!member.sections.personalData?.tempData?.noInjuryHistory && !member.noInjuryHistory && (
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
                             Injury Date *
                           </label>
                           <input
@@ -545,13 +545,13 @@ export default function MemberFormSection({
                               }))
                               updateSectionTempData('personalData', { injuryHistoryDate: e.target.value })
                             }}
-                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                             max={new Date().toISOString().split('T')[0]}
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
                             Body Part *
                           </label>
                           <input
@@ -564,13 +564,13 @@ export default function MemberFormSection({
                               }))
                               updateSectionTempData('personalData', { injuryHistoryBodyPart: e.target.value })
                             }}
-                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                             placeholder="e.g., Left knee, Right shoulder"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
                             Injury Notes *
                           </label>
                           <textarea
@@ -582,7 +582,7 @@ export default function MemberFormSection({
                               }))
                               updateSectionTempData('personalData', { injuryHistoryNotes: e.target.value })
                             }}
-                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                             rows={3}
                             placeholder="Describe the injury and any relevant details"
                             required
@@ -603,7 +603,7 @@ export default function MemberFormSection({
                   <button
                     type="button"
                     onClick={() => onSectionMinimize(member.id, 'personalData')}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold transition-colors"
                   >
                     Minimize
                   </button>
@@ -622,7 +622,7 @@ export default function MemberFormSection({
           {/* Warning for first member if under 18 */}
           {memberIndex === 0 && isChild() && (
             <div className="mb-4 border-2 border-red-600 rounded bg-red-900/20">
-              <div className="p-4 bg-gray-800">
+              <div className="p-4 bg-white">
                 <div className="space-y-4">
                   <div className="bg-red-900/30 p-4 rounded border border-red-600">
                     <h5 className="text-lg font-semibold text-red-300 mb-2">
@@ -643,20 +643,20 @@ export default function MemberFormSection({
               <button
                 type="button"
                 onClick={() => onToggleSection(member.id, 'parentGuardians')}
-                className="w-full px-4 py-3 bg-yellow-700 hover:bg-yellow-600 text-white font-semibold flex justify-between items-center rounded-t"
+                className="w-full px-4 py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-semibold flex justify-between items-center rounded-t"
               >
-                <span>3b. Parent/Guardian Selection <span className="text-red-400">* (Required for children)</span></span>
+                <span>3b. Parent/Guardian Selection <span className="text-red-500">* (Required for children)</span></span>
                 <span>{member.sections.parentGuardians?.isExpanded ? '−' : '+'}</span>
               </button>
               {member.sections.parentGuardians?.isExpanded && (
-                <div className="p-4 bg-gray-800">
+                <div className="p-4 bg-white">
                   <div className="space-y-4">
                     {/* Adult Family Members Section */}
                     {(() => {
                       const adultFamilyMembers = getAdultFamilyMembers()
                       return adultFamilyMembers.length > 0 && (
                     <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                             Select from Family Members (18+)
                           </label>
                           <div className="space-y-2">
@@ -687,23 +687,23 @@ export default function MemberFormSection({
                                     className={`p-3 rounded cursor-pointer transition-colors ${
                                       isSelected 
                                         ? 'bg-green-700 hover:bg-green-600 border-2 border-green-500' 
-                                        : 'bg-gray-600 hover:bg-gray-500 border-2 border-transparent'
+                                        : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
                                     }`}
                                   >
-                                    <div className="font-semibold text-white">
+                                    <div className="font-semibold text-gray-900">
                                       {familyMember.firstName} {familyMember.lastName}
                                       {isSelected && <span className="ml-2 text-green-300">✓ Selected</span>}
                                     </div>
                                     {familyMember.email && (
-                                      <div className="text-sm text-gray-300">{familyMember.email}</div>
+                                      <div className="text-sm text-gray-600">{familyMember.email}</div>
                                     )}
                                     {familyMember.phone && (
-                                      <div className="text-sm text-gray-300">{familyMember.phone}</div>
+                                      <div className="text-sm text-gray-600">{familyMember.phone}</div>
                                     )}
                                   </div>
                                   {isSelected && (
                                     <div className="ml-4 mb-2 space-y-2">
-                                      <label className="block text-xs font-semibold text-gray-300">
+                                      <label className="block text-xs font-medium text-gray-700">
                                         Relationship *
                                       </label>
                                       <select
@@ -721,7 +721,7 @@ export default function MemberFormSection({
                                             parentGuardians: updatedGuardians
                                           }))
                                         }}
-                                        className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                        className="w-full px-2 py-1 bg-white text-gray-900 rounded-lg border border-gray-300 text-sm"
                                         required
                                         onClick={(e) => e.stopPropagation()}
                                       >
@@ -748,7 +748,7 @@ export default function MemberFormSection({
                                             }))
                                           }}
                                           placeholder="Specify relationship..."
-                                          className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                          className="w-full px-2 py-1 bg-white text-gray-900 rounded-lg border border-gray-300 text-sm"
                                           required
                                           onClick={(e) => e.stopPropagation()}
                                         />
@@ -765,7 +765,7 @@ export default function MemberFormSection({
 
                     {/* Search for Additional Guardians */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Search for Additional Parent/Guardian (must be 18+)
                       </label>
                       <input
@@ -777,7 +777,7 @@ export default function MemberFormSection({
                             onSearchParentGuardians(query)
                           }
                         }}
-                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       />
                       {availableParentGuardians.length > 0 && (
                         <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
@@ -808,23 +808,23 @@ export default function MemberFormSection({
                                 className={`p-3 rounded cursor-pointer transition-colors ${
                                   isSelected 
                                     ? 'bg-green-700 hover:bg-green-600 border-2 border-green-500' 
-                                    : 'bg-gray-600 hover:bg-gray-500 border-2 border-transparent'
+                                    : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
                                 }`}
                               >
-                                <div className="font-semibold text-white">
+                                <div className="font-semibold text-gray-900">
                                   {parent.firstName} {parent.lastName}
                                   {isSelected && <span className="ml-2 text-green-300">✓ Selected</span>}
                                 </div>
                                 {parent.email && (
-                                  <div className="text-sm text-gray-300">{parent.email}</div>
+                                  <div className="text-sm text-gray-600">{parent.email}</div>
                                 )}
                                 {parent.phone && (
-                                  <div className="text-sm text-gray-300">{parent.phone}</div>
+                                  <div className="text-sm text-gray-600">{parent.phone}</div>
                                   )}
                                 </div>
                                 {isSelected && (
                                   <div className="ml-4 mb-2 space-y-2">
-                                    <label className="block text-xs font-semibold text-gray-300">
+                                    <label className="block text-xs font-medium text-gray-700">
                                       Relationship *
                                     </label>
                                     <select
@@ -842,7 +842,7 @@ export default function MemberFormSection({
                                           parentGuardians: updatedGuardians
                                         }))
                                       }}
-                                      className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                      className="w-full px-2 py-1 bg-white text-gray-900 rounded-lg border border-gray-300 text-sm"
                                       required
                                       onClick={(e) => e.stopPropagation()}
                                     >
@@ -869,7 +869,7 @@ export default function MemberFormSection({
                                           }))
                                         }}
                                         placeholder="Specify relationship..."
-                                        className="w-full px-2 py-1 bg-gray-600 text-white rounded border border-gray-500 text-sm"
+                                        className="w-full px-2 py-1 bg-white text-gray-900 rounded-lg border border-gray-300 text-sm"
                                         required
                                         onClick={(e) => e.stopPropagation()}
                                       />
@@ -916,7 +916,7 @@ export default function MemberFormSection({
                     <button
                       type="button"
                       onClick={() => onSectionMinimize(member.id, 'parentGuardians')}
-                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold transition-colors"
                     >
                       Minimize
                     </button>
@@ -927,17 +927,17 @@ export default function MemberFormSection({
           )}
 
           {/* 4. Waiver Status Section */}
-          <div className="mb-4 border border-gray-600 rounded">
+          <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
             <button
               type="button"
               onClick={() => onToggleSection(member.id, 'waivers')}
-              className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+              className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold flex justify-between items-center rounded-t"
             >
               <span>4. Waiver Status</span>
               <span>{member.sections.waivers?.isExpanded ? '−' : '+'}</span>
             </button>
             {member.sections.waivers?.isExpanded && (
-              <div className="p-4 bg-gray-800">
+              <div className="p-4 bg-white">
                 <div className="space-y-4">
                   <div>
                     <label className="flex items-center gap-2 cursor-pointer">
@@ -955,16 +955,16 @@ export default function MemberFormSection({
                             waiverCompletionDate: e.target.checked ? getTodayDateString() : null
                           })
                         }}
-                        className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                        className="w-4 h-4 text-vortex-red bg-white border-gray-300 rounded focus:ring-vortex-red"
                       />
-                      <span className="text-sm font-semibold text-gray-300">
+                      <span className="text-sm font-medium text-gray-700">
                         Has Completed Waivers
                       </span>
                     </label>
                   </div>
                   {member.hasCompletedWaivers && (
                     <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Waiver Completion Date
                       </label>
                       <input
@@ -977,12 +977,12 @@ export default function MemberFormSection({
                           }))
                           updateSectionTempData('waivers', { waiverCompletionDate: e.target.value })
                         }}
-                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                         max={new Date().toISOString().split('T')[0]}
                       />
                     </div>
                   )}
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-500">
                     Note: Athlete status requires both enrollment and completed waivers
                   </p>
                 </div>
@@ -997,7 +997,7 @@ export default function MemberFormSection({
                   <button
                     type="button"
                     onClick={() => onSectionMinimize(member.id, 'waivers')}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold transition-colors"
                   >
                     Minimize
                   </button>
@@ -1007,37 +1007,37 @@ export default function MemberFormSection({
           </div>
 
           {/* 5. Status Verification Section */}
-          <div className="mb-4 border border-gray-600 rounded">
+          <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
             <button
               type="button"
               onClick={() => onToggleSection(member.id, 'statusVerification')}
-              className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+              className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold flex justify-between items-center rounded-t"
             >
               <span>5. Status Verification</span>
               <span>{member.sections.statusVerification.isExpanded ? '−' : '+'}</span>
             </button>
             {!member.sections.statusVerification.isExpanded && (
-              <div className="p-4 bg-gray-800">
+              <div className="p-4 bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <span className="text-sm font-semibold text-gray-300">Enrollment Status:</span>
+                    <span className="text-sm font-medium text-gray-700">Enrollment Status:</span>
                     <div className="mt-1">
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${
                         getEnrollmentStatus() === 'athlete' 
-                          ? 'bg-green-600 text-white' 
-                          : 'bg-gray-600 text-white'
+                          ? 'bg-green-50 text-green-700' 
+                          : 'bg-gray-100 text-gray-600'
                       }`}>
                         {getEnrollmentStatus() === 'athlete' ? 'Athlete' : 'Non-Participant'}
                       </span>
                     </div>
                   </div>
                   <div>
-                    <span className="text-sm font-semibold text-gray-300">Activity Status:</span>
+                    <span className="text-sm font-medium text-gray-700">Activity Status:</span>
                     <div className="mt-1">
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${
                         getActiveStatus() === 'active' 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-yellow-600 text-white'
+                          ? 'bg-blue-50 text-blue-700' 
+                          : 'bg-amber-100 text-amber-700'
                       }`}>
                         {getActiveStatus() === 'active' ? 'Active' : 'Idle'}
                       </span>
@@ -1046,26 +1046,26 @@ export default function MemberFormSection({
                 </div>
                 {member.enrollments && member.enrollments.length > 0 && (
                   <div className="mt-4">
-                    <span className="text-sm font-semibold text-gray-300">Enrolled Classes: {member.enrollments.length}</span>
+                    <span className="text-sm font-medium text-gray-700">Enrolled Classes: {member.enrollments.length}</span>
                   </div>
                 )}
               </div>
             )}
             {member.sections.statusVerification.isExpanded && (
-              <div className="p-4 bg-gray-800">
+              <div className="p-4 bg-white">
                 <div className="space-y-4">
                   {/* Enrollment Status */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Enrollment Status</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Enrollment Status</label>
                     <div className="flex items-center gap-2">
                       <span className={`px-3 py-2 rounded font-semibold ${
                         getEnrollmentStatus() === 'athlete' 
-                          ? 'bg-green-600 text-white' 
-                          : 'bg-gray-600 text-white'
+                          ? 'bg-green-50 text-green-700' 
+                          : 'bg-gray-100 text-gray-600'
                       }`}>
                         {getEnrollmentStatus() === 'athlete' ? 'Athlete' : 'Non-Participant'}
                       </span>
-                      <span className="text-gray-400 text-sm">
+                      <span className="text-gray-500 text-sm">
                         {getEnrollmentStatus() === 'athlete' 
                           ? '(Member has enrolled in at least one class)' 
                           : '(Member has not enrolled in any classes)'}
@@ -1075,16 +1075,16 @@ export default function MemberFormSection({
 
                   {/* Activity Status */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Activity Status</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Activity Status</label>
                     <div className="flex items-center gap-2">
                       <span className={`px-3 py-2 rounded font-semibold ${
                         getActiveStatus() === 'active' 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-yellow-600 text-white'
+                          ? 'bg-blue-50 text-blue-700' 
+                          : 'bg-amber-100 text-amber-700'
                       }`}>
                         {getActiveStatus() === 'active' ? 'Active' : 'Idle'}
                       </span>
-                      <span className="text-gray-400 text-sm">
+                      <span className="text-gray-500 text-sm">
                         {getActiveStatus() === 'active' 
                           ? '(Member account is active)' 
                           : '(Member account is inactive)'}
@@ -1094,11 +1094,11 @@ export default function MemberFormSection({
 
                   {/* Enrolled Classes */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Enrolled Classes ({member.enrollments?.length || 0})
                     </label>
                     {!member.enrollments || member.enrollments.length === 0 ? (
-                      <div className="text-gray-400 text-sm">No classes enrolled. Members can enroll through the member portal or admin can enroll them in the Enrollments tab.</div>
+                      <div className="text-gray-500 text-sm">No classes enrolled. Members can enroll through the member portal or admin can enroll them in the Enrollments tab.</div>
                     ) : (
                       <div className="space-y-2">
                         {member.enrollments.map((enrollment) => {
@@ -1109,11 +1109,11 @@ export default function MemberFormSection({
                                 : [])
                           
                           return (
-                            <div key={enrollment.id} className="bg-gray-700 p-3 rounded">
-                              <div className="text-white font-medium">
+                            <div key={enrollment.id} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                              <div className="text-gray-900 font-medium">
                                 {enrollment.program_display_name || 'Unknown Class'}
                               </div>
-                              <div className="text-gray-400 text-sm mt-1">
+                              <div className="text-gray-500 text-sm mt-1">
                                 {enrollment.days_per_week} day{enrollment.days_per_week !== 1 ? 's' : ''}/week
                                 {selectedDaysArray.length > 0 && ` • ${selectedDaysArray.join(', ')}`}
                               </div>
@@ -1136,7 +1136,7 @@ export default function MemberFormSection({
                   <button
                     type="button"
                     onClick={() => onSectionMinimize(member.id, 'statusVerification')}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold transition-colors"
                   >
                     Minimize
                   </button>
@@ -1153,20 +1153,20 @@ export default function MemberFormSection({
           </div>
 
           {/* 6. Previous Classes Section */}
-          <div className="mb-4 border border-gray-600 rounded">
+          <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
             <button
               type="button"
               onClick={() => onToggleSection(member.id, 'previousClasses')}
-              className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded-t"
+              className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold flex justify-between items-center rounded-t"
             >
               <span>6. Previous Classes</span>
               <span>{member.sections.previousClasses?.isExpanded ? '−' : '+'}</span>
             </button>
             {member.sections.previousClasses?.isExpanded && (
-              <div className="p-4 bg-gray-800">
+              <div className="p-4 bg-white">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Experience
                     </label>
                     <textarea
@@ -1178,28 +1178,28 @@ export default function MemberFormSection({
                         }))
                         updateSectionTempData('previousClasses', { experience: e.target.value })
                       }}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       rows={4}
                       placeholder="Describe your previous experience with gymnastics, athletics, or related activities"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Previous Classes
                     </label>
                     {!member.previousClasses || member.previousClasses.length === 0 ? (
-                      <div className="text-gray-400 text-sm p-4 bg-gray-700 rounded">
+                      <div className="text-gray-500 text-sm p-4 bg-gray-50 border border-gray-200 rounded-lg">
                         No previous history
                       </div>
                     ) : (
                       <div className="space-y-2">
                         {member.previousClasses.map((previousClass) => (
-                          <div key={previousClass.id} className="bg-gray-700 p-3 rounded">
-                            <div className="text-white font-medium">
+                          <div key={previousClass.id} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <div className="text-gray-900 font-medium">
                               {previousClass.program_display_name || 'Unknown Class'}
                             </div>
                             {previousClass.completed_date && (
-                              <div className="text-gray-400 text-sm mt-1">
+                              <div className="text-gray-500 text-sm mt-1">
                                 Completed: {formatTimestampDate(previousClass.completed_date)}
                               </div>
                             )}
@@ -1220,7 +1220,7 @@ export default function MemberFormSection({
                   <button
                     type="button"
                     onClick={() => onSectionMinimize(member.id, 'previousClasses')}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold transition-colors"
                   >
                     Minimize
                   </button>

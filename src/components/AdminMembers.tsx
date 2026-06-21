@@ -2937,7 +2937,7 @@ export default function AdminMembers() {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           >
             <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/50"
               onClick={() => {
                 setShowMemberModal(false)
                 setMemberModalMode('search')
@@ -2945,14 +2945,14 @@ export default function AdminMembers() {
               }}
             />
             <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-white rounded-2xl p-6 max-w-3xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">
+                <h3 className="text-xl font-bold text-gray-900">
                   {unifiedModalMode === 'edit' && 'Edit Member'}
                   {unifiedModalMode !== 'edit' && memberModalMode === 'search' && 'Create Member - Search or New'}
                   {unifiedModalMode !== 'edit' && memberModalMode === 'new-family' && 'Create New Family'}
@@ -2964,7 +2964,7 @@ export default function AdminMembers() {
                     setMemberModalMode('search')
                     setSelectedFamilyForMember(null)
                   }}
-                  className="text-gray-400 hover:text-white"
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -2973,12 +2973,12 @@ export default function AdminMembers() {
               {/* Search Mode */}
               {memberModalMode === 'search' && (
                 <div className="space-y-6">
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="text-lg font-semibold text-white mb-4">Option 1: Join Existing Family</h4>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="text-base font-semibold text-gray-900 mb-4">Option 1: Join Existing Family</h4>
                     
                     {/* Search by name/username */}
                     <div className="mb-4">
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                         Search for Family Member
                     </label>
                     <div className="flex gap-2">
@@ -2990,7 +2990,7 @@ export default function AdminMembers() {
                           searchFamiliesForMember(e.target.value)
                         }}
                         placeholder="Type to search..."
-                          className="flex-1 px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          className="flex-1 px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       />
                     </div>
                     {memberSearchResults.length > 0 && (
@@ -3003,16 +3003,16 @@ export default function AdminMembers() {
                                 setMemberModalMode('existing-family')
                                 setFamilyJoinInfo(prev => ({ ...prev, familyId: family.id }))
                               }}
-                              className="p-3 bg-gray-600 rounded cursor-pointer hover:bg-gray-500 transition-colors"
+                              className="p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                           >
-                            <div className="font-semibold text-white">
+                            <div className="font-semibold text-gray-900">
                               {family.familyName || family.family_name || 'Unnamed Family'}
                             </div>
                             {(family.familyUsername || family.family_username) && (
-                              <div className="text-sm text-gray-300">Username: {family.familyUsername || family.family_username}</div>
+                              <div className="text-sm text-gray-600">Username: {family.familyUsername || family.family_username}</div>
                             )}
                             {family.memberCount !== undefined && (
-                              <div className="text-xs text-gray-400 mt-1">
+                              <div className="text-xs text-gray-500 mt-1">
                                 {family.memberCount} member(s)
                               </div>
                             )}
@@ -3023,8 +3023,8 @@ export default function AdminMembers() {
                   </div>
 
                     {/* Or join by username + password */}
-                  <div className="border-t border-gray-600 pt-4">
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  <div className="border-t border-gray-200 pt-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Or Join by Family Username
                       </label>
                       <div className="space-y-2">
@@ -3033,14 +3033,14 @@ export default function AdminMembers() {
                           value={familyJoinInfo.familyUsername}
                           onChange={(e) => setFamilyJoinInfo(prev => ({ ...prev, familyUsername: e.target.value }))}
                           placeholder="Family username"
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                         />
                         <input
                           type="password"
                           value={familyJoinInfo.familyPassword}
                           onChange={(e) => setFamilyJoinInfo(prev => ({ ...prev, familyPassword: e.target.value }))}
                           placeholder="Family password"
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                         />
                         <button
                           onClick={() => {
@@ -3059,8 +3059,8 @@ export default function AdminMembers() {
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-600 pt-4">
-                    <h4 className="text-lg font-semibold text-white mb-4">Option 2: Create New Member or Family</h4>
+                  <div className="border-t border-gray-200 pt-4">
+                    <h4 className="text-base font-semibold text-gray-900 mb-4">Option 2: Create New Member or Family</h4>
                     <button
                       onClick={() => {
                         setUnifiedModalMode('create-new')
@@ -3089,11 +3089,11 @@ export default function AdminMembers() {
                   {/* Family Creation Form (only show if there are multiple members) */}
                   {(!familyJoinInfo.familyId && !familyJoinInfo.familyUsername && 
                     familyMembers.length > 1) && (
-                    <div className="bg-gray-700 p-4 rounded">
-                      <h4 className="text-lg font-semibold text-white mb-4">Family Information</h4>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <h4 className="text-base font-semibold text-gray-900 mb-4">Family Information</h4>
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
                             Family Name *
                           </label>
                           <input
@@ -3101,12 +3101,12 @@ export default function AdminMembers() {
                             value={familyCreationInfo.familyName}
                             onChange={(e) => setFamilyCreationInfo(prev => ({ ...prev, familyName: e.target.value }))}
                             placeholder="e.g., Smith Family"
-                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
                             Family Username *
                           </label>
                           <input
@@ -3114,13 +3114,13 @@ export default function AdminMembers() {
                             value={familyCreationInfo.familyUsername}
                             onChange={(e) => setFamilyCreationInfo(prev => ({ ...prev, familyUsername: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '') }))}
                             placeholder="e.g., smithfamily"
-                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                             required
                           />
-                          <p className="text-xs text-gray-400 mt-1">Used to join family. Letters and numbers only.</p>
+                          <p className="text-xs text-gray-500 mt-1">Used to join family. Letters and numbers only.</p>
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
                             Family Password *
                           </label>
                           <input
@@ -3128,13 +3128,13 @@ export default function AdminMembers() {
                             value={familyCreationInfo.familyPassword}
                             onChange={(e) => setFamilyCreationInfo(prev => ({ ...prev, familyPassword: e.target.value }))}
                             placeholder="Minimum 6 characters"
-                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                             required
                             minLength={6}
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
                             Confirm Family Password *
                           </label>
                           <input
@@ -3142,13 +3142,13 @@ export default function AdminMembers() {
                             value={familyCreationInfo.familyPasswordConfirm}
                             onChange={(e) => setFamilyCreationInfo(prev => ({ ...prev, familyPasswordConfirm: e.target.value }))}
                             placeholder="Re-enter password"
-                            className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                             required
                             minLength={6}
                           />
                           {familyCreationInfo.familyPassword && familyCreationInfo.familyPasswordConfirm && 
                            familyCreationInfo.familyPassword !== familyCreationInfo.familyPasswordConfirm && (
-                            <p className="text-xs text-red-400 mt-1">Passwords do not match</p>
+                            <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
                           )}
                         </div>
                       </div>
@@ -3176,86 +3176,86 @@ export default function AdminMembers() {
                     />
                   ))}
 
-                  <div className="border-2 border-dashed border-gray-600 rounded p-4">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                         <button
                           type="button"
                       onClick={handleAddFamilyMember}
-                      className="w-full text-white font-semibold py-3 hover:bg-gray-600 rounded transition-colors"
+                      className="w-full text-gray-700 font-semibold py-3 hover:bg-gray-100 rounded-lg transition-colors"
                     >
                       Add a Family Member
                         </button>
                       </div>
                       
-                  <div className="bg-gray-700 p-4 rounded">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <button
                           type="button"
                       onClick={() => setIsBillingExpanded(!isBillingExpanded)}
-                      className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded"
+                      className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold flex justify-between items-center rounded"
                         >
                       <span>Billing</span>
                       <span>{isBillingExpanded ? '−' : '+'}</span>
                         </button>
                     {isBillingExpanded && (
-                      <div className="p-4 bg-gray-800 mt-4 rounded">
+                      <div className="p-4 bg-white border border-gray-200 mt-4 rounded-lg">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
                                 <input
                                   type="text"
                               value={billingInfo.firstName}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, firstName: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   required
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
                                 <input
                                   type="text"
                               value={billingInfo.lastName}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, lastName: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   required
                                 />
                               </div>
                               <div className="md:col-span-2">
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Street</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Street</label>
                                 <input
                                   type="text"
                               value={billingInfo.addressStreet}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, addressStreet: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   placeholder="Street address"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">City</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
                                 <input
                                   type="text"
                               value={billingInfo.addressCity}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, addressCity: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   placeholder="City"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">State</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
                                 <input
                                   type="text"
                               value={billingInfo.addressState}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, addressState: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   placeholder="State"
                                   maxLength={2}
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Zip</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Zip</label>
                                 <input
                                   type="text"
                               value={billingInfo.addressZip}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, addressZip: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   placeholder="ZIP code"
                             />
                           </div>
@@ -3293,7 +3293,7 @@ export default function AdminMembers() {
                         setBillingInfo({ firstName: '', lastName: '', addressStreet: '', addressCity: '', addressState: '', addressZip: '' })
                         setIsBillingExpanded(true)
                       }}
-                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
                     >
                       Cancel
                     </button>
@@ -3304,9 +3304,9 @@ export default function AdminMembers() {
               {/* Existing Family Mode */}
               {memberModalMode === 'existing-family' && selectedFamilyForMember && (
                 <div className="space-y-6">
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="text-lg font-semibold text-white mb-4">Join Family: {(selectedFamilyForMember as { familyName?: string; family_name?: string }).familyName || selectedFamilyForMember.family_name || 'Unnamed Family'}</h4>
-                    <div className="text-sm text-gray-300 mb-4">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="text-base font-semibold text-gray-900 mb-4">Join Family: {(selectedFamilyForMember as { familyName?: string; family_name?: string }).familyName || selectedFamilyForMember.family_name || 'Unnamed Family'}</h4>
+                    <div className="text-sm text-gray-600 mb-4">
                       {selectedFamilyForMember.guardians && selectedFamilyForMember.guardians.length > 0 && (
                         <div>Guardians: {selectedFamilyForMember.guardians.map(g => g.fullName).join(', ')}</div>
                       )}
@@ -3316,7 +3316,7 @@ export default function AdminMembers() {
                     </div>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
                           Family Password *
                         </label>
                         <input
@@ -3324,7 +3324,7 @@ export default function AdminMembers() {
                           value={familyJoinInfo.familyPassword}
                           onChange={(e) => setFamilyJoinInfo(prev => ({ ...prev, familyPassword: e.target.value }))}
                           placeholder="Enter family password"
-                          className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                           required
                         />
                       </div>
@@ -3352,86 +3352,86 @@ export default function AdminMembers() {
                     />
                   ))}
 
-                  <div className="border-2 border-dashed border-gray-600 rounded p-4">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                         <button
                           type="button"
                       onClick={handleAddFamilyMember}
-                      className="w-full text-white font-semibold py-3 hover:bg-gray-600 rounded transition-colors"
+                      className="w-full text-gray-700 font-semibold py-3 hover:bg-gray-100 rounded-lg transition-colors"
                     >
                       Add a Family Member
                         </button>
                       </div>
                       
-                  <div className="bg-gray-700 p-4 rounded">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <button
                           type="button"
                       onClick={() => setIsBillingExpanded(!isBillingExpanded)}
-                      className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold flex justify-between items-center rounded"
+                      className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold flex justify-between items-center rounded"
                         >
                       <span>Billing</span>
                       <span>{isBillingExpanded ? '−' : '+'}</span>
                         </button>
                     {isBillingExpanded && (
-                      <div className="p-4 bg-gray-800 mt-4 rounded">
+                      <div className="p-4 bg-white border border-gray-200 mt-4 rounded-lg">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
                                 <input
                                   type="text"
                               value={billingInfo.firstName}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, firstName: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   required
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
                                 <input
                                   type="text"
                               value={billingInfo.lastName}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, lastName: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   required
                                 />
                               </div>
                               <div className="md:col-span-2">
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Street</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Street</label>
                                 <input
                                   type="text"
                               value={billingInfo.addressStreet}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, addressStreet: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   placeholder="Street address"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">City</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
                                 <input
                                   type="text"
                               value={billingInfo.addressCity}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, addressCity: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   placeholder="City"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">State</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
                                 <input
                                   type="text"
                               value={billingInfo.addressState}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, addressState: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   placeholder="State"
                                   maxLength={2}
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Zip</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Zip</label>
                                 <input
                                   type="text"
                               value={billingInfo.addressZip}
                               onChange={(e) => setBillingInfo(prev => ({ ...prev, addressZip: e.target.value }))}
-                                  className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                                  className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                   placeholder="ZIP code"
                             />
                           </div>
@@ -3456,7 +3456,7 @@ export default function AdminMembers() {
                         setIsBillingExpanded(true)
                         setSelectedFamilyForMember(null)
                       }}
-                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
                     >
                       Cancel
                     </button>
@@ -3482,26 +3482,26 @@ export default function AdminMembers() {
               onClick={() => setShowFamilyViewModal(false)}
             />
             <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-white rounded-2xl p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">Family Details</h3>
+                <h3 className="text-xl font-bold text-gray-900">Family Details</h3>
                 <button
                   onClick={() => setShowFamilyViewModal(false)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
               <div className="space-y-6">
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="font-semibold text-white mb-4">Family Information</h4>
-                  <div className="text-sm text-gray-300 space-y-2">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-4">Family Information</h4>
+                  <div className="text-sm text-gray-600 space-y-2">
                     <div>{selectedFamilyForView.id ? `Family ID: ${selectedFamilyForView.id}` : 'Orphan'}</div>
                     {selectedFamilyForView.family_name && (
                       <div>Family Name: {selectedFamilyForView.family_name}</div>
@@ -3511,15 +3511,15 @@ export default function AdminMembers() {
                 </div>
 
                 {selectedFamilyForView.guardians && selectedFamilyForView.guardians.length > 0 && (
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4">Guardians ({selectedFamilyForView.guardians.length})</h4>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-4">Guardians ({selectedFamilyForView.guardians.length})</h4>
                     <div className="space-y-3">
                       {selectedFamilyForView.guardians.map((guardian) => (
-                        <div key={guardian.id} className="bg-gray-600 p-3 rounded">
-                          <div className="text-white font-medium">{guardian.fullName}</div>
-                          <div className="text-gray-300 text-sm mt-1">{guardian.email}</div>
+                        <div key={guardian.id} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                          <div className="text-gray-900 font-medium">{guardian.fullName}</div>
+                          <div className="text-gray-600 text-sm mt-1">{guardian.email}</div>
                           {guardian.phone && (
-                            <div className="text-gray-300 text-sm">{guardian.phone}</div>
+                            <div className="text-gray-600 text-sm">{guardian.phone}</div>
                           )}
                         </div>
                       ))}
@@ -3528,14 +3528,14 @@ export default function AdminMembers() {
                 )}
 
                 {selectedFamilyForView.athletes && selectedFamilyForView.athletes.length > 0 && (
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4">Athletes ({selectedFamilyForView.athletes.length})</h4>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-4">Athletes ({selectedFamilyForView.athletes.length})</h4>
                     <div className="space-y-3">
                       {selectedFamilyForView.athletes.map((athlete) => (
-                        <div key={athlete.id} className="bg-gray-600 p-3 rounded">
+                        <div key={athlete.id} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <div className="text-white font-medium">{athlete.first_name} {athlete.last_name}</div>
+                              <div className="text-gray-900 font-medium">{athlete.first_name} {athlete.last_name}</div>
                               {(() => {
                                 // Determine status: athlete if has enrollments, otherwise non-participant
                                 const hasEnrollments = athlete.enrollments && athlete.enrollments.length > 0
@@ -3545,14 +3545,14 @@ export default function AdminMembers() {
                                 return (
                                   <div className="flex gap-2">
                                     <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                      enrollmentStatus === 'athlete' ? 'bg-green-600 text-white' :
-                                      'bg-gray-600 text-white'
+                                      enrollmentStatus === 'athlete' ? 'bg-green-50 text-green-700' :
+                                      'bg-gray-100 text-gray-600'
                                     }`}>
                                       {enrollmentStatus === 'athlete' ? 'Athlete' : 'Non-Participant'}
                                     </span>
                                     <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                      activityStatus === 'active' ? 'bg-blue-600 text-white' :
-                                      'bg-yellow-600 text-white'
+                                      activityStatus === 'active' ? 'bg-blue-50 text-blue-700' :
+                                      'bg-amber-100 text-amber-700'
                                     }`}>
                                       {activityStatus === 'active' ? 'Active' : 'Idle'}
                                     </span>
@@ -3566,18 +3566,18 @@ export default function AdminMembers() {
                                   await handleRemoveMemberFromFamily(selectedFamilyForView.id, athlete.id)
                                 }
                               }}
-                              className="text-red-400 hover:text-red-300 text-sm"
+                              className="text-red-600 hover:text-red-700 text-sm"
                               title="Remove from family"
                             >
                               <X className="w-4 h-4" />
                             </button>
                           </div>
-                          <div className="text-gray-300 text-sm mt-1">
+                          <div className="text-gray-600 text-sm mt-1">
                             Date of Birth: {formatDateForDisplay(athlete.date_of_birth)}
                             {athlete.age !== undefined && ` (Age ${athlete.age})`}
                           </div>
                           {athlete.medical_notes && (
-                            <div className="text-gray-300 text-sm mt-1">Medical Notes: {athlete.medical_notes}</div>
+                            <div className="text-gray-600 text-sm mt-1">Medical Notes: {athlete.medical_notes}</div>
                           )}
                         </div>
                       ))}
@@ -3589,7 +3589,7 @@ export default function AdminMembers() {
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={() => setShowFamilyViewModal(false)}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition-colors"
                 >
                   Close
                 </button>
@@ -3613,52 +3613,52 @@ export default function AdminMembers() {
               onClick={() => setShowMemberViewModal(false)}
             />
             <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-white rounded-2xl p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">Member Details</h3>
+                <h3 className="text-xl font-bold text-gray-900">Member Details</h3>
                 <button
                   onClick={() => setShowMemberViewModal(false)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
               <div className="space-y-6">
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="font-semibold text-white mb-4 text-lg">User Information</h4>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-4 text-lg">User Information</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-400">First Name:</span>
-                      <div className="text-white font-medium">{viewingMember.guardian.fullName.split(' ')[0]}</div>
+                      <span className="text-gray-500">First Name:</span>
+                      <div className="text-gray-900 font-medium">{viewingMember.guardian.fullName.split(' ')[0]}</div>
                     </div>
                     <div>
-                      <span className="text-gray-400">Last Name:</span>
-                      <div className="text-white font-medium">{viewingMember.guardian.fullName.split(' ').slice(1).join(' ')}</div>
+                      <span className="text-gray-500">Last Name:</span>
+                      <div className="text-gray-900 font-medium">{viewingMember.guardian.fullName.split(' ').slice(1).join(' ')}</div>
                     </div>
                     <div>
-                      <span className="text-gray-400">Email:</span>
-                      <div className="text-white font-medium">{viewingMember.guardian.email || 'N/A'}</div>
+                      <span className="text-gray-500">Email:</span>
+                      <div className="text-gray-900 font-medium">{viewingMember.guardian.email || 'N/A'}</div>
                     </div>
                     <div>
-                      <span className="text-gray-400">Phone:</span>
-                      <div className="text-white font-medium">{viewingMember.guardian.phone || 'N/A'}</div>
+                      <span className="text-gray-500">Phone:</span>
+                      <div className="text-gray-900 font-medium">{viewingMember.guardian.phone || 'N/A'}</div>
                     </div>
                     <div>
-                      <span className="text-gray-400">User ID:</span>
-                      <div className="text-white font-medium">{viewingMember.guardian.id}</div>
+                      <span className="text-gray-500">User ID:</span>
+                      <div className="text-gray-900 font-medium">{viewingMember.guardian.id}</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="font-semibold text-white mb-4 text-lg">Family Information</h4>
-                  <div className="text-sm text-gray-300 space-y-2">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-4 text-lg">Family Information</h4>
+                  <div className="text-sm text-gray-600 space-y-2">
                     <div>{viewingMember.family.id ? `Family ID: ${viewingMember.family.id}` : 'Orphan'}</div>
                     {viewingMember.family.family_name && (
                       <div>Family Name: {viewingMember.family.family_name}</div>
@@ -3668,18 +3668,18 @@ export default function AdminMembers() {
                 </div>
 
                 {viewingMember.family.athletes && viewingMember.family.athletes.length > 0 && (
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4 text-lg">Family Members ({viewingMember.family.athletes.length})</h4>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-4 text-lg">Family Members ({viewingMember.family.athletes.length})</h4>
                     <div className="space-y-3">
                       {viewingMember.family.athletes.map((athlete) => (
-                        <div key={athlete.id} className="bg-gray-600 p-4 rounded">
+                        <div key={athlete.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                           <div 
                             className="flex justify-between items-center cursor-pointer"
                             onClick={() => setExpandedViewFamilyMemberId(expandedViewFamilyMemberId === athlete.id ? null : athlete.id)}
                           >
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <div className="text-white font-medium text-lg">
+                                <div className="text-gray-900 font-medium text-lg">
                                   {athlete.first_name} {athlete.last_name}
                                 </div>
                                 {(() => {
@@ -3691,14 +3691,14 @@ export default function AdminMembers() {
                                   return (
                                     <div className="flex gap-2">
                                       <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                        enrollmentStatus === 'athlete' ? 'bg-green-600 text-white' :
-                                        'bg-gray-600 text-white'
+                                        enrollmentStatus === 'athlete' ? 'bg-green-50 text-green-700' :
+                                        'bg-gray-100 text-gray-600'
                                       }`}>
                                         {enrollmentStatus === 'athlete' ? 'Athlete' : 'Non-Participant'}
                                       </span>
                                       <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                        activityStatus === 'active' ? 'bg-blue-600 text-white' :
-                                        'bg-yellow-600 text-white'
+                                        activityStatus === 'active' ? 'bg-blue-50 text-blue-700' :
+                                        'bg-amber-100 text-amber-700'
                                       }`}>
                                         {activityStatus === 'active' ? 'Active' : 'Idle'}
                                       </span>
@@ -3706,7 +3706,7 @@ export default function AdminMembers() {
                                   )
                                 })()}
                               </div>
-                              <div className="text-gray-300 text-sm mt-1">
+                              <div className="text-gray-600 text-sm mt-1">
                                 Date of Birth: {athlete.date_of_birth ? formatDateForDisplay(athlete.date_of_birth) : 'N/A'}
                                 {athlete.age !== undefined && ` (Age ${athlete.age})`}
                               </div>
@@ -3719,12 +3719,12 @@ export default function AdminMembers() {
                                     await handleRemoveMemberFromFamily(viewingMember.family.id || 0, athlete.id)
                                   }
                                 }}
-                                className="text-red-400 hover:text-red-300"
+                                className="text-red-600 hover:text-red-700"
                                 title="Remove from family"
                               >
                                 <X className="w-4 h-4" />
                               </button>
-                              <button className="text-gray-400 hover:text-white">
+                              <button className="text-gray-500 hover:text-gray-700">
                                 {expandedViewFamilyMemberId === athlete.id ? (
                                   <ChevronUp className="w-5 h-5" />
                                 ) : (
@@ -3738,25 +3738,25 @@ export default function AdminMembers() {
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="mt-4 pt-4 border-t border-gray-500"
+                              className="mt-4 pt-4 border-t border-gray-200"
                             >
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                 {athlete.user_id && (
                                   <div>
-                                    <span className="text-gray-400">User ID:</span>
-                                    <div className="text-white">{athlete.user_id}</div>
+                                    <span className="text-gray-500">User ID:</span>
+                                    <div className="text-gray-900">{athlete.user_id}</div>
                                   </div>
                                 )}
                                 {athlete.medical_notes && (
                                   <div className="md:col-span-2">
-                                    <span className="text-gray-400">Medical Notes:</span>
-                                    <div className="text-white mt-1">{athlete.medical_notes}</div>
+                                    <span className="text-gray-500">Medical Notes:</span>
+                                    <div className="text-gray-900 mt-1">{athlete.medical_notes}</div>
                                   </div>
                                 )}
                                 {athlete.internal_flags && (
                                   <div className="md:col-span-2">
-                                    <span className="text-gray-400">Internal Flags:</span>
-                                    <div className="text-white mt-1">{athlete.internal_flags}</div>
+                                    <span className="text-gray-500">Internal Flags:</span>
+                                    <div className="text-gray-900 mt-1">{athlete.internal_flags}</div>
                                   </div>
                                 )}
                               </div>
@@ -3769,17 +3769,17 @@ export default function AdminMembers() {
                 )}
 
                 {viewingMember.family.guardians && viewingMember.family.guardians.length > 1 && (
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="font-semibold text-white mb-4 text-lg">Other Guardians ({viewingMember.family.guardians.length - 1})</h4>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-4 text-lg">Other Guardians ({viewingMember.family.guardians.length - 1})</h4>
                     <div className="space-y-3">
                       {viewingMember.family.guardians
                         .filter(g => g.id !== viewingMember.guardian.id)
                         .map((guardian) => (
-                          <div key={guardian.id} className="bg-gray-600 p-3 rounded">
-                            <div className="text-white font-medium">{guardian.fullName}</div>
-                            <div className="text-gray-300 text-sm mt-1">{guardian.email}</div>
+                          <div key={guardian.id} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <div className="text-gray-900 font-medium">{guardian.fullName}</div>
+                            <div className="text-gray-600 text-sm mt-1">{guardian.email}</div>
                             {guardian.phone && (
-                              <div className="text-gray-300 text-sm">{guardian.phone}</div>
+                              <div className="text-gray-600 text-sm">{guardian.phone}</div>
                             )}
                           </div>
                         ))}
@@ -3800,7 +3800,7 @@ export default function AdminMembers() {
                 </button>
                 <button
                   onClick={() => setShowMemberViewModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
+                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition-colors"
                 >
                   Close
                 </button>
@@ -3824,58 +3824,58 @@ export default function AdminMembers() {
               onClick={() => setShowMemberEditModal(false)}
             />
             <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-white rounded-2xl p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">Edit Member</h3>
+                <h3 className="text-xl font-bold text-gray-900">Edit Member</h3>
                 <button
                   onClick={() => setShowMemberEditModal(false)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
               <div className="space-y-6">
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="font-semibold text-white mb-4 text-lg">User Information</h4>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-4 text-lg">User Information</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
                       <input
                         type="text"
                         value={editingMemberData.firstName}
                         onChange={(e) => setEditingMemberData({ ...editingMemberData, firstName: e.target.value })}
-                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
                       <input
                         type="text"
                         value={editingMemberData.lastName}
                         onChange={(e) => setEditingMemberData({ ...editingMemberData, lastName: e.target.value })}
-                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
                       <input
                         type="email"
                         value={editingMemberData.email}
                         onChange={(e) => setEditingMemberData({ ...editingMemberData, email: e.target.value })}
-                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">Phone *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
                       <input
                         type="tel"
                         value={editingMemberData.phone}
@@ -3885,7 +3885,7 @@ export default function AdminMembers() {
                         }}
                         placeholder="###-###-####"
                         maxLength={12}
-                        className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                        className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                         autoComplete="off"
                         required
                       />
@@ -3894,18 +3894,18 @@ export default function AdminMembers() {
                 </div>
 
                 {/* Family Members - Editable */}
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="font-semibold text-white mb-4 text-lg">Family Members ({editingFamilyMembers.length})</h4>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-4 text-lg">Family Members ({editingFamilyMembers.length})</h4>
                   <div className="space-y-4">
                     {editingFamilyMembers.map((member, index) => (
-                      <div key={member.id || index} className="bg-gray-600 p-4 rounded">
+                      <div key={member.id || index} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-center mb-3">
-                          <h5 className="text-white font-medium">
+                          <h5 className="text-gray-900 font-medium">
                             {member.firstName} {member.lastName}
                           </h5>
                           <button
                             onClick={() => setExpandedFamilyMemberId(expandedFamilyMemberId === (member.id || index) ? null : (member.id || index))}
-                            className="text-gray-400 hover:text-white"
+                            className="text-gray-500 hover:text-gray-700"
                           >
                             {expandedFamilyMemberId === (member.id || index) ? (
                               <ChevronUp className="w-5 h-5" />
@@ -3919,10 +3919,10 @@ export default function AdminMembers() {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-gray-500"
+                            className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-gray-200"
                           >
                             <div>
-                              <label className="block text-sm font-semibold text-gray-300 mb-2">First Name *</label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
                               <input
                                 type="text"
                                 value={member.firstName}
@@ -3931,12 +3931,12 @@ export default function AdminMembers() {
                                   updated[index].firstName = e.target.value
                                   setEditingFamilyMembers(updated)
                                 }}
-                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                 required
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name *</label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
                               <input
                                 type="text"
                                 value={member.lastName}
@@ -3945,12 +3945,12 @@ export default function AdminMembers() {
                                   updated[index].lastName = e.target.value
                                   setEditingFamilyMembers(updated)
                                 }}
-                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                 required
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth *</label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth *</label>
                               <input
                                 type="date"
                                 value={formatDateForInput(member.dateOfBirth)}
@@ -3959,7 +3959,7 @@ export default function AdminMembers() {
                                   updated[index].dateOfBirth = e.target.value
                                   setEditingFamilyMembers(updated)
                                 }}
-                                className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                 required
                               />
                             </div>
@@ -3971,7 +3971,7 @@ export default function AdminMembers() {
                                   {isAdultMember && (
                                     <>
                                       <div>
-                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
                                         <input
                                           type="email"
                                           value={member.email}
@@ -3980,12 +3980,12 @@ export default function AdminMembers() {
                                             updated[index].email = e.target.value
                                             setEditingFamilyMembers(updated)
                                           }}
-                                          className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                          className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                           required
                                         />
                                       </div>
                                       <div>
-                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Username *</label>
                                         <input
                                           type="text"
                                           value={member.username}
@@ -3994,12 +3994,12 @@ export default function AdminMembers() {
                                             updated[index].username = e.target.value
                                             setEditingFamilyMembers(updated)
                                           }}
-                                          className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                          className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                           required
                                         />
                                       </div>
                                       <div>
-                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Password</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                                         <input
                                           type="password"
                                           value={member.password}
@@ -4008,7 +4008,7 @@ export default function AdminMembers() {
                                             updated[index].password = e.target.value
                                             setEditingFamilyMembers(updated)
                                           }}
-                                          className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                          className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                           placeholder="Leave blank to keep current"
                                           minLength={6}
                                         />
@@ -4016,7 +4016,7 @@ export default function AdminMembers() {
                                     </>
                                   )}
                                   <div className="md:col-span-2">
-                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Medical Notes</label>
                                     <textarea
                                       value={member.medicalNotes}
                                       onChange={(e) => {
@@ -4025,11 +4025,11 @@ export default function AdminMembers() {
                                         setEditingFamilyMembers(updated)
                                       }}
                                       rows={2}
-                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                     />
                                   </div>
                                   <div className="md:col-span-2">
-                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Internal Flags</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Internal Flags</label>
                                     <input
                                       type="text"
                                       value={member.internalFlags}
@@ -4038,7 +4038,7 @@ export default function AdminMembers() {
                                         updated[index].internalFlags = e.target.value
                                         setEditingFamilyMembers(updated)
                                       }}
-                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                     />
                                   </div>
                                 </>
@@ -4050,34 +4050,34 @@ export default function AdminMembers() {
                     ))}
                     
                     {/* Add New Family Member Section */}
-                    <div className="bg-gray-600 p-4 rounded border-2 border-dashed border-gray-500">
-                      <h5 className="text-white font-medium mb-4">Add New Family Member</h5>
+                    <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-300">
+                      <h5 className="text-gray-900 font-medium mb-4">Add New Family Member</h5>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">First Name</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                           <input
                             type="text"
                             value={newFamilyMemberInEdit.firstName}
                             onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, firstName: e.target.value })}
-                            className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                           <input
                             type="text"
                             value={newFamilyMemberInEdit.lastName}
                             onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, lastName: e.target.value })}
-                            className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">Date of Birth</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
                           <input
                             type="date"
                             value={formatDateForInput(newFamilyMemberInEdit.dateOfBirth)}
                             onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, dateOfBirth: e.target.value })}
-                            className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                           />
                         </div>
                         {(() => {
@@ -4092,17 +4092,17 @@ export default function AdminMembers() {
                               {isAdultMember && (
                                 <>
                                   <div>
-                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
                                     <input
                                       type="email"
                                       value={newFamilyMemberInEdit.email}
                                       onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, email: e.target.value })}
-                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                       required
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Username *</label>
                                     <input
                                       type="text"
                                       value={newFamilyMemberInEdit.username}
@@ -4115,31 +4115,31 @@ export default function AdminMembers() {
                                           setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, username })
                                         }
                                       }}
-                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                       required
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Password *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
                                     <input
                                       type="password"
                                       value={newFamilyMemberInEdit.password}
                                       onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, password: e.target.value })}
-                                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                      className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                       required
                                       minLength={6}
                                     />
-                                    <p className="text-xs text-gray-400 mt-1">Default: vortex</p>
+                                    <p className="text-xs text-gray-500 mt-1">Default: vortex</p>
                                   </div>
                                 </>
                               )}
                               {existingAddresses.length > 0 && (
                                 <div className="md:col-span-2">
-                                  <label className="block text-sm font-semibold text-gray-300 mb-2">Mailing Address (Select from family or enter new)</label>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Mailing Address (Select from family or enter new)</label>
                                   <select
                                     value={newFamilyMemberInEdit.address}
                                     onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, address: e.target.value })}
-                                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500 mb-2"
+                                    className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300 mb-2"
                                   >
                                     <option value="">Select existing address or enter new below</option>
                                     {existingAddresses.map((addr, idx) => (
@@ -4150,7 +4150,7 @@ export default function AdminMembers() {
                                     type="text"
                                     value={newFamilyMemberInEdit.address}
                                     onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, address: e.target.value })}
-                                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                                    className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                                     placeholder="Or enter new address"
                                   />
                                 </div>
@@ -4159,12 +4159,12 @@ export default function AdminMembers() {
                           )
                         })()}
                         <div className="md:col-span-2">
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">Medical Notes</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Medical Notes</label>
                           <textarea
                             value={newFamilyMemberInEdit.medicalNotes}
                             onChange={(e) => setNewFamilyMemberInEdit({ ...newFamilyMemberInEdit, medicalNotes: e.target.value })}
                             rows={2}
-                            className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-500"
+                            className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                           />
                         </div>
                         <div className="md:col-span-2">
@@ -4219,7 +4219,7 @@ export default function AdminMembers() {
               <div className="flex gap-2 mt-6">
                 <button
                   onClick={() => setShowMemberEditModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
+                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition-colors"
                 >
                   Cancel
                 </button>
@@ -4372,14 +4372,14 @@ export default function AdminMembers() {
               }}
             />
             <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-6xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-white rounded-2xl p-6 max-w-6xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">
+                <h3 className="text-xl font-bold text-gray-900">
                   View Member: {viewingUnifiedMember.firstName} {viewingUnifiedMember.lastName}
                 </h3>
                 <button
@@ -4388,7 +4388,7 @@ export default function AdminMembers() {
                     setViewingUnifiedMember(null)
                     setViewingMemberFamilyData(null)
                   }}
-                  className="text-gray-400 hover:text-white"
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -4397,48 +4397,48 @@ export default function AdminMembers() {
               <div className="space-y-6">
                 {/* Family Information */}
                 {viewingUnifiedMember.familyId && (
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="text-lg font-semibold text-white mb-3">Family Information</h4>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="text-base font-semibold text-gray-900 mb-3">Family Information</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <span className="text-sm font-semibold text-gray-300">Family Name:</span>
-                        <div className="text-white">{viewingUnifiedMember.familyName || 'N/A'}</div>
+                        <span className="text-sm font-medium text-gray-700">Family Name:</span>
+                        <div className="text-gray-900">{viewingUnifiedMember.familyName || 'N/A'}</div>
                       </div>
                       <div>
-                        <span className="text-sm font-semibold text-gray-300">Family Username:</span>
-                        <div className="text-white">{viewingMemberFamilyData?.familyUsername || 'N/A'}</div>
+                        <span className="text-sm font-medium text-gray-700">Family Username:</span>
+                        <div className="text-gray-900">{viewingMemberFamilyData?.familyUsername || 'N/A'}</div>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {/* Member Basic Information */}
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="text-lg font-semibold text-white mb-3">Basic Information</h4>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-base font-semibold text-gray-900 mb-3">Basic Information</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">First Name:</span>
-                      <div className="text-white">{viewingUnifiedMember.firstName}</div>
+                      <span className="text-sm font-medium text-gray-700">First Name:</span>
+                      <div className="text-gray-900">{viewingUnifiedMember.firstName}</div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Last Name:</span>
-                      <div className="text-white">{viewingUnifiedMember.lastName}</div>
+                      <span className="text-sm font-medium text-gray-700">Last Name:</span>
+                      <div className="text-gray-900">{viewingUnifiedMember.lastName}</div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Email:</span>
-                      <div className="text-white">{viewingUnifiedMember.email || 'N/A'}</div>
+                      <span className="text-sm font-medium text-gray-700">Email:</span>
+                      <div className="text-gray-900">{viewingUnifiedMember.email || 'N/A'}</div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Phone:</span>
-                      <div className="text-white">{viewingUnifiedMember.phone || 'N/A'}</div>
+                      <span className="text-sm font-medium text-gray-700">Phone:</span>
+                      <div className="text-gray-900">{viewingUnifiedMember.phone || 'N/A'}</div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Username:</span>
-                      <div className="text-white">{viewingUnifiedMember.username || 'N/A'}</div>
+                      <span className="text-sm font-medium text-gray-700">Username:</span>
+                      <div className="text-gray-900">{viewingUnifiedMember.username || 'N/A'}</div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
-                      <div className="text-white">
+                      <span className="text-sm font-medium text-gray-700">Date of Birth:</span>
+                      <div className="text-gray-900">
                         {viewingUnifiedMember.dateOfBirth 
                           ? formatDateForDisplay(viewingUnifiedMember.dateOfBirth)
                           : 'N/A'}
@@ -4446,56 +4446,56 @@ export default function AdminMembers() {
                     </div>
                     {viewingUnifiedMember.age !== null && viewingUnifiedMember.age !== undefined && (
                       <div>
-                        <span className="text-sm font-semibold text-gray-300">Age:</span>
-                        <div className="text-white">{viewingUnifiedMember.age}</div>
+                        <span className="text-sm font-medium text-gray-700">Age:</span>
+                        <div className="text-gray-900">{viewingUnifiedMember.age}</div>
                       </div>
                     )}
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Address:</span>
-                      <div className="text-white">{viewingUnifiedMember.address || 'N/A'}</div>
+                      <span className="text-sm font-medium text-gray-700">Address:</span>
+                      <div className="text-gray-900">{viewingUnifiedMember.address || 'N/A'}</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Status and Roles */}
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="text-lg font-semibold text-white mb-3">Status and Roles</h4>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-base font-semibold text-gray-900 mb-3">Status and Roles</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Status:</span>
+                      <span className="text-sm font-medium text-gray-700">Status:</span>
                       <div className="mt-1">
                         <span className={`px-2 py-1 rounded text-xs font-semibold ${
                           viewingUnifiedMember.isActive 
-                            ? 'bg-green-600 text-white' 
-                            : 'bg-gray-500 text-white'
+                            ? 'bg-green-50 text-green-700' 
+                            : 'bg-gray-100 text-gray-600'
                         }`}>
                           {viewingUnifiedMember.isActive ? 'Active' : 'Archived'}
                         </span>
                       </div>
                     </div>
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Enrollment Status:</span>
+                      <span className="text-sm font-medium text-gray-700">Enrollment Status:</span>
                       <div className="mt-1">
                         <span className={`px-2 py-1 rounded text-xs font-semibold ${
                           viewingUnifiedMember.status === 'athlete' || viewingUnifiedMember.status === 'enrolled'
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-gray-500 text-white'
+                            ? 'bg-blue-50 text-blue-700' 
+                            : 'bg-gray-100 text-gray-600'
                         }`}>
                           {viewingUnifiedMember.status || 'Non-Participant'}
                         </span>
                       </div>
                     </div>
                     <div className="md:col-span-2">
-                      <span className="text-sm font-semibold text-gray-300">Roles:</span>
+                      <span className="text-sm font-medium text-gray-700">Roles:</span>
                       <div className="mt-1 flex flex-wrap gap-2">
                         {viewingUnifiedMember.roles && viewingUnifiedMember.roles.length > 0 ? (
                           viewingUnifiedMember.roles.map((role, idx) => (
-                            <span key={idx} className="px-2 py-1 rounded text-xs font-semibold bg-purple-600 text-white">
+                            <span key={idx} className="px-2 py-1 rounded text-xs font-semibold bg-purple-50 text-purple-700">
                               {role.role}
                             </span>
                           ))
                         ) : (
-                          <span className="text-gray-400 text-sm">No roles assigned</span>
+                          <span className="text-gray-500 text-sm">No roles assigned</span>
                         )}
                       </div>
                     </div>
@@ -4503,8 +4503,8 @@ export default function AdminMembers() {
                 </div>
 
                 {/* Enrollments */}
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="text-lg font-semibold text-white mb-3">Active Enrollments</h4>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-base font-semibold text-gray-900 mb-3">Active Enrollments</h4>
                   {viewingUnifiedMember.enrollments && viewingUnifiedMember.enrollments.length > 0 ? (
                     <div className="space-y-2">
                       {viewingUnifiedMember.enrollments.map((enrollment: any) => {
@@ -4515,16 +4515,16 @@ export default function AdminMembers() {
                               : [])
                         const enrollmentDate = enrollment.createdAt || enrollment.created_at
                         return (
-                          <div key={enrollment.id} className="bg-gray-600 p-3 rounded">
-                            <div className="text-white font-medium">
+                          <div key={enrollment.id} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <div className="text-gray-900 font-medium">
                               {enrollment.program_display_name || enrollment.programDisplayName || 'Unknown Class'}
                             </div>
-                            <div className="text-gray-400 text-sm mt-1">
+                            <div className="text-gray-500 text-sm mt-1">
                               {enrollment.days_per_week || enrollment.daysPerWeek} day{(enrollment.days_per_week || enrollment.daysPerWeek) !== 1 ? 's' : ''}/week
                               {selectedDaysArray.length > 0 && ` • ${selectedDaysArray.join(', ')}`}
                             </div>
                             {enrollmentDate && (
-                              <div className="text-gray-400 text-xs mt-1">
+                              <div className="text-gray-500 text-xs mt-1">
                                 Enrolled: {formatTimeSince(enrollmentDate)}
                               </div>
                             )}
@@ -4533,10 +4533,10 @@ export default function AdminMembers() {
                       })}
                     </div>
                   ) : (
-                    <div className="text-gray-400 text-sm">No active enrollments</div>
+                    <div className="text-gray-500 text-sm">No active enrollments</div>
                   )}
                   {viewingUnifiedMember.enrollments && viewingUnifiedMember.enrollments.length > 0 && (
-                    <div className="mt-3 text-sm text-gray-300">
+                    <div className="mt-3 text-sm text-gray-600">
                       <span className="font-semibold">Last Enrollment:</span> {formatTimeSince(
                         getMostRecentEnrollmentDate(viewingUnifiedMember.enrollments.map((e: any) => ({ 
                           created_at: e.created_at, 
@@ -4549,8 +4549,8 @@ export default function AdminMembers() {
 
                 {/* Family Members */}
                 {viewingMemberFamilyData && viewingMemberFamilyData.members && viewingMemberFamilyData.members.length > 0 && (
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="text-lg font-semibold text-white mb-3">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="text-base font-semibold text-gray-900 mb-3">
                       Family Members ({viewingMemberFamilyData.members.length})
                     </h4>
                     <div className="space-y-3">
@@ -4559,49 +4559,49 @@ export default function AdminMembers() {
                         return (
                           <div 
                             key={familyMember.id} 
-                            className={`bg-gray-600 p-4 rounded ${isCurrentMember ? 'ring-2 ring-blue-500' : ''}`}
+                            className={`bg-gray-50 border border-gray-200 rounded-lg p-4 ${isCurrentMember ? 'ring-2 ring-blue-500' : ''}`}
                           >
                             {isCurrentMember && (
-                              <div className="text-xs text-blue-400 font-semibold mb-2">(Current Member)</div>
+                              <div className="text-xs text-blue-700 font-semibold mb-2">(Current Member)</div>
                             )}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               <div>
-                                <span className="text-sm font-semibold text-gray-300">Name:</span>
-                                <div className="text-white">{familyMember.firstName} {familyMember.lastName}</div>
+                                <span className="text-sm font-medium text-gray-700">Name:</span>
+                                <div className="text-gray-900">{familyMember.firstName} {familyMember.lastName}</div>
                               </div>
                               {familyMember.email && (
                                 <div>
-                                  <span className="text-sm font-semibold text-gray-300">Email:</span>
-                                  <div className="text-white">{familyMember.email}</div>
+                                  <span className="text-sm font-medium text-gray-700">Email:</span>
+                                  <div className="text-gray-900">{familyMember.email}</div>
                                 </div>
                               )}
                               {familyMember.phone && (
                                 <div>
-                                  <span className="text-sm font-semibold text-gray-300">Phone:</span>
-                                  <div className="text-white">{familyMember.phone}</div>
+                                  <span className="text-sm font-medium text-gray-700">Phone:</span>
+                                  <div className="text-gray-900">{familyMember.phone}</div>
                                 </div>
                               )}
                               {familyMember.dateOfBirth && (
                                 <div>
-                                  <span className="text-sm font-semibold text-gray-300">Date of Birth:</span>
-                                  <div className="text-white">
+                                  <span className="text-sm font-medium text-gray-700">Date of Birth:</span>
+                                  <div className="text-gray-900">
                                     {formatDateForDisplay(familyMember.dateOfBirth)}
                                   </div>
                                 </div>
                               )}
                               {familyMember.age !== null && familyMember.age !== undefined && (
                                 <div>
-                                  <span className="text-sm font-semibold text-gray-300">Age:</span>
-                                  <div className="text-white">{familyMember.age}</div>
+                                  <span className="text-sm font-medium text-gray-700">Age:</span>
+                                  <div className="text-gray-900">{familyMember.age}</div>
                                 </div>
                               )}
                               <div>
-                                <span className="text-sm font-semibold text-gray-300">Status:</span>
+                                <span className="text-sm font-medium text-gray-700">Status:</span>
                                 <div className="mt-1">
                                   <span className={`px-2 py-1 rounded text-xs font-semibold ${
                                     familyMember.isActive 
-                                      ? 'bg-green-600 text-white' 
-                                      : 'bg-gray-500 text-white'
+                                      ? 'bg-green-50 text-green-700' 
+                                      : 'bg-gray-100 text-gray-600'
                                   }`}>
                                     {familyMember.isActive ? 'Active' : 'Archived'}
                                   </span>
@@ -4618,34 +4618,34 @@ export default function AdminMembers() {
 
                 {/* Additional Information */}
                 {(viewingUnifiedMember.medicalNotes || viewingUnifiedMember.internalFlags) && (
-                  <div className="bg-gray-700 p-4 rounded">
-                    <h4 className="text-lg font-semibold text-white mb-3">Additional Information</h4>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="text-base font-semibold text-gray-900 mb-3">Additional Information</h4>
                     {viewingUnifiedMember.medicalNotes && (
                       <div className="mb-3">
-                        <span className="text-sm font-semibold text-gray-300">Medical Notes:</span>
-                        <div className="text-white mt-1">{viewingUnifiedMember.medicalNotes}</div>
+                        <span className="text-sm font-medium text-gray-700">Medical Notes:</span>
+                        <div className="text-gray-900 mt-1">{viewingUnifiedMember.medicalNotes}</div>
                       </div>
                     )}
                     {viewingUnifiedMember.internalFlags && (
                       <div>
-                        <span className="text-sm font-semibold text-gray-300">Internal Flags:</span>
-                        <div className="text-white mt-1">{viewingUnifiedMember.internalFlags}</div>
+                        <span className="text-sm font-medium text-gray-700">Internal Flags:</span>
+                        <div className="text-gray-900 mt-1">{viewingUnifiedMember.internalFlags}</div>
                       </div>
                     )}
                   </div>
                 )}
 
                 {/* Waiver Information */}
-                <div className="bg-gray-700 p-4 rounded">
-                  <h4 className="text-lg font-semibold text-white mb-3">Waiver Information</h4>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-base font-semibold text-gray-900 mb-3">Waiver Information</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <span className="text-sm font-semibold text-gray-300">Waivers Completed:</span>
+                      <span className="text-sm font-medium text-gray-700">Waivers Completed:</span>
                       <div className="mt-1">
                         <span className={`px-2 py-1 rounded text-xs font-semibold ${
                           viewingUnifiedMember.hasCompletedWaivers 
-                            ? 'bg-green-600 text-white' 
-                            : 'bg-red-600 text-white'
+                            ? 'bg-green-50 text-green-700' 
+                            : 'bg-red-50 text-red-700'
                         }`}>
                           {viewingUnifiedMember.hasCompletedWaivers ? 'Yes' : 'No'}
                         </span>
@@ -4653,8 +4653,8 @@ export default function AdminMembers() {
                     </div>
                     {viewingUnifiedMember.waiverCompletionDate && (
                       <div>
-                        <span className="text-sm font-semibold text-gray-300">Completion Date:</span>
-                        <div className="text-white">
+                        <span className="text-sm font-medium text-gray-700">Completion Date:</span>
+                        <div className="text-gray-900">
                           {formatTimestampDate(viewingUnifiedMember.waiverCompletionDate)}
                         </div>
                       </div>
@@ -4670,7 +4670,7 @@ export default function AdminMembers() {
                     setViewingUnifiedMember(null)
                     setViewingMemberFamilyData(null)
                   }}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold transition-colors"
                 >
                   Close
                 </button>
