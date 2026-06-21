@@ -208,7 +208,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
             </h3>
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
               Whether your athlete plays football, basketball, competes in track & field, or trains in 
-              gymnastics, the Athleticism Accelerator principles are woven throughout their training. We ensure a holistic approach to athletic development – building strength while 
+              gymnastics, the Athleticism Accelerator principles will drive your child toward peak performance. We ensure a holistic approach to athletic development – building strength while 
               training flexibility, developing speed while enhancing balance. No athlete leaves with 
               weak links in their athletic chain.
             </p>
