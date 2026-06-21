@@ -1,102 +1,69 @@
-# Running Migration on Production (Render)
+# Production Migration Runbook (Render)
 
-## Option 1: Using Render Shell (Recommended)
+## 1) Preconditions
 
-1. **Go to your Render Dashboard**
-   - Navigate to your backend service on Render
-   - Click on "Shell" tab (or use the terminal icon)
+- Confirm latest code is deployed to backend service.
+- Ensure `DATABASE_URL` is set.
+- Ensure `backend/run-migration.js` includes migration ledger support (`schema_migrations`).
+- Take a database backup/snapshot before applying migrations.
 
-2. **Run the migration**
-   ```bash
-   cd backend
-   npm run migrate add_categories_levels_tables.sql
-   ```
+## 2) Run Migrations (Preferred)
 
-   Or directly:
-   ```bash
-   node backend/run-migration.js add_categories_levels_tables.sql
-   ```
+Use Render Shell in the deployed backend service:
 
-## Option 2: Using Render Database Console
-
-1. **Go to your Render Dashboard**
-   - Navigate to your PostgreSQL database service
-   - Click on "Connect" or "Info" tab
-   - Copy the "Internal Database URL" or connection string
-
-2. **Connect using psql** (if you have psql installed locally):
-   ```bash
-   psql <your-database-url>
-   ```
-
-3. **Run the migration SQL**:
-   ```sql
-   -- Copy and paste the contents of backend/migrations/add_categories_levels_tables.sql
-   ```
-
-## Option 3: Create a Temporary Migration Endpoint (Quick but less secure)
-
-If you need to run it via API, you can temporarily add an endpoint to run migrations. 
-**⚠️ Remove this endpoint after running the migration for security!**
-
-Add this to `server.js` temporarily:
-
-```javascript
-// TEMPORARY: Remove after migration is run!
-app.post('/api/admin/run-migration', async (req, res) => {
-  try {
-    const { migrationFile } = req.body
-    if (migrationFile !== 'add_categories_levels_tables.sql') {
-      return res.status(400).json({ success: false, message: 'Invalid migration file' })
-    }
-    
-    const fs = require('fs')
-    const path = require('path')
-    const migrationPath = path.join(__dirname, 'migrations', migrationFile)
-    const sql = fs.readFileSync(migrationPath, 'utf8')
-    
-    await pool.query(sql)
-    
-    res.json({ success: true, message: 'Migration completed' })
-  } catch (error) {
-    console.error('Migration error:', error)
-    res.status(500).json({ success: false, message: error.message })
-  }
-})
-```
-
-Then call it:
 ```bash
-curl -X POST https://vortex-backend-qybl.onrender.com/api/admin/run-migration \
-  -H "Content-Type: application/json" \
-  -d '{"migrationFile": "add_categories_levels_tables.sql"}'
+cd backend
+npm run migrate:all
 ```
 
-## Option 4: Using Render's Database Web Console
+To run a single file:
 
-1. Go to your PostgreSQL database on Render
-2. Click on "Connect" → "External Connection"
-3. Use the provided connection string with a PostgreSQL client
-4. Run the migration SQL file contents
+```bash
+cd backend
+npm run migrate 010_launch_payment_reconciliation.sql
+```
 
-## Verification
+## 3) Post-Run Verification
 
-After running the migration, verify it worked:
+Run these checks in psql:
 
 ```sql
--- Check if tables exist
-SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('program_categories', 'skill_levels');
+SELECT filename, applied_at
+FROM schema_migrations
+ORDER BY applied_at DESC
+LIMIT 20;
 
--- Check if data was migrated
-SELECT COUNT(*) FROM program_categories;
-SELECT COUNT(*) FROM skill_levels;
+SELECT status, dbConnected, "schemaMigrationsTracked"
+FROM (
+  SELECT
+    'use /api/health in app logs' AS status,
+    true AS dbConnected,
+    true AS "schemaMigrationsTracked"
+) t;
 ```
 
-## Troubleshooting
+Then hit backend health endpoint:
 
-If you get errors:
-- Make sure the `DATABASE_URL` environment variable is set correctly on Render
-- Check that the migration file exists in the `backend/migrations/` directory
-- Verify the database connection is working
-- Check Render logs for detailed error messages
+```bash
+curl https://<your-backend-domain>/api/health
+```
+
+Expect:
+- `status: "OK"`
+- `dbConnected: true`
+- `schemaMigrationsTracked: true`
+
+## 4) Rollback Guidance
+
+- If migration fails before commit, nothing is applied.
+- If a migration has committed and caused issues:
+  - deploy previous backend version
+  - restore database snapshot
+  - create a forward-fix migration before retrying production
+
+## 5) Security Notes
+
+- Do **not** expose migration endpoints publicly.
+- Keep `ENABLE_MIGRATION_ENDPOINT=false` in production.
+- Never rely on temporary API migration paths for normal releases.
 

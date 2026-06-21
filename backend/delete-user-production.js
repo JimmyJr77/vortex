@@ -43,9 +43,10 @@ async function deleteUserFromProduction() {
       
       // Get all family IDs associated with this user
       const familiesResult = await client.query(`
-        SELECT DISTINCT family_id as id FROM family_guardian WHERE user_id = $1
-        UNION
-        SELECT id FROM family WHERE primary_user_id = $1
+        SELECT DISTINCT fm.family_id as id
+        FROM family_member fm
+        JOIN member m ON m.id = fm.member_id
+        WHERE m.app_user_id = $1
       `, [user.id])
       
       const familyIds = familiesResult.rows.map(row => row.id)
@@ -60,7 +61,10 @@ async function deleteUserFromProduction() {
         for (const familyId of familyIds) {
           if (facilityId) {
             const membersResult = await client.query(
-              'SELECT id FROM member WHERE family_id = $1 AND facility_id = $2',
+              `SELECT DISTINCT m.id
+               FROM family_member fm
+               JOIN member m ON m.id = fm.member_id
+               WHERE fm.family_id = $1 AND m.facility_id = $2`,
               [familyId, facilityId]
             )
             const memberIds = membersResult.rows.map(row => row.id)
@@ -74,7 +78,10 @@ async function deleteUserFromProduction() {
             }
           } else {
             const membersResult = await client.query(
-              'SELECT id FROM member WHERE family_id = $1',
+              `SELECT DISTINCT m.id
+               FROM family_member fm
+               JOIN member m ON m.id = fm.member_id
+               WHERE fm.family_id = $1`,
               [familyId]
             )
             const memberIds = membersResult.rows.map(row => row.id)

@@ -76,30 +76,29 @@ CREATE INDEX IF NOT EXISTS idx_parent_guardian_child ON parent_guardian_authorit
 CREATE INDEX IF NOT EXISTS idx_parent_guardian_legal ON parent_guardian_authority(has_legal_authority);
 
 -- Step 3: Migrate data from app_user to member
--- First, insert all app_user records as members
--- Check if username column exists in app_user
 DO $$
+DECLARE
+  has_username BOOLEAN;
+  has_address BOOLEAN;
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'app_user' AND column_name = 'username') THEN
+  SELECT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'app_user' AND column_name = 'username'
+  ) INTO has_username;
+
+  SELECT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'app_user' AND column_name = 'address'
+  ) INTO has_address;
+
+  IF has_username AND has_address THEN
     INSERT INTO member (
-      id,
-      facility_id,
-      first_name,
-      last_name,
-      email,
-      phone,
-      address,
-      password_hash,
-      username,
-      is_active,
-      status,
-      created_at,
-      updated_at
+      id, facility_id, first_name, last_name, email, phone, address,
+      password_hash, username, is_active, status, created_at, updated_at
     )
-    SELECT 
+    SELECT
       id,
       facility_id,
-      -- Split full_name into first_name and last_name
       SPLIT_PART(full_name, ' ', 1) as first_name,
       SUBSTRING(full_name FROM LENGTH(SPLIT_PART(full_name, ' ', 1)) + 2) as last_name,
       email,
@@ -108,10 +107,50 @@ BEGIN
       password_hash,
       username,
       is_active,
-      CASE 
-        WHEN is_active = FALSE THEN 'archived'
-        ELSE 'legacy'
-      END as status,
+      CASE WHEN is_active = FALSE THEN 'archived' ELSE 'legacy' END as status,
+      created_at,
+      updated_at
+    FROM app_user
+    WHERE NOT EXISTS (SELECT 1 FROM member WHERE member.id = app_user.id)
+    ON CONFLICT DO NOTHING;
+  ELSIF has_username THEN
+    INSERT INTO member (
+      id, facility_id, first_name, last_name, email, phone, address,
+      password_hash, username, is_active, status, created_at, updated_at
+    )
+    SELECT
+      id,
+      facility_id,
+      SPLIT_PART(full_name, ' ', 1) as first_name,
+      SUBSTRING(full_name FROM LENGTH(SPLIT_PART(full_name, ' ', 1)) + 2) as last_name,
+      email,
+      phone,
+      NULL::text as address,
+      password_hash,
+      username,
+      is_active,
+      CASE WHEN is_active = FALSE THEN 'archived' ELSE 'legacy' END as status,
+      created_at,
+      updated_at
+    FROM app_user
+    WHERE NOT EXISTS (SELECT 1 FROM member WHERE member.id = app_user.id)
+    ON CONFLICT DO NOTHING;
+  ELSIF has_address THEN
+    INSERT INTO member (
+      id, facility_id, first_name, last_name, email, phone, address,
+      password_hash, is_active, status, created_at, updated_at
+    )
+    SELECT
+      id,
+      facility_id,
+      SPLIT_PART(full_name, ' ', 1) as first_name,
+      SUBSTRING(full_name FROM LENGTH(SPLIT_PART(full_name, ' ', 1)) + 2) as last_name,
+      email,
+      phone,
+      address,
+      password_hash,
+      is_active,
+      CASE WHEN is_active = FALSE THEN 'archived' ELSE 'legacy' END as status,
       created_at,
       updated_at
     FROM app_user
@@ -119,34 +158,20 @@ BEGIN
     ON CONFLICT DO NOTHING;
   ELSE
     INSERT INTO member (
-      id,
-      facility_id,
-      first_name,
-      last_name,
-      email,
-      phone,
-      address,
-      password_hash,
-      is_active,
-      status,
-      created_at,
-      updated_at
+      id, facility_id, first_name, last_name, email, phone, address,
+      password_hash, is_active, status, created_at, updated_at
     )
-    SELECT 
+    SELECT
       id,
       facility_id,
-      -- Split full_name into first_name and last_name
       SPLIT_PART(full_name, ' ', 1) as first_name,
       SUBSTRING(full_name FROM LENGTH(SPLIT_PART(full_name, ' ', 1)) + 2) as last_name,
       email,
       phone,
-      address,
+      NULL::text as address,
       password_hash,
       is_active,
-      CASE 
-        WHEN is_active = FALSE THEN 'archived'
-        ELSE 'legacy'
-      END as status,
+      CASE WHEN is_active = FALSE THEN 'archived' ELSE 'legacy' END as status,
       created_at,
       updated_at
     FROM app_user
@@ -155,59 +180,53 @@ BEGIN
   END IF;
 END $$;
 
--- Step 4: Migrate data from athlete to member
--- For athletes that don't have a corresponding app_user record
-INSERT INTO member (
-  facility_id,
-  family_id,
-  first_name,
-  last_name,
-  date_of_birth,
-  medical_notes,
-  internal_flags,
-  status,
-  is_active,
-  created_at,
-  updated_at
-)
-SELECT 
-  a.facility_id,
-  a.family_id,
-  a.first_name,
-  a.last_name,
-  a.date_of_birth,
-  a.medical_notes,
-  a.internal_flags,
-  CASE 
-    WHEN a.status = 'stand-bye' THEN 'legacy'
-    WHEN a.status = 'archived' THEN 'archived'
-    WHEN a.status = 'enrolled' THEN 'enrolled'
-    ELSE 'legacy'
-  END as status,
-  CASE WHEN a.status = 'archived' THEN FALSE ELSE TRUE END as is_active,
-  a.created_at,
-  a.updated_at
-FROM athlete a
-WHERE a.user_id IS NULL  -- Only athletes without user_id (children)
-ON CONFLICT DO NOTHING;
+-- Step 4-5: Migrate athlete data when legacy athlete table exists
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'athlete'
+  ) THEN
+    INSERT INTO member (
+      facility_id,
+      family_id,
+      first_name,
+      last_name,
+      date_of_birth,
+      medical_notes,
+      internal_flags,
+      status,
+      is_active,
+      created_at,
+      updated_at
+    )
+    SELECT
+      a.facility_id,
+      a.family_id,
+      a.first_name,
+      a.last_name,
+      a.date_of_birth,
+      a.medical_notes,
+      a.internal_flags,
+      'legacy'::varchar as status,
+      TRUE as is_active,
+      a.created_at,
+      a.updated_at
+    FROM athlete a
+    WHERE a.user_id IS NULL
+    ON CONFLICT DO NOTHING;
 
--- Step 5: Update existing member records with athlete data where user_id exists
--- This merges app_user and athlete data for adults who train
-UPDATE member m
-SET 
-  family_id = a.family_id,
-  date_of_birth = a.date_of_birth,
-  medical_notes = a.medical_notes,
-  internal_flags = a.internal_flags,
-  status = CASE 
-    WHEN a.status = 'stand-bye' THEN 'legacy'
-    WHEN a.status = 'archived' THEN 'archived'
-    WHEN a.status = 'enrolled' THEN 'enrolled'
-    ELSE m.status
-  END,
-  updated_at = GREATEST(m.updated_at, a.updated_at)
-FROM athlete a
-WHERE a.user_id = m.id;
+    UPDATE member m
+    SET
+      family_id = a.family_id,
+      date_of_birth = a.date_of_birth,
+      medical_notes = a.medical_notes,
+      internal_flags = a.internal_flags,
+      updated_at = GREATEST(m.updated_at, a.updated_at)
+    FROM athlete a
+    WHERE a.user_id = m.id;
+  END IF;
+END $$;
 
 -- Step 6: Create member_program table (replaces athlete_program)
 CREATE TABLE IF NOT EXISTS member_program (
@@ -239,53 +258,105 @@ CREATE INDEX IF NOT EXISTS idx_member_program_member ON member_program(member_id
 CREATE INDEX IF NOT EXISTS idx_member_program_program ON member_program(program_id);
 CREATE INDEX IF NOT EXISTS idx_member_program_iteration ON member_program(iteration_id);
 
--- Step 7: Migrate athlete_program to member_program
--- Map athlete_id to member_id
-INSERT INTO member_program (
-  member_id,
-  program_id,
-  iteration_id,
-  days_per_week,
-  selected_days,
-  created_at,
-  updated_at
-)
-SELECT 
-  -- Find member_id: either from athlete.user_id or from athlete.id if no user_id
-  COALESCE(
-    (SELECT id FROM member WHERE id = a.user_id LIMIT 1),
-    (SELECT id FROM member WHERE first_name = a.first_name 
-     AND last_name = a.last_name 
-     AND date_of_birth = a.date_of_birth 
-     AND family_id = a.family_id
-     LIMIT 1)
-  ) as member_id,
-  ap.program_id,
-  ap.iteration_id,
-  ap.days_per_week,
-  ap.selected_days,
-  ap.created_at,
-  ap.updated_at
-FROM athlete_program ap
-JOIN athlete a ON ap.athlete_id = a.id
-WHERE COALESCE(
-  (SELECT id FROM member WHERE id = a.user_id LIMIT 1),
-  (SELECT id FROM member WHERE first_name = a.first_name 
-   AND last_name = a.last_name 
-   AND date_of_birth = a.date_of_birth 
-   AND family_id = a.family_id
-   LIMIT 1)
-) IS NOT NULL
-ON CONFLICT DO NOTHING;
+-- Step 7: Migrate athlete_program to member_program (legacy DBs only)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'athlete_program'
+  ) THEN
+    IF EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_name = 'athlete_program' AND column_name = 'iteration_id'
+    ) THEN
+      INSERT INTO member_program (
+        member_id,
+        program_id,
+        iteration_id,
+        days_per_week,
+        selected_days,
+        created_at,
+        updated_at
+      )
+      SELECT
+        COALESCE(
+          (SELECT id FROM member WHERE id = a.user_id LIMIT 1),
+          (SELECT id FROM member WHERE first_name = a.first_name
+           AND last_name = a.last_name
+           AND date_of_birth = a.date_of_birth
+           AND family_id = a.family_id
+           LIMIT 1)
+        ) as member_id,
+        ap.program_id,
+        ap.iteration_id,
+        ap.days_per_week,
+        ap.selected_days,
+        ap.created_at,
+        ap.updated_at
+      FROM athlete_program ap
+      JOIN athlete a ON ap.athlete_id = a.id
+      WHERE COALESCE(
+        (SELECT id FROM member WHERE id = a.user_id LIMIT 1),
+        (SELECT id FROM member WHERE first_name = a.first_name
+         AND last_name = a.last_name
+         AND date_of_birth = a.date_of_birth
+         AND family_id = a.family_id
+         LIMIT 1)
+      ) IS NOT NULL
+      ON CONFLICT DO NOTHING;
+    ELSE
+      INSERT INTO member_program (
+        member_id,
+        program_id,
+        iteration_id,
+        days_per_week,
+        selected_days,
+        created_at,
+        updated_at
+      )
+      SELECT
+        COALESCE(
+          (SELECT id FROM member WHERE id = a.user_id LIMIT 1),
+          (SELECT id FROM member WHERE first_name = a.first_name
+           AND last_name = a.last_name
+           AND date_of_birth = a.date_of_birth
+           AND family_id = a.family_id
+           LIMIT 1)
+        ) as member_id,
+        ap.program_id,
+        NULL::bigint as iteration_id,
+        ap.days_per_week,
+        ap.selected_days,
+        ap.created_at,
+        ap.updated_at
+      FROM athlete_program ap
+      JOIN athlete a ON ap.athlete_id = a.id
+      WHERE COALESCE(
+        (SELECT id FROM member WHERE id = a.user_id LIMIT 1),
+        (SELECT id FROM member WHERE first_name = a.first_name
+         AND last_name = a.last_name
+         AND date_of_birth = a.date_of_birth
+         AND family_id = a.family_id
+         LIMIT 1)
+      ) IS NOT NULL
+      ON CONFLICT DO NOTHING;
+    END IF;
+  END IF;
+END $$;
 
 -- Step 8: Update family_guardian to reference member instead of app_user
--- First, add new column
-ALTER TABLE family_guardian ADD COLUMN IF NOT EXISTS member_id BIGINT REFERENCES member(id) ON DELETE CASCADE;
-
--- Migrate user_id to member_id
-UPDATE family_guardian fg
-SET member_id = fg.user_id
-WHERE fg.user_id IS NOT NULL;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'family_guardian'
+  ) THEN
+    ALTER TABLE family_guardian ADD COLUMN IF NOT EXISTS member_id BIGINT REFERENCES member(id) ON DELETE CASCADE;
+    UPDATE family_guardian fg
+    SET member_id = fg.user_id
+    WHERE fg.user_id IS NOT NULL;
+  END IF;
+END $$;
 
 -- Step 9: Update family.primary_user_id to primary_member_id
 ALTER TABLE family ADD COLUMN IF NOT EXISTS primary_member_id BIGINT REFERENCES member(id) ON DELETE SET NULL;
@@ -294,22 +365,31 @@ UPDATE family f
 SET primary_member_id = f.primary_user_id
 WHERE f.primary_user_id IS NOT NULL;
 
--- Step 10: Update emergency_contact to reference member
-ALTER TABLE emergency_contact ADD COLUMN IF NOT EXISTS member_id BIGINT REFERENCES member(id) ON DELETE CASCADE;
-
--- Migrate athlete_id to member_id
-UPDATE emergency_contact ec
-SET member_id = (
-  SELECT m.id 
-  FROM member m
-  JOIN athlete a ON m.first_name = a.first_name 
-    AND m.last_name = a.last_name 
-    AND m.date_of_birth = a.date_of_birth
-    AND COALESCE(m.family_id, 0) = COALESCE(a.family_id, 0)
-  WHERE a.id = ec.athlete_id
-  LIMIT 1
-)
-WHERE ec.athlete_id IS NOT NULL;
+-- Step 10: Update emergency_contact to reference member (legacy DBs only)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'emergency_contact'
+  ) AND EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'athlete'
+  ) THEN
+    ALTER TABLE emergency_contact ADD COLUMN IF NOT EXISTS member_id BIGINT REFERENCES member(id) ON DELETE CASCADE;
+    UPDATE emergency_contact ec
+    SET member_id = (
+      SELECT m.id
+      FROM member m
+      JOIN athlete a ON m.first_name = a.first_name
+        AND m.last_name = a.last_name
+        AND m.date_of_birth = a.date_of_birth
+        AND COALESCE(m.family_id, 0) = COALESCE(a.family_id, 0)
+      WHERE a.id = ec.athlete_id
+      LIMIT 1
+    )
+    WHERE ec.athlete_id IS NOT NULL;
+  END IF;
+END $$;
 
 -- Step 11: Update user_role to reference member (only if table exists)
 DO $$

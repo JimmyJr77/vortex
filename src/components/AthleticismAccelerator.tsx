@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Zap, Target, TrendingUp, Shield, Users } from 'lucide-react'
 import { ENROLL_PATH } from '../config/enrollSites'
 import HeroPosterBackground from './HeroPosterBackground'
+import { TENETS, TRAINING_METHODOLOGIES, PHYSIOLOGICAL_EMPHASIS } from '../coach/taxonomy'
 
 interface AthleticismAcceleratorProps {
   onSignUpClick: () => void
@@ -10,59 +11,8 @@ interface AthleticismAcceleratorProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAcceleratorProps) => {
-  const tenets = [
-    { 
-      name: 'Strength', 
-      description: 'Ability to exert force against resistance.',
-      detail: 'Building foundational power through resistance training, calisthenics, and bodyweight movements to create a robust athletic base.'
-    },
-    { 
-      name: 'Explosiveness', 
-      description: 'Exert maximal force in minimal time.',
-      detail: 'Developing explosive movement capability through plyometrics, jumping drills, and fast-twitch muscle activation for superior athletic performance.'
-    },
-    { 
-      name: 'Speed', 
-      description: 'Rapid execution of movement and reaction.',
-      detail: 'Enhancing neuromuscular response times and quickness through sprint work, agility drills, and reaction training.'
-    },
-    { 
-      name: 'Agility', 
-      description: 'Rapid direction changes with control.',
-      detail: 'Mastering multi-directional movement with precision and balance through ladder drills, cones, and spatial awareness exercises.'
-    },
-    { 
-      name: 'Flexibility', 
-      description: 'Range of motion and muscular elasticity.',
-      detail: 'Improving functional mobility and movement efficiency through targeted stretching, dynamic warm-ups, and range-of-motion exercises.'
-    },
-    { 
-      name: 'Balance', 
-      description: 'Maintain stability in static or dynamic movement.',
-      detail: 'Building proprioceptive awareness through beam work, stability challenges, and single-leg exercises for superior body control.'
-    },
-    { 
-      name: 'Coordination', 
-      description: 'Integrate multiple body parts for fluid motion.',
-      detail: 'Developing seamless movement patterns through complex drills, multi-plane exercises, and neural synchronization training.'
-    },
-    { 
-      name: 'Body Control', 
-      description: 'Kinematic awareness - Precise understanding of where the body is in space.',
-      detail: 'Achieving exceptional spatial awareness through gymnastics-based training, air sense development, and proprioceptive exercises that translate to any sport.'
-    },
-  ]
-
-  const trainingMethodologies = [
-    { name: 'Resistance & Calisthenics', description: 'Foundational strength and endurance building' },
-    { name: 'Plyometrics', description: 'Explosive power and fast-twitch activation' },
-    { name: 'Isometrics', description: 'Tendon loading and joint stability' },
-    { name: 'Eccentric/Negative Training', description: 'Controlled force development and injury prevention' },
-    { name: 'Neural Training', description: 'Speed, coordination, and reaction time enhancement' },
-    { name: 'Balance & Stability Work', description: 'Proprioception and spatial control' },
-    { name: 'Mobility & Flexibility Drills', description: 'Full-range functional movement' },
-    { name: 'Core & Body Control Work', description: 'Control, posture, and spatial awareness' },
-  ]
+  const tenets = TENETS
+  const trainingMethodologies = TRAINING_METHODOLOGIES
 
   const benefits = [
     { icon: TrendingUp, title: 'Measurable Progress', description: 'Track improvements through data-driven metrics and AI analysis' },
@@ -257,9 +207,8 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
               Integrated Across Every Program
             </h3>
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Whether your athlete is in Trampoline & Tumbling, Artistic Gymnastics, Rhythmic Gymnastics, 
-              or our developmental classes, the Athleticism Accelerator principles are woven throughout their 
-              training. We ensure a holistic approach to athletic development – building strength while 
+              Whether your athlete plays football, basketball, competes in track & field, or trains in 
+              gymnastics, the Athleticism Accelerator principles are woven throughout their training. We ensure a holistic approach to athletic development – building strength while 
               training flexibility, developing speed while enhancing balance. No athlete leaves with 
               weak links in their athletic chain.
             </p>
@@ -390,45 +339,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                {
-                  name: 'Neural Output & Readiness',
-                  systems: 'Central Nervous System, Reflex Arc',
-                  purpose: 'Maximize motor unit recruitment and firing speed',
-                  outcomes: ['Faster reaction time', 'Improved rate of force development', 'Enhanced movement intent and explosiveness'],
-                },
-                {
-                  name: 'Force Capacity & Tissue Capacity',
-                  systems: 'Muscle, Tendon, Joint',
-                  purpose: 'Build structural tolerance and force production capability',
-                  outcomes: ['Strength and hypertrophy', 'Joint integrity and durability', 'Improved force absorption and expression'],
-                },
-                {
-                  name: 'SSC & Stiffness (Elastic Energy)',
-                  systems: 'Tendons, Fascia, Muscle-Tendon Unit',
-                  purpose: 'Optimize stretch–shortening cycle efficiency',
-                  outcomes: ['Reactive power', 'Shorter ground contact times', 'Improved elastic resilience'],
-                },
-                {
-                  name: 'Control & Stability',
-                  systems: 'Core, Proprioceptors, Stabilizing Musculature',
-                  purpose: 'Maintain positional integrity under load and speed',
-                  outcomes: ['Balance and postural control', 'Precision in deceleration and landing', 'Reduced injury risk'],
-                },
-                {
-                  name: 'Perception–Action Skill (Movement Intelligence)',
-                  systems: 'Brain–Body Integration',
-                  purpose: 'Improve movement patterning and adaptability',
-                  outcomes: ['Better timing and coordination', 'Enhanced spatial awareness', 'Transferable athletic skill across sports'],
-                },
-                {
-                  name: 'Energy Systems & Repeatability',
-                  systems: 'Aerobic and Anaerobic Energy Pathways',
-                  purpose: 'Sustain movement quality over repeated efforts',
-                  outcomes: ['Improved work capacity', 'Faster recovery between actions', 'Consistent performance under fatigue'],
-                  optional: true,
-                },
-              ].map((item, index) => (
+              {PHYSIOLOGICAL_EMPHASIS.map((item, index) => (
                 <motion.div
                   key={item.name}
                   className="bg-gray-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow"
@@ -441,7 +352,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
                     <h4 className="text-lg font-bold text-vortex-red">
                       {item.name}
                     </h4>
-                    {item.optional && (
+                    {item.is_optional && (
                       <span className="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded">Optional</span>
                     )}
                   </div>

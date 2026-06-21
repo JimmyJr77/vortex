@@ -34,11 +34,13 @@ async function deleteUserByEmail() {
     if (userResult.rows.length === 0) {
       console.log('User not found in app_user table')
       
-      // Check if there's a family with this email
+      // Check if there's a family linked through the canonical member record.
       const familyResult = await client.query(`
         SELECT f.id, f.family_name, u.email, u.id as user_id
-        FROM family f
-        JOIN app_user u ON f.primary_user_id = u.id
+        FROM app_user u
+        JOIN member m ON m.app_user_id = u.id
+        JOIN family_member fm ON fm.member_id = m.id
+        JOIN family f ON f.id = fm.family_id
         WHERE u.email = $1
       `, [emailToDelete])
       
@@ -64,11 +66,9 @@ async function deleteUserByEmail() {
       // Check if user is associated with any families
       const familyCheck = await client.query(`
         SELECT COUNT(*) as count
-        FROM (
-          SELECT family_id FROM family_guardian WHERE user_id = $1
-          UNION
-          SELECT id FROM family WHERE primary_user_id = $1
-        ) as families
+        FROM family_member fm
+        JOIN member m ON m.id = fm.member_id
+        WHERE m.app_user_id = $1
       `, [user.id])
       
       const familyCount = parseInt(familyCheck.rows[0].count)
@@ -79,9 +79,10 @@ async function deleteUserByEmail() {
         
         // Get all family IDs
         const familiesResult = await client.query(`
-          SELECT DISTINCT family_id as id FROM family_guardian WHERE user_id = $1
-          UNION
-          SELECT id FROM family WHERE primary_user_id = $1
+          SELECT DISTINCT fm.family_id as id
+          FROM family_member fm
+          JOIN member m ON m.id = fm.member_id
+          WHERE m.app_user_id = $1
         `, [user.id])
         
         const familyIds = familiesResult.rows.map(row => row.id)

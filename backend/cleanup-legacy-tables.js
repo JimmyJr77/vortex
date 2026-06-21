@@ -47,7 +47,7 @@ async function cleanupLegacyTables() {
       'app_user',          // Still needed for admin authentication
       'member',            // The unified member table (main table)
       'family',            // Still in use
-      'family_guardian',   // Still in use (references both app_user and member)
+      'family_member',     // Canonical family membership table
       'member_program',    // Still in use (enrollments)
       'parent_guardian_authority' // Still in use (parent-child relationships)
     ]

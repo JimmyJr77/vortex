@@ -8,14 +8,17 @@ import EnrollmentForm from './EnrollmentForm'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { formatSkillLevel } from '../utils/classDisplayUtils'
 import EventAttachedSignup from './EventAttachedSignup'
+import { MemberTrainingTab, MemberProgressTab } from './MemberTraining'
 
 interface MemberDashboardProps {
   member: any
   onLogout: () => void
   onReturnToWebsite?: () => void
+  availablePortals?: string[]
+  onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
 }
 
-type MemberTab = 'profile' | 'classes' | 'events'
+type MemberTab = 'profile' | 'classes' | 'events' | 'billing' | 'waivers' | 'training' | 'progress'
 
 interface FamilyMember {
   id: number
@@ -108,7 +111,47 @@ interface Event {
   schedulingFormTitle?: string | null
 }
 
-export default function MemberDashboard({ member: _member, onLogout, onReturnToWebsite }: MemberDashboardProps) {
+interface BillingStatement {
+  id: number
+  statementDate: string
+  dueDate: string | null
+  totalCents: number
+  status: string
+  lines: Array<{
+    id?: number
+    description: string
+    amount_cents?: number
+    amountCents?: number
+    member_id?: number | null
+  }>
+}
+
+interface BillingPayment {
+  id: number
+  amountCents: number
+  paidAt: string
+  method?: string | null
+  note?: string | null
+  externalReference?: string | null
+  externalStatus?: string | null
+}
+
+interface MemberWaiver {
+  id: number
+  name: string
+  version: string
+  body: string
+  acceptance_id?: number | null
+  accepted_at?: string | null
+  signature_name?: string | null
+}
+
+export default function MemberDashboard({
+  onLogout,
+  onReturnToWebsite,
+  availablePortals = ['member'],
+  onSwitchPortal,
+}: MemberDashboardProps) {
   const [activeTab, setActiveTab] = useState<MemberTab>('profile')
   const [profileData, setProfileData] = useState<any>(null)
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([])
@@ -119,6 +162,16 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const [viewingMemberFamilyData, setViewingMemberFamilyData] = useState<any>(null)
   const [showViewModal, setShowViewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showAddFamilyMember, setShowAddFamilyMember] = useState(false)
+  const [addFamilyMemberData, setAddFamilyMemberData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    dateOfBirth: '',
+    relationshipLabel: '',
+  })
+  const [addingFamilyMember, setAddingFamilyMember] = useState(false)
   
   // Edit modal state (for MemberFormSection)
   type FamilyMemberData = {
@@ -204,9 +257,21 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
   const [showAllEvents, setShowAllEvents] = useState(true)
   const [selectedFamilyMembersForFilter, setSelectedFamilyMembersForFilter] = useState<number[]>([])
   const [eventView, setEventView] = useState<'upcoming' | 'past'>('upcoming') // Toggle between past and upcoming events
+  const [billingStatements, setBillingStatements] = useState<BillingStatement[]>([])
+  const [billingPayments, setBillingPayments] = useState<BillingPayment[]>([])
+  const [billingLoading, setBillingLoading] = useState(false)
+  const [waivers, setWaivers] = useState<MemberWaiver[]>([])
+  const [waiversLoading, setWaiversLoading] = useState(false)
+  const [waiverSignature, setWaiverSignature] = useState('')
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
+  const [changingPassword, setChangingPassword] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null)
 
   const apiUrl = getApiUrl()
   const token = localStorage.getItem('vortex_member_token')
+
+  const formatMoney = (cents: number): string =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
 
   // Helper function to format time since a date
   const formatTimeSince = (date: string | null | undefined): string => {
@@ -950,6 +1015,10 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       fetchEnrollments() // Need enrollments for filtering
     } else if (activeTab === 'profile') {
       fetchEnrollments() // Need enrollments to display on profile
+    } else if (activeTab === 'billing') {
+      fetchBillingStatements()
+    } else if (activeTab === 'waivers') {
+      fetchWaivers()
     }
   }, [activeTab])
 
@@ -1075,6 +1144,43 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
     }
   }
 
+  const handleAddFamilyMember = async () => {
+    if (!addFamilyMemberData.firstName.trim() || !addFamilyMemberData.lastName.trim()) {
+      setError('First and last name are required')
+      return
+    }
+    setAddingFamilyMember(true)
+    setError(null)
+    try {
+      const response = await fetch(`${apiUrl}/api/members/family`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: addFamilyMemberData.firstName,
+          lastName: addFamilyMemberData.lastName,
+          email: addFamilyMemberData.email || null,
+          phone: addFamilyMemberData.phone || null,
+          dateOfBirth: addFamilyMemberData.dateOfBirth || null,
+          relationshipLabel: addFamilyMemberData.relationshipLabel || null,
+        }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok || data.success === false) {
+        throw new Error(data.message || 'Failed to add family member')
+      }
+      setAddFamilyMemberData({ firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '', relationshipLabel: '' })
+      setShowAddFamilyMember(false)
+      await fetchProfileData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add family member')
+    } finally {
+      setAddingFamilyMember(false)
+    }
+  }
+
 
   const fetchEvents = async () => {
     try {
@@ -1109,6 +1215,131 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
       console.error('Error fetching events:', error)
     } finally {
       setEventsLoading(false)
+    }
+  }
+
+  const fetchBillingStatements = async () => {
+    if (!token) return
+    try {
+      setBillingLoading(true)
+      const [statementsResponse, paymentsResponse] = await Promise.all([
+        fetch(`${apiUrl}/api/members/billing/statements`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }),
+        fetch(`${apiUrl}/api/members/billing/payments`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }),
+      ])
+      if (!statementsResponse.ok) throw new Error(`Backend returned ${statementsResponse.status}`)
+      if (!paymentsResponse.ok) throw new Error(`Backend returned ${paymentsResponse.status}`)
+      const statementsData = await statementsResponse.json()
+      const paymentsData = await paymentsResponse.json()
+      setBillingStatements(statementsData.data ?? [])
+      setBillingPayments(paymentsData.data ?? [])
+    } catch (error) {
+      console.error('Error fetching billing statements:', error)
+      setBillingStatements([])
+      setBillingPayments([])
+    } finally {
+      setBillingLoading(false)
+    }
+  }
+
+  const fetchWaivers = async () => {
+    if (!token) return
+    try {
+      setWaiversLoading(true)
+      const response = await fetch(`${apiUrl}/api/members/waivers`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!response.ok) throw new Error(`Backend returned ${response.status}`)
+      const data = await response.json()
+      setWaivers(data.data ?? [])
+    } catch (error) {
+      console.error('Error fetching waivers:', error)
+      setWaivers([])
+    } finally {
+      setWaiversLoading(false)
+    }
+  }
+
+  const acceptWaiver = async (templateId: number) => {
+    if (!token) return
+    try {
+      const response = await fetch(`${apiUrl}/api/members/waivers/${templateId}/accept`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          signatureName:
+            waiverSignature ||
+            [profileData?.firstName ?? profileData?.first_name, profileData?.lastName ?? profileData?.last_name]
+              .filter(Boolean)
+              .join(' '),
+        }),
+      })
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.message || `Backend returned ${response.status}`)
+      }
+      setWaiverSignature('')
+      await fetchWaivers()
+      await fetchProfileData()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to accept waiver')
+    }
+  }
+
+  const submitPasswordChange = async () => {
+    if (!token) return
+    if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+      setPasswordMessage('Current and new password are required.')
+      return
+    }
+    if (passwordForm.newPassword.length < 8) {
+      setPasswordMessage('New password must be at least 8 characters.')
+      return
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordMessage('New password and confirmation must match.')
+      return
+    }
+    setChangingPassword(true)
+    setPasswordMessage(null)
+    try {
+      const response = await fetch(`${apiUrl}/api/members/change-password`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok || data.success === false) {
+        throw new Error(data.message || 'Unable to change password')
+      }
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      setPasswordMessage('Password updated successfully.')
+      await fetchProfileData()
+    } catch (error) {
+      setPasswordMessage(error instanceof Error ? error.message : 'Unable to change password')
+    } finally {
+      setChangingPassword(false)
     }
   }
 
@@ -1530,7 +1761,25 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
             <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
               VORTEX <span className="text-vortex-red">MEMBER</span> PORTAL
             </h1>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap justify-center md:justify-end">
+              {availablePortals.includes('admin') && (
+                <button
+                  type="button"
+                  onClick={() => onSwitchPortal?.('admin')}
+                  className="bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
+                >
+                  Admin
+                </button>
+              )}
+              {availablePortals.includes('coach') && (
+                <button
+                  type="button"
+                  onClick={() => onSwitchPortal?.('coach')}
+                  className="bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
+                >
+                  Coach
+                </button>
+              )}
               {onReturnToWebsite ? (
                 <motion.button
                   onClick={onReturnToWebsite}
@@ -1565,57 +1814,34 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
           {/* Tab Navigation */}
           <div className="border-t border-gray-700 mt-6">
             <div className="flex flex-wrap gap-2 md:gap-0">
-              <button
-                onClick={() => setActiveTab('profile')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'profile'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Profile
-                {activeTab === 'profile' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('classes')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'classes'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Classes
-                {activeTab === 'classes' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('events')}
-                className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'events'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Events
-                {activeTab === 'events' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
+              {[
+                ['profile', 'Profile'],
+                ['classes', 'Classes'],
+                ['training', 'Training'],
+                ['progress', 'Progress'],
+                ['events', 'Events'],
+                ['billing', 'Billing'],
+                ['waivers', 'Waivers'],
+              ].map(([id, label]) => (
+                <button
+                  key={id}
+                  onClick={() => setActiveTab(id as MemberTab)}
+                  className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                    activeTab === id
+                      ? 'text-white'
+                      : 'text-gray-400 hover:text-gray-300'
+                  }`}
+                >
+                  {label}
+                  {activeTab === id && (
+                    <motion.div
+                      className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                      layoutId="activeTab"
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    />
+                  )}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -1640,13 +1866,161 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                     Add your contact details, personal information, and medical info in your profile below.
                   </div>
                 )}
+                {(profileData?.profileComplete === false || profileData?.mustChangePassword) && (
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+                    <h3 className="text-lg font-bold text-gray-900">First Login Setup</h3>
+                    <div className="text-sm text-gray-700 space-y-1">
+                      <p>1. Update your profile and household details.</p>
+                      <p>2. Complete all required waivers in the Waivers tab.</p>
+                      <p>3. Review billing statements and payment history.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('profile')}
+                        className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm"
+                      >
+                        Profile
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('waivers')}
+                        className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm"
+                      >
+                        Waivers
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('billing')}
+                        className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm"
+                      >
+                        Billing
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200 space-y-3">
+                  <h3 className="text-xl font-bold text-black">Account Security</h3>
+                  <p className="text-sm text-gray-600">
+                    Change your password anytime. {profileData?.mustChangePassword ? 'A password change is required for this account.' : ''}
+                  </p>
+                  {passwordMessage && (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">{passwordMessage}</div>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input
+                      type="password"
+                      value={passwordForm.currentPassword}
+                      onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
+                      placeholder="Current password"
+                      className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                    />
+                    <input
+                      type="password"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
+                      placeholder="New password"
+                      className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                    />
+                    <input
+                      type="password"
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                      placeholder="Confirm new password"
+                      className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void submitPasswordChange()}
+                    disabled={changingPassword}
+                    className="px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
+                  >
+                    {changingPassword ? 'Updating...' : 'Update Password'}
+                  </button>
+                </div>
                 {/* Members Section - Matching AdminMembers Format */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                     <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
                       Family Members ({members.length})
                     </h2>
+                    {isAdult() && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAddFamilyMember((value) => !value)}
+                        className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        Add family member
+                      </button>
+                    )}
                   </div>
+
+                  {showAddFamilyMember && (
+                    <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input
+                          type="text"
+                          value={addFamilyMemberData.firstName}
+                          onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, firstName: e.target.value }))}
+                          placeholder="First name"
+                          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={addFamilyMemberData.lastName}
+                          onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, lastName: e.target.value }))}
+                          placeholder="Last name"
+                          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={addFamilyMemberData.relationshipLabel}
+                          onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, relationshipLabel: e.target.value }))}
+                          placeholder="Relationship"
+                          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        />
+                        <input
+                          type="email"
+                          value={addFamilyMemberData.email}
+                          onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, email: e.target.value }))}
+                          placeholder="Email"
+                          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        />
+                        <input
+                          type="tel"
+                          value={addFamilyMemberData.phone}
+                          onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, phone: e.target.value }))}
+                          placeholder="Phone"
+                          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        />
+                        <input
+                          type="date"
+                          value={addFamilyMemberData.dateOfBirth}
+                          onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, dateOfBirth: e.target.value }))}
+                          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2 mt-4">
+                        <button
+                          type="button"
+                          onClick={() => setShowAddFamilyMember(false)}
+                          className="px-4 py-2 rounded-lg border border-gray-300 text-sm"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleAddFamilyMember()}
+                          disabled={addingFamilyMember}
+                          className="px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
+                        >
+                          {addingFamilyMember ? 'Adding...' : 'Add member'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   {loading ? (
                     <div className="text-center py-12 text-gray-600">Loading members...</div>
@@ -1729,6 +2103,41 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                           </div>
                         )
                       })}
+                    </div>
+                  )}
+                </div>
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-2">
+                    Payment History
+                  </h2>
+                  <p className="text-gray-600 text-sm mb-6">
+                    Family payment history is visible to the billing payer and guardian accounts.
+                  </p>
+                  <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-900">
+                    Card collection is currently handled externally. Reconciled payment records appear below.
+                  </div>
+                  {billingLoading ? (
+                    <div className="text-center py-8 text-gray-600">Loading payment history...</div>
+                  ) : billingPayments.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">No payments recorded yet.</div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {billingPayments.map((payment) => (
+                        <div key={payment.id} className="py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                          <div>
+                            <div className="font-semibold text-gray-900">
+                              {payment.method || 'Payment'}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {new Date(payment.paidAt).toLocaleDateString()}
+                              {payment.note ? ` · ${payment.note}` : ''}
+                              {payment.externalReference ? ` · Ref ${payment.externalReference}` : ''}
+                              {payment.externalStatus ? ` · ${payment.externalStatus}` : ''}
+                            </div>
+                          </div>
+                          <div className="text-lg font-bold text-gray-900">{formatMoney(payment.amountCents)}</div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -2009,6 +2418,30 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
               </motion.div>
             )}
 
+            {activeTab === 'training' && (
+              <motion.div
+                key="training"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <MemberTrainingTab />
+              </motion.div>
+            )}
+
+            {activeTab === 'progress' && (
+              <motion.div
+                key="progress"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <MemberProgressTab />
+              </motion.div>
+            )}
+
             {activeTab === 'events' && (
             <motion.div
                 key="events"
@@ -2280,6 +2713,133 @@ export default function MemberDashboard({ member: _member, onLogout, onReturnToW
                   )}
                 </div>
             </motion.div>
+            )}
+
+            {activeTab === 'billing' && (
+              <motion.div
+                key="billing"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-2">
+                    Billing Statements
+                  </h2>
+                  <p className="text-gray-600 text-sm mb-6">
+                    Family payers and guardians can see family statements. Athlete accounts see their individual statement lines.
+                  </p>
+                  {billingLoading ? (
+                    <div className="text-center py-12 text-gray-600">Loading billing statements...</div>
+                  ) : billingStatements.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">No billing statements yet.</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {billingStatements.map((statement) => (
+                        <div key={statement.id} className="rounded-xl border border-gray-200 p-4">
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                            <div>
+                              <h3 className="font-bold text-gray-900">
+                                Statement #{statement.id} · {statement.status}
+                              </h3>
+                              <p className="text-xs text-gray-500">
+                                {new Date(statement.statementDate).toLocaleDateString()}
+                                {statement.dueDate ? ` · Due ${new Date(statement.dueDate).toLocaleDateString()}` : ''}
+                              </p>
+                            </div>
+                            <div className="text-xl font-bold text-gray-900">{formatMoney(statement.totalCents)}</div>
+                          </div>
+                          <div className="mt-4 divide-y divide-gray-100">
+                            {statement.lines.map((line, idx) => (
+                              <div key={line.id ?? idx} className="py-2 flex justify-between gap-3 text-sm">
+                                <span className="text-gray-700">{line.description}</span>
+                                <span className="font-semibold text-gray-900">
+                                  {formatMoney(Number(line.amount_cents ?? line.amountCents ?? 0))}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'waivers' && (
+              <motion.div
+                key="waivers"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-2">
+                    Athlete Waivers
+                  </h2>
+                  <p className="text-gray-600 text-sm mb-6">
+                    Every athlete must have current waivers on file. Accepted waivers are stored with signature history.
+                  </p>
+                  <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700">
+                    Read each waiver in full before signing. Your signature is stored with timestamped acceptance history.
+                  </div>
+                  <div className="mb-5">
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">Signature name</label>
+                    <input
+                      className="w-full max-w-md h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                      value={waiverSignature}
+                      onChange={(e) => setWaiverSignature(e.target.value)}
+                      placeholder="Legal name for waiver signature"
+                    />
+                  </div>
+                  {waiversLoading ? (
+                    <div className="text-center py-12 text-gray-600">Loading waivers...</div>
+                  ) : waivers.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">No waiver templates are currently required.</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {waivers.map((waiver) => {
+                        const accepted = waiver.acceptance_id != null
+                        return (
+                          <div key={waiver.id} className="rounded-xl border border-gray-200 p-4">
+                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                              <div>
+                                <h3 className="font-bold text-gray-900">
+                                  {waiver.name} v{waiver.version}
+                                </h3>
+                                {accepted ? (
+                                  <p className="text-xs text-green-700 mt-1">
+                                    Accepted {waiver.accepted_at ? new Date(waiver.accepted_at).toLocaleDateString() : ''}
+                                    {waiver.signature_name ? ` by ${waiver.signature_name}` : ''}
+                                  </p>
+                                ) : (
+                                  <p className="text-xs text-red-700 mt-1">Signature required</p>
+                                )}
+                              </div>
+                              {!accepted && (
+                                <button
+                                  type="button"
+                                  onClick={() => void acceptWaiver(waiver.id)}
+                                  className="px-4 py-2 bg-vortex-red text-white rounded-lg font-semibold text-sm"
+                                >
+                                  Accept Waiver
+                                </button>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-3">Version: {waiver.version}</p>
+                            <p className="text-sm text-gray-600 mt-2 whitespace-pre-wrap">{waiver.body}</p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>

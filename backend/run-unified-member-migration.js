@@ -236,23 +236,32 @@ async function runMigration() {
       console.log(`✅ Migrated ${enrollmentResult.rows.length} enrollment records`)
     }
     
-    // Step 5: Update family_guardian to use member_id
-    console.log('📝 Step 5: Updating family_guardian to reference member table...')
+    // Step 5: Backfill canonical family_member records
+    console.log('📝 Step 5: Backfilling family_member records...')
     await client.query(`
-      UPDATE family_guardian fg
-      SET member_id = fg.user_id
-      WHERE fg.user_id IS NOT NULL AND fg.member_id IS NULL
+      CREATE TABLE IF NOT EXISTS family_member (
+        family_id BIGINT NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+        member_id BIGINT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
+        relationship_label TEXT,
+        is_active BOOLEAN NOT NULL DEFAULT TRUE,
+        joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        PRIMARY KEY (family_id, member_id)
+      )
     `)
-    console.log('✅ Updated family_guardian references')
+    await client.query(`
+      INSERT INTO family_member (family_id, member_id, is_active)
+      SELECT family_id, id, TRUE
+      FROM member
+      WHERE family_id IS NOT NULL
+      ON CONFLICT (family_id, member_id) DO UPDATE
+      SET is_active = TRUE, updated_at = CURRENT_TIMESTAMP
+    `)
+    console.log('✅ Backfilled family_member records')
     
-    // Step 6: Update family.primary_member_id
-    console.log('📝 Step 6: Updating family primary member references...')
-    await client.query(`
-      UPDATE family f
-      SET primary_member_id = f.primary_user_id
-      WHERE f.primary_user_id IS NOT NULL AND f.primary_member_id IS NULL
-    `)
-    console.log('✅ Updated family primary member references')
+    // Step 6: Primary family ownership is now represented by family_billing_account.payer_member_id.
+    console.log('📝 Step 6: Skipping legacy family primary member references')
     
     // Step 7: Update emergency_contact to reference member
     console.log('📝 Step 7: Updating emergency_contact to reference member...')
@@ -303,41 +312,34 @@ async function runMigration() {
     // Step 10: Create parent_guardian_authority relationships
     console.log('📝 Step 10: Creating parent_guardian_authority relationships...')
     
-    // Check if family_guardian table exists and has member_id column
-    const familyGuardianCheck = await client.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.columns 
-        WHERE table_name = 'family_guardian' AND column_name = 'member_id'
+    const authorityResult = await client.query(`
+      INSERT INTO parent_guardian_authority (
+        parent_member_id, child_member_id, has_legal_authority, relationship
       )
-    `)
-    
-    if (familyGuardianCheck.rows[0].exists) {
-      const authorityResult = await client.query(`
-        INSERT INTO parent_guardian_authority (
-          parent_member_id, child_member_id, has_legal_authority, relationship
+      SELECT DISTINCT
+        parent.member_id as parent_member_id,
+        child.member_id as child_member_id,
+        TRUE as has_legal_authority,
+        'Parent/Guardian' as relationship
+      FROM family_member parent
+      JOIN member parent_member ON parent_member.id = parent.member_id
+      JOIN family_member child ON child.family_id = parent.family_id
+      JOIN member child_member ON child_member.id = child.member_id
+      WHERE parent.is_active = TRUE
+        AND child.is_active = TRUE
+        AND parent.member_id <> child.member_id
+        AND parent_member.date_of_birth IS NOT NULL
+        AND EXTRACT(YEAR FROM AGE(parent_member.date_of_birth)) >= 18
+        AND child_member.date_of_birth IS NOT NULL
+        AND EXTRACT(YEAR FROM AGE(child_member.date_of_birth)) < 18
+        AND NOT EXISTS (
+          SELECT 1 FROM parent_guardian_authority pga
+          WHERE pga.parent_member_id = parent.member_id
+            AND pga.child_member_id = child.member_id
         )
-        SELECT DISTINCT
-          pg.member_id as parent_member_id,
-          m.id as child_member_id,
-          TRUE as has_legal_authority,
-          'Parent/Guardian' as relationship
-        FROM family_guardian pg
-        JOIN family f ON pg.family_id = f.id
-        JOIN member m ON m.family_id = f.id
-        WHERE pg.member_id IS NOT NULL
-          AND m.date_of_birth IS NOT NULL
-          AND EXTRACT(YEAR FROM AGE(m.date_of_birth)) < 18
-          AND NOT EXISTS (
-            SELECT 1 FROM parent_guardian_authority pga
-            WHERE pga.parent_member_id = pg.member_id
-              AND pga.child_member_id = m.id
-          )
-        RETURNING id
-      `)
-      console.log(`✅ Created ${authorityResult.rows.length} parent_guardian_authority relationships`)
-    } else {
-      console.log('⚠️  family_guardian.member_id column does not exist, skipping parent_guardian_authority creation')
-    }
+      RETURNING id
+    `)
+    console.log(`✅ Created ${authorityResult.rows.length} parent_guardian_authority relationships`)
     
     await client.query('COMMIT')
     console.log('✅ Migration completed successfully!')

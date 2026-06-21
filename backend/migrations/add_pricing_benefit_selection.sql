@@ -15,8 +15,16 @@ CREATE TABLE IF NOT EXISTS pricing_benefit_selection (
 CREATE INDEX IF NOT EXISTS idx_pricing_benefit_selection_scope
   ON pricing_benefit_selection(scope_level, scope_ref_id);
 
--- Migrate existing free pass attachments.
-INSERT INTO pricing_benefit_selection (scope_level, scope_ref_id, benefit_type, benefit_id, auto_apply, allow_member_code, sort_order)
-SELECT scope_level, scope_ref_id, 'free_pass', pass_template_id, auto_apply, FALSE, sort_order
-FROM pricing_pass_attachment
-ON CONFLICT (scope_level, scope_ref_id, benefit_type, benefit_id) DO NOTHING;
+-- Migrate existing free pass attachments when legacy table exists.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'pricing_pass_attachment'
+  ) THEN
+    INSERT INTO pricing_benefit_selection (scope_level, scope_ref_id, benefit_type, benefit_id, auto_apply, allow_member_code, sort_order)
+    SELECT scope_level, scope_ref_id, 'free_pass', pass_template_id, auto_apply, FALSE, sort_order
+    FROM pricing_pass_attachment
+    ON CONFLICT (scope_level, scope_ref_id, benefit_type, benefit_id) DO NOTHING;
+  END IF;
+END $$;

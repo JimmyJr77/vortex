@@ -9,6 +9,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import fs from 'fs'
 import path from 'path'
+import { randomUUID } from 'crypto'
 import { fileURLToPath } from 'url'
 import { initAnalyticsTables } from './analytics/initTables.js'
 import { registerAnalyticsRoutes } from './analytics/registerRoutes.js'
@@ -27,6 +28,11 @@ import { getEmailConfigSummary, isEmailConfigured, verifySmtpConnection } from '
 import { refreshMemberProfileComplete } from './members/createMemberStub.js'
 import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
 import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
+import { initPlatformTables } from './platform/initTables.js'
+import { registerPlatformRoutes } from './platform/registerRoutes.js'
+import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
+import { generateTemporaryPassword, sendTemporaryPasswordEmail } from './scheduling/tempPasswordEmail.js'
+import { logWarn, reportError } from './observability/logger.js'
 
 const { Pool } = pkg
 
@@ -45,13 +51,42 @@ if (fs.existsSync(envLocalPath)) {
   console.log('📝 Loaded .env')
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? undefined : 'dev-insecure-jwt-secret')
+if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET is required in production.')
+}
+if (!process.env.JWT_SECRET && process.env.NODE_ENV !== 'production') {
+  console.warn('⚠️ JWT_SECRET is not set. Development fallback token signing is enabled.')
+}
+
+const ensureProductionEnv = () => {
+  if (process.env.NODE_ENV !== 'production') return
+  const required = [
+    'JWT_SECRET',
+    'FRONTEND_URL',
+  ]
+  const hasDatabaseUrl = Boolean(process.env.DATABASE_URL)
+  const hasDbParts = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'].every((key) => Boolean(process.env[key]))
+  if (!hasDatabaseUrl && !hasDbParts) {
+    throw new Error('Production database configuration is missing. Set DATABASE_URL or DB_* variables.')
+  }
+  const missing = required.filter((key) => !process.env[key])
+  if (missing.length > 0) {
+    throw new Error(`Missing required production environment variable(s): ${missing.join(', ')}`)
+  }
+}
+ensureProductionEnv()
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'remove-baked-discount-rules-2026-06-21'
+const API_BUILD_ID = 'launch-hardening-2026-06-21'
 
 const app = express()
 const PORT = process.env.PORT || 3001
+
+// Render (and other reverse proxies) set X-Forwarded-For; required for express-rate-limit.
+if (process.env.NODE_ENV === 'production' || process.env.TRUST_PROXY === '1') {
+  app.set('trust proxy', 1)
+}
 
 // Sport / gymnastics frontends (keep in sync with src/config/stubSites.ts)
 const SPORT_SITE_ORIGINS = [
@@ -159,6 +194,13 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }))
 
+app.use((req, res, next) => {
+  const requestId = req.headers['x-request-id'] || randomUUID()
+  req.requestId = requestId
+  res.setHeader('x-request-id', requestId)
+  next()
+})
+
 app.use(express.json({ limit: '10mb' }))
 
 // Rate limiting — higher cap in dev (React Strict Mode doubles effect fetches).
@@ -198,6 +240,15 @@ pool.on('error', (err) => {
 // Initialize database tables
 export const initDatabase = async () => {
   try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        id BIGSERIAL PRIMARY KEY,
+        filename TEXT NOT NULL UNIQUE,
+        checksum TEXT,
+        applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `)
+
     // Registrations table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS registrations (
@@ -1088,39 +1139,7 @@ export const initDatabase = async () => {
       // Column might not exist, log warning and continue - this is non-fatal
       console.warn('[initDatabase] Could not create index on family_username (column may not exist):', indexError.message)
     }
-    
-    // Remove primary_user_id/primary_member_id if they exist (keep for backward compatibility but don't use)
-    // Note: These columns may still exist from old schema but will be ignored
-    
-    // Create family_guardian junction table (supports both old and new)
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS family_guardian (
-        family_id           BIGINT NOT NULL REFERENCES family(id) ON DELETE CASCADE,
-        user_id             BIGINT REFERENCES app_user(id) ON DELETE CASCADE,
-        member_id           BIGINT REFERENCES member(id) ON DELETE CASCADE,
-        is_primary          BOOLEAN NOT NULL DEFAULT FALSE,
-        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-        PRIMARY KEY (family_id, member_id, user_id)
-      )
-    `)
-    
-    // Add member_id column if it doesn't exist (for tables created before migration 005)
-    await pool.query(`
-      ALTER TABLE family_guardian 
-      ADD COLUMN IF NOT EXISTS member_id BIGINT REFERENCES member(id) ON DELETE CASCADE
-    `)
-    
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_family ON family_guardian(family_id)`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_user ON family_guardian(user_id)`)
-    
-    // Create index on member_id (column should exist now after ALTER TABLE above)
-    try {
-      await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_guardian_member ON family_guardian(member_id)`)
-    } catch (indexError) {
-      // Column might still not exist in some edge cases, log warning and continue - this is non-fatal
-      console.warn('[initDatabase] Could not create index on family_guardian.member_id (column may not exist):', indexError.message)
-    }
-    
+
     // Create member_program table (replaces athlete_program)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS member_program (
@@ -1166,6 +1185,8 @@ export const initDatabase = async () => {
     } catch (indexError) {
       console.warn('[initDatabase] Could not create index on emergency_contact.member_id (column may not exist):', indexError.message)
     }
+
+    await initPlatformTables(pool)
     
     // Function to update family_is_active status
     await pool.query(`
@@ -1290,6 +1311,15 @@ const newsletterSchema = Joi.object({
 const memberLoginSchema = Joi.object({
   emailOrUsername: Joi.string().required(),
   password: Joi.string().required()
+})
+
+const memberPasswordResetRequestSchema = Joi.object({
+  email: Joi.string().email().required(),
+})
+
+const memberChangePasswordSchema = Joi.object({
+  currentPassword: Joi.string().required(),
+  newPassword: Joi.string().min(8).required(),
 })
 
 const eventSchema = Joi.object({
@@ -1912,6 +1942,222 @@ const getUserRoles = async (userId) => {
   }
 }
 
+const getUserFamilyContext = async (userId) => {
+  const result = await pool.query(`
+    WITH linked_member AS (
+      SELECT m.*
+      FROM member m
+      WHERE m.app_user_id = $1
+         OR (m.app_user_id IS NULL AND m.id = $1)
+      ORDER BY CASE WHEN m.app_user_id = $1 THEN 0 ELSE 1 END
+      LIMIT 1
+    )
+    SELECT
+      f.id,
+      f.family_name,
+      lm.id as current_member_id,
+      fba.payer_member_id
+    FROM linked_member lm
+    LEFT JOIN family_member fm
+      ON fm.member_id = lm.id
+      AND fm.is_active = TRUE
+    JOIN family f
+      ON f.id = COALESCE(fm.family_id, lm.family_id)
+      AND f.archived = FALSE
+    LEFT JOIN family_billing_account fba
+      ON fba.family_id = f.id
+      AND fba.is_active = TRUE
+    LIMIT 1
+  `, [userId])
+  return result.rows[0] ?? null
+}
+
+const getMemberForAppUser = async (userId, client = pool) => {
+  const result = await client.query(`
+    SELECT m.*
+    FROM member m
+    LEFT JOIN app_user au ON au.id = $1
+    WHERE m.app_user_id = $1
+       OR (m.app_user_id IS NULL AND m.id = $1)
+       OR (
+         m.app_user_id IS NULL
+         AND au.email IS NOT NULL
+         AND m.email = au.email
+         AND m.facility_id = au.facility_id
+       )
+    ORDER BY CASE
+      WHEN m.app_user_id = $1 THEN 0
+      WHEN m.app_user_id IS NULL AND m.id = $1 THEN 1
+      ELSE 2
+    END
+    LIMIT 1
+  `, [userId])
+  return result.rows[0] ?? null
+}
+
+const ensureMemberForAppUser = async (userId, client = pool) => {
+  const userResult = await client.query(`
+    SELECT id, facility_id, email, phone, full_name, username, address
+    FROM app_user
+    WHERE id = $1
+  `, [userId])
+  const user = userResult.rows[0]
+  if (!user) return null
+
+  const existingMember = await getMemberForAppUser(userId, client)
+  const nameParts = String(user.full_name || '').trim().split(/\s+/).filter(Boolean)
+  const firstName = nameParts[0] || 'Member'
+  const lastName = nameParts.slice(1).join(' ') || 'User'
+
+  if (existingMember) {
+    const updateResult = await client.query(`
+      UPDATE member
+      SET app_user_id = COALESCE(app_user_id, $1),
+          first_name = COALESCE(NULLIF(first_name, ''), $2),
+          last_name = COALESCE(NULLIF(last_name, ''), $3),
+          email = COALESCE(email, $4),
+          phone = COALESCE(phone, $5),
+          username = COALESCE(username, $6),
+          address = COALESCE(address, $7),
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $8
+      RETURNING *
+    `, [
+      user.id,
+      firstName,
+      lastName,
+      user.email || null,
+      user.phone || null,
+      user.username || null,
+      user.address || null,
+      existingMember.id,
+    ])
+    return updateResult.rows[0] ?? existingMember
+  }
+
+  const insertResult = await client.query(`
+    INSERT INTO member (
+      facility_id,
+      app_user_id,
+      first_name,
+      last_name,
+      email,
+      phone,
+      username,
+      address,
+      status,
+      is_active
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'legacy', TRUE)
+    RETURNING *
+  `, [
+    user.facility_id,
+    user.id,
+    firstName,
+    lastName,
+    user.email || null,
+    user.phone || null,
+    user.username || null,
+    user.address || null,
+  ])
+  return insertResult.rows[0] ?? null
+}
+
+const getFamilyForMember = async (memberId, client = pool) => {
+  const result = await client.query(`
+    SELECT f.*
+    FROM family_member fm
+    JOIN family f ON f.id = fm.family_id
+    WHERE fm.member_id = $1
+      AND fm.is_active = TRUE
+      AND f.archived = FALSE
+    ORDER BY fm.joined_at DESC, f.id DESC
+    LIMIT 1
+  `, [memberId])
+  return result.rows[0] ?? null
+}
+
+const getFamilyMembers = async (familyId, client = pool) => {
+  const result = await client.query(`
+    SELECT
+      m.*,
+      fm.relationship_label,
+      fm.is_active as family_membership_active,
+      au.id as app_user_id,
+      au.email as app_user_email,
+      au.role::text as app_user_role
+    FROM family_member fm
+    JOIN member m ON m.id = fm.member_id
+    LEFT JOIN app_user au ON au.id = m.app_user_id
+    WHERE fm.family_id = $1
+      AND fm.is_active = TRUE
+      AND m.is_active = TRUE
+    ORDER BY m.last_name, m.first_name, m.id
+  `, [familyId])
+  return result.rows
+}
+
+const getFamilyPayer = async (familyId, client = pool) => {
+  const result = await client.query(`
+    SELECT
+      fba.*,
+      m.first_name,
+      m.last_name,
+      m.email,
+      m.phone
+    FROM family_billing_account fba
+    LEFT JOIN member m ON m.id = fba.payer_member_id
+    WHERE fba.family_id = $1
+      AND fba.is_active = TRUE
+    LIMIT 1
+  `, [familyId])
+  return result.rows[0] ?? null
+}
+
+const deactivateFamilyMembershipsForAppUser = async (userId, client = pool) => {
+  await client.query(`
+    UPDATE family_member fm
+    SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+    FROM member m
+    WHERE fm.member_id = m.id
+      AND m.app_user_id = $1
+  `, [userId])
+
+  await client.query(`
+    UPDATE member
+    SET family_id = NULL, updated_at = CURRENT_TIMESTAMP
+    WHERE app_user_id = $1
+  `, [userId])
+}
+
+const moveMemberToFamily = async (memberId, familyId, client = pool) => {
+  await client.query(`
+    UPDATE family_member
+    SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+    WHERE member_id = $1
+      AND family_id <> $2
+      AND is_active = TRUE
+  `, [memberId, familyId])
+
+  await client.query(`
+    INSERT INTO family_member (family_id, member_id, is_active)
+    VALUES ($1, $2, TRUE)
+    ON CONFLICT (family_id, member_id) DO UPDATE
+    SET is_active = TRUE, updated_at = CURRENT_TIMESTAMP
+  `, [familyId, memberId])
+
+  await client.query(`
+    UPDATE member
+    SET family_id = $1, updated_at = CURRENT_TIMESTAMP
+    WHERE id = $2
+  `, [familyId, memberId])
+}
+
+const userHasFamilyAccess = async (userId, familyId) => {
+  const context = await getUserFamilyContext(userId)
+  return Boolean(context && Number(context.id) === Number(familyId))
+}
+
 const userHasRole = async (userId, role) => {
   const roles = await getUserRoles(userId)
   return roles.includes(role)
@@ -1969,6 +2215,90 @@ const setUserRoles = async (userId, roles) => {
   }
 }
 
+const syncRoleProfiles = async (userId, roles, { isMasterAdmin = false } = {}) => {
+  const normalizedRoles = roles.map((role) => String(role).toUpperCase())
+  if (normalizedRoles.some((role) => ['OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN'].includes(role))) {
+    await pool.query(`
+      INSERT INTO admin_profile (user_id, is_master_admin)
+      VALUES ($1, $2)
+      ON CONFLICT (user_id) DO UPDATE SET
+        is_master_admin = EXCLUDED.is_master_admin,
+        updated_at = CURRENT_TIMESTAMP
+    `, [userId, isMasterAdmin || normalizedRoles.includes('MASTER_ADMIN') || normalizedRoles.includes('OWNER_ADMIN')])
+  }
+
+  if (normalizedRoles.includes('COACH')) {
+    await pool.query(`
+      INSERT INTO coach_profile (user_id, is_active)
+      VALUES ($1, TRUE)
+      ON CONFLICT (user_id) DO UPDATE SET is_active = TRUE, updated_at = CURRENT_TIMESTAMP
+    `, [userId])
+  } else {
+    await pool.query(`
+      UPDATE coach_profile
+      SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+      WHERE user_id = $1
+    `, [userId])
+  }
+}
+
+const hasAdminPermission = async (userId, permission) => {
+  if (!userId) return false
+  const roles = await getUserRoles(userId)
+  if (roles.some((role) => ['OWNER_ADMIN', 'MASTER_ADMIN'].includes(role))) return true
+
+  const result = await pool.query(`
+    WITH base_permissions AS (
+      SELECT DISTINCT p.key
+      FROM role r
+      JOIN role_permission rp ON rp.role_id = r.id
+      JOIN permission p ON p.id = rp.permission_id
+      WHERE r.key = ANY($1::text[])
+    ),
+    overrides AS (
+      SELECT p.key, apo.effect
+      FROM app_user_permission_override apo
+      JOIN permission p ON p.id = apo.permission_id
+      WHERE apo.user_id = $2
+    )
+    SELECT
+      EXISTS (SELECT 1 FROM base_permissions WHERE key = $3) as base_allowed,
+      (SELECT effect FROM overrides WHERE key = $3 LIMIT 1) as override_effect
+  `, [roles, userId, permission])
+
+  const row = result.rows[0]
+  if (row?.override_effect === 'deny') return false
+  if (row?.override_effect === 'allow') return true
+  return row?.base_allowed === true
+}
+
+const requireAdminPermission = (permission) => async (req, res, next) => {
+  try {
+    if (req.isMasterAdmin === true || await hasAdminPermission(req.adminId, permission)) return next()
+    return res.status(403).json({ success: false, message: `Missing permission: ${permission}` })
+  } catch (error) {
+    console.error('Admin permission check error:', error)
+    return res.status(500).json({ success: false, message: 'Permission check failed' })
+  }
+}
+
+const mapAdminAccountRow = (row) => {
+  const nameParts = String(row.full_name || '').trim().split(/\s+/).filter(Boolean)
+  return {
+    id: Number(row.id),
+    firstName: row.first_name || nameParts[0] || '',
+    lastName: row.last_name || nameParts.slice(1).join(' ') || '',
+    email: row.email,
+    phone: row.phone || null,
+    username: row.username || '',
+    isMaster: row.is_master_admin === true || row.role === 'MASTER_ADMIN' || row.role === 'OWNER_ADMIN',
+    roles: row.roles || [],
+    isActive: row.is_active !== false,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
 // Middleware to verify JWT token (member or admin)
 // Admin authentication middleware - verifies admin has OWNER_ADMIN role
 const authenticateAdmin = async (req, res, next) => {
@@ -1981,21 +2311,6 @@ const authenticateAdmin = async (req, res, next) => {
       success: false, 
       message: 'No authentication token provided. Admin access required.' 
     })
-  }
-
-  // TEMPORARY: Handle temporary client-side tokens during development
-  if (token.startsWith('temp-admin-')) {
-    console.warn('[ADMIN AUTH] Using temporary token - this should only be used in development!')
-    const parts = token.split('-')
-    if (parts.length >= 3) {
-      const adminId = parseInt(parts[2])
-      req.adminId = adminId
-      req.adminEmail = 'temp-admin@vortexathletics.com'
-      req.isAdmin = true
-      console.log('[ADMIN AUTH] Authenticated with temporary token:', { adminId, isAdmin: true })
-      return next()
-    }
-    return res.status(401).json({ success: false, message: 'Invalid temporary token' })
   }
 
   try {
@@ -2034,26 +2349,30 @@ const authenticateAdmin = async (req, res, next) => {
             au.is_active, 
             au.role,
             au.facility_id,
-            COALESCE(
-              EXISTS(
+            (
+              au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              OR COALESCE(ap.is_master_admin, false)
+              OR EXISTS(
                 SELECT 1 FROM app_user_role ur 
                 WHERE ur.user_id = au.id 
-                AND ur.role = 'OWNER_ADMIN'
-              ),
-              false
-            ) as has_owner_admin_role
+                AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              )
+            ) as has_admin_role,
+            COALESCE(ap.is_master_admin, false) as is_master_admin
           FROM app_user au
+          LEFT JOIN admin_profile ap ON ap.user_id = au.id
           WHERE au.id = $1 AND au.email = $2
         `, [adminId, tokenEmail])
         
         if (appUserCheck.rows.length > 0) {
           const user = appUserCheck.rows[0]
-          const isOwnerAdmin = user.role === 'OWNER_ADMIN' || user.has_owner_admin_role === true
+          const isAdminUser = user.has_admin_role === true
           
-          if (isOwnerAdmin && user.is_active) {
+          if (isAdminUser && user.is_active) {
             req.adminId = user.id
             req.adminEmail = user.email
             req.isAdmin = true
+            req.isMasterAdmin = user.is_master_admin === true || user.role === 'MASTER_ADMIN' || user.role === 'OWNER_ADMIN'
             console.log('[ADMIN AUTH] Authenticated admin (app_user table, matched by ID and email):', { 
               adminId: user.id, 
               email: user.email,
@@ -2098,32 +2417,35 @@ const authenticateAdmin = async (req, res, next) => {
           au.is_active, 
           au.role,
           au.facility_id,
-          COALESCE(
-            EXISTS(
+          (
+            au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+            OR COALESCE(ap.is_master_admin, false)
+            OR EXISTS(
               SELECT 1 FROM app_user_role ur 
               WHERE ur.user_id = au.id 
-              AND ur.role = 'OWNER_ADMIN'
-            ),
-            false
-          ) as has_owner_admin_role
+              AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+            )
+          ) as has_admin_role,
+          COALESCE(ap.is_master_admin, false) as is_master_admin
         FROM app_user au
+        LEFT JOIN admin_profile ap ON ap.user_id = au.id
         WHERE au.id = $1
       `, [adminId])
       
       if (appUserCheck.rows.length > 0) {
         const user = appUserCheck.rows[0]
-        const isOwnerAdmin = user.role === 'OWNER_ADMIN' || user.has_owner_admin_role === true
+        const isAdminUser = user.has_admin_role === true
         
-        if (!isOwnerAdmin) {
-          console.log('[ADMIN AUTH] Access denied: User does not have OWNER_ADMIN role:', { 
+        if (!isAdminUser) {
+          console.log('[ADMIN AUTH] Access denied: User does not have admin role:', { 
             userId: adminId, 
             role: user.role,
-            hasOwnerAdminRole: user.has_owner_admin_role,
+            hasAdminRole: user.has_admin_role,
             email: user.email
           })
           return res.status(403).json({ 
             success: false, 
-            message: 'Access denied: Admin privileges (OWNER_ADMIN role) required. Only the specific admin user can access the admin portal, not family members.' 
+            message: 'Access denied: Admin privileges required. Only the specific admin user can access the admin portal, not family members.' 
           })
         }
         
@@ -2138,6 +2460,7 @@ const authenticateAdmin = async (req, res, next) => {
         req.adminId = user.id
         req.adminEmail = user.email
         req.isAdmin = true
+        req.isMasterAdmin = user.is_master_admin === true || user.role === 'MASTER_ADMIN' || user.role === 'OWNER_ADMIN'
         console.log('[ADMIN AUTH] Authenticated admin (app_user table, ID only):', { 
           adminId: user.id, 
           email: user.email,
@@ -2216,21 +2539,6 @@ const authenticateMember = (req, res, next) => {
     return res.status(401).json({ success: false, message: 'No token provided' })
   }
 
-  // TEMPORARY: Handle temporary client-side tokens until backend is fully deployed
-  // This allows enrollment to work even if backend login hasn't been updated yet
-  if (token.startsWith('temp-admin-')) {
-    console.warn('[MEMBER AUTH] Using temporary token - backend login endpoint needs to be updated!')
-    const parts = token.split('-')
-    if (parts.length >= 3) {
-      const adminId = parseInt(parts[2])
-      req.userId = adminId
-      req.memberId = adminId
-      req.isAdmin = true
-      console.log('[MEMBER AUTH] Authenticated with temporary token:', { userId: adminId, isAdmin: true })
-      return next()
-    }
-  }
-
   try {
     const decoded = jwt.verify(token, JWT_SECRET)
     console.log('[MEMBER AUTH] Token decoded successfully:', { 
@@ -2279,6 +2587,31 @@ app.options('*', (req, res) => {
 // This middleware protects all admin routes except login and verification endpoints
 // Note: When using app.use('/api/admin', ...), req.path is relative to the mount point
 // So '/api/admin/login' becomes '/login' in req.path
+function legacyAdminPermissionFor(req) {
+  const path = req.path
+  const method = req.method
+  if (path.startsWith('/access')) return null
+  if (path.startsWith('/admins')) return method === 'GET' && path === '/admins/me' ? null : 'admins.manage'
+  if (path.startsWith('/members') || path.startsWith('/families') || path.startsWith('/users')) {
+    if (method === 'GET') return 'members.view'
+    if (path.includes('/archive')) return 'members.archive'
+    return 'members.edit'
+  }
+  if (path.startsWith('/programs') || path.startsWith('/categories') || path.startsWith('/classes') || path.startsWith('/events') || path.startsWith('/highlights')) {
+    return method === 'GET' ? 'classes.view' : 'classes.manage'
+  }
+  if (path.startsWith('/scheduling') || path.startsWith('/calendar') || path.startsWith('/signups') || path.startsWith('/waitlist')) {
+    return method === 'GET' ? 'scheduling.view' : 'scheduling.manage'
+  }
+  if (path.startsWith('/pricing') || path.startsWith('/discount') || path.startsWith('/promo') || path.startsWith('/free-passes')) {
+    return method === 'GET' ? 'pricing.view' : 'pricing.manage'
+  }
+  if (path.startsWith('/schools')) return method === 'GET' ? 'schools.view' : 'schools.manage'
+  if (path.startsWith('/analytics')) return 'analytics.view'
+  if (path.startsWith('/db-queries') || path.startsWith('/database') || path.startsWith('/create-member-program-table')) return 'admin_access.manage'
+  return null
+}
+
 app.use('/api/admin', async (req, res, next) => {
   // Skip authentication for OPTIONS requests (CORS preflight)
   if (req.method === 'OPTIONS') {
@@ -2293,7 +2626,11 @@ app.use('/api/admin', async (req, res, next) => {
     return next()
   }
   // Apply admin authentication to all other admin routes
-  return authenticateAdmin(req, res, next)
+  return authenticateAdmin(req, res, async () => {
+    const permission = legacyAdminPermissionFor(req)
+    if (!permission || req.isMasterAdmin === true || await hasAdminPermission(req.adminId, permission)) return next()
+    return res.status(403).json({ success: false, message: `Missing permission: ${permission}` })
+  })
 })
 
 // Analytics & consent (public + admin)
@@ -2301,6 +2638,8 @@ registerAnalyticsRoutes(app, pool)
 registerSchedulingRoutes(app, pool)
 registerProgramsPublicRoutes(app, pool)
 registerProgramsAdminRoutes(app, pool)
+registerPlatformRoutes(app, pool, { jwtSecret: JWT_SECRET })
+registerCoachPortalRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerCampRegistrationRoutes(app, pool)
 registerDevMemberRoutes(app, pool)
 
@@ -2343,12 +2682,31 @@ const registeredRoutePaths = () => {
 const hasRegisteredRoute = (path) => registeredRoutePaths().has(path)
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'OK',
+app.get('/api/health', async (req, res) => {
+  let dbConnected = false
+  let migrationsTable = false
+  try {
+    await pool.query('SELECT 1')
+    dbConnected = true
+    const migrationsCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = 'schema_migrations'
+      ) as exists
+    `)
+    migrationsTable = migrationsCheck.rows[0]?.exists === true
+  } catch (error) {
+    dbConnected = false
+  }
+
+  const payload = {
+    status: dbConnected ? 'OK' : 'DEGRADED',
     buildId: API_BUILD_ID,
     timestamp: new Date().toISOString(),
     emailConfigured: isEmailConfigured(),
+    dbConnected,
+    schemaMigrationsTracked: migrationsTable,
     apiFeatures: {
       highlights: hasRegisteredRoute('/api/admin/highlights'),
       publicHighlights: hasRegisteredRoute('/api/highlights'),
@@ -2366,17 +2724,28 @@ app.get('/api/health', (req, res) => {
       registrationInquiryOverhaul: true,
       schedulingEnrollSites: true,
     },
-  })
+  }
+
+  if (!dbConnected) {
+    return res.status(503).json(payload)
+  }
+  res.json(payload)
 })
 
 // Test endpoint to verify routing works
 app.get('/api/test-enrollment-route', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ success: false, message: 'Not found' })
+  }
   console.log('[Test] Test enrollment route endpoint hit')
   res.json({ success: true, message: 'Enrollment route test - routing is working' })
 })
 
 // Module 0 verification endpoint
 app.get('/api/verify/module0', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ success: false, message: 'Not found' })
+  }
   try {
     const results = {
       userRoleEnum: false,
@@ -2505,6 +2874,9 @@ app.get('/api/verify/module0', async (req, res) => {
 
 // Module 1 verification endpoint
 app.get('/api/verify/module1', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ success: false, message: 'Not found' })
+  }
   try {
     const results = {
       programCategoryEnum: false,
@@ -3137,19 +3509,22 @@ app.get('/api/admin/members', async (req, res) => {
           m.status,
           m.is_active,
           m.family_is_active,
-          m.family_id,
+          COALESCE(fm.family_id, m.family_id) as family_id,
           m.username,
           m.has_completed_waivers,
           m.waiver_completion_date,
           m.created_at,
           m.updated_at,
           f.family_name,
+          fba.payer_member_id,
         CASE WHEN m.date_of_birth IS NOT NULL 
           THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
           ELSE NULL 
         END as age
         FROM member m
-        LEFT JOIN family f ON m.family_id = f.id
+        LEFT JOIN family_member fm ON fm.member_id = m.id AND fm.is_active = TRUE
+        LEFT JOIN family f ON f.id = COALESCE(fm.family_id, m.family_id)
+        LEFT JOIN family_billing_account fba ON fba.family_id = f.id AND fba.is_active = TRUE
       WHERE 1=1
     `
     
@@ -3265,27 +3640,33 @@ app.get('/api/admin/members', async (req, res) => {
       }
     }
     
-    // Get roles separately if user_role has member_id
+    // Get roles from canonical app_user/app_user_role records.
     let rolesMap = {}
-    if (userRoleHasMemberId && memberIds.length > 0) {
-      const rolesQuery = `
-        SELECT 
-          member_id,
-          json_agg(
-            jsonb_build_object(
-              'id', role,
-              'role', role
-            )
-          ) as roles
-        FROM user_role
-        WHERE member_id = ANY($1::bigint[])
-        GROUP BY member_id
-      `
-      const rolesResult = await pool.query(rolesQuery, [memberIds])
-      
-      rolesResult.rows.forEach(row => {
-        rolesMap[row.member_id] = row.roles || []
-      })
+    if (memberIds.length > 0) {
+      try {
+        const rolesResult = await pool.query(`
+          SELECT
+            m.id as member_id,
+            json_agg(DISTINCT jsonb_build_object('id', role_key, 'role', role_key)) as roles
+          FROM member m
+          JOIN app_user au ON au.id = m.app_user_id
+          CROSS JOIN LATERAL (
+            SELECT au.role::text as role_key
+            UNION
+            SELECT aur.role::text as role_key
+            FROM app_user_role aur
+            WHERE aur.user_id = au.id
+          ) roles
+          WHERE m.id = ANY($1::bigint[])
+          GROUP BY m.id
+        `, [memberIds])
+
+        rolesResult.rows.forEach(row => {
+          rolesMap[row.member_id] = row.roles || []
+        })
+      } catch (rolesError) {
+        console.warn('[GET /api/admin/members] Error fetching app_user roles:', rolesError.message)
+      }
     }
       
       // Format the response
@@ -3316,6 +3697,8 @@ app.get('/api/admin/members', async (req, res) => {
         familyIsActive: row.family_is_active,
         familyId: row.family_id,
         familyName: row.family_name,
+        payerMemberId: row.payer_member_id,
+        isFamilyPayer: row.payer_member_id != null && Number(row.payer_member_id) === Number(row.id),
         username: row.username,
         hasCompletedWaivers: row.has_completed_waivers || false,
         waiverCompletionDate: row.waiver_completion_date,
@@ -4122,10 +4505,15 @@ app.get('/api/admin/users', async (req, res) => {
         u.role,
         u.is_active,
         u.username,
+        m.id as member_id,
         f.id as family_id,
-        f.family_name
+        f.family_name,
+        fba.payer_member_id
       FROM app_user u
-      LEFT JOIN family f ON u.id = f.primary_user_id
+      LEFT JOIN member m ON m.app_user_id = u.id
+      LEFT JOIN family_member fm ON fm.member_id = m.id AND fm.is_active = TRUE
+      LEFT JOIN family f ON f.id = COALESCE(fm.family_id, m.family_id) AND f.archived = FALSE
+      LEFT JOIN family_billing_account fba ON fba.family_id = f.id AND fba.is_active = TRUE
       WHERE u.facility_id = (SELECT id FROM facility LIMIT 1)
     `
     const params = []
@@ -4258,15 +4646,7 @@ app.post('/api/admin/users', async (req, res) => {
           const passwordHash = await bcrypt.hash(password, 10)
           
           if (action === 'create_new') {
-            // Remove user from their previous family
-            await pool.query(`
-              UPDATE family SET primary_user_id = NULL WHERE primary_user_id = $1
-            `, [userId])
-            
-            // Remove user from all family_guardian relationships
-            await pool.query(`
-              DELETE FROM family_guardian WHERE user_id = $1
-            `, [userId])
+            await deactivateFamilyMembershipsForAppUser(userId)
           }
           // For 'revive', we keep the existing family associations (do nothing)
           
@@ -4287,6 +4667,7 @@ app.post('/api/admin/users', async (req, res) => {
           
           // Update user roles
           await setUserRoles(userId, userRoles)
+          const linkedMember = await ensureMemberForAppUser(userId)
           
           // Fetch user with all roles
           const allRoles = await getUserRoles(userId)
@@ -4298,6 +4679,7 @@ app.post('/api/admin/users', async (req, res) => {
           
           const userData = {
             ...updatedUser.rows[0],
+            member_id: linkedMember?.id ?? null,
             roles: allRoles
           }
           
@@ -4333,15 +4715,7 @@ app.post('/api/admin/users', async (req, res) => {
           const passwordHash = await bcrypt.hash(password, 10)
           
           if (action === 'create_new') {
-            // Remove user from their previous family
-            await pool.query(`
-              UPDATE family SET primary_user_id = NULL WHERE primary_user_id = $1
-            `, [userId])
-            
-            // Remove user from all family_guardian relationships
-            await pool.query(`
-              DELETE FROM family_guardian WHERE user_id = $1
-            `, [userId])
+            await deactivateFamilyMembershipsForAppUser(userId)
           }
           // For 'revive', we keep the existing family associations (do nothing)
           
@@ -4361,6 +4735,7 @@ app.post('/api/admin/users', async (req, res) => {
           
           // Update user roles
           await setUserRoles(userId, userRoles)
+          const linkedMember = await ensureMemberForAppUser(userId)
           
           // Fetch user with all roles
           const allRoles = await getUserRoles(userId)
@@ -4372,6 +4747,7 @@ app.post('/api/admin/users', async (req, res) => {
           
           const userData = {
             ...updatedUser.rows[0],
+            member_id: linkedMember?.id ?? null,
             roles: allRoles
           }
           
@@ -4401,11 +4777,13 @@ app.post('/api/admin/users', async (req, res) => {
 
     // Add all roles to user_role table
     await setUserRoles(userId, userRoles)
+    const linkedMember = await ensureMemberForAppUser(userId)
 
     // Fetch user with all roles
     const allRoles = await getUserRoles(userId)
     const userData = {
       ...result.rows[0],
+      member_id: linkedMember?.id ?? null,
       roles: allRoles
     }
 
@@ -4478,7 +4856,7 @@ app.patch('/api/admin/users/:id/archive', async (req, res) => {
     // If unarchiving: set status based on enrollments ('enrolled' if has enrollments, else 'legacy')
     // Update member status when user is archived/unarchived
     const memberStatusUpdate = archived 
-      ? "UPDATE member SET status = 'archived', is_active = FALSE, updated_at = CURRENT_TIMESTAMP WHERE id = $1"
+      ? "UPDATE member SET status = 'archived', is_active = FALSE, updated_at = CURRENT_TIMESTAMP WHERE app_user_id = $1 OR (app_user_id IS NULL AND id = $1)"
       : `UPDATE member SET 
           status = CASE
             WHEN EXISTS (SELECT 1 FROM member_program WHERE member_id = member.id) 
@@ -4487,20 +4865,9 @@ app.patch('/api/admin/users/:id/archive', async (req, res) => {
           END,
           is_active = TRUE,
           updated_at = CURRENT_TIMESTAMP
-          WHERE id = $1`
+          WHERE app_user_id = $1 OR (app_user_id IS NULL AND id = $1)`
     
     await pool.query(memberStatusUpdate, [id])
-    
-    // Also update members that are in families where this user is a guardian
-    if (archived) {
-      await pool.query(`
-        UPDATE member m
-        SET status = 'archived', is_active = FALSE, updated_at = CURRENT_TIMESTAMP
-        FROM family f
-        JOIN family_guardian fg ON f.id = fg.family_id
-        WHERE m.family_id = f.id AND (fg.user_id = $1 OR fg.member_id = $1)
-      `, [id])
-    }
 
     // Fetch updated user
     const result = await pool.query(`
@@ -4543,10 +4910,15 @@ app.get('/api/admin/users/:id', async (req, res) => {
         u.username,
         u.created_at,
         u.address,
+        m.id as member_id,
         f.id as family_id,
-        f.family_name
+        f.family_name,
+        fba.payer_member_id
       FROM app_user u
-      LEFT JOIN family f ON u.id = f.primary_user_id
+      LEFT JOIN member m ON m.app_user_id = u.id
+      LEFT JOIN family_member fm ON fm.member_id = m.id AND fm.is_active = TRUE
+      LEFT JOIN family f ON f.id = COALESCE(fm.family_id, m.family_id) AND f.archived = FALSE
+      LEFT JOIN family_billing_account fba ON fba.family_id = f.id AND fba.is_active = TRUE
       WHERE u.id = $1 AND u.facility_id = (SELECT id FROM facility LIMIT 1)
     `, [id])
     
@@ -4788,9 +5160,12 @@ app.get('/api/admin/families/search', async (req, res) => {
         f.family_name,
         f.family_username,
         f.created_at,
-        COUNT(DISTINCT m.id) as member_count
+        COUNT(DISTINCT m.id) as member_count,
+        fba.payer_member_id
       FROM family f
-      LEFT JOIN member m ON m.family_id = f.id
+      LEFT JOIN family_member fm ON fm.family_id = f.id AND fm.is_active = TRUE
+      LEFT JOIN member m ON m.id = fm.member_id AND m.is_active = TRUE
+      LEFT JOIN family_billing_account fba ON fba.family_id = f.id AND fba.is_active = TRUE
       WHERE f.archived = FALSE
     `
     
@@ -4810,7 +5185,7 @@ app.get('/api/admin/families/search', async (req, res) => {
       params.push(`%${search}%`)
     }
     
-    query += ` GROUP BY f.id, f.family_name, f.family_username, f.created_at ORDER BY f.family_name LIMIT 20`
+    query += ` GROUP BY f.id, f.family_name, f.family_username, f.created_at, fba.payer_member_id ORDER BY f.family_name LIMIT 20`
     
     const result = await pool.query(query, params)
     
@@ -4820,6 +5195,7 @@ app.get('/api/admin/families/search', async (req, res) => {
       familyName: row.family_name,
       familyUsername: row.family_username,
       memberCount: parseInt(row.member_count || '0'),
+      payerMemberId: row.payer_member_id,
       createdAt: row.created_at
     }))
     
@@ -4878,8 +5254,9 @@ app.post('/api/admin/members/:memberId/join-family', async (req, res) => {
     
     const member = memberCheck.rows[0]
     
-    // Check if member already belongs to a family
-    if (member.family_id) {
+    // Check if member already belongs to an active family.
+    const activeFamily = await getFamilyForMember(member.id, client)
+    if (activeFamily) {
       await client.query('ROLLBACK')
       return res.status(400).json({
         success: false,
@@ -4925,12 +5302,7 @@ app.post('/api/admin/members/:memberId/join-family', async (req, res) => {
       })
     }
     
-    // Join member to family
-    await client.query(`
-      UPDATE member
-      SET family_id = $1, updated_at = NOW()
-      WHERE id = $2
-    `, [family.id, memberId])
+    await moveMemberToFamily(member.id, family.id, client)
     
     await client.query('COMMIT')
     
@@ -4953,6 +5325,51 @@ app.post('/api/admin/members/:memberId/join-family', async (req, res) => {
     })
   } finally {
     client.release()
+  }
+})
+
+app.put('/api/admin/families/:familyId/members/:memberId/relationship', async (req, res) => {
+  try {
+    const { familyId, memberId } = req.params
+    const relationshipLabel = req.body?.relationshipLabel == null ? null : String(req.body.relationshipLabel).trim()
+    const result = await pool.query(`
+      UPDATE family_member
+      SET relationship_label = $3, updated_at = CURRENT_TIMESTAMP
+      WHERE family_id = $1 AND member_id = $2 AND is_active = TRUE
+      RETURNING *
+    `, [familyId, memberId, relationshipLabel || null])
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Family membership not found' })
+    }
+    res.json({ success: true, data: result.rows[0] })
+  } catch (error) {
+    console.error('Update family relationship error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+app.post('/api/admin/families/:familyId/members/:memberId/move', async (req, res) => {
+  try {
+    const { familyId, memberId } = req.params
+    const targetFamilyId = Number(req.body?.targetFamilyId)
+    if (!Number.isFinite(targetFamilyId)) {
+      return res.status(400).json({ success: false, message: 'targetFamilyId is required' })
+    }
+    const targetFamily = await pool.query(`SELECT id FROM family WHERE id = $1 AND COALESCE(archived, false) = FALSE`, [targetFamilyId])
+    if (targetFamily.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Target family not found' })
+    }
+    const member = await pool.query(`
+      SELECT 1 FROM family_member WHERE family_id = $1 AND member_id = $2 AND is_active = TRUE
+    `, [familyId, memberId])
+    if (member.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Member is not active in source family' })
+    }
+    await moveMemberToFamily(Number(memberId), targetFamilyId)
+    res.json({ success: true, data: { memberId: Number(memberId), familyId: targetFamilyId } })
+  } catch (error) {
+    console.error('Move family member error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
   }
 })
 
@@ -5046,11 +5463,13 @@ app.get('/api/admin/families', async (req, res) => {
         COALESCE(f.archived, FALSE) as archived,
         f.created_at,
         f.updated_at,
+        fba.payer_member_id,
         COUNT(DISTINCT m.id) as member_count,
         COALESCE(
           json_agg(
             DISTINCT jsonb_build_object(
               'id', m.id,
+              'appUserId', m.app_user_id,
               'firstName', m.first_name,
               'lastName', m.last_name,
               'email', m.email,
@@ -5065,7 +5484,9 @@ app.get('/api/admin/families', async (req, res) => {
           '[]'
         ) as members
       FROM family f
-      LEFT JOIN member m ON f.id = m.family_id AND m.is_active = TRUE
+      LEFT JOIN family_member fm ON fm.family_id = f.id AND fm.is_active = TRUE
+      LEFT JOIN member m ON m.id = fm.member_id AND m.is_active = TRUE
+      LEFT JOIN family_billing_account fba ON fba.family_id = f.id AND fba.is_active = TRUE
       WHERE COALESCE(f.archived, FALSE) = FALSE
     `
     const params = []
@@ -5077,15 +5498,18 @@ app.get('/api/admin/families', async (req, res) => {
         f.family_name ILIKE $${paramCount} OR 
         f.family_username ILIKE $${paramCount} OR
         EXISTS (
-          SELECT 1 FROM member m2 
-          WHERE m2.family_id = f.id 
+          SELECT 1
+          FROM family_member fm2
+          JOIN member m2 ON m2.id = fm2.member_id
+          WHERE fm2.family_id = f.id
+          AND fm2.is_active = TRUE
           AND (m2.first_name ILIKE $${paramCount} OR m2.last_name ILIKE $${paramCount} OR m2.email ILIKE $${paramCount})
         )
       )`
       params.push(`%${search}%`)
     }
     
-    query += ` GROUP BY f.id, f.facility_id, f.family_name, f.family_username, f.archived, f.created_at, f.updated_at ORDER BY f.family_name, f.created_at DESC`
+    query += ` GROUP BY f.id, f.facility_id, f.family_name, f.family_username, f.archived, f.created_at, f.updated_at, fba.payer_member_id ORDER BY f.family_name, f.created_at DESC`
     
     const result = await pool.query(query, params)
     
@@ -5095,6 +5519,10 @@ app.get('/api/admin/families', async (req, res) => {
       familyName: row.family_name,
       familyUsername: row.family_username,
       archived: row.archived,
+      payerMemberId: row.payer_member_id,
+      billingAccount: {
+        payerMemberId: row.payer_member_id,
+      },
       memberCount: parseInt(row.member_count || '0'),
       members: row.members || [],
       createdAt: row.created_at,
@@ -5142,11 +5570,13 @@ app.get('/api/admin/families/:id', async (req, res) => {
     }
     
     const family = familyResult.rows[0]
+    const billingAccount = await getFamilyPayer(id)
     
     // Get all members in this family (all are equal, no primary member)
     const membersResult = await pool.query(`
       SELECT 
         m.id,
+        m.app_user_id,
         m.first_name,
         m.last_name,
         m.email,
@@ -5173,11 +5603,14 @@ app.get('/api/admin/families/:id', async (req, res) => {
           ) FILTER (WHERE ec.id IS NOT NULL),
           '[]'
         ) as emergency_contacts
-      FROM member m
+      FROM family_member fm
+      JOIN member m ON m.id = fm.member_id
       LEFT JOIN emergency_contact ec ON m.id = ec.member_id
-      WHERE m.family_id = $1 AND m.is_active = TRUE
+      WHERE fm.family_id = $1
+        AND fm.is_active = TRUE
+        AND m.is_active = TRUE
       GROUP BY m.id, m.first_name, m.last_name, m.email, m.phone, m.username, 
-               m.date_of_birth, m.status, m.is_active, m.has_completed_waivers, m.parent_guardian_ids
+               m.app_user_id, m.date_of_birth, m.status, m.is_active, m.has_completed_waivers, m.parent_guardian_ids
       ORDER BY m.date_of_birth NULLS LAST, m.last_name, m.first_name
     `, [id])
     
@@ -5185,6 +5618,7 @@ app.get('/api/admin/families/:id', async (req, res) => {
     const members = membersResult.rows.map(member => {
       const memberData = {
         id: member.id,
+        appUserId: member.app_user_id,
         firstName: member.first_name,
         lastName: member.last_name,
         email: member.email,
@@ -5195,6 +5629,7 @@ app.get('/api/admin/families/:id', async (req, res) => {
         status: member.status,
         isActive: member.is_active,
         hasCompletedWaivers: member.has_completed_waivers || false,
+        isFamilyPayer: billingAccount?.payer_member_id != null && Number(billingAccount.payer_member_id) === Number(member.id),
         parentGuardianIds: member.parent_guardian_ids || [],
         emergencyContacts: member.emergency_contacts || []
       }
@@ -5229,6 +5664,17 @@ app.get('/api/admin/families/:id', async (req, res) => {
         familyName: family.family_name,
         familyUsername: family.family_username,
         archived: family.archived || false,
+        payerMemberId: billingAccount?.payer_member_id ?? null,
+        billingAccount: billingAccount ? {
+          id: billingAccount.id,
+          payerMemberId: billingAccount.payer_member_id,
+          billingEmail: billingAccount.billing_email,
+          billingPhone: billingAccount.billing_phone,
+          billingStreet: billingAccount.billing_street,
+          billingCity: billingAccount.billing_city,
+          billingState: billingAccount.billing_state,
+          billingZip: billingAccount.billing_zip,
+        } : null,
         members: members,
         memberCount: members.length,
         createdAt: family.created_at,
@@ -5533,22 +5979,24 @@ app.delete('/api/admin/families/:id', async (req, res) => {
     }
     const facilityId = facilityResult.rows[0].id
     
-    // Get all user IDs associated with this family
+    // Get all app users linked to active members in this family.
     const familyUsersResult = await pool.query(`
-      SELECT DISTINCT user_id 
-      FROM family_guardian 
-      WHERE family_id = $1
-      UNION
-      SELECT primary_user_id 
-      FROM family 
-      WHERE id = $1 AND primary_user_id IS NOT NULL
+      SELECT DISTINCT m.app_user_id as user_id
+      FROM family_member fm
+      JOIN member m ON m.id = fm.member_id
+      WHERE fm.family_id = $1
+        AND m.app_user_id IS NOT NULL
     `, [id])
     
     const userIds = familyUsersResult.rows.map(row => row.user_id).filter(id => id !== null)
     
     // Get all member IDs associated with this family
     const membersResult = await pool.query(`
-      SELECT id FROM member WHERE family_id = $1 AND facility_id = $2
+      SELECT DISTINCT m.id
+      FROM family_member fm
+      JOIN member m ON m.id = fm.member_id
+      WHERE fm.family_id = $1
+        AND m.facility_id = $2
     `, [id, facilityId])
     const memberIds = membersResult.rows.map(row => row.id)
     
@@ -5564,26 +6012,36 @@ app.delete('/api/admin/families/:id', async (req, res) => {
         `, [memberIds])
       }
       
-      // Delete the family (this will cascade delete family_guardian records)
+      // Delete the family (this cascades canonical family_member/billing records).
       await client.query('DELETE FROM family WHERE id = $1', [id])
       
-      // Delete associated users, but only if they're not associated with other families
+      // Delete associated app users only when they are family-only accounts.
       const deletedUserEmails = []
       for (const userId of userIds) {
-        // Check if this user is associated with any other families
         const otherFamiliesResult = await client.query(`
           SELECT COUNT(*) as count
-          FROM (
-            SELECT family_id FROM family_guardian WHERE user_id = $1
-            UNION
-            SELECT id FROM family WHERE primary_user_id = $1
-          ) as other_families
-        `, [userId])
+          FROM family_member fm
+          JOIN member m ON m.id = fm.member_id
+          WHERE m.app_user_id = $1
+            AND fm.is_active = TRUE
+            AND fm.family_id <> $2
+        `, [userId, id])
         
         const otherFamiliesCount = parseInt(otherFamiliesResult.rows[0].count)
+        const rolesResult = await client.query(`
+          SELECT role_key
+          FROM (
+            SELECT role::text as role_key FROM app_user WHERE id = $1
+            UNION
+            SELECT role::text as role_key FROM app_user_role WHERE user_id = $1
+          ) roles
+        `, [userId])
+        const roles = rolesResult.rows.map((row) => row.role_key)
+        const familyOnlyRoles = roles.every((role) =>
+          ['PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER'].includes(role),
+        )
         
-        // Only delete the user if they're not associated with any other families
-        if (otherFamiliesCount === 0) {
+        if (otherFamiliesCount === 0 && familyOnlyRoles) {
           // Get user email before deleting
           const userEmailResult = await client.query('SELECT email FROM app_user WHERE id = $1', [userId])
           if (userEmailResult.rows.length > 0) {
@@ -5649,11 +6107,12 @@ app.delete('/api/admin/users/by-email/:email', async (req, res) => {
     const user = userResult.rows[0]
     const userId = user.id
     
-    // Get all family IDs associated with this user
+    // Get all family IDs associated with this user's linked member records.
     const familiesResult = await pool.query(`
-      SELECT DISTINCT family_id as id FROM family_guardian WHERE user_id = $1
-      UNION
-      SELECT id FROM family WHERE primary_user_id = $1
+      SELECT DISTINCT fm.family_id as id
+      FROM family_member fm
+      JOIN member m ON m.id = fm.member_id
+      WHERE m.app_user_id = $1
     `, [userId])
     
     const familyIds = familiesResult.rows.map(row => row.id)
@@ -5667,7 +6126,10 @@ app.delete('/api/admin/users/by-email/:email', async (req, res) => {
       if (familyIds.length > 0) {
         for (const familyId of familyIds) {
           const membersResult = await client.query(
-            'SELECT id FROM member WHERE family_id = $1 AND facility_id = $2',
+            `SELECT DISTINCT m.id
+             FROM family_member fm
+             JOIN member m ON m.id = fm.member_id
+             WHERE fm.family_id = $1 AND m.facility_id = $2`,
             [familyId, facilityId]
           )
           const memberIds = membersResult.rows.map(row => row.id)
@@ -5685,6 +6147,7 @@ app.delete('/api/admin/users/by-email/:email', async (req, res) => {
       }
       
       // Delete the user
+      await client.query('DELETE FROM member WHERE app_user_id = $1', [userId])
       await client.query('DELETE FROM app_user WHERE id = $1', [userId])
       
       // Legacy members table cleanup removed - table is deprecated
@@ -7193,75 +7656,118 @@ app.delete('/api/admin/families/:familyId/members/:memberId', async (req, res) =
     // Get all children in the family (members under 18)
     const childrenInFamily = await pool.query(`
       SELECT m.id, m.first_name, m.last_name, EXTRACT(YEAR FROM AGE(m.date_of_birth)) as age
-      FROM member m
-      WHERE m.family_id = $1 AND m.id != $2 AND m.date_of_birth IS NOT NULL
+      FROM family_member fm
+      JOIN member m ON m.id = fm.member_id
+      WHERE fm.family_id = $1
+        AND fm.is_active = TRUE
+        AND m.id != $2
+        AND m.date_of_birth IS NOT NULL
     `, [familyId, memberId])
     
-    // Check remaining guardians after removal
-    const remainingGuardians = await pool.query(`
+    // Check remaining adult members after removal.
+    const remainingAdults = await pool.query(`
       SELECT COUNT(*) as count
-      FROM family_guardian fg
-      WHERE fg.family_id = $1 AND (fg.user_id != $2 OR fg.member_id != $2)
+      FROM family_member fm
+      JOIN member m ON m.id = fm.member_id
+      WHERE fm.family_id = $1
+        AND fm.is_active = TRUE
+        AND m.id != $2
+        AND m.date_of_birth IS NOT NULL
+        AND EXTRACT(YEAR FROM AGE(m.date_of_birth)) >= 18
     `, [familyId, member.id])
     
-    const guardianCount = parseInt(remainingGuardians.rows[0].count || '0')
-    const primaryUserCheck = await pool.query(`
-      SELECT primary_user_id, primary_member_id FROM family WHERE id = $1
+    const adultCount = parseInt(remainingAdults.rows[0].count || '0')
+    const payerCheck = await pool.query(`
+      SELECT payer_member_id
+      FROM family_billing_account
+      WHERE family_id = $1 AND is_active = TRUE
     `, [familyId])
-    const currentPrimaryUserId = primaryUserCheck.rows.length > 0 ? primaryUserCheck.rows[0].primary_user_id : null
-    const currentPrimaryMemberId = primaryUserCheck.rows.length > 0 ? primaryUserCheck.rows[0].primary_member_id : null
-    const willBecomePrimary = currentPrimaryUserId === member.id || currentPrimaryMemberId === member.id
-    const hasOtherPrimaryGuardian = (currentPrimaryUserId !== null && currentPrimaryUserId !== member.id) || 
-                                    (currentPrimaryMemberId !== null && currentPrimaryMemberId !== member.id)
+    const currentPayerMemberId = payerCheck.rows.length > 0 ? payerCheck.rows[0].payer_member_id : null
     
     // Check if any remaining children will be left without guardians
     const willLeaveChildrenOrphaned = childrenInFamily.rows.some(child => {
       const childAge = parseInt(child.age)
-      return childAge < 18 && guardianCount === 0 && !hasOtherPrimaryGuardian
+      return childAge < 18 && adultCount === 0
     })
     
     // If adult: create their own family
     if (isAdult && member.id) {
-      // Remove from current family guardians
       await pool.query(`
-        DELETE FROM family_guardian WHERE family_id = $1 AND (user_id = $2 OR member_id = $2)
+        UPDATE family_member
+        SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+        WHERE family_id = $1 AND member_id = $2
       `, [familyId, member.id])
-      
-      // Update family primary_user_id/primary_member_id if this was the primary
-      if (willBecomePrimary) {
-        await pool.query(`
-          UPDATE family 
-          SET primary_user_id = CASE WHEN primary_user_id = $1 THEN NULL ELSE primary_user_id END,
-              primary_member_id = CASE WHEN primary_member_id = $1 THEN NULL ELSE primary_member_id END
-          WHERE id = $2
-        `, [member.id, familyId])
-      }
       
       // Create new family for the adult
       const newFamilyResult = await pool.query(`
-        INSERT INTO family (facility_id, primary_member_id, family_name)
-        VALUES ($1, $2, $3)
+        INSERT INTO family (facility_id, family_name)
+        VALUES ($1, $2)
         RETURNING *
-      `, [facilityId, member.id, `${member.first_name} ${member.last_name} Family`])
+      `, [facilityId, `${member.first_name} ${member.last_name} Family`])
       
       const newFamilyId = newFamilyResult.rows[0].id
-      
-      // Add as guardian to new family
+      await moveMemberToFamily(member.id, newFamilyId)
       await pool.query(`
-        INSERT INTO family_guardian (family_id, member_id, is_primary)
-        VALUES ($1, $2, TRUE)
-      `, [newFamilyId, member.id])
-      
-      // Update member to new family
-      await pool.query(`
-        UPDATE member SET family_id = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2
-      `, [newFamilyId, memberId])
+        INSERT INTO family_billing_account (
+          family_id,
+          payer_member_id,
+          billing_email,
+          billing_phone,
+          billing_street,
+          billing_city,
+          billing_state,
+          billing_zip
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (family_id) DO UPDATE
+        SET payer_member_id = EXCLUDED.payer_member_id,
+            billing_email = EXCLUDED.billing_email,
+            billing_phone = EXCLUDED.billing_phone,
+            billing_street = EXCLUDED.billing_street,
+            billing_city = EXCLUDED.billing_city,
+            billing_state = EXCLUDED.billing_state,
+            billing_zip = EXCLUDED.billing_zip,
+            is_active = TRUE,
+            updated_at = CURRENT_TIMESTAMP
+      `, [
+        newFamilyId,
+        member.id,
+        member.email,
+        member.phone,
+        member.billing_street,
+        member.billing_city,
+        member.billing_state,
+        member.billing_zip,
+      ])
+
+      if (Number(currentPayerMemberId) === Number(member.id)) {
+        const replacementPayer = await pool.query(`
+          SELECT m.id
+          FROM family_member fm
+          JOIN member m ON m.id = fm.member_id
+          WHERE fm.family_id = $1
+            AND fm.is_active = TRUE
+            AND m.is_active = TRUE
+          ORDER BY (m.email IS NULL), m.id
+          LIMIT 1
+        `, [familyId])
+        await pool.query(`
+          UPDATE family_billing_account
+          SET payer_member_id = $1, updated_at = CURRENT_TIMESTAMP
+          WHERE family_id = $2 AND is_active = TRUE
+        `, [replacementPayer.rows[0]?.id ?? null, familyId])
+      }
       
       // If removing this adult leaves children without guardians, orphan those children
       if (willLeaveChildrenOrphaned) {
         for (const child of childrenInFamily.rows) {
-          const childAge = child.date_of_birth ? parseInt(child.age) : null
+          const childAge = child.age != null ? parseInt(child.age) : null
           if (childAge !== null && childAge < 18) {
+            await pool.query(`
+              UPDATE family_member
+              SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+              WHERE family_id = $1 AND member_id = $2
+            `, [familyId, child.id])
             await pool.query(`
               UPDATE member SET family_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1
             `, [child.id])
@@ -7283,6 +7789,11 @@ app.delete('/api/admin/families/:familyId/members/:memberId', async (req, res) =
     } else {
       // If minor: set family_id to NULL (orphan status)
       // Only children without an assigned family are designated as orphaned
+      await pool.query(`
+        UPDATE family_member
+        SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+        WHERE family_id = $1 AND member_id = $2
+      `, [familyId, memberId])
       await pool.query(`
         UPDATE member SET family_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1
       `, [memberId])
@@ -7429,8 +7940,8 @@ app.post('/api/members/login', async (req, res) => {
           LEFT JOIN app_user_role ur ON ur.user_id = u.id
           WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.email = $2 
-            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
-                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN'))
+            AND (u.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN')
+                 OR ur.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [facilityId, emailOrUsername]
@@ -7440,8 +7951,8 @@ app.post('/api/members/login', async (req, res) => {
           FROM app_user u
           LEFT JOIN app_user_role ur ON ur.user_id = u.id
           WHERE u.email = $1 
-            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
-                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN'))
+            AND (u.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN')
+                 OR ur.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [emailOrUsername]
@@ -7457,8 +7968,8 @@ app.post('/api/members/login', async (req, res) => {
           WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.username IS NOT NULL
             AND LOWER(u.username) = $2 
-            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
-                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN'))
+            AND (u.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN')
+                 OR ur.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [facilityId, usernameLower]
@@ -7469,8 +7980,8 @@ app.post('/api/members/login', async (req, res) => {
           LEFT JOIN app_user_role ur ON ur.user_id = u.id
           WHERE u.username IS NOT NULL
             AND LOWER(u.username) = $1 
-            AND (u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN')
-                 OR ur.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'OWNER_ADMIN'))
+            AND (u.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN')
+                 OR ur.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [usernameLower]
@@ -7528,43 +8039,43 @@ app.post('/api/members/login', async (req, res) => {
       })
     }
 
-    // Get user's family information (optional - allow if family table doesn't exist)
-    // Note: Admins (OWNER_ADMIN) can be in families, but ONLY the admin user themselves
-    // can access admin portal - family members cannot access admin portal even if in same family
-    let familyResult = { rows: [] }
+    // Get user's family through the canonical member -> app_user -> family_member path.
+    let familyContext = null
     try {
-      familyResult = await pool.query(`
-        SELECT f.id, f.family_name, f.primary_user_id
-        FROM family f
-        WHERE f.primary_user_id = $1 OR EXISTS (
-          SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
-        )
-        LIMIT 1
-      `, [user.id])
+      familyContext = await getUserFamilyContext(user.id)
     } catch (familyError) {
       console.log('Family query failed (non-critical):', familyError.message)
-      // Continue without family data
-      familyResult = { rows: [] }
     }
 
     // Get all user roles FIRST (includes roles from user_role junction table)
     // This is needed to check if user is guardian or admin
     const allUserRoles = await getUserRoles(user.id)
+    const linkedMember = await getMemberForAppUser(user.id)
 
     // Get user's family members if they're a guardian or admin with family
     // Note: This includes OWNER_ADMIN users who may also be parents/guardians
     // SECURITY: Only the admin user themselves gets admin portal access, not family members
     let familyMembers = []
-    const isGuardianOrAdmin = user.role === 'PARENT_GUARDIAN' || user.role === 'OWNER_ADMIN' || 
-                              allUserRoles.includes('PARENT_GUARDIAN') || allUserRoles.includes('OWNER_ADMIN')
+    const adminRoles = ['OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN']
+    const memberPortalRoles = ['PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER']
+    const isAdminUser = adminRoles.includes(user.role) || allUserRoles.some((role) => adminRoles.includes(role))
+    const isCoachUser = user.role === 'COACH' || allUserRoles.includes('COACH')
+    const hasMemberPortal = memberPortalRoles.includes(user.role) || allUserRoles.some((role) => memberPortalRoles.includes(role))
+    const isGuardianOrAdmin =
+      user.role === 'PARENT_GUARDIAN' ||
+      allUserRoles.includes('PARENT_GUARDIAN') ||
+      isAdminUser
     
-    if (isGuardianOrAdmin && familyResult.rows.length > 0) {
+    if ((isGuardianOrAdmin || hasMemberPortal) && familyContext) {
       try {
         const membersResult = await pool.query(`
           SELECT m.id, m.first_name, m.last_name, m.date_of_birth, m.status
-          FROM member m
-          WHERE m.family_id = $1 AND m.is_active = TRUE
-        `, [familyResult.rows[0].id])
+          FROM family_member fm
+          JOIN member m ON m.id = fm.member_id
+          WHERE fm.family_id = $1
+            AND fm.is_active = TRUE
+            AND m.is_active = TRUE
+          `, [familyContext.id])
         familyMembers = membersResult.rows
       } catch (memberError) {
         console.log('Member query failed (non-critical):', memberError.message)
@@ -7573,11 +8084,6 @@ app.post('/api/members/login', async (req, res) => {
       }
     }
     
-    // Check if this SPECIFIC user has OWNER_ADMIN role
-    // SECURITY: This check is user-specific, not family-based
-    // Family members will have different user IDs and won't have OWNER_ADMIN role
-    const isOwnerAdmin = user.role === 'OWNER_ADMIN' || allUserRoles.includes('OWNER_ADMIN')
-
     // Generate JWT token with all roles
     // SECURITY NOTE: Including adminId here allows this SPECIFIC user to access admin portal
     // This does NOT grant admin portal access to family members because:
@@ -7591,11 +8097,9 @@ app.post('/api/members/login', async (req, res) => {
       roles: allUserRoles 
     }
     
-    // Only include adminId if this SPECIFIC user is OWNER_ADMIN
-    // This allows admins to use the same token for both member and admin portals
-    if (isOwnerAdmin) {
+    // Include adminId for any admin-capable account so one token can switch portals.
+    if (isAdminUser) {
       tokenPayload.adminId = user.id
-      tokenPayload.role = 'OWNER_ADMIN' // Set role for admin portal compatibility
     }
     
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '30d' })
@@ -7612,9 +8116,19 @@ app.post('/api/members/login', async (req, res) => {
       username: user.username || '',
       role: user.role || '', // Primary role for backward compatibility
       roles: allUserRoles, // All roles (may include OWNER_ADMIN for admins)
-      isAdmin: isOwnerAdmin, // Flag to indicate if this user is an admin (for frontend)
-      familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
-      familyName: familyResult.rows.length > 0 ? familyResult.rows[0].family_name : null,
+      memberId: familyContext?.current_member_id ?? null,
+      isAdmin: isAdminUser,
+      isCoach: isCoachUser,
+      hasMemberPortal,
+      availablePortals: [
+        ...(hasMemberPortal || familyContext ? ['member'] : []),
+        ...(isCoachUser ? ['coach'] : []),
+        ...(isAdminUser ? ['admin'] : []),
+      ],
+      familyId: familyContext?.id ?? null,
+      familyName: familyContext?.family_name ?? null,
+      payerMemberId: familyContext?.payer_member_id ?? null,
+      mustChangePassword: linkedMember?.must_change_password === true,
       familyMembers: familyMembers.map(m => ({
         id: m.id,
         firstName: m.first_name || '',
@@ -7625,13 +8139,13 @@ app.post('/api/members/login', async (req, res) => {
     }
     
     // Log if admin is logging in via member portal
-    if (isOwnerAdmin) {
-      console.log('[Member Login] Admin user logged in via member portal:', {
+    if (isAdminUser || isCoachUser) {
+      console.log('[Member Login] Multi-role user logged in via member portal:', {
         userId: user.id,
         email: user.email,
         roles: allUserRoles,
-        familyId: familyResult.rows.length > 0 ? familyResult.rows[0].id : null,
-        note: 'Admin can access member portal. Admin portal access requires admin authentication via /api/admin/login or token with adminId.'
+        familyId: familyContext?.id ?? null,
+        availablePortals: memberData.availablePortals,
       })
     }
 
@@ -7654,6 +8168,95 @@ app.post('/api/members/login', async (req, res) => {
       message: 'Internal server error',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
+  }
+})
+
+app.post('/api/members/request-password-reset', async (req, res) => {
+  try {
+    const { error, value } = memberPasswordResetRequestSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({ success: false, message: 'Validation error' })
+    }
+
+    const normalizedEmail = value.email.trim().toLowerCase()
+    const userResult = await pool.query(`
+      SELECT id, email, full_name
+      FROM app_user
+      WHERE LOWER(email) = $1
+        AND is_active = TRUE
+      LIMIT 1
+    `, [normalizedEmail])
+
+    if (userResult.rows.length > 0) {
+      const user = userResult.rows[0]
+      const temporaryPassword = generateTemporaryPassword(12)
+      const passwordHash = await bcrypt.hash(temporaryPassword, 10)
+      await pool.query(
+        `UPDATE app_user SET password_hash = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+        [user.id, passwordHash],
+      )
+      await pool.query(
+        `UPDATE member SET must_change_password = TRUE, updated_at = CURRENT_TIMESTAMP WHERE app_user_id = $1`,
+        [user.id],
+      )
+      try {
+        await sendTemporaryPasswordEmail({
+          registrantFirstName: String(user.full_name || '').split(' ')[0] || 'there',
+          registrantEmail: user.email,
+          temporaryPassword,
+        })
+      } catch (mailError) {
+        console.error('Member password reset email failed:', mailError.message)
+      }
+    }
+
+    // Return generic success regardless of lookup result.
+    res.json({
+      success: true,
+      message: 'If an account exists for that email, a temporary password has been sent.',
+    })
+  } catch (error) {
+    console.error('Member password reset request error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+app.post('/api/members/change-password', authenticateMember, async (req, res) => {
+  try {
+    const { error, value } = memberChangePasswordSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({ success: false, message: 'Validation error' })
+    }
+
+    const userId = req.userId || req.memberId
+    const userResult = await pool.query(
+      `SELECT id, password_hash FROM app_user WHERE id = $1 AND is_active = TRUE LIMIT 1`,
+      [userId],
+    )
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    const current = userResult.rows[0]
+    const isValid = await bcrypt.compare(value.currentPassword, current.password_hash || '')
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: 'Current password is incorrect' })
+    }
+
+    const newHash = await bcrypt.hash(value.newPassword, 10)
+    await pool.query(
+      `UPDATE app_user SET password_hash = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+      [userId, newHash],
+    )
+    await pool.query(
+      `UPDATE member SET must_change_password = FALSE, updated_at = CURRENT_TIMESTAMP WHERE app_user_id = $1`,
+      [userId],
+    )
+
+    res.json({ success: true, message: 'Password updated successfully' })
+  } catch (error) {
+    console.error('Member change password error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
   }
 })
 
@@ -7680,12 +8283,12 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       })
     }
     
-    // First, get the app_user's email to find their member record
-    let userEmail = null
+    // First, get the app_user account for role and fallback matching.
+    let currentAppUser = null
     try {
-      const userResult = await pool.query('SELECT email FROM app_user WHERE id = $1', [userId])
+      const userResult = await pool.query('SELECT id, email, role::text as role FROM app_user WHERE id = $1', [userId])
       if (userResult.rows.length > 0) {
-        userEmail = userResult.rows[0].email
+        currentAppUser = userResult.rows[0]
       }
     } catch (userError) {
       console.log('User email query failed:', userError.message)
@@ -7695,17 +8298,18 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       })
     }
     
-    if (!userEmail) {
+    if (!currentAppUser) {
       return res.status(404).json({
         success: false,
-        message: 'User email not found'
+        message: 'User not found'
       })
     }
     
-    // Find the member record for this user by matching email
+    // Find the member record linked to this app_user. Email matching is retained as a fallback.
     const memberQuery = `
       SELECT 
         m.id,
+        m.app_user_id,
         m.first_name,
         m.last_name,
         m.email,
@@ -7741,11 +8345,16 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       FROM member m
       LEFT JOIN family f ON m.family_id = f.id
       WHERE m.is_active = TRUE
-        AND m.email = $1
+        AND (
+          m.app_user_id = $1
+          OR (m.app_user_id IS NULL AND m.id = $1)
+          OR (m.app_user_id IS NULL AND m.email = $2)
+        )
+      ORDER BY CASE WHEN m.app_user_id = $1 THEN 0 ELSE 1 END
       LIMIT 1
     `
     
-    const memberResult = await pool.query(memberQuery, [userEmail])
+    const memberResult = await pool.query(memberQuery, [userId, currentAppUser.email])
     
     if (memberResult.rows.length === 0) {
       return res.status(404).json({
@@ -7787,10 +8396,12 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
             THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
             ELSE NULL 
           END as age
-        FROM member m
-        LEFT JOIN family f ON m.family_id = f.id
-        WHERE m.is_active = TRUE
-          AND m.family_id = $1
+        FROM family_member fm
+        JOIN member m ON m.id = fm.member_id
+        LEFT JOIN family f ON fm.family_id = f.id
+        WHERE fm.family_id = $1
+          AND fm.is_active = TRUE
+          AND m.is_active = TRUE
         ORDER BY m.last_name, m.first_name
       `
       const familyResult = await pool.query(familyQuery, [familyId])
@@ -7833,33 +8444,26 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       }
     }
     
-    // Get roles (same as admin endpoint)
+    // Get roles from canonical app_user/app_user_role records.
     let rolesMap = {}
     try {
-      const userRoleCheck = await pool.query(`
-        SELECT EXISTS (
-          SELECT FROM information_schema.columns 
-          WHERE table_schema = 'public' 
-          AND table_name = 'user_role'
-          AND column_name = 'member_id'
-        )
-      `)
-      
-      if (userRoleCheck.rows[0].exists && memberIds.length > 0) {
-        const rolesQuery = `
-          SELECT 
-            member_id,
-            json_agg(
-              jsonb_build_object(
-                'id', role,
-                'role', role
-              )
-            ) as roles
-          FROM user_role
-          WHERE member_id = ANY($1::bigint[])
-          GROUP BY member_id
-        `
-        const rolesResult = await pool.query(rolesQuery, [memberIds])
+      if (memberIds.length > 0) {
+        const rolesResult = await pool.query(`
+          SELECT
+            m.id as member_id,
+            json_agg(DISTINCT jsonb_build_object('id', role_key, 'role', role_key)) as roles
+          FROM member m
+          JOIN app_user au ON au.id = m.app_user_id
+          CROSS JOIN LATERAL (
+            SELECT au.role::text as role_key
+            UNION
+            SELECT aur.role::text as role_key
+            FROM app_user_role aur
+            WHERE aur.user_id = au.id
+          ) roles
+          WHERE m.id = ANY($1::bigint[])
+          GROUP BY m.id
+        `, [memberIds])
         rolesResult.rows.forEach(row => {
           rolesMap[row.member_id] = row.roles || []
         })
@@ -7904,15 +8508,30 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       updatedAt: row.updated_at
     }))
     
-    // Current user is the first member (the one we found by email, or first in family)
-    // Sort members so the current user (matching email) is first
+    // Current user is the linked member. Sort family members so that record is first.
     members.sort((a, b) => {
-      if (a.email && a.email.toLowerCase() === userEmail.toLowerCase()) return -1
-      if (b.email && b.email.toLowerCase() === userEmail.toLowerCase()) return 1
+      if (a.id === currentMemberRow.id) return -1
+      if (b.id === currentMemberRow.id) return 1
       return 0
     })
     
     const currentUser = members[0]
+    const accountRoles = await getUserRoles(userId)
+    const adminRoles = ['OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN']
+    const memberPortalRoles = ['PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER']
+    const isAdminUser = adminRoles.includes(currentAppUser.role) || accountRoles.some((role) => adminRoles.includes(role))
+    const isCoachUser = currentAppUser.role === 'COACH' || accountRoles.includes('COACH')
+    const hasMemberPortal = memberPortalRoles.includes(currentAppUser.role) || accountRoles.some((role) => memberPortalRoles.includes(role))
+    const familyContext = await getUserFamilyContext(userId).catch(() => null)
+    currentUser.roles = currentUser.roles?.length ? currentUser.roles : accountRoles.map((role) => ({ id: role, role }))
+    currentUser.memberId = currentMemberRow.id
+    currentUser.payerMemberId = familyContext?.payer_member_id ?? null
+    currentUser.isFamilyPayer = familyContext?.payer_member_id != null && Number(familyContext.payer_member_id) === Number(currentMemberRow.id)
+    currentUser.availablePortals = [
+      ...(hasMemberPortal || familyContext ? ['member'] : []),
+      ...(isCoachUser ? ['coach'] : []),
+      ...(isAdminUser ? ['admin'] : []),
+    ]
     
     // All other members are family members (if any)
     const familyMembersList = members.length > 1 ? members.slice(1) : []
@@ -7949,7 +8568,7 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
     const userResult = await pool.query(`
       SELECT u.id, u.full_name
       FROM app_user u
-      WHERE u.id = $1 AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+      WHERE u.id = $1 AND u.is_active = TRUE
     `, [userId])
 
     if (userResult.rows.length === 0) {
@@ -8030,17 +8649,10 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
 
-    // Get user's family (optional - allow if family table doesn't exist)
-    let familyResult = { rows: [] }
+    // Get user's family through member.app_user_id + family_member.
+    let familyContext = null
     try {
-      familyResult = await pool.query(`
-        SELECT f.id, f.family_name, f.primary_user_id
-        FROM family f
-        WHERE f.primary_user_id = $1 OR EXISTS (
-          SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
-        )
-        LIMIT 1
-      `, [userId])
+      familyContext = await getUserFamilyContext(userId)
     } catch (familyError) {
       console.log('Family query failed (non-critical):', familyError.message)
       // Return empty family members if family table doesn't exist
@@ -8050,14 +8662,14 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
       })
     }
 
-    if (familyResult.rows.length === 0) {
+    if (!familyContext) {
       return res.json({
         success: true,
         familyMembers: []
       })
     }
 
-    const familyId = familyResult.rows[0].id
+    const familyId = familyContext.id
 
     // Get all family members using unified member table
     let guardiansResult = { rows: [] }
@@ -8065,32 +8677,34 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
       guardiansResult = await pool.query(`
         SELECT 
           m.id,
-          m.first_name || ' ' || m.last_name as full_name,
+          m.first_name,
+          m.last_name,
           m.email,
           m.phone,
+          au.id as app_user_id,
           CASE 
             WHEN m.status = 'enrolled' THEN 'ATHLETE'
-            WHEN EXISTS (
-              SELECT 1 FROM app_user u 
-              WHERE u.id = m.id AND u.role IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER')
-            ) THEN (SELECT role FROM app_user WHERE id = m.id)
+            WHEN au.role IS NOT NULL THEN au.role::text
             ELSE 'MEMBER'
           END as role,
-          CASE WHEN f.primary_user_id = m.id THEN TRUE ELSE FALSE END as is_primary,
-          CASE WHEN m.email IS NOT NULL OR EXISTS (
-            SELECT 1 FROM app_user u WHERE u.id = m.id
-          ) THEN TRUE ELSE FALSE END as is_adult,
+          CASE WHEN fba.payer_member_id = m.id THEN TRUE ELSE FALSE END as is_primary,
+          fm.relationship_label,
+          CASE WHEN m.email IS NOT NULL OR au.id IS NOT NULL THEN TRUE ELSE FALSE END as is_adult,
           m.date_of_birth,
           CASE WHEN m.date_of_birth IS NOT NULL 
             THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
             ELSE NULL 
           END as age,
-          m.id as user_id,
+          COALESCE(au.id, m.app_user_id, m.id) as user_id,
           FALSE as marked_for_removal
-        FROM member m
-        LEFT JOIN family f ON f.primary_user_id = m.id
-        LEFT JOIN family_guardian fg ON fg.member_id = m.id OR fg.user_id = m.id
-        WHERE m.family_id = $1 AND m.is_active = TRUE
+        FROM family_member fm
+        JOIN member m ON m.id = fm.member_id
+        LEFT JOIN app_user au ON au.id = m.app_user_id
+        LEFT JOIN family_billing_account fba ON fba.family_id = fm.family_id AND fba.is_active = TRUE
+        WHERE fm.family_id = $1
+          AND fm.is_active = TRUE
+          AND m.is_active = TRUE
+        ORDER BY is_primary DESC, m.last_name, m.first_name
       `, [familyId])
     } catch (queryError) {
       console.log('Family members query failed (non-critical):', queryError.message)
@@ -8103,13 +8717,16 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
 
     const familyMembers = guardiansResult.rows.map(row => ({
       id: row.id,
-      first_name: row.full_name?.split(' ')[0] || '',
-      last_name: row.full_name?.split(' ').slice(1).join(' ') || '',
+      first_name: row.first_name || '',
+      last_name: row.last_name || '',
       email: row.email,
       phone: row.phone,
+      relationship_label: row.relationship_label,
       date_of_birth: row.date_of_birth,
       age: row.age,
       user_id: row.user_id,
+      app_user_id: row.app_user_id,
+      is_primary: row.is_primary,
       is_adult: row.is_adult || row.role === 'PARENT_GUARDIAN',
       marked_for_removal: row.marked_for_removal || false
     }))
@@ -8134,6 +8751,61 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
   }
 })
 
+// Add a family member from the member portal.
+app.post('/api/members/family', authenticateMember, async (req, res) => {
+  try {
+    const userId = req.userId || req.memberId
+    const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
+    if (!hasParentRole) {
+      return res.status(403).json({ success: false, message: 'Only adults can add family members' })
+    }
+
+    const familyContext = await getUserFamilyContext(userId)
+    if (!familyContext) {
+      return res.status(404).json({ success: false, message: 'Family not found' })
+    }
+
+    const firstName = String(req.body?.first_name || req.body?.firstName || '').trim()
+    const lastName = String(req.body?.last_name || req.body?.lastName || '').trim()
+    if (!firstName || !lastName) {
+      return res.status(400).json({ success: false, message: 'First and last name are required' })
+    }
+
+    const currentMember = await getMemberForAppUser(userId)
+    const created = await pool.query(`
+      INSERT INTO member (
+        facility_id, first_name, last_name, email, phone, date_of_birth,
+        status, is_active, parent_guardian_ids, family_id
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, 'lead', TRUE, $7, $8)
+      RETURNING *
+    `, [
+      familyContext.facility_id,
+      firstName,
+      lastName,
+      req.body?.email || null,
+      req.body?.phone || null,
+      req.body?.date_of_birth || req.body?.dateOfBirth || null,
+      currentMember?.id ? [currentMember.id] : [],
+      familyContext.id,
+    ])
+
+    await pool.query(`
+      INSERT INTO family_member (family_id, member_id, relationship_label, is_active)
+      VALUES ($1, $2, $3, TRUE)
+      ON CONFLICT (family_id, member_id) DO UPDATE SET
+        relationship_label = EXCLUDED.relationship_label,
+        is_active = TRUE,
+        updated_at = CURRENT_TIMESTAMP
+    `, [familyContext.id, created.rows[0].id, req.body?.relationship_label || req.body?.relationshipLabel || null])
+
+    res.json({ success: true, data: created.rows[0] })
+  } catch (error) {
+    console.error('Create member family member error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
 // Update family member
 app.put('/api/members/family/:id', authenticateMember, async (req, res) => {
   try {
@@ -8151,30 +8823,26 @@ app.put('/api/members/family/:id', authenticateMember, async (req, res) => {
       })
     }
 
-    // Check if family member exists and belongs to user's family
-    const familyResult = await pool.query(`
-      SELECT f.id as family_id
-      FROM family f
-      WHERE f.primary_user_id = $1 OR EXISTS (
-        SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
-      )
-      LIMIT 1
-    `, [userId])
+    // Check if family member exists and belongs to user's family via family_member.
+    const familyContext = await getUserFamilyContext(userId)
 
-    if (familyResult.rows.length === 0) {
+    if (!familyContext) {
       return res.status(404).json({
         success: false,
         message: 'Family not found'
       })
     }
 
-    const familyId = familyResult.rows[0].family_id
+    const familyId = familyContext.id
 
     // Check if it's a member
     const memberCheck = await pool.query(`
       SELECT m.id
-      FROM member m
-      WHERE m.id = $1 AND m.family_id = $2
+      FROM family_member fm
+      JOIN member m ON m.id = fm.member_id
+      WHERE m.id = $1
+        AND fm.family_id = $2
+        AND fm.is_active = TRUE
     `, [familyMemberId, familyId])
 
     if (memberCheck.rows.length > 0) {
@@ -8379,7 +9047,7 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
 
     // Get the member - familyMemberId should be a member ID
     const memberCheck = await pool.query(`
-      SELECT m.id, m.first_name, m.last_name, m.family_id, m.email, m.status, m.is_active
+      SELECT m.id, m.app_user_id, m.first_name, m.last_name, m.family_id, m.email, m.status, m.is_active
       FROM member m
       WHERE m.id = $1 AND m.is_active = TRUE
     `, [familyMemberId])
@@ -8412,22 +9080,13 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       const userRole = userResult.rows[0].role
       const isParentGuardian = userRole === 'PARENT_GUARDIAN'
       
-      // Check if user is part of the member's family
+      // Check if the user is the member or is part of the member's family.
       let isFamilyMember = false
+      if (member.id === userId || member.app_user_id === userId) {
+        isFamilyMember = true
+      }
       if (member.family_id) {
-        const familyCheck = await pool.query(`
-          SELECT 1
-          FROM family f
-          WHERE f.id = $1 AND (
-            f.primary_user_id = $2 
-            OR EXISTS (
-              SELECT 1 FROM family_guardian fg 
-              WHERE fg.family_id = f.id AND fg.user_id = $2
-            )
-          )
-        `, [member.family_id, userId])
-        
-        isFamilyMember = familyCheck.rows.length > 0
+        isFamilyMember = isFamilyMember || await userHasFamilyAccess(userId, member.family_id)
       }
       
       if (!isParentGuardian && !isFamilyMember) {
@@ -8522,6 +9181,37 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     // Update member athlete status (will check enrollments + waivers)
     await updateMemberAthleteStatus(member.id)
 
+    // Optional launch billing hook: enrollments can immediately generate a ledger charge.
+    const chargeAmountCents = Number(req.body?.chargeAmountCents ?? 0)
+    if (member.family_id && Number.isFinite(chargeAmountCents) && chargeAmountCents > 0) {
+      try {
+        await pool.query(`
+          INSERT INTO family_billing_account (family_id, payer_member_id, is_active)
+          VALUES ($1, $2, TRUE)
+          ON CONFLICT (family_id) DO NOTHING
+        `, [member.family_id, member.id])
+
+        const accountResult = await pool.query(
+          `SELECT id FROM family_billing_account WHERE family_id = $1 LIMIT 1`,
+          [member.family_id],
+        )
+        const accountId = accountResult.rows[0]?.id
+        if (accountId) {
+          await pool.query(`
+            INSERT INTO billing_charge (family_billing_account_id, member_id, description, amount_cents)
+            VALUES ($1, $2, $3, $4)
+          `, [
+            accountId,
+            member.id,
+            req.body?.chargeDescription || `Enrollment charge: ${programCheck.rows[0].display_name}`,
+            chargeAmountCents,
+          ])
+        }
+      } catch (billingError) {
+        console.warn('[Enrollment] Billing charge creation failed:', billingError.message)
+      }
+    }
+
     res.json({
       success: true,
       message: `${member.first_name} ${member.last_name} has been enrolled in ${programCheck.rows[0].display_name}`
@@ -8565,22 +9255,13 @@ app.delete('/api/members/enroll/:enrollmentId', authenticateMember, async (req, 
     if (!req.isAdmin) {
       const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
       
-      // Check if user is part of the member's family
+      // Check if user is the member or part of the member's family.
       let isFamilyMember = false
+      if (memberId === userId) {
+        isFamilyMember = true
+      }
       if (enrollment.family_id) {
-        const familyCheck = await pool.query(`
-          SELECT 1
-          FROM family f
-          WHERE f.id = $1 AND (
-            f.primary_user_id = $2 
-            OR EXISTS (
-              SELECT 1 FROM family_guardian fg 
-              WHERE fg.family_id = f.id AND fg.user_id = $2
-            )
-          )
-        `, [enrollment.family_id, userId])
-        
-        isFamilyMember = familyCheck.rows.length > 0
+        isFamilyMember = isFamilyMember || await userHasFamilyAccess(userId, enrollment.family_id)
       }
       
       if (!hasParentRole && !isFamilyMember) {
@@ -8615,17 +9296,10 @@ app.get('/api/members/enrollments', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
 
-    // Get user's family
-    let familyResult = { rows: [] }
+    // Get user's family through member.app_user_id + family_member.
+    let familyContext = null
     try {
-      familyResult = await pool.query(`
-        SELECT f.id, f.family_name, f.primary_user_id
-        FROM family f
-        WHERE f.primary_user_id = $1 OR EXISTS (
-          SELECT 1 FROM family_guardian fg WHERE fg.family_id = f.id AND fg.user_id = $1
-        )
-        LIMIT 1
-      `, [userId])
+      familyContext = await getUserFamilyContext(userId)
     } catch (familyError) {
       console.log('Family query failed (non-critical):', familyError.message)
       return res.json({
@@ -8634,22 +9308,25 @@ app.get('/api/members/enrollments', authenticateMember, async (req, res) => {
       })
     }
 
-    if (familyResult.rows.length === 0) {
+    if (!familyContext) {
       return res.json({
         success: true,
         enrollments: []
       })
     }
 
-    const familyId = familyResult.rows[0].id
+    const familyId = familyContext.id
 
     // Get all members in the family
     let members = []
     try {
       const membersResult = await pool.query(`
         SELECT m.id, m.first_name, m.last_name, m.status, m.is_active
-        FROM member m
-        WHERE m.family_id = $1 AND m.is_active = TRUE
+        FROM family_member fm
+        JOIN member m ON m.id = fm.member_id
+        WHERE fm.family_id = $1
+          AND fm.is_active = TRUE
+          AND m.is_active = TRUE
       `, [familyId])
       members = membersResult.rows
     } catch (memberError) {
@@ -10200,7 +10877,7 @@ app.post('/api/admin/login', async (req, res) => {
     try {
       let query, params
       if (isEmail) {
-        // Check app_user for OWNER_ADMIN role
+        // Check app_user for an admin-capable role
         query = `
           SELECT 
             au.id, 
@@ -10211,22 +10888,26 @@ app.post('/api/admin/login', async (req, res) => {
             au.role,
             au.is_active,
             au.username,
-            COALESCE(
-              EXISTS(
+            (
+              au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              OR COALESCE(ap.is_master_admin, false)
+              OR EXISTS(
                 SELECT 1 FROM app_user_role ur 
                 WHERE ur.user_id = au.id 
-                AND ur.role = 'OWNER_ADMIN'
-              ),
-              false
-            ) as has_owner_admin_role
+                AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              )
+            ) as has_admin_role,
+            COALESCE(ap.is_master_admin, false) as is_master_admin
           FROM app_user au
+          LEFT JOIN admin_profile ap ON ap.user_id = au.id
           WHERE au.email = $1
           AND (
-            au.role = 'OWNER_ADMIN' 
+            au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+            OR COALESCE(ap.is_master_admin, false)
             OR EXISTS(
               SELECT 1 FROM app_user_role ur 
               WHERE ur.user_id = au.id 
-              AND ur.role = 'OWNER_ADMIN'
+              AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
             )
           )
         `
@@ -10242,22 +10923,26 @@ app.post('/api/admin/login', async (req, res) => {
             au.role,
             au.is_active,
             au.username,
-            COALESCE(
-              EXISTS(
+            (
+              au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              OR COALESCE(ap.is_master_admin, false)
+              OR EXISTS(
                 SELECT 1 FROM app_user_role ur 
                 WHERE ur.user_id = au.id 
-                AND ur.role = 'OWNER_ADMIN'
-              ),
-              false
-            ) as has_owner_admin_role
+                AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              )
+            ) as has_admin_role,
+            COALESCE(ap.is_master_admin, false) as is_master_admin
           FROM app_user au
+          LEFT JOIN admin_profile ap ON ap.user_id = au.id
           WHERE LOWER(au.username) = LOWER($1)
           AND (
-            au.role = 'OWNER_ADMIN' 
+            au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+            OR COALESCE(ap.is_master_admin, false)
             OR EXISTS(
               SELECT 1 FROM app_user_role ur 
               WHERE ur.user_id = au.id 
-              AND ur.role = 'OWNER_ADMIN'
+              AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
             )
           )
         `
@@ -10269,10 +10954,10 @@ app.post('/api/admin/login', async (req, res) => {
       if (appUserResult.rows.length > 0) {
         const user = appUserResult.rows[0]
         
-        // Verify user has OWNER_ADMIN role
-        const isOwnerAdmin = user.role === 'OWNER_ADMIN' || user.has_owner_admin_role === true
+        // Verify user has an admin-capable role
+        const isAdminUser = user.has_admin_role === true
         
-        if (isOwnerAdmin && user.is_active) {
+        if (isAdminUser && user.is_active) {
           admin = {
             id: user.id,
             email: user.email,
@@ -10280,7 +10965,8 @@ app.post('/api/admin/login', async (req, res) => {
             password_hash: user.password_hash,
             phone: user.phone,
             username: user.username,
-            is_master: user.role === 'OWNER_ADMIN', // Consider OWNER_ADMIN as master
+            is_active: user.is_active,
+            is_master: user.is_master_admin === true || user.role === 'OWNER_ADMIN' || user.role === 'MASTER_ADMIN',
             first_name: user.full_name?.split(' ')[0] || 'Admin',
             last_name: user.full_name?.split(' ').slice(1).join(' ') || 'User'
           }
@@ -10349,6 +11035,23 @@ app.post('/api/admin/login', async (req, res) => {
       })
     }
 
+    const adminRolesForLogin = userSource === 'app_user'
+      ? await getUserRoles(admin.id)
+      : ['OWNER_ADMIN']
+    const adminFamilyContext = userSource === 'app_user'
+      ? await getUserFamilyContext(admin.id).catch(() => null)
+      : null
+    const adminPortalRoles = ['OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN']
+    const memberPortalRoles = ['PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER']
+    const isAdminPortalUser = adminRolesForLogin.some((role) => adminPortalRoles.includes(role))
+    const isCoachPortalUser = adminRolesForLogin.includes('COACH')
+    const hasMemberPortal = adminRolesForLogin.some((role) => memberPortalRoles.includes(role)) || Boolean(adminFamilyContext)
+    const availablePortals = [
+      ...(hasMemberPortal ? ['member'] : []),
+      ...(isCoachPortalUser ? ['coach'] : []),
+      ...(isAdminPortalUser ? ['admin'] : []),
+    ]
+
     // Create JWT token for admin
     console.log('[Admin Login] Starting token creation for admin:', admin.id, admin.email)
     console.log('[Admin Login] User source:', userSource)
@@ -10360,7 +11063,8 @@ app.post('/api/admin/login', async (req, res) => {
         { 
           adminId: admin.id,
           userId: admin.id, // Include for compatibility
-          role: 'OWNER_ADMIN', // Always set to OWNER_ADMIN for admin portal access
+          role: admin.role || 'OWNER_ADMIN',
+          roles: adminRolesForLogin,
           email: admin.email 
         },
         JWT_SECRET,
@@ -10380,7 +11084,15 @@ app.post('/api/admin/login', async (req, res) => {
           email: admin.email,
           phone: admin.phone || null,
           username: admin.username || null,
-          isMaster: admin.is_master || (userSource === 'app_user' && admin.role === 'OWNER_ADMIN')
+          role: admin.role || 'OWNER_ADMIN',
+          roles: adminRolesForLogin,
+          isMaster: admin.is_master || adminRolesForLogin.some((role) => role === 'OWNER_ADMIN' || role === 'MASTER_ADMIN'),
+          isCoach: isCoachPortalUser,
+          hasMemberPortal,
+          memberId: adminFamilyContext?.current_member_id ?? null,
+          familyId: adminFamilyContext?.id ?? null,
+          familyName: adminFamilyContext?.family_name ?? null,
+          availablePortals,
         },
         token: adminToken,
         userSource: userSource // Include for debugging (can be removed in production)
@@ -10427,20 +11139,91 @@ app.post('/api/admin/login', async (req, res) => {
   }
 })
 
-// Get all admins (admin endpoint)
-app.get('/api/admin/admins', async (req, res) => {
+app.post('/api/admin/request-password-reset', async (req, res) => {
+  try {
+    const { error, value } = memberPasswordResetRequestSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({ success: false, message: 'Validation error' })
+    }
+    const normalizedEmail = value.email.trim().toLowerCase()
+    const userResult = await pool.query(`
+      SELECT au.id, au.email, au.full_name
+      FROM app_user au
+      LEFT JOIN app_user_role aur ON aur.user_id = au.id
+      LEFT JOIN admin_profile ap ON ap.user_id = au.id
+      WHERE LOWER(au.email) = $1
+        AND au.is_active = TRUE
+        AND (
+          au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+          OR aur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+          OR COALESCE(ap.is_master_admin, false)
+        )
+      LIMIT 1
+    `, [normalizedEmail])
+
+    if (userResult.rows.length > 0) {
+      const user = userResult.rows[0]
+      const temporaryPassword = generateTemporaryPassword(12)
+      const passwordHash = await bcrypt.hash(temporaryPassword, 10)
+      await pool.query(
+        `UPDATE app_user SET password_hash = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+        [user.id, passwordHash],
+      )
+      await sendTemporaryPasswordEmail({
+        registrantFirstName: String(user.full_name || '').split(' ')[0] || 'there',
+        registrantEmail: user.email,
+        temporaryPassword,
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'If an admin account exists for that email, a temporary password has been sent.',
+    })
+  } catch (error) {
+    console.error('Admin password reset request error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+// Get all admins from unified app_user/admin_profile model.
+app.get('/api/admin/admins', requireAdminPermission('admins.manage'), async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT id, first_name as "firstName", last_name as "lastName", 
-             email, phone, username, is_master as "isMaster", 
-             created_at as "createdAt", updated_at as "updatedAt"
-      FROM admins
-      ORDER BY created_at DESC
+      SELECT
+        au.id,
+        split_part(au.full_name, ' ', 1) as first_name,
+        CASE
+          WHEN position(' ' in au.full_name) > 0 THEN substr(au.full_name, position(' ' in au.full_name) + 1)
+          ELSE ''
+        END as last_name,
+        au.full_name,
+        au.email,
+        au.phone,
+        au.username,
+        au.role::text as role,
+        au.is_active,
+        COALESCE(ap.is_master_admin, false) as is_master_admin,
+        COALESCE(array_agg(DISTINCT aur.role::text) FILTER (WHERE aur.role IS NOT NULL), '{}') as roles,
+        au.created_at,
+        au.updated_at
+      FROM app_user au
+      LEFT JOIN admin_profile ap ON ap.user_id = au.id
+      LEFT JOIN app_user_role aur ON aur.user_id = au.id
+      WHERE au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+         OR ap.user_id IS NOT NULL
+         OR EXISTS (
+          SELECT 1 FROM app_user_role role_check
+          WHERE role_check.user_id = au.id
+            AND role_check.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+         )
+      GROUP BY au.id, ap.is_master_admin
+      ORDER BY au.created_at DESC
     `)
 
     res.json({
       success: true,
-      data: result.rows
+      data: result.rows.map(mapAdminAccountRow)
     })
   } catch (error) {
     console.error('Get admins error:', error)
@@ -10451,10 +11234,10 @@ app.get('/api/admin/admins', async (req, res) => {
   }
 })
 
-// Get current admin info (by ID from query param or body)
+// Get current admin info from the authenticated token.
 app.get('/api/admin/admins/me', async (req, res) => {
   try {
-    const adminId = req.query.id || req.body.id
+    const adminId = req.adminId
     if (!adminId) {
       return res.status(400).json({
         success: false,
@@ -10463,11 +11246,28 @@ app.get('/api/admin/admins/me', async (req, res) => {
     }
 
     const result = await pool.query(`
-      SELECT id, first_name as "firstName", last_name as "lastName", 
-             email, phone, username, is_master as "isMaster", 
-             created_at as "createdAt", updated_at as "updatedAt"
-      FROM admins
-      WHERE id = $1
+      SELECT
+        au.id,
+        split_part(au.full_name, ' ', 1) as first_name,
+        CASE
+          WHEN position(' ' in au.full_name) > 0 THEN substr(au.full_name, position(' ' in au.full_name) + 1)
+          ELSE ''
+        END as last_name,
+        au.full_name,
+        au.email,
+        au.phone,
+        au.username,
+        au.role::text as role,
+        au.is_active,
+        COALESCE(ap.is_master_admin, false) as is_master_admin,
+        COALESCE(array_agg(DISTINCT aur.role::text) FILTER (WHERE aur.role IS NOT NULL), '{}') as roles,
+        au.created_at,
+        au.updated_at
+      FROM app_user au
+      LEFT JOIN admin_profile ap ON ap.user_id = au.id
+      LEFT JOIN app_user_role aur ON aur.user_id = au.id
+      WHERE au.id = $1
+      GROUP BY au.id, ap.is_master_admin
     `, [adminId])
 
     if (result.rows.length === 0) {
@@ -10479,7 +11279,7 @@ app.get('/api/admin/admins/me', async (req, res) => {
 
     res.json({
       success: true,
-      data: result.rows[0]
+      data: mapAdminAccountRow(result.rows[0])
     })
   } catch (error) {
     console.error('Get admin error:', error)
@@ -10490,8 +11290,8 @@ app.get('/api/admin/admins/me', async (req, res) => {
   }
 })
 
-// Create new admin (master admin only - check should be added in production)
-app.post('/api/admin/admins', async (req, res) => {
+// Create new admin in app_user/admin_profile.
+app.post('/api/admin/admins', requireAdminPermission('admins.manage'), async (req, res) => {
   try {
     const { error, value } = adminSchema.validate(req.body)
     if (error) {
@@ -10502,10 +11302,14 @@ app.post('/api/admin/admins', async (req, res) => {
       })
     }
 
+    const facilityResult = await pool.query('SELECT id FROM facility ORDER BY id LIMIT 1')
+    const facilityId = facilityResult.rows[0]?.id
+    if (!facilityId) return res.status(500).json({ success: false, message: 'No facility found' })
+
     // Check if username or email already exists (username case-insensitive)
     const existing = await pool.query(
-      'SELECT id FROM admins WHERE LOWER(username) = LOWER($1) OR email = $2',
-      [value.username, value.email]
+      'SELECT id FROM app_user WHERE facility_id = $1 AND (LOWER(username) = LOWER($2) OR email = $3)',
+      [facilityId, value.username, value.email]
     )
 
     if (existing.rows.length > 0) {
@@ -10518,25 +11322,34 @@ app.post('/api/admin/admins', async (req, res) => {
     // Hash password
     const passwordHash = await bcrypt.hash(value.password, 10)
 
-    // Insert admin
+    const fullName = `${value.firstName} ${value.lastName}`.trim()
     const result = await pool.query(`
-      INSERT INTO admins (first_name, last_name, email, phone, username, password_hash)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, first_name as "firstName", last_name as "lastName", 
-                email, phone, username, is_master as "isMaster", 
-                created_at as "createdAt", updated_at as "updatedAt"
+      INSERT INTO app_user (facility_id, role, email, phone, full_name, username, password_hash, is_active)
+      VALUES ($1, 'ADMIN'::user_role, $2, $3, $4, $5, $6, TRUE)
+      RETURNING *
     `, [
-      value.firstName,
-      value.lastName,
+      facilityId,
       value.email,
       value.phone || null,
+      fullName,
       value.username,
       passwordHash
     ])
 
+    const userId = result.rows[0].id
+    await setUserRoles(userId, ['ADMIN'])
+    await syncRoleProfiles(userId, ['ADMIN'])
+    await ensureMemberForAppUser(userId)
+
     res.json({
       success: true,
-      data: result.rows[0]
+      data: mapAdminAccountRow({
+        ...result.rows[0],
+        first_name: value.firstName,
+        last_name: value.lastName,
+        is_master_admin: false,
+        roles: ['ADMIN'],
+      })
     })
   } catch (error) {
     console.error('Create admin error:', error)
@@ -13035,6 +13848,11 @@ app.delete('/api/admin/levels/:id', async (req, res) => {
 app.put('/api/admin/admins/:id', async (req, res) => {
   try {
     const { id } = req.params
+    const isOwnAccount = Number(req.adminId) === Number(id)
+    if (!isOwnAccount && !(req.isMasterAdmin === true || await hasAdminPermission(req.adminId, 'admins.manage'))) {
+      return res.status(403).json({ success: false, message: 'Missing permission: admins.manage' })
+    }
+
     const { error, value } = adminUpdateSchema.validate(req.body)
     if (error) {
       return res.status(400).json({
@@ -13044,18 +13862,25 @@ app.put('/api/admin/admins/:id', async (req, res) => {
       })
     }
 
+    const currentUser = await pool.query(`SELECT id FROM app_user WHERE id = $1`, [id])
+    if (currentUser.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin not found'
+      })
+    }
+
     // Build update query dynamically
     const updates = []
     const values = []
     let paramCount = 1
 
-    if (value.firstName) {
-      updates.push(`first_name = $${paramCount++}`)
-      values.push(value.firstName)
-    }
-    if (value.lastName) {
-      updates.push(`last_name = $${paramCount++}`)
-      values.push(value.lastName)
+    if (value.firstName || value.lastName) {
+      const nameResult = await pool.query(`SELECT full_name FROM app_user WHERE id = $1`, [id])
+      const currentParts = String(nameResult.rows[0]?.full_name || '').trim().split(/\s+/).filter(Boolean)
+      const fullName = `${value.firstName || currentParts[0] || ''} ${value.lastName || currentParts.slice(1).join(' ') || ''}`.trim()
+      updates.push(`full_name = $${paramCount++}`)
+      values.push(fullName)
     }
     if (value.email) {
       updates.push(`email = $${paramCount++}`)
@@ -13068,7 +13893,7 @@ app.put('/api/admin/admins/:id', async (req, res) => {
     if (value.username) {
       // Check if username already exists (excluding current admin, case-insensitive)
       const existing = await pool.query(
-        'SELECT id FROM admins WHERE LOWER(username) = LOWER($1) AND id != $2',
+        'SELECT id FROM app_user WHERE LOWER(username) = LOWER($1) AND id != $2',
         [value.username, id]
       )
       if (existing.rows.length > 0) {
@@ -13097,12 +13922,10 @@ app.put('/api/admin/admins/:id', async (req, res) => {
     values.push(id)
 
     const result = await pool.query(`
-      UPDATE admins
+      UPDATE app_user
       SET ${updates.join(', ')}
       WHERE id = $${paramCount}
-      RETURNING id, first_name as "firstName", last_name as "lastName", 
-                email, phone, username, is_master as "isMaster", 
-                created_at as "createdAt", updated_at as "updatedAt"
+      RETURNING id, full_name, email, phone, username, role::text as role, is_active, created_at, updated_at
     `, values)
 
     if (result.rows.length === 0) {
@@ -13112,9 +13935,17 @@ app.put('/api/admin/admins/:id', async (req, res) => {
       })
     }
 
+    await ensureMemberForAppUser(id)
+    const roles = await getUserRoles(id)
+    const adminProfile = await pool.query(`SELECT is_master_admin FROM admin_profile WHERE user_id = $1`, [id])
+
     res.json({
       success: true,
-      data: result.rows[0]
+      data: mapAdminAccountRow({
+        ...result.rows[0],
+        is_master_admin: adminProfile.rows[0]?.is_master_admin === true,
+        roles,
+      })
     })
   } catch (error) {
     console.error('Update admin error:', error)
@@ -13127,8 +13958,13 @@ app.put('/api/admin/admins/:id', async (req, res) => {
 
 // Global error handler middleware - must be last, before 404 handler
 app.use((err, req, res, next) => {
-  console.error('Global error handler:', err)
-  console.error('Error stack:', err.stack)
+  reportError('Global error handler', {
+    requestId: req.requestId,
+    method: req.method,
+    path: req.originalUrl,
+    message: err?.message,
+    stack: err?.stack,
+  })
   
   // Ensure CORS headers are always set, even on errors
   const origin = req.headers.origin
@@ -13151,20 +13987,6 @@ app.use((err, req, res, next) => {
 
 // 404 handler - must be after error handler
 app.use('*', (req, res) => {
-  // Ensure CORS headers are set for 404 responses
-  const origin = req.headers.origin
-  if (origin && isOriginAllowed(origin)) {
-    res.header('Access-Control-Allow-Origin', origin)
-    res.header('Access-Control-Allow-Credentials', 'true')
-  }
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
-  })
-})
-
-// 404 handler
-app.use((req, res) => {
   // Ensure CORS headers are set for 404 responses
   const origin = req.headers.origin
   if (origin && isOriginAllowed(origin)) {
@@ -13248,10 +14070,16 @@ if (!process.env.RUN_MIGRATION_ONLY) {
 // This is a one-time endpoint to run the migration on production
 app.post('/api/admin/run-migration', async (req, res) => {
   try {
+    if (process.env.ENABLE_MIGRATION_ENDPOINT !== 'true') {
+      return res.status(404).json({ success: false, message: 'Not found' })
+    }
     const { migrationFile, secretKey } = req.body
     
     // Require a secret key for security (set this as an environment variable)
-    const requiredSecret = process.env.MIGRATION_SECRET_KEY || 'temporary-migration-key-change-me'
+    const requiredSecret = process.env.MIGRATION_SECRET_KEY
+    if (!requiredSecret) {
+      return res.status(500).json({ success: false, message: 'Migration endpoint not configured' })
+    }
     if (secretKey !== requiredSecret) {
       return res.status(401).json({ 
         success: false, 
@@ -13311,6 +14139,17 @@ app.post('/api/admin/run-migration', async (req, res) => {
 // Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down server...')
+  try {
+    await pool.end()
+    console.log('✅ PostgreSQL connection pool closed')
+  } catch (err) {
+    console.error('❌ Error closing database pool:', err)
+  }
+  process.exit(0)
+})
+
+process.on('SIGTERM', async () => {
+  console.log('\n🛑 SIGTERM received, shutting down server...')
   try {
     await pool.end()
     console.log('✅ PostgreSQL connection pool closed')

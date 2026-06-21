@@ -6,12 +6,15 @@ import { getApiUrl } from '../utils/api'
 interface LoginProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (admin?: Record<string, unknown>, token?: string) => void
 }
 
 export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
   const [usernameOrEmail, setUsernameOrEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [resetEmail, setResetEmail] = useState('')
+  const [forgotMode, setForgotMode] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -30,35 +33,17 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
 
       const data = await response.json()
       
-      // Log the full response to see what we're actually receiving
-      console.log('[Login] Full response data:', data)
-      console.log('[Login] Response keys:', Object.keys(data))
-      console.log('[Login] Has token field?', 'token' in data)
-      console.log('[Login] Token value:', data.token)
-      console.log('[Login] Response status:', response.status, response.ok)
-
       if (response.ok && data.success) {
         // Store login state in localStorage
         localStorage.setItem('vortex_admin', 'true')
         // Store admin token - check both 'token' and 'adminToken' field names
-        let tokenValue = data.token || data.adminToken
-        
-        // TEMPORARY FALLBACK: If backend hasn't been updated yet, create a client-side token
-        // This should be removed once backend is deployed with token generation
-        if (!tokenValue && data.admin && data.admin.id) {
-          console.warn('[Login] No token from server - using temporary client-side token (backend needs update)')
-          // Create a simple token-like string for now (not secure, but will work until backend is updated)
-          // In production, the backend MUST be updated to create proper JWT tokens
-          tokenValue = `temp-admin-${data.admin.id}-${Date.now()}`
-          console.warn('[Login] Using temporary token - BACKEND MUST BE UPDATED for proper authentication!')
-        }
-        
+        const tokenValue = data.token || data.adminToken
+
         if (tokenValue) {
           localStorage.setItem('adminToken', tokenValue)
-          console.log('[Login] Admin token stored successfully, length:', tokenValue.length)
         } else {
-          console.error('[Login] No token received from server! Response data:', data)
-          console.warn('[Login] No token received from server - authentication may fail for some operations')
+          setError('Login succeeded but no auth token was returned by the server.')
+          return
         }
         // Store admin info for edit tracking
         const adminData = {
@@ -73,7 +58,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
         }
         localStorage.setItem('vortex-admin-info', JSON.stringify(adminData))
         localStorage.setItem('vortex-admin-id', data.admin.id.toString())
-        onSuccess()
+        onSuccess(data.admin, tokenValue)
         onClose()
         setUsernameOrEmail('')
         setPassword('')
@@ -82,6 +67,32 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
       }
     } catch (error) {
       console.error('Login error:', error)
+      setError('Unable to connect to server. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setResetSent(false)
+    setIsSubmitting(true)
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/admin/request-password-reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok || data.success === false) {
+        setError(data.message || 'Unable to process password reset request')
+      } else {
+        setResetSent(true)
+      }
+    } catch (err) {
+      console.error('Admin reset request error:', err)
       setError('Unable to connect to server. Please try again.')
     } finally {
       setIsSubmitting(false)
@@ -115,9 +126,13 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
                 <Lock className="w-8 h-8 text-vortex-red" />
               </div>
               <h2 className="text-3xl font-display font-bold text-black mb-2">
-                Admin Login
+                {forgotMode ? 'Reset Admin Password' : 'Admin Login'}
               </h2>
-              <p className="text-gray-600">Enter your credentials to access the admin dashboard</p>
+              <p className="text-gray-600">
+                {forgotMode
+                  ? 'Enter your admin account email to receive a temporary password.'
+                  : 'Enter your credentials to access the admin dashboard'}
+              </p>
             </div>
 
             {error && (
@@ -127,20 +142,25 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={forgotMode ? handleReset : handleSubmit} className="space-y-4">
+              {resetSent && (
+                <div className="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded">
+                  If an admin account exists for this email, a temporary password has been sent.
+                </div>
+              )}
               <div>
                 <label htmlFor="usernameOrEmail" className="block text-gray-700 text-sm font-bold mb-2">
-                  Username or Email
+                  {forgotMode ? 'Admin Email' : 'Username or Email'}
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
-                    type="text"
+                    type={forgotMode ? 'email' : 'text'}
                     id="usernameOrEmail"
                     name="usernameOrEmail"
-                    value={usernameOrEmail}
-                    onChange={(e) => setUsernameOrEmail(e.target.value)}
-                    placeholder="Enter username or email"
+                    value={forgotMode ? resetEmail : usernameOrEmail}
+                    onChange={(e) => (forgotMode ? setResetEmail(e.target.value) : setUsernameOrEmail(e.target.value))}
+                    placeholder={forgotMode ? 'Enter admin email' : 'Enter username or email'}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
                     required
                     autoFocus
@@ -148,6 +168,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
                 </div>
               </div>
 
+              {!forgotMode && (
               <div>
                 <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
                   Password
@@ -165,6 +186,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
                   />
                 </div>
               </div>
+              )}
 
               <motion.button
                 type="submit"
@@ -173,8 +195,19 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
                 whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                 whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
               >
-                {isSubmitting ? 'Logging in...' : 'Login'}
+                {isSubmitting ? (forgotMode ? 'Submitting...' : 'Logging in...') : (forgotMode ? 'Send Temporary Password' : 'Login')}
               </motion.button>
+              <button
+                type="button"
+                className="w-full text-sm text-vortex-red hover:text-red-700"
+                onClick={() => {
+                  setError('')
+                  setResetSent(false)
+                  setForgotMode((value) => !value)
+                }}
+              >
+                {forgotMode ? 'Back to login' : 'Forgot password?'}
+              </button>
             </form>
           </motion.div>
         </motion.div>

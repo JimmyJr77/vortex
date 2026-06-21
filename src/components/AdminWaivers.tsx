@@ -1,0 +1,238 @@
+import { useCallback, useEffect, useState } from 'react'
+import { Loader2, Plus } from 'lucide-react'
+import { adminApiRequest } from '../utils/api'
+
+interface WaiverTemplate {
+  id: number
+  name: string
+  version: string
+  body: string
+  active_from: string
+  active_to?: string | null
+  requires_resign: boolean
+}
+
+interface WaiverComplianceRow {
+  id: number
+  first_name: string
+  last_name: string
+  email?: string | null
+  family_name?: string | null
+  required_count: number
+  accepted_count: number
+  last_accepted_at?: string | null
+}
+
+export default function AdminWaivers() {
+  const [templates, setTemplates] = useState<WaiverTemplate[]>([])
+  const [compliance, setCompliance] = useState<WaiverComplianceRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [form, setForm] = useState({
+    name: 'Athlete Waiver',
+    version: '1.0',
+    body: '',
+    requiresResign: false,
+  })
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [res, complianceRes] = await Promise.all([
+        adminApiRequest('/api/admin/waivers/templates'),
+        adminApiRequest('/api/admin/waivers/compliance'),
+      ])
+      if (!res.ok) throw new Error(`Backend returned ${res.status}`)
+      if (!complianceRes.ok) throw new Error(`Compliance returned ${complianceRes.status}`)
+      const data = await res.json()
+      const complianceData = await complianceRes.json()
+      setTemplates(data.data ?? [])
+      setCompliance(complianceData.data ?? [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load waivers')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  const createTemplate = async () => {
+    if (!form.name.trim() || !form.version.trim() || !form.body.trim()) {
+      setError('Name, version, and waiver body are required.')
+      return
+    }
+    setSaving(true)
+    setError(null)
+    try {
+      const res = await adminApiRequest('/api/admin/waivers/templates', {
+        method: 'POST',
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.message || `Backend returned ${res.status}`)
+      }
+      setForm({ name: 'Athlete Waiver', version: '', body: '', requiresResign: false })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create waiver')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const retireTemplate = async (templateId: number) => {
+    setSaving(true)
+    setError(null)
+    try {
+      const res = await adminApiRequest(`/api/admin/waivers/templates/${templateId}/retire`, { method: 'PATCH' })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.message || 'Failed to retire waiver')
+      }
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to retire waiver')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Waivers</h2>
+        <p className="text-sm text-gray-600">
+          Manage versioned athlete waivers. Member acceptances are stored per athlete and preserve signature history.
+        </p>
+      </div>
+
+      {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
+
+      <div className="grid gap-5 lg:grid-cols-[minmax(320px,420px)_1fr]">
+        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+          <h3 className="font-bold text-gray-900">Create Waiver Version</h3>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Name</label>
+            <input
+              className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
+              value={form.name}
+              onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Version</label>
+            <input
+              className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
+              value={form.version}
+              onChange={(e) => setForm((prev) => ({ ...prev, version: e.target.value }))}
+              placeholder="1.1"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Waiver Text</label>
+            <textarea
+              className="w-full min-h-48 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              value={form.body}
+              onChange={(e) => setForm((prev) => ({ ...prev, body: e.target.value }))}
+              placeholder="Paste the athlete waiver terms here."
+            />
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.requiresResign}
+              onChange={(e) => setForm((prev) => ({ ...prev, requiresResign: e.target.checked }))}
+            />
+            Require re-sign for this version
+          </label>
+          <button
+            type="button"
+            onClick={() => void createTemplate()}
+            disabled={saving}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg disabled:opacity-60"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            Create Waiver
+          </button>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 font-semibold">Active and Historical Versions</div>
+          {loading ? (
+            <div className="p-4 flex items-center gap-2 text-gray-600">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Loading waivers...
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {templates.map((template) => (
+                <div key={template.id} className="p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        {template.name} v{template.version}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Active from {new Date(template.active_from).toLocaleDateString()}
+                        {template.active_to ? ` through ${new Date(template.active_to).toLocaleDateString()}` : ''}
+                      </div>
+                    </div>
+                    {template.requires_resign && (
+                      <span className="rounded-full bg-yellow-100 text-yellow-700 px-3 py-1 text-xs">
+                        Re-sign required
+                      </span>
+                    )}
+                    {!template.active_to && (
+                      <button
+                        type="button"
+                        onClick={() => void retireTemplate(template.id)}
+                        disabled={saving}
+                        className="rounded-lg border border-gray-300 px-3 py-1 text-xs text-gray-700 disabled:opacity-60"
+                      >
+                        Retire
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 mt-3 line-clamp-3 whitespace-pre-wrap">{template.body}</p>
+                </div>
+              ))}
+              {templates.length === 0 && <div className="p-4 text-sm text-gray-500">No waiver templates yet.</div>}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-gray-100 font-semibold">Compliance Report</div>
+        <div className="divide-y divide-gray-100 max-h-[520px] overflow-y-auto">
+          {compliance.map((row) => {
+            const complete = Number(row.required_count) <= Number(row.accepted_count)
+            return (
+              <div key={row.id} className="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                  <div className="font-semibold text-gray-900">{row.first_name} {row.last_name}</div>
+                  <div className="text-xs text-gray-500">
+                    {[row.email, row.family_name].filter(Boolean).join(' · ')}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${complete ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    {row.accepted_count}/{row.required_count} signed
+                  </span>
+                  {row.last_accepted_at && <span className="text-xs text-gray-500">Last: {new Date(row.last_accepted_at).toLocaleDateString()}</span>}
+                </div>
+              </div>
+            )
+          })}
+          {compliance.length === 0 && <div className="p-4 text-sm text-gray-500">No active members found.</div>}
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../utils/enrollSite'
 import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
-import { TEAM_EMAIL, JACKRABBIT_PARENT_PORTAL_URL } from '../config/contact'
+import { TEAM_EMAIL } from '../config/contact'
 import { trackEvent } from '../utils/analyticsClient'
 import { getHubSiteUrl } from '../utils/crossDomainConsent'
 import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
@@ -144,23 +144,13 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
                     )}
                   </li>
                 ))}
-                <li>
-                  <a
-                    href={JACKRABBIT_PARENT_PORTAL_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
-                  >
-                    Login
-                  </a>
-                </li>
                 {onMemberLoginClick && (
                   <li>
                     <button
                       onClick={onMemberLoginClick}
                       className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
                     >
-                      Beta Login
+                      Member Portal Login
                     </button>
                   </li>
                 )}

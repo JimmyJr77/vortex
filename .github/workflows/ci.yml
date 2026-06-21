@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run launch checks
+        run: npm run ci:checks
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run client-critical E2E smoke tests
+        run: npm run test:e2e:smoke
+
+      - name: Run backend integration tests (staging-gated)
+        if: ${{ vars.RUN_INTEGRATION_TESTS == 'true' && secrets.INTEGRATION_BASE_URL != '' }}
+        env:
+          RUN_INTEGRATION_TESTS: "true"
+          INTEGRATION_BASE_URL: ${{ secrets.INTEGRATION_BASE_URL }}
+        run: npm run test:integration:backend
+
+      - name: Build frontend
+        run: npm run build

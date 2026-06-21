@@ -58,70 +58,84 @@ CREATE INDEX IF NOT EXISTS idx_app_user_active ON app_user(is_active);
 -- 3) MIGRATE EXISTING ADMINS TO APP_USER
 -- ============================================================
 
--- Migrate existing admins to app_user as OWNER_ADMIN
--- This preserves existing admin accounts
-INSERT INTO app_user (
-  facility_id,
-  role,
-  email,
-  phone,
-  full_name,
-  password_hash,
-  is_active,
-  created_at,
-  updated_at
-)
-SELECT 
-  (SELECT id FROM facility LIMIT 1) as facility_id,
-  'OWNER_ADMIN'::user_role as role,
-  email,
-  phone,
-  COALESCE(first_name || ' ' || last_name, 'Admin User') as full_name,
-  password_hash,
-  TRUE as is_active,
-  created_at,
-  updated_at
-FROM admins
-WHERE NOT EXISTS (
-  SELECT 1 FROM app_user 
-  WHERE app_user.email = admins.email
-);
+-- Migrate existing admins to app_user as OWNER_ADMIN (legacy DBs only)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'admins'
+  ) THEN
+    INSERT INTO app_user (
+      facility_id,
+      role,
+      email,
+      phone,
+      full_name,
+      password_hash,
+      is_active,
+      created_at,
+      updated_at
+    )
+    SELECT
+      (SELECT id FROM facility LIMIT 1) as facility_id,
+      'OWNER_ADMIN'::user_role as role,
+      email,
+      phone,
+      COALESCE(first_name || ' ' || last_name, 'Admin User') as full_name,
+      password_hash,
+      TRUE as is_active,
+      created_at,
+      updated_at
+    FROM admins
+    WHERE NOT EXISTS (
+      SELECT 1 FROM app_user
+      WHERE app_user.email = admins.email
+    );
+  END IF;
+END $$;
 
 -- ============================================================
 -- 4) MIGRATE EXISTING MEMBERS TO APP_USER (as PARENT_GUARDIAN)
 -- ============================================================
 
--- Migrate existing members to app_user as PARENT_GUARDIAN
--- Note: This assumes members are parents/guardians
-INSERT INTO app_user (
-  facility_id,
-  role,
-  email,
-  phone,
-  full_name,
-  password_hash,
-  is_active,
-  created_at,
-  updated_at
-)
-SELECT 
-  (SELECT id FROM facility LIMIT 1) as facility_id,
-  'PARENT_GUARDIAN'::user_role as role,
-  email,
-  phone,
-  COALESCE(first_name || ' ' || last_name, 'Member') as full_name,
-  password_hash,
-  CASE 
-    WHEN account_status = 'active' THEN TRUE 
-    ELSE FALSE 
-  END as is_active,
-  created_at,
-  updated_at
-FROM members
-WHERE NOT EXISTS (
-  SELECT 1 FROM app_user 
-  WHERE app_user.email = members.email
-);
+-- Migrate legacy members table rows when present (fresh DBs skip this block)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'members'
+  ) THEN
+    INSERT INTO app_user (
+      facility_id,
+      role,
+      email,
+      phone,
+      full_name,
+      password_hash,
+      is_active,
+      created_at,
+      updated_at
+    )
+    SELECT
+      (SELECT id FROM facility LIMIT 1) as facility_id,
+      'PARENT_GUARDIAN'::user_role as role,
+      email,
+      phone,
+      COALESCE(first_name || ' ' || last_name, 'Member') as full_name,
+      password_hash,
+      CASE
+        WHEN account_status = 'active' THEN TRUE
+        ELSE FALSE
+      END as is_active,
+      created_at,
+      updated_at
+    FROM members
+    WHERE NOT EXISTS (
+      SELECT 1 FROM app_user
+      WHERE app_user.email = members.email
+    );
+  END IF;
+END $$;
 
 -- ============================================================
 -- NOTES

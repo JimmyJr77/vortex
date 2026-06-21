@@ -12,6 +12,15 @@ import CookieConsent from '../../components/CookieConsent'
 import { setSportSiteContext } from '../../utils/sportSite'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
 import HighlightsModal from '../../components/HighlightsModal'
+import {
+  bestPortalForAccount,
+  clearPortalSession,
+  getAvailablePortals,
+  persistAdminSessionFromAccount,
+  persistMemberSession,
+  type PortalAccount,
+  type PortalId,
+} from '../../utils/portalSession'
 
 const GymnasticsPage = lazy(() => import('./pages/GymnasticsPage'))
 const ArtisticGymnasticsEarlyLandingPage = lazy(
@@ -40,6 +49,7 @@ const TrampolineTumblingGymnasticsPage = lazy(
 )
 const AerobicGymnasticsPage = lazy(() => import('./pages/AerobicGymnasticsPage'))
 const MemberDashboard = lazy(() => import('../../components/MemberDashboard'))
+const CoachDashboard = lazy(() => import('../../components/CoachDashboard'))
 const Admin = lazy(() => import('../../components/Admin'))
 
 function PageLoader() {
@@ -62,9 +72,12 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
   const [isAdmin, setIsAdmin] = useState(
     () => localStorage.getItem('vortex_admin') === 'true',
   )
-  const [member, setMember] = useState<any>(null)
+  const [member, setMember] = useState<PortalAccount | null>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
+  const [activePortal, setActivePortal] = useState<PortalId>(() =>
+    localStorage.getItem('vortex_admin') === 'true' ? 'admin' : 'website',
+  )
   const location = useLocation()
   const navigate = useNavigate()
   const {
@@ -88,8 +101,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
         setMemberToken(storedToken)
         setMember(JSON.parse(storedMember))
       } catch {
-        localStorage.removeItem('vortex_member_token')
-        localStorage.removeItem('vortex_member')
+        clearPortalSession()
       }
     }
 
@@ -103,8 +115,17 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
     setIsContactFormOpen(true)
   }
 
-  const handleAdminLoginSuccess = () => {
+  const handleAdminLoginSuccess = (adminData?: Record<string, unknown>, token?: string) => {
     setIsAdmin(true)
+    if (adminData) {
+      const account = adminData as PortalAccount
+      setMember(account)
+      if (token) {
+        persistMemberSession(token, account)
+        setMemberToken(token)
+      }
+    }
+    setActivePortal('admin')
   }
 
   const handleAdminLogout = () => {
@@ -113,40 +134,76 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
     localStorage.removeItem('vortex-admin-info')
     localStorage.removeItem('vortex-admin-id')
     setIsAdmin(false)
+    if (activePortal === 'admin') setActivePortal('website')
   }
 
-  const handleMemberLoginSuccess = (token: string, memberData: any) => {
+  const handleMemberLoginSuccess = (token: string, memberData: PortalAccount) => {
     setSportSiteContext('gymnastics')
-    localStorage.setItem('vortex_member_token', token)
-    localStorage.setItem('vortex_member', JSON.stringify(memberData))
+    persistMemberSession(token, memberData)
+    if (getAvailablePortals(memberData).includes('admin')) {
+      persistAdminSessionFromAccount(token, memberData)
+      setIsAdmin(true)
+    }
     setMemberToken(token)
     setMember(memberData)
+    setActivePortal(bestPortalForAccount(memberData))
     setShowMemberDashboard(true)
   }
 
   const handleMemberLogout = () => {
-    localStorage.removeItem('vortex_member_token')
-    localStorage.removeItem('vortex_member')
+    clearPortalSession()
+    setIsAdmin(false)
     setMemberToken(null)
     setMember(null)
     setShowMemberDashboard(false)
+    setActivePortal('website')
   }
 
-  if (isAdmin) {
+  const switchPortal = (portal: PortalId) => {
+    if (portal === 'website') {
+      setActivePortal('website')
+      setShowMemberDashboard(false)
+      return
+    }
+    setActivePortal(portal)
+    setShowMemberDashboard(portal === 'member' || portal === 'coach')
+  }
+
+  if (isAdmin && activePortal === 'admin') {
     return (
       <Suspense fallback={<PageLoader />}>
-        <Admin onLogout={handleAdminLogout} />
+        <Admin
+          onLogout={handleAdminLogout}
+          availablePortals={getAvailablePortals(member)}
+          onSwitchPortal={switchPortal}
+        />
       </Suspense>
     )
   }
 
   if (member && memberToken && showMemberDashboard) {
+    const availablePortals = getAvailablePortals(member)
+    if (activePortal === 'coach') {
+      return (
+        <Suspense fallback={<PageLoader />}>
+          <CoachDashboard
+            coach={member}
+            onLogout={handleMemberLogout}
+            onReturnToWebsite={() => switchPortal('website')}
+            availablePortals={availablePortals}
+            onSwitchPortal={switchPortal}
+          />
+        </Suspense>
+      )
+    }
     return (
       <Suspense fallback={<PageLoader />}>
         <MemberDashboard
           member={member}
           onLogout={handleMemberLogout}
-          onReturnToWebsite={() => setShowMemberDashboard(false)}
+          onReturnToWebsite={() => switchPortal('website')}
+          availablePortals={availablePortals}
+          onSwitchPortal={switchPortal}
         />
       </Suspense>
     )
@@ -160,7 +217,10 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
         onAdminLoginClick={() => setIsLoginOpen(true)}
         onMemberLoginClick={() => setIsMemberLoginOpen(true)}
         member={member}
-        onMemberDashboardClick={() => setShowMemberDashboard(true)}
+        onMemberDashboardClick={() => {
+          const portals = getAvailablePortals(member)
+          switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : 'admin')
+        }}
       />
       <Suspense fallback={<PageLoader />}>
         <Routes>

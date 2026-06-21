@@ -10,6 +10,8 @@
     "seed-events": "node seed-events.js",
     "seed:dev-members": "node members/runSeedDevMembers.js",
     "migrate": "node run-migration.js",
+    "migrate:all": "node run-migration.js --all",
+    "bootstrap:staging-rehearsal": "node scripts/bootstrap-staging-rehearsal-accounts.mjs",
     "migrate:module0": "node run-module0-migration.js",
     "verify:module0": "node verify-module0.js",
     "list-tables": "DB_HOST=localhost DB_PORT=5432 DB_NAME=vortex_athletics DB_USER=postgres DB_PASSWORD=vortex2024 node list-all-tables.js",

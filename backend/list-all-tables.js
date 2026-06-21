@@ -120,7 +120,7 @@ async function listAllTables() {
       'user',
       'users',
       'family',
-      'family_guardian',
+      'family_member',
       'guardian'
     ]
     

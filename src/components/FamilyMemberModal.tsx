@@ -39,6 +39,8 @@ type FamilyMemberData = {
 
 interface Guardian {
   id: number
+  memberId?: number | null
+  appUserId?: number | null
   email: string
   fullName: string
   phone?: string | null
@@ -66,12 +68,27 @@ interface Athlete {
 interface Family {
   id: number
   family_name?: string | null
-  primary_user_id?: number | null
+  primary_user_id?: number | null // Temporary compatibility alias only
+  payerMemberId?: number | null
+  payer_member_id?: number | null
+  billingAccount?: {
+    payerMemberId?: number | null
+    payer_member_id?: number | null
+  } | null
   primary_email?: string | null
   primary_name?: string | null
   primary_phone?: string | null
   guardians?: Guardian[]
   athletes?: Athlete[]
+  members?: Array<{
+    id: number
+    firstName?: string | null
+    lastName?: string | null
+    email?: string | null
+    phone?: string | null
+    address?: string | null
+    isFamilyPayer?: boolean
+  }>
   created_at: string
   updated_at: string
   archived?: boolean
@@ -308,13 +325,26 @@ export default function FamilyMemberModal(props: FamilyMemberModalProps) {
       })
     }
     
-    // Set billing info from primary guardian
-    const primaryGuardian = family.guardians?.find(g => g.id === family.primary_user_id) || family.guardians?.[0]
+    // Set billing info from the canonical family payer, falling back to legacy guardian data.
+    const payerMemberId =
+      family.payerMemberId ??
+      family.payer_member_id ??
+      family.billingAccount?.payerMemberId ??
+      family.billingAccount?.payer_member_id ??
+      null
+    const primaryGuardian =
+      family.guardians?.find((g) => g.memberId === payerMemberId || g.id === payerMemberId || g.isPrimary) ||
+      family.guardians?.[0]
+    const payerMember = family.members?.find((m) => m.id === payerMemberId || m.isFamilyPayer)
     let billingFirstName = ''
     let billingLastName = ''
     let billingAddress = ''
     
-    if (primaryGuardian) {
+    if (payerMember) {
+      billingFirstName = payerMember.firstName || ''
+      billingLastName = payerMember.lastName || ''
+      billingAddress = payerMember.address || ''
+    } else if (primaryGuardian) {
       const nameParts = primaryGuardian.fullName.split(' ')
       billingFirstName = nameParts[0] || ''
       billingLastName = nameParts.slice(1).join(' ') || ''

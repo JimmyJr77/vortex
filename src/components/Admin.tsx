@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LogOut } from 'lucide-react'
 import { adminApiRequest, clearAdminSession, getAdminToken } from '../utils/api'
@@ -15,11 +15,17 @@ import AdminPricing from './AdminPricing'
 import AdminSignups from './AdminSignups'
 import AdminDbQueries from './AdminDbQueries'
 import AdminSchools from './AdminSchools'
+import AdminAccess from './AdminAccess'
+import AdminFamilyBilling from './AdminFamilyBilling'
+import AdminWaivers from './AdminWaivers'
+import AdminCoaches from './AdminCoaches'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 
 interface AdminProps {
   onLogout: () => void
+  availablePortals?: string[]
+  onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
 }
 
 interface Program {
@@ -51,16 +57,44 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'dbQueries' | 'schools'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers'
+
+interface AccessContext {
+  permissions: string[]
+  roles: string[]
+  isMasterAdmin: boolean
+}
+
+const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
+  { id: 'admins', label: 'Admins', permission: 'admins.manage' },
+  { id: 'access', label: 'Access', permission: 'admin_access.manage' },
+  { id: 'membership', label: 'Members', permission: 'members.view' },
+  { id: 'users', label: 'Inquiries', permission: 'members.view' },
+  { id: 'classes', label: 'Classes', permission: 'classes.view' },
+  { id: 'coaches', label: 'Coaches', permission: 'classes.manage' },
+  { id: 'scheduling', label: 'Scheduling', permission: 'scheduling.view' },
+  { id: 'calendar', label: 'Calendar', permission: 'scheduling.view' },
+  { id: 'pricing', label: 'Pricing', permission: 'pricing.view' },
+  { id: 'billing', label: 'Billing', permission: 'billing.view' },
+  { id: 'waivers', label: 'Waivers', permission: 'waivers.view' },
+  { id: 'signups', label: 'Signups', permission: 'scheduling.view' },
+  { id: 'highlights', label: 'Highlights', permission: 'classes.view' },
+  { id: 'events', label: 'Events', permission: 'classes.view' },
+  { id: 'dbQueries', label: 'DB Queries', permission: 'admin_access.manage' },
+  { id: 'schools', label: 'Schools', permission: 'schools.view' },
+  { id: 'analytics', label: 'Analytics & Engagement', permission: 'analytics.view' },
+]
 
 
-export default function Admin({ onLogout }: AdminProps) {
+export default function Admin({ onLogout, availablePortals = ['admin'], onSwitchPortal }: AdminProps) {
   const [activeTab, setActiveTab] = useState<TabType>('users')
   const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
   const [programs, setPrograms] = useState<Program[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [schedulingIntent, setSchedulingIntent] = useState<SchedulingNavigationIntent | null>(null)
   const [schedulingNavKey, setSchedulingNavKey] = useState(0)
+  const [accessContext, setAccessContext] = useState<AccessContext | null>(null)
+  const [accessLoading, setAccessLoading] = useState(true)
 
   useEffect(() => {
     if (!getAdminToken()) {
@@ -87,6 +121,44 @@ export default function Admin({ onLogout }: AdminProps) {
       localStorage.setItem('vortex-admin-info', JSON.stringify(defaultAdmin))
     }
   }, [onLogout])
+
+  useEffect(() => {
+    const loadAccessContext = async () => {
+      try {
+        const response = await adminApiRequest('/api/admin/access/me')
+        if (!response.ok) return
+        const data = await response.json()
+        if (data.success) {
+          setAccessContext({
+            permissions: data.data?.permissions ?? [],
+            roles: data.data?.roles ?? [],
+            isMasterAdmin: Boolean(data.data?.isMasterAdmin),
+          })
+        }
+      } catch (error) {
+        console.warn('Unable to load admin access context:', error)
+      } finally {
+        setAccessLoading(false)
+      }
+    }
+    void loadAccessContext()
+  }, [])
+
+  const visibleTabs = useMemo(
+    () =>
+      tabDefinitions.filter((tab) => {
+        if (!tab.permission) return true
+        if (!accessContext) return false
+        return accessContext.isMasterAdmin || accessContext.permissions.includes(tab.permission)
+      }),
+    [accessContext],
+  )
+
+  useEffect(() => {
+    if (visibleTabs.length > 0 && !visibleTabs.some((tab) => tab.id === activeTab)) {
+      setActiveTab(visibleTabs[0].id)
+    }
+  }, [activeTab, visibleTabs])
 
   useEffect(() => {
     if (activeTab === 'events') {
@@ -150,7 +222,25 @@ export default function Admin({ onLogout }: AdminProps) {
             <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
               VORTEX <span className="text-vortex-red">ADMIN</span>
             </h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap justify-center md:justify-end">
+            {availablePortals.includes('member') && (
+              <button
+                type="button"
+                onClick={() => onSwitchPortal?.('member')}
+                className="bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
+              >
+                Member
+              </button>
+            )}
+            {availablePortals.includes('coach') && (
+              <button
+                type="button"
+                onClick={() => onSwitchPortal?.('coach')}
+                className="bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
+              >
+                Coach
+              </button>
+            )}
             <motion.button
               onClick={onLogout}
               className="flex items-center space-x-2 bg-vortex-red text-white px-3 md:px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors text-sm"
@@ -169,227 +259,26 @@ export default function Admin({ onLogout }: AdminProps) {
             fadeFromClassName="from-gray-900"
           >
             <div className="flex w-max mx-auto space-x-1">
-              <button
-                onClick={() => setActiveTab('admins')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'admins'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Admins
-                {activeTab === 'admins' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('membership')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'membership'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Members
-                {activeTab === 'membership' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'users'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Inquiries
-                {activeTab === 'users' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('classes')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'classes'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Classes
-                {activeTab === 'classes' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('scheduling')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'scheduling'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Scheduling
-                {activeTab === 'scheduling' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('calendar')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'calendar'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Calendar
-                {activeTab === 'calendar' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('pricing')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'pricing'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Pricing
-                {activeTab === 'pricing' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('signups')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'signups'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Signups
-                {activeTab === 'signups' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('highlights')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'highlights'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Highlights
-                {activeTab === 'highlights' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('events')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'events'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Events
-                {activeTab === 'events' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('dbQueries')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'dbQueries'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                DB Queries
-                {activeTab === 'dbQueries' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('schools')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'schools'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Schools
-                {activeTab === 'schools' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                  activeTab === 'analytics'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Analytics & Engagement
-                {activeTab === 'analytics' && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                    layoutId="activeTab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
+              {visibleTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
+                    activeTab === tab.id
+                      ? 'text-white'
+                      : 'text-gray-400 hover:text-gray-300'
+                  }`}
+                >
+                  {tab.label}
+                  {activeTab === tab.id && (
+                    <motion.div
+                      className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                      layoutId="activeTab"
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    />
+                  )}
+                </button>
+              ))}
             </div>
           </HorizontalScrollContainer>
         </div>
@@ -399,9 +288,20 @@ export default function Admin({ onLogout }: AdminProps) {
       <div className="bg-white">
         <div className="container-admin py-4 md:py-8">
 
+          {accessLoading ? (
+            <div className="rounded-xl bg-white p-8 text-center text-gray-600 shadow-sm">
+              Loading admin access...
+            </div>
+          ) : (
           <AnimatePresence mode="wait">
             {activeTab === 'analytics' ? (
               <AdminAnalytics />
+            ) : activeTab === 'access' ? (
+              <AdminAccess />
+            ) : activeTab === 'billing' ? (
+              <AdminFamilyBilling />
+            ) : activeTab === 'waivers' ? (
+              <AdminWaivers />
             ) : activeTab === 'dbQueries' ? (
               <AdminDbQueries />
             ) : activeTab === 'schools' ? (
@@ -426,6 +326,8 @@ export default function Admin({ onLogout }: AdminProps) {
                   setActiveTab('scheduling')
                 }}
               />
+            ) : activeTab === 'coaches' ? (
+              <AdminCoaches />
             ) : activeTab === 'highlights' ? (
               <AdminHighlights />
             ) : activeTab === 'events' ? (
@@ -438,6 +340,7 @@ export default function Admin({ onLogout }: AdminProps) {
               <AdminInquiries />
             )}
             </AnimatePresence>
+          )}
           </div>
         </div>
 

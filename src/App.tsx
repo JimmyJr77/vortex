@@ -9,6 +9,15 @@ import MemberLogin from './components/MemberLogin'
 import { trackPageView, trackEngagement } from './utils/analytics'
 import { captureUtmFromLocation } from './utils/utmCapture'
 import { clearAdminSession, hasAdminSession } from './utils/api'
+import {
+  bestPortalForAccount,
+  clearPortalSession,
+  getAvailablePortals,
+  persistAdminSessionFromAccount,
+  persistMemberSession,
+  type PortalAccount,
+  type PortalId,
+} from './utils/portalSession'
 import CookieConsent from './components/CookieConsent'
 import { useSiteHighlights } from './hooks/useSiteHighlights'
 import HighlightsModal from './components/HighlightsModal'
@@ -24,6 +33,7 @@ const ReadBoard = lazy(() => import('./components/ReadBoard'))
 const SchedulingPage = lazy(() => import('./components/SchedulingPage'))
 const Admin = lazy(() => import('./components/Admin'))
 const MemberDashboard = lazy(() => import('./components/MemberDashboard'))
+const CoachDashboard = lazy(() => import('./components/CoachDashboard'))
 
 function PageLoader() {
   return (
@@ -39,9 +49,10 @@ function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isMemberLoginOpen, setIsMemberLoginOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(() => hasAdminSession())
-  const [member, setMember] = useState<any>(null)
+  const [member, setMember] = useState<PortalAccount | null>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
+  const [activePortal, setActivePortal] = useState<PortalId>(() => (hasAdminSession() ? 'admin' : 'website'))
   const location = useLocation()
   const {
     highlights,
@@ -72,8 +83,7 @@ function App() {
         setShowMemberDashboard(false)
       } catch (error) {
         console.error('Error parsing stored member data:', error)
-        localStorage.removeItem('vortex_member_token')
-        localStorage.removeItem('vortex_member')
+        clearPortalSession()
       }
     }
 
@@ -87,49 +97,94 @@ function App() {
     setIsContactFormOpen(true)
   }
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (adminData?: Record<string, unknown>, token?: string) => {
     setIsAdmin(true)
+    if (adminData) {
+      const account = adminData as PortalAccount
+      setMember(account)
+      if (token) {
+        persistMemberSession(token, account)
+        setMemberToken(token)
+      }
+    }
+    setActivePortal('admin')
   }
 
   const handleLogout = () => {
     clearAdminSession()
     setIsAdmin(false)
+    if (activePortal === 'admin') setActivePortal('website')
     console.log('[Logout] All admin data cleared from localStorage')
   }
 
-  const handleMemberLoginSuccess = (token: string, memberData: any) => {
-    localStorage.setItem('vortex_member_token', token)
-    localStorage.setItem('vortex_member', JSON.stringify(memberData))
+  const handleMemberLoginSuccess = (token: string, memberData: PortalAccount) => {
+    persistMemberSession(token, memberData)
+    if (getAvailablePortals(memberData).includes('admin')) {
+      persistAdminSessionFromAccount(token, memberData)
+      setIsAdmin(true)
+    }
     setMemberToken(token)
     setMember(memberData)
-    // Automatically redirect to member portal after login
+    setActivePortal(bestPortalForAccount(memberData))
     setShowMemberDashboard(true)
   }
 
   const handleMemberLogout = () => {
-    localStorage.removeItem('vortex_member_token')
-    localStorage.removeItem('vortex_member')
+    clearPortalSession()
+    setIsAdmin(false)
     setMemberToken(null)
     setMember(null)
+    setShowMemberDashboard(false)
+    setActivePortal('website')
+  }
+
+  const switchPortal = (portal: PortalId) => {
+    if (portal === 'website') {
+      setActivePortal('website')
+      setShowMemberDashboard(false)
+      return
+    }
+    setActivePortal(portal)
+    setShowMemberDashboard(portal === 'member' || portal === 'coach')
   }
 
   // If user is admin, show admin panel
-  if (isAdmin) {
+  if (isAdmin && activePortal === 'admin') {
     return (
       <Suspense fallback={<PageLoader />}>
-        <Admin onLogout={handleLogout} />
+        <Admin
+          onLogout={handleLogout}
+          availablePortals={getAvailablePortals(member)}
+          onSwitchPortal={switchPortal}
+        />
       </Suspense>
     )
   }
 
   // If member is logged in and wants to see dashboard, show member dashboard
   if (member && memberToken && showMemberDashboard) {
+    const availablePortals = getAvailablePortals(member)
+    if (activePortal === 'coach') {
+      return (
+        <Suspense fallback={<PageLoader />}>
+          <CoachDashboard
+            coach={member}
+            onLogout={handleMemberLogout}
+            onReturnToWebsite={() => switchPortal('website')}
+            availablePortals={availablePortals}
+            onSwitchPortal={switchPortal}
+          />
+        </Suspense>
+      )
+    }
     return (
       <Suspense fallback={<PageLoader />}>
         <MemberDashboard 
           member={member} 
           onLogout={handleMemberLogout}
-          onReturnToWebsite={() => setShowMemberDashboard(false)}
+          onReturnToWebsite={() => switchPortal('website')}
+          availablePortals={availablePortals}
+          onSwitchPortal={switchPortal}
         />
       </Suspense>
     )
@@ -142,8 +197,12 @@ function App() {
       <Header 
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
+        onMemberLoginClick={() => setIsMemberLoginOpen(true)}
         member={member}
-        onMemberDashboardClick={() => setShowMemberDashboard(true)}
+        onMemberDashboardClick={() => {
+          const portals = getAvailablePortals(member)
+          switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : 'admin')
+        }}
       />
       <Suspense fallback={<PageLoader />}>
         <Routes>

@@ -12,6 +12,9 @@ interface MemberLoginProps {
 export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginProps) {
   const [emailOrUsername, setEmailOrUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [resetEmail, setResetEmail] = useState('')
+  const [forgotMode, setForgotMode] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -47,6 +50,32 @@ export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginP
     }
   }
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setIsSubmitting(true)
+    setResetSent(false)
+    try {
+      const apiUrl = getApiUrl()
+      const response = await fetch(`${apiUrl}/api/members/request-password-reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok || data.success === false) {
+        setError(data.message || 'Unable to process password reset request.')
+      } else {
+        setResetSent(true)
+      }
+    } catch (err) {
+      console.error('Password reset request error:', err)
+      setError('Unable to connect to server. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -74,9 +103,13 @@ export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginP
                 <Lock className="w-8 h-8 text-vortex-red" />
               </div>
               <h2 className="text-3xl font-display font-bold text-black mb-2">
-                Login
+                {forgotMode ? 'Reset Password' : 'Login'}
               </h2>
-              <p className="text-gray-600">Enter your email or username to access your member portal</p>
+              <p className="text-gray-600">
+                {forgotMode
+                  ? 'Enter your email and we will send a temporary password.'
+                  : 'Enter your email or username to access your member portal'}
+              </p>
             </div>
 
             {error && (
@@ -86,20 +119,25 @@ export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginP
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={forgotMode ? handlePasswordReset : handleSubmit} className="space-y-4">
+              {resetSent && (
+                <div className="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded">
+                  If an account exists for this email, a temporary password has been sent.
+                </div>
+              )}
               <div>
                 <label htmlFor="emailOrUsername" className="block text-gray-700 text-sm font-bold mb-2">
-                  Email or Username
+                  {forgotMode ? 'Email' : 'Email or Username'}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
-                    type="text"
+                    type={forgotMode ? 'email' : 'text'}
                     id="emailOrUsername"
                     name="emailOrUsername"
-                    value={emailOrUsername}
-                    onChange={(e) => setEmailOrUsername(e.target.value)}
-                    placeholder="Enter your email or username"
+                    value={forgotMode ? resetEmail : emailOrUsername}
+                    onChange={(e) => (forgotMode ? setResetEmail(e.target.value) : setEmailOrUsername(e.target.value))}
+                    placeholder={forgotMode ? 'Enter your account email' : 'Enter your email or username'}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
                     required
                     autoFocus
@@ -107,23 +145,25 @@ export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginP
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
-                    required
-                  />
+              {!forgotMode && (
+                <div>
+                  <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               <motion.button
                 type="submit"
@@ -132,8 +172,19 @@ export default function MemberLogin({ isOpen, onClose, onSuccess }: MemberLoginP
                 whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                 whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
               >
-                {isSubmitting ? 'Logging in...' : 'Login'}
+                {isSubmitting ? (forgotMode ? 'Submitting...' : 'Logging in...') : (forgotMode ? 'Send Temporary Password' : 'Login')}
               </motion.button>
+              <button
+                type="button"
+                className="w-full text-sm text-vortex-red hover:text-red-700"
+                onClick={() => {
+                  setError('')
+                  setResetSent(false)
+                  setForgotMode((value) => !value)
+                }}
+              >
+                {forgotMode ? 'Back to login' : 'Forgot password?'}
+              </button>
             </form>
           </motion.div>
         </motion.div>

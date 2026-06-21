@@ -14,5 +14,5 @@ COPY . .
 # Expose port
 EXPOSE 3001
 
-# Start the application
-CMD ["npm", "run", "dev"]
+# Start the application (production mode)
+CMD ["npm", "start"]

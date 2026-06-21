@@ -52,7 +52,7 @@ async function diagnoseMemberTables() {
     // Identify member-related tables
     const memberRelatedTables = [
       'member', 'members', 'app_user', 'athlete', 'athletes', 'user', 'users',
-      'family', 'family_guardian', 'guardian', 'member_children', 'parent_guardian_authority'
+      'family', 'family_member', 'guardian', 'member_children', 'parent_guardian_authority'
     ]
     
     const existingMemberTables = allTables.filter(t => 
