@@ -30,6 +30,7 @@ export async function initPlatformTables(pool) {
     '028_coaching_embeddings.sql',
     '029_coaching_video_submission_assign.sql',
     '030_coach_class_scheduling_form.sql',
+    '031_coach_assignment_drilldown.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

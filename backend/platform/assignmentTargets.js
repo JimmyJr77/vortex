@@ -338,11 +338,52 @@ export function planAssignmentMemberMatchSql(memberIdx, familyIdx) {
               AND s.orphaned_at IS NULL
               AND s.status IN ('confirmed', 'waitlisted')
               AND (
-                (cca.scheduling_form_id IS NOT NULL AND s.form_id = cca.scheduling_form_id)
+                (cca.scheduling_time_slot_id IS NOT NULL AND s.time_slot_id = cca.scheduling_time_slot_id)
                 OR (
-                  cca.scheduling_form_id IS NULL
+                  cca.scheduling_time_slot_id IS NULL
+                  AND cca.scheduling_offering_id IS NOT NULL
+                  AND EXISTS (
+                    SELECT 1 FROM scheduling_time_slot ts
+                    JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
+                    WHERE ts.id = s.time_slot_id AND sg.offering_id = cca.scheduling_offering_id
+                  )
+                )
+                OR (
+                  cca.scheduling_time_slot_id IS NULL
+                  AND cca.scheduling_offering_id IS NULL
+                  AND cca.scheduling_category_id IS NOT NULL
+                  AND s.category_id = cca.scheduling_category_id
+                )
+                OR (
+                  cca.scheduling_time_slot_id IS NULL
+                  AND cca.scheduling_offering_id IS NULL
+                  AND cca.scheduling_category_id IS NULL
+                  AND cca.scheduling_form_id IS NOT NULL
+                  AND s.form_id = cca.scheduling_form_id
+                )
+                OR (
+                  cca.scheduling_time_slot_id IS NULL
+                  AND cca.scheduling_offering_id IS NULL
+                  AND cca.scheduling_category_id IS NULL
+                  AND cca.scheduling_form_id IS NULL
                   AND cca.program_id IS NOT NULL
                   AND sf.program_id = cca.program_id
+                )
+                OR (
+                  cca.scheduling_time_slot_id IS NULL
+                  AND cca.scheduling_offering_id IS NULL
+                  AND cca.scheduling_category_id IS NULL
+                  AND cca.scheduling_form_id IS NULL
+                  AND cca.program_id IS NULL
+                  AND cca.programs_id IS NOT NULL
+                  AND (
+                    sf.programs_id = cca.programs_id
+                    OR EXISTS (
+                      SELECT 1 FROM program px
+                      WHERE px.id = sf.program_id
+                        AND (px.programs_id = cca.programs_id OR px.category_id = cca.programs_id)
+                    )
+                  )
                 )
               )
           )
@@ -352,6 +393,16 @@ export function planAssignmentMemberMatchSql(memberIdx, familyIdx) {
               AND (
                 (cca.class_iteration_id IS NOT NULL AND mp.iteration_id = cca.class_iteration_id)
                 OR (cca.class_iteration_id IS NULL AND cca.program_id IS NOT NULL AND mp.program_id = cca.program_id)
+                OR (
+                  cca.class_iteration_id IS NULL
+                  AND cca.program_id IS NULL
+                  AND cca.programs_id IS NOT NULL
+                  AND EXISTS (
+                    SELECT 1 FROM program px
+                    WHERE px.id = mp.program_id
+                      AND (px.programs_id = cca.programs_id OR px.category_id = cca.programs_id)
+                  )
+                )
               )
           )
         )

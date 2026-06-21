@@ -5,10 +5,10 @@ import {
   queryCoachRosterMembers,
   queryCoachMemberPickerList,
   ensureCoachClassAssignmentSchema,
-  queryCoachAssignmentProgramOptions,
-  queryCoachAssignmentClassesForProgram,
-  resolveSchedulingFormAssignmentProgramId,
+  queryCoachAssignmentDrilldown,
+  resolveCoachAssignmentPayload,
 } from './coachRoster.js'
+import { resolveProgramsSchema } from '../programs/schema.js'
 import { queryAssignDrilldown } from './assignmentTargets.js'
 
 function tokenFrom(req) {
@@ -681,6 +681,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/admin/coaches', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
     await ensureCoachClassAssignmentSchema(pool)
+    const schema = await resolveProgramsSchema(pool)
     const coaches = await pool.query(
       `
         SELECT
@@ -694,15 +695,37 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             json_agg(
               DISTINCT jsonb_build_object(
                 'id', cca.id,
+                'programsId', cca.programs_id,
+                'programsName', prog_top.display_name,
                 'programId', cca.program_id,
                 'programName', p.display_name,
                 'schedulingFormId', cca.scheduling_form_id,
                 'className', sf.title,
-                'assignmentLabel', CASE
-                  WHEN sf.id IS NOT NULL THEN COALESCE(p.display_name, 'Program') || ' — ' || sf.title
-                  WHEN p.id IS NOT NULL THEN p.display_name
-                  ELSE 'Assignment'
-                END
+                'schedulingCategoryId', cca.scheduling_category_id,
+                'categoryName', sc.name,
+                'schedulingOfferingId', cca.scheduling_offering_id,
+                'offeringName', so.label,
+                'schedulingTimeSlotId', cca.scheduling_time_slot_id,
+                'assignmentLabel', trim(both ' — ' from concat_ws(' — ',
+                  prog_top.display_name,
+                  p.display_name,
+                  sf.title,
+                  sc.name,
+                  so.label,
+                  CASE
+                    WHEN sts.id IS NOT NULL THEN concat_ws(' ',
+                      CASE sts.day_of_week
+                        WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue'
+                        WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat'
+                        ELSE NULL
+                      END,
+                      COALESCE(sts.specific_date::text, NULL),
+                      to_char(sts.start_time, 'HH24:MI'),
+                      to_char(sts.end_time, 'HH24:MI')
+                    )
+                    ELSE NULL
+                  END
+                ))
               )
             ) FILTER (WHERE cca.id IS NOT NULL),
             '[]'
@@ -710,8 +733,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         FROM app_user au
         JOIN coach_profile cp ON cp.user_id = au.id
         LEFT JOIN coach_class_assignment cca ON cca.coach_user_id = au.id
+        LEFT JOIN ${schema.programsTable} prog_top ON prog_top.id = cca.programs_id
         LEFT JOIN program p ON p.id = cca.program_id
         LEFT JOIN scheduling_form sf ON sf.id = cca.scheduling_form_id AND sf.deleted_at IS NULL
+        LEFT JOIN scheduling_category sc ON sc.id = cca.scheduling_category_id
+        LEFT JOIN scheduling_offering so ON so.id = cca.scheduling_offering_id
+        LEFT JOIN scheduling_time_slot sts ON sts.id = cca.scheduling_time_slot_id
         WHERE au.facility_id = $1
         GROUP BY au.id, cp.bio, cp.is_active
         ORDER BY au.full_name, au.email
@@ -721,9 +748,23 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: coaches.rows })
   })
 
+  app.get('/api/admin/coaches/assign-drilldown', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
+    try {
+      const data = await queryCoachAssignmentDrilldown(pool, req.platformAuth.user.facility_id, {
+        programsId: req.query.programsId,
+        classEventId: req.query.classEventId,
+        formId: req.query.formId,
+        categoryId: req.query.categoryId,
+        offeringId: req.query.offeringId,
+      })
+      res.json({ success: true, data })
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message || 'Failed to load assignment options.' })
+    }
+  })
+
   app.get('/api/admin/coaches/options', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
     const facilityId = req.platformAuth.user.facility_id
-    const filterProgramId = req.query.programId != null ? Number(req.query.programId) : null
     const usersRes = await pool.query(
       `
         SELECT DISTINCT au.id, au.full_name, au.email
@@ -736,17 +777,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       `,
       [facilityId],
     )
-    const { programs, schedulingClasses } = await queryCoachAssignmentProgramOptions(pool, facilityId)
-    const classes =
-      Number.isFinite(filterProgramId)
-        ? await queryCoachAssignmentClassesForProgram(pool, facilityId, filterProgramId)
-        : schedulingClasses
     res.json({
       success: true,
       data: {
         users: usersRes.rows,
-        programs,
-        schedulingClasses: classes,
       },
     })
   })
@@ -773,31 +807,43 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   app.post('/api/admin/coaches/:userId/assignments', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
     const userId = Number(req.params.userId)
     const facilityId = req.platformAuth.user.facility_id
-    let programId = req.body?.programId == null ? null : Number(req.body.programId)
-    const schedulingFormId = req.body?.schedulingFormId == null ? null : Number(req.body.schedulingFormId)
-    if (!Number.isFinite(userId) || (!Number.isFinite(programId) && !Number.isFinite(schedulingFormId))) {
-      return res.status(400).json({ success: false, message: 'Coach and a program or class are required.' })
+    if (!Number.isFinite(userId)) {
+      return res.status(400).json({ success: false, message: 'Invalid coach user id.' })
     }
-    if (Number.isFinite(schedulingFormId)) {
-      const formProgramId = await resolveSchedulingFormAssignmentProgramId(pool, schedulingFormId, facilityId)
-      if (formProgramId == null) {
-        return res.status(400).json({ success: false, message: 'Selected class not found.' })
-      }
-      if (Number.isFinite(programId) && programId !== formProgramId) {
-        return res.status(400).json({ success: false, message: 'Selected class does not belong to the chosen program.' })
-      }
-      programId = formProgramId
+    let payload
+    try {
+      payload = await resolveCoachAssignmentPayload(pool, facilityId, req.body)
+    } catch (err) {
+      return res.status(400).json({ success: false, message: err.message || 'Invalid assignment.' })
     }
     await pool.query(`INSERT INTO coach_profile (user_id) VALUES ($1) ON CONFLICT (user_id) DO UPDATE SET is_active = TRUE, updated_at = now()`, [userId])
     await pool.query(`INSERT INTO app_user_role (user_id, role) VALUES ($1, 'COACH'::user_role) ON CONFLICT DO NOTHING`, [userId])
     const created = await pool.query(
       `
-        INSERT INTO coach_class_assignment (coach_user_id, program_id, scheduling_form_id)
-        VALUES ($1, $2, $3)
+        INSERT INTO coach_class_assignment (
+          coach_user_id,
+          programs_id,
+          program_id,
+          scheduling_form_id,
+          scheduling_category_id,
+          scheduling_offering_id,
+          scheduling_time_slot_id,
+          class_iteration_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         ON CONFLICT DO NOTHING
         RETURNING *
       `,
-      [userId, Number.isFinite(programId) ? programId : null, Number.isFinite(schedulingFormId) ? schedulingFormId : null],
+      [
+        userId,
+        payload.programs_id,
+        payload.program_id,
+        payload.scheduling_form_id,
+        payload.scheduling_category_id,
+        payload.scheduling_offering_id,
+        payload.scheduling_time_slot_id,
+        payload.class_iteration_id,
+      ],
     )
     res.json({ success: true, data: created.rows[0] ?? null })
   })
@@ -1280,24 +1326,49 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/coach/classes', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {
     await ensureCoachClassAssignmentSchema(pool)
+    const schema = await resolveProgramsSchema(pool)
     const result = await pool.query(
       `
         SELECT
           cca.id,
+          cca.programs_id,
           cca.program_id,
           cca.scheduling_form_id,
+          cca.scheduling_category_id,
+          cca.scheduling_offering_id,
+          cca.scheduling_time_slot_id,
+          prog_top.display_name as programs_name,
           p.display_name as program_name,
           sf.title as class_name,
-          CASE
-            WHEN sf.id IS NOT NULL THEN COALESCE(p.display_name, 'Program') || ' — ' || sf.title
-            WHEN p.id IS NOT NULL THEN p.display_name
-            ELSE 'Class assignment'
-          END as assignment_label
+          trim(both ' — ' from concat_ws(' — ',
+            prog_top.display_name,
+            p.display_name,
+            sf.title,
+            sc.name,
+            so.label,
+            CASE
+              WHEN sts.id IS NOT NULL THEN concat_ws(' ',
+                CASE sts.day_of_week
+                  WHEN 0 THEN 'Sun' WHEN 1 THEN 'Mon' WHEN 2 THEN 'Tue'
+                  WHEN 3 THEN 'Wed' WHEN 4 THEN 'Thu' WHEN 5 THEN 'Fri' WHEN 6 THEN 'Sat'
+                  ELSE NULL
+                END,
+                COALESCE(sts.specific_date::text, NULL),
+                to_char(sts.start_time, 'HH24:MI'),
+                to_char(sts.end_time, 'HH24:MI')
+              )
+              ELSE NULL
+            END
+          )) as assignment_label
         FROM coach_class_assignment cca
+        LEFT JOIN ${schema.programsTable} prog_top ON prog_top.id = cca.programs_id
         LEFT JOIN program p ON p.id = cca.program_id
         LEFT JOIN scheduling_form sf ON sf.id = cca.scheduling_form_id AND sf.deleted_at IS NULL
+        LEFT JOIN scheduling_category sc ON sc.id = cca.scheduling_category_id
+        LEFT JOIN scheduling_offering so ON so.id = cca.scheduling_offering_id
+        LEFT JOIN scheduling_time_slot sts ON sts.id = cca.scheduling_time_slot_id
         WHERE cca.coach_user_id = $1
-        ORDER BY p.display_name, sf.title
+        ORDER BY assignment_label
       `,
       [req.platformAuth.user.id],
     )
@@ -1348,8 +1419,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       return res.status(404).json({ success: false, message: 'Assigned class not found.' })
     }
     const roster = await queryCoachRosterMembers(pool, {
+      programsId: a.programs_id,
       programId: a.program_id,
       schedulingFormId: a.scheduling_form_id,
+      schedulingCategoryId: a.scheduling_category_id,
+      schedulingOfferingId: a.scheduling_offering_id,
+      schedulingTimeSlotId: a.scheduling_time_slot_id,
       classIterationId: a.class_iteration_id,
       facilityId,
       assignmentId,

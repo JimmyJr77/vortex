@@ -1942,10 +1942,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   async function loadSessionRoster(programId, iterationId, facilityId) {
     const ids = await queryCoachRosterMemberIds(pool, {
-      programId,
-      classIterationId: iterationId,
-      facilityId,
-    })
+      program_id: programId,
+      class_iteration_id: iterationId,
+    }, facilityId)
     if (ids.length === 0) return []
     const result = await pool.query(
       `
