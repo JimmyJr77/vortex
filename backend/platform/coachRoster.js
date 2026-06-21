@@ -2,6 +2,8 @@
  * Coach roster resolution: scheduling signups (offerings/class times) + legacy member_program.
  */
 
+import { resolveProgramsSchema } from '../programs/schema.js'
+
 let coachAssignmentSchemaPromise = null
 
 /** Applies migration 030 columns/indexes when DB has not run the SQL migration yet. */
@@ -57,6 +59,123 @@ async function applyCoachClassAssignmentSchema(pool) {
   `)
 }
 
+/** Program + scheduling class options for admin coach assignment UI. */
+export async function queryCoachAssignmentProgramOptions(pool, facilityId) {
+  const schema = await resolveProgramsSchema(pool)
+  const fk = schema.programFkColumn
+  const programsRes = await pool.query(
+    `
+      SELECT id, display_name, ${fk} AS programs_id
+      FROM program
+      WHERE facility_id = $1 AND COALESCE(archived, false) = FALSE
+      ORDER BY display_name
+    `,
+    [facilityId],
+  )
+  const programsLinkClause = schema.hasSchedulingProgramsLink
+    ? `OR EXISTS (
+          SELECT 1 FROM program p2
+          WHERE p2.${fk} = sf.programs_id AND p2.facility_id = $1
+        )`
+    : ''
+  const resolvedProgramSql = schema.hasSchedulingProgramsLink
+    ? `COALESCE(
+        sf.program_id,
+        (SELECT p.id FROM program p
+         WHERE p.${fk} = sf.programs_id AND p.facility_id = $1
+         ORDER BY p.display_name, p.id
+         LIMIT 1)
+      )`
+    : 'sf.program_id'
+  const classesRes = await pool.query(
+    `
+      SELECT
+        sf.id,
+        sf.title AS label,
+        sf.program_id,
+        ${schema.hasSchedulingProgramsLink ? 'sf.programs_id,' : ''}
+        ${resolvedProgramSql} AS resolved_program_id
+      FROM scheduling_form sf
+      WHERE sf.deleted_at IS NULL
+        AND COALESCE(sf.is_active, TRUE) = TRUE
+        AND (
+          EXISTS (SELECT 1 FROM program p WHERE p.id = sf.program_id AND p.facility_id = $1)
+          ${programsLinkClause}
+        )
+      ORDER BY label
+    `,
+    [facilityId],
+  )
+  return {
+    programs: programsRes.rows.map((row) => ({
+      id: Number(row.id),
+      display_name: row.display_name,
+      programs_id: row.programs_id != null ? Number(row.programs_id) : null,
+    })),
+    schedulingClasses: classesRes.rows.map((row) => ({
+      id: Number(row.id),
+      label: row.label,
+      program_id: row.resolved_program_id != null ? Number(row.resolved_program_id) : null,
+      programs_id: row.programs_id != null ? Number(row.programs_id) : null,
+      scheduling_form_program_id: row.program_id != null ? Number(row.program_id) : null,
+    })),
+  }
+}
+
+/** Scheduling classes linked to a program row (class) for coach assignment. */
+export async function queryCoachAssignmentClassesForProgram(pool, facilityId, programId) {
+  const schema = await resolveProgramsSchema(pool)
+  const { schedulingClasses } = await queryCoachAssignmentProgramOptions(pool, facilityId)
+  const pid = Number(programId)
+  const programRes = await pool.query(
+    `SELECT ${schema.programFkColumn} AS programs_id FROM program WHERE id = $1 AND facility_id = $2`,
+    [pid, facilityId],
+  )
+  const programsId = programRes.rows[0]?.programs_id != null ? Number(programRes.rows[0].programs_id) : null
+  return schedulingClasses.filter((row) => {
+    if (row.program_id === pid) return true
+    if (programsId != null && row.programs_id === programsId) return true
+    return false
+  })
+}
+
+/** Resolve program.id for a scheduling form in coach assignment flows. */
+export async function resolveSchedulingFormAssignmentProgramId(pool, schedulingFormId, facilityId) {
+  const schema = await resolveProgramsSchema(pool)
+  const fk = schema.programFkColumn
+  const programsLink = schema.hasSchedulingProgramsLink
+    ? `OR (
+        sf.program_id IS NULL
+        AND sf.programs_id IS NOT NULL
+        AND EXISTS (SELECT 1 FROM program p WHERE p.${fk} = sf.programs_id AND p.facility_id = $2)
+      )`
+    : ''
+  const resolvedSql = programsLink
+    ? `COALESCE(
+        sf.program_id,
+        (SELECT p.id FROM program p
+         WHERE p.${fk} = sf.programs_id AND p.facility_id = $2
+         ORDER BY p.display_name, p.id
+         LIMIT 1)
+      )`
+    : 'sf.program_id'
+  const r = await pool.query(
+    `
+      SELECT ${resolvedSql} AS program_id
+      FROM scheduling_form sf
+      WHERE sf.id = $1
+        AND sf.deleted_at IS NULL
+        AND (
+          EXISTS (SELECT 1 FROM program p WHERE p.id = sf.program_id AND p.facility_id = $2)
+          ${programsLink}
+        )
+    `,
+    [schedulingFormId, facilityId],
+  )
+  if (!r.rows[0]?.program_id) return null
+  return Number(r.rows[0].program_id)
+}
+
 export async function getCoachClassAssignment(pool, assignmentId, coachUserId) {
   const r = await pool.query(
     `SELECT * FROM coach_class_assignment WHERE id = $1 AND coach_user_id = $2`,
@@ -65,14 +184,20 @@ export async function getCoachClassAssignment(pool, assignmentId, coachUserId) {
   return r.rows[0] ?? null
 }
 
-function rosterSignupFilterSql(programIdx, formIdx, iterIdx) {
+function rosterSignupFilterSql(programIdx, formIdx, programFkColumn, includeProgramsLink) {
+  const programsMatch = includeProgramsLink
+    ? `OR sf.programs_id = (SELECT p.${programFkColumn} FROM program p WHERE p.id = $${programIdx} LIMIT 1)`
+    : ''
   return `
     AND (
       ($${formIdx}::bigint IS NOT NULL AND s.form_id = $${formIdx})
       OR (
         $${formIdx}::bigint IS NULL
         AND $${programIdx}::bigint IS NOT NULL
-        AND sf.program_id = $${programIdx}
+        AND (
+          sf.program_id = $${programIdx}
+          ${programsMatch}
+        )
       )
     )
   `
@@ -103,10 +228,18 @@ export async function queryCoachRosterMemberIds(pool, {
   classIterationId,
   facilityId,
 }) {
+  const schema = await resolveProgramsSchema(pool)
   const pid = programId != null ? Number(programId) : null
   const formId = schedulingFormId != null ? Number(schedulingFormId) : null
   const iterId = classIterationId != null ? Number(classIterationId) : null
   if (!pid && !formId && !iterId) return []
+
+  const signupFilter = rosterSignupFilterSql(
+    1,
+    2,
+    schema.programFkColumn,
+    schema.hasSchedulingProgramsLink,
+  )
 
   const r = await pool.query(
     `
@@ -120,7 +253,7 @@ export async function queryCoachRosterMemberIds(pool, {
           AND s.member_id IS NOT NULL
           AND s.orphaned_at IS NULL
           AND s.status IN ('confirmed', 'waitlisted')
-          ${rosterSignupFilterSql(1, 2, 3)}
+          ${signupFilter}
 
         UNION
 
@@ -147,9 +280,16 @@ export async function queryCoachRosterMembers(pool, {
   assignmentId,
   coachUserId,
 }) {
+  const schema = await resolveProgramsSchema(pool)
   const pid = programId != null ? Number(programId) : null
   const formId = schedulingFormId != null ? Number(schedulingFormId) : null
   const iterId = classIterationId != null ? Number(classIterationId) : null
+  const signupFilter = rosterSignupFilterSql(
+    1,
+    2,
+    schema.programFkColumn,
+    schema.hasSchedulingProgramsLink,
+  )
 
   const r = await pool.query(
     `
@@ -163,7 +303,7 @@ export async function queryCoachRosterMembers(pool, {
           AND s.member_id IS NOT NULL
           AND s.orphaned_at IS NULL
           AND s.status IN ('confirmed', 'waitlisted')
-          ${rosterSignupFilterSql(1, 2, 3)}
+          ${signupFilter}
 
         UNION
 

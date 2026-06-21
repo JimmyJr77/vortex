@@ -19,31 +19,61 @@ interface Coach {
   }>
 }
 
-interface Option {
+interface ProgramOption {
+  id: number
+  display_name: string
+  programs_id?: number | null
+}
+
+interface ClassOption {
+  id: number
+  label: string
+  program_id?: number | null
+  programs_id?: number | null
+}
+
+interface UserOption {
   id: number
   full_name?: string
   email?: string | null
-  display_name?: string
-  program_id?: number
-  label?: string
 }
 
 export default function AdminCoaches() {
   const [coaches, setCoaches] = useState<Coach[]>([])
-  const [users, setUsers] = useState<Option[]>([])
-  const [programs, setPrograms] = useState<Option[]>([])
-  const [schedulingClasses, setSchedulingClasses] = useState<Option[]>([])
+  const [users, setUsers] = useState<UserOption[]>([])
+  const [programs, setPrograms] = useState<ProgramOption[]>([])
+  const [schedulingClasses, setSchedulingClasses] = useState<ClassOption[]>([])
   const [selectedCoachId, setSelectedCoachId] = useState<number | ''>('')
   const [programId, setProgramId] = useState<number | ''>('')
   const [schedulingFormId, setSchedulingFormId] = useState<number | ''>('')
   const [loading, setLoading] = useState(true)
+  const [classesLoading, setClassesLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const classesForProgram = useMemo(() => {
-    if (!programId) return schedulingClasses
-    return schedulingClasses.filter((c) => c.program_id === programId)
-  }, [schedulingClasses, programId])
+  const selectedProgram = useMemo(
+    () => programs.find((p) => Number(p.id) === Number(programId)),
+    [programs, programId],
+  )
+
+  const loadClassesForProgram = useCallback(async (pid: number | '') => {
+    if (!pid) {
+      setSchedulingClasses([])
+      return
+    }
+    setClassesLoading(true)
+    try {
+      const res = await adminApiRequest(`/api/admin/coaches/options?programId=${pid}`)
+      if (!res.ok) throw new Error('Failed to load classes for program')
+      const json = await res.json()
+      setSchedulingClasses(json.data?.schedulingClasses ?? [])
+    } catch (err) {
+      setSchedulingClasses([])
+      setError(err instanceof Error ? err.message : 'Failed to load classes for program')
+    } finally {
+      setClassesLoading(false)
+    }
+  }, [])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -59,7 +89,6 @@ export default function AdminCoaches() {
       setCoaches(coachesJson.data ?? [])
       setUsers(optionsJson.data?.users ?? [])
       setPrograms(optionsJson.data?.programs ?? [])
-      setSchedulingClasses(optionsJson.data?.schedulingClasses ?? [])
       setSelectedCoachId((current) => current || optionsJson.data?.users?.[0]?.id || '')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load coach management')
@@ -73,10 +102,9 @@ export default function AdminCoaches() {
   }, [load])
 
   useEffect(() => {
-    if (schedulingFormId !== '' && !classesForProgram.some((c) => c.id === schedulingFormId)) {
-      setSchedulingFormId('')
-    }
-  }, [classesForProgram, schedulingFormId])
+    void loadClassesForProgram(programId)
+    setSchedulingFormId('')
+  }, [programId, loadClassesForProgram])
 
   const addAssignment = async () => {
     if (!selectedCoachId || (!programId && !schedulingFormId)) return
@@ -141,37 +169,36 @@ export default function AdminCoaches() {
           </select>
           <select
             value={programId}
-            onChange={(e) => {
-              const next = Number(e.target.value) || ''
-              setProgramId(next)
-              setSchedulingFormId('')
-            }}
+            onChange={(e) => setProgramId(Number(e.target.value) || '')}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
-            <option value="">Program (optional)</option>
+            <option value="">Select program…</option>
             {programs.map((program) => <option key={program.id} value={program.id}>{program.display_name}</option>)}
           </select>
           <select
             value={schedulingFormId}
-            onChange={(e) => {
-              const next = Number(e.target.value) || ''
-              setSchedulingFormId(next)
-              if (next) {
-                const match = schedulingClasses.find((c) => c.id === next)
-                if (match?.program_id) setProgramId(match.program_id)
-              }
-            }}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            onChange={(e) => setSchedulingFormId(Number(e.target.value) || '')}
+            disabled={!programId || classesLoading}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-50 disabled:text-gray-400"
           >
-            <option value="">Class (scheduling)</option>
-            {classesForProgram.map((cls) => <option key={cls.id} value={cls.id}>{cls.label}</option>)}
+            <option value="">
+              {!programId ? 'Select program first…' : classesLoading ? 'Loading classes…' : 'All classes in program'}
+            </option>
+            {schedulingClasses.map((cls) => <option key={cls.id} value={cls.id}>{cls.label}</option>)}
           </select>
-          <button type="button" onClick={() => void addAssignment()} disabled={saving} className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white rounded-lg px-4 py-2 font-semibold disabled:opacity-60">
+          <button
+            type="button"
+            onClick={() => void addAssignment()}
+            disabled={saving || !selectedCoachId || !programId}
+            className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white rounded-lg px-4 py-2 font-semibold disabled:opacity-60"
+          >
             <Plus className="w-4 h-4" /> Assign
           </button>
         </div>
         <p className="text-xs text-gray-500">
-          Pick a program for all classes in that program, or choose a specific class. You can select a class without a program — its program is inferred automatically.
+          {programId && !classesLoading && schedulingClasses.length === 0
+            ? `No scheduling classes found for “${selectedProgram?.display_name ?? 'this program'}”. Link a class in Scheduling admin first.`
+            : 'Select a program, then optionally pick a specific scheduling class. Leave class as “All classes in program” to cover every enrollment in that program.'}
         </p>
       </section>
 

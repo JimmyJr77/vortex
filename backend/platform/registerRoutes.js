@@ -1,6 +1,14 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-import { getCoachClassAssignment, queryCoachRosterMembers, queryCoachMemberPickerList, ensureCoachClassAssignmentSchema } from './coachRoster.js'
+import {
+  getCoachClassAssignment,
+  queryCoachRosterMembers,
+  queryCoachMemberPickerList,
+  ensureCoachClassAssignmentSchema,
+  queryCoachAssignmentProgramOptions,
+  queryCoachAssignmentClassesForProgram,
+  resolveSchedulingFormAssignmentProgramId,
+} from './coachRoster.js'
 import { queryAssignDrilldown } from './assignmentTargets.js'
 
 function tokenFrom(req) {
@@ -715,42 +723,30 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/admin/coaches/options', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
     const facilityId = req.platformAuth.user.facility_id
-    const [users, programs, schedulingClasses] = await Promise.all([
-      pool.query(
-        `
-          SELECT DISTINCT au.id, au.full_name, au.email
-          FROM app_user au
-          LEFT JOIN app_user_role aur ON aur.user_id = au.id
-          WHERE au.facility_id = $1
-            AND au.is_active = TRUE
-            AND (au.role::text = 'COACH' OR aur.role::text = 'COACH')
-          ORDER BY au.full_name, au.email
-        `,
-        [facilityId],
-      ),
-      pool.query(
-        `SELECT id, display_name FROM program WHERE facility_id = $1 AND COALESCE(archived, false) = FALSE ORDER BY display_name`,
-        [facilityId],
-      ),
-      pool.query(
-        `
-          SELECT sf.id, sf.program_id, sf.title AS label
-          FROM scheduling_form sf
-          JOIN program p ON p.id = sf.program_id
-          WHERE p.facility_id = $1
-            AND sf.deleted_at IS NULL
-            AND COALESCE(sf.is_active, TRUE) = TRUE
-          ORDER BY p.display_name, sf.title
-        `,
-        [facilityId],
-      ),
-    ])
+    const filterProgramId = req.query.programId != null ? Number(req.query.programId) : null
+    const usersRes = await pool.query(
+      `
+        SELECT DISTINCT au.id, au.full_name, au.email
+        FROM app_user au
+        LEFT JOIN app_user_role aur ON aur.user_id = au.id
+        WHERE au.facility_id = $1
+          AND au.is_active = TRUE
+          AND (au.role::text = 'COACH' OR aur.role::text = 'COACH')
+        ORDER BY au.full_name, au.email
+      `,
+      [facilityId],
+    )
+    const { programs, schedulingClasses } = await queryCoachAssignmentProgramOptions(pool, facilityId)
+    const classes =
+      Number.isFinite(filterProgramId)
+        ? await queryCoachAssignmentClassesForProgram(pool, facilityId, filterProgramId)
+        : schedulingClasses
     res.json({
       success: true,
       data: {
-        users: users.rows,
-        programs: programs.rows,
-        schedulingClasses: schedulingClasses.rows,
+        users: usersRes.rows,
+        programs,
+        schedulingClasses: classes,
       },
     })
   })
@@ -783,19 +779,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       return res.status(400).json({ success: false, message: 'Coach and a program or class are required.' })
     }
     if (Number.isFinite(schedulingFormId)) {
-      const formCheck = await pool.query(
-        `
-          SELECT sf.id, sf.program_id
-          FROM scheduling_form sf
-          JOIN program p ON p.id = sf.program_id
-          WHERE sf.id = $1 AND p.facility_id = $2 AND sf.deleted_at IS NULL
-        `,
-        [schedulingFormId, facilityId],
-      )
-      if (formCheck.rows.length === 0) {
+      const formProgramId = await resolveSchedulingFormAssignmentProgramId(pool, schedulingFormId, facilityId)
+      if (formProgramId == null) {
         return res.status(400).json({ success: false, message: 'Selected class not found.' })
       }
-      const formProgramId = Number(formCheck.rows[0].program_id)
       if (Number.isFinite(programId) && programId !== formProgramId) {
         return res.status(400).json({ success: false, message: 'Selected class does not belong to the chosen program.' })
       }
