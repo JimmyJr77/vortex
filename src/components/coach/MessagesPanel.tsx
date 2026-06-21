@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Loader2, MessageSquare, Plus } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
-import { useRosterMembers } from './useRosterMembers'
+
+interface MemberOption {
+  id: number
+  name: string
+}
+
+type MemberPickerScope = 'my_classes' | 'all'
 
 interface ThreadRow {
   id: number
@@ -26,7 +32,9 @@ interface MessageRow {
 }
 
 export default function MessagesPanel() {
-  const { members, loading: membersLoading } = useRosterMembers()
+  const [memberScope, setMemberScope] = useState<MemberPickerScope>('my_classes')
+  const [members, setMembers] = useState<MemberOption[]>([])
+  const [membersLoading, setMembersLoading] = useState(true)
   const [threads, setThreads] = useState<ThreadRow[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [messages, setMessages] = useState<MessageRow[]>([])
@@ -41,6 +49,27 @@ export default function MessagesPanel() {
   const [newMemberId, setNewMemberId] = useState<number | ''>('')
   const [newSubject, setNewSubject] = useState('')
   const [newBody, setNewBody] = useState('')
+
+  const loadMemberOptions = useCallback(async (scope: MemberPickerScope) => {
+    setMembersLoading(true)
+    try {
+      setMembers(await coachFetch<MemberOption[]>(`/api/coach/members?scope=${scope}`))
+    } catch {
+      setMembers([])
+    } finally {
+      setMembersLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadMemberOptions(memberScope)
+  }, [memberScope, loadMemberOptions])
+
+  useEffect(() => {
+    if (newMemberId !== '' && !members.some((m) => m.id === newMemberId)) {
+      setNewMemberId('')
+    }
+  }, [members, newMemberId])
 
   const loadThreads = useCallback(async () => {
     setLoading(true)
@@ -149,6 +178,27 @@ export default function MessagesPanel() {
       {newOpen && (
         <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
           <h3 className="font-semibold text-gray-800">New thread</h3>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setMemberScope('my_classes')}
+              className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${memberScope === 'my_classes' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
+            >
+              My classes
+            </button>
+            <button
+              type="button"
+              onClick={() => setMemberScope('all')}
+              className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${memberScope === 'all' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
+            >
+              Any athlete
+            </button>
+          </div>
+          <p className="text-xs text-gray-500">
+            {memberScope === 'my_classes'
+              ? 'Athletes enrolled in programs you teach.'
+              : 'All active athletes at your facility.'}
+          </p>
           <select
             value={newMemberId}
             onChange={(e) => setNewMemberId(e.target.value ? Number(e.target.value) : '')}

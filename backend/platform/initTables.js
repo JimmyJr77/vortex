@@ -28,6 +28,7 @@ export async function initPlatformTables(pool) {
     '026_coaching_thread_scope.sql',
     '027_coaching_form_review.sql',
     '028_coaching_embeddings.sql',
+    '029_coaching_video_submission_assign.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
+import { getCoachClassAssignment, queryCoachRosterMembers } from './coachRoster.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -1270,59 +1271,21 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/coach/classes/:id/roster', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {
     await ensureCoachOperationalTables(pool)
-    const assignment = await pool.query(
-      `SELECT * FROM coach_class_assignment WHERE id = $1 AND coach_user_id = $2`,
-      [Number(req.params.id), req.platformAuth.user.id],
-    )
-    if (assignment.rows.length === 0) {
+    const assignmentId = Number(req.params.id)
+    const coachUserId = req.platformAuth.user.id
+    const facilityId = req.platformAuth.user.facility_id
+    const a = await getCoachClassAssignment(pool, assignmentId, coachUserId)
+    if (!a) {
       return res.status(404).json({ success: false, message: 'Assigned class not found.' })
     }
-    const a = assignment.rows[0]
-    const roster = await pool.query(
-      `
-        SELECT
-          m.id,
-          m.first_name,
-          m.last_name,
-          m.email,
-          m.phone,
-          m.has_completed_waivers,
-          required_waivers.required_count,
-          accepted_waivers.accepted_count,
-          crn.attendance_status,
-          crn.note,
-          mp.program_id,
-          mp.iteration_id
-        FROM member_program mp
-        JOIN member m ON m.id = mp.member_id
-        LEFT JOIN LATERAL (
-          SELECT COUNT(*)::int as required_count
-          FROM waiver_template wt
-          WHERE wt.facility_id = m.facility_id
-            AND wt.active_from <= now()
-            AND (wt.active_to IS NULL OR wt.active_to > now())
-        ) required_waivers ON TRUE
-        LEFT JOIN LATERAL (
-          SELECT COUNT(DISTINCT mwa.waiver_template_id)::int as accepted_count
-          FROM member_waiver_acceptance mwa
-          JOIN waiver_template wt ON wt.id = mwa.waiver_template_id
-          WHERE mwa.member_id = m.id
-            AND wt.active_from <= now()
-            AND (wt.active_to IS NULL OR wt.active_to > now())
-        ) accepted_waivers ON TRUE
-        LEFT JOIN coach_roster_note crn
-          ON crn.assignment_id = $3
-         AND crn.member_id = m.id
-         AND crn.coach_user_id = $4
-         AND crn.note_date = CURRENT_DATE
-        WHERE ($1::bigint IS NULL OR mp.program_id = $1)
-          AND ($2::bigint IS NULL OR mp.iteration_id = $2)
-          AND m.is_active = TRUE
-        ORDER BY m.last_name, m.first_name
-      `,
-      [a.program_id, a.class_iteration_id, Number(req.params.id), req.platformAuth.user.id],
-    )
-    res.json({ success: true, data: roster.rows })
+    const roster = await queryCoachRosterMembers(pool, {
+      programId: a.program_id,
+      classIterationId: a.class_iteration_id,
+      facilityId,
+      assignmentId,
+      coachUserId,
+    })
+    res.json({ success: true, data: roster })
   })
 
   app.put('/api/coach/classes/:id/roster/:memberId/note', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {

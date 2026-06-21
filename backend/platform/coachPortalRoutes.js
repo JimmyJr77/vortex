@@ -16,6 +16,17 @@ import { sendEmail, isEmailConfigured } from '../email/sendEmail.js'
 import { llmProgressNarrative } from './aiService.js'
 import { buildProgressReportPdf } from './pdfReport.js'
 import { registerCoachingPhaseGHRoutes } from './coachPhaseGHRoutes.js'
+import {
+  queryAssignmentTargetMemberIds,
+  queryAssignTargetOptions,
+  planAssignmentMemberMatchSql,
+} from './assignmentTargets.js'
+import {
+  queryCoachRosterMemberIds,
+  getMembersForCoachClassTarget,
+  queryCoachUserIdsForMember,
+  queryCoachMemberPickerList,
+} from './coachRoster.js'
 
 function ok(res, data) {
   res.json({ success: true, data })
@@ -1457,9 +1468,22 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   app.get('/api/coach/assignments', ...can('plans.assign'), async (req, res) => {
     try {
       const result = await pool.query(
-        `SELECT pa.*, COALESCE(au.full_name, '') as coach_name FROM coaching.plan_assignment pa
-         LEFT JOIN public.app_user au ON au.id = pa.coach_user_id
-         WHERE pa.facility_id = $1 ORDER BY pa.created_at DESC LIMIT 500`,
+        `
+          SELECT pa.*, COALESCE(au.full_name, '') as coach_name,
+            CASE pa.assignable_type
+              WHEN 'workout' THEN (SELECT title FROM coaching.workout w WHERE w.id = pa.assignable_id)
+              WHEN 'training_program' THEN (SELECT title FROM coaching.training_program tp WHERE tp.id = pa.assignable_id)
+              WHEN 'challenge' THEN (SELECT title FROM coaching.challenge c WHERE c.id = pa.assignable_id)
+              WHEN 'video_submission' THEN COALESCE(
+                pa.title,
+                (SELECT name FROM coaching.exercise e WHERE e.id = pa.assignable_id),
+                'Video submission'
+              )
+            END as assignable_title
+          FROM coaching.plan_assignment pa
+          LEFT JOIN public.app_user au ON au.id = pa.coach_user_id
+          WHERE pa.facility_id = $1 ORDER BY pa.created_at DESC LIMIT 500
+        `,
         [req.platformAuth.user.facility_id],
       )
       ok(res, result.rows)
@@ -1469,30 +1493,17 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   })
 
   async function assignmentRecipientMembers(targetType, targetId, facilityId) {
-    if (targetType === 'member') {
-      const r = await pool.query(
-        `SELECT id, email, first_name FROM public.member WHERE id = $1 AND facility_id = $2`,
-        [targetId, facilityId],
-      )
-      return r.rows
-    }
-    if (targetType === 'family') {
-      const r = await pool.query(
-        `SELECT id, email, first_name FROM public.member WHERE family_id = $1 AND facility_id = $2`,
-        [targetId, facilityId],
-      )
-      return r.rows
-    }
-    if (targetType === 'class') {
-      const r = await pool.query(
-        `SELECT DISTINCT m.id, m.email, m.first_name FROM public.member m
-         JOIN public.member_program mp ON mp.member_id = m.id
-         WHERE (mp.program_id = $1 OR mp.iteration_id = $1) AND m.facility_id = $2`,
-        [targetId, facilityId],
-      )
-      return r.rows
-    }
-    return []
+    const ids = await queryAssignmentTargetMemberIds(pool, {
+      targetType,
+      targetId,
+      facilityId,
+    })
+    if (ids.length === 0) return []
+    const r = await pool.query(
+      `SELECT id, email, first_name FROM member WHERE id = ANY($1::bigint[]) AND facility_id = $2`,
+      [ids, facilityId],
+    )
+    return r.rows
   }
 
   async function createInAppNotification({ facilityId, recipientMemberId, recipientUserId, kind, title, body, payload }) {
@@ -1515,21 +1526,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   /** Coaches assigned to classes the member is enrolled in. */
   async function resolveAssignedCoachUserIdsForMember(memberId, facilityId) {
-    const r = await pool.query(
-      `
-        SELECT DISTINCT cca.coach_user_id
-        FROM public.member_program mp
-        JOIN public.coach_class_assignment cca ON (
-          cca.program_id = mp.program_id
-          OR (mp.iteration_id IS NOT NULL AND cca.class_iteration_id = mp.iteration_id)
-        )
-        JOIN public.app_user au ON au.id = cca.coach_user_id
-          AND au.facility_id = $2 AND au.is_active = TRUE
-        WHERE mp.member_id = $1
-      `,
-      [memberId, facilityId],
-    )
-    return r.rows.map((row) => Number(row.coach_user_id)).filter((id) => Number.isFinite(id))
+    return queryCoachUserIdsForMember(pool, memberId, facilityId)
   }
 
   async function notifyWellnessCheckinToCoaches(memberId, facilityId, checkin) {
@@ -1573,7 +1570,15 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     return Number(thread.coach_user_id) === coachUserId
   }
 
-  async function assignableTitle(type, id) {
+  async function assignableTitle(type, id, titleFallback) {
+    if (type === 'video_submission') {
+      if (titleFallback) return titleFallback
+      if (id != null) {
+        const r = await pool.query(`SELECT name FROM coaching.exercise WHERE id = $1`, [id])
+        return r.rows[0]?.name || 'Video submission'
+      }
+      return 'Video submission'
+    }
     const table = type === 'workout' ? 'coaching.workout' : type === 'training_program' ? 'coaching.training_program' : 'coaching.challenge'
     const r = await pool.query(`SELECT title FROM ${table} WHERE id = $1`, [id])
     return r.rows[0]?.title || 'a new plan'
@@ -1584,12 +1589,15 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     try {
       const [recipients, title] = await Promise.all([
         assignmentRecipientMembers(assignment.target_type, assignment.target_id, assignment.facility_id),
-        assignableTitle(assignment.assignable_type, assignment.assignable_id),
+        assignableTitle(assignment.assignable_type, assignment.assignable_id, assignment.title),
       ])
-      const label = assignment.assignable_type.replace('_', ' ')
+      const isVideo = assignment.assignable_type === 'video_submission'
+      const label = isVideo ? 'video submission request' : assignment.assignable_type.replace(/_/g, ' ')
       const due = assignment.due_date ? ` (due ${new Date(assignment.due_date).toLocaleDateString()})` : ''
-      const notificationTitle = `New ${label}: ${title}`
-      const notificationBody = `Your coach assigned you a ${label}: "${title}"${due}.`
+      const notificationTitle = isVideo ? `Video submission requested: ${title}` : `New ${label}: ${title}`
+      const notificationBody = isVideo
+        ? `Your coach requested a video submission for "${title}"${due}. Open Progress → Video Submission Portal to upload.`
+        : `Your coach assigned you a ${label}: "${title}"${due}.`
 
       await Promise.all(
         recipients.map((rcpt) =>
@@ -1727,15 +1735,27 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const facilityId = req.platformAuth.user.facility_id
       const targetType = req.body?.target_type
       const assignableType = req.body?.assignable_type
-      if (!['member', 'class', 'family'].includes(targetType)) return bad(res, 'Invalid target_type.')
-      if (!['workout', 'training_program', 'challenge'].includes(assignableType)) return bad(res, 'Invalid assignable_type.')
-      if (num(req.body?.target_id) == null || num(req.body?.assignable_id) == null) return bad(res, 'target_id and assignable_id are required.')
+      const validTargets = ['member', 'class', 'family', 'program', 'offering', 'category', 'scheduling_class', 'primary_sport']
+      const validAssignable = ['workout', 'training_program', 'challenge', 'video_submission']
+      if (!validTargets.includes(targetType)) return bad(res, 'Invalid target_type.')
+      if (!validAssignable.includes(assignableType)) return bad(res, 'Invalid assignable_type.')
+      if (num(req.body?.target_id) == null) return bad(res, 'target_id is required.')
+
+      const assignableId = num(req.body?.assignable_id)
+      const title = req.body?.title ? String(req.body.title).trim() : null
+
+      if (assignableType === 'video_submission') {
+        if (assignableId == null && !title) return bad(res, 'Pick an exercise or provide a custom name for the video request.')
+      } else if (assignableId == null) {
+        return bad(res, 'assignable_id is required.')
+      }
+
       const created = await pool.query(
         `INSERT INTO coaching.plan_assignment (facility_id, coach_user_id, target_type, target_id, assignable_type, assignable_id, title, start_date, due_date, status, visibility, notes)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'assigned', $10, $11) RETURNING *`,
         [
-          facilityId, Number(req.platformAuth.user.id), targetType, num(req.body.target_id), assignableType, num(req.body.assignable_id),
-          req.body?.title || null, req.body?.start_date || null, req.body?.due_date || null,
+          facilityId, Number(req.platformAuth.user.id), targetType, num(req.body.target_id), assignableType, assignableId,
+          title, req.body?.start_date || null, req.body?.due_date || null,
           req.body?.visibility === 'coach_only' ? 'coach_only' : 'athlete', req.body?.notes || null,
         ],
       )
@@ -1743,6 +1763,72 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       void notifyAssignment(created.rows[0])
     } catch (error) {
       bad(res, error.message)
+    }
+  })
+
+  app.get('/api/coach/assign/target-options', ...can('plans.assign'), async (req, res) => {
+    try {
+      const type = String(req.query.type || '')
+      const valid = ['primary_sport', 'program', 'offering', 'category', 'scheduling_class']
+      if (!valid.includes(type)) return bad(res, 'Invalid type.')
+      const options = await queryAssignTargetOptions(pool, {
+        type,
+        facilityId: req.platformAuth.user.facility_id,
+      })
+      ok(res, options)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/note-templates', ...can('plans.assign'), async (req, res) => {
+    try {
+      const coachUserId = Number(req.platformAuth.user.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const kind = String(req.query.kind || 'video_submission_request')
+      const result = await pool.query(
+        `SELECT id, label, body, kind, created_at FROM coaching.coach_note_template
+         WHERE coach_user_id = $1 AND facility_id = $2 AND kind = $3
+         ORDER BY label`,
+        [coachUserId, facilityId, kind],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/note-templates', ...can('plans.assign'), async (req, res) => {
+    try {
+      const coachUserId = Number(req.platformAuth.user.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const label = String(req.body?.label || '').trim()
+      const body = String(req.body?.body || '').trim()
+      const kind = String(req.body?.kind || 'video_submission_request')
+      if (!label || !body) return bad(res, 'label and body are required.')
+      const inserted = await pool.query(
+        `INSERT INTO coaching.coach_note_template (facility_id, coach_user_id, label, body, kind)
+         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [facilityId, coachUserId, label, body, kind],
+      )
+      ok(res, inserted.rows[0])
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.delete('/api/coach/note-templates/:id', ...can('plans.assign'), async (req, res) => {
+    try {
+      const coachUserId = Number(req.platformAuth.user.id)
+      const id = num(req.params.id)
+      const deleted = await pool.query(
+        `DELETE FROM coaching.coach_note_template WHERE id = $1 AND coach_user_id = $2 RETURNING id`,
+        [id, coachUserId],
+      )
+      if (deleted.rows.length === 0) return bad(res, 'Note template not found.', 404)
+      ok(res, { deleted: true })
+    } catch (error) {
+      bad(res, error.message, 500)
     }
   })
 
@@ -1820,20 +1906,23 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   // LIVE SESSIONS & ATTENDANCE (gym floor)
   // ==========================================================
 
-  // Resolve the members of a class from its program / iteration.
   async function loadSessionRoster(programId, iterationId, facilityId) {
+    const ids = await queryCoachRosterMemberIds(pool, {
+      programId,
+      classIterationId: iterationId,
+      facilityId,
+    })
+    if (ids.length === 0) return []
     const result = await pool.query(
       `
-        SELECT DISTINCT m.id, m.first_name, m.last_name
-        FROM public.member_program mp
-        JOIN public.member m ON m.id = mp.member_id
-        WHERE ($1::bigint IS NULL OR mp.program_id = $1)
-          AND ($2::bigint IS NULL OR mp.iteration_id = $2)
-          AND m.facility_id = $3
+        SELECT m.id, m.first_name, m.last_name
+        FROM public.member m
+        WHERE m.id = ANY($1::bigint[])
+          AND m.facility_id = $2
           AND m.is_active = TRUE
         ORDER BY m.last_name, m.first_name
       `,
-      [programId, iterationId, facilityId],
+      [ids, facilityId],
     )
     return result.rows
   }
@@ -2541,6 +2630,22 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   // MESSAGING (Phase G)
   // ==========================================================
 
+  app.get('/api/coach/members', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const scope = String(req.query.scope || 'my_classes') === 'all' ? 'all' : 'my_classes'
+      const members = await queryCoachMemberPickerList(pool, {
+        coachUserId,
+        facilityId,
+        scope,
+      })
+      ok(res, members)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
   async function appendThreadMessage(threadId, { senderUserId, senderMemberId, body }) {
     const inserted = await pool.query(
       `INSERT INTO coaching.message (thread_id, sender_user_id, sender_member_id, body)
@@ -2998,6 +3103,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
       const familyId = ctx.user.family_id
+      const matchSql = planAssignmentMemberMatchSql(1, 2)
       const result = await pool.query(
         `
           SELECT pa.*,
@@ -3005,17 +3111,16 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
               WHEN 'workout' THEN (SELECT title FROM coaching.workout w WHERE w.id = pa.assignable_id)
               WHEN 'training_program' THEN (SELECT title FROM coaching.training_program tp WHERE tp.id = pa.assignable_id)
               WHEN 'challenge' THEN (SELECT title FROM coaching.challenge c WHERE c.id = pa.assignable_id)
+              WHEN 'video_submission' THEN COALESCE(
+                pa.title,
+                (SELECT name FROM coaching.exercise e WHERE e.id = pa.assignable_id),
+                'Video submission'
+              )
             END as assignable_title
           FROM coaching.plan_assignment pa
           WHERE pa.visibility = 'athlete'
             AND pa.status <> 'cancelled'
-            AND (
-              (pa.target_type = 'member' AND pa.target_id = $1)
-              OR (pa.target_type = 'family' AND $2::bigint IS NOT NULL AND pa.target_id = $2)
-              OR (pa.target_type = 'class' AND EXISTS (
-                SELECT 1 FROM public.member_program mp WHERE mp.member_id = $1 AND (mp.program_id = pa.target_id OR mp.iteration_id = pa.target_id)
-              ))
-            )
+            AND (${matchSql})
           ORDER BY pa.start_date DESC NULLS LAST, pa.created_at DESC
         `,
         [memberId, familyId],
@@ -3155,22 +3260,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
       const facilityId = ctx.user.facility_id
-      const result = await pool.query(
-        `
-          SELECT DISTINCT au.id, au.full_name AS name
-          FROM public.member_program mp
-          JOIN public.coach_class_assignment cca ON (
-            cca.program_id = mp.program_id
-            OR (mp.iteration_id IS NOT NULL AND cca.class_iteration_id = mp.iteration_id)
+      const coachIds = await queryCoachUserIdsForMember(pool, memberId, facilityId)
+      const coaches = coachIds.length === 0
+        ? { rows: [] }
+        : await pool.query(
+            `SELECT id, full_name AS name FROM app_user WHERE id = ANY($1::bigint[]) AND facility_id = $2 ORDER BY full_name`,
+            [coachIds, facilityId],
           )
-          JOIN public.app_user au ON au.id = cca.coach_user_id
-            AND au.facility_id = $2 AND au.is_active = TRUE
-          WHERE mp.member_id = $1
-          ORDER BY au.full_name
-        `,
-        [memberId, facilityId],
-      )
-      ok(res, result.rows)
+      ok(res, coaches.rows)
     } catch (error) {
       bad(res, error.message, 500)
     }

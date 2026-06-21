@@ -356,29 +356,59 @@ interface WellnessRow {
 
 interface FormReviewRow {
   id: number
+  assignment_id?: number | null
   exercise_name?: string | null
   subject?: string | null
+  display_label?: string | null
   video_url: string
   status: string
   coach_note?: string | null
   reviewed_at?: string | null
+  due_date?: string | null
   created_at: string
+  athlete_comment?: string | null
+  self_critique?: string | null
+  athlete_questions?: string | null
+}
+
+interface VideoSubmissionAssignment {
+  id: number
+  label: string
+  coach_notes?: string | null
+  request_date: string
+  due_date?: string | null
+  assignment_status: string
+  submission_id?: number | null
+  submission_status?: string | null
+  exercise_name?: string | null
 }
 
 function MemberFormReviewCard() {
+  const [assignedRequests, setAssignedRequests] = useState<VideoSubmissionAssignment[]>([])
   const [exercises, setExercises] = useState<Array<{ id: number; name: string }>>([])
   const [submissions, setSubmissions] = useState<FormReviewRow[]>([])
-  const [mode, setMode] = useState<'exercise' | 'free'>('exercise')
+  const [portalMode, setPortalMode] = useState<'assigned' | 'request'>('assigned')
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<number | ''>('')
   const [exerciseId, setExerciseId] = useState<number | ''>('')
   const [subject, setSubject] = useState('')
+  const [athleteComment, setAthleteComment] = useState('')
+  const [selfCritique, setSelfCritique] = useState('')
+  const [athleteQuestions, setAthleteQuestions] = useState('')
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     try {
-      setExercises(await coachFetch<Array<{ id: number; name: string }>>('/api/member/training/form-review/exercise-options'))
-      setSubmissions(await coachFetch<FormReviewRow[]>('/api/member/training/form-reviews'))
+      const [assigned, subs, exOpts] = await Promise.all([
+        coachFetch<VideoSubmissionAssignment[]>('/api/member/training/video-submission-assignments'),
+        coachFetch<FormReviewRow[]>('/api/member/training/form-reviews'),
+        coachFetch<Array<{ id: number; name: string }>>('/api/member/training/form-review/exercise-options'),
+      ])
+      setAssignedRequests(assigned)
+      setSubmissions(subs)
+      setExercises(exOpts)
     } catch {
       /* optional */
     }
@@ -388,13 +418,36 @@ function MemberFormReviewCard() {
     void load()
   }, [load])
 
-  const uploadVideo = async (file: File) => {
+  const selectedAssignment = assignedRequests.find((a) => a.id === selectedAssignmentId)
+
+  const uploadAndSubmit = async () => {
     setError(null)
     setSuccess(null)
+    if (!pendingFile) {
+      setError('Choose a video to upload.')
+      return
+    }
+    const file = pendingFile
     if (!file.type.startsWith('video/')) {
       setError('Please select a video file.')
       return
     }
+    if (portalMode === 'assigned') {
+      if (selectedAssignmentId === '') {
+        setError('Select an assigned submission request.')
+        return
+      }
+      if (selectedAssignment?.submission_id) {
+        setError('You already have a pending submission for this request.')
+        return
+      }
+    } else {
+      if (exerciseId === '' && !subject.trim()) {
+        setError('Select an exercise or describe what you want reviewed.')
+        return
+      }
+    }
+
     const duration = await new Promise<number>((resolve, reject) => {
       const v = document.createElement('video')
       v.preload = 'metadata'
@@ -409,6 +462,7 @@ function MemberFormReviewCard() {
       setError('Video must be 60 seconds or less.')
       return
     }
+
     setUploading(true)
     try {
       const sig = await coachFetch<{
@@ -439,26 +493,35 @@ function MemberFormReviewCard() {
         setError(data.error?.message || 'Upload failed.')
         return
       }
-      if (mode === 'exercise' && exerciseId === '') {
-        setError('Select an exercise or switch to general upload.')
-        return
+
+      const body: Record<string, unknown> = {
+        video_url: data.secure_url,
+        video_public_id: data.public_id,
+        duration_seconds: duration != null ? Math.round(duration) : null,
+        athlete_comment: athleteComment.trim() || null,
+        self_critique: selfCritique.trim() || null,
+        athlete_questions: athleteQuestions.trim() || null,
       }
-      if (mode === 'free' && !subject.trim()) {
-        setError('Add a short subject for your question.')
-        return
+
+      if (portalMode === 'assigned') {
+        body.assignment_id = selectedAssignmentId
+      } else {
+        body.exercise_id = exerciseId !== '' ? exerciseId : null
+        body.subject = subject.trim() || null
       }
+
       await coachFetch('/api/member/training/form-reviews', {
         method: 'POST',
-        body: JSON.stringify({
-          exercise_id: mode === 'exercise' && exerciseId !== '' ? exerciseId : null,
-          subject: mode === 'free' ? subject.trim() : null,
-          video_url: data.secure_url,
-          video_public_id: data.public_id,
-          duration_seconds: duration != null ? Math.round(duration) : null,
-        }),
+        body: JSON.stringify(body),
       })
       setSuccess('Video submitted! Your coach will review it soon.')
+      setPendingFile(null)
+      setAthleteComment('')
+      setSelfCritique('')
+      setAthleteQuestions('')
       setSubject('')
+      setExerciseId('')
+      setSelectedAssignmentId('')
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
@@ -467,74 +530,156 @@ function MemberFormReviewCard() {
     }
   }
 
+  const formatDate = (d?: string | null) => d ? new Date(d).toLocaleDateString() : '—'
+
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4">
-      <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-        <Video className="w-4 h-4 text-vortex-red" /> Form check video
+      <h3 className="font-semibold text-gray-800 mb-1 flex items-center gap-2">
+        <Video className="w-4 h-4 text-vortex-red" /> Video Submission Portal
       </h3>
-      <p className="text-xs text-gray-500 mb-3">Upload a short clip (max 60s) for your coach to review.</p>
+      <p className="text-xs text-gray-500 mb-3">Upload short clips (max 60s) for coach review.</p>
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-3 py-2 text-sm mb-3">{error}</div>}
       {success && <div className="rounded-lg bg-green-50 text-green-700 px-3 py-2 text-sm mb-3">{success}</div>}
+
       <div className="flex gap-2 mb-3">
         <button
           type="button"
-          onClick={() => setMode('exercise')}
-          className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${mode === 'exercise' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
+          onClick={() => setPortalMode('assigned')}
+          className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${portalMode === 'assigned' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
         >
-          Assigned exercise
+          Assigned Submissions
         </button>
         <button
           type="button"
-          onClick={() => setMode('free')}
-          className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${mode === 'free' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
+          onClick={() => setPortalMode('request')}
+          className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${portalMode === 'request' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
         >
-          General help
+          Request Review
         </button>
       </div>
-      {mode === 'exercise' ? (
-        <select
-          value={exerciseId}
-          onChange={(e) => setExerciseId(e.target.value ? Number(e.target.value) : '')}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3"
-        >
-          <option value="">Select exercise from your assignments…</option>
-          {exercises.map((e) => (
-            <option key={e.id} value={e.id}>{e.name}</option>
-          ))}
-        </select>
+
+      {portalMode === 'assigned' ? (
+        <>
+          <select
+            value={selectedAssignmentId}
+            onChange={(e) => setSelectedAssignmentId(e.target.value ? Number(e.target.value) : '')}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3"
+          >
+            <option value="">Select coach request…</option>
+            {assignedRequests.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.label} · requested {formatDate(a.request_date)} · due {formatDate(a.due_date)}
+                {a.submission_id ? ' · pending' : ''}
+              </option>
+            ))}
+          </select>
+          {selectedAssignment?.coach_notes && (
+            <div className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100">
+              <div className="text-xs font-semibold text-gray-500 mb-1">Coach notes</div>
+              {selectedAssignment.coach_notes}
+            </div>
+          )}
+        </>
       ) : (
-        <input
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          placeholder="What do you need help with? (e.g. handstand shape)"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3"
-        />
+        <div className="space-y-2 mb-3">
+          <select
+            value={exerciseId}
+            onChange={(e) => setExerciseId(e.target.value ? Number(e.target.value) : '')}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">Optional: exercise from assignments…</option>
+            {exercises.map((e) => (
+              <option key={e.id} value={e.id}>{e.name}</option>
+            ))}
+          </select>
+          <input
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            placeholder="What do you want reviewed? (e.g. handstand shape)"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
       )}
-      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer">
-        <input
-          type="file"
-          accept="video/*"
-          className="hidden"
-          disabled={uploading}
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) void uploadVideo(file)
-            e.target.value = ''
-          }}
+
+      <div className="space-y-2 mb-3">
+        <label className="text-xs font-semibold text-gray-500 block">Comment</label>
+        <textarea
+          value={athleteComment}
+          onChange={(e) => setAthleteComment(e.target.value)}
+          rows={2}
+          placeholder="Comment with your video…"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
         />
-        <span className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg text-sm">
+        <label className="text-xs font-semibold text-gray-500 block">Self-critique</label>
+        <textarea
+          value={selfCritique}
+          onChange={(e) => setSelfCritique(e.target.value)}
+          rows={2}
+          placeholder="What do you think went well or needs work?"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        />
+        <label className="text-xs font-semibold text-gray-500 block">Other comments / questions</label>
+        <textarea
+          value={athleteQuestions}
+          onChange={(e) => setAthleteQuestions(e.target.value)}
+          rows={2}
+          placeholder="Anything else for your coach?"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        />
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <label className="cursor-pointer">
+          <input
+            type="file"
+            accept="video/*"
+            className="hidden"
+            disabled={uploading}
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) setPendingFile(file)
+              e.target.value = ''
+            }}
+          />
+          <span className="inline-flex items-center gap-2 bg-gray-100 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold">
+            <Video className="w-4 h-4" />
+            {pendingFile ? pendingFile.name : 'Choose video'}
+          </span>
+        </label>
+        <button
+          type="button"
+          onClick={() => void uploadAndSubmit()}
+          disabled={uploading || !pendingFile}
+          className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
+        >
           {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Video className="w-4 h-4" />}
-          {uploading ? 'Uploading…' : 'Choose video'}
-        </span>
-      </label>
+          {uploading ? 'Submitting…' : 'Submit video'}
+        </button>
+      </div>
+
       {submissions.length > 0 && (
         <div className="mt-4 border-t border-gray-100 pt-3">
-          <div className="text-xs font-semibold text-gray-500 mb-2">Your submissions</div>
-          <ul className="space-y-2">
-            {submissions.slice(0, 5).map((s) => (
-              <li key={s.id} className="text-sm text-gray-700 flex justify-between gap-2">
-                <span>{s.exercise_name || s.subject || 'Upload'} · {s.status}</span>
-                <span className="text-xs text-gray-400">{new Date(s.created_at).toLocaleDateString()}</span>
+          <div className="text-xs font-semibold text-gray-500 mb-2">Submission history</div>
+          <ul className="space-y-3">
+            {submissions.slice(0, 8).map((s) => (
+              <li key={s.id} className="text-sm border border-gray-100 rounded-lg p-3">
+                <div className="flex justify-between gap-2 mb-1">
+                  <span className="font-medium text-gray-800">
+                    {s.display_label || s.exercise_name || s.subject || 'Upload'}
+                    {s.assignment_id ? ' · assigned' : ' · self-initiated'}
+                  </span>
+                  <span className="text-xs text-gray-400 shrink-0">{formatDate(s.created_at)}</span>
+                </div>
+                <div className="text-xs text-gray-500 mb-2">
+                  Status: {s.status}
+                  {s.due_date ? ` · due ${formatDate(s.due_date)}` : ''}
+                </div>
+                {s.status === 'reviewed' && s.coach_note && (
+                  <p className="text-xs text-gray-600 mb-2">Coach: {s.coach_note}</p>
+                )}
+                <a href={s.video_url} target="_blank" rel="noopener noreferrer" className="text-xs text-vortex-red font-semibold">
+                  View your video
+                </a>
               </li>
             ))}
           </ul>

@@ -833,6 +833,9 @@ interface Props {
   initialAuthToken?: string | null
   initialEmail?: string | null
   initialCategoryId?: number | null
+  initialOfferingId?: number | null
+  initialSlotGroupId?: number | null
+  initialTimeSlotId?: number | null
   onSignupComplete?: (detail: SchedulingSignupCompleteDetail) => void
 }
 
@@ -843,6 +846,9 @@ const SchedulingSignupEmbed = ({
   initialAuthToken = null,
   initialEmail = null,
   initialCategoryId,
+  initialOfferingId,
+  initialSlotGroupId,
+  initialTimeSlotId,
   onSignupComplete,
 }: Props) => {
   const [formDetail, setFormDetail] = useState<SchedulingFormDetail | null>(null)
@@ -944,6 +950,13 @@ const SchedulingSignupEmbed = ({
     fetchPublicSchedulingOfferings(formId, categoryId)
       .then((offerings) => {
         setCategoryOfferings(offerings)
+        if (initialOfferingId != null) {
+          const match = offerings.find((offering) => offering.id === initialOfferingId)
+          if (match) {
+            setOfferingId(match.id)
+            return
+          }
+        }
         if (offerings.length === 1) {
           setOfferingId(offerings[0].id)
         } else {
@@ -955,7 +968,7 @@ const SchedulingSignupEmbed = ({
         setOfferingId(null)
       })
       .finally(() => setOfferingsLoading(false))
-  }, [formId, categoryId])
+  }, [formId, categoryId, initialOfferingId])
 
   useEffect(() => {
     const email =
@@ -1187,6 +1200,30 @@ const SchedulingSignupEmbed = ({
     if (!formDetail || categoryId === undefined) return []
     return slotOptionsForCategory(formDetail, categoryId, slotFilter)
   }, [formDetail, categoryId, slotFilter])
+
+  useEffect(() => {
+    if (initialSlotGroupId == null || initialTimeSlotId == null) return
+    if (!formDetail || categoryId === undefined || offeringsLoading) return
+    if (requiresOfferingSelection && offeringId === undefined) return
+
+    const match = slotOptions.find(
+      (option) =>
+        option.slotGroupId === initialSlotGroupId && option.timeSlotId === initialTimeSlotId,
+    )
+    if (!match) return
+
+    setSlotGroupId(match.slotGroupId)
+    setTimeSlotId(match.timeSlotId)
+  }, [
+    initialSlotGroupId,
+    initialTimeSlotId,
+    formDetail,
+    categoryId,
+    offeringsLoading,
+    requiresOfferingSelection,
+    offeringId,
+    slotOptions,
+  ])
 
   useEffect(() => {
     if (categoryId === undefined || !formDetail || offeringsLoading) return

@@ -113,7 +113,7 @@ export default function AdminCoaches() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Coach Management</h2>
-        <p className="text-sm text-gray-600">Assign coach accounts to programs and class iterations.</p>
+        <p className="text-sm text-gray-600">Assign coach accounts to programs. Rosters include all members enrolled via scheduling (offerings/class times) for that program.</p>
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}

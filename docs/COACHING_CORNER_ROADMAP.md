@@ -156,7 +156,8 @@ goals and lightweight achievements.*
 - Achievements on member progress tab; print-friendly parent report from narrative + PRs.
 
 **Remaining ⬜**
-- ~~Athlete video submission + coach rubric form-review~~ ✅ (`027`, `FormReviewPanel`, member Progress upload)
+- ~~Athlete video submission + coach rubric form-review~~ ✅ (`027`, `FormReviewPanel`, member Video Submission Portal)
+- ~~Coach-assigned video submission requests~~ ✅ (`029`, Assign → Form Check, assignment-linked submissions)
 - ~~True PDF export~~ ✅ (server `pdfkit` PDF)
 
 **Unlocks**: engagement/retention loop; messaging pairs with E session flow and F PR detection.

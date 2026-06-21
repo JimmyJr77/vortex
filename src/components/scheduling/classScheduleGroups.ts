@@ -1,33 +1,39 @@
 import {
-  SCHEDULING_DAYS,
+  formatSchedulingOccurrenceLabel,
   type SchedulingCalendarEvent,
   type SchedulingCalendarTbd,
+  type SchedulingTimeSlot,
 } from '../../utils/schedulingApi'
 import { formatTime12, parseDateString } from './calendarDateUtils'
 
-export interface ClassScheduleTimeslot {
+export interface ClassScheduleOffering {
   key: string
-  dayLabel: string
-  daySort: number
-  timeLabel: string
-}
-
-export interface ClassScheduleCategoryGroup {
-  key: string
+  formId: number
   categoryId: number | null
   categoryName: string | null
+  offeringId: number | null
   offeringLabel: string | null
-  formId: number
+  slotGroupId: number
+  timeSlotId: number
+  occurrenceLabel: string
+  daySort: number
+  maxParticipants: number
+  spotsRemaining: number
+  waitlistCount: number
+  isFull: boolean
   enrollVisible: boolean
   inactive: boolean
-  timeslots: ClassScheduleTimeslot[]
 }
 
 export interface ClassScheduleClassGroup {
   key: string
   className: string
   classDescription: string | null
-  categories: ClassScheduleCategoryGroup[]
+  ageMin: number | null
+  ageMax: number | null
+  skillLevel: string | null
+  skillRequirements: string | null
+  offerings: ClassScheduleOffering[]
 }
 
 export interface ClassScheduleProgramGroup {
@@ -43,38 +49,53 @@ function daySortIndex(dayOfWeek: number): number {
   return idx >= 0 ? idx : dayOfWeek
 }
 
-function pluralWeekday(label: string): string {
-  if (!label) return label
-  if (label.endsWith('s')) return label
-  return `${label}s`
+function weekdayFromDate(date: string): number {
+  return parseDateString(date).getDay()
 }
 
-function weekdayFromDate(date: string): { dayOfWeek: number; dayLabel: string } {
-  const dayOfWeek = parseDateString(date).getDay()
-  const single = SCHEDULING_DAYS.find((d) => d.value === dayOfWeek)?.label ?? 'Day'
-  return { dayOfWeek, dayLabel: pluralWeekday(single) }
-}
-
-function weekdayFromTbd(tbd: SchedulingCalendarTbd): { dayOfWeek: number; dayLabel: string } | null {
-  if (tbd.dayName) {
-    return {
-      dayOfWeek: tbd.dayOfWeek ?? 0,
-      dayLabel: pluralWeekday(tbd.dayName),
-    }
+function occurrenceFromParts(options: {
+  scheduleMode?: 'day' | 'date'
+  weekLetter?: string | null
+  dayOfWeek?: number | null
+  dayName?: string | null
+  specificDate?: string | null
+  startTime: string
+  endTime: string
+  includeWeek?: boolean
+}): { label: string; daySort: number } {
+  const occ: SchedulingTimeSlot = {
+    id: 0,
+    formId: 0,
+    categoryId: null,
+    scheduleMode: options.scheduleMode ?? 'day',
+    weekLetter: options.weekLetter ?? null,
+    dayOfWeek: options.dayOfWeek ?? null,
+    dayName: options.dayName ?? null,
+    specificDate: options.specificDate ?? null,
+    startTime: options.startTime,
+    endTime: options.endTime,
+    maxParticipants: 0,
+    signupCount: 0,
+    spotsRemaining: 0,
+    isFull: false,
+    activeStart: null,
+    activeEnd: null,
+    datesTbd: false,
+    isActive: true,
   }
-  if (tbd.dayOfWeek != null) {
-    const single = SCHEDULING_DAYS.find((d) => d.value === tbd.dayOfWeek)?.label ?? 'Day'
-    return { dayOfWeek: tbd.dayOfWeek, dayLabel: pluralWeekday(single) }
+  const daySort =
+    options.dayOfWeek != null
+      ? daySortIndex(options.dayOfWeek)
+      : options.specificDate
+        ? 98
+        : 99
+  return {
+    label: formatSchedulingOccurrenceLabel(occ, {
+      includeWeek: Boolean(options.includeWeek && options.weekLetter),
+      formatTime: formatTime12,
+    }),
+    daySort,
   }
-  return null
-}
-
-function formatTimeRange(startTime: string, endTime: string): string {
-  return `${formatTime12(startTime)} – ${formatTime12(endTime)}`
-}
-
-function categoryKey(formId: number, categoryId: number | null, offeringLabel: string | null) {
-  return `${formId}:${categoryId ?? 'none'}:${offeringLabel ?? ''}`
 }
 
 function programKey(programName: string | null) {
@@ -85,20 +106,23 @@ function classKey(programName: string | null, className: string) {
   return `${programKey(programName)}::${className}`
 }
 
-interface MutableCategory {
-  categoryId: number | null
-  categoryName: string | null
-  offeringLabel: string | null
-  formId: number
-  enrollVisible: boolean
-  inactive: boolean
-  slots: Map<string, ClassScheduleTimeslot>
+function offeringKey(
+  formId: number,
+  categoryId: number | null,
+  slotGroupId: number,
+  timeSlotId: number,
+) {
+  return `${formId}:${categoryId ?? 'none'}:${slotGroupId}:${timeSlotId}`
 }
 
 interface MutableClass {
   className: string
   classDescription: string | null
-  categories: Map<string, MutableCategory>
+  ageMin: number | null
+  ageMax: number | null
+  skillLevel: string | null
+  skillRequirements: string | null
+  offerings: Map<string, ClassScheduleOffering>
 }
 
 interface MutableProgram {
@@ -106,25 +130,45 @@ interface MutableProgram {
   classes: Map<string, MutableClass>
 }
 
-function addTimeslot(
+function mergeClassMeta(target: MutableClass, meta: {
+  classDescription: string | null
+  ageMin: number | null
+  ageMax: number | null
+  skillLevel: string | null
+  skillRequirements: string | null
+}) {
+  target.classDescription = target.classDescription || meta.classDescription
+  target.ageMin = target.ageMin ?? meta.ageMin
+  target.ageMax = target.ageMax ?? meta.ageMax
+  target.skillLevel = target.skillLevel || meta.skillLevel
+  target.skillRequirements = target.skillRequirements || meta.skillRequirements
+}
+
+function addOffering(
   programs: Map<string, MutableProgram>,
   meta: {
     programName: string | null
     className: string
     classDescription: string | null
+    ageMin: number | null
+    ageMax: number | null
+    skillLevel: string | null
+    skillRequirements: string | null
+    formId: number
     categoryId: number | null
     categoryName: string | null
+    offeringId: number | null
     offeringLabel: string | null
-    formId: number
+    slotGroupId: number
+    timeSlotId: number
+    maxParticipants: number
+    spotsRemaining: number
+    waitlistCount: number
+    isFull: boolean
     enrollVisible: boolean
     inactive: boolean
   },
-  slot: {
-    slotKey: string
-    dayLabel: string
-    daySort: number
-    timeLabel: string
-  },
+  occurrence: { label: string; daySort: number },
 ) {
   const pKey = programKey(meta.programName)
   if (!programs.has(pKey)) {
@@ -136,31 +180,35 @@ function addTimeslot(
     program.classes.set(cKey, {
       className: meta.className,
       classDescription: meta.classDescription,
-      categories: new Map(),
+      ageMin: meta.ageMin,
+      ageMax: meta.ageMax,
+      skillLevel: meta.skillLevel,
+      skillRequirements: meta.skillRequirements,
+      offerings: new Map(),
     })
   }
   const classGroup = program.classes.get(cKey)!
-  const catKey = categoryKey(meta.formId, meta.categoryId, meta.offeringLabel)
-  if (!classGroup.categories.has(catKey)) {
-    classGroup.categories.set(catKey, {
+  mergeClassMeta(classGroup, meta)
+
+  const key = offeringKey(meta.formId, meta.categoryId, meta.slotGroupId, meta.timeSlotId)
+  if (!classGroup.offerings.has(key)) {
+    classGroup.offerings.set(key, {
+      key,
+      formId: meta.formId,
       categoryId: meta.categoryId,
       categoryName: meta.categoryName,
+      offeringId: meta.offeringId,
       offeringLabel: meta.offeringLabel,
-      formId: meta.formId,
+      slotGroupId: meta.slotGroupId,
+      timeSlotId: meta.timeSlotId,
+      occurrenceLabel: occurrence.label,
+      daySort: occurrence.daySort,
+      maxParticipants: meta.maxParticipants,
+      spotsRemaining: meta.spotsRemaining,
+      waitlistCount: meta.waitlistCount,
+      isFull: meta.isFull,
       enrollVisible: meta.enrollVisible,
       inactive: meta.inactive,
-      slots: new Map(),
-    })
-  }
-  const category = classGroup.categories.get(catKey)!
-  category.inactive = category.inactive || meta.inactive
-  category.enrollVisible = category.enrollVisible || meta.enrollVisible
-  if (!category.slots.has(slot.slotKey)) {
-    category.slots.set(slot.slotKey, {
-      key: slot.slotKey,
-      dayLabel: slot.dayLabel,
-      daySort: slot.daySort,
-      timeLabel: slot.timeLabel,
     })
   }
 }
@@ -179,63 +227,95 @@ export function buildClassScheduleGroups(options: {
       ? null
       : options.classOptions.find((c) => c.id === options.classFilterId) ?? null
 
+  const seenEventSlots = new Set<string>()
+
   for (const event of options.events) {
     if (selectedClass && event.className !== selectedClass.displayName) continue
 
-    const weekday = weekdayFromDate(event.date)
-    const weekPrefix = event.weekLetter ? `${event.weekLetter}-Week · ` : ''
-    const dedupeKey = `${event.formId}:${event.categoryId}:${weekday.dayOfWeek}:${event.startTime}:${event.endTime}:${event.weekLetter ?? ''}:${event.offeringLabel ?? ''}`
+    const dedupeKey = offeringKey(
+      event.formId,
+      event.categoryId,
+      event.slotGroupId,
+      event.timeSlotId,
+    )
+    if (seenEventSlots.has(dedupeKey)) continue
+    seenEventSlots.add(dedupeKey)
 
-    addTimeslot(
+    const occurrence = occurrenceFromParts({
+      scheduleMode: 'day',
+      weekLetter: event.weekLetter,
+      dayOfWeek: weekdayFromDate(event.date),
+      startTime: event.startTime,
+      endTime: event.endTime,
+      includeWeek: Boolean(event.weekLetter),
+    })
+
+    addOffering(
       programs,
       {
         programName: event.programName,
         className: event.className,
         classDescription: event.classDescription,
+        ageMin: event.ageMin,
+        ageMax: event.ageMax,
+        skillLevel: event.skillLevel,
+        skillRequirements: event.skillRequirements,
+        formId: event.formId,
         categoryId: event.categoryId,
         categoryName: event.categoryName,
+        offeringId: event.offeringId,
         offeringLabel: event.offeringLabel,
-        formId: event.formId,
+        slotGroupId: event.slotGroupId,
+        timeSlotId: event.timeSlotId,
+        maxParticipants: event.maxParticipants,
+        spotsRemaining: event.spotsRemaining,
+        waitlistCount: event.waitlistCount,
+        isFull: event.isFull,
         enrollVisible: Boolean(event.enrollVisible),
         inactive: options.isEventInactive(event),
       },
-      {
-        slotKey: dedupeKey,
-        dayLabel: `${weekPrefix}${weekday.dayLabel}`,
-        daySort: daySortIndex(weekday.dayOfWeek),
-        timeLabel: formatTimeRange(event.startTime, event.endTime),
-      },
+      occurrence,
     )
   }
 
   for (const tbd of options.tbdPatterns) {
     if (selectedClass && tbd.className !== selectedClass.displayName) continue
 
-    const weekday = weekdayFromTbd(tbd)
-    const weekPrefix = tbd.weekLetter ? `${tbd.weekLetter}-Week · ` : ''
-    const dayLabel = weekday ? `${weekPrefix}${weekday.dayLabel}` : 'Dates TBD'
-    const daySort = weekday ? daySortIndex(weekday.dayOfWeek) : 99
-    const dedupeKey = `${tbd.formId}:${tbd.categoryId}:${tbd.dayOfWeek}:${tbd.startTime}:${tbd.endTime}:${tbd.weekLetter ?? ''}:${tbd.offeringLabel ?? ''}`
+    const occurrence = occurrenceFromParts({
+      scheduleMode: tbd.scheduleMode,
+      weekLetter: tbd.weekLetter,
+      dayOfWeek: tbd.dayOfWeek,
+      dayName: tbd.dayName,
+      startTime: tbd.startTime,
+      endTime: tbd.endTime,
+      includeWeek: Boolean(tbd.weekLetter),
+    })
 
-    addTimeslot(
+    addOffering(
       programs,
       {
         programName: tbd.programName,
         className: tbd.className,
         classDescription: tbd.classDescription,
+        ageMin: tbd.ageMin,
+        ageMax: tbd.ageMax,
+        skillLevel: tbd.skillLevel,
+        skillRequirements: tbd.skillRequirements,
+        formId: tbd.formId,
         categoryId: tbd.categoryId,
         categoryName: tbd.categoryName,
+        offeringId: tbd.offeringId,
         offeringLabel: tbd.offeringLabel,
-        formId: tbd.formId,
+        slotGroupId: tbd.slotGroupId,
+        timeSlotId: tbd.timeSlotId,
+        maxParticipants: tbd.maxParticipants,
+        spotsRemaining: tbd.spotsRemaining,
+        waitlistCount: tbd.waitlistCount,
+        isFull: tbd.isFull,
         enrollVisible: Boolean(tbd.enrollVisible),
         inactive: options.isTbdInactive(tbd),
       },
-      {
-        slotKey: dedupeKey,
-        dayLabel,
-        daySort,
-        timeLabel: formatTimeRange(tbd.startTime, tbd.endTime),
-      },
+      occurrence,
     )
   }
 
@@ -250,24 +330,13 @@ export function buildClassScheduleGroups(options: {
           key: classKey(program.programName, classGroup.className),
           className: classGroup.className,
           classDescription: classGroup.classDescription,
-          categories: [...classGroup.categories.values()]
-            .sort(
-              (a, b) =>
-                (a.categoryName ?? '').localeCompare(b.categoryName ?? '') ||
-                (a.offeringLabel ?? '').localeCompare(b.offeringLabel ?? ''),
-            )
-            .map((cat) => ({
-              key: categoryKey(cat.formId, cat.categoryId, cat.offeringLabel),
-              categoryId: cat.categoryId,
-              categoryName: cat.categoryName,
-              offeringLabel: cat.offeringLabel,
-              formId: cat.formId,
-              enrollVisible: cat.enrollVisible,
-              inactive: cat.inactive,
-              timeslots: [...cat.slots.values()].sort(
-                (a, b) => a.daySort - b.daySort || a.timeLabel.localeCompare(b.timeLabel),
-              ),
-            })),
+          ageMin: classGroup.ageMin,
+          ageMax: classGroup.ageMax,
+          skillLevel: classGroup.skillLevel,
+          skillRequirements: classGroup.skillRequirements,
+          offerings: [...classGroup.offerings.values()].sort(
+            (a, b) => a.daySort - b.daySort || a.occurrenceLabel.localeCompare(b.occurrenceLabel),
+          ),
         })),
     }))
 }

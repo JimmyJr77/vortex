@@ -86,6 +86,18 @@ const SchedulingPage = () => {
     () => parseOptionalInt(searchParams.get('categoryId')),
     [searchParams],
   )
+  const urlOfferingId = useMemo(
+    () => parseOptionalInt(searchParams.get('offeringId')),
+    [searchParams],
+  )
+  const urlSlotGroupId = useMemo(
+    () => parseOptionalInt(searchParams.get('slotGroupId')),
+    [searchParams],
+  )
+  const urlTimeSlotId = useMemo(
+    () => parseOptionalInt(searchParams.get('timeSlotId')),
+    [searchParams],
+  )
   const urlAuthToken = searchParams.get('auth')
   const urlEmail = searchParams.get('email')
 
@@ -296,9 +308,12 @@ const SchedulingPage = () => {
                 {signupComplete ? 'Return to classes' : 'Back to classes'}
               </button>
               <SchedulingSignupEmbed
-                key={`${selectedFormId}:${urlCategoryId ?? 'none'}`}
+                key={`${selectedFormId}:${urlCategoryId ?? 'none'}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}`}
                 formId={selectedFormId}
                 initialCategoryId={urlCategoryId}
+                initialOfferingId={urlOfferingId}
+                initialSlotGroupId={urlSlotGroupId}
+                initialTimeSlotId={urlTimeSlotId}
                 initialAuthToken={urlAuthToken}
                 initialEmail={urlEmail ?? getLoggedInMemberEmail()}
                 onSignupComplete={handleSignupComplete}

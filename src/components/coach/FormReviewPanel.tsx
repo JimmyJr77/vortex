@@ -10,6 +10,13 @@ interface SubmissionRow {
   exercise_id?: number | null
   exercise_name?: string | null
   subject?: string | null
+  assignment_id?: number | null
+  assignment_title?: string | null
+  assignment_due_date?: string | null
+  assignment_notes?: string | null
+  athlete_comment?: string | null
+  self_critique?: string | null
+  athlete_questions?: string | null
   video_url: string
   status: string
   visibility_scope: string
@@ -168,6 +175,38 @@ export default function FormReviewPanel() {
             </div>
             <div className="p-5 space-y-4">
               <video src={detail.submission.video_url} controls className="w-full rounded-lg bg-black max-h-64" />
+
+              {detail.submission.assignment_id != null && (
+                <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 text-sm">
+                  <div className="text-xs font-semibold text-amber-800 mb-1">Coach assignment</div>
+                  <div className="font-medium text-gray-900">
+                    {detail.submission.assignment_title || detail.submission.exercise_name || 'Video submission'}
+                  </div>
+                  {detail.submission.assignment_due_date && (
+                    <div className="text-xs text-gray-600 mt-1">
+                      Due {new Date(detail.submission.assignment_due_date).toLocaleDateString()}
+                    </div>
+                  )}
+                  {detail.submission.assignment_notes && (
+                    <p className="text-gray-600 mt-2 text-xs">{detail.submission.assignment_notes}</p>
+                  )}
+                </div>
+              )}
+
+              {(detail.submission.athlete_comment || detail.submission.self_critique || detail.submission.athlete_questions) && (
+                <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 space-y-2 text-sm">
+                  <div className="text-xs font-semibold text-gray-500">Athlete notes</div>
+                  {detail.submission.athlete_comment && (
+                    <p><span className="font-semibold text-gray-700">Comment: </span>{detail.submission.athlete_comment}</p>
+                  )}
+                  {detail.submission.self_critique && (
+                    <p><span className="font-semibold text-gray-700">Self-critique: </span>{detail.submission.self_critique}</p>
+                  )}
+                  {detail.submission.athlete_questions && (
+                    <p><span className="font-semibold text-gray-700">Questions: </span>{detail.submission.athlete_questions}</p>
+                  )}
+                </div>
+              )}
 
               {detail.submission.visibility_scope !== 'coaching_circle' && (
                 <button

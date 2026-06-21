@@ -123,8 +123,22 @@ export async function loadSchedulingCalendar(pool, options) {
       p.skill_level,
       p.age_min,
       p.age_max,
+      p.skill_requirements,
       pr.display_name AS program_name,
-      COALESCE(sc.name, 'No Category') AS category_name
+      COALESCE(sc.name, 'No Category') AS category_name,
+      sg.offering_id,
+      COALESCE((
+        SELECT COUNT(*)::int
+        FROM scheduling_signup s
+        WHERE s.slot_group_id = sg.id
+          AND s.status = 'confirmed'
+      ), 0) AS signup_count,
+      COALESCE((
+        SELECT COUNT(*)::int
+        FROM scheduling_signup s
+        WHERE s.slot_group_id = sg.id
+          AND s.status = 'waitlisted'
+      ), 0) AS waitlist_count
     FROM scheduling_time_slot ts
     JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
     JOIN scheduling_form sf ON sf.id = ts.form_id

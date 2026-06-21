@@ -568,6 +568,9 @@ export function schedulingEnrollPath(options?: {
   formId?: number
   programsId?: number
   categoryId?: number | null
+  offeringId?: number | null
+  slotGroupId?: number | null
+  timeSlotId?: number | null
 }): string {
   if (!options?.formId && options?.programsId == null) {
     return ENROLL_PATH
@@ -580,6 +583,15 @@ export function schedulingEnrollPath(options?: {
   }
   if (options.categoryId != null) {
     params.set('categoryId', String(options.categoryId))
+  }
+  if (options.offeringId != null) {
+    params.set('offeringId', String(options.offeringId))
+  }
+  if (options.slotGroupId != null) {
+    params.set('slotGroupId', String(options.slotGroupId))
+  }
+  if (options.timeSlotId != null) {
+    params.set('timeSlotId', String(options.timeSlotId))
   }
   return `${ENROLL_PATH}?${params.toString()}`
 }
@@ -609,11 +621,20 @@ export interface SchedulingCalendarEvent {
   skillLevel: string | null
   ageMin: number | null
   ageMax: number | null
+  skillRequirements: string | null
   categoryId: number | null
   categoryName: string | null
+  offeringId: number | null
   offeringLabel: string | null
   offeringStartDate: string | null
   offeringEndDate: string | null
+  slotGroupId: number
+  timeSlotId: number
+  maxParticipants: number
+  signupCount: number
+  waitlistCount: number
+  spotsRemaining: number
+  isFull: boolean
   formActive: boolean
   enrollVisible?: boolean
   classActive: boolean
@@ -629,9 +650,21 @@ export interface SchedulingCalendarTbd {
   programName: string | null
   className: string
   classDescription: string | null
+  skillLevel: string | null
+  ageMin: number | null
+  ageMax: number | null
+  skillRequirements: string | null
   categoryId: number | null
   categoryName: string | null
+  offeringId: number | null
   offeringLabel: string | null
+  slotGroupId: number
+  timeSlotId: number
+  maxParticipants: number
+  signupCount: number
+  waitlistCount: number
+  spotsRemaining: number
+  isFull: boolean
   formActive: boolean
   enrollVisible?: boolean
   classActive: boolean

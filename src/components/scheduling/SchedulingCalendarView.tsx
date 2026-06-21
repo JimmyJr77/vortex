@@ -24,6 +24,7 @@ import {
   type CalendarView,
 } from './calendarDateUtils'
 import { buildClassScheduleGroups } from './classScheduleGroups'
+import ClassScheduleByClassPanel from './ClassScheduleByClassPanel'
 
 function tbdToOccurrence(tbd: SchedulingCalendarTbd): SchedulingTimeSlot {
   return {
@@ -403,91 +404,15 @@ const SchedulingCalendarView = ({
     </div>
   )
 
-  const renderByClassView = () => {
-    if (classScheduleGroups.length === 0) {
-      return (
-        <div className="p-8 text-center">
-          <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
-            {classFilterId === 'none'
-              ? 'No classes with signup times are available for this period.'
-              : 'No scheduled offerings for this class in this period.'}
-          </p>
-        </div>
-      )
-    }
-
-    const labelClass = `font-semibold ${isDark ? 'text-white' : 'text-black'}`
-    const valueClass = isDark ? 'text-gray-200' : 'text-gray-800'
-
-    return (
-      <div className="p-4 md:p-6 space-y-8 max-w-3xl mx-auto">
-        {classScheduleGroups.map((program) =>
-          program.classes.map((classGroup) => (
-            <article
-              key={classGroup.key}
-              className={`rounded-xl border p-5 md:p-6 space-y-5 ${
-                isDark ? 'border-gray-700 bg-gray-800/40' : 'border-gray-200 bg-gray-50/50'
-              }`}
-            >
-              <div className={`space-y-1 text-sm ${valueClass}`}>
-                {program.programName && (
-                  <p>
-                    <span className={labelClass}>Program:</span> {program.programName}
-                  </p>
-                )}
-                <p>
-                  <span className={labelClass}>Class:</span> {classGroup.className}
-                </p>
-                {classGroup.classDescription && (
-                  <p className={`pt-1 text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {classGroup.classDescription}
-                  </p>
-                )}
-              </div>
-
-              {classGroup.categories.map((category, categoryIndex) => (
-                <div
-                  key={category.key}
-                  className={`space-y-2 text-sm ${categoryIndex > 0 ? `pt-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}` : ''} ${category.inactive ? 'opacity-70' : ''}`}
-                >
-                  <p className={valueClass}>
-                    <span className={labelClass}>Category:</span>{' '}
-                    {category.categoryName ?? 'General'}
-                  </p>
-                  {category.offeringLabel && (
-                    <p className={valueClass}>
-                      <span className={labelClass}>Offering:</span> {category.offeringLabel}
-                    </p>
-                  )}
-                  <p className={labelClass}>Timeslots Available:</p>
-                  <ul className={`space-y-1 ${valueClass}`}>
-                    {category.timeslots.map((slot) => (
-                      <li key={slot.key}>
-                        <span className="font-medium">{slot.dayLabel}:</span> {slot.timeLabel}
-                      </li>
-                    ))}
-                  </ul>
-                  {mode === 'public' && category.enrollVisible && !category.inactive && (
-                    <div className="pt-2">
-                      <Link
-                        to={schedulingSignupPath(category.formId, category.categoryId)}
-                        className="inline-flex items-center justify-center rounded-lg font-semibold text-white bg-vortex-red hover:bg-red-700 transition-colors text-sm px-4 py-2"
-                      >
-                        Sign Up
-                      </Link>
-                    </div>
-                  )}
-                  {mode === 'admin' && category.inactive && showFormActiveFilter && (
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Inactive</p>
-                  )}
-                </div>
-              ))}
-            </article>
-          )),
-        )}
-      </div>
-    )
-  }
+  const renderByClassView = () => (
+    <ClassScheduleByClassPanel
+      groups={classScheduleGroups}
+      loading={loading}
+      mode={mode}
+      showFormActiveFilter={showFormActiveFilter}
+      classFilterId={classFilterId}
+    />
+  )
 
   const viewModes: CalendarView[] = ['month', 'week', 'day', 'byClass']
 
@@ -654,41 +579,43 @@ const SchedulingCalendarView = ({
         </div>
       )}
 
-      <div className={shellClass}>
-        {(view === 'month' || view === 'week') && (
-          <div
-            className={`grid grid-cols-7 border-b ${
-              isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'
-            }`}
-          >
-            {WEEKDAY_LABELS.map((label) => (
-              <div
-                key={label}
-                className={`px-2 py-2 text-center text-xs font-semibold uppercase tracking-wide ${
-                  isDark ? 'text-gray-400' : 'text-gray-600'
-                }`}
-              >
-                {label}
-              </div>
-            ))}
-          </div>
-        )}
+      {view === 'byClass' ? (
+        renderByClassView()
+      ) : (
+        <div className={shellClass}>
+          {(view === 'month' || view === 'week') && (
+            <div
+              className={`grid grid-cols-7 border-b ${
+                isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'
+              }`}
+            >
+              {WEEKDAY_LABELS.map((label) => (
+                <div
+                  key={label}
+                  className={`px-2 py-2 text-center text-xs font-semibold uppercase tracking-wide ${
+                    isDark ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
+          )}
 
-        {loading ? (
-          <div className={`flex items-center justify-center py-24 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            <Loader2 className="w-6 h-6 animate-spin mr-2" />
-            Loading calendar…
-          </div>
-        ) : view === 'month' ? (
-          renderMonthGrid()
-        ) : view === 'week' ? (
-          renderWeekGrid()
-        ) : view === 'day' ? (
-          renderDayView()
-        ) : (
-          renderByClassView()
-        )}
-      </div>
+          {loading ? (
+            <div className={`flex items-center justify-center py-24 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              <Loader2 className="w-6 h-6 animate-spin mr-2" />
+              Loading calendar…
+            </div>
+          ) : view === 'month' ? (
+            renderMonthGrid()
+          ) : view === 'week' ? (
+            renderWeekGrid()
+          ) : (
+            renderDayView()
+          )}
+        </div>
+      )}
 
       {!loading && view !== 'byClass' && calendar && calendar.events.length === 0 && filteredTbdPatterns.length === 0 && (
         <p className={`text-center text-sm py-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>

@@ -4,6 +4,7 @@
 import crypto from 'crypto'
 import { llmCoachAssistant } from './aiService.js'
 import { searchEmbeddingChunks, syncMemberEmbeddings, upsertEmbeddingChunk } from './embeddingService.js'
+import { planAssignmentMemberMatchSql } from './assignmentTargets.js'
 
 export function registerCoachingPhaseGHRoutes(app, pool, deps) {
   const { ok, bad, num, auth, can, createInAppNotification, resolveAssignedCoachUserIdsForMember } = deps
@@ -38,10 +39,14 @@ export function registerCoachingPhaseGHRoutes(app, pool, deps) {
       `
         SELECT frs.*,
           m.first_name, m.last_name,
-          e.name AS exercise_name
+          e.name AS exercise_name,
+          pa.title AS assignment_title,
+          pa.due_date AS assignment_due_date,
+          pa.notes AS assignment_notes
         FROM coaching.form_review_submission frs
         JOIN public.member m ON m.id = frs.member_id
         LEFT JOIN coaching.exercise e ON e.id = frs.exercise_id
+        LEFT JOIN coaching.plan_assignment pa ON pa.id = frs.assignment_id
         WHERE frs.id = $1 AND frs.facility_id = $2
       `,
       [id, facilityId],
@@ -60,6 +65,7 @@ export function registerCoachingPhaseGHRoutes(app, pool, deps) {
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
       const familyId = ctx.user.family_id
       const facilityId = ctx.user.facility_id
+      const matchSql = planAssignmentMemberMatchSql(1, 2)
       const result = await pool.query(
         `
           SELECT DISTINCT e.id, e.name
@@ -69,17 +75,47 @@ export function registerCoachingPhaseGHRoutes(app, pool, deps) {
           JOIN coaching.workout_item wi ON wi.block_id = wb.id
           JOIN coaching.exercise e ON e.id = wi.exercise_id
           WHERE pa.visibility = 'athlete' AND pa.status <> 'cancelled' AND w.facility_id = $3
-            AND (
-              (pa.target_type = 'member' AND pa.target_id = $1)
-              OR (pa.target_type = 'family' AND $2::bigint IS NOT NULL AND pa.target_id = $2)
-              OR (pa.target_type = 'class' AND EXISTS (
-                SELECT 1 FROM public.member_program mp
-                WHERE mp.member_id = $1 AND (mp.program_id = pa.target_id OR mp.iteration_id = pa.target_id)
-              ))
-            )
+            AND (${matchSql})
           ORDER BY e.name
         `,
         [memberId, familyId, facilityId],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/member/training/video-submission-assignments', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const familyId = ctx.user.family_id
+      const matchSql = planAssignmentMemberMatchSql(1, 2)
+      const result = await pool.query(
+        `
+          SELECT pa.id,
+            COALESCE(pa.title, e.name, 'Video submission') AS label,
+            pa.notes AS coach_notes,
+            pa.created_at AS request_date,
+            pa.due_date,
+            pa.status AS assignment_status,
+            pa.assignable_id AS exercise_id,
+            e.name AS exercise_name,
+            frs.id AS submission_id,
+            frs.status AS submission_status
+          FROM coaching.plan_assignment pa
+          LEFT JOIN coaching.exercise e ON e.id = pa.assignable_id
+          LEFT JOIN coaching.form_review_submission frs
+            ON frs.assignment_id = pa.id AND frs.member_id = $1
+            AND frs.status = 'pending'
+          WHERE pa.assignable_type = 'video_submission'
+            AND pa.visibility = 'athlete'
+            AND pa.status NOT IN ('cancelled')
+            AND (${matchSql})
+          ORDER BY pa.due_date ASC NULLS LAST, pa.created_at DESC
+        `,
+        [memberId, familyId],
       )
       ok(res, result.rows)
     } catch (error) {
@@ -94,10 +130,19 @@ export function registerCoachingPhaseGHRoutes(app, pool, deps) {
       const result = await pool.query(
         `
           SELECT frs.*, e.name AS exercise_name,
-            fr.note AS coach_note, fr.criterion_scores, fr.reviewed_at
+            fr.note AS coach_note, fr.criterion_scores, fr.reviewed_at,
+            pa.due_date, pa.title AS assignment_title,
+            COALESCE(pa.title, e.name, frs.subject, 'Video submission') AS display_label
           FROM coaching.form_review_submission frs
           LEFT JOIN coaching.exercise e ON e.id = frs.exercise_id
-          LEFT JOIN coaching.form_review_response fr ON fr.submission_id = frs.id
+          LEFT JOIN coaching.plan_assignment pa ON pa.id = frs.assignment_id
+          LEFT JOIN LATERAL (
+            SELECT note, criterion_scores, reviewed_at
+            FROM coaching.form_review_response
+            WHERE submission_id = frs.id
+            ORDER BY reviewed_at DESC
+            LIMIT 1
+          ) fr ON TRUE
           WHERE frs.member_id = $1
           ORDER BY frs.created_at DESC
           LIMIT 50
@@ -114,32 +159,65 @@ export function registerCoachingPhaseGHRoutes(app, pool, deps) {
     try {
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const familyId = ctx.user.family_id
       const facilityId = ctx.user.facility_id
-      const exerciseId = num(req.body?.exercise_id)
-      const subject = req.body?.subject ? String(req.body.subject).trim() : null
+      let exerciseId = num(req.body?.exercise_id)
+      let subject = req.body?.subject ? String(req.body.subject).trim() : null
       const videoUrl = String(req.body?.video_url || '').trim()
       const videoPublicId = req.body?.video_public_id ? String(req.body.video_public_id) : null
       const durationSeconds = num(req.body?.duration_seconds)
       const assignmentId = num(req.body?.assignment_id)
+      const athleteComment = req.body?.athlete_comment ? String(req.body.athlete_comment).trim() : null
+      const selfCritique = req.body?.self_critique ? String(req.body.self_critique).trim() : null
+      const athleteQuestions = req.body?.athlete_questions ? String(req.body.athlete_questions).trim() : null
 
       if (!videoUrl) return bad(res, 'video_url is required.')
-      if (!exerciseId && !subject) return bad(res, 'Pick an exercise or provide a subject for a general upload.')
       if (durationSeconds != null && durationSeconds > 60) return bad(res, 'Video must be 60 seconds or less.')
 
-      if (exerciseId) {
-        const pending = await pool.query(
-          `SELECT id FROM coaching.form_review_submission
-           WHERE member_id = $1 AND exercise_id = $2 AND status = 'pending'`,
-          [memberId, exerciseId],
+      let assignmentCoachUserId = null
+      if (assignmentId != null) {
+        const matchSql = planAssignmentMemberMatchSql(1, 2)
+        const ar = await pool.query(
+          `
+            SELECT pa.* FROM coaching.plan_assignment pa
+            WHERE pa.id = $3 AND pa.facility_id = $4
+              AND pa.assignable_type = 'video_submission'
+              AND pa.visibility = 'athlete'
+              AND pa.status NOT IN ('cancelled', 'completed')
+              AND (${matchSql})
+          `,
+          [memberId, familyId, assignmentId, facilityId],
         )
-        if (pending.rows.length > 0) return bad(res, 'You already have a pending submission for this exercise.', 409)
+        if (ar.rows.length === 0) return bad(res, 'Video submission assignment not found or not available.', 404)
+        const assignment = ar.rows[0]
+        assignmentCoachUserId = assignment.coach_user_id
+        if (assignment.assignable_id != null) exerciseId = Number(assignment.assignable_id)
+        if (!subject && assignment.title) subject = null
+
+        const pendingAssign = await pool.query(
+          `SELECT id FROM coaching.form_review_submission
+           WHERE member_id = $1 AND assignment_id = $2 AND status = 'pending'`,
+          [memberId, assignmentId],
+        )
+        if (pendingAssign.rows.length > 0) return bad(res, 'You already have a pending submission for this request.', 409)
+      } else {
+        if (!exerciseId && !subject) return bad(res, 'Pick an exercise or provide a subject for your review request.')
+        if (exerciseId) {
+          const pending = await pool.query(
+            `SELECT id FROM coaching.form_review_submission
+             WHERE member_id = $1 AND exercise_id = $2 AND status = 'pending' AND assignment_id IS NULL`,
+            [memberId, exerciseId],
+          )
+          if (pending.rows.length > 0) return bad(res, 'You already have a pending submission for this exercise.', 409)
+        }
       }
 
       const inserted = await pool.query(
         `
           INSERT INTO coaching.form_review_submission
-            (facility_id, member_id, exercise_id, assignment_id, subject, video_url, video_public_id, duration_seconds)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            (facility_id, member_id, exercise_id, assignment_id, subject, video_url, video_public_id,
+             duration_seconds, athlete_comment, self_critique, athlete_questions)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
           RETURNING *
         `,
         [
@@ -151,20 +229,31 @@ export function registerCoachingPhaseGHRoutes(app, pool, deps) {
           videoUrl,
           videoPublicId,
           durationSeconds,
+          athleteComment,
+          selfCritique,
+          athleteQuestions,
         ],
       )
       const submission = inserted.rows[0]
+
+      if (assignmentId != null) {
+        await pool.query(
+          `UPDATE coaching.plan_assignment SET status = 'in_progress', updated_at = now() WHERE id = $1`,
+          [assignmentId],
+        )
+      }
 
       const memberRow = await pool.query(`SELECT first_name, last_name FROM public.member WHERE id = $1`, [memberId])
       const name = memberRow.rows[0]
         ? `${memberRow.rows[0].first_name || ''} ${memberRow.rows[0].last_name || ''}`.trim()
         : 'Athlete'
-      const coachIds = await resolveAssignedCoachUserIdsForMember(memberId, facilityId)
+      const coachIdSet = new Set(await resolveAssignedCoachUserIdsForMember(memberId, facilityId))
+      if (assignmentCoachUserId != null) coachIdSet.add(Number(assignmentCoachUserId))
       const label = exerciseId
         ? (await pool.query(`SELECT name FROM coaching.exercise WHERE id = $1`, [exerciseId])).rows[0]?.name
         : subject
       await Promise.all(
-        coachIds.map((coachUserId) =>
+        [...coachIdSet].map((coachUserId) =>
           createInAppNotification({
             facilityId,
             recipientUserId: coachUserId,
@@ -278,6 +367,13 @@ export function registerCoachingPhaseGHRoutes(app, pool, deps) {
         `UPDATE coaching.form_review_submission SET status = 'reviewed', updated_at = now() WHERE id = $1`,
         [submissionId],
       )
+
+      if (submission.assignment_id != null) {
+        await pool.query(
+          `UPDATE coaching.plan_assignment SET status = 'completed', updated_at = now() WHERE id = $1`,
+          [submission.assignment_id],
+        )
+      }
 
       await createInAppNotification({
         facilityId,

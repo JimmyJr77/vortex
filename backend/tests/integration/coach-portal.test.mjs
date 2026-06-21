@@ -233,9 +233,76 @@ test('coach message thread round-trip', { skip: !runRoundTrip }, async () => {
   assert.equal(replyRes.response.status, 200)
 })
 
-test('GET /api/member/training/goals returns array', { skip: !runMember }, async () => {
-  const { response, body } = await jsonRequest('/api/member/training/goals', {}, memberJwt)
+test('video submission assignment round-trip', { skip: !runRoundTrip }, async () => {
+  const assignRes = await jsonRequest(
+    '/api/coach/assignments',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        target_type: 'member',
+        target_id: Number(memberId),
+        assignable_type: 'video_submission',
+        title: 'Integration handstand check',
+        due_date: null,
+        notes: 'Show full handstand from side angle.',
+      }),
+    },
+    coachJwt,
+  )
+  assert.equal(assignRes.response.status, 200)
+  const assignment = assignRes.body.data ?? assignRes.body
+  assert.equal(assignment.assignable_type, 'video_submission')
+
+  const listRes = await jsonRequest('/api/member/training/video-submission-assignments', {}, memberJwt)
+  assert.equal(listRes.response.status, 200)
+  const requests = listRes.body.data ?? listRes.body
+  assert.ok(Array.isArray(requests))
+  assert.ok(requests.some((r) => r.id === assignment.id), 'member should see video submission request')
+
+  const submitRes = await jsonRequest(
+    '/api/member/training/form-reviews',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        assignment_id: assignment.id,
+        video_url: 'https://res.cloudinary.com/demo/video/upload/sample.mp4',
+        duration_seconds: 5,
+        athlete_comment: 'First attempt',
+        self_critique: 'Need straighter line',
+        athlete_questions: 'Is my shoulder open enough?',
+      }),
+    },
+    memberJwt,
+  )
+  assert.equal(submitRes.response.status, 200)
+  const submission = submitRes.body.data ?? submitRes.body
+  assert.ok(submission.id)
+
+  const pendingRes = await jsonRequest('/api/coach/form-reviews?status=pending', {}, coachJwt)
+  assert.equal(pendingRes.response.status, 200)
+  const pending = pendingRes.body.data ?? pendingRes.body
+  assert.ok(pending.some((p) => p.id === submission.id), 'coach should see pending submission')
+
+  const reviewRes = await jsonRequest(
+    `/api/coach/form-reviews/${submission.id}/review`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ note: 'Good effort — stack hips over shoulders.' }),
+    },
+    coachJwt,
+  )
+  assert.equal(reviewRes.response.status, 200)
+
+  const statusRes = await jsonRequest('/api/member/training/assignments', {}, memberJwt)
+  const assignments = statusRes.body.data ?? statusRes.body
+  const updated = assignments.find((a) => a.id === assignment.id)
+  assert.equal(updated?.status, 'completed', 'assignment should complete after coach review')
+})
+
+test('GET /api/coach/assign/target-options returns primary sport list', { skip: !runCoach }, async () => {
+  const { response, body } = await jsonRequest('/api/coach/assign/target-options?type=primary_sport', {}, coachJwt)
   assert.equal(response.status, 200)
   const data = body.data ?? body
   assert.ok(Array.isArray(data))
 })
+
