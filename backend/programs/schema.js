@@ -196,4 +196,5 @@ export async function ensureDiscountEngineSchema(pool) {
   // Idempotent patches — re-run after base schema exists (handles hot deploys).
   await runDiscountMigrationFile(pool, migrationsDir, 'add_discount_tier_eligibility.sql')
   await runDiscountMigrationFile(pool, migrationsDir, 'add_spend_volume_discount_type.sql')
+  await runDiscountMigrationFile(pool, migrationsDir, 'remove_baked_system_discount_rules.sql')
 }

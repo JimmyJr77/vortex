@@ -663,12 +663,6 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
 // ---------- DB helpers ----------
 
 export async function loadActiveDiscountRules(pool, facilityId) {
-  try {
-    const { ensureAllSystemDiscountRules } = await import('./systemDiscounts.js')
-    await ensureAllSystemDiscountRules(pool, facilityId)
-  } catch {
-    // System discount seed is best-effort.
-  }
   let rulesRes
   try {
     rulesRes = await pool.query(
