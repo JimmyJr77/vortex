@@ -143,5 +143,12 @@ export function describeMonthlySpendTier(tier: DiscountRuleTier): string {
     tier.amountType === 'percent'
       ? `${(tier.amountValue / 100).toFixed(tier.amountValue % 100 === 0 ? 0 : 1)}% off`
       : `$${(tier.amountValue / 100).toFixed(2)} off`
-  return `≥ $${(tier.threshold / 100).toFixed(0)}/mo → ${benefit}`
+  const parts = [`≥ $${(tier.threshold / 100).toFixed(0)}/mo → ${benefit}`]
+  if (tier.minPaidEnrollments != null && tier.minPaidEnrollments > 0) {
+    parts.push(`≥ ${tier.minPaidEnrollments} paid classes`)
+  }
+  if (tier.minPerClassCents != null && tier.minPerClassCents > 0) {
+    parts.push(`≥ $${(tier.minPerClassCents / 100).toFixed(0)}/class`)
+  }
+  return parts.join(', ')
 }

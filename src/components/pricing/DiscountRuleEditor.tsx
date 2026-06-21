@@ -257,7 +257,11 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden />
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-5">
+      <div
+        className={`relative bg-white rounded-xl shadow-xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-5 ${
+          isSpendVolume ? 'max-w-5xl' : 'max-w-2xl'
+        }`}
+      >
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-black">
             {rule ? 'Edit' : 'New'}{' '}
@@ -283,8 +287,8 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
         {(isSystemMonthlySpend || isSpendVolume) && (
           <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
             {isSystemMonthlySpend
-              ? 'Discount unlocks when total monthly enrollment spend on an account reaches each spend threshold. Each level can be a percentage or fixed amount off. Cannot be deleted — use Active to turn off.'
-              : 'Set spend thresholds: when total monthly enrollment spend reaches each amount, the matching discount applies.'}
+              ? 'Discount unlocks when total monthly enrollment spend reaches each threshold. Set minimum paid classes and per-class floors on each threshold row.'
+              : 'Set spend thresholds with optional paid-class requirements per row. When total monthly spend reaches each amount, the matching discount applies.'}
           </div>
         )}
 
@@ -292,7 +296,7 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
           <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 text-sm text-indigo-900">
             Applies when an account has multiple paid classes — one student with two classes
             qualifies the same as two family members with one class each. Free-only enrollments do
-            not count. This rule cannot be deleted — turn it off with Active instead.
+            not count.
           </div>
         )}
 
@@ -324,23 +328,6 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
               </select>
             </div>
           )}
-          {isSpendVolume && (
-            <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">Type</label>
-              <input
-                type="text"
-                className={`${inputClass} bg-gray-50`}
-                value={isSystemMonthlySpend ? 'Monthly spend (system)' : 'Monthly spend'}
-                readOnly
-              />
-            </div>
-          )}
-          {isSystemMultiClass && (
-            <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">Type</label>
-              <input type="text" className={`${inputClass} bg-gray-50`} value="Multi-class (system)" readOnly />
-            </div>
-          )}
         </div>
 
         {isSpendVolume && (
@@ -358,51 +345,6 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
                   </option>
                 ))}
               </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">
-                Minimum monthly spend before tiers ($)
-              </label>
-              <input
-                type="number"
-                min={0}
-                step={1}
-                className={inputClass}
-                placeholder="No floor"
-                value={
-                  form.config.min_monthly_spend_cents != null
-                    ? Number(form.config.min_monthly_spend_cents) / 100
-                    : ''
-                }
-                onChange={(e) =>
-                  updateConfig({
-                    min_monthly_spend_cents:
-                      e.target.value === '' ? null : Math.round(Number(e.target.value) * 100),
-                  })
-                }
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1 text-gray-600">
-                Minimum paid classes (optional)
-              </label>
-              <input
-                type="number"
-                min={0}
-                className={inputClass}
-                placeholder="0"
-                value={
-                  form.config.min_paying_classes != null
-                    ? Number(form.config.min_paying_classes)
-                    : ''
-                }
-                onChange={(e) =>
-                  updateConfig({
-                    min_paying_classes:
-                      e.target.value === '' ? 0 : Math.max(0, Number(e.target.value)),
-                  })
-                }
-              />
             </div>
             <div>
               <label className="block text-xs font-semibold mb-1 text-gray-600">
@@ -426,6 +368,9 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
                   })
                 }
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Optional rule-wide floor. Override per spend threshold below.
+              </p>
             </div>
           </div>
         )}
@@ -633,7 +578,7 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
             {form.tiers.length === 0 && (
               <p className="text-xs text-gray-400">
                 {isSpendVolume
-                  ? 'No thresholds yet. Example: spend $199/mo → 5% off, $299/mo → 10% off.'
+                  ? 'No thresholds yet. Example: $199/mo spend + 2 paid classes → 5% off; $299/mo → 10% off.'
                   : isSystemMultiClass
                     ? 'No tiers yet. Example: 2 paid classes → 10%, 3 → 15%.'
                     : 'No tiers yet. Add a tier for the 2nd, 3rd, etc.'}
@@ -641,10 +586,10 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
             )}
             {form.tiers.map((tier, index) =>
               isSpendVolume ? (
-                <div key={index} className="border border-gray-200 rounded-lg p-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
+                <div key={index} className="border border-gray-200 rounded-lg p-3 space-y-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 items-end">
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">When monthly spend reaches ($)</label>
+                      <label className="block text-xs text-gray-500 mb-1">Monthly spend reaches ($)</label>
                       <input
                         type="number"
                         min={0}
@@ -659,39 +604,78 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Discount</label>
-                      <AmountInput
-                        amountType={tier.amountType}
-                        amountValue={tier.amountValue}
-                        onChange={(type, value) => updateTier(index, { amountType: type, amountValue: value })}
+                      <label className="block text-xs text-gray-500 mb-1">Min paid classes</label>
+                      <input
+                        type="number"
+                        min={0}
+                        className={inputClass}
+                        placeholder="None"
+                        value={tier.minPaidEnrollments ?? ''}
+                        onChange={(e) =>
+                          updateTier(index, {
+                            minPaidEnrollments:
+                              e.target.value === '' ? null : Math.max(0, Number(e.target.value)),
+                          })
+                        }
                       />
                     </div>
-                    <div className="flex items-end gap-2">
-                      <div className="flex-1">
-                        <label className="block text-xs text-gray-500 mb-1">Max discount ($)</label>
-                        <input
-                          type="number"
-                          min={0}
-                          step={0.01}
-                          className={inputClass}
-                          placeholder="No cap"
-                          value={
-                            tier.maxDiscountCents != null ? tier.maxDiscountCents / 100 : ''
-                          }
-                          onChange={(e) =>
-                            updateTier(index, {
-                              maxDiscountCents:
-                                e.target.value === ''
-                                  ? null
-                                  : Math.round(Number(e.target.value) * 100),
-                            })
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Min $/class</label>
+                      <input
+                        type="number"
+                        min={0}
+                        step={1}
+                        className={inputClass}
+                        placeholder="Rule default"
+                        value={
+                          tier.minPerClassCents != null ? tier.minPerClassCents / 100 : ''
+                        }
+                        onChange={(e) =>
+                          updateTier(index, {
+                            minPerClassCents:
+                              e.target.value === ''
+                                ? null
+                                : Math.round(Number(e.target.value) * 100),
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Max discount ($)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        step={0.01}
+                        className={inputClass}
+                        placeholder="No cap"
+                        value={
+                          tier.maxDiscountCents != null ? tier.maxDiscountCents / 100 : ''
+                        }
+                        onChange={(e) =>
+                          updateTier(index, {
+                            maxDiscountCents:
+                              e.target.value === ''
+                                ? null
+                                : Math.round(Number(e.target.value) * 100),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="col-span-2 flex items-end gap-2">
+                      <div className="flex-1 min-w-0">
+                        <label className="block text-xs text-gray-500 mb-1">Discount</label>
+                        <AmountInput
+                          amountType={tier.amountType}
+                          amountValue={tier.amountValue}
+                          onChange={(type, value) =>
+                            updateTier(index, { amountType: type, amountValue: value })
                           }
                         />
                       </div>
                       <button
                         type="button"
                         onClick={() => removeTier(index)}
-                        className="p-2 text-gray-400 hover:text-red-600"
+                        className="p-2 text-gray-400 hover:text-red-600 shrink-0"
                         aria-label="Remove threshold"
                       >
                         <Trash2 className="w-4 h-4" />

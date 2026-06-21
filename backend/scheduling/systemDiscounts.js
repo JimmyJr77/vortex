@@ -488,8 +488,6 @@ function defaultMonthlySpendConfig() {
     promo_code_auto_generated: false,
     discount_target: 'total',
     require_paying_enrollment: true,
-    min_paying_classes: 0,
-    min_monthly_spend_cents: null,
     min_per_class_cents: null,
   }
 }
@@ -563,28 +561,41 @@ export async function ensureMonthlySpendDiscountRule(pool, facilityId) {
 }
 
 export async function ensureAllSystemDiscountRules(pool, facilityId) {
+  if (process.env.NODE_ENV === 'production') return
   await ensureMultiClassDiscountRule(pool, facilityId)
   await ensureMonthlySpendDiscountRule(pool, facilityId)
 }
 
 export function pickMonthlySpendTier(rule, stats) {
   const spend = stats.accountMonthlyCents ?? stats.familyMonthlyCents ?? 0
-  const ruleMinSpend = monthlySpendMinMonthlyCents(rule)
-  if (spend < ruleMinSpend) return null
-
-  const minClasses = monthlySpendMinPaidClasses(rule)
-  if (minClasses > 0 && (stats.paidClassCount ?? 0) < minClasses) return null
-
+  const classCount = stats.paidClassCount ?? stats.familyPaidClassCount ?? 0
   const ruleMinPerClass = monthlySpendMinPerClassCents(rule)
-  if (ruleMinPerClass > 0) {
-    const paidLines = stats.allLines || stats.familyAllLines || []
-    const allMeet = paidLines.every((line) => (line.listCents ?? line.baseCents ?? 0) >= ruleMinPerClass)
-    if (!allMeet) return null
-  }
+  // Legacy rule-level floors (migrated tiers use per-threshold fields instead).
+  const legacyMinSpend = monthlySpendMinMonthlyCents(rule)
+  const legacyMinClasses = monthlySpendMinPaidClasses(rule)
 
   const tiers = [...(rule.tiers || [])].sort((a, b) => Number(b.threshold) - Number(a.threshold))
   for (const tier of tiers) {
-    if (spend < Number(tier.threshold)) continue
+    const tierSpendGate = Number(tier.threshold)
+    if (spend < tierSpendGate) continue
+
+    if (legacyMinSpend > 0 && spend < legacyMinSpend) continue
+
+    const minClasses =
+      tier.minPaidEnrollments != null
+        ? Number(tier.minPaidEnrollments)
+        : legacyMinClasses > 0
+          ? legacyMinClasses
+          : 0
+    if (minClasses > 0 && classCount < minClasses) continue
+
+    const tierPerClass = tier.minPerClassCents ?? ruleMinPerClass ?? 0
+    if (tierPerClass > 0) {
+      const paidLines = stats.allLines || stats.familyAllLines || []
+      const allMeet = paidLines.every((line) => (line.listCents ?? line.baseCents ?? 0) >= tierPerClass)
+      if (!allMeet) continue
+    }
+
     return tier
   }
   return null

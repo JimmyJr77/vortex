@@ -233,15 +233,13 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
-                      {!isAccountSystemRule(rule) && (
-                        <button
-                          type="button"
-                          onClick={() => void handleDelete(rule)}
-                          className="p-1.5 text-gray-400 hover:text-red-600"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(rule)}
+                        className="p-1.5 text-gray-400 hover:text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>

@@ -14,11 +14,9 @@ import {
   ensureAllSystemDiscountRules,
   isMultiClassSystemRule,
   isMonthlySpendSystemRule,
-  isAccountSystemRule,
   systemRuleSortRank,
   MULTI_CLASS_SYSTEM_KEY,
   MONTHLY_SPEND_SYSTEM_KEY,
-  LEGACY_MULTI_FAMILY_SYSTEM_KEY,
   mapTierRow,
 } from './systemDiscounts.js'
 
@@ -211,13 +209,6 @@ export function createDiscountHandlers(pool) {
         await ensureDiscountEngineSchema(pool)
         const { error, value } = ruleSchema.validate(req.body, { stripUnknown: true })
         if (error) return res.status(400).json({ success: false, message: error.details[0].message })
-        if (
-          value.config?.system_key === MULTI_CLASS_SYSTEM_KEY ||
-          value.config?.system_key === MONTHLY_SPEND_SYSTEM_KEY ||
-          value.config?.system_key === LEGACY_MULTI_FAMILY_SYSTEM_KEY
-        ) {
-          return res.status(400).json({ success: false, message: 'System discounts are managed automatically' })
-        }
         const facilityId = await getFacilityId(pool)
         const occupied = await loadOccupiedPromoCodes(pool, facilityId)
         const withPromo = ensureDiscountRulePromoCode(value, occupied)
@@ -376,16 +367,6 @@ export function createDiscountHandlers(pool) {
       try {
         await ensureDiscountEngineSchema(pool)
         const id = Number(req.params.id)
-        const existing = await pool.query('SELECT config, type FROM discount_rule WHERE id = $1', [id])
-        if (existing.rows.length === 0) {
-          return res.status(404).json({ success: false, message: 'Discount rule not found' })
-        }
-        if (isAccountSystemRule({ type: existing.rows[0].type, config: existing.rows[0].config || {} })) {
-          return res.status(403).json({
-            success: false,
-            message: 'System discounts cannot be deleted. Deactivate them instead.',
-          })
-        }
         const del = await pool.query('DELETE FROM discount_rule WHERE id = $1 RETURNING id', [id])
         if (del.rows.length === 0) {
           return res.status(404).json({ success: false, message: 'Discount rule not found' })
