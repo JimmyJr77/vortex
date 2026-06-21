@@ -151,7 +151,11 @@ export function createDiscountHandlers(pool) {
       try {
         await ensureDiscountEngineSchema(pool)
         const facilityId = await getFacilityId(pool)
-        await ensureAllSystemDiscountRules(pool, facilityId)
+        try {
+          await ensureAllSystemDiscountRules(pool, facilityId)
+        } catch (seedErr) {
+          console.error('[scheduling] ensureAllSystemDiscountRules:', seedErr)
+        }
         const rulesRes = await pool.query(
           `SELECT * FROM discount_rule
            WHERE facility_id = $1 OR facility_id IS NULL

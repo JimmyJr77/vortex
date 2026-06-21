@@ -156,30 +156,41 @@ export async function ensureProgramPricingColumns(pool) {
 
 let discountEngineReady = false
 
+async function runDiscountMigrationFile(pool, migrationsDir, filename) {
+  const fs = await import('fs')
+  const path = await import('path')
+  const migrationPath = path.join(migrationsDir, filename)
+  if (!fs.existsSync(migrationPath)) return
+  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+}
+
 /** Applies the discount/promo engine schema (cost cadence, rules, tiers, ledger, caps). */
 export async function ensureDiscountEngineSchema(pool) {
-  if (discountEngineReady) return
   await ensureProgramPricingColumns(pool)
   await ensurePrimaryDisciplineTagColumn(pool)
   const fs = await import('fs')
   const path = await import('path')
   const { fileURLToPath } = await import('url')
   const __dirname = path.dirname(fileURLToPath(import.meta.url))
-  const migrationPath = path.join(__dirname, '../migrations/add_discount_engine.sql')
+  const migrationsDir = path.join(__dirname, '../migrations')
+
+  // Idempotent patches — re-run even when discountEngineReady (handles hot deploys).
+  await runDiscountMigrationFile(pool, migrationsDir, 'add_discount_tier_eligibility.sql')
+  await runDiscountMigrationFile(pool, migrationsDir, 'add_spend_volume_discount_type.sql')
+
+  if (discountEngineReady) return
+
+  const migrationPath = path.join(migrationsDir, 'add_discount_engine.sql')
   if (!fs.existsSync(migrationPath)) return
   const sql = fs.readFileSync(migrationPath, 'utf8')
   await pool.query(sql)
-  const promoCodesPath = path.join(__dirname, '../migrations/add_program_pricing_promo_codes.sql')
+  const promoCodesPath = path.join(migrationsDir, 'add_program_pricing_promo_codes.sql')
   if (fs.existsSync(promoCodesPath)) {
     await pool.query(fs.readFileSync(promoCodesPath, 'utf8'))
   }
-  const additionalFeesPath = path.join(__dirname, '../migrations/add_additional_fees.sql')
+  const additionalFeesPath = path.join(migrationsDir, 'add_additional_fees.sql')
   if (fs.existsSync(additionalFeesPath)) {
     await pool.query(fs.readFileSync(additionalFeesPath, 'utf8'))
-  }
-  const tierEligibilityPath = path.join(__dirname, '../migrations/add_discount_tier_eligibility.sql')
-  if (fs.existsSync(tierEligibilityPath)) {
-    await pool.query(fs.readFileSync(tierEligibilityPath, 'utf8'))
   }
   discountEngineReady = true
 }

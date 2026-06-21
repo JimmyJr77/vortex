@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS discount_rule (
   name                TEXT NOT NULL,
   description         TEXT,
   type                TEXT NOT NULL
-                      CHECK (type IN ('promo_code','school','city','multi_class','multi_child','free_classes')),
+                      CHECK (type IN ('promo_code','school','city','multi_class','multi_child','free_classes','spend_volume')),
   amount_type         TEXT NOT NULL DEFAULT 'percent'
                       CHECK (amount_type IN ('percent','fixed')),
   amount_value        INTEGER NOT NULL DEFAULT 0,
