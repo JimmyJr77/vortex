@@ -128,6 +128,39 @@ function normalizeSchoolKey(name: string): string {
   return name.trim().toLowerCase()
 }
 
+export function maxRedemptionsPerSchoolDefaultFromConfig(
+  config: Record<string, unknown> | undefined,
+): number | null {
+  const raw = config?.max_redemptions_per_school_default
+  if (raw != null) {
+    const n = Number(raw)
+    if (Number.isFinite(n) && n > 0) return Math.floor(n)
+  }
+  const limits = maxRedemptionsPerSchoolFromConfig(config)
+  const values = Object.values(limits)
+  if (values.length > 0 && values.every((v) => v === values[0])) return values[0]!
+  return null
+}
+
+export function mergeMaxRedemptionsPerSchoolDefault(
+  config: Record<string, unknown> | undefined,
+  max: number | null,
+): Record<string, unknown> {
+  const next = { ...(config ?? {}) }
+  if (max != null && max > 0) {
+    next.max_redemptions_per_school_default = Math.floor(max)
+    next.per_school_max_redemptions_enabled = true
+    delete next.max_redemptions_per_school
+    delete next.per_school_redemption_schools
+    return next
+  }
+  delete next.max_redemptions_per_school_default
+  if (Object.keys(maxRedemptionsPerSchoolFromConfig(next)).length === 0) {
+    delete next.per_school_max_redemptions_enabled
+  }
+  return next
+}
+
 export function maxRedemptionsPerSchoolFromConfig(
   config: Record<string, unknown> | undefined,
 ): Record<string, number> {
@@ -175,6 +208,7 @@ export function perSchoolMaxRedemptionsEnabled(
 ): boolean {
   if (config?.per_school_max_redemptions_enabled === false) return false
   if (config?.per_school_max_redemptions_enabled === true) return true
+  if (maxRedemptionsPerSchoolDefaultFromConfig(config) != null) return true
   return Object.keys(maxRedemptionsPerSchoolFromConfig(config)).length > 0
 }
 

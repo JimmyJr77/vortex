@@ -499,23 +499,27 @@ function perSchoolLimitsEnabled(config) {
   if (!config) return false
   if (config.per_school_max_redemptions_enabled === false) return false
   if (config.per_school_max_redemptions_enabled === true) return true
+  const defaultLimit = Number(config.max_redemptions_per_school_default)
+  if (Number.isFinite(defaultLimit) && defaultLimit > 0) return true
   const limits = config.max_redemptions_per_school
   return limits && typeof limits === 'object' && Object.keys(limits).length > 0
 }
 
 function maxRedemptionsForSchool(template, memberSchool) {
   if (!perSchoolLimitsEnabled(template.config)) return null
-  const limits = template.config?.max_redemptions_per_school
-  if (!limits || typeof limits !== 'object') return null
   const key = normalizeText(memberSchool)
   if (!key) return null
-  for (const [name, value] of Object.entries(limits)) {
-    if (normalizeText(name) === key) {
-      const n = Number(value)
-      return Number.isFinite(n) && n > 0 ? n : null
+  const limits = template.config?.max_redemptions_per_school
+  if (limits && typeof limits === 'object') {
+    for (const [name, value] of Object.entries(limits)) {
+      if (normalizeText(name) === key) {
+        const n = Number(value)
+        return Number.isFinite(n) && n > 0 ? n : null
+      }
     }
   }
-  return null
+  const defaultLimit = Number(template.config?.max_redemptions_per_school_default)
+  return Number.isFinite(defaultLimit) && defaultLimit > 0 ? defaultLimit : null
 }
 
 export async function loadActiveSchools(pool) {

@@ -13,6 +13,7 @@ import {
 import FreePassEditor from './FreePassEditor'
 import {
   appliesToAllSchools,
+  maxRedemptionsPerSchoolDefaultFromConfig,
   schoolLevelsFromEligibility,
   schoolNamesFromEligibility,
   SCHOOL_LEVEL_OPTIONS,
@@ -156,13 +157,26 @@ const AdminFreePassesPanel = () => {
                   </td>
                   <td className="px-4 py-2 text-gray-600 text-xs">
                     <span className="block">{t.redeemedCount} used</span>
-                    {(t.maxRedemptionsPerMember != null || t.maxRedemptions != null) && (
+                    {(t.maxRedemptionsPerMember != null ||
+                      t.maxRedemptions != null ||
+                      maxRedemptionsPerSchoolDefaultFromConfig(t.config) != null) && (
                       <span className="text-gray-500">
                         {t.maxRedemptionsPerMember != null
                           ? `${t.maxRedemptionsPerMember} per person`
                           : null}
-                        {t.maxRedemptionsPerMember != null && t.maxRedemptions != null ? ' · ' : null}
+                        {t.maxRedemptionsPerMember != null &&
+                        (t.maxRedemptions != null ||
+                          maxRedemptionsPerSchoolDefaultFromConfig(t.config) != null)
+                          ? ' · '
+                          : null}
                         {t.maxRedemptions != null ? `${t.maxRedemptions} facility max` : null}
+                        {t.maxRedemptions != null &&
+                        maxRedemptionsPerSchoolDefaultFromConfig(t.config) != null
+                          ? ' · '
+                          : null}
+                        {maxRedemptionsPerSchoolDefaultFromConfig(t.config) != null
+                          ? `${maxRedemptionsPerSchoolDefaultFromConfig(t.config)} per school`
+                          : null}
                       </span>
                     )}
                   </td>

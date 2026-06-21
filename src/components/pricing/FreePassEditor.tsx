@@ -12,17 +12,13 @@ import {
 import {
   appliesToAllSchools,
   mergeAppliesToAllSchools,
-  mergeMaxRedemptionForSchool,
-  mergePerSchoolMaxRedemptionsEnabled,
-  mergePerSchoolRedemptionSchools,
+  mergeMaxRedemptionsPerSchoolDefault,
   mergeSchoolEligibility,
   mergeSchoolLevels,
-  maxRedemptionsPerSchoolFromConfig,
-  perSchoolMaxRedemptionsEnabled,
-  perSchoolRedemptionSchoolNames,
-  SCHOOL_LEVEL_OPTIONS,
+  maxRedemptionsPerSchoolDefaultFromConfig,
   schoolLevelsFromEligibility,
   schoolNamesFromEligibility,
+  SCHOOL_LEVEL_OPTIONS,
   type SchoolLevelFilter,
 } from '../../utils/freePassEligibility'
 import {
@@ -200,9 +196,7 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
   const schoolNames = schoolNamesFromEligibility(form.eligibility)
   const allSchools = appliesToAllSchools(form.eligibility)
   const schoolLevels = schoolLevelsFromEligibility(form.eligibility)
-  const perSchoolLimits = maxRedemptionsPerSchoolFromConfig(form.config)
-  const perSchoolMaxEnabled = perSchoolMaxRedemptionsEnabled(form.config)
-  const perSchoolCapSchoolNames = perSchoolRedemptionSchoolNames(form.config)
+  const maxRedemptionsPerSchool = maxRedemptionsPerSchoolDefaultFromConfig(form.config)
   const benefitDates = benefitDatesFromConfig(form.config)
 
   const setSchoolNames = (names: string[]) => {
@@ -232,24 +226,10 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
     })
   }
 
-  const setPerSchoolMax = (schoolName: string, max: number | null) => {
+  const setMaxRedemptionsPerSchool = (max: number | null) => {
     setForm((prev) => ({
       ...prev,
-      config: mergeMaxRedemptionForSchool(prev.config, schoolName, max),
-    }))
-  }
-
-  const setPerSchoolMaxEnabled = (enabled: boolean) => {
-    setForm((prev) => ({
-      ...prev,
-      config: mergePerSchoolMaxRedemptionsEnabled(prev.config, enabled),
-    }))
-  }
-
-  const setPerSchoolCapSchools = (names: string[]) => {
-    setForm((prev) => ({
-      ...prev,
-      config: mergePerSchoolRedemptionSchools(prev.config, names),
+      config: mergeMaxRedemptionsPerSchoolDefault(prev.config, max),
     }))
   }
 
@@ -569,11 +549,12 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
             <div>
               <p className="text-sm font-bold text-gray-900">Max redemptions</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Set either limit alone or both. Example: 1 per person and 20 facility-wide means each
-                member can use the pass once, and only 20 total uses are available gym-wide.
+                Set any combination of limits. Example: 1 per person, 20 facility max, and 5 per
+                school means each member can use the pass once, only 20 total uses are available
+                gym-wide, and each school can claim at most 5 free trainings combined.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-semibold mb-1 text-gray-600">Per person</label>
                 <input
@@ -607,54 +588,25 @@ const FreePassEditor = ({ open, template, onSave, onClose }: Props) => {
                 />
                 <p className="text-xs text-gray-500 mt-1">Total uses across all members. Leave empty for no limit.</p>
               </div>
-            </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={perSchoolMaxEnabled}
-                onChange={(e) => setPerSchoolMaxEnabled(e.target.checked)}
-              />
-              Per school
-            </label>
-            {perSchoolMaxEnabled && (
-              <div className="border-t border-gray-200 pt-3 space-y-3">
-                <p className="text-xs text-gray-500">
-                  Set a facility-wide redemption cap for each school. Members from other schools are
-                  not counted toward that school&apos;s limit.
-                </p>
-                <SchoolMultiSelect
-                  value={perSchoolCapSchoolNames}
-                  onChange={setPerSchoolCapSchools}
+              <div>
+                <label className="block text-xs font-semibold mb-1 text-gray-600">Per school</label>
+                <input
+                  type="number"
+                  min={1}
+                  placeholder="Unlimited"
+                  className={fieldClass}
+                  value={maxRedemptionsPerSchool ?? ''}
+                  onChange={(e) =>
+                    setMaxRedemptionsPerSchool(
+                      e.target.value === '' ? null : Math.max(1, Number(e.target.value)),
+                    )
+                  }
                 />
-                {perSchoolCapSchoolNames.length > 0 && (
-                  <div className="space-y-2">
-                    {perSchoolCapSchoolNames.map((name) => {
-                      const key = name.trim().toLowerCase()
-                      return (
-                        <div key={name} className="grid grid-cols-2 gap-3 items-center">
-                          <span className="text-sm text-gray-800 truncate" title={name}>
-                            {name}
-                          </span>
-                          <input
-                            type="number"
-                            min={1}
-                            placeholder="Unlimited"
-                            className={fieldClass}
-                            value={perSchoolLimits[key] ?? ''}
-                            onChange={(e) =>
-                              setPerSchoolMax(
-                                name,
-                                e.target.value === '' ? null : Math.max(1, Number(e.target.value)),
-                              )
-                            }
-                          />
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Max free trainings per school. Leave empty for no limit.
+                </p>
               </div>
-            )}
+            </div>
           </div>
 
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
