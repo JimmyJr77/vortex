@@ -12,7 +12,7 @@ const EventAttachedSignup = ({ formId }: Props) => {
 
   useEffect(() => {
     let cancelled = false
-    fetchPublicSchedulingForm(formId, undefined, { fromEvent: true })
+    fetchPublicSchedulingForm(formId, { fromEvent: true })
       .then(() => {
         if (!cancelled) setEnrollVisible(true)
       })

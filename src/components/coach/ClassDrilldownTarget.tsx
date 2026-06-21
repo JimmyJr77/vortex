@@ -33,7 +33,6 @@ const LEVEL_LABELS: Record<string, string> = {
   primary_sport: 'Sport',
   program: 'Program',
   scheduling_class: 'Class',
-  category: 'Category',
   offering: 'Offering',
 }
 
@@ -43,7 +42,6 @@ function drillQueryFromPath(path: DrillSegment[]) {
     if (seg.level === 'primary_sport') params.set('sportId', String(seg.id))
     if (seg.level === 'program') params.set('programId', String(seg.id))
     if (seg.level === 'scheduling_class') params.set('formId', String(seg.id))
-    if (seg.level === 'category') params.set('categoryId', String(seg.id))
   }
   const q = params.toString()
   return q ? `?${q}` : ''

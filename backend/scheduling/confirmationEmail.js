@@ -16,7 +16,6 @@ function escapeHtml(str) {
  *   registrantFirstName: string
  *   registrantEmail: string
  *   formTitle: string
- *   categoryName: string
  *   slotLabel: string
  *   signupNumber?: number | null
  *   maxParticipants?: number | null
@@ -27,7 +26,6 @@ export async function sendConfirmationEmail({
   registrantFirstName,
   registrantEmail,
   formTitle,
-  categoryName,
   slotLabel,
   signupNumber,
   maxParticipants,
@@ -51,7 +49,6 @@ Great news — your registration is confirmed!
 
 ${positionLine}You've signed up for:
 • Event: ${title}
-• Category: ${categoryName}
 • Time: ${slotLabel}
 ${pricingText}
 We're excited to have you at Vortex Athletics. Save this email for your records.
@@ -76,7 +73,6 @@ ${TEAM_EMAIL}`
   }
   <table style="margin: 20px 0; border-collapse: collapse;">
     <tr><td style="padding: 6px 12px 6px 0; color: #666;">Event</td><td><strong>${escapeHtml(title)}</strong></td></tr>
-    <tr><td style="padding: 6px 12px 6px 0; color: #666;">Category</td><td><strong>${escapeHtml(categoryName)}</strong></td></tr>
     <tr><td style="padding: 6px 12px 6px 0; color: #666;">Time</td><td><strong>${escapeHtml(slotLabel)}</strong></td></tr>
   </table>
   ${pricingBlock.html}

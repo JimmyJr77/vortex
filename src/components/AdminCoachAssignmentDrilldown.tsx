@@ -9,7 +9,6 @@ export interface CoachAssignmentTarget {
   programsId?: number | null
   classEventId?: number | null
   schedulingFormId?: number | null
-  schedulingCategoryId?: number | null
   schedulingOfferingId?: number | null
   schedulingTimeSlotId?: number | null
 }
@@ -38,7 +37,6 @@ const LEVEL_LABELS: Record<string, string> = {
   programs_top: 'Program',
   class_event: 'Class',
   scheduling_class: 'Scheduling class',
-  category: 'Category',
   offering: 'Offering',
   time_slot: 'Timeslot',
 }
@@ -49,7 +47,6 @@ function drillQueryFromPath(path: DrillSegment[]) {
     if (seg.level === 'programs_top') params.set('programsId', String(seg.id))
     if (seg.level === 'class_event') params.set('classEventId', String(seg.id))
     if (seg.level === 'scheduling_class') params.set('formId', String(seg.id))
-    if (seg.level === 'category') params.set('categoryId', String(seg.id))
     if (seg.level === 'offering') params.set('offeringId', String(seg.id))
   }
   const q = params.toString()
@@ -64,7 +61,6 @@ function targetFromSegment(seg: DrillSegment): CoachAssignmentTarget {
   if (seg.level === 'programs_top') base.programsId = seg.id
   if (seg.level === 'class_event') base.classEventId = seg.id
   if (seg.level === 'scheduling_class') base.schedulingFormId = seg.id
-  if (seg.level === 'category') base.schedulingCategoryId = seg.id
   if (seg.level === 'offering') base.schedulingOfferingId = seg.id
   if (seg.level === 'time_slot') base.schedulingTimeSlotId = seg.id
   return base
@@ -78,7 +74,6 @@ function targetFromPath(path: DrillSegment[]): CoachAssignmentTarget | null {
     if (p.level === 'programs_top') target.programsId = p.id
     if (p.level === 'class_event') target.classEventId = p.id
     if (p.level === 'scheduling_class') target.schedulingFormId = p.id
-    if (p.level === 'category') target.schedulingCategoryId = p.id
     if (p.level === 'offering') target.schedulingOfferingId = p.id
   }
   return target
@@ -228,7 +223,7 @@ export default function AdminCoachAssignmentDrilldown({
 
       {path.length === 0 && options.length > 0 && (
         <p className="text-xs text-gray-500">
-          Pick a program to drill into classes, scheduling offerings, categories, and timeslots — or assign the whole program from the breadcrumb after selecting it.
+          Pick a program to drill into classes, scheduling offerings, and timeslots — or assign the whole program from the breadcrumb after selecting it.
         </p>
       )}
     </div>

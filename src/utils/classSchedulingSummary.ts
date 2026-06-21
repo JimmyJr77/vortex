@@ -14,17 +14,11 @@ export interface OfferingWithSlots {
   slotGroups: SchedulingSlotGroup[]
 }
 
-export interface CategoryOfferingDetail {
-  categoryId: number | null
-  categoryName: string
-  offerings: SchedulingOffering[]
-  slotGroups: SchedulingSlotGroup[]
-}
-
 export interface ClassSchedulingDetail {
   formId: number
   form: SchedulingFormDetail
-  categories: CategoryOfferingDetail[]
+  offerings: SchedulingOffering[]
+  slotGroups: SchedulingSlotGroup[]
   costsLabel: string
   signupUrl: string
 }
@@ -35,21 +29,11 @@ export interface ClassSpreadsheetRow {
   classId: number
   className: string
   formId: number
-  categoriesSummary: string
   offeringsSummary: string
   slotsSummary: string
   costsSummary: string
   offeringCount: number
   slotCount: number
-}
-
-function categoryNameFor(form: SchedulingFormDetail, categoryId: number | null): string {
-  if (categoryId == null) return 'No Category'
-  const fromAll = form.allCategories?.find((c) => c.id === categoryId)
-  if (fromAll) return fromAll.name
-  const fromForm = form.categories.find((c) => c.id === categoryId)
-  if (fromForm) return fromForm.name
-  return `Category #${categoryId}`
 }
 
 export function formatSchedulingCosts(form: {
@@ -108,34 +92,6 @@ export function groupSlotsByOffering(
   return { byOffering, unassigned }
 }
 
-async function buildCategoryDetails(
-  formId: number,
-  form: SchedulingFormDetail,
-): Promise<CategoryOfferingDetail[]> {
-  const categoryIds = new Set<number | null>()
-  for (const group of form.slotGroups) categoryIds.add(group.categoryId)
-  for (const cat of form.categories) categoryIds.add(cat.id)
-  categoryIds.add(null)
-
-  const details = await Promise.all(
-    [...categoryIds].map(async (categoryId) => {
-      const offerings = await adminFetchOfferings(formId, categoryId)
-      const slotGroups = form.slotGroups.filter((g) => g.categoryId === categoryId)
-      if (offerings.length === 0 && slotGroups.length === 0) return null
-      return {
-        categoryId,
-        categoryName: categoryNameFor(form, categoryId),
-        offerings,
-        slotGroups,
-      }
-    }),
-  )
-
-  return details
-    .filter((row): row is CategoryOfferingDetail => row != null)
-    .sort((a, b) => a.categoryName.localeCompare(b.categoryName))
-}
-
 export interface ClassSchedulingCounts {
   offeringCount: number
   slotCount: number
@@ -180,12 +136,15 @@ export async function loadClassSchedulingDetail(
 ): Promise<ClassSchedulingDetail | null> {
   try {
     const resolvedFormId = formId ?? (await fetchClassEventSchedulingFormId(classId))
-    const form = await adminFetchSchedulingForm(resolvedFormId)
-    const categories = await buildCategoryDetails(resolvedFormId, form)
+    const [form, offerings] = await Promise.all([
+      adminFetchSchedulingForm(resolvedFormId),
+      adminFetchOfferings(resolvedFormId),
+    ])
     return {
       formId: resolvedFormId,
       form,
-      categories,
+      offerings,
+      slotGroups: form.slotGroups,
       costsLabel: formatSchedulingCosts(form),
       signupUrl: schedulingSignupUrl(resolvedFormId),
     }
@@ -194,49 +153,13 @@ export async function loadClassSchedulingDetail(
   }
 }
 
-function summarizeCategories(categories: CategoryOfferingDetail[]): string {
-  return summarizeSchedulingCategories(categories)
-}
-
-export function summarizeSchedulingCategories(categories: CategoryOfferingDetail[]): string {
-  if (categories.length === 0) return 'No Category'
-  return categories.map((c) => c.categoryName).join(', ')
-}
-
-export async function loadClassSchedulingCategoryLabel(
-  classId: number,
-  formId?: number | null,
-): Promise<string> {
-  try {
-    const resolvedFormId = formId ?? (await fetchClassEventSchedulingFormId(classId))
-    const form = await adminFetchSchedulingForm(resolvedFormId)
-    const categories = await buildCategoryDetails(resolvedFormId, form)
-    return summarizeSchedulingCategories(categories)
-  } catch {
-    return 'No Category'
-  }
-}
-
-export async function loadSchedulingCategoryLabelsForClasses(
-  classes: Array<{ id: number }>,
-): Promise<Map<number, string>> {
-  const entries = await Promise.all(
-    classes.map(async (cls) => {
-      const label = await loadClassSchedulingCategoryLabel(cls.id)
-      return [cls.id, label] as const
-    }),
-  )
-  return new Map(entries)
-}
-
-function summarizeOfferings(categories: CategoryOfferingDetail[]): string {
-  const all = categories.flatMap((c) => c.offerings)
-  if (all.length === 0) return '—'
-  const selected = all.filter((o) => o.isSelected)
+function summarizeOfferings(offerings: SchedulingOffering[]): string {
+  if (offerings.length === 0) return '—'
+  const selected = offerings.filter((o) => o.isSelected)
   if (selected.length > 0) {
     return selected.map((o) => formatOfferingDates(o)).join('; ')
   }
-  return `${all.length} offering${all.length !== 1 ? 's' : ''}`
+  return `${offerings.length} offering${offerings.length !== 1 ? 's' : ''}`
 }
 
 function summarizeSlots(form: SchedulingFormDetail): string {
@@ -253,9 +176,11 @@ export async function loadClassSpreadsheetRow(
   schedulingFormId: number,
 ): Promise<ClassSpreadsheetRow | null> {
   try {
-    const form = await adminFetchSchedulingForm(schedulingFormId)
-    const categories = await buildCategoryDetails(schedulingFormId, form)
-    const offeringCount = categories.reduce((sum, c) => sum + c.offerings.length, 0)
+    const [form, offerings] = await Promise.all([
+      adminFetchSchedulingForm(schedulingFormId),
+      adminFetchOfferings(schedulingFormId),
+    ])
+    const offeringCount = offerings.length
     if (offeringCount === 0) return null
 
     return {
@@ -264,8 +189,7 @@ export async function loadClassSpreadsheetRow(
       classId,
       className,
       formId: schedulingFormId,
-      categoriesSummary: summarizeCategories(categories),
-      offeringsSummary: summarizeOfferings(categories),
+      offeringsSummary: summarizeOfferings(offerings),
       slotsSummary: summarizeSlots(form),
       costsSummary: formatSchedulingCosts(form),
       offeringCount,

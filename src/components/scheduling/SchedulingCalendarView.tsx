@@ -30,7 +30,6 @@ function tbdToOccurrence(tbd: SchedulingCalendarTbd): SchedulingTimeSlot {
   return {
     id: 0,
     formId: tbd.formId,
-    categoryId: tbd.categoryId,
     scheduleMode: tbd.scheduleMode,
     weekLetter: tbd.weekLetter,
     dayOfWeek: tbd.dayOfWeek,
@@ -194,7 +193,7 @@ const SchedulingCalendarView = ({
 
   const renderSignupButton = (event: SchedulingCalendarEvent, compact = false) => {
     if (mode !== 'public' || !event.enrollVisible) return null
-    const url = schedulingSignupPath(event.formId, event.categoryId)
+    const url = schedulingSignupPath(event.formId)
     return (
       <Link
         to={url}
@@ -225,15 +224,10 @@ const SchedulingCalendarView = ({
               ? 'bg-vortex-red/20 border-vortex-red/30 text-gray-100 hover:bg-vortex-red/30'
               : 'bg-vortex-red/5 border-vortex-red/20 text-gray-800 hover:bg-vortex-red/10'
         }`}
-        title={[timeLabel, event.className, event.categoryName].filter(Boolean).join(' · ')}
+        title={[timeLabel, event.className].filter(Boolean).join(' · ')}
       >
         <span className="font-medium text-vortex-red">{timeLabel}</span>
         <span className="block truncate font-medium">{event.className}</span>
-        {event.categoryName && (
-          <span className={`block truncate ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            {event.categoryName}
-          </span>
-        )}
       </button>
     )
   }
@@ -264,11 +258,6 @@ const SchedulingCalendarView = ({
             <span className={`font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
               {event.className}
             </span>
-            {event.categoryName && (
-              <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                {event.categoryName}
-              </span>
-            )}
             {event.programName && (
               <span className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
                 {event.programName}
@@ -640,7 +629,7 @@ const SchedulingCalendarView = ({
               const inactive = isTbdInactive(tbd)
               const signupPath =
                 mode === 'public' && tbd.enrollVisible
-                  ? schedulingSignupPath(tbd.formId, tbd.categoryId)
+                  ? schedulingSignupPath(tbd.formId)
                   : null
               return (
                 <li
@@ -653,12 +642,6 @@ const SchedulingCalendarView = ({
                     <span className={`font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
                       {tbd.className}
                     </span>
-                    {tbd.categoryName && (
-                      <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>
-                        {' '}
-                        · {tbd.categoryName}
-                      </span>
-                    )}
                     {inactive && showFormActiveFilter && (
                       <span className="ml-2 text-xs text-gray-500 uppercase tracking-wide">
                         Inactive

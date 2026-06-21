@@ -59,6 +59,19 @@ scheduling needed flexibility. Files: `refactor_scheduling_v2.sql`, `unify_progr
 `add_scheduling_offerings.sql`, `add_scheduling_waitlist.sql`, `add_slot_groups.sql`. UI splits
 across Scheduling (config), Calendar (visualization), Signups (operations), Pricing (rules).
 
+### Scheduling categories removed (migration `033`)
+The "class category" sub-level under each scheduling form was removed end-to-end (DB tables,
+`category_id` columns, routes, types, UI). **Why:** every class already collapsed to a single
+global "No Category" bucket, so the dimension added complexity without value. **Behavior now:**
+Admin > Classes shows **one row per class** (no per-category fan-out, Category column, category
+filter, or split/variation actions); public/member signup shows a form's offerings/slots directly
+with no category picker step; coach assignment drill-down stops at the **class/form** level; and
+pricing benefit selection no longer supports a `category` scope. The old
+`/api/admin/scheduling/categories…` CRUD and the `sync-scheduling-categories` route were removed
+(the latter replaced by `POST /api/admin/programs/consolidate`). See
+[DATABASE_ARCHITECTURE.md](DATABASE_ARCHITECTURE.md) §10.3b for the dropped objects. `program_categories`
+and other unrelated "category" concepts are untouched.
+
 ### Discount engine = estimate-only layered pricing
 `discount_rule.scope_level` cascades `global → sport → program → class → offering`, with stackable
 rules, caps (`discount_global_settings`), promo codes, and free passes; simulation endpoints let
@@ -136,14 +149,15 @@ programs → platform → coach portal → dev members. Global guard on `/api/ad
 - **Billing & waivers** (registerRoutes.js; `billing.*`/`waivers.*`): family billing accounts,
   charges, payments, statements, status; waiver templates + compliance.
 - **Scheduling** ([backend/scheduling/registerRoutes.js](../backend/scheduling/registerRoutes.js);
-  `scheduling.*`): forms, categories, offerings, slot batches/groups, signups (+ orphaned),
-  calendar.
+  `scheduling.*`): forms, offerings, slot batches/groups, signups (+ orphaned),
+  calendar. (Scheduling-category CRUD routes `/api/admin/scheduling/categories…` were **removed** — see migration `033`.)
 - **Pricing/discounts** (scheduling sub-routes; `pricing.*`): `discount-rules`,
   `discount-settings`, `discount-simulate`, `sport-defaults`, `additional-fees`, `free-passes`,
   `promo-codes`, `pricing-*-selections`, member pricing summary.
 - **Programs/classes** (server.js + [backend/programs/registerRoutes.js](../backend/programs/registerRoutes.js);
   `classes.*`): programs/categories/levels, class iterations, top programs, class events,
-  discipline tags, scheduling-category sync.
+  discipline tags, class consolidation (`POST /api/admin/programs/consolidate`, formerly
+  scheduling-category sync).
 - **Analytics** ([backend/analytics/registerRoutes.js](../backend/analytics/registerRoutes.js);
   `analytics.view`): overview/traffic/funnel/programs/inquiries/conversion/seo/export/sync,
   competitors, marketing campaigns.
@@ -162,7 +176,7 @@ programs → platform → coach portal → dev members. Global guard on `/api/ad
 | Identity / RBAC | `app_user`, `app_user_role`, `role`, `permission`, `role_permission`, `app_user_permission_override`, `admin_profile.is_master_admin`, `coach_profile` | `001`, `008` |
 | Members / families | `member`, `family`, `family_member`, `parent_guardian_authority`, `emergency_contact` | `003`, `005`, `006`, `008`, `009` |
 | Programs / classes | `programs` (top-level), `program` (class template), `class`, `class_iteration` | `002`, `add_class_iteration_table`, `unify_programs_scheduling` |
-| Scheduling | `scheduling_form`, `scheduling_category`, `scheduling_offering`, `scheduling_time_slot`, `scheduling_slot_group`, `scheduling_signup` (+ orphaned/waitlist) | `add_scheduling_*`, `refactor_scheduling_v2` |
+| Scheduling | `scheduling_form`, `scheduling_offering`, `scheduling_time_slot`, `scheduling_slot_group`, `scheduling_signup` (+ orphaned/waitlist) | `add_scheduling_*`, `refactor_scheduling_v2`; `scheduling_category`/`scheduling_form_category` removed in `033` |
 | Discount engine | `discount_rule`, `discount_global_settings`, `sport_pricing_default`, promo/redemption tables | `add_discount_engine`, `add_*_discount_*` |
 | Billing | `family_billing_account`, `billing_charge`, `billing_payment`, `billing_statement`, `billing_statement_line` | `008`, `010` |
 | Waivers | `waiver_template`, `member_waiver_acceptance` | `008` |

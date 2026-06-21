@@ -12,7 +12,6 @@ export const COACH_ASSIGN_LEVEL_LABELS = {
   programs_top: 'Program',
   class_event: 'Class',
   scheduling_class: 'Scheduling class',
-  category: 'Category',
   offering: 'Offering',
   time_slot: 'Timeslot',
 }
@@ -53,10 +52,6 @@ async function applyCoachClassAssignmentSchema(pool) {
   `)
   await pool.query(`
     ALTER TABLE coach_class_assignment
-      ADD COLUMN IF NOT EXISTS scheduling_category_id BIGINT REFERENCES scheduling_category(id) ON DELETE CASCADE
-  `)
-  await pool.query(`
-    ALTER TABLE coach_class_assignment
       ADD COLUMN IF NOT EXISTS scheduling_offering_id BIGINT REFERENCES scheduling_offering(id) ON DELETE CASCADE
   `)
   await pool.query(`
@@ -71,6 +66,30 @@ async function applyCoachClassAssignmentSchema(pool) {
     ALTER TABLE coach_class_assignment
       DROP CONSTRAINT IF EXISTS coach_class_assignment_target_check
   `)
+  // Categories were removed: drop the legacy scheduling_category_id target.
+  // Delete any category-only assignments first so the rebuilt target check
+  // (which no longer permits a category-only target) can be applied.
+  await pool.query(`
+    DO $$
+    BEGIN
+      IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'coach_class_assignment' AND column_name = 'scheduling_category_id'
+      ) THEN
+        DROP INDEX IF EXISTS ux_coach_assignment_category;
+        DROP INDEX IF EXISTS idx_coach_assignment_category;
+        DELETE FROM coach_class_assignment
+        WHERE scheduling_category_id IS NOT NULL
+          AND programs_id IS NULL
+          AND program_id IS NULL
+          AND scheduling_form_id IS NULL
+          AND class_iteration_id IS NULL
+          AND scheduling_offering_id IS NULL
+          AND scheduling_time_slot_id IS NULL;
+        ALTER TABLE coach_class_assignment DROP COLUMN scheduling_category_id;
+      END IF;
+    END $$;
+  `)
   try {
     await pool.query(`
       ALTER TABLE coach_class_assignment
@@ -80,7 +99,6 @@ async function applyCoachClassAssignmentSchema(pool) {
           OR program_id IS NOT NULL
           OR scheduling_form_id IS NOT NULL
           OR class_iteration_id IS NOT NULL
-          OR scheduling_category_id IS NOT NULL
           OR scheduling_offering_id IS NOT NULL
           OR scheduling_time_slot_id IS NOT NULL
         )
@@ -100,7 +118,6 @@ async function applyCoachClassAssignmentSchema(pool) {
       WHERE programs_id IS NOT NULL
         AND program_id IS NULL
         AND scheduling_form_id IS NULL
-        AND scheduling_category_id IS NULL
         AND scheduling_offering_id IS NULL
         AND scheduling_time_slot_id IS NULL
         AND class_iteration_id IS NULL
@@ -111,7 +128,6 @@ async function applyCoachClassAssignmentSchema(pool) {
       WHERE program_id IS NOT NULL
         AND programs_id IS NULL
         AND scheduling_form_id IS NULL
-        AND scheduling_category_id IS NULL
         AND scheduling_offering_id IS NULL
         AND scheduling_time_slot_id IS NULL
         AND class_iteration_id IS NULL
@@ -120,14 +136,6 @@ async function applyCoachClassAssignmentSchema(pool) {
     CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_assignment_scheduling_form
       ON coach_class_assignment (coach_user_id, scheduling_form_id)
       WHERE scheduling_form_id IS NOT NULL
-        AND scheduling_category_id IS NULL
-        AND scheduling_offering_id IS NULL
-        AND scheduling_time_slot_id IS NULL
-  `)
-  await pool.query(`
-    CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_assignment_category
-      ON coach_class_assignment (coach_user_id, scheduling_category_id)
-      WHERE scheduling_category_id IS NOT NULL
         AND scheduling_offering_id IS NULL
         AND scheduling_time_slot_id IS NULL
   `)
@@ -151,7 +159,7 @@ async function applyCoachClassAssignmentSchema(pool) {
   `)
 }
 
-/** Hierarchical drill-down for admin coach assignment (program → class → form → category → offering → timeslot). */
+/** Hierarchical drill-down for admin coach assignment (program → class → form → offering → timeslot). */
 export async function queryCoachAssignmentDrilldown(pool, facilityId, filters = {}) {
   const fid = Number(facilityId)
   if (!Number.isFinite(fid)) {
@@ -163,7 +171,6 @@ export async function queryCoachAssignmentDrilldown(pool, facilityId, filters = 
   const programsId = num(filters.programsId)
   const classEventId = num(filters.classEventId)
   const formId = num(filters.formId)
-  const categoryId = num(filters.categoryId)
   const offeringId = num(filters.offeringId)
   const path = []
 
@@ -194,10 +201,6 @@ export async function queryCoachAssignmentDrilldown(pool, facilityId, filters = 
       [formId],
     )
     if (r.rows[0]) path.push({ level: 'scheduling_class', id: Number(r.rows[0].id), label: r.rows[0].label })
-  }
-  if (categoryId != null) {
-    const r = await pool.query(`SELECT id, name AS label FROM scheduling_category WHERE id = $1`, [categoryId])
-    if (r.rows[0]) path.push({ level: 'category', id: Number(r.rows[0].id), label: r.rows[0].label })
   }
   if (offeringId != null) {
     const r = await pool.query(
@@ -250,16 +253,7 @@ export async function queryCoachAssignmentDrilldown(pool, facilityId, filters = 
         `SELECT 1 FROM scheduling_form sf WHERE sf.program_id = $1 AND sf.deleted_at IS NULL LIMIT 1`,
         [row.id],
       )
-      const cat = await pool.query(
-        `
-          SELECT 1 FROM scheduling_category sc
-          JOIN scheduling_form_category sfc ON sfc.category_id = sc.id
-          JOIN scheduling_form sf ON sf.id = sfc.form_id AND sf.program_id = $1 AND sf.deleted_at IS NULL
-          LIMIT 1
-        `,
-        [row.id],
-      )
-      options.push(mapOption(row, 'class_event', form.rows.length > 0 || cat.rows.length > 0))
+      options.push(mapOption(row, 'class_event', form.rows.length > 0))
     }
     return {
       currentLevel: 'class_event',
@@ -281,9 +275,8 @@ export async function queryCoachAssignmentDrilldown(pool, facilityId, filters = 
     )
     const options = []
     for (const row of r.rows) {
-      const cat = await pool.query(`SELECT 1 FROM scheduling_form_category WHERE form_id = $1 LIMIT 1`, [row.id])
       const off = await pool.query(`SELECT 1 FROM scheduling_offering WHERE form_id = $1 LIMIT 1`, [row.id])
-      options.push(mapOption(row, 'scheduling_class', cat.rows.length > 0 || off.rows.length > 0))
+      options.push(mapOption(row, 'scheduling_class', off.rows.length > 0))
     }
     if (options.length > 0) {
       return {
@@ -293,7 +286,7 @@ export async function queryCoachAssignmentDrilldown(pool, facilityId, filters = 
         options,
       }
     }
-    // Fall through to categories/offerings on class without explicit form row
+    // Fall through to offerings on class without explicit form row
   }
 
   const resolvedFormId = formId ?? (
@@ -314,49 +307,11 @@ export async function queryCoachAssignmentDrilldown(pool, facilityId, filters = 
 
   const effectiveFormId = Number(resolvedFormId)
 
-  if (formId == null && categoryId == null && offeringId == null) {
+  if (formId == null && offeringId == null) {
     if (!path.some((p) => p.level === 'scheduling_class')) {
       const fr = await pool.query(`SELECT id, title AS label FROM scheduling_form WHERE id = $1`, [effectiveFormId])
       if (fr.rows[0]) {
         path.push({ level: 'scheduling_class', id: Number(fr.rows[0].id), label: fr.rows[0].label })
-      }
-    }
-  }
-
-  if (categoryId == null && offeringId == null) {
-    const categories = await pool.query(
-      `
-        SELECT DISTINCT sc.id, sc.name AS label
-        FROM scheduling_category sc
-        JOIN scheduling_form_category sfc ON sfc.category_id = sc.id AND sfc.form_id = $1
-        ORDER BY sc.name
-      `,
-      [effectiveFormId],
-    )
-    if (categories.rows.length > 0) {
-      const options = []
-      for (const row of categories.rows) {
-        const off = await pool.query(
-          `SELECT 1 FROM scheduling_offering WHERE form_id = $1 AND category_id = $2 LIMIT 1`,
-          [effectiveFormId, row.id],
-        )
-        const slot = await pool.query(
-          `
-            SELECT 1 FROM scheduling_time_slot ts
-            JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
-            JOIN scheduling_offering o ON o.id = sg.offering_id
-            WHERE o.form_id = $1 AND o.category_id = $2
-            LIMIT 1
-          `,
-          [effectiveFormId, row.id],
-        )
-        options.push(mapOption(row, 'category', off.rows.length > 0 || slot.rows.length > 0))
-      }
-      return {
-        currentLevel: 'category',
-        levelLabel: COACH_ASSIGN_LEVEL_LABELS.category,
-        path,
-        options,
       }
     }
   }
@@ -367,10 +322,9 @@ export async function queryCoachAssignmentDrilldown(pool, facilityId, filters = 
         SELECT o.id, COALESCE(o.label, 'Offering ' || o.id::text) AS label
         FROM scheduling_offering o
         WHERE o.form_id = $1
-          AND ($2::bigint IS NULL OR o.category_id = $2 OR o.category_id IS NULL)
         ORDER BY label
       `,
-      [effectiveFormId, categoryId],
+      [effectiveFormId],
     )
     const options = []
     for (const row of offerings.rows) {
@@ -419,7 +373,6 @@ export async function resolveCoachAssignmentPayload(pool, facilityId, body) {
   const programsId = num(body?.programsId)
   const classEventId = num(body?.classEventId ?? body?.programId)
   const formId = num(body?.schedulingFormId)
-  const categoryId = num(body?.schedulingCategoryId)
   const offeringId = num(body?.schedulingOfferingId)
   const timeSlotId = num(body?.schedulingTimeSlotId)
 
@@ -427,7 +380,6 @@ export async function resolveCoachAssignmentPayload(pool, facilityId, body) {
     programs_id: null,
     program_id: null,
     scheduling_form_id: null,
-    scheduling_category_id: null,
     scheduling_offering_id: null,
     scheduling_time_slot_id: null,
     class_iteration_id: null,
@@ -469,7 +421,7 @@ export async function resolveCoachAssignmentPayload(pool, facilityId, body) {
     if (timeSlotId == null) throw new Error('Timeslot is required.')
     const r = await pool.query(
       `
-        SELECT ts.id, ts.form_id, sg.offering_id, o.category_id
+        SELECT ts.id, ts.form_id, sg.offering_id
         FROM scheduling_time_slot ts
         JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
         LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
@@ -485,7 +437,6 @@ export async function resolveCoachAssignmentPayload(pool, facilityId, body) {
       ...empty,
       program_id: resolvedClassEventId,
       scheduling_form_id: Number(row.form_id),
-      scheduling_category_id: row.category_id != null ? Number(row.category_id) : null,
       scheduling_offering_id: row.offering_id != null ? Number(row.offering_id) : null,
       scheduling_time_slot_id: timeSlotId,
     }
@@ -494,7 +445,7 @@ export async function resolveCoachAssignmentPayload(pool, facilityId, body) {
   if (targetLevel === 'offering') {
     if (offeringId == null) throw new Error('Offering is required.')
     const r = await pool.query(
-      `SELECT id, form_id, category_id FROM scheduling_offering WHERE id = $1`,
+      `SELECT id, form_id FROM scheduling_offering WHERE id = $1`,
       [offeringId],
     )
     if (!r.rows[0]) throw new Error('Offering not found.')
@@ -503,30 +454,7 @@ export async function resolveCoachAssignmentPayload(pool, facilityId, body) {
       ...empty,
       program_id: resolvedClassEventId,
       scheduling_form_id: Number(r.rows[0].form_id),
-      scheduling_category_id: r.rows[0].category_id != null ? Number(r.rows[0].category_id) : null,
       scheduling_offering_id: offeringId,
-    }
-  }
-
-  if (targetLevel === 'category') {
-    if (categoryId == null) throw new Error('Category is required.')
-    const r = await pool.query(
-      `
-        SELECT sc.id, sfc.form_id
-        FROM scheduling_category sc
-        JOIN scheduling_form_category sfc ON sfc.category_id = sc.id
-        WHERE sc.id = $1
-        LIMIT 1
-      `,
-      [categoryId],
-    )
-    if (!r.rows[0]) throw new Error('Category not found.')
-    const resolvedClassEventId = await assertForm(Number(r.rows[0].form_id), classEventId)
-    return {
-      ...empty,
-      program_id: resolvedClassEventId,
-      scheduling_form_id: Number(r.rows[0].form_id),
-      scheduling_category_id: categoryId,
     }
   }
 
@@ -607,7 +535,6 @@ function rosterSignupMatchSql({
   programsIdx,
   programIdx,
   formIdx,
-  categoryIdx,
   offeringIdx,
   timeSlotIdx,
 }) {
@@ -634,20 +561,12 @@ function rosterSignupMatchSql({
       OR (
         $${timeSlotIdx}::bigint IS NULL
         AND $${offeringIdx}::bigint IS NULL
-        AND $${categoryIdx}::bigint IS NOT NULL
-        AND s.category_id = $${categoryIdx}
-      )
-      OR (
-        $${timeSlotIdx}::bigint IS NULL
-        AND $${offeringIdx}::bigint IS NULL
-        AND $${categoryIdx}::bigint IS NULL
         AND $${formIdx}::bigint IS NOT NULL
         AND s.form_id = $${formIdx}
       )
       OR (
         $${timeSlotIdx}::bigint IS NULL
         AND $${offeringIdx}::bigint IS NULL
-        AND $${categoryIdx}::bigint IS NULL
         AND $${formIdx}::bigint IS NULL
         AND $${programIdx}::bigint IS NOT NULL
         AND sf.program_id = $${programIdx}
@@ -655,7 +574,6 @@ function rosterSignupMatchSql({
       OR (
         $${timeSlotIdx}::bigint IS NULL
         AND $${offeringIdx}::bigint IS NULL
-        AND $${categoryIdx}::bigint IS NULL
         AND $${formIdx}::bigint IS NULL
         AND $${programIdx}::bigint IS NULL
         AND $${programsIdx}::bigint IS NOT NULL
@@ -690,20 +608,12 @@ export function coachAssignmentSignupMatchSql(ccaAlias, programFkColumn, include
       OR (
         ${ccaAlias}.scheduling_time_slot_id IS NULL
         AND ${ccaAlias}.scheduling_offering_id IS NULL
-        AND ${ccaAlias}.scheduling_category_id IS NOT NULL
-        AND s.category_id = ${ccaAlias}.scheduling_category_id
-      )
-      OR (
-        ${ccaAlias}.scheduling_time_slot_id IS NULL
-        AND ${ccaAlias}.scheduling_offering_id IS NULL
-        AND ${ccaAlias}.scheduling_category_id IS NULL
         AND ${ccaAlias}.scheduling_form_id IS NOT NULL
         AND s.form_id = ${ccaAlias}.scheduling_form_id
       )
       OR (
         ${ccaAlias}.scheduling_time_slot_id IS NULL
         AND ${ccaAlias}.scheduling_offering_id IS NULL
-        AND ${ccaAlias}.scheduling_category_id IS NULL
         AND ${ccaAlias}.scheduling_form_id IS NULL
         AND ${ccaAlias}.program_id IS NOT NULL
         AND sf.program_id = ${ccaAlias}.program_id
@@ -711,7 +621,6 @@ export function coachAssignmentSignupMatchSql(ccaAlias, programFkColumn, include
       OR (
         ${ccaAlias}.scheduling_time_slot_id IS NULL
         AND ${ccaAlias}.scheduling_offering_id IS NULL
-        AND ${ccaAlias}.scheduling_category_id IS NULL
         AND ${ccaAlias}.scheduling_form_id IS NULL
         AND ${ccaAlias}.program_id IS NULL
         AND ${ccaAlias}.programs_id IS NOT NULL
@@ -746,7 +655,6 @@ function assignmentScopeEmpty(row) {
   return !row.programs_id
     && !row.program_id
     && !row.scheduling_form_id
-    && !row.scheduling_category_id
     && !row.scheduling_offering_id
     && !row.scheduling_time_slot_id
     && !row.class_iteration_id
@@ -761,7 +669,6 @@ export async function queryCoachRosterMemberIds(pool, assignment, facilityId) {
   const programsId = row.programs_id != null ? Number(row.programs_id) : null
   const pid = row.program_id != null ? Number(row.program_id) : null
   const formId = row.scheduling_form_id != null ? Number(row.scheduling_form_id) : null
-  const categoryId = row.scheduling_category_id != null ? Number(row.scheduling_category_id) : null
   const offeringId = row.scheduling_offering_id != null ? Number(row.scheduling_offering_id) : null
   const timeSlotId = row.scheduling_time_slot_id != null ? Number(row.scheduling_time_slot_id) : null
   const iterId = row.class_iteration_id != null ? Number(row.class_iteration_id) : null
@@ -772,9 +679,8 @@ export async function queryCoachRosterMemberIds(pool, assignment, facilityId) {
     programsIdx: 1,
     programIdx: 2,
     formIdx: 3,
-    categoryIdx: 4,
-    offeringIdx: 5,
-    timeSlotIdx: 6,
+    offeringIdx: 4,
+    timeSlotIdx: 5,
   })
 
   const r = await pool.query(
@@ -784,7 +690,7 @@ export async function queryCoachRosterMemberIds(pool, assignment, facilityId) {
         FROM scheduling_signup s
         JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
         JOIN member m ON m.id = s.member_id
-        WHERE m.facility_id = $7
+        WHERE m.facility_id = $6
           AND m.is_active = TRUE
           AND s.member_id IS NOT NULL
           AND s.orphaned_at IS NULL
@@ -796,13 +702,13 @@ export async function queryCoachRosterMemberIds(pool, assignment, facilityId) {
         SELECT DISTINCT m.id
         FROM member_program mp
         JOIN member m ON m.id = mp.member_id
-        WHERE m.facility_id = $7
+        WHERE m.facility_id = $6
           AND m.is_active = TRUE
-          ${rosterMemberProgramFilterSql(2, 8, 1, schema.programFkColumn)}
+          ${rosterMemberProgramFilterSql(2, 7, 1, schema.programFkColumn)}
       )
       SELECT id FROM roster_ids
     `,
-    [programsId, pid, formId, categoryId, offeringId, timeSlotId, facilityId, iterId],
+    [programsId, pid, formId, offeringId, timeSlotId, facilityId, iterId],
   )
   return r.rows.map((row) => Number(row.id))
 }
@@ -813,7 +719,6 @@ export async function queryCoachRosterMembers(pool, {
   schedulingFormId,
   classIterationId,
   programsId,
-  schedulingCategoryId,
   schedulingOfferingId,
   schedulingTimeSlotId,
   facilityId,
@@ -824,7 +729,6 @@ export async function queryCoachRosterMembers(pool, {
     programs_id: programsId,
     program_id: programId,
     scheduling_form_id: schedulingFormId,
-    scheduling_category_id: schedulingCategoryId,
     scheduling_offering_id: schedulingOfferingId,
     scheduling_time_slot_id: schedulingTimeSlotId,
     class_iteration_id: classIterationId,
@@ -833,7 +737,6 @@ export async function queryCoachRosterMembers(pool, {
   const programsTop = assignment.programs_id != null ? Number(assignment.programs_id) : null
   const pid = assignment.program_id != null ? Number(assignment.program_id) : null
   const formId = assignment.scheduling_form_id != null ? Number(assignment.scheduling_form_id) : null
-  const categoryId = assignment.scheduling_category_id != null ? Number(assignment.scheduling_category_id) : null
   const offeringId = assignment.scheduling_offering_id != null ? Number(assignment.scheduling_offering_id) : null
   const timeSlotId = assignment.scheduling_time_slot_id != null ? Number(assignment.scheduling_time_slot_id) : null
   const iterId = assignment.class_iteration_id != null ? Number(assignment.class_iteration_id) : null
@@ -844,9 +747,8 @@ export async function queryCoachRosterMembers(pool, {
     programsIdx: 1,
     programIdx: 2,
     formIdx: 3,
-    categoryIdx: 4,
-    offeringIdx: 5,
-    timeSlotIdx: 6,
+    offeringIdx: 4,
+    timeSlotIdx: 5,
   })
 
   const r = await pool.query(
@@ -856,7 +758,7 @@ export async function queryCoachRosterMembers(pool, {
         FROM scheduling_signup s
         JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
         JOIN member m ON m.id = s.member_id
-        WHERE m.facility_id = $7
+        WHERE m.facility_id = $6
           AND m.is_active = TRUE
           AND s.member_id IS NOT NULL
           AND s.orphaned_at IS NULL
@@ -868,9 +770,9 @@ export async function queryCoachRosterMembers(pool, {
         SELECT DISTINCT m.id
         FROM member_program mp
         JOIN member m ON m.id = mp.member_id
-        WHERE m.facility_id = $7
+        WHERE m.facility_id = $6
           AND m.is_active = TRUE
-          ${rosterMemberProgramFilterSql(2, 8, 1, schema.programFkColumn)}
+          ${rosterMemberProgramFilterSql(2, 7, 1, schema.programFkColumn)}
       )
       SELECT
         m.id,
@@ -901,13 +803,13 @@ export async function queryCoachRosterMembers(pool, {
           AND (wt.active_to IS NULL OR wt.active_to > now())
       ) accepted_waivers ON TRUE
       LEFT JOIN coach_roster_note crn
-        ON crn.assignment_id = $9
+        ON crn.assignment_id = $8
        AND crn.member_id = m.id
-       AND crn.coach_user_id = $10
+       AND crn.coach_user_id = $9
        AND crn.note_date = CURRENT_DATE
       ORDER BY m.last_name, m.first_name
     `,
-    [programsTop, pid, formId, categoryId, offeringId, timeSlotId, facilityId, iterId, assignmentId, coachUserId],
+    [programsTop, pid, formId, offeringId, timeSlotId, facilityId, iterId, assignmentId, coachUserId],
   )
   return r.rows
 }

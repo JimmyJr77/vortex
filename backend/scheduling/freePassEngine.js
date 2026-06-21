@@ -319,7 +319,7 @@ export async function loadAttachmentsForForm(pool, formRow) {
 export async function loadOfferingById(pool, offeringId) {
   if (offeringId == null) return null
   const res = await pool.query(
-    `SELECT id, form_id, category_id, start_date, end_date, label FROM scheduling_offering WHERE id = $1`,
+    `SELECT id, form_id, start_date, end_date, label FROM scheduling_offering WHERE id = $1`,
     [offeringId],
   )
   const row = res.rows[0]
@@ -327,7 +327,6 @@ export async function loadOfferingById(pool, offeringId) {
   return {
     id: Number(row.id),
     formId: Number(row.form_id),
-    categoryId: row.category_id != null ? Number(row.category_id) : null,
     startDate: String(row.start_date).slice(0, 10),
     endDate: String(row.end_date).slice(0, 10),
     label: row.label ?? '',

@@ -45,7 +45,6 @@ const TARGET_LABELS: Record<string, string> = {
   primary_sport: 'Sport',
   program: 'Program',
   offering: 'Offering',
-  category: 'Category',
   scheduling_class: 'Class session',
 }
 

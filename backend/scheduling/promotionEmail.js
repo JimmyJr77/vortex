@@ -15,7 +15,6 @@ function escapeHtml(str) {
  *   registrantFirstName: string
  *   registrantEmail: string
  *   formTitle: string
- *   categoryName: string
  *   slotLabel: string
  *   signupNumber: number
  *   maxParticipants: number
@@ -25,7 +24,6 @@ export async function sendPromotionEmail({
   registrantFirstName,
   registrantEmail,
   formTitle,
-  categoryName,
   slotLabel,
   signupNumber,
   maxParticipants,
@@ -42,7 +40,6 @@ You are number ${signupNumber} of ${maxParticipants}.
 
 Event details:
 • Event: ${title}
-• Category: ${categoryName}
 • Time: ${slotLabel}
 
 We're excited to have you at Vortex Athletics. Save this email for your records.
@@ -62,7 +59,6 @@ ${TEAM_EMAIL}`
   <p style="font-size: 18px;">You are number <strong>${signupNumber}</strong> of <strong>${maxParticipants}</strong>.</p>
   <table style="margin: 20px 0; border-collapse: collapse;">
     <tr><td style="padding: 6px 12px 6px 0; color: #666;">Event</td><td><strong>${escapeHtml(title)}</strong></td></tr>
-    <tr><td style="padding: 6px 12px 6px 0; color: #666;">Category</td><td><strong>${escapeHtml(categoryName)}</strong></td></tr>
     <tr><td style="padding: 6px 12px 6px 0; color: #666;">Time</td><td><strong>${escapeHtml(slotLabel)}</strong></td></tr>
   </table>
   <p>Save this email for your records.</p>

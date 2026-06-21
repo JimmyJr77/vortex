@@ -12,7 +12,7 @@ export const SIGNUP_ORDER_PRICING_DISCLAIMER =
 
 async function resolveLineCostBenefits(
   pool,
-  { sportId, programId, formId, categoryId, programPromoCodes },
+  { sportId, programId, formId, programPromoCodes },
   discountRules = [],
 ) {
   const {
@@ -25,7 +25,6 @@ async function resolveLineCostBenefits(
     sportId,
     programId,
     formId,
-    categoryId,
   })
   resolved = mergeLegacyProgramPromos(resolved, programPromoCodes)
   if (discountRules.length) {
@@ -66,8 +65,8 @@ async function resolveLineCostBenefits(
   }
 }
 
-function programSlotSignupKey(formId, categoryId, slotGroupId, timeSlotId) {
-  return `${formId}:${categoryId ?? 'none'}:${slotGroupId}:${timeSlotId ?? 'none'}`
+function programSlotSignupKey(formId, slotGroupId, timeSlotId) {
+  return `${formId}:${slotGroupId}:${timeSlotId ?? 'none'}`
 }
 
 export function pricingScopeKey(formRow) {
@@ -215,39 +214,35 @@ async function loadExistingEnrollments(pool, memberId) {
 
   const result = await pool.query(
     `
-    SELECT s.id, s.form_id, s.category_id, s.slot_group_id, s.time_slot_id, s.status,
+    SELECT s.id, s.form_id, s.slot_group_id, s.time_slot_id, s.status,
            sf.title AS form_title,
-           COALESCE(sc.name, 'No Category') AS category_name,
            sg.display_label AS group_display_label,
            ts.display_label AS occurrence_display_label
     FROM scheduling_signup s
     JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
-    LEFT JOIN scheduling_category sc ON sc.id = s.category_id
     JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
     LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
     WHERE s.member_id = $1
       AND s.orphaned_at IS NULL
       AND s.status IN ('confirmed', 'waitlisted')
-    ORDER BY sf.title, category_name, s.id
+    ORDER BY sf.title, s.id
     `,
     [memberId],
   )
 
   return result.rows.map((row) => {
     const formId = Number(row.form_id)
-    const categoryId = row.category_id != null ? Number(row.category_id) : null
     const slotGroupId = Number(row.slot_group_id)
     const timeSlotId = row.time_slot_id != null ? Number(row.time_slot_id) : null
     return {
       id: Number(row.id),
       formId,
       formTitle: row.form_title,
-      categoryName: row.category_name,
       slotLabel: row.occurrence_display_label || row.group_display_label || '',
       status: row.status,
       slotGroupId,
       timeSlotId,
-      slotKey: programSlotSignupKey(formId, categoryId, slotGroupId, timeSlotId),
+      slotKey: programSlotSignupKey(formId, slotGroupId, timeSlotId),
     }
   })
 }
@@ -256,7 +251,6 @@ function signupSortKey(entry, formRows) {
   const formTitle = entry.formTitle || formRows.get(entry.formId)?.title || ''
   return [
     formTitle,
-    entry.categoryName || '',
     entry.slotLabel || '',
     entry.slotGroupId,
     entry.timeSlotId ?? 0,
@@ -273,7 +267,6 @@ export async function buildSignupOrderPreview(
   const filteredNew = newSignups.filter((entry) => {
     const key = programSlotSignupKey(
       entry.formId,
-      entry.categoryId ?? null,
       entry.slotGroupId,
       entry.timeSlotId ?? null,
     )
@@ -408,7 +401,6 @@ export async function buildSignupOrderPreview(
     newEntries.forEach((entry, index) => {
       const key = programSlotSignupKey(
         entry.formId,
-        entry.categoryId ?? null,
         entry.slotGroupId,
         entry.timeSlotId ?? null,
       )
@@ -439,7 +431,6 @@ export async function buildSignupOrderPreview(
     const formRow = formRows.get(entry.formId)
     const key = programSlotSignupKey(
       entry.formId,
-      entry.categoryId ?? null,
       entry.slotGroupId,
       entry.timeSlotId ?? null,
     )
@@ -449,7 +440,6 @@ export async function buildSignupOrderPreview(
     return {
       formId: entry.formId,
       formTitle: entry.formTitle || formRow?.title || 'Class',
-      categoryName: entry.categoryName || 'No Category',
       slotLabel: entry.slotLabel || '',
       slotKey: key,
       slotGroupId: entry.slotGroupId,
@@ -487,7 +477,6 @@ export async function buildSignupOrderPreview(
     id: entry.id,
     formId: entry.formId,
     formTitle: entry.formTitle,
-    categoryName: entry.categoryName,
     slotLabel: entry.slotLabel,
     status: entry.status,
     isNew: false,
@@ -570,17 +559,6 @@ export async function computeFreePassLayer(
     const caps = await loadFreePassCaps(pool, facilityId)
     const knownSchools = await loadActiveSchools(pool)
 
-    const categoryBySlotKey = new Map()
-    for (const entry of filteredNew) {
-      const key = programSlotSignupKey(
-        entry.formId,
-        entry.categoryId ?? null,
-        entry.slotGroupId,
-        entry.timeSlotId ?? null,
-      )
-      categoryBySlotKey.set(key, entry.categoryId ?? null)
-    }
-
     const slotGroupIds = [
       ...new Set(
         filteredNew.map((e) => e.slotGroupId).filter((id) => id != null),
@@ -606,14 +584,12 @@ export async function computeFreePassLayer(
     for (const item of newSignupItems) {
       const formRow = formRows.get(item.formId)
       const scope = formRow ? scopeMeta.get(pricingScopeKey(formRow)) : null
-      const categoryId = categoryBySlotKey.get(item.slotKey) ?? null
       const costBenefits = await resolveLineCostBenefits(
         pool,
         {
           sportId: scope?.sportId ?? null,
           programId: scope?.programsId ?? null,
           formId: item.formId,
-          categoryId,
           programPromoCodes: scope?.programAllowedPromoCodes ?? [],
         },
         [],
@@ -725,29 +701,17 @@ export async function computeDiscountLayer(
     }
   }
 
-  const categoryBySlotKey = new Map()
-  for (const item of newSignupItems) {
-    const parts = String(item.slotKey || '').split(':')
-    const categoryPart = parts[1]
-    categoryBySlotKey.set(
-      item.slotKey,
-      categoryPart && categoryPart !== 'none' ? Number(categoryPart) : null,
-    )
-  }
-
   const lines = []
   for (let index = 0; index < newSignupItems.length; index += 1) {
     const item = newSignupItems[index]
     const formRow = formRows.get(item.formId)
     const scope = formRow ? scopeMeta.get(pricingScopeKey(formRow)) : null
-    const categoryId = categoryBySlotKey.get(item.slotKey) ?? null
     const costBenefits = await resolveLineCostBenefits(
       pool,
       {
         sportId: scope?.sportId ?? null,
         programId: scope?.programsId ?? null,
         formId: item.formId,
-        categoryId,
         programPromoCodes: scope?.programAllowedPromoCodes ?? [],
       },
       rules,
@@ -872,7 +836,6 @@ export async function computeAdditionalFeesLayer(
     for (const entry of filteredNew) {
       const key = programSlotSignupKey(
         entry.formId,
-        entry.categoryId ?? null,
         entry.slotGroupId,
         entry.timeSlotId ?? null,
       )

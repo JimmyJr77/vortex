@@ -9,8 +9,6 @@ import { formatTime12, parseDateString } from './calendarDateUtils'
 export interface ClassScheduleOffering {
   key: string
   formId: number
-  categoryId: number | null
-  categoryName: string | null
   offeringId: number | null
   offeringLabel: string | null
   slotGroupId: number
@@ -66,7 +64,6 @@ function occurrenceFromParts(options: {
   const occ: SchedulingTimeSlot = {
     id: 0,
     formId: 0,
-    categoryId: null,
     scheduleMode: options.scheduleMode ?? 'day',
     weekLetter: options.weekLetter ?? null,
     dayOfWeek: options.dayOfWeek ?? null,
@@ -108,11 +105,10 @@ function classKey(programName: string | null, className: string) {
 
 function offeringKey(
   formId: number,
-  categoryId: number | null,
   slotGroupId: number,
   timeSlotId: number,
 ) {
-  return `${formId}:${categoryId ?? 'none'}:${slotGroupId}:${timeSlotId}`
+  return `${formId}:${slotGroupId}:${timeSlotId}`
 }
 
 interface MutableClass {
@@ -155,8 +151,6 @@ function addOffering(
     skillLevel: string | null
     skillRequirements: string | null
     formId: number
-    categoryId: number | null
-    categoryName: string | null
     offeringId: number | null
     offeringLabel: string | null
     slotGroupId: number
@@ -190,13 +184,11 @@ function addOffering(
   const classGroup = program.classes.get(cKey)!
   mergeClassMeta(classGroup, meta)
 
-  const key = offeringKey(meta.formId, meta.categoryId, meta.slotGroupId, meta.timeSlotId)
+  const key = offeringKey(meta.formId, meta.slotGroupId, meta.timeSlotId)
   if (!classGroup.offerings.has(key)) {
     classGroup.offerings.set(key, {
       key,
       formId: meta.formId,
-      categoryId: meta.categoryId,
-      categoryName: meta.categoryName,
       offeringId: meta.offeringId,
       offeringLabel: meta.offeringLabel,
       slotGroupId: meta.slotGroupId,
@@ -234,7 +226,6 @@ export function buildClassScheduleGroups(options: {
 
     const dedupeKey = offeringKey(
       event.formId,
-      event.categoryId,
       event.slotGroupId,
       event.timeSlotId,
     )
@@ -261,8 +252,6 @@ export function buildClassScheduleGroups(options: {
         skillLevel: event.skillLevel,
         skillRequirements: event.skillRequirements,
         formId: event.formId,
-        categoryId: event.categoryId,
-        categoryName: event.categoryName,
         offeringId: event.offeringId,
         offeringLabel: event.offeringLabel,
         slotGroupId: event.slotGroupId,
@@ -302,8 +291,6 @@ export function buildClassScheduleGroups(options: {
         skillLevel: tbd.skillLevel,
         skillRequirements: tbd.skillRequirements,
         formId: tbd.formId,
-        categoryId: tbd.categoryId,
-        categoryName: tbd.categoryName,
         offeringId: tbd.offeringId,
         offeringLabel: tbd.offeringLabel,
         slotGroupId: tbd.slotGroupId,

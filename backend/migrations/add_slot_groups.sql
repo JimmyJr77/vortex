@@ -3,7 +3,6 @@
 CREATE TABLE IF NOT EXISTS scheduling_slot_group (
   id               BIGSERIAL PRIMARY KEY,
   form_id          BIGINT NOT NULL REFERENCES scheduling_form(id) ON DELETE CASCADE,
-  category_id      BIGINT REFERENCES scheduling_category(id) ON DELETE CASCADE,
   schedule_mode    VARCHAR(10) NOT NULL DEFAULT 'day',
   max_participants INTEGER NOT NULL DEFAULT 10,
   active_start     DATE,
@@ -21,13 +20,12 @@ ALTER TABLE scheduling_signup
   ADD COLUMN IF NOT EXISTS slot_group_id BIGINT REFERENCES scheduling_slot_group(id);
 
 CREATE INDEX IF NOT EXISTS idx_scheduling_slot_group_form ON scheduling_slot_group(form_id);
-CREATE INDEX IF NOT EXISTS idx_scheduling_slot_group_category ON scheduling_slot_group(category_id);
 CREATE INDEX IF NOT EXISTS idx_scheduling_time_slot_group ON scheduling_time_slot(slot_group_id);
 CREATE INDEX IF NOT EXISTS idx_scheduling_signup_group ON scheduling_signup(slot_group_id);
 
 -- Backfill: each existing time slot becomes its own group of one
-INSERT INTO scheduling_slot_group (form_id, category_id, schedule_mode, max_participants, active_start, active_end, dates_tbd, is_active)
-SELECT ts.form_id, ts.category_id, COALESCE(ts.schedule_mode, 'day'), ts.max_participants,
+INSERT INTO scheduling_slot_group (form_id, schedule_mode, max_participants, active_start, active_end, dates_tbd, is_active)
+SELECT ts.form_id, COALESCE(ts.schedule_mode, 'day'), ts.max_participants,
        ts.active_start, ts.active_end, COALESCE(ts.dates_tbd, FALSE), COALESCE(ts.is_active, TRUE)
 FROM scheduling_time_slot ts
 WHERE ts.slot_group_id IS NULL;
@@ -37,7 +35,6 @@ SET slot_group_id = sg.id
 FROM scheduling_slot_group sg
 WHERE ts.slot_group_id IS NULL
   AND sg.form_id = ts.form_id
-  AND sg.category_id IS NOT DISTINCT FROM ts.category_id
   AND sg.schedule_mode = COALESCE(ts.schedule_mode, 'day')
   AND sg.max_participants = ts.max_participants
   AND sg.active_start IS NOT DISTINCT FROM ts.active_start

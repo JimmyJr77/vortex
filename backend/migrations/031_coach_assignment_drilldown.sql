@@ -4,9 +4,6 @@ ALTER TABLE coach_class_assignment
   ADD COLUMN IF NOT EXISTS programs_id BIGINT;
 
 ALTER TABLE coach_class_assignment
-  ADD COLUMN IF NOT EXISTS scheduling_category_id BIGINT REFERENCES scheduling_category(id) ON DELETE CASCADE;
-
-ALTER TABLE coach_class_assignment
   ADD COLUMN IF NOT EXISTS scheduling_offering_id BIGINT REFERENCES scheduling_offering(id) ON DELETE CASCADE;
 
 ALTER TABLE coach_class_assignment
@@ -22,7 +19,6 @@ ALTER TABLE coach_class_assignment
     OR program_id IS NOT NULL
     OR scheduling_form_id IS NOT NULL
     OR class_iteration_id IS NOT NULL
-    OR scheduling_category_id IS NOT NULL
     OR scheduling_offering_id IS NOT NULL
     OR scheduling_time_slot_id IS NOT NULL
   );
@@ -38,7 +34,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_assignment_programs_top
   WHERE programs_id IS NOT NULL
     AND program_id IS NULL
     AND scheduling_form_id IS NULL
-    AND scheduling_category_id IS NULL
     AND scheduling_offering_id IS NULL
     AND scheduling_time_slot_id IS NULL
     AND class_iteration_id IS NULL;
@@ -48,7 +43,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_assignment_class_event
   WHERE program_id IS NOT NULL
     AND programs_id IS NULL
     AND scheduling_form_id IS NULL
-    AND scheduling_category_id IS NULL
     AND scheduling_offering_id IS NULL
     AND scheduling_time_slot_id IS NULL
     AND class_iteration_id IS NULL;
@@ -56,13 +50,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_assignment_class_event
 CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_assignment_scheduling_form
   ON coach_class_assignment (coach_user_id, scheduling_form_id)
   WHERE scheduling_form_id IS NOT NULL
-    AND scheduling_category_id IS NULL
-    AND scheduling_offering_id IS NULL
-    AND scheduling_time_slot_id IS NULL;
-
-CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_assignment_category
-  ON coach_class_assignment (coach_user_id, scheduling_category_id)
-  WHERE scheduling_category_id IS NOT NULL
     AND scheduling_offering_id IS NULL
     AND scheduling_time_slot_id IS NULL;
 
@@ -76,6 +63,5 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_assignment_time_slot
   WHERE scheduling_time_slot_id IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS idx_coach_assignment_programs_id ON coach_class_assignment (programs_id);
-CREATE INDEX IF NOT EXISTS idx_coach_assignment_category ON coach_class_assignment (scheduling_category_id);
 CREATE INDEX IF NOT EXISTS idx_coach_assignment_offering ON coach_class_assignment (scheduling_offering_id);
 CREATE INDEX IF NOT EXISTS idx_coach_assignment_time_slot ON coach_class_assignment (scheduling_time_slot_id);

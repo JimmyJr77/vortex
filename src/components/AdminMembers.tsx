@@ -208,11 +208,15 @@ const memberTdClass = 'py-3 pr-4 align-middle'
 
 function formatMemberRoleLabel(role: string): string {
   const labels: Record<string, string> = {
+    MEMBER_ATHLETE: 'Member / Athlete',
+    MASTER_ADMIN: 'Master Admin',
+    ADMIN: 'Admin',
+    COACH: 'Coach',
+    STAFF: 'Staff',
+    // Legacy labels kept so historical data still renders nicely.
     PARENT_GUARDIAN: 'Parent/Guardian',
     ATHLETE: 'Athlete',
     OWNER_ADMIN: 'Owner Admin',
-    COACH: 'Coach',
-    STAFF: 'Staff',
   }
   return labels[role] || role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
@@ -1010,7 +1014,7 @@ export default function AdminMembers() {
       phone: cleanPhoneNumber(phone),
       username,
       password: password || 'vortex',
-      role: 'PARENT_GUARDIAN',
+      role: 'MEMBER_ATHLETE',
       address
     }
     
@@ -1338,7 +1342,7 @@ export default function AdminMembers() {
                 email: member.email,
                 username: member.username,
                 password: member.password || 'vortex',
-                role: 'ATHLETE',
+                role: 'MEMBER_ATHLETE',
                 address: combineAddress(editingMemberData.addressStreet, editingMemberData.addressCity, editingMemberData.addressState, editingMemberData.addressZip) || null
               })
             })
@@ -1717,7 +1721,7 @@ export default function AdminMembers() {
           phone: pendingUserData.phone,
           username: pendingUserData.username,
           password: pendingUserData.password,
-          role: 'PARENT_GUARDIAN',
+          role: 'MEMBER_ATHLETE',
           address: pendingUserData.address,
           action: action
         })

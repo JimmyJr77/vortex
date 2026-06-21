@@ -42,7 +42,6 @@ const AdminSignupsTable = ({ signups, detail, formId, onRefresh }: Props) => {
             <th className="py-2 pr-4 w-0">Account</th>
             <th className="py-2 pr-4 w-0">Password</th>
             <th className="py-2 pr-4 w-0">Total slots</th>
-            <th className="py-2 pr-4 w-0">Category</th>
             <th className="py-2 pr-4 w-0">Slot</th>
             <th className="py-2 pr-4 w-0">Status</th>
             <th className="py-2 pr-4 w-0">Position</th>
@@ -98,7 +97,6 @@ const AdminSignupsTable = ({ signups, detail, formId, onRefresh }: Props) => {
                 <td className="py-3 pr-4 w-0 text-xs font-medium">
                   {s.totalSlotsForUser != null ? s.totalSlotsForUser : '—'}
                 </td>
-                <td className="py-3 pr-4 w-0">{s.categoryName}</td>
                 <td className="py-3 pr-4 w-0">
                   <div className="inline-flex flex-col gap-0.5">
                     {slotLines.map((line, lineIndex) => (

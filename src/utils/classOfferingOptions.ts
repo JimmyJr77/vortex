@@ -1,5 +1,4 @@
 import {
-  adminFetchAllCategories,
   adminFetchOfferings,
   adminFetchSchedulingForms,
 } from './schedulingApi'
@@ -9,7 +8,6 @@ export interface ClassOfferingOption {
   id: number
   formId: number
   formTitle: string
-  categoryName: string
   startDate: string
   endDate: string
   label: string
@@ -30,11 +28,11 @@ export function isActiveOrUpcomingOffering(endDate: string, today = todayDateStr
 }
 
 export function offeringDisplayLabel(o: ClassOfferingOption): string {
-  return `${o.formTitle} · ${o.categoryName} · ${o.label}`
+  return `${o.formTitle} · ${o.label}`
 }
 
 export function offeringSearchHaystack(o: ClassOfferingOption): string {
-  return [o.formTitle, o.categoryName, o.label, o.startDate, o.endDate].join(' ').toLowerCase()
+  return [o.formTitle, o.label, o.startDate, o.endDate].join(' ').toLowerCase()
 }
 
 export function sportSearchHaystack(s: SportScopeOption): string {
@@ -49,11 +47,7 @@ export async function loadSportScopeOptions(): Promise<SportScopeOption[]> {
 }
 
 export async function loadClassOfferingOptions(): Promise<ClassOfferingOption[]> {
-  const [forms, categories] = await Promise.all([
-    adminFetchSchedulingForms(),
-    adminFetchAllCategories(),
-  ])
-  const categoryById = new Map(categories.map((c) => [c.id, c.name]))
+  const forms = await adminFetchSchedulingForms()
   const activeForms = forms.filter((f) => f.isActive)
 
   const nested = await Promise.all(
@@ -64,10 +58,6 @@ export async function loadClassOfferingOptions(): Promise<ClassOfferingOption[]>
           id: o.id,
           formId: form.id,
           formTitle: form.title,
-          categoryName:
-            o.categoryId != null
-              ? (categoryById.get(o.categoryId) ?? `Category #${o.categoryId}`)
-              : 'No category',
           startDate: o.startDate,
           endDate: o.endDate,
           label: o.label?.trim() || `${o.startDate} – ${o.endDate}`,

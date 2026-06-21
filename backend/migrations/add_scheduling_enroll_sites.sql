@@ -1,9 +1,6 @@
--- Per-site enroll page visibility for scheduling programs, forms, and categories.
+-- Per-site enroll page visibility for scheduling programs and forms.
 
 ALTER TABLE scheduling_form
-  ADD COLUMN IF NOT EXISTS enroll_sites TEXT[];
-
-ALTER TABLE scheduling_category
   ADD COLUMN IF NOT EXISTS enroll_sites TEXT[];
 
 DO $$
@@ -39,11 +36,6 @@ BEGIN
 END $$;
 
 UPDATE scheduling_form
-SET enroll_sites = ARRAY['athletics', 'gymnastics', 'basketball']::text[]
-WHERE is_active = TRUE
-  AND (enroll_sites IS NULL OR cardinality(enroll_sites) = 0);
-
-UPDATE scheduling_category
 SET enroll_sites = ARRAY['athletics', 'gymnastics', 'basketball']::text[]
 WHERE is_active = TRUE
   AND (enroll_sites IS NULL OR cardinality(enroll_sites) = 0);

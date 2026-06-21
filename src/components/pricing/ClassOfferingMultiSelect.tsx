@@ -86,7 +86,6 @@ const ClassOfferingMultiSelect = ({
           id,
           formId: 0,
           formTitle: 'Saved offering',
-          categoryName: '',
           startDate: '',
           endDate: '',
           label: `#${id}`,
@@ -188,7 +187,6 @@ const ClassOfferingMultiSelect = ({
                       Offering
                     </span>
                     <span className="block font-medium text-gray-900">{o.formTitle}</span>
-                    <span className="text-gray-500"> · {o.categoryName}</span>
                     <span className="block text-xs text-gray-500 mt-0.5">
                       {o.label} ({o.startDate} – {o.endDate})
                     </span>

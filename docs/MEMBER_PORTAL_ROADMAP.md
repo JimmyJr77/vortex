@@ -52,6 +52,24 @@ Children carry guardian member IDs in a Postgres `BIGINT[]` (`006_simplified_fam
 **Why:** fast guardian lookups for the common case without a join, while a relationship table
 keeps richer authority metadata.
 
+### Consolidated role model + derived member attributes
+Roles collapsed to four (`MASTER_ADMIN`, `ADMIN`, `COACH`, `MEMBER_ATHLETE`) in
+[032_role_model_consolidation.sql](../backend/migrations/032_role_model_consolidation.sql).
+Every member-portal login is now a single `MEMBER_ATHLETE` role. **Why:** the legacy
+`MEMBER` / `PARENT_GUARDIAN` / `ATHLETE` / `ATHLETE_VIEWER` roles overlapped and drifted
+out of sync with actual access.
+
+- **Youth (<18) vs Athlete (18+)** is derived from `member.date_of_birth` via `isAdult()`
+  — not a role. Backend "adult only" gates (add/edit/remove family members) now use the
+  `userIsAdult(userId)` helper ([backend/server.js](../backend/server.js)) instead of a
+  `PARENT_GUARDIAN` role check. Accounts with unknown DOB are treated as adults so existing
+  logins are never locked out.
+- **Family Rep** is the family billing payer (`family_billing_account.payer_member_id`),
+  surfaced as `is_family_rep`/`is_primary` and `athlete_type` (`youth`/`adult`) on the
+  family-members API and rendered as a relationship badge in the dashboard.
+- The default master account (`team.vortexathletics@gmail.com`, override via
+  `DEFAULT_MASTER_EMAIL`) cannot be deleted, deactivated, or stripped of `MASTER_ADMIN`.
+
 ### Two auth middlewares (legacy vs platform)
 - `authenticateMember` ([backend/server.js](../backend/server.js)) guards the monolith
   `/api/members/*` CRUD/enroll routes; sets `req.userId`/`req.memberId`.

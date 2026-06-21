@@ -28,8 +28,6 @@ interface Props {
   offeringStartDate?: string | null
   offeringEndDate?: string | null
   offeringLabel?: string | null
-  selectedCategoryId?: number | null
-  categoryName?: string | null
   canBuild?: boolean
   orphanedSignups: SchedulingOrphanedSignup[]
   signups: SchedulingSignup[]
@@ -106,7 +104,6 @@ function updateDateEntryAt(entries: DateEntry[], idx: number, updater: (entry: D
 }
 
 function payloadBase(
-  builderCategoryId: number | '',
   activeDatesMode: 'inherit' | 'custom' | 'tbd',
   activeStart: string,
   activeEnd: string,
@@ -115,7 +112,6 @@ function payloadBase(
   offeringId?: number | null,
 ) {
   return {
-    categoryId: builderCategoryId === '' ? null : Number(builderCategoryId),
     offeringId: offeringId ?? null,
     activeDatesMode,
     activeStart: activeDatesMode === 'custom' ? activeStart || null : null,
@@ -134,32 +130,26 @@ const AdminSchedulingSlots = ({
   offeringStartDate,
   offeringEndDate,
   offeringLabel,
-  selectedCategoryId,
-  categoryName,
   canBuild = true,
   orphanedSignups,
   signups,
   forms,
   onRefresh,
 }: Props) => {
-  const formCategories = detail.categories
-
   const offeringScopedSlotGroups = useMemo(() => {
     if (offeringId == null) return []
 
     return (detail.slotGroups ?? []).filter((group) => {
       if (!isScheduledSlotVisible(group, signups, orphanedSignups)) return false
-      if ((group.categoryId ?? null) !== (selectedCategoryId ?? null)) return false
       return group.offeringId === offeringId
     })
-  }, [detail.slotGroups, signups, orphanedSignups, offeringId, selectedCategoryId])
+  }, [detail.slotGroups, signups, orphanedSignups, offeringId])
 
   const builderRef = useRef<HTMLDivElement>(null)
   const savingRef = useRef(false)
   const deletingRef = useRef(false)
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const [editingSlotGroupId, setEditingSlotGroupId] = useState<number | null>(null)
-  const [builderCategoryId, setBuilderCategoryId] = useState<number | ''>('')
   const [activeDatesMode, setActiveDatesMode] = useState<'inherit' | 'custom' | 'tbd'>('inherit')
   const [activeStart, setActiveStart] = useState('')
   const [activeEnd, setActiveEnd] = useState('')
@@ -179,14 +169,6 @@ const AdminSchedulingSlots = ({
     end: formatDateForInput(offeringEndDate ?? formEndDate),
   })
 
-  useEffect(() => {
-    if (selectedCategoryId != null) {
-      setBuilderCategoryId(selectedCategoryId)
-    } else if (canBuild && categoryName) {
-      setBuilderCategoryId('')
-    }
-  }, [selectedCategoryId, canBuild, categoryName])
-
   const resetBuilderForm = () => {
     const { start, end } = inheritedDates()
     setSaveError(null)
@@ -200,7 +182,6 @@ const AdminSchedulingSlots = ({
     setActiveWeekIdx(0)
     setDateEntries([{ type: 'single', date: '', startDate: '', endDate: '', times: [defaultTime()] }])
     setLastTime(defaultTime())
-    setBuilderCategoryId('')
   }
 
   const scrollToBuilder = () => {
@@ -209,7 +190,6 @@ const AdminSchedulingSlots = ({
 
   const populateFormFromGroup = (group: SchedulingSlotGroup) => {
     const { start, end } = inheritedDates()
-    setBuilderCategoryId(group.categoryId ?? '')
     setMaxParticipants(group.maxParticipants)
     setScheduleMode(group.scheduleMode)
 
@@ -312,23 +292,8 @@ const AdminSchedulingSlots = ({
 
   const scheduledSections: { id: number | null; name: string }[] = useMemo(() => {
     if (offeringId == null) return []
-
-    const name =
-      categoryName ??
-      (selectedCategoryId == null
-        ? 'No Category'
-        : (formCategories.find((c) => c.id === selectedCategoryId)?.name ??
-          detail.allCategories?.find((c) => c.id === selectedCategoryId)?.name ??
-          `Category #${selectedCategoryId}`))
-
-    return [{ id: selectedCategoryId ?? null, name }]
-  }, [
-    offeringId,
-    categoryName,
-    selectedCategoryId,
-    formCategories,
-    detail.allCategories,
-  ])
+    return [{ id: null, name: offeringLabel || 'Scheduled slots' }]
+  }, [offeringId, offeringLabel])
 
   const sectionKey = (id: number | null, name: string) =>
     id == null ? `none:${name}` : String(id)
@@ -342,7 +307,7 @@ const AdminSchedulingSlots = ({
     }
     const initial = scheduledSections[0]
     setExpanded({ [sectionKey(initial.id, initial.name)]: true })
-  }, [offeringId, selectedCategoryId, scheduledSections])
+  }, [offeringId, scheduledSections])
 
   const applyInheritedDates = () => {
     const { start, end } = inheritedDates()
@@ -462,7 +427,6 @@ const AdminSchedulingSlots = ({
 
   const buildPayload = (): SlotBatchPayload | null => {
     const base = payloadBase(
-      builderCategoryId,
       activeDatesMode,
       activeStart,
       activeEnd,
@@ -603,15 +567,9 @@ const AdminSchedulingSlots = ({
         {editingSlotGroupId ? 'Edit time slot' : 'Add time slot'}
       </h3>
       <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-4 w-full">
-        {categoryName != null && (
+        {offeringLabel && (
           <div className="text-sm text-gray-700">
-            Category: <strong>{categoryName}</strong>
-            {offeringLabel && (
-              <>
-                {' '}
-                · Offering: <strong>{offeringLabel}</strong>
-              </>
-            )}
+            Offering: <strong>{offeringLabel}</strong>
           </div>
         )}
 

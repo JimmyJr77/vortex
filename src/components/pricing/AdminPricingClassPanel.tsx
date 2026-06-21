@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import {
-  adminFetchFormCategories,
   adminFetchSchedulingForm,
   adminSaveSchedulingForm,
   resetClassPricing,
-  type SchedulingCategory,
 } from '../../utils/schedulingApi'
 import type { AdminProgramPricing, TopProgram } from '../../utils/programsApi'
 import { formatSchedulingCosts } from '../../utils/classSchedulingSummary'
@@ -32,7 +30,6 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
   const [saved, setSaved] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
   const [formTitle, setFormTitle] = useState(classRow.displayName)
-  const [categories, setCategories] = useState<SchedulingCategory[]>([])
 
   const inherits = !classRow.pricingOverridesProgram
   const formId = classRow.schedulingFormId
@@ -49,9 +46,6 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
     void adminFetchSchedulingForm(formId)
       .then((form) => setFormTitle(form.title))
       .catch(() => setFormTitle(classRow.displayName))
-    void adminFetchFormCategories(formId)
-      .then(setCategories)
-      .catch(() => setCategories([]))
   }, [formId, classRow.displayName])
 
   const programDefaultsLabel = formatSchedulingCosts({
@@ -209,21 +203,6 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
           scopeRefId={formId}
           title="Class discounts & free passes"
         />
-      )}
-
-      {categories.length > 0 && (
-        <div className="space-y-3">
-          <h5 className="text-sm font-bold text-gray-900">Category-level benefits</h5>
-          {categories.map((cat) => (
-            <PricingBenefitSelectionField
-              key={cat.id}
-              scopeLevel="category"
-              scopeRefId={cat.id}
-              title={cat.name}
-              compact
-            />
-          ))}
-        </div>
       )}
 
       <ConfirmPricingActionModal

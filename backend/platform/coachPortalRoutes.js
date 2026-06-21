@@ -1755,7 +1755,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const facilityId = req.platformAuth.user.facility_id
       const targetType = req.body?.target_type
       const assignableType = req.body?.assignable_type
-      const validTargets = ['member', 'class', 'family', 'program', 'offering', 'category', 'scheduling_class', 'primary_sport']
+      const validTargets = ['member', 'class', 'family', 'program', 'offering', 'scheduling_class', 'primary_sport']
       const validAssignable = ['workout', 'training_program', 'challenge', 'video_submission']
       if (!validTargets.includes(targetType)) return bad(res, 'Invalid target_type.')
       if (!validAssignable.includes(assignableType)) return bad(res, 'Invalid assignable_type.')
@@ -1789,7 +1789,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   app.get('/api/coach/assign/target-options', ...can('plans.assign'), async (req, res) => {
     try {
       const type = String(req.query.type || '')
-      const valid = ['primary_sport', 'program', 'offering', 'category', 'scheduling_class']
+      const valid = ['primary_sport', 'program', 'offering', 'scheduling_class']
       if (!valid.includes(type)) return bad(res, 'Invalid type.')
       const options = await queryAssignTargetOptions(pool, {
         type,
@@ -1807,7 +1807,6 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         sportId: num(req.query.sportId),
         programId: num(req.query.programId),
         formId: num(req.query.formId),
-        categoryId: num(req.query.categoryId),
       })
       ok(res, data)
     } catch (error) {

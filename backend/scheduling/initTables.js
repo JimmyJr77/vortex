@@ -50,27 +50,9 @@ export async function initSchedulingTables(pool) {
   `)
 
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS scheduling_category (
-      id          BIGSERIAL PRIMARY KEY,
-      form_id     BIGINT REFERENCES scheduling_form(id) ON DELETE CASCADE,
-      name        VARCHAR(255) NOT NULL,
-      description TEXT,
-      sort_order  INTEGER NOT NULL DEFAULT 0,
-      is_active   BOOLEAN NOT NULL DEFAULT TRUE,
-      created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-      updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
-    )
-  `)
-
-  await pool.query(`
-    ALTER TABLE scheduling_category ALTER COLUMN form_id DROP NOT NULL
-  `)
-
-  await pool.query(`
     CREATE TABLE IF NOT EXISTS scheduling_time_slot (
       id               BIGSERIAL PRIMARY KEY,
       form_id          BIGINT NOT NULL REFERENCES scheduling_form(id) ON DELETE CASCADE,
-      category_id      BIGINT REFERENCES scheduling_category(id) ON DELETE CASCADE,
       schedule_mode    VARCHAR(10) DEFAULT 'day',
       week_letter      VARCHAR(2),
       day_of_week      INTEGER,
@@ -115,7 +97,6 @@ export async function initSchedulingTables(pool) {
     CREATE TABLE IF NOT EXISTS scheduling_signup (
       id              BIGSERIAL PRIMARY KEY,
       form_id         BIGINT NOT NULL REFERENCES scheduling_form(id) ON DELETE CASCADE,
-      category_id     BIGINT NOT NULL REFERENCES scheduling_category(id),
       time_slot_id    BIGINT NOT NULL REFERENCES scheduling_time_slot(id),
       first_name      VARCHAR(255),
       last_name       VARCHAR(255),
@@ -158,38 +139,13 @@ export async function initSchedulingTables(pool) {
     CHECK (status IN ('confirmed', 'waitlisted', 'cancelled'))
   `)
 
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS scheduling_form_category (
-      form_id     BIGINT NOT NULL REFERENCES scheduling_form(id) ON DELETE CASCADE,
-      category_id BIGINT NOT NULL REFERENCES scheduling_category(id) ON DELETE CASCADE,
-      PRIMARY KEY (form_id, category_id)
-    )
-  `)
-
-  await pool.query(`
-    INSERT INTO scheduling_form_category (form_id, category_id)
-    SELECT form_id, id FROM scheduling_category WHERE form_id IS NOT NULL
-    ON CONFLICT DO NOTHING
-  `)
-
-  await pool.query(`
-    INSERT INTO scheduling_form_category (form_id, category_id)
-    SELECT DISTINCT form_id, category_id FROM scheduling_time_slot
-    WHERE category_id IS NOT NULL
-    ON CONFLICT DO NOTHING
-  `)
-
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_category_form ON scheduling_category(form_id)`)
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_form_category_form ON scheduling_form_category(form_id)`)
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_slot_form ON scheduling_time_slot(form_id)`)
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_slot_category ON scheduling_time_slot(category_id)`)
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_signup_slot ON scheduling_signup(time_slot_id)`)
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS scheduling_slot_group (
       id               BIGSERIAL PRIMARY KEY,
       form_id          BIGINT NOT NULL REFERENCES scheduling_form(id) ON DELETE CASCADE,
-      category_id      BIGINT REFERENCES scheduling_category(id) ON DELETE CASCADE,
       schedule_mode    VARCHAR(10) NOT NULL DEFAULT 'day',
       max_participants INTEGER NOT NULL DEFAULT 10,
       active_start     DATE,
@@ -212,7 +168,6 @@ export async function initSchedulingTables(pool) {
   `)
 
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_slot_group_form ON scheduling_slot_group(form_id)`)
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_slot_group_category ON scheduling_slot_group(category_id)`)
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_time_slot_group ON scheduling_time_slot(slot_group_id)`)
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_signup_group ON scheduling_signup(slot_group_id)`)
 
@@ -223,14 +178,13 @@ export async function initSchedulingTables(pool) {
     const groupRes = await pool.query(
       `
       INSERT INTO scheduling_slot_group (
-        form_id, category_id, schedule_mode, max_participants,
+        form_id, schedule_mode, max_participants,
         active_start, active_end, dates_tbd, is_active
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id
       `,
       [
         slot.form_id,
-        slot.category_id,
         slot.schedule_mode || 'day',
         slot.max_participants,
         slot.active_start,
@@ -250,10 +204,6 @@ export async function initSchedulingTables(pool) {
     SET slot_group_id = ts.slot_group_id
     FROM scheduling_time_slot ts
     WHERE s.time_slot_id = ts.id AND s.slot_group_id IS NULL
-  `)
-
-  await pool.query(`
-    ALTER TABLE scheduling_signup ALTER COLUMN category_id DROP NOT NULL
   `)
 
   await pool.query(`
@@ -338,7 +288,6 @@ export async function initSchedulingTables(pool) {
     CREATE TABLE IF NOT EXISTS scheduling_offering (
       id           BIGSERIAL PRIMARY KEY,
       form_id      BIGINT NOT NULL REFERENCES scheduling_form(id) ON DELETE CASCADE,
-      category_id  BIGINT NOT NULL REFERENCES scheduling_category(id) ON DELETE CASCADE,
       start_date   DATE NOT NULL,
       end_date     DATE NOT NULL,
       label        VARCHAR(255),
@@ -348,19 +297,10 @@ export async function initSchedulingTables(pool) {
     )
   `)
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_offering_form ON scheduling_offering(form_id)`)
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_offering_category ON scheduling_offering(category_id)`)
   await pool.query(`DROP INDEX IF EXISTS idx_scheduling_offering_selected`)
   await pool.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_scheduling_offering_selected
-    ON scheduling_offering(form_id, category_id) WHERE is_selected = TRUE AND category_id IS NOT NULL
-  `)
-  await pool.query(`
-    CREATE UNIQUE INDEX IF NOT EXISTS idx_scheduling_offering_selected_no_cat
-    ON scheduling_offering(form_id) WHERE is_selected = TRUE AND category_id IS NULL
-  `)
-  await pool.query(`
-    ALTER TABLE scheduling_offering
-      ALTER COLUMN category_id DROP NOT NULL
+    ON scheduling_offering(form_id) WHERE is_selected = TRUE
   `)
   await pool.query(`
     ALTER TABLE scheduling_slot_group

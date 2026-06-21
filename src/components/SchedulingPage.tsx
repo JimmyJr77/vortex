@@ -82,10 +82,6 @@ const SchedulingPage = () => {
     () => parseOptionalInt(searchParams.get('programsId')),
     [searchParams],
   )
-  const urlCategoryId = useMemo(
-    () => parseOptionalInt(searchParams.get('categoryId')),
-    [searchParams],
-  )
   const urlOfferingId = useMemo(
     () => parseOptionalInt(searchParams.get('offeringId')),
     [searchParams],
@@ -308,9 +304,8 @@ const SchedulingPage = () => {
                 {signupComplete ? 'Return to classes' : 'Back to classes'}
               </button>
               <SchedulingSignupEmbed
-                key={`${selectedFormId}:${urlCategoryId ?? 'none'}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}`}
+                key={`${selectedFormId}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}`}
                 formId={selectedFormId}
-                initialCategoryId={urlCategoryId}
                 initialOfferingId={urlOfferingId}
                 initialSlotGroupId={urlSlotGroupId}
                 initialTimeSlotId={urlTimeSlotId}

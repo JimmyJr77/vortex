@@ -9,7 +9,6 @@ import ClassSchedulingExpandPanel from './ClassSchedulingExpandPanel'
 type SpreadsheetSortField =
   | 'program'
   | 'class'
-  | 'categories'
   | 'offerings'
   | 'slots'
   | 'costs'
@@ -121,9 +120,6 @@ const AdminClassesEventsSpreadsheet = ({
         case 'class':
           cmp = a.className.localeCompare(b.className)
           break
-        case 'categories':
-          cmp = a.categoriesSummary.localeCompare(b.categoriesSummary)
-          break
         case 'offerings':
           cmp = a.offeringCount - b.offeringCount
           break
@@ -186,14 +182,6 @@ const AdminClassesEventsSpreadsheet = ({
             </th>
             <th className={thClass}>
               <SortableHeader
-                label="Categories"
-                field="categories"
-                sortConfig={sortConfig}
-                onSort={handleSort}
-              />
-            </th>
-            <th className={thClass}>
-              <SortableHeader
                 label="Offerings"
                 field="offerings"
                 sortConfig={sortConfig}
@@ -221,7 +209,6 @@ const AdminClassesEventsSpreadsheet = ({
                 >
                   <td className={tdClass}>{row.programName}</td>
                   <td className={`${tdClass} font-medium`}>{row.className}</td>
-                  <td className={tdClass}>{row.categoriesSummary}</td>
                   <td className={tdClass}>{row.offeringsSummary}</td>
                   <td className={tdClass}>{row.slotsSummary}</td>
                   <td className={tdClass}>{row.costsSummary}</td>
@@ -240,7 +227,7 @@ const AdminClassesEventsSpreadsheet = ({
                 </tr>
                 {isExpanded && meta && (
                   <tr>
-                    <td colSpan={7} className="px-0 py-0">
+                    <td colSpan={6} className="px-0 py-0">
                       <ClassSchedulingExpandPanel
                         classId={row.classId}
                         className={row.className}

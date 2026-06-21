@@ -19,7 +19,7 @@ ALTER TABLE coaching.plan_assignment
   ADD CONSTRAINT plan_assignment_target_type_check
   CHECK (target_type IN (
     'member', 'class', 'family',
-    'program', 'offering', 'category', 'scheduling_class', 'primary_sport'
+    'program', 'offering', 'scheduling_class', 'primary_sport'
   ));
 
 ALTER TABLE coaching.plan_assignment

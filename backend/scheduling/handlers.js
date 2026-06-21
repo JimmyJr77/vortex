@@ -63,52 +63,15 @@ import {
   parseCalendarDateRange,
 } from './calendarQuery.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
-import { ensureNoCategoryCategory, isNoCategoryCategoryRow, NO_CATEGORY_NAME } from '../programs/noCategory.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-async function findActiveClassesUsingCategory(pool, categoryId) {
-  const result = await pool.query(
-    `
-    SELECT DISTINCT p.display_name AS "displayName"
-    FROM (
-      SELECT sf.program_id AS class_id
-      FROM scheduling_form_category sfc
-      JOIN scheduling_form sf ON sf.id = sfc.form_id AND sf.deleted_at IS NULL
-      WHERE sfc.category_id = $1 AND sf.program_id IS NOT NULL
-      UNION
-      SELECT p.id AS class_id
-      FROM program p
-      WHERE p.scheduling_category_id = $1
-      UNION
-      SELECT sf.program_id AS class_id
-      FROM scheduling_offering o
-      JOIN scheduling_form sf ON sf.id = o.form_id AND sf.deleted_at IS NULL
-      WHERE o.category_id = $1 AND sf.program_id IS NOT NULL
-      UNION
-      SELECT sf.program_id AS class_id
-      FROM scheduling_slot_group g
-      JOIN scheduling_form sf ON sf.id = g.form_id AND sf.deleted_at IS NULL
-      WHERE g.category_id = $1 AND sf.program_id IS NOT NULL
-    ) links
-    JOIN program p ON p.id = links.class_id
-    WHERE p.archived = FALSE
-      AND COALESCE(p.is_active, TRUE) = TRUE
-    ORDER BY p.display_name
-    `,
-    [categoryId],
-  )
-  return result.rows.map((row) => row.displayName)
-}
 
 async function buildOrphanSnapshot(db, groupId) {
   const groupRes = await db.query(
     `
-    SELECT sg.*, f.title AS form_title, f.start_date AS form_start_date, f.end_date AS form_end_date,
-      c.name AS category_name
+    SELECT sg.*, f.title AS form_title, f.start_date AS form_start_date, f.end_date AS form_end_date
     FROM scheduling_slot_group sg
     JOIN scheduling_form f ON f.id = sg.form_id
-    LEFT JOIN scheduling_category c ON c.id = sg.category_id
     WHERE sg.id = $1
     `,
     [groupId],
@@ -129,7 +92,6 @@ async function buildOrphanSnapshot(db, groupId) {
   const dates = resolveSlotActiveDates(group, form)
   return {
     formTitle: group.form_title,
-    categoryName: group.category_name || 'No Category',
     slotLabel: buildGroupDisplayLabel(occurrences),
     occurrences: occurrences.map((row) => ({
       weekLetter: row.week_letter || null,
@@ -171,12 +133,10 @@ async function insertSignupForMember(
   {
     formId,
     formRow,
-    signupCategoryId,
     slotGroupId,
     memberId,
     responses,
     firstOccurrenceId,
-    categoryName,
     formTitle,
     mandateWaiver,
     groupDisplayLabel,
@@ -221,14 +181,13 @@ async function insertSignupForMember(
   const insert = await client.query(
     `
     INSERT INTO scheduling_signup
-      (form_id, category_id, time_slot_id, slot_group_id, member_id,
+      (form_id, time_slot_id, slot_group_id, member_id,
        first_name, last_name, email, phone, field_responses, responses, status, admin_stub)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     RETURNING *
     `,
     [
       formId,
-      signupCategoryId,
       firstOccurrenceId,
       slotGroupId,
       memberId,
@@ -280,7 +239,6 @@ async function insertSignupForMember(
     positions,
     pricing,
     slotLabel: groupDisplayLabel || firstOccurrenceLabel || '',
-    categoryName,
     formTitle,
     mandateWaiver,
     responses,
@@ -292,7 +250,6 @@ async function sendSignupNotificationEmails(pool, {
   signupId,
   responses,
   formTitle,
-  categoryName,
   slotLabel,
   positions,
   pricing,
@@ -304,7 +261,6 @@ async function sendSignupNotificationEmails(pool, {
     registrantFirstName: String(responses.first_name || ''),
     registrantEmail: String(responses.email || ''),
     formTitle,
-    categoryName,
     slotLabel,
     pricing,
   }
@@ -469,52 +425,44 @@ async function mapFormRowWithPricing(db, row) {
   return mapFormRow(row, programRow)
 }
 
-function programClassOptionKey(formId, categoryId) {
-  return `${formId}:${categoryId ?? 'none'}`
+function programClassOptionKey(formId) {
+  return `${formId}`
 }
 
-function programSlotSignupKey(formId, categoryId, slotGroupId, timeSlotId) {
-  return `${formId}:${categoryId ?? 'none'}:${slotGroupId}:${timeSlotId ?? 'none'}`
+function programSlotSignupKey(formId, slotGroupId, timeSlotId) {
+  return `${formId}:${slotGroupId}:${timeSlotId ?? 'none'}`
 }
 
 function buildProgramClassOptionsFromDetail(detail, { signedUpSlotKeys = null } = {}) {
-  const options = []
-  for (const cat of detail.categories) {
-    const catId = cat.id ?? null
-    const groups = detail.slotGroups.filter((g) => (g.categoryId ?? null) === catId)
-    const slots = []
-    for (const group of groups) {
-      for (const occ of group.occurrences) {
-        const slotKey = programSlotSignupKey(detail.id, catId, group.id, occ.id)
-        slots.push({
-          slotGroupId: group.id,
-          timeSlotId: occ.id,
-          label: group.displayLabel || occ.displayLabel || '',
-          isFull: group.isFull,
-          spotsRemaining: group.spotsRemaining,
-          waitlistCount: group.waitlistCount ?? 0,
-          alreadySignedUp: signedUpSlotKeys?.has(slotKey) ?? false,
-          scheduleMode: occ.scheduleMode || group.scheduleMode || 'day',
-          dayOfWeek: occ.dayOfWeek ?? null,
-          dayName: occ.dayName ?? null,
-          specificDate: occ.specificDate ?? null,
-          startTime: occ.startTime,
-          endTime: occ.endTime,
-          weekLetter: occ.weekLetter ?? null,
-        })
-      }
+  const slots = []
+  for (const group of detail.slotGroups) {
+    for (const occ of group.occurrences) {
+      const slotKey = programSlotSignupKey(detail.id, group.id, occ.id)
+      slots.push({
+        slotGroupId: group.id,
+        timeSlotId: occ.id,
+        label: group.displayLabel || occ.displayLabel || '',
+        isFull: group.isFull,
+        spotsRemaining: group.spotsRemaining,
+        waitlistCount: group.waitlistCount ?? 0,
+        alreadySignedUp: signedUpSlotKeys?.has(slotKey) ?? false,
+        scheduleMode: occ.scheduleMode || group.scheduleMode || 'day',
+        dayOfWeek: occ.dayOfWeek ?? null,
+        dayName: occ.dayName ?? null,
+        specificDate: occ.specificDate ?? null,
+        startTime: occ.startTime,
+        endTime: occ.endTime,
+        weekLetter: occ.weekLetter ?? null,
+      })
     }
-    if (slots.length === 0) continue
-    options.push({
-      key: programClassOptionKey(detail.id, catId),
-      formId: detail.id,
-      formTitle: detail.title,
-      categoryId: catId,
-      categoryName: cat.name,
-      slots,
-    })
   }
-  return options
+  if (slots.length === 0) return []
+  return [{
+    key: programClassOptionKey(detail.id),
+    formId: detail.id,
+    formTitle: detail.title,
+    slots,
+  }]
 }
 
 async function loadFormProgramsId(pool, formId) {
@@ -550,25 +498,9 @@ async function resolveSignupEntryForInsert(pool, entry) {
     throw err
   }
 
-  const signupCategoryId = entry.categoryId ?? null
   const group = detail.slotGroups.find((g) => g.id === entry.slotGroupId)
   if (!group) {
     const err = new Error('Invalid time slot group')
-    err.code = 'INVALID_ENTRY'
-    throw err
-  }
-  if ((group.categoryId ?? null) !== signupCategoryId) {
-    const err = new Error('Time slot does not match category')
-    err.code = 'INVALID_ENTRY'
-    throw err
-  }
-
-  const category =
-    signupCategoryId != null
-      ? detail.categories.find((c) => c.id === signupCategoryId)
-      : { id: null, name: 'No Category' }
-  if (signupCategoryId != null && !category) {
-    const err = new Error('Invalid category')
     err.code = 'INVALID_ENTRY'
     throw err
   }
@@ -592,25 +524,7 @@ async function resolveSignupEntryForInsert(pool, entry) {
     formRow,
     detail,
     group,
-    category,
     firstOccurrence,
-    signupCategoryId,
-  }
-}
-
-function mapCategoryRow(row) {
-  const enrollSites = Array.isArray(row.enroll_sites)
-    ? row.enroll_sites
-    : row.is_active
-      ? ['athletics', 'gymnastics', 'basketball']
-      : []
-  return {
-    id: Number(row.id),
-    formId: row.form_id != null ? Number(row.form_id) : null,
-    name: row.name,
-    sortOrder: row.sort_order,
-    isActive: row.is_active,
-    enrollSites,
   }
 }
 
@@ -618,7 +532,6 @@ function mapOfferingRow(row) {
   return {
     id: Number(row.id),
     formId: Number(row.form_id),
-    categoryId: row.category_id != null ? Number(row.category_id) : null,
     startDate: formatDateOnly(row.start_date),
     endDate: formatDateOnly(row.end_date),
     label: row.label,
@@ -626,43 +539,6 @@ function mapOfferingRow(row) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
-}
-
-async function loadAllCategories(pool) {
-  const result = await pool.query(
-    'SELECT * FROM scheduling_category ORDER BY sort_order, id',
-  )
-  return result.rows
-    .filter((row) => !isNoCategoryCategoryRow(row))
-    .map(mapCategoryRow)
-}
-
-async function loadFormCategories(pool, formId, { includeInactive = false, site = null } = {}) {
-  const result = await pool.query(
-    `
-    SELECT DISTINCT c.*
-    FROM scheduling_category c
-    WHERE c.id IN (
-      SELECT category_id FROM scheduling_form_category WHERE form_id = $1
-      UNION
-      SELECT category_id FROM scheduling_time_slot WHERE form_id = $1 AND category_id IS NOT NULL
-      UNION
-      SELECT category_id FROM scheduling_slot_group WHERE form_id = $1 AND category_id IS NOT NULL
-    )
-    ${includeInactive ? '' : 'AND c.is_active = TRUE'}
-    ORDER BY c.sort_order, c.id
-    `,
-    [formId],
-  )
-  const { rowVisibleOnEnrollSite } = await import('./enrollSites.js')
-  return result.rows
-    .map(mapCategoryRow)
-    .filter((cat) => {
-      if (includeInactive) return true
-      if (!cat.isActive) return false
-      if (!site) return true
-      return rowVisibleOnEnrollSite(cat.enrollSites, cat.isActive, site)
-    })
 }
 
 function resolveSlotActiveDates(slot, form) {
@@ -693,7 +569,6 @@ function mapSlotRow(row, signupCount = 0, form = null) {
     id: Number(row.id),
     slotGroupId: row.slot_group_id != null ? Number(row.slot_group_id) : null,
     formId: Number(row.form_id),
-    categoryId: row.category_id != null ? Number(row.category_id) : null,
     scheduleMode: row.schedule_mode || 'day',
     weekLetter: row.week_letter || null,
     dayOfWeek: dayOfWeek,
@@ -742,7 +617,6 @@ function mapSlotGroupRow(groupRow, occurrenceRows, signupCount, form, waitlistCo
   return {
     id: Number(groupRow.id),
     formId: Number(groupRow.form_id),
-    categoryId: groupRow.category_id != null ? Number(groupRow.category_id) : null,
     offeringId: groupRow.offering_id != null ? Number(groupRow.offering_id) : null,
     scheduleMode: groupRow.schedule_mode || 'day',
     maxParticipants: max,
@@ -812,34 +686,6 @@ function buildSchedulePreview(timeSlots) {
   }
 }
 
-function groupSlotsByCategory(categories, timeSlots, slotGroups = []) {
-  const result = categories.map((cat) => {
-    const catSlots = timeSlots.filter((s) => s.categoryId === cat.id)
-    const catGroups = slotGroups.filter((g) => g.categoryId === cat.id)
-    return {
-      categoryId: cat.id,
-      categoryName: cat.name,
-      slots: catSlots,
-      groups: catGroups,
-      preview: buildSchedulePreview(catSlots),
-    }
-  })
-
-  const uncatSlots = timeSlots.filter((s) => s.categoryId == null)
-  const uncatGroups = slotGroups.filter((g) => g.categoryId == null)
-  if (uncatGroups.length > 0) {
-    result.unshift({
-      categoryId: null,
-      categoryName: 'No Category',
-      slots: uncatSlots,
-      groups: uncatGroups,
-      preview: buildSchedulePreview(uncatSlots),
-    })
-  }
-
-  return result
-}
-
 function mapSignupRow(row, positions = {}) {
   const responses = row.responses && Object.keys(row.responses).length > 0
     ? row.responses
@@ -848,7 +694,6 @@ function mapSignupRow(row, positions = {}) {
     id: Number(row.id),
     formId: Number(row.form_id),
     memberId: row.member_id != null ? Number(row.member_id) : null,
-    categoryId: row.category_id != null ? Number(row.category_id) : null,
     timeSlotId: row.time_slot_id != null ? Number(row.time_slot_id) : null,
     slotGroupId: row.slot_group_id != null ? Number(row.slot_group_id) : null,
     responses,
@@ -864,7 +709,6 @@ function mapSignupRow(row, positions = {}) {
     profileComplete: row.profile_complete != null ? Boolean(row.profile_complete) : undefined,
     adminStub: Boolean(row.admin_stub),
     createdAt: row.created_at,
-    categoryName: row.category_name || 'No Category',
     slotLabel: row.slot_label,
     formTitle: row.form_title,
     confirmationEmailSentAt: row.confirmation_email_sent_at || null,
@@ -917,7 +761,6 @@ async function sendPromotionEmails(db, promotedRows) {
         registrantFirstName: ctx.registrantFirstName,
         registrantEmail: ctx.registrantEmail,
         formTitle: ctx.formTitle,
-        categoryName: ctx.categoryName,
         slotLabel: ctx.slotLabel,
         signupNumber: positions.signupNumber,
         maxParticipants: positions.maxParticipants,
@@ -942,7 +785,6 @@ async function sendDemotionEmails(db, demotedRows) {
         registrantFirstName: ctx.registrantFirstName,
         registrantEmail: ctx.registrantEmail,
         formTitle: ctx.formTitle,
-        categoryName: ctx.categoryName,
         slotLabel: ctx.slotLabel,
         waitlistPosition: positions.waitlistPosition,
       })
@@ -959,7 +801,7 @@ async function sendDemotionEmails(db, demotedRows) {
 async function loadFormDetail(
   pool,
   formId,
-  { includeInactive = false, categoryId, includeAllCategories = false, site = null } = {},
+  { includeInactive = false, site = null } = {},
 ) {
   const formRes = await pool.query('SELECT * FROM scheduling_form WHERE id = $1', [formId])
   if (formRes.rows.length === 0) return null
@@ -975,21 +817,10 @@ async function loadFormDetail(
     }
   }
 
-  const categories = await loadFormCategories(pool, formId, { includeInactive, site: includeInactive ? null : site })
-  const allCategories = includeAllCategories ? await loadAllCategories(pool) : undefined
-
   const slotParams = [formId]
-  let categoryFilter = ''
-  if (categoryId === null) {
-    categoryFilter = ' AND sg.category_id IS NULL'
-  } else if (categoryId != null) {
-    categoryFilter = ' AND sg.category_id = $2'
-    slotParams.push(categoryId)
-  }
-
   const groupWhere = includeInactive
-    ? `sg.form_id = $1${categoryFilter}`
-    : `sg.form_id = $1 AND sg.is_active = TRUE${categoryFilter}`
+    ? `sg.form_id = $1`
+    : `sg.form_id = $1 AND sg.is_active = TRUE`
 
   const groupsRes = await pool.query(
     `
@@ -1014,7 +845,7 @@ async function loadFormDetail(
     `
     SELECT ts.*
     FROM scheduling_time_slot ts
-    WHERE ${slotWhere}${categoryFilter.replace(/sg\.category_id/g, 'ts.category_id')}
+    WHERE ${slotWhere}
     ORDER BY ts.slot_group_id, ts.week_letter NULLS LAST, ts.day_of_week NULLS LAST,
       ts.specific_date NULLS LAST, ts.start_time, ts.id
     `,
@@ -1040,30 +871,13 @@ async function loadFormDetail(
     return mapSlotRow(s, groupCount, form)
   })
 
-  const categoryIdsWithSlots = new Set(
-    slotGroups.map((g) => g.categoryId).filter((id) => id != null),
-  )
-  const categoriesWithSlots = categories.filter((c) => categoryIdsWithSlots.has(c.id))
-  if (slotGroups.some((g) => g.categoryId == null)) {
-    categoriesWithSlots.unshift({
-      id: null,
-      formId: null,
-      name: 'No Category',
-      sortOrder: -1,
-      isActive: true,
-    })
-  }
-
   const programRow =
     form.programs_id != null ? await loadProgramPricingRow(pool, Number(form.programs_id)) : null
 
   return {
     ...mapFormRow(form, programRow),
-    categories: categoriesWithSlots,
-    allCategories,
     slotGroups,
     timeSlots,
-    slotsByCategory: groupSlotsByCategory(categoriesWithSlots, timeSlots, slotGroups),
     schedulePreview: buildSchedulePreview(timeSlots),
   }
 }
@@ -1084,18 +898,7 @@ const formSchema = Joi.object({
   pricingOverridesProgram: Joi.boolean().optional(),
 })
 
-const categorySchema = Joi.object({
-  name: Joi.string().trim().min(1).max(255).required(),
-  formId: Joi.number().integer().optional().allow(null),
-  sortOrder: Joi.number().integer().min(0).optional(),
-  isActive: Joi.boolean().optional(),
-  enrollSites: Joi.array()
-    .items(Joi.string().valid('athletics', 'gymnastics', 'basketball'))
-    .optional(),
-})
-
 const offeringSchema = Joi.object({
-  categoryId: Joi.number().integer().allow(null).required(),
   startDate: Joi.string().required(),
   endDate: Joi.string().required(),
   label: Joi.string().max(255).allow('', null).optional(),
@@ -1119,7 +922,6 @@ const timeBlockSchema = Joi.object({
 })
 
 const slotBatchSchema = Joi.object({
-  categoryId: Joi.number().integer().allow(null).optional(),
   offeringId: Joi.number().integer().allow(null).optional(),
   activeDatesMode: Joi.string().valid('inherit', 'custom', 'tbd').required(),
   activeStart: Joi.string().allow(null, '').optional(),
@@ -1164,7 +966,6 @@ const slotBatchSchema = Joi.object({
 
 const signupSchema = Joi.object({
   formId: Joi.number().integer().required(),
-  categoryId: Joi.number().integer().allow(null).optional(),
   slotGroupId: Joi.number().integer().required(),
   timeSlotId: Joi.number().integer().optional(),
   responses: Joi.object().default({}),
@@ -1183,7 +984,6 @@ const signupSchema = Joi.object({
 
 const signupItemSchema = Joi.object({
   formId: Joi.number().integer().required(),
-  categoryId: Joi.number().integer().allow(null).optional(),
   slotGroupId: Joi.number().integer().required(),
   timeSlotId: Joi.number().integer().optional(),
 })
@@ -1210,7 +1010,6 @@ const programOptionsQuerySchema = Joi.object({
 
 const adminSignupSchema = Joi.object({
   formId: Joi.number().integer().required(),
-  categoryId: Joi.number().integer().allow(null).optional(),
   slotGroupId: Joi.number().integer().required(),
   timeSlotId: Joi.number().integer().optional(),
   memberId: Joi.number().integer().optional(),
@@ -1385,12 +1184,6 @@ export function createSchedulingHandlers(pool) {
         }
 
         const formId = Number(req.params.id)
-        let categoryId
-        if (req.query.uncategorized === '1') {
-          categoryId = null
-        } else if (req.query.categoryId != null && req.query.categoryId !== '') {
-          categoryId = Number(req.query.categoryId)
-        }
 
         if (req.query.fromEvent === '1') {
           const formRes = await pool.query(
@@ -1405,7 +1198,7 @@ export function createSchedulingHandlers(pool) {
           }
         }
 
-        const detail = await loadFormDetail(pool, formId, { categoryId, site })
+        const detail = await loadFormDetail(pool, formId, { site })
         if (!detail) {
           return res.status(404).json({ success: false, message: 'Scheduling form not found' })
         }
@@ -1416,7 +1209,7 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
-    /** Other bookable class/category options under the same parent program. */
+    /** Other bookable class options under the same parent program. */
     async listPublicOfferings(req, res) {
       try {
         const { isEnrollSiteKey } = await import('./enrollSites.js')
@@ -1431,18 +1224,9 @@ export function createSchedulingHandlers(pool) {
           return res.status(404).json({ success: false, message: 'Scheduling form not found' })
         }
 
-        const params = [formId]
-        let where = 'WHERE form_id = $1'
-        if (req.query.categoryId === 'none') {
-          where += ' AND category_id IS NULL'
-        } else if (req.query.categoryId != null && req.query.categoryId !== '') {
-          params.push(Number(req.query.categoryId))
-          where += ` AND category_id = $${params.length}`
-        }
-
         const result = await pool.query(
-          `SELECT * FROM scheduling_offering ${where} ORDER BY start_date DESC, id DESC`,
-          params,
+          `SELECT * FROM scheduling_offering WHERE form_id = $1 ORDER BY start_date DESC, id DESC`,
+          [formId],
         )
 
         const data = result.rows
@@ -1451,8 +1235,7 @@ export function createSchedulingHandlers(pool) {
             detail.slotGroups.some(
               (group) =>
                 group.offeringId === offering.id &&
-                (group.occurrences?.length ?? 0) > 0 &&
-                (group.categoryId ?? null) === offering.categoryId,
+                (group.occurrences?.length ?? 0) > 0,
             ),
           )
 
@@ -1487,7 +1270,7 @@ export function createSchedulingHandlers(pool) {
           const member = await findMemberByEmail(pool, value.email)
           if (member) {
             const signupRes = await pool.query(
-              `SELECT form_id, category_id, slot_group_id, time_slot_id
+              `SELECT form_id, slot_group_id, time_slot_id
                FROM scheduling_signup
                WHERE member_id = $1
                  AND orphaned_at IS NULL
@@ -1498,7 +1281,6 @@ export function createSchedulingHandlers(pool) {
               signupRes.rows.map((r) =>
                 programSlotSignupKey(
                   Number(r.form_id),
-                  r.category_id != null ? Number(r.category_id) : null,
                   Number(r.slot_group_id),
                   r.time_slot_id != null ? Number(r.time_slot_id) : null,
                 ),
@@ -1597,7 +1379,7 @@ export function createSchedulingHandlers(pool) {
           return res.json({ success: true, data: { signups: [], formIds: [] } })
         }
         const result = await pool.query(
-          `SELECT form_id, category_id, slot_group_id, time_slot_id
+          `SELECT form_id, slot_group_id, time_slot_id
            FROM scheduling_signup
            WHERE member_id = $1
              AND orphaned_at IS NULL
@@ -1606,7 +1388,6 @@ export function createSchedulingHandlers(pool) {
         )
         const signups = result.rows.map((r) => ({
           formId: Number(r.form_id),
-          categoryId: r.category_id != null ? Number(r.category_id) : null,
           slotGroupId: Number(r.slot_group_id),
           timeSlotId: r.time_slot_id != null ? Number(r.time_slot_id) : null,
         }))
@@ -1672,17 +1453,15 @@ export function createSchedulingHandlers(pool) {
         const signupRes = await pool.query(
           `
           SELECT s.id, s.pricing_breakdown, sf.title AS form_title,
-                 COALESCE(sc.name, 'No Category') AS category_name,
                  COALESCE(ts.display_label, sg.display_label, '') AS slot_label
           FROM scheduling_signup s
           JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
-          LEFT JOIN scheduling_category sc ON sc.id = s.category_id
           JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
           LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
           WHERE s.member_id = $1
             AND s.orphaned_at IS NULL
             AND s.status IN ('confirmed', 'waitlisted')
-          ORDER BY sf.title, category_name, s.id
+          ORDER BY sf.title, s.id
           `,
           [memberId],
         )
@@ -1699,7 +1478,6 @@ export function createSchedulingHandlers(pool) {
             signupRows: signupRes.rows.map((row) => ({
               id: Number(row.id),
               formTitle: row.form_title,
-              categoryName: row.category_name,
               slotLabel: row.slot_label,
               pricingBreakdown: row.pricing_breakdown ?? null,
             })),
@@ -2002,21 +1780,9 @@ export function createSchedulingHandlers(pool) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
         }
 
-        const signupCategoryId = value.categoryId ?? null
         const group = detail.slotGroups.find((g) => g.id === value.slotGroupId)
         if (!group) {
           return res.status(400).json({ success: false, message: 'Invalid time slot group' })
-        }
-        if ((group.categoryId ?? null) !== signupCategoryId) {
-          return res.status(400).json({ success: false, message: 'Time slot does not match category' })
-        }
-
-        const category =
-          signupCategoryId != null
-            ? detail.categories.find((c) => c.id === signupCategoryId)
-            : { id: null, name: 'No Category' }
-        if (signupCategoryId != null && !category) {
-          return res.status(400).json({ success: false, message: 'Invalid category' })
         }
         const firstOccurrence =
           (value.timeSlotId != null
@@ -2084,11 +1850,9 @@ export function createSchedulingHandlers(pool) {
               newSignups: [
                 {
                   formId: value.formId,
-                  categoryId: signupCategoryId,
                   slotGroupId: value.slotGroupId,
                   timeSlotId: firstOccurrence.id,
                   formTitle: detail.title,
-                  categoryName: category.name,
                 },
               ],
               promoCodes: value.promoCodes || [],
@@ -2110,12 +1874,10 @@ export function createSchedulingHandlers(pool) {
           const signupResult = await insertSignupForMember(client, {
             formId: value.formId,
             formRow,
-            signupCategoryId,
             slotGroupId: value.slotGroupId,
             memberId,
             responses,
             firstOccurrenceId: firstOccurrence.id,
-            categoryName: category.name,
             formTitle: detail.title,
             mandateWaiver: detail.mandateWaiver,
             groupDisplayLabel: group.displayLabel,
@@ -2134,7 +1896,6 @@ export function createSchedulingHandlers(pool) {
           if (freePassBreakdown?.enabled && freePassBreakdown.redemptions?.length) {
             const lineKey = programSlotSignupKey(
               value.formId,
-              signupCategoryId,
               value.slotGroupId,
               firstOccurrence.id,
             )
@@ -2151,7 +1912,6 @@ export function createSchedulingHandlers(pool) {
           if (discountBreakdown?.enabled) {
             const lineKey = programSlotSignupKey(
               value.formId,
-              signupCategoryId,
               value.slotGroupId,
               firstOccurrence.id,
             )
@@ -2167,7 +1927,6 @@ export function createSchedulingHandlers(pool) {
             signupId,
             responses,
             formTitle: detail.title,
-            categoryName: category.name,
             slotLabel: signupResult.slotLabel,
             positions,
             pricing,
@@ -2225,7 +1984,6 @@ export function createSchedulingHandlers(pool) {
         for (const entry of value.signups) {
           const key = programSlotSignupKey(
             entry.formId,
-            entry.categoryId ?? null,
             entry.slotGroupId,
             entry.timeSlotId ?? null,
           )
@@ -2366,11 +2124,9 @@ export function createSchedulingHandlers(pool) {
               memberId,
               newSignups: resolvedEntries.map((resolved) => ({
                 formId: resolved.entry.formId,
-                categoryId: resolved.signupCategoryId,
                 slotGroupId: resolved.entry.slotGroupId,
                 timeSlotId: resolved.firstOccurrence.id,
                 formTitle: resolved.detail.title,
-                categoryName: resolved.category.name,
               })),
               promoCodes: value.promoCodes || [],
               memberContext: {
@@ -2393,12 +2149,10 @@ export function createSchedulingHandlers(pool) {
             const signupResult = await insertSignupForMember(client, {
               formId: resolved.entry.formId,
               formRow: resolved.formRow,
-              signupCategoryId: resolved.signupCategoryId,
               slotGroupId: resolved.entry.slotGroupId,
               memberId,
               responses,
               firstOccurrenceId: resolved.firstOccurrence.id,
-              categoryName: resolved.category.name,
               formTitle: resolved.detail.title,
               mandateWaiver: resolved.detail.mandateWaiver,
               groupDisplayLabel: resolved.group.displayLabel,
@@ -2422,7 +2176,6 @@ export function createSchedulingHandlers(pool) {
               if (signupId == null) continue
               const lineKey = programSlotSignupKey(
                 resolved.entry.formId,
-                resolved.signupCategoryId,
                 resolved.entry.slotGroupId,
                 resolved.firstOccurrence.id,
               )
@@ -2442,7 +2195,6 @@ export function createSchedulingHandlers(pool) {
             resolvedEntries.forEach((resolved, index) => {
               const key = programSlotSignupKey(
                 resolved.entry.formId,
-                resolved.signupCategoryId,
                 resolved.entry.slotGroupId,
                 resolved.firstOccurrence.id,
               )
@@ -2465,7 +2217,6 @@ export function createSchedulingHandlers(pool) {
               signupId,
               responses: signupResponses,
               formTitle: signupResult.formTitle,
-              categoryName: signupResult.categoryName,
               slotLabel: signupResult.slotLabel,
               positions,
               pricing,
@@ -2478,7 +2229,6 @@ export function createSchedulingHandlers(pool) {
             mappedSignups.push({
               ...mapSignupRow(refreshed.rows[0], positions),
               formTitle: signupResult.formTitle,
-              categoryName: signupResult.categoryName,
               slotLabel: signupResult.slotLabel,
               pricing: signupResult.pricing,
             })
@@ -2661,7 +2411,6 @@ export function createSchedulingHandlers(pool) {
       try {
         const detail = await loadFormDetail(pool, Number(req.params.id), {
           includeInactive: true,
-          includeAllCategories: true,
         })
         if (!detail) {
           return res.status(404).json({ success: false, message: 'Form not found' })
@@ -2904,220 +2653,12 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
-    async listCategories(req, res) {
-      try {
-        const formId = req.query.formId ? Number(req.query.formId) : null
-        const data = formId
-          ? await loadFormCategories(pool, formId, { includeInactive: true })
-          : await loadAllCategories(pool)
-        res.json({ success: true, data })
-      } catch (err) {
-        console.error('[scheduling] listCategories:', err)
-        res.status(500).json({ success: false, message: 'Failed to load categories' })
-      }
-    },
-
-    async createCategory(req, res) {
-      try {
-        const { error, value } = categorySchema.validate(req.body)
-        if (error) {
-          return res.status(400).json({ success: false, message: error.details[0].message })
-        }
-        if (value.formId == null && value.name.trim() === NO_CATEGORY_NAME) {
-          return res.status(400).json({ success: false, message: '"No Category" is reserved' })
-        }
-        const maxSort = await pool.query(
-          'SELECT COALESCE(MAX(sort_order), -1) + 1 AS next FROM scheduling_category',
-        )
-        const result = await pool.query(
-          `
-          INSERT INTO scheduling_category (form_id, name, sort_order, is_active)
-          VALUES ($1, $2, $3, $4)
-          RETURNING *
-          `,
-          [
-            value.formId ?? null,
-            value.name,
-            value.sortOrder ?? Number(maxSort.rows[0].next),
-            value.isActive !== false,
-          ],
-        )
-        if (value.formId != null) {
-          await pool.query(
-            `
-            INSERT INTO scheduling_form_category (form_id, category_id)
-            VALUES ($1, $2)
-            ON CONFLICT DO NOTHING
-            `,
-            [value.formId, result.rows[0].id],
-          )
-        }
-        res.json({ success: true, data: mapCategoryRow(result.rows[0]) })
-      } catch (err) {
-        console.error('[scheduling] createCategory:', err)
-        res.status(500).json({ success: false, message: 'Failed to create category' })
-      }
-    },
-
-    async updateCategory(req, res) {
-      try {
-        const { error, value } = categorySchema.validate(req.body)
-        if (error) {
-          return res.status(400).json({ success: false, message: error.details[0].message })
-        }
-        const existing = await pool.query('SELECT * FROM scheduling_category WHERE id = $1 LIMIT 1', [req.params.id])
-        if (existing.rows.length === 0) {
-          return res.status(404).json({ success: false, message: 'Category not found' })
-        }
-        if (isNoCategoryCategoryRow(existing.rows[0])) {
-          return res.status(400).json({ success: false, message: 'The system "No Category" cannot be edited' })
-        }
-        const { normalizeEnrollSites } = await import('./enrollSites.js')
-        let enrollSites = value.enrollSites
-        if (enrollSites !== undefined) {
-          enrollSites = normalizeEnrollSites(enrollSites, false)
-        } else if (value.isActive !== undefined) {
-          enrollSites = normalizeEnrollSites(null, value.isActive)
-        }
-        const isActive =
-          enrollSites != null
-            ? enrollSites.length > 0
-            : value.isActive !== undefined
-              ? value.isActive
-              : existing.rows[0].is_active
-        const result = await pool.query(
-          `
-          UPDATE scheduling_category
-          SET name = $1,
-              sort_order = COALESCE($2, sort_order),
-              is_active = COALESCE($3, is_active),
-              enroll_sites = COALESCE($4, enroll_sites),
-              updated_at = now()
-          WHERE id = $5
-          RETURNING *
-          `,
-          [
-            value.name,
-            value.sortOrder ?? null,
-            enrollSites != null ? isActive : value.isActive,
-            enrollSites,
-            req.params.id,
-          ],
-        )
-        if (result.rows.length === 0) {
-          return res.status(404).json({ success: false, message: 'Category not found' })
-        }
-        res.json({ success: true, data: mapCategoryRow(result.rows[0]) })
-      } catch (err) {
-        console.error('[scheduling] updateCategory:', err)
-        res.status(500).json({ success: false, message: 'Failed to update category' })
-      }
-    },
-
-    async deleteCategory(req, res) {
-      try {
-        const existing = await pool.query('SELECT * FROM scheduling_category WHERE id = $1 LIMIT 1', [req.params.id])
-        if (existing.rows.length === 0) {
-          return res.status(404).json({ success: false, message: 'Category not found' })
-        }
-        if (isNoCategoryCategoryRow(existing.rows[0])) {
-          return res.status(400).json({ success: false, message: 'The system "No Category" cannot be deleted' })
-        }
-
-        const categoryId = Number(req.params.id)
-        const classNames = await findActiveClassesUsingCategory(pool, categoryId)
-        if (classNames.length > 0) {
-          return res.status(409).json({
-            success: false,
-            message: `This category is still in use by active classes (${classNames.join(', ')}). Remove it from those classes first.`,
-            classes: classNames,
-          })
-        }
-
-        // Reassign this category's scheduling data to "No Category" BEFORE the
-        // delete, so the ON DELETE CASCADE on category_id never destroys
-        // offerings / slots / signups. The class's variation simply collapses
-        // into its "No Category" row.
-        const client = await pool.connect()
-        try {
-          await client.query('BEGIN')
-          const noCategoryId = await ensureNoCategoryCategory(client)
-          // Demote selected offerings being un-categorized when the form already
-          // has a selected "No Category" offering (partial unique index).
-          await client.query(
-            `UPDATE scheduling_offering o
-             SET is_selected = FALSE, updated_at = now()
-             WHERE o.category_id = $1 AND o.is_selected = TRUE
-               AND EXISTS (
-                 SELECT 1 FROM scheduling_offering c
-                 WHERE c.form_id = o.form_id AND c.is_selected = TRUE AND c.category_id IS NULL
-               )`,
-            [categoryId],
-          )
-          for (const tbl of ['scheduling_offering', 'scheduling_slot_group', 'scheduling_time_slot']) {
-            await client.query(`UPDATE ${tbl} SET category_id = NULL WHERE category_id = $1`, [categoryId])
-          }
-          await client.query('UPDATE scheduling_signup SET category_id = $1 WHERE category_id = $2', [noCategoryId, categoryId])
-          await client.query('DELETE FROM scheduling_form_category WHERE category_id = $1', [categoryId])
-          await client.query('DELETE FROM scheduling_category WHERE id = $1', [categoryId])
-          await client.query('COMMIT')
-        } catch (txErr) {
-          await client.query('ROLLBACK')
-          throw txErr
-        } finally {
-          client.release()
-        }
-        res.json({ success: true, message: 'Category deleted' })
-      } catch (err) {
-        console.error('[scheduling] deleteCategory:', err)
-        res.status(500).json({ success: false, message: 'Failed to delete category' })
-      }
-    },
-
-    async linkCategoryToForm(req, res) {
-      try {
-        const formId = Number(req.params.formId)
-        const categoryId = Number(req.params.categoryId)
-        if (!Number.isFinite(formId) || !Number.isFinite(categoryId)) {
-          return res.status(400).json({ success: false, message: 'Invalid form or category id' })
-        }
-        const formCheck = await pool.query('SELECT id FROM scheduling_form WHERE id = $1', [formId])
-        if (formCheck.rows.length === 0) {
-          return res.status(404).json({ success: false, message: 'Form not found' })
-        }
-        const catCheck = await pool.query('SELECT id FROM scheduling_category WHERE id = $1', [categoryId])
-        if (catCheck.rows.length === 0) {
-          return res.status(404).json({ success: false, message: 'Category not found' })
-        }
-        await pool.query(
-          `
-          INSERT INTO scheduling_form_category (form_id, category_id)
-          VALUES ($1, $2)
-          ON CONFLICT DO NOTHING
-          `,
-          [formId, categoryId],
-        )
-        res.json({ success: true, message: 'Category linked to form' })
-      } catch (err) {
-        console.error('[scheduling] linkCategoryToForm:', err)
-        res.status(500).json({ success: false, message: 'Failed to link category to form' })
-      }
-    },
-
     async listOfferings(req, res) {
       try {
         const formId = Number(req.params.formId)
-        const params = [formId]
-        let where = 'WHERE form_id = $1'
-        if (req.query.categoryId === 'none') {
-          where += ' AND category_id IS NULL'
-        } else if (req.query.categoryId != null && req.query.categoryId !== '') {
-          params.push(Number(req.query.categoryId))
-          where += ` AND category_id = $${params.length}`
-        }
         const result = await pool.query(
-          `SELECT * FROM scheduling_offering ${where} ORDER BY start_date DESC, id DESC`,
-          params,
+          'SELECT * FROM scheduling_offering WHERE form_id = $1 ORDER BY start_date DESC, id DESC',
+          [formId],
         )
         res.json({ success: true, data: result.rows.map(mapOfferingRow) })
       } catch (err) {
@@ -3139,17 +2680,17 @@ export function createSchedulingHandlers(pool) {
           return res.status(400).json({ success: false, message: 'Invalid start or end date' })
         }
         const countRes = await pool.query(
-          'SELECT COUNT(*)::int AS c FROM scheduling_offering WHERE form_id = $1 AND category_id IS NOT DISTINCT FROM $2',
-          [formId, value.categoryId ?? null],
+          'SELECT COUNT(*)::int AS c FROM scheduling_offering WHERE form_id = $1',
+          [formId],
         )
         const isFirst = Number(countRes.rows[0].c) === 0
         const result = await pool.query(
           `
-          INSERT INTO scheduling_offering (form_id, category_id, start_date, end_date, label, is_selected)
-          VALUES ($1, $2, $3, $4, $5, $6)
+          INSERT INTO scheduling_offering (form_id, start_date, end_date, label, is_selected)
+          VALUES ($1, $2, $3, $4, $5)
           RETURNING *
           `,
-          [formId, value.categoryId ?? null, startDate, endDate, value.label || null, isFirst],
+          [formId, startDate, endDate, value.label || null, isFirst],
         )
         res.json({ success: true, data: mapOfferingRow(result.rows[0]) })
       } catch (err) {
@@ -3210,8 +2751,8 @@ export function createSchedulingHandlers(pool) {
         const row = offeringRes.rows[0]
         await pool.query(
           `UPDATE scheduling_offering SET is_selected = FALSE, updated_at = now()
-           WHERE form_id = $1 AND category_id IS NOT DISTINCT FROM $2`,
-          [row.form_id, row.category_id],
+           WHERE form_id = $1`,
+          [row.form_id],
         )
         const result = await pool.query(
           `UPDATE scheduling_offering SET is_selected = TRUE, updated_at = now()
@@ -3306,28 +2847,17 @@ export function createSchedulingHandlers(pool) {
         const inserted = []
         try {
           await client.query('BEGIN')
-          if (value.categoryId != null) {
-            await client.query(
-              `
-              INSERT INTO scheduling_form_category (form_id, category_id)
-              VALUES ($1, $2)
-              ON CONFLICT DO NOTHING
-              `,
-              [req.params.formId, value.categoryId],
-            )
-          }
 
           const groupRes = await client.query(
             `
             INSERT INTO scheduling_slot_group (
-              form_id, category_id, offering_id, schedule_mode, max_participants,
+              form_id, offering_id, schedule_mode, max_participants,
               active_start, active_end, dates_tbd, is_active
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE)
             RETURNING *
             `,
             [
               req.params.formId,
-              value.categoryId ?? null,
               value.offeringId ?? null,
               value.scheduleMode,
               value.maxParticipants,
@@ -3343,14 +2873,13 @@ export function createSchedulingHandlers(pool) {
             const result = await client.query(
               `
               INSERT INTO scheduling_time_slot (
-                form_id, category_id, slot_group_id, schedule_mode, week_letter, day_of_week, specific_date,
+                form_id, slot_group_id, schedule_mode, week_letter, day_of_week, specific_date,
                 start_time, end_time, max_participants, active_start, active_end, dates_tbd, is_active
-              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, TRUE)
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, TRUE)
               RETURNING *
               `,
               [
                 req.params.formId,
-                row.categoryId,
                 groupId,
                 row.scheduleMode,
                 row.weekLetter,
@@ -3411,14 +2940,13 @@ export function createSchedulingHandlers(pool) {
           const result = await pool.query(
             `
             UPDATE scheduling_time_slot
-            SET category_id = $1, schedule_mode = $2, week_letter = $3, day_of_week = $4,
-                specific_date = $5, start_time = $6, end_time = $7, max_participants = $8,
-                active_start = $9, active_end = $10, dates_tbd = $11, updated_at = now()
-            WHERE id = $12
+            SET schedule_mode = $1, week_letter = $2, day_of_week = $3,
+                specific_date = $4, start_time = $5, end_time = $6, max_participants = $7,
+                active_start = $8, active_end = $9, dates_tbd = $10, updated_at = now()
+            WHERE id = $11
             RETURNING *
             `,
             [
-              row.categoryId,
               row.scheduleMode,
               row.weekLetter,
               row.dayOfWeek,
@@ -3536,30 +3064,6 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
-    async deleteCategorySlots(req, res) {
-      try {
-        const { categoryId } = req.body
-        if (!categoryId) {
-          return res.status(400).json({ success: false, message: 'categoryId required' })
-        }
-        const groupsRes = await pool.query(
-          'SELECT id FROM scheduling_slot_group WHERE form_id = $1 AND category_id = $2',
-          [req.params.formId, categoryId],
-        )
-        for (const row of groupsRes.rows) {
-          await orphanSignupsForSlotGroup(pool, row.id)
-        }
-        await pool.query(
-          'DELETE FROM scheduling_slot_group WHERE form_id = $1 AND category_id = $2',
-          [req.params.formId, categoryId],
-        )
-        res.json({ success: true, message: 'Category slots deleted' })
-      } catch (err) {
-        console.error('[scheduling] deleteCategorySlots:', err)
-        res.status(500).json({ success: false, message: 'Failed to delete slots' })
-      }
-    },
-
     async adminCreateSignup(req, res) {
       try {
         const { error, value } = adminSignupSchema.validate(req.body, { abortEarly: false })
@@ -3582,21 +3086,9 @@ export function createSchedulingHandlers(pool) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
         }
 
-        const signupCategoryId = value.categoryId ?? null
         const group = detail.slotGroups.find((g) => g.id === value.slotGroupId)
         if (!group) {
           return res.status(400).json({ success: false, message: 'Invalid time slot group' })
-        }
-        if ((group.categoryId ?? null) !== signupCategoryId) {
-          return res.status(400).json({ success: false, message: 'Time slot does not match category' })
-        }
-
-        const category =
-          signupCategoryId != null
-            ? detail.categories.find((c) => c.id === signupCategoryId)
-            : { id: null, name: 'No Category' }
-        if (signupCategoryId != null && !category) {
-          return res.status(400).json({ success: false, message: 'Invalid category' })
         }
         const firstOccurrence =
           (value.timeSlotId != null
@@ -3669,12 +3161,10 @@ export function createSchedulingHandlers(pool) {
           const signupResult = await insertSignupForMember(client, {
             formId: value.formId,
             formRow,
-            signupCategoryId,
             slotGroupId: value.slotGroupId,
             memberId,
             responses,
             firstOccurrenceId: firstOccurrence.id,
-            categoryName: category.name,
             formTitle: detail.title,
             mandateWaiver: detail.mandateWaiver,
             groupDisplayLabel: group.displayLabel,
@@ -3697,7 +3187,6 @@ export function createSchedulingHandlers(pool) {
               signupId,
               responses,
               formTitle: detail.title,
-              categoryName: category.name,
               slotLabel: signupResult.slotLabel,
               positions,
               pricing,
@@ -3754,7 +3243,7 @@ export function createSchedulingHandlers(pool) {
         }
         const result = await pool.query(
           `
-          SELECT s.*, c.name AS category_name, f.title AS form_title,
+          SELECT s.*, f.title AS form_title,
             f.signup_fields, f.mandate_waiver,
             m.profile_complete,
             ts.week_letter, ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time, ts.schedule_mode,
@@ -3779,7 +3268,6 @@ export function createSchedulingHandlers(pool) {
               WHERE o.slot_group_id = s.slot_group_id
             ) AS group_occurrences
           FROM scheduling_signup s
-          LEFT JOIN scheduling_category c ON c.id = s.category_id
           LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
           LEFT JOIN member m ON m.id = s.member_id
           JOIN scheduling_form f ON f.id = s.form_id
@@ -3950,7 +3438,6 @@ export function createSchedulingHandlers(pool) {
                 registrantFirstName: ctx.registrantFirstName,
                 registrantEmail: ctx.registrantEmail,
                 formTitle: ctx.formTitle,
-                categoryName: ctx.categoryName,
                 slotLabel: ctx.slotLabel,
                 signupNumber: positions.signupNumber,
                 maxParticipants: positions.maxParticipants,
@@ -3976,7 +3463,6 @@ export function createSchedulingHandlers(pool) {
                 registrantFirstName: ctx.registrantFirstName,
                 registrantEmail: ctx.registrantEmail,
                 formTitle: ctx.formTitle,
-                categoryName: ctx.categoryName,
                 slotLabel: ctx.slotLabel,
                 waitlistPosition: positions.waitlistPosition,
               })
@@ -4035,7 +3521,6 @@ export function createSchedulingHandlers(pool) {
               registrantFirstName: ctx.registrantFirstName,
               registrantEmail: ctx.registrantEmail,
               formTitle: ctx.formTitle,
-              categoryName: ctx.categoryName,
               slotLabel: ctx.slotLabel,
               waitlistPosition: positions.waitlistPosition,
             })
@@ -4044,7 +3529,6 @@ export function createSchedulingHandlers(pool) {
               registrantFirstName: ctx.registrantFirstName,
               registrantEmail: ctx.registrantEmail,
               formTitle: ctx.formTitle,
-              categoryName: ctx.categoryName,
               slotLabel: ctx.slotLabel,
               signupNumber: positions.signupNumber,
               maxParticipants: positions.maxParticipants,
@@ -4316,10 +3800,6 @@ export function createSchedulingHandlers(pool) {
     async reEnrollOrphanedSignup(req, res) {
       try {
         const targetFormId = Number(req.body.targetFormId)
-        const categoryId =
-          req.body.categoryId === null || req.body.categoryId === undefined
-            ? null
-            : Number(req.body.categoryId)
         const slotGroupId = Number(req.body.slotGroupId)
         if (!targetFormId || !slotGroupId) {
           return res.status(400).json({ success: false, message: 'targetFormId and slotGroupId required' })
@@ -4331,7 +3811,6 @@ export function createSchedulingHandlers(pool) {
         let positions = null
         let responses = null
         let detail = null
-        let categoryName = ''
         let slotLabel = ''
         let mandateWaiver = false
 
@@ -4385,26 +3864,11 @@ export function createSchedulingHandlers(pool) {
             return res.status(404).json({ success: false, message: 'Target scheduling form not available' })
           }
 
-          const signupCategoryId = categoryId
           const group = detail.slotGroups.find((g) => g.id === slotGroupId)
           if (!group) {
             await client.query('ROLLBACK')
             return res.status(400).json({ success: false, message: 'Invalid time slot group' })
           }
-          if ((group.categoryId ?? null) !== signupCategoryId) {
-            await client.query('ROLLBACK')
-            return res.status(400).json({ success: false, message: 'Time slot does not match category' })
-          }
-
-          const category =
-            signupCategoryId != null
-              ? detail.categories.find((c) => c.id === signupCategoryId)
-              : { id: null, name: 'No Category' }
-          if (signupCategoryId != null && !category) {
-            await client.query('ROLLBACK')
-            return res.status(400).json({ success: false, message: 'Invalid category' })
-          }
-          categoryName = category.name
           mandateWaiver = detail.mandateWaiver
 
           const firstOccurrence = group.occurrences[0]
@@ -4416,12 +3880,10 @@ export function createSchedulingHandlers(pool) {
           const signupResult = await insertSignupForMember(client, {
             formId: targetFormId,
             formRow,
-            signupCategoryId,
             slotGroupId,
             memberId,
             responses,
             firstOccurrenceId: firstOccurrence.id,
-            categoryName,
             formTitle: detail.title,
             mandateWaiver,
             groupDisplayLabel: group.displayLabel,
@@ -4461,7 +3923,6 @@ export function createSchedulingHandlers(pool) {
           signupId: newSignupId,
           responses,
           formTitle: detail.title,
-          categoryName,
           slotLabel,
           positions,
           pricing: positions.pricing,

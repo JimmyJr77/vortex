@@ -75,12 +75,6 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
       ? `${formatDateForDisplay(event.offeringStartDate)} – ${formatDateForDisplay(event.offeringEndDate)}`
       : null)
 
-  const categoryDetail = detail?.categories.find(
-    (c) =>
-      (event.categoryId == null && c.categoryId == null) ||
-      c.categoryId === event.categoryId,
-  )
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden />
@@ -110,7 +104,6 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
         <div className="overflow-y-auto px-6 py-4 space-y-6">
           <dl>
             <DetailRow label="Program" value={event.programName || '—'} />
-            <DetailRow label="Category" value={event.categoryName || 'No Category'} />
             <DetailRow
               label="Class status"
               value={
@@ -164,25 +157,25 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
                 <p className="text-sm text-gray-700">{detail.costsLabel}</p>
               </div>
 
-              {categoryDetail && categoryDetail.offerings.length > 0 && (
+              {detail.offerings.length > 0 && (
                 <div>
                   <h4 className="text-sm font-semibold text-gray-900 mb-2">Offerings</h4>
                   <ul className="text-sm text-gray-700 space-y-1">
-                    {categoryDetail.offerings.map((o) => (
+                    {detail.offerings.map((o) => (
                       <li key={o.id}>{formatOfferingDates(o)}</li>
                     ))}
                   </ul>
                 </div>
               )}
 
-              {categoryDetail && categoryDetail.slotGroups.length > 0 && (
+              {detail.slotGroups.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Slots for this category</h4>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Slots</h4>
                   <ul className="text-sm text-gray-700 space-y-2">
                     {(() => {
                       const { byOffering, unassigned } = groupSlotsByOffering(
-                        categoryDetail.offerings,
-                        categoryDetail.slotGroups,
+                        detail.offerings,
+                        detail.slotGroups,
                       )
                       const rows = [
                         ...byOffering.map(({ offering, slotGroups }) => ({

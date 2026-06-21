@@ -75,7 +75,6 @@ export default function AdminCoaches() {
           programsId: assignmentTarget.programsId ?? null,
           classEventId: assignmentTarget.classEventId ?? null,
           schedulingFormId: assignmentTarget.schedulingFormId ?? null,
-          schedulingCategoryId: assignmentTarget.schedulingCategoryId ?? null,
           schedulingOfferingId: assignmentTarget.schedulingOfferingId ?? null,
           schedulingTimeSlotId: assignmentTarget.schedulingTimeSlotId ?? null,
         }),

@@ -20,6 +20,18 @@ function normalizeRoleKey(role) {
   return String(role || '').trim().toUpperCase()
 }
 
+// The default master admin account is permanent: it can never lose its
+// MASTER_ADMIN role, be deactivated, or be deleted. Override via env if the
+// owner account email ever changes.
+const DEFAULT_MASTER_EMAIL = (process.env.DEFAULT_MASTER_EMAIL || 'team.vortexathletics@gmail.com')
+  .trim()
+  .toLowerCase()
+
+async function isDefaultMasterUser(pool, userId) {
+  const result = await pool.query(`SELECT LOWER(email) AS email FROM app_user WHERE id = $1`, [userId])
+  return result.rows[0]?.email === DEFAULT_MASTER_EMAIL
+}
+
 async function loadUserRoles(pool, user) {
   const roleSet = new Set([normalizeRoleKey(user.role)])
   const res = await pool.query(
@@ -33,8 +45,7 @@ async function loadUserRoles(pool, user) {
 async function loadUserPermissions(pool, user, roles) {
   const masterAdmin =
     user.is_master_admin === true ||
-    roles.includes('MASTER_ADMIN') ||
-    roles.includes('OWNER_ADMIN')
+    roles.includes('MASTER_ADMIN')
 
   if (masterAdmin) {
     const all = await pool.query(`SELECT key FROM permission ORDER BY key`)
@@ -368,8 +379,8 @@ async function countMasterAdmins(pool) {
     LEFT JOIN admin_profile ap ON ap.user_id = au.id
     WHERE au.is_active = TRUE
       AND (
-        au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN')
-        OR aur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN')
+        au.role::text = 'MASTER_ADMIN'
+        OR aur.role::text = 'MASTER_ADMIN'
         OR COALESCE(ap.is_master_admin, false)
       )
   `)
@@ -462,7 +473,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const username = req.body?.username ? String(req.body.username).trim() : null
     const phone = req.body?.phone ? String(req.body.phone).trim() : null
     const password = String(req.body?.password || '')
-    const roles = Array.isArray(req.body?.roles) ? req.body.roles.map(normalizeRoleKey).filter(Boolean) : ['MEMBER']
+    const roles = Array.isArray(req.body?.roles) ? req.body.roles.map(normalizeRoleKey).filter(Boolean) : ['MEMBER_ATHLETE']
     if (!fullName || !password || roles.length === 0) {
       return res.status(400).json({ success: false, message: 'Full name, password, and at least one role are required.' })
     }
@@ -493,14 +504,14 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       for (const role of roles) {
         await pool.query(`INSERT INTO app_user_role (user_id, role) VALUES ($1, $2::user_role) ON CONFLICT DO NOTHING`, [userId, role])
       }
-      if (roles.some((r) => ['MASTER_ADMIN', 'OWNER_ADMIN', 'ADMIN'].includes(r))) {
+      if (roles.some((r) => ['MASTER_ADMIN', 'ADMIN'].includes(r))) {
         await pool.query(
           `
             INSERT INTO admin_profile (user_id, is_master_admin)
             VALUES ($1, $2)
             ON CONFLICT (user_id) DO UPDATE SET is_master_admin = EXCLUDED.is_master_admin, updated_at = now()
           `,
-          [userId, roles.includes('MASTER_ADMIN') || roles.includes('OWNER_ADMIN')],
+          [userId, roles.includes('MASTER_ADMIN')],
         )
       }
       if (roles.includes('COACH')) {
@@ -584,8 +595,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
     const primaryRole = roles[0]
     const previousRoles = await loadUserRoles(pool, { id: userId, role: null })
-    const wasMaster = previousRoles.some((role) => ['OWNER_ADMIN', 'MASTER_ADMIN'].includes(role))
-    const willBeMaster = roles.some((role) => ['OWNER_ADMIN', 'MASTER_ADMIN'].includes(role))
+    const wasMaster = previousRoles.some((role) => role === 'MASTER_ADMIN')
+    const willBeMaster = roles.some((role) => role === 'MASTER_ADMIN')
+    if (wasMaster && !willBeMaster && (await isDefaultMasterUser(pool, userId))) {
+      return res.status(400).json({ success: false, message: 'The default master admin account must keep master admin access.' })
+    }
     if (wasMaster && !willBeMaster && (await countMasterAdmins(pool)) <= 1) {
       return res.status(400).json({ success: false, message: 'Cannot remove the last master admin.' })
     }
@@ -603,7 +617,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           [userId, role],
         )
       }
-      if (roles.some((r) => ['MASTER_ADMIN', 'OWNER_ADMIN', 'ADMIN'].includes(r))) {
+      if (roles.some((r) => ['MASTER_ADMIN', 'ADMIN'].includes(r))) {
         await pool.query(
           `
             INSERT INTO admin_profile (user_id, is_master_admin)
@@ -614,6 +628,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           `,
           [userId, isMasterAdmin],
         )
+      } else {
+        await pool.query(`DELETE FROM admin_profile WHERE user_id = $1`, [userId])
       }
       if (roles.includes('COACH')) {
         await pool.query(
@@ -670,8 +686,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (userId === Number(req.platformAuth.user.id) && !isActive) {
       return res.status(400).json({ success: false, message: 'You cannot deactivate your own account.' })
     }
+    if (!isActive && (await isDefaultMasterUser(pool, userId))) {
+      return res.status(400).json({ success: false, message: 'The default master admin account cannot be deactivated.' })
+    }
     const roles = await loadUserRoles(pool, { id: userId, role: null })
-    if (!isActive && roles.some((role) => ['OWNER_ADMIN', 'MASTER_ADMIN'].includes(role)) && (await countMasterAdmins(pool)) <= 1) {
+    if (!isActive && roles.some((role) => role === 'MASTER_ADMIN') && (await countMasterAdmins(pool)) <= 1) {
       return res.status(400).json({ success: false, message: 'Cannot deactivate the last master admin.' })
     }
     await pool.query(`UPDATE app_user SET is_active = $2, updated_at = now() WHERE id = $1`, [userId, isActive])
@@ -701,8 +720,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
                 'programName', p.display_name,
                 'schedulingFormId', cca.scheduling_form_id,
                 'className', sf.title,
-                'schedulingCategoryId', cca.scheduling_category_id,
-                'categoryName', sc.name,
                 'schedulingOfferingId', cca.scheduling_offering_id,
                 'offeringName', so.label,
                 'schedulingTimeSlotId', cca.scheduling_time_slot_id,
@@ -710,7 +727,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
                   prog_top.display_name,
                   p.display_name,
                   sf.title,
-                  sc.name,
                   so.label,
                   CASE
                     WHEN sts.id IS NOT NULL THEN concat_ws(' ',
@@ -736,7 +752,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         LEFT JOIN ${schema.programsTable} prog_top ON prog_top.id = cca.programs_id
         LEFT JOIN program p ON p.id = cca.program_id
         LEFT JOIN scheduling_form sf ON sf.id = cca.scheduling_form_id AND sf.deleted_at IS NULL
-        LEFT JOIN scheduling_category sc ON sc.id = cca.scheduling_category_id
         LEFT JOIN scheduling_offering so ON so.id = cca.scheduling_offering_id
         LEFT JOIN scheduling_time_slot sts ON sts.id = cca.scheduling_time_slot_id
         WHERE au.facility_id = $1
@@ -754,7 +769,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         programsId: req.query.programsId,
         classEventId: req.query.classEventId,
         formId: req.query.formId,
-        categoryId: req.query.categoryId,
         offeringId: req.query.offeringId,
       })
       res.json({ success: true, data })
@@ -825,12 +839,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           programs_id,
           program_id,
           scheduling_form_id,
-          scheduling_category_id,
           scheduling_offering_id,
           scheduling_time_slot_id,
           class_iteration_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         ON CONFLICT DO NOTHING
         RETURNING *
       `,
@@ -839,7 +852,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         payload.programs_id,
         payload.program_id,
         payload.scheduling_form_id,
-        payload.scheduling_category_id,
         payload.scheduling_offering_id,
         payload.scheduling_time_slot_id,
         payload.class_iteration_id,
@@ -1334,7 +1346,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           cca.programs_id,
           cca.program_id,
           cca.scheduling_form_id,
-          cca.scheduling_category_id,
           cca.scheduling_offering_id,
           cca.scheduling_time_slot_id,
           prog_top.display_name as programs_name,
@@ -1344,7 +1355,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             prog_top.display_name,
             p.display_name,
             sf.title,
-            sc.name,
             so.label,
             CASE
               WHEN sts.id IS NOT NULL THEN concat_ws(' ',
@@ -1364,7 +1374,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         LEFT JOIN ${schema.programsTable} prog_top ON prog_top.id = cca.programs_id
         LEFT JOIN program p ON p.id = cca.program_id
         LEFT JOIN scheduling_form sf ON sf.id = cca.scheduling_form_id AND sf.deleted_at IS NULL
-        LEFT JOIN scheduling_category sc ON sc.id = cca.scheduling_category_id
         LEFT JOIN scheduling_offering so ON so.id = cca.scheduling_offering_id
         LEFT JOIN scheduling_time_slot sts ON sts.id = cca.scheduling_time_slot_id
         WHERE cca.coach_user_id = $1
@@ -1396,12 +1405,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       const sportId = req.query.sportId != null ? Number(req.query.sportId) : null
       const programId = req.query.programId != null ? Number(req.query.programId) : null
       const formId = req.query.formId != null ? Number(req.query.formId) : null
-      const categoryId = req.query.categoryId != null ? Number(req.query.categoryId) : null
       const data = await queryAssignDrilldown(pool, req.platformAuth.user.facility_id, {
         sportId: Number.isFinite(sportId) ? sportId : null,
         programId: Number.isFinite(programId) ? programId : null,
         formId: Number.isFinite(formId) ? formId : null,
-        categoryId: Number.isFinite(categoryId) ? categoryId : null,
       })
       res.json({ success: true, data })
     } catch (error) {
@@ -1422,7 +1429,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       programsId: a.programs_id,
       programId: a.program_id,
       schedulingFormId: a.scheduling_form_id,
-      schedulingCategoryId: a.scheduling_category_id,
       schedulingOfferingId: a.scheduling_offering_id,
       schedulingTimeSlotId: a.scheduling_time_slot_id,
       classIterationId: a.class_iteration_id,

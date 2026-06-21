@@ -73,7 +73,7 @@ export async function findMemberForAppUser(db, userId) {
 async function syncAppUser(client, member, passwordHash) {
   const fullName = `${member.first_name} ${member.last_name}`.trim()
   const facilityId = member.facility_id
-  const role = 'PARENT_GUARDIAN'
+  const role = 'MEMBER_ATHLETE'
 
   const existing = await client.query('SELECT id FROM app_user WHERE id = $1', [member.id])
   if (existing.rows.length > 0) {

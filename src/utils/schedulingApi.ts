@@ -3,7 +3,6 @@ import { dateInputValue } from './dateUtils'
 import { ENROLL_PATH, type EnrollSiteKey } from '../config/enrollSites'
 import { getCurrentEnrollSiteKey } from './enrollSite'
 import {
-  adaptCategoryUpdateForApi,
   adaptFormEnrollSitesBody,
   getSchedulingEnrollApiCapabilities,
 } from './schedulingEnrollApi'
@@ -15,45 +14,10 @@ function normalizeSchedulingDate(value: string | null | undefined): string | nul
   return iso || null
 }
 
-export interface SchedulingCategory {
-  id: number
-  formId: number | null
-  name: string
-  sortOrder: number
-  isActive: boolean
-  enrollSites?: EnrollSiteKey[]
-}
-
-export const NO_CATEGORY_NAME = 'No Category'
-
-export function isNoCategoryCategory(cat: Pick<SchedulingCategory, 'formId' | 'name'>): boolean {
-  return cat.formId == null && cat.name === NO_CATEGORY_NAME
-}
-
-export function isNoCategorySelection(
-  categoryId: number | null | undefined,
-  categoryName?: string | null,
-  categories: SchedulingCategory[] = [],
-): boolean {
-  if (categoryId == null) return true
-  if (categoryName === NO_CATEGORY_NAME) return true
-  const match = categories.find((cat) => cat.id === categoryId)
-  return match != null && isNoCategoryCategory(match)
-}
-
-export interface SchedulingFormCategory {
-  id: number | null
-  formId: number | null
-  name: string
-  sortOrder: number
-  isActive: boolean
-}
-
 export interface SchedulingTimeSlot {
   id: number
   slotGroupId?: number | null
   formId: number
-  categoryId: number | null
   scheduleMode: 'day' | 'date'
   weekLetter: string | null
   dayOfWeek: number | null
@@ -78,7 +42,6 @@ export interface SchedulingTimeSlot {
 export interface SchedulingSlotGroup {
   id: number
   formId: number
-  categoryId: number | null
   offeringId?: number | null
   scheduleMode: 'day' | 'date'
   maxParticipants: number
@@ -101,15 +64,9 @@ export interface SchedulePreviewWeek {
   days: { dayName: string; times: { startTime: string; endTime: string }[] }[]
 }
 
-export interface SlotsByCategory {
-  categoryId: number | null
-  categoryName: string
-  slots: SchedulingTimeSlot[]
-  groups?: SchedulingSlotGroup[]
-  preview: {
-    weeks: SchedulePreviewWeek[]
-    specificDates: { date: string; times: { startTime: string; endTime: string }[] }[]
-  }
+export interface SchedulePreview {
+  weeks: SchedulePreviewWeek[]
+  specificDates: { date: string; times: { startTime: string; endTime: string }[] }[]
 }
 
 export interface SchedulingMonthlyPricing {
@@ -129,7 +86,6 @@ export interface SignupOrderPreviewClass {
   id?: number
   formId: number
   formTitle: string
-  categoryName: string
   slotLabel: string
   slotKey?: string
   slotGroupId?: number
@@ -308,7 +264,7 @@ export interface FreePassAttachment {
   sortOrder: number
 }
 
-export type BenefitScopeLevel = 'sport' | 'program' | 'class' | 'category'
+export type BenefitScopeLevel = 'sport' | 'program' | 'class'
 
 export interface PricingBenefitSelection {
   id?: number
@@ -540,12 +496,9 @@ export interface LegacySchedulingForm extends SchedulingFormSummary {
 }
 
 export interface SchedulingFormDetail extends SchedulingFormSummary {
-  categories: SchedulingFormCategory[]
-  allCategories?: SchedulingCategory[]
   slotGroups: SchedulingSlotGroup[]
   timeSlots: SchedulingTimeSlot[]
-  slotsByCategory: SlotsByCategory[]
-  schedulePreview: SlotsByCategory['preview']
+  schedulePreview: SchedulePreview
 }
 
 export type CalendarFormActiveFilter = 'all' | 'active' | 'inactive'
@@ -559,15 +512,13 @@ export interface PublicSchedulingClassOption {
 
 export function schedulingSignupPath(
   formId: number,
-  categoryId?: number | null,
 ): string {
-  return schedulingEnrollPath({ formId, categoryId })
+  return schedulingEnrollPath({ formId })
 }
 
 export function schedulingEnrollPath(options?: {
   formId?: number
   programsId?: number
-  categoryId?: number | null
   offeringId?: number | null
   slotGroupId?: number | null
   timeSlotId?: number | null
@@ -580,9 +531,6 @@ export function schedulingEnrollPath(options?: {
     params.set('form', String(options.formId))
   } else if (options.programsId != null) {
     params.set('programsId', String(options.programsId))
-  }
-  if (options.categoryId != null) {
-    params.set('categoryId', String(options.categoryId))
   }
   if (options.offeringId != null) {
     params.set('offeringId', String(options.offeringId))
@@ -598,9 +546,8 @@ export function schedulingEnrollPath(options?: {
 
 export function buildSchedulingSignupUrl(
   formId: number,
-  categoryId?: number | null,
 ): string {
-  const path = schedulingSignupPath(formId, categoryId)
+  const path = schedulingSignupPath(formId)
   if (typeof window !== 'undefined') {
     return `${window.location.origin}${path}`
   }
@@ -622,8 +569,6 @@ export interface SchedulingCalendarEvent {
   ageMin: number | null
   ageMax: number | null
   skillRequirements: string | null
-  categoryId: number | null
-  categoryName: string | null
   offeringId: number | null
   offeringLabel: string | null
   offeringStartDate: string | null
@@ -654,8 +599,6 @@ export interface SchedulingCalendarTbd {
   ageMin: number | null
   ageMax: number | null
   skillRequirements: string | null
-  categoryId: number | null
-  categoryName: string | null
   offeringId: number | null
   offeringLabel: string | null
   slotGroupId: number
@@ -688,7 +631,6 @@ export interface SchedulingCalendarMonth {
 
 export interface SchedulingOrphanedSnapshot {
   formTitle: string
-  categoryName: string
   slotLabel: string
   occurrences?: {
     weekLetter?: string | null
@@ -721,7 +663,6 @@ export interface SchedulingSignup {
   id: number
   formId: number
   memberId?: number | null
-  categoryId: number | null
   timeSlotId?: number | null
   slotGroupId?: number | null
   responses: Record<string, string | boolean | number | string[]>
@@ -738,7 +679,6 @@ export interface SchedulingSignup {
   adminStub?: boolean
   pricing?: SchedulingMonthlyPricing
   createdAt: string
-  categoryName?: string
   slotLabel?: string
   formTitle?: string
   confirmationEmailSentAt?: string | null
@@ -767,7 +707,6 @@ export interface SchedulingAuthSession {
 }
 
 export interface SlotBatchPayload {
-  categoryId: number | null
   offeringId?: number | null
   activeDatesMode: 'inherit' | 'custom' | 'tbd'
   activeStart?: string | null
@@ -824,8 +763,6 @@ export interface ProgramClassOption {
   key: string
   formId: number
   formTitle: string
-  categoryId: number | null
-  categoryName: string
   slots: ProgramClassSlotOption[]
 }
 
@@ -876,18 +813,16 @@ export function getSchedulingMemberEmail(): string | null {
 
 export interface MemberSchedulingSignup {
   formId: number
-  categoryId: number | null
   slotGroupId: number
   timeSlotId: number | null
 }
 
 export function memberSignupSlotKey(signup: {
   formId: number
-  categoryId: number | null
   slotGroupId: number
   timeSlotId: number | null
 }): string {
-  return `${signup.formId}:${signup.categoryId ?? 'none'}:${signup.slotGroupId}:${signup.timeSlotId ?? 'none'}`
+  return `${signup.formId}:${signup.slotGroupId}:${signup.timeSlotId ?? 'none'}`
 }
 
 /** Active slot-level signups for this email. */
@@ -907,7 +842,6 @@ export async function fetchSignupOrderPreview(payload: {
   signupAuthToken?: string
   signups: Array<{
     formId: number
-    categoryId: number | null
     slotGroupId: number
     timeSlotId?: number
   }>
@@ -961,13 +895,10 @@ export async function fetchMySchedulingFormIds(email: string): Promise<number[]>
 
 export async function fetchPublicSchedulingOfferings(
   formId: number,
-  categoryId?: number | null,
   site: EnrollSiteKey = getCurrentEnrollSiteKey(),
 ): Promise<SchedulingOffering[]> {
   const params = new URLSearchParams()
   params.set('site', site)
-  if (categoryId === null) params.set('categoryId', 'none')
-  else if (categoryId != null) params.set('categoryId', String(categoryId))
   const qs = params.toString() ? `?${params.toString()}` : ''
   const res = await fetch(`${getApiUrl()}/api/scheduling/forms/${formId}/offerings${qs}`)
   return parseJson(res)
@@ -975,13 +906,10 @@ export async function fetchPublicSchedulingOfferings(
 
 export async function fetchPublicSchedulingForm(
   id: number,
-  categoryId?: number | null,
   options?: { fromEvent?: boolean; site?: EnrollSiteKey },
 ): Promise<SchedulingFormDetail> {
   const params = new URLSearchParams()
   params.set('site', options?.site ?? getCurrentEnrollSiteKey())
-  if (categoryId === null) params.set('uncategorized', '1')
-  else if (categoryId != null) params.set('categoryId', String(categoryId))
   if (options?.fromEvent) params.set('fromEvent', '1')
   const qs = params.toString() ? `?${params.toString()}` : ''
   const res = await fetch(`${getApiUrl()}/api/scheduling/forms/${id}${qs}`)
@@ -1079,7 +1007,6 @@ export async function verifySchedulingAuthToken(
 
 export async function submitSchedulingSignup(payload: {
   formId: number
-  categoryId: number | null
   slotGroupId: number
   timeSlotId?: number
   responses: Record<string, string | boolean | number | string[]>
@@ -1098,7 +1025,6 @@ export async function submitSchedulingSignup(payload: {
 export async function submitSchedulingSignupBatch(payload: {
   signups: Array<{
     formId: number
-    categoryId: number | null
     slotGroupId: number
     timeSlotId?: number
   }>
@@ -1353,7 +1279,6 @@ export async function adminSimulateFreePasses(payload: {
 export interface MemberPricingSignupRow {
   id: number
   formTitle: string
-  categoryName: string
   slotLabel: string
   pricingBreakdown: {
     line?: OrderDiscountLine
@@ -1549,62 +1474,9 @@ export async function adminSetSchedulingFormActive(
   return parseJson(res)
 }
 
-export async function adminFetchAllCategories(): Promise<SchedulingCategory[]> {
-  const res = await adminApiRequest('/api/admin/scheduling/categories')
-  return parseJson(res)
-}
-
-export async function adminFetchFormCategories(formId: number): Promise<SchedulingCategory[]> {
-  const res = await adminApiRequest(`/api/admin/scheduling/categories?formId=${formId}`)
-  return parseJson(res)
-}
-
-export async function adminCreateCategory(name: string, formId?: number): Promise<SchedulingCategory> {
-  const res = await adminApiRequest('/api/admin/scheduling/categories', {
-    method: 'POST',
-    body: JSON.stringify({ name, formId }),
-  })
-  return parseJson(res)
-}
-
-export async function adminLinkCategoryToForm(formId: number, categoryId: number): Promise<void> {
-  const res = await adminApiRequest(
-    `/api/admin/scheduling/forms/${formId}/categories/${categoryId}/link`,
-    { method: 'POST' },
-  )
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}))
-    throw new Error(data.message || 'Failed to link category to form')
-  }
-}
-
-export async function adminUpdateCategory(
-  id: number,
-  payload: { name: string; sortOrder?: number; isActive?: boolean; enrollSites?: EnrollSiteKey[] },
-): Promise<SchedulingCategory> {
-  const capabilities = await getSchedulingEnrollApiCapabilities()
-  const apiPayload = adaptCategoryUpdateForApi(payload, capabilities.schedulingEnrollSites)
-  const res = await adminApiRequest(`/api/admin/scheduling/categories/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(apiPayload),
-  })
-  return parseJson(res)
-}
-
-export async function adminDeleteCategory(id: number): Promise<void> {
-  const res = await adminApiRequest(`/api/admin/scheduling/categories/${id}`, { method: 'DELETE' })
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}))
-    throw new Error(data.message || 'Failed to delete category')
-  }
-}
-
-export type CategorySelection = number | 'none' | null
-
 export interface SchedulingOffering {
   id: number
   formId: number
-  categoryId: number | null
   startDate: string
   endDate: string
   label: string | null
@@ -1615,21 +1487,14 @@ export interface SchedulingOffering {
 
 export async function adminFetchOfferings(
   formId: number,
-  categoryId?: number | null,
 ): Promise<SchedulingOffering[]> {
-  const qs =
-    categoryId === null
-      ? '?categoryId=none'
-      : categoryId != null
-        ? `?categoryId=${categoryId}`
-        : ''
-  const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/offerings${qs}`)
+  const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/offerings`)
   return parseJson(res)
 }
 
 export async function adminCreateOffering(
   formId: number,
-  payload: { categoryId: number | null; startDate: string; endDate: string; label?: string | null },
+  payload: { startDate: string; endDate: string; label?: string | null },
 ): Promise<SchedulingOffering> {
   const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/offerings`, {
     method: 'POST',
@@ -1718,7 +1583,6 @@ export async function adminFetchSignups(
 
 export async function adminCreateSignup(payload: {
   formId: number
-  categoryId: number | null
   slotGroupId: number
   timeSlotId?: number
   memberId?: number
@@ -1743,7 +1607,7 @@ export async function adminFetchOrphanedSignups(formId: number): Promise<Schedul
 
 export async function adminReEnrollOrphanedSignup(
   orphanId: number,
-  payload: { targetFormId: number; categoryId: number | null; slotGroupId: number },
+  payload: { targetFormId: number; slotGroupId: number },
 ): Promise<SchedulingSignup> {
   const res = await adminApiRequest(`/api/admin/scheduling/orphaned-signups/${orphanId}/re-enroll`, {
     method: 'POST',

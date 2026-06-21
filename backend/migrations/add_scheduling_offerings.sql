@@ -1,9 +1,8 @@
--- Offerings (date ranges per Class/Event form + category) and program scheduling fields.
+-- Offerings (date ranges per Class/Event form) and program scheduling fields.
 
 CREATE TABLE IF NOT EXISTS scheduling_offering (
   id           BIGSERIAL PRIMARY KEY,
   form_id      BIGINT NOT NULL REFERENCES scheduling_form(id) ON DELETE CASCADE,
-  category_id  BIGINT NOT NULL REFERENCES scheduling_category(id) ON DELETE CASCADE,
   start_date   DATE NOT NULL,
   end_date     DATE NOT NULL,
   label        VARCHAR(255),
@@ -13,16 +12,9 @@ CREATE TABLE IF NOT EXISTS scheduling_offering (
 );
 
 CREATE INDEX IF NOT EXISTS idx_scheduling_offering_form ON scheduling_offering(form_id);
-CREATE INDEX IF NOT EXISTS idx_scheduling_offering_category ON scheduling_offering(category_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_scheduling_offering_selected
-  ON scheduling_offering(form_id, category_id) WHERE is_selected = TRUE AND category_id IS NOT NULL;
-
-ALTER TABLE scheduling_offering
-  ALTER COLUMN category_id DROP NOT NULL;
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_scheduling_offering_selected_no_cat
-  ON scheduling_offering(form_id) WHERE is_selected = TRUE AND category_id IS NULL;
+  ON scheduling_offering(form_id) WHERE is_selected = TRUE;
 
 ALTER TABLE scheduling_slot_group
   ADD COLUMN IF NOT EXISTS offering_id BIGINT REFERENCES scheduling_offering(id) ON DELETE SET NULL;
@@ -54,21 +46,14 @@ BEGIN
 END $$;
 
 -- Backfill: one offering per form from legacy form start/end when both exist
-INSERT INTO scheduling_offering (form_id, category_id, start_date, end_date, label, is_selected)
+INSERT INTO scheduling_offering (form_id, start_date, end_date, label, is_selected)
 SELECT
   sf.id,
-  c.id,
   sf.start_date,
   sf.end_date,
   COALESCE(sf.title, 'Default offering'),
   TRUE
 FROM scheduling_form sf
-CROSS JOIN LATERAL (
-  SELECT id FROM scheduling_category
-  WHERE form_id IS NULL OR form_id = sf.id
-  ORDER BY sort_order, id
-  LIMIT 1
-) c
 WHERE sf.deleted_at IS NULL
   AND sf.start_date IS NOT NULL
   AND sf.end_date IS NOT NULL

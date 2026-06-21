@@ -30,9 +30,7 @@ const ADDON_MIGRATION_ORDER = [
   'add_programs_is_active.sql',
   'add_archived_column.sql',
   'add_scheduling_tables.sql',
-  'global_scheduling_categories.sql',
   'unify_programs_scheduling.sql',
-  'add_program_scheduling_category.sql',
   'refactor_scheduling_v2.sql',
   'add_scheduling_form_deleted_at.sql',
   'add_slot_groups.sql',
@@ -190,18 +188,6 @@ async function ensureRuntimeBaseTables(client) {
 async function ensurePostMigrationSchema(client) {
   console.log('\n🔧 Ensuring runtime schema compatibility...')
   await client.query(`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM pg_enum
-        WHERE enumlabel = 'ATHLETE'
-          AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'user_role')
-      ) THEN
-        ALTER TYPE user_role ADD VALUE 'ATHLETE';
-      END IF;
-    EXCEPTION WHEN duplicate_object THEN NULL;
-    END $$;
-
     CREATE TABLE IF NOT EXISTS app_user_role (
       id BIGSERIAL PRIMARY KEY,
       user_id BIGINT NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,

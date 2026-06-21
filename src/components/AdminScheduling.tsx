@@ -15,7 +15,6 @@ import {
   type SchedulingSignup,
   type SchedulingOrphanedSignup,
   type SchedulingOffering,
-  type CategorySelection,
 } from '../utils/schedulingApi'
 import ProgramsSection from './programs/ProgramsSection'
 import {
@@ -63,7 +62,6 @@ const AdminScheduling = ({
   const [forwardFormSelectAll, setForwardFormSelectAll] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState<CategorySelection>(null)
   const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
   const programsLoaded = useRef(false)
 
@@ -107,7 +105,6 @@ const AdminScheduling = ({
         setDetail(null)
         setSignups([])
         setOrphanedSignups([])
-        setSelectedCategory(null)
         setSelectedOffering(null)
         return
       }
@@ -130,7 +127,6 @@ const AdminScheduling = ({
   const handleSelectClassEvent = useCallback(
     async (event: ClassEvent | null) => {
       setSelectedClassEvent(event)
-      setSelectedCategory(event?.schedulingCategoryId ?? 'none')
       setSelectedOffering(null)
       setLoading(true)
       setError(null)
@@ -151,7 +147,6 @@ const AdminScheduling = ({
       setDetail(null)
       setSignups([])
       setOrphanedSignups([])
-      setSelectedCategory(null)
       setSelectedOffering(null)
       setForwardFormSelectAll(false)
       setPanel('overview')
@@ -184,7 +179,6 @@ const AdminScheduling = ({
       )
       setForwardFormSelectAll(true)
       setSelectedProgramId(intent.programsId)
-      setSelectedCategory(intent.categorySelection)
       setSelectedOffering(null)
       setPanel(intent.targetPanel)
 
@@ -261,28 +255,10 @@ const AdminScheduling = ({
 
   const needsClassEvent = ['form', 'offerings', 'slots'].includes(panel)
   const showClassEventPrompt = needsClassEvent && !selectedClassEvent
-  // Offerings/Slots are scoped to a category; default to "No Category" so the
-  // admin is never forced to bounce back to the Categories tab just to proceed.
-  const effectiveCategory: CategorySelection = selectedCategory ?? 'none'
 
   const handleOfferingContinueToSlots = useCallback(() => {
     setPanel('slots')
   }, [])
-
-  const categoryApiId =
-    effectiveCategory === 'none' ? null : typeof effectiveCategory === 'number' ? effectiveCategory : undefined
-
-  const categoryDisplayName =
-    effectiveCategory === 'none'
-      ? 'No Category'
-      : typeof effectiveCategory === 'number' && detail
-        ? (detail.allCategories?.find((c) => c.id === effectiveCategory)?.name ??
-          detail.categories.find((c) => c.id === effectiveCategory)?.name ??
-          selectedClassEvent?.schedulingCategoryName ??
-          null)
-        : typeof effectiveCategory === 'number'
-          ? (selectedClassEvent?.schedulingCategoryName ?? null)
-          : null
 
   const offeringDisplayName =
     selectedOffering?.label?.trim() ||
@@ -297,7 +273,6 @@ const AdminScheduling = ({
 
   const handleOfferingSelect = useCallback((offering: SchedulingOffering | null) => {
     setSelectedOffering(offering)
-    if (offering) setSelectedCategory(offering.categoryId ?? 'none')
   }, [])
 
   if (loading && topPrograms.length === 0) {
@@ -354,12 +329,6 @@ const AdminScheduling = ({
                   <>
                     {' '}
                     · Class/Event: <strong>{selectedClassEvent.displayName}</strong>
-                    {categoryDisplayName && (
-                      <>
-                        {' '}
-                        · <strong>{categoryDisplayName}</strong>
-                      </>
-                    )}
                     {offeringDisplayName && (
                       <>
                         {' '}
@@ -428,7 +397,6 @@ const AdminScheduling = ({
               {panel === 'offerings' && selectedClassEvent && selectedId && (
                 <AdminSchedulingOfferings
                   formId={selectedId}
-                  selectedCategory={effectiveCategory}
                   selectedOfferingId={selectedOffering?.id ?? null}
                   onOfferingSelect={handleOfferingSelect}
                   onContinueToSlots={handleOfferingContinueToSlots}
@@ -451,8 +419,6 @@ const AdminScheduling = ({
                   offeringStartDate={selectedOffering?.startDate ?? null}
                   offeringEndDate={selectedOffering?.endDate ?? null}
                   offeringLabel={offeringDisplayName}
-                  selectedCategoryId={categoryApiId ?? null}
-                  categoryName={categoryDisplayName}
                   canBuild={Boolean(selectedOffering)}
                   orphanedSignups={orphanedSignups}
                   signups={signups}

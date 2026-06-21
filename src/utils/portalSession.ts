@@ -31,9 +31,9 @@ export function getAvailablePortals(account: PortalAccount | null): PortalId[] {
   }
   const roles = getRoleKeys(account)
   return [
-    ...(account?.hasMemberPortal || roles.some((role) => ['PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER'].includes(role)) ? ['member' as const] : []),
+    ...(account?.hasMemberPortal || roles.some((role) => ['MEMBER_ATHLETE'].includes(role)) ? ['member' as const] : []),
     ...(account?.isCoach || roles.includes('COACH') ? ['coach' as const] : []),
-    ...(account?.isAdmin || roles.some((role) => ['OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN'].includes(role)) ? ['admin' as const] : []),
+    ...(account?.isAdmin || roles.some((role) => ['MASTER_ADMIN', 'ADMIN'].includes(role)) ? ['admin' as const] : []),
   ]
 }
 
@@ -87,7 +87,7 @@ export function persistAdminSessionFromAccount(token: string, account: PortalAcc
     lastName: account.lastName,
     phone: account.phone,
     username: account.username,
-    isMaster: getRoleKeys(account).some((role) => role === 'MASTER_ADMIN' || role === 'OWNER_ADMIN'),
+    isMaster: getRoleKeys(account).some((role) => role === 'MASTER_ADMIN'),
   }))
   if (account.id != null) localStorage.setItem('vortex-admin-id', String(account.id))
 }

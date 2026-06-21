@@ -3,38 +3,26 @@ import { Loader2, Pencil, Trash2 } from 'lucide-react'
 import {
   adminCreateOffering,
   adminDeleteOffering,
-  adminFetchAllCategories,
   adminFetchOfferings,
   adminSelectOffering,
   adminUpdateOffering,
-  type CategorySelection,
-  type SchedulingCategory,
   type SchedulingOffering,
 } from '../../utils/schedulingApi'
 import { dateInputValue } from '../../utils/dateUtils'
 
 interface Props {
   formId: number
-  selectedCategory: CategorySelection
   selectedOfferingId: number | null
   onOfferingSelect: (offering: SchedulingOffering | null) => void
   onContinueToSlots?: () => void
 }
 
-const categoryApiId = (selection: CategorySelection): number | null | undefined => {
-  if (selection === null) return undefined
-  if (selection === 'none') return null
-  return selection
-}
-
 const AdminSchedulingOfferings = ({
   formId,
-  selectedCategory,
   selectedOfferingId,
   onOfferingSelect,
   onContinueToSlots,
 }: Props) => {
-  const [categories, setCategories] = useState<SchedulingCategory[]>([])
   const [offerings, setOfferings] = useState<SchedulingOffering[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -42,14 +30,6 @@ const AdminSchedulingOfferings = ({
   const [editId, setEditId] = useState<number | null>(null)
   const [draft, setDraft] = useState({ startDate: '', endDate: '', label: '' })
 
-  const loadCategories = useCallback(async () => {
-    const data = await adminFetchAllCategories()
-    setCategories(data)
-  }, [])
-
-  const apiCategoryId = categoryApiId(selectedCategory)
-
-  // List every offering for the class (all categories); the category is shown per row.
   const loadOfferings = useCallback(async () => {
     const data = await adminFetchOfferings(formId)
     setOfferings(data)
@@ -57,21 +37,18 @@ const AdminSchedulingOfferings = ({
 
   useEffect(() => {
     setLoading(true)
-    Promise.all([loadCategories(), loadOfferings()])
+    loadOfferings()
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load offerings'))
       .finally(() => setLoading(false))
-  }, [loadCategories, loadOfferings])
+  }, [loadOfferings])
 
-  // When a category is selected (and nothing is selected yet), default to the
-  // top/first available offering for that category.
+  // Default to the selected (or first) offering when nothing is selected yet.
   useEffect(() => {
     if (selectedOfferingId) return
     if (offerings.length === 0) return
-    const wantCategoryId = selectedCategory === 'none' || selectedCategory == null ? null : selectedCategory
-    const matches = offerings.filter((o) => (o.categoryId ?? null) === wantCategoryId)
-    const fallback = matches.find((o) => o.isSelected) ?? matches[0]
+    const fallback = offerings.find((o) => o.isSelected) ?? offerings[0]
     if (fallback) onOfferingSelect(fallback)
-  }, [offerings, selectedCategory, selectedOfferingId, onOfferingSelect])
+  }, [offerings, selectedOfferingId, onOfferingSelect])
 
   const iconBtn =
     'p-1.5 rounded hover:bg-gray-100 text-gray-600 hover:text-gray-900 disabled:opacity-40'
@@ -94,7 +71,6 @@ const AdminSchedulingOfferings = ({
         })
       } else {
         await adminCreateOffering(formId, {
-          categoryId: apiCategoryId ?? null,
           startDate: draft.startDate,
           endDate: draft.endDate,
           label: draft.label || null,
@@ -147,11 +123,6 @@ const AdminSchedulingOfferings = ({
       label: offering.label || '',
     })
   }
-
-  const categoryName = (categoryId: number | null): string =>
-    categoryId == null
-      ? 'No Category'
-      : (categories.find((c) => c.id === categoryId)?.name ?? `Category #${categoryId}`)
 
   return (
     <div className="space-y-6 w-full">
@@ -221,7 +192,6 @@ const AdminSchedulingOfferings = ({
             <thead className="bg-gray-50 text-left text-gray-600">
               <tr>
                 <th className="py-2 px-4 font-medium w-8" />
-                <th className="py-2 px-4 font-medium">Category</th>
                 <th className="py-2 px-4 font-medium">Dates</th>
                 <th className="py-2 px-4 font-medium">Label</th>
                 <th className="py-2 px-4 font-medium w-24">Actions</th>
@@ -244,9 +214,6 @@ const AdminSchedulingOfferings = ({
                         disabled={saving}
                         title="Select for slot building"
                       />
-                    </td>
-                    <td className="py-2 px-4 font-medium text-gray-800">
-                      {categoryName(o.categoryId)}
                     </td>
                     <td className="py-2 px-4">
                       {o.startDate} – {o.endDate}

@@ -54,15 +54,6 @@ const ClassScheduleByClassPanel = ({
     )
   }
 
-  const showCategoryOnOffering = (classGroup: ClassScheduleProgramGroup['classes'][number]) => {
-    const names = new Set(
-      classGroup.offerings
-        .map((offering) => offering.categoryName)
-        .filter((name): name is string => Boolean(name && name !== 'No Category')),
-    )
-    return names.size > 1
-  }
-
   return (
     <div className="space-y-8 w-full">
       {groups.map((program) => (
@@ -78,7 +69,6 @@ const ClassScheduleByClassPanel = ({
 
           <div className="space-y-8">
             {program.classes.map((classGroup) => {
-              const showCategory = showCategoryOnOffering(classGroup)
               const selectedInClass = classGroup.offerings.some(
                 (offering) => offering.key === selectedOfferingKey,
               )
@@ -136,11 +126,6 @@ const ClassScheduleByClassPanel = ({
                                   : 'border-gray-200 bg-white hover:border-gray-400'
                             }`}
                           >
-                            {showCategory && offering.categoryName && offering.categoryName !== 'No Category' && (
-                              <p className="text-xs font-semibold text-vortex-red mb-1">
-                                {offering.categoryName}
-                              </p>
-                            )}
                             {offering.offeringLabel && (
                               <p className="text-xs text-gray-500 mb-1">{offering.offeringLabel}</p>
                             )}
@@ -168,7 +153,6 @@ const ClassScheduleByClassPanel = ({
                         <Link
                           to={schedulingEnrollPath({
                             formId: selectedOffering.formId,
-                            categoryId: selectedOffering.categoryId,
                             offeringId: selectedOffering.offeringId,
                             slotGroupId: selectedOffering.slotGroupId,
                             timeSlotId: selectedOffering.timeSlotId,

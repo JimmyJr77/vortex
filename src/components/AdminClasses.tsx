@@ -4,8 +4,8 @@ import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash
 import { adminApiRequest } from '../utils/api'
 import ClassEventModal from './programs/ClassEventModal'
 import PrimarySportPicker from './programs/PrimarySportPicker'
-import type { ClassEvent, SchedulingCategoryRef } from '../utils/programsApi'
-import { fetchDisciplineTags, syncSchedulingCategories, deleteTopProgram, type DisciplineTag } from '../utils/programsApi'
+import type { ClassEvent } from '../utils/programsApi'
+import { fetchDisciplineTags, consolidateClasses, deleteTopProgram, type DisciplineTag } from '../utils/programsApi'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import AdminClassesEventsSpreadsheet from './classes/AdminClassesEventsSpreadsheet'
 import ClassSchedulingExpandPanel from './classes/ClassSchedulingExpandPanel'
@@ -26,9 +26,6 @@ interface Program {
   skillRequirements: string | null // Database column: skill_requirements
   isActive: boolean // Database column: is_active
   programIsActive?: boolean // Parent program active flag
-  schedulingCategoryId?: number | null // program.scheduling_category_id — legacy single mapping
-  schedulingCategoryName?: string | null // Scheduling category label, computed server-side
-  schedulingCategories?: SchedulingCategoryRef[] // category variations of this class (from its form)
   sportTags?: string | null // Comma-joined additional sport tags from the parent program
   primarySport?: string | null // Primary sport name from the parent program
   offeringCount?: number
@@ -58,7 +55,7 @@ const iconBtnDanger =
 const thClass = 'px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'
 const tdClass = 'px-4 py-3 align-middle text-sm text-gray-900'
 
-type ClassSortField = 'primarySport' | 'program' | 'class' | 'category' | 'offerings' | 'slots'
+type ClassSortField = 'primarySport' | 'program' | 'class' | 'offerings' | 'slots'
 
 type StatusFilter = 'all' | 'active' | 'inactive'
 
@@ -92,25 +89,8 @@ function programHasSportTag(
   return parseSportTags(program.sportTags).some((name) => name.toLowerCase() === needle)
 }
 
-const NO_CATEGORY_REF: SchedulingCategoryRef = { id: null, name: 'No Category' }
-
-// A single fanned-out Admin > Classes row: one (class x category) pairing.
-interface ClassRow {
-  program: Program
-  category: SchedulingCategoryRef
-}
-
-function rowKey(program: Program, category: SchedulingCategoryRef): string {
-  return `${program.id}:${category.id ?? 'none'}`
-}
-
-// Expand a class into one row per category variation (a No Category row when none).
-function expandClassRows(program: Program): ClassRow[] {
-  const cats =
-    program.schedulingCategories && program.schedulingCategories.length > 0
-      ? program.schedulingCategories
-      : [NO_CATEGORY_REF]
-  return cats.map((category) => ({ program, category })  )
+function rowKey(program: Program): string {
+  return `${program.id}`
 }
 
 function programHasPrimarySport(program: Program, tagName: string): boolean {
@@ -533,7 +513,7 @@ function programNameForClass(program: Program, categories: Category[]): string {
   return match?.displayName || program.categoryDisplayName || program.categoryName || 'Unassigned'
 }
 
-function toClassEvent(program: Program, category?: SchedulingCategoryRef | null): ClassEvent {
+function toClassEvent(program: Program): ClassEvent {
   return {
     id: program.id,
     programsId: program.categoryId ?? undefined,
@@ -547,9 +527,6 @@ function toClassEvent(program: Program, category?: SchedulingCategoryRef | null)
     skillRequirements: program.skillRequirements,
     isActive: program.isActive,
     archived: program.archived,
-    schedulingCategoryId: category ? category.id : program.schedulingCategoryId ?? null,
-    schedulingCategoryName: category ? category.name : program.schedulingCategoryName ?? null,
-    schedulingCategories: program.schedulingCategories,
     sportTags: program.sportTags ?? null,
     primarySport: program.primarySport ?? null,
     createdAt: program.createdAt,
@@ -641,10 +618,6 @@ export default function AdminClasses({
   const [showClassModal, setShowClassModal] = useState(false)
   const [selectedCategoryForClass, setSelectedCategoryForClass] = useState<number | null>(null)
   const [editingClassEvent, setEditingClassEvent] = useState<ClassEvent | null>(null)
-  const [splitSource, setSplitSource] = useState<ClassEvent | null>(null)
-  // The variation a row's edit started from + whether we're reassigning or splitting.
-  const [variationMode, setVariationMode] = useState<'reassign' | 'split'>('reassign')
-  const [variationFromCategoryId, setVariationFromCategoryId] = useState<number | null>(null)
   const [expandedProgramId, setExpandedProgramId] = useState<number | null>(null)
   const [expandedClassId, setExpandedClassId] = useState<string | null>(null)
   const [classSearch, setClassSearch] = useState('')
@@ -674,9 +647,6 @@ export default function AdminClasses({
   const [classFilterKey, setClassFilterKey] = useState<string | null>(null)
   const [classFilterOpen, setClassFilterOpen] = useState(false)
   const classFilterRef = useRef<HTMLDivElement>(null)
-  const [categoryFilterKey, setCategoryFilterKey] = useState<string | null>(null)
-  const [categoryFilterOpen, setCategoryFilterOpen] = useState(false)
-  const categoryFilterRef = useRef<HTMLDivElement>(null)
 
   const fetchAllPrograms = async () => {
     try {
@@ -909,7 +879,7 @@ export default function AdminClasses({
   const handleSyncCategories = async () => {
     setSyncing(true)
     try {
-      await syncSchedulingCategories()
+      await consolidateClasses()
       await fetchAllPrograms()
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to refresh from scheduling')
@@ -918,20 +888,8 @@ export default function AdminClasses({
     }
   }
 
-  const handleEditClass = (program: Program, category?: SchedulingCategoryRef) => {
-    setSplitSource(null)
-    setEditingClassEvent(toClassEvent(program, category ?? null))
-    setVariationMode('reassign')
-    setVariationFromCategoryId(category ? category.id : program.schedulingCategoryId ?? null)
-    setSelectedCategoryForClass(program.categoryId ?? null)
-    setShowClassModal(true)
-  }
-
-  const handleSplitByCategory = (program: Program, category: SchedulingCategoryRef) => {
-    setEditingClassEvent(null)
-    setSplitSource(toClassEvent(program, category))
-    setVariationMode('split')
-    setVariationFromCategoryId(category.id)
+  const handleEditClass = (program: Program) => {
+    setEditingClassEvent(toClassEvent(program))
     setSelectedCategoryForClass(program.categoryId ?? null)
     setShowClassModal(true)
   }
@@ -944,7 +902,7 @@ export default function AdminClasses({
     setExpandedClassId((prev) => (prev === key ? null : key))
   }
 
-  const handleOpenScheduling = (program: Program, category: SchedulingCategoryRef) => {
+  const handleOpenScheduling = (program: Program) => {
     if (!program.categoryId) {
       alert('Assign this class to a program before setting up scheduling.')
       return
@@ -952,7 +910,6 @@ export default function AdminClasses({
     onOpenScheduling?.({
       programsId: program.categoryId,
       classEventId: program.id,
-      categorySelection: category.id ?? 'none',
       targetPanel: 'form',
     })
   }
@@ -1041,17 +998,6 @@ export default function AdminClasses({
     return () => document.removeEventListener('mousedown', handleMouseDown)
   }, [classFilterOpen])
 
-  useEffect(() => {
-    if (!categoryFilterOpen) return
-    const handleMouseDown = (e: MouseEvent) => {
-      if (categoryFilterRef.current && !categoryFilterRef.current.contains(e.target as Node)) {
-        setCategoryFilterOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleMouseDown)
-    return () => document.removeEventListener('mousedown', handleMouseDown)
-  }, [categoryFilterOpen])
-
   const activeSportTagFilterName = useMemo(() => {
     if (sportTagFilterId == null) return null
     return allSportTags.find((t) => t.id === sportTagFilterId)?.name ?? null
@@ -1090,19 +1036,6 @@ export default function AdminClasses({
     [activeClasses],
   )
 
-  const categoryFilterOptions = useMemo(() => {
-    const seen = new Map<string, string>()
-    for (const program of activeClasses) {
-      for (const { category } of expandClassRows(program)) {
-        const key = category.id == null ? 'none' : String(category.id)
-        if (!seen.has(key)) seen.set(key, category.name)
-      }
-    }
-    return [...seen.entries()]
-      .map(([key, label]) => ({ key, label }))
-      .sort((a, b) => a.label.localeCompare(b.label))
-  }, [activeClasses])
-
   const activeProgramFilterLabel =
     programFilterKey == null
       ? null
@@ -1113,11 +1046,6 @@ export default function AdminClasses({
       ? null
       : (classFilterOptions.find((o) => o.key === classFilterKey)?.label ?? null)
 
-  const activeCategoryFilterLabel =
-    categoryFilterKey == null
-      ? null
-      : (categoryFilterOptions.find((o) => o.key === categoryFilterKey)?.label ?? null)
-
   const handleClassSort = (field: ClassSortField) => {
     setClassSortConfig((prev) => ({
       field,
@@ -1125,32 +1053,29 @@ export default function AdminClasses({
     }))
   }
 
-  const compareActiveClassRows = (a: ClassRow, b: ClassRow): number => {
+  const compareActiveClassRows = (a: Program, b: Program): number => {
     const dir = classSortConfig.direction === 'asc' ? 1 : -1
     let cmp = 0
 
     switch (classSortConfig.field) {
       case 'primarySport':
-        cmp = (a.program.primarySport ?? '').localeCompare(b.program.primarySport ?? '')
+        cmp = (a.primarySport ?? '').localeCompare(b.primarySport ?? '')
         break
       case 'program':
-        cmp = programNameForClass(a.program, categories).localeCompare(programNameForClass(b.program, categories))
+        cmp = programNameForClass(a, categories).localeCompare(programNameForClass(b, categories))
         break
       case 'class':
-        cmp = a.program.displayName.localeCompare(b.program.displayName)
-        break
-      case 'category':
-        cmp = a.category.name.localeCompare(b.category.name)
+        cmp = a.displayName.localeCompare(b.displayName)
         break
       case 'offerings': {
-        const aCount = a.program.offeringCount ?? 0
-        const bCount = b.program.offeringCount ?? 0
+        const aCount = a.offeringCount ?? 0
+        const bCount = b.offeringCount ?? 0
         cmp = aCount - bCount
         break
       }
       case 'slots': {
-        const aCount = a.program.slotCount ?? 0
-        const bCount = b.program.slotCount ?? 0
+        const aCount = a.slotCount ?? 0
+        const bCount = b.slotCount ?? 0
         cmp = aCount - bCount
         break
       }
@@ -1158,16 +1083,13 @@ export default function AdminClasses({
 
     if (cmp !== 0) return cmp * dir
 
-    const progCmp = programNameForClass(a.program, categories).localeCompare(programNameForClass(b.program, categories))
+    const progCmp = programNameForClass(a, categories).localeCompare(programNameForClass(b, categories))
     if (progCmp !== 0) return progCmp
-    const nameCmp = a.program.displayName.localeCompare(b.program.displayName)
-    if (nameCmp !== 0) return nameCmp
-    return a.category.name.localeCompare(b.category.name)
+    return a.displayName.localeCompare(b.displayName)
   }
 
   const filteredActiveClassRows = activeClasses
-    .flatMap(expandClassRows)
-    .filter(({ program: p, category }) => {
+    .filter((p) => {
       if (programFilterKey != null) {
         const programId = Number(programFilterKey)
         const matchesProgram =
@@ -1177,10 +1099,6 @@ export default function AdminClasses({
         if (!matchesProgram) return false
       }
       if (classFilterKey != null && String(p.id) !== classFilterKey) return false
-      if (categoryFilterKey != null) {
-        const rowCategoryKey = category.id == null ? 'none' : String(category.id)
-        if (rowCategoryKey !== categoryFilterKey) return false
-      }
       if (primarySportFilterId != null) {
         const tagName = allSportTags.find((t) => t.id === primarySportFilterId)?.name
         if (tagName && !programHasPrimarySport(p, tagName)) return false
@@ -1204,7 +1122,6 @@ export default function AdminClasses({
       return (
         p.displayName.toLowerCase().includes(q) ||
         programNameForClass(p, categories).toLowerCase().includes(q) ||
-        category.name.toLowerCase().includes(q) ||
         (p.primarySport?.toLowerCase().includes(q) ?? false) ||
         (p.sportTags?.toLowerCase().includes(q) ?? false) ||
         (p.description?.toLowerCase().includes(q) ?? false) ||
@@ -1459,7 +1376,6 @@ export default function AdminClasses({
                       <th className={thClass}>Sport Tag</th>
                       <th className={thClass}>Program</th>
                       <th className={thClass}>Class</th>
-                      <th className={thClass}>Category</th>
                       <th className={thClass}>Age range</th>
                       <th className={`${thClass} w-0`}>Actions</th>
                     </tr>
@@ -1471,25 +1387,22 @@ export default function AdminClasses({
                         if (classArchiveCategoryFilter === 'all') return true
                         return p.categoryId === classArchiveCategoryFilter || p.categoryDisplayName === categories.find((c) => c.id === classArchiveCategoryFilter)?.displayName
                       })
-                      .flatMap(expandClassRows)
-                      .filter(({ program: p, category }) =>
+                      .filter((p) =>
                         !classArchiveSearch.trim() ||
                         p.displayName.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
                         programNameForClass(p, categories).toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
-                        category.name.toLowerCase().includes(classArchiveSearch.toLowerCase()) ||
                         (p.primarySport?.toLowerCase().includes(classArchiveSearch.toLowerCase()) ?? false),
                       )
-                      .map(({ program, category }) => (
-                        <tr key={rowKey(program, category)} className="hover:bg-gray-50/80">
+                      .map((program) => (
+                        <tr key={rowKey(program)} className="hover:bg-gray-50/80">
                           <td className={tdClass}>{program.primarySport || '—'}</td>
                           <td className={tdClass}>{formatSportTagDisplay(program.sportTags)}</td>
                           <td className={tdClass}>{programNameForClass(program, categories)}</td>
                           <td className={tdClass}>{program.displayName}</td>
-                          <td className={tdClass}>{category.name}</td>
                           <td className={tdClass}>{formatAgeRange(program.ageMin, program.ageMax)}</td>
                           <td className={`${tdClass} w-0`}>
                             <div className="flex items-center gap-0.5">
-                              <button type="button" className={iconBtn} title="Edit" aria-label="Edit" onClick={() => handleEditClass(program, category)}>
+                              <button type="button" className={iconBtn} title="Edit" aria-label="Edit" onClick={() => handleEditClass(program)}>
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button type="button" className={iconBtn} title="Unarchive" aria-label="Unarchive" onClick={() => handleArchiveProgram(program.id, false)}>
@@ -1772,29 +1685,6 @@ export default function AdminClasses({
                           />
                         </th>
                         <th className={thClass}>
-                          <SortFilterColumnHeader
-                            label="Category"
-                            field="category"
-                            sortConfig={classSortConfig}
-                            onSort={handleClassSort}
-                            filterOpen={categoryFilterOpen}
-                            onToggleFilter={() => setCategoryFilterOpen((open) => !open)}
-                            activeFilterLabel={activeCategoryFilterLabel}
-                            filterRef={categoryFilterRef}
-                            options={categoryFilterOptions}
-                            selectedKey={categoryFilterKey}
-                            onSelectKey={(key) => {
-                              setCategoryFilterKey(key)
-                              setCategoryFilterOpen(false)
-                            }}
-                            onClearFilter={() => {
-                              setCategoryFilterKey(null)
-                              setCategoryFilterOpen(false)
-                            }}
-                            clearLabel="All categories"
-                          />
-                        </th>
-                        <th className={thClass}>
                           <SortableColumnHeader label="Offerings" field="offerings" sortConfig={classSortConfig} onSort={handleClassSort} />
                         </th>
                         <th className={thClass}>
@@ -1841,13 +1731,13 @@ export default function AdminClasses({
                     <tbody className="divide-y divide-gray-100">
                       {filteredActiveClassRows.length === 0 ? (
                         <tr>
-                          <td colSpan={11} className="px-4 py-12 text-center text-gray-500">
+                          <td colSpan={10} className="px-4 py-12 text-center text-gray-500">
                             No classes match your search or filter.
                           </td>
                         </tr>
                       ) : (
-                      filteredActiveClassRows.map(({ program, category }) => {
-                        const key = rowKey(program, category)
+                      filteredActiveClassRows.map((program) => {
+                        const key = rowKey(program)
                         return (
                         <Fragment key={key}>
                           <tr
@@ -1858,7 +1748,6 @@ export default function AdminClasses({
                             <td className={tdClass}>{formatSportTagDisplay(program.sportTags)}</td>
                             <td className={tdClass}>{programNameForClass(program, categories)}</td>
                             <td className={`${tdClass} font-medium`}>{program.displayName}</td>
-                            <td className={tdClass}>{category.name}</td>
                             <td className={`${tdClass} text-center`}>{program.offeringCount ?? 0}</td>
                             <td className={`${tdClass} text-center`}>{program.slotCount ?? 0}</td>
                             <td className={tdClass}>{formatSkillLevel(program.skillLevel)}</td>
@@ -1872,11 +1761,8 @@ export default function AdminClasses({
                             </td>
                             <td className={`${tdClass} w-0`} onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center gap-0.5">
-                                <button type="button" className={iconBtn} title="Edit class" aria-label="Edit class" onClick={() => handleEditClass(program, category)}>
+                                <button type="button" className={iconBtn} title="Edit class" aria-label="Edit class" onClick={() => handleEditClass(program)}>
                                   <Edit2 className="w-4 h-4" />
-                                </button>
-                                <button type="button" className={iconBtn} title="Split into another category" aria-label="Split into another category" onClick={() => handleSplitByCategory(program, category)}>
-                                  <Plus className="w-4 h-4" />
                                 </button>
                                 <button
                                   type="button"
@@ -1885,7 +1771,7 @@ export default function AdminClasses({
                                   aria-label="Set up scheduling"
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    handleOpenScheduling(program, category)
+                                    handleOpenScheduling(program)
                                   }}
                                   disabled={!onOpenScheduling || program.categoryId == null}
                                 >
@@ -1899,7 +1785,7 @@ export default function AdminClasses({
                           </tr>
                           {expandedClassId === key && (
                             <tr>
-                              <td colSpan={11} className="px-0 py-0">{renderClassDetailPanel(program)}</td>
+                              <td colSpan={10} className="px-0 py-0">{renderClassDetailPanel(program)}</td>
                             </tr>
                           )}
                         </Fragment>
@@ -2037,44 +1923,35 @@ export default function AdminClasses({
       </AnimatePresence>
 
       <ClassEventModal
-        open={showClassModal && (selectedCategoryForClass != null || editingClassEvent != null || splitSource != null)}
-        programsId={selectedCategoryForClass ?? editingClassEvent?.programsId ?? editingClassEvent?.categoryId ?? splitSource?.programsId ?? splitSource?.categoryId ?? 0}
+        open={showClassModal && (selectedCategoryForClass != null || editingClassEvent != null)}
+        programsId={selectedCategoryForClass ?? editingClassEvent?.programsId ?? editingClassEvent?.categoryId ?? 0}
         programsDisplayName={
-          categories.find((c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId ?? splitSource?.categoryId))?.displayName
+          categories.find((c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId))?.displayName
         }
-        lockProgram={selectedCategoryForClass != null || editingClassEvent != null || splitSource != null}
+        lockProgram={selectedCategoryForClass != null || editingClassEvent != null}
         parentProgramActive={
           (() => {
-            const pid = selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId ?? splitSource?.categoryId ?? splitSource?.programsId
+            const pid = selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId
             const parent = categories.find((c) => c.id === pid)
             return parent ? programIsActiveFlag(parent) : true
           })()
         }
         editing={editingClassEvent}
-        splitSource={splitSource}
-        variationMode={splitSource ? 'split' : editingClassEvent ? variationMode : undefined}
-        variationFromCategoryId={variationFromCategoryId}
         programPrimarySportId={
           categories.find(
-            (c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId ?? splitSource?.categoryId ?? splitSource?.programsId),
+            (c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId),
           )?.primarySportId ?? null
         }
         onClose={() => {
           setShowClassModal(false)
           setSelectedCategoryForClass(null)
           setEditingClassEvent(null)
-          setSplitSource(null)
-          setVariationMode('reassign')
-          setVariationFromCategoryId(null)
         }}
         onSaved={async () => {
           await fetchAllPrograms()
           setShowClassModal(false)
           setSelectedCategoryForClass(null)
           setEditingClassEvent(null)
-          setSplitSource(null)
-          setVariationMode('reassign')
-          setVariationFromCategoryId(null)
         }}
       />
 

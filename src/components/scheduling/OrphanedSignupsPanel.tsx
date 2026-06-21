@@ -41,7 +41,6 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
   const [reEnrollTarget, setReEnrollTarget] = useState<SchedulingOrphanedSignup | null>(null)
   const [targetFormId, setTargetFormId] = useState<number | null>(null)
   const [targetDetail, setTargetDetail] = useState<SchedulingFormDetail | null>(null)
-  const [categoryId, setCategoryId] = useState<number | null>(null)
   const [slotGroupId, setSlotGroupId] = useState<number | null>(null)
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -53,7 +52,6 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
   useEffect(() => {
     if (!reEnrollTarget) return
     setTargetFormId(reEnrollTarget.formId)
-    setCategoryId(null)
     setSlotGroupId(null)
     setError(null)
   }, [reEnrollTarget])
@@ -68,10 +66,6 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
     adminFetchSchedulingForm(targetFormId)
       .then((detail) => {
         setTargetDetail(detail)
-        setCategoryId((prev) => {
-          if (prev != null && detail.categories.some((c) => c.id === prev)) return prev
-          return detail.categories[0]?.id ?? null
-        })
       })
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load form'))
       .finally(() => setLoadingDetail(false))
@@ -79,15 +73,9 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
 
   useEffect(() => {
     setSlotGroupId(null)
-  }, [categoryId, targetFormId])
+  }, [targetFormId])
 
-  const groupsForCategory = (detail: SchedulingFormDetail, catId: number | null): SchedulingSlotGroup[] =>
-    (detail.slotGroups ?? []).filter((g) => (g.categoryId ?? null) === catId)
-
-  const slotOptions =
-    targetDetail && categoryId !== undefined
-      ? groupsForCategory(targetDetail, categoryId)
-      : []
+  const slotOptions: SchedulingSlotGroup[] = targetDetail?.slotGroups ?? []
 
   const openReEnroll = (orphan: SchedulingOrphanedSignup) => {
     setReEnrollTarget(orphan)
@@ -98,7 +86,6 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
     setReEnrollTarget(null)
     setTargetFormId(null)
     setTargetDetail(null)
-    setCategoryId(null)
     setSlotGroupId(null)
     setError(null)
   }
@@ -131,7 +118,6 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
     try {
       await adminReEnrollOrphanedSignup(reEnrollTarget.id, {
         targetFormId,
-        categoryId,
         slotGroupId,
       })
       closeModal()
@@ -184,9 +170,6 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
                     </td>
                     <td className="py-2 pr-3 text-gray-700">
                       <div>{snapshot.slotLabel || '—'}</div>
-                      {snapshot.categoryName && (
-                        <div className="text-gray-500 text-xs">{snapshot.categoryName}</div>
-                      )}
                       {dateRange && <div className="text-gray-500 text-xs">{dateRange}</div>}
                     </td>
                     <td className="py-2 pr-3">
@@ -271,24 +254,6 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
               {targetDetail && !loadingDetail && (
                 <>
                   <label className="block text-sm">
-                    <span className="font-medium text-gray-700">Category</span>
-                    <select
-                      value={categoryId ?? ''}
-                      onChange={(e) => {
-                        const v = e.target.value
-                        setCategoryId(v === '' ? null : Number(v))
-                      }}
-                      className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                    >
-                      {targetDetail.categories.map((c) => (
-                        <option key={c.id ?? 'none'} value={c.id ?? ''}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="block text-sm">
                     <span className="font-medium text-gray-700">Slot</span>
                     <select
                       value={slotGroupId ?? ''}
@@ -306,7 +271,7 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
                   </label>
 
                   {slotOptions.length === 0 && (
-                    <p className="text-sm text-amber-700">No active slots in this category.</p>
+                    <p className="text-sm text-amber-700">No active slots in this form.</p>
                   )}
                 </>
               )}

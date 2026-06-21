@@ -125,7 +125,6 @@ export async function loadSchedulingCalendar(pool, options) {
       p.age_max,
       p.skill_requirements,
       pr.display_name AS program_name,
-      COALESCE(sc.name, 'No Category') AS category_name,
       sg.offering_id,
       COALESCE((
         SELECT COUNT(*)::int
@@ -145,7 +144,6 @@ export async function loadSchedulingCalendar(pool, options) {
     JOIN program p ON p.id = sf.program_id
     LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
     LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
-    LEFT JOIN scheduling_category sc ON sc.id = COALESCE(ts.category_id, sg.category_id)
     WHERE ${filters.join(' AND ')}
     ORDER BY ts.start_time, p.display_name, ts.id
     `,

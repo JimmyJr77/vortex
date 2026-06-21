@@ -104,7 +104,7 @@ async function insertMember(client, facilityId, familyId, spec, passwordHash, pa
   const email = adult ? spec.email ?? null : null
   const username = adult ? spec.username ?? null : null
   const memberPasswordHash = adult && (email || username) ? passwordHash : null
-  const role = adult ? 'PARENT_GUARDIAN' : 'ATHLETE'
+  const role = 'MEMBER_ATHLETE'
 
   const insert = await client.query(
     `INSERT INTO member (

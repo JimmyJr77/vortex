@@ -23,8 +23,6 @@ interface Props {
 }
 
 interface SignupTarget {
-  categoryId: number | null
-  categoryName: string
   offering: SchedulingOffering | null
   slotGroup: SchedulingSlotGroup
 }
@@ -150,7 +148,10 @@ const ClassSchedulingExpandPanel = ({
     }
   }, [classId, schedulingFormId])
 
-  const offeringCategories = detail?.categories.filter((c) => c.offerings.length > 0 || c.slotGroups.length > 0) ?? []
+  const { byOffering, unassigned } = detail
+    ? groupSlotsByOffering(detail.offerings, detail.slotGroups)
+    : { byOffering: [], unassigned: [] }
+  const hasSchedule = byOffering.length > 0 || unassigned.length > 0
 
   return (
     <div className="p-6 bg-gray-50 border-t-2 border-vortex-red space-y-6 text-sm text-gray-700">
@@ -191,69 +192,48 @@ const ClassSchedulingExpandPanel = ({
 
         {detail && !loading && (
           <div className="space-y-4">
-            {offeringCategories.length === 0 ? (
+            {!hasSchedule ? (
               <p className="text-gray-500">No offerings configured yet.</p>
             ) : (
-              <div className="space-y-3">
-                {offeringCategories.map((category) => {
-                  const { byOffering, unassigned } = groupSlotsByOffering(
-                    category.offerings,
-                    category.slotGroups,
-                  )
-
-                  return (
-                    <div
-                      key={`${category.categoryId ?? 'none'}`}
-                      className="border border-gray-200 rounded-xl bg-white overflow-hidden"
-                    >
-                      <div className="px-4 py-2 bg-gray-100 font-semibold text-gray-900">
-                        {category.categoryName}
-                      </div>
-                      <div className="p-4 space-y-5">
-                        {byOffering.map(({ offering, slotGroups }) => (
-                          <div key={offering.id}>
-                            <div className="font-semibold text-gray-900 mb-2">
-                              {formatOfferingDates(offering)}
-                              {offering.isSelected && (
-                                <span className="ml-2 text-xs font-semibold text-green-700">
-                                  Selected
-                                </span>
-                              )}
-                            </div>
-                            <SlotGroupsTable
-                              slotGroups={slotGroups}
-                              onSignup={(group) =>
-                                setSignupTarget({
-                                  categoryId: category.categoryId,
-                                  categoryName: category.categoryName,
-                                  offering,
-                                  slotGroup: group,
-                                })
-                              }
-                            />
-                          </div>
-                        ))}
-
-                        {unassigned.length > 0 && (
-                          <div>
-                            <div className="font-semibold text-gray-900 mb-2">Unassigned slots</div>
-                            <SlotGroupsTable
-                              slotGroups={unassigned}
-                              onSignup={(group) =>
-                                setSignupTarget({
-                                  categoryId: category.categoryId,
-                                  categoryName: category.categoryName,
-                                  offering: null,
-                                  slotGroup: group,
-                                })
-                              }
-                            />
-                          </div>
+              <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">
+                <div className="p-4 space-y-5">
+                  {byOffering.map(({ offering, slotGroups }) => (
+                    <div key={offering.id}>
+                      <div className="font-semibold text-gray-900 mb-2">
+                        {formatOfferingDates(offering)}
+                        {offering.isSelected && (
+                          <span className="ml-2 text-xs font-semibold text-green-700">
+                            Selected
+                          </span>
                         )}
                       </div>
+                      <SlotGroupsTable
+                        slotGroups={slotGroups}
+                        onSignup={(group) =>
+                          setSignupTarget({
+                            offering,
+                            slotGroup: group,
+                          })
+                        }
+                      />
                     </div>
-                  )
-                })}
+                  ))}
+
+                  {unassigned.length > 0 && (
+                    <div>
+                      <div className="font-semibold text-gray-900 mb-2">Unassigned slots</div>
+                      <SlotGroupsTable
+                        slotGroups={unassigned}
+                        onSignup={(group) =>
+                          setSignupTarget({
+                            offering: null,
+                            slotGroup: group,
+                          })
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -267,8 +247,6 @@ const ClassSchedulingExpandPanel = ({
           onSuccess={() => reloadDetail()}
           formId={detail.formId}
           className={className}
-          categoryName={signupTarget.categoryName}
-          categoryId={signupTarget.categoryId}
           offering={signupTarget.offering}
           slotGroup={signupTarget.slotGroup}
         />

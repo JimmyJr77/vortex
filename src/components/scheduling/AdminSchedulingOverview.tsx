@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ChevronRight, Loader2 } from 'lucide-react'
 import {
   fetchClassEvents,
@@ -8,12 +8,8 @@ import {
   type TopProgram,
 } from '../../utils/programsApi'
 import {
-  adminFetchAllCategories,
   adminFetchOfferings,
   adminSetSchedulingFormEnrollSites,
-  adminUpdateCategory,
-  isNoCategoryCategory,
-  type SchedulingCategory,
 } from '../../utils/schedulingApi'
 import {
   ALL_ENROLL_SITES,
@@ -46,10 +42,6 @@ function classEnrollSites(classEvent: ClassEvent): EnrollSiteKey[] {
   )
 }
 
-function categoryEnrollSites(category: SchedulingCategory): EnrollSiteKey[] {
-  return enrollSitesFromRecord(category.enrollSites, category.isActive)
-}
-
 async function classSetupStatus(classEvent: ClassEvent): Promise<SetupStatus> {
   if (!classEvent.schedulingFormId) return 'none'
   try {
@@ -73,12 +65,10 @@ const AdminSchedulingOverview = ({
   const [savingProgram, setSavingProgram] = useState(false)
   const [programError, setProgramError] = useState<string | null>(null)
   const [classEvents, setClassEvents] = useState<ClassEvent[]>([])
-  const [categories, setCategories] = useState<SchedulingCategory[]>([])
   const [setupByClassId, setSetupByClassId] = useState<Record<number, SetupStatus>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [savingClassId, setSavingClassId] = useState<number | null>(null)
-  const [savingCategoryId, setSavingCategoryId] = useState<number | null>(null)
   const [bulkSavingClasses, setBulkSavingClasses] = useState(false)
 
   const programVisible = programEnrollSiteSelection.length > 0
@@ -89,12 +79,8 @@ const AdminSchedulingOverview = ({
     }
     setError(null)
     try {
-      const [events, cats] = await Promise.all([
-        fetchClassEvents({ programsId: program.id, archived: false }),
-        adminFetchAllCategories(),
-      ])
+      const events = await fetchClassEvents({ programsId: program.id, archived: false })
       setClassEvents(events)
-      setCategories(cats)
       const statuses: Record<number, SetupStatus> = {}
       await Promise.all(
         events.map(async (ev) => {
@@ -118,16 +104,6 @@ const AdminSchedulingOverview = ({
   useEffect(() => {
     void loadData()
   }, [program.id, loadData])
-
-  const programCategories = useMemo(() => {
-    const linkedIds = new Set<number>()
-    for (const ev of classEvents) {
-      for (const cat of ev.schedulingCategories ?? []) {
-        if (cat.id != null) linkedIds.add(cat.id)
-      }
-    }
-    return categories.filter((cat) => linkedIds.has(cat.id) && !isNoCategoryCategory(cat))
-  }, [classEvents, categories])
 
   const saveClassEnrollSites = async (classEvent: ClassEvent, enrollSites: EnrollSiteKey[]) => {
     let formId = classEvent.schedulingFormId
@@ -211,35 +187,6 @@ const AdminSchedulingOverview = ({
     }
   }
 
-  const handleCategoryEnrollSitesChange = async (
-    category: SchedulingCategory,
-    sites: EnrollSiteKey[],
-  ) => {
-    setSavingCategoryId(category.id)
-    try {
-      const updated = await adminUpdateCategory(category.id, {
-        name: category.name,
-        enrollSites: sites,
-      })
-      setCategories((prev) =>
-        prev.map((cat) =>
-          cat.id === category.id
-            ? {
-                ...cat,
-                ...updated,
-                enrollSites: sites,
-                isActive: sites.length > 0,
-              }
-            : cat,
-        ),
-      )
-    } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to update category')
-    } finally {
-      setSavingCategoryId(null)
-    }
-  }
-
   const handleClassClick = async (classEvent: ClassEvent) => {
     await onSelectClassEvent(classEvent)
     onOpenForm()
@@ -287,32 +234,6 @@ const AdminSchedulingOverview = ({
           </p>
         )}
       </section>
-
-      {programCategories.length > 0 && (
-        <section>
-          <h4 className="text-base font-bold text-black mb-3">Class variations</h4>
-          <p className="text-sm text-gray-600 mb-3">
-            Categories linked to classes in this program. Unchecked sites hide that variation from
-            signup on the matching enroll page.
-          </p>
-          <ul className="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden">
-            {programCategories.map((cat) => (
-              <li
-                key={cat.id}
-                className="flex flex-col gap-3 px-4 py-3 bg-white text-sm sm:flex-row sm:items-center sm:justify-between"
-              >
-                <span className="font-semibold text-black">{cat.name}</span>
-                <EnrollSiteVisibilityControls
-                  sites={categoryEnrollSites(cat)}
-                  disabled={!programVisible || savingCategoryId === cat.id}
-                  layout="inline"
-                  onChange={(sites) => void handleCategoryEnrollSitesChange(cat, sites)}
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       <section>
         <h4 className="text-base font-bold text-black mb-3">Classes &amp; Events</h4>

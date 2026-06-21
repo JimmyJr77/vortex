@@ -20,7 +20,6 @@ function expandDateRange(start, end) {
 export function expandSlotBatch(payload) {
   const rows = []
   const {
-    categoryId,
     activeDatesMode,
     activeStart,
     activeEnd,
@@ -42,7 +41,6 @@ export function expandSlotBatch(payload) {
         const dayActiveEnd = parseDateOnly(day.activeEnd) ?? batchActiveEnd
         for (const time of day.times || []) {
           rows.push({
-            categoryId,
             scheduleMode: 'day',
             weekLetter,
             dayOfWeek: day.dayOfWeek,
@@ -70,7 +68,6 @@ export function expandSlotBatch(payload) {
       for (const date of dates) {
         for (const time of entry.times || []) {
           rows.push({
-            categoryId,
             scheduleMode: 'date',
             weekLetter: null,
             dayOfWeek: null,

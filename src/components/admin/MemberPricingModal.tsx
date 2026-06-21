@@ -42,10 +42,7 @@ function PricingBody({ preview }: { preview: SignupOrderPreview }) {
                 className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm"
               >
                 <p className="font-medium text-gray-900">{item.formTitle}</p>
-                <p className="text-gray-600">
-                  {item.categoryName}
-                  {item.slotLabel ? ` — ${item.slotLabel}` : ''}
-                </p>
+                {item.slotLabel && <p className="text-gray-600">{item.slotLabel}</p>}
                 {item.status === 'waitlisted' && (
                   <p className="text-xs text-amber-700 mt-1">Waitlisted</p>
                 )}
@@ -232,7 +229,7 @@ const MemberPricingModal = ({ memberId, memberLabel, onClose }: Props) => {
     const applied = row.pricingBreakdown?.line?.applied ?? []
     return applied.map((a) => ({
       key: `${row.id}-${a.ruleId}`,
-      classLabel: `${row.formTitle} — ${row.categoryName}`,
+      classLabel: row.slotLabel ? `${row.formTitle} — ${row.slotLabel}` : row.formTitle,
       name: a.name,
       amountCents: a.amountCents,
     }))

@@ -15,7 +15,6 @@ function escapeHtml(str) {
  *   registrantFirstName: string
  *   registrantEmail: string
  *   formTitle: string
- *   categoryName: string
  *   slotLabel: string
  *   waitlistPosition: number
  * }} params
@@ -24,7 +23,6 @@ export async function sendDemotionEmail({
   registrantFirstName,
   registrantEmail,
   formTitle,
-  categoryName,
   slotLabel,
   waitlistPosition,
 }) {
@@ -40,7 +38,6 @@ Your waitlist position: #${waitlistPosition}
 
 Event details:
 • Event: ${title}
-• Category: ${categoryName}
 • Time: ${slotLabel}
 
 We'll email you if a spot opens up again. If you have questions, reply to this email or contact us at ${TEAM_EMAIL}.
@@ -57,7 +54,6 @@ ${TEAM_EMAIL}`
   <p style="font-size: 18px;"><strong>Your waitlist position: #${waitlistPosition}</strong></p>
   <table style="margin: 20px 0; border-collapse: collapse;">
     <tr><td style="padding: 6px 12px 6px 0; color: #666;">Event</td><td><strong>${escapeHtml(title)}</strong></td></tr>
-    <tr><td style="padding: 6px 12px 6px 0; color: #666;">Category</td><td><strong>${escapeHtml(categoryName)}</strong></td></tr>
     <tr><td style="padding: 6px 12px 6px 0; color: #666;">Time</td><td><strong>${escapeHtml(slotLabel)}</strong></td></tr>
   </table>
   <p>We'll email you if a spot opens up again.</p>

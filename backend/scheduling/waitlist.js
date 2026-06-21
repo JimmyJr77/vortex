@@ -179,7 +179,7 @@ export async function rebalanceCapacity(client, slotGroupId, oldMax, newMax) {
 export async function loadSignupContext(db, signupId) {
   const result = await db.query(
     `
-    SELECT s.*, c.name AS category_name, f.title AS form_title, f.mandate_waiver,
+    SELECT s.*, f.title AS form_title, f.mandate_waiver,
       (
         SELECT COALESCE(json_agg(
           json_build_object(
@@ -196,7 +196,6 @@ export async function loadSignupContext(db, signupId) {
         WHERE o.slot_group_id = s.slot_group_id
       ) AS group_occurrences
     FROM scheduling_signup s
-    LEFT JOIN scheduling_category c ON c.id = s.category_id
     JOIN scheduling_form f ON f.id = s.form_id
     WHERE s.id = $1
     `,
@@ -218,7 +217,6 @@ export async function loadSignupContext(db, signupId) {
     parentFirstName: String(responses.parent_first_name || ''),
     parentEmail: String(responses.parent_email || ''),
     formTitle: row.form_title || '',
-    categoryName: row.category_name || 'No Category',
     slotLabel,
     mandateWaiver: Boolean(row.mandate_waiver ?? false),
   }

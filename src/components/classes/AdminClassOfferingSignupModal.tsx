@@ -25,8 +25,6 @@ interface Props {
   onSuccess: () => void
   formId: number
   className: string
-  categoryName: string
-  categoryId: number | null
   offering: SchedulingOffering | null
   slotGroup: SchedulingSlotGroup
 }
@@ -37,8 +35,6 @@ const AdminClassOfferingSignupModal = ({
   onSuccess,
   formId,
   className,
-  categoryName,
-  categoryId,
   offering,
   slotGroup,
 }: Props) => {
@@ -137,7 +133,6 @@ const AdminClassOfferingSignupModal = ({
         }
         result = await adminCreateSignup({
           formId,
-          categoryId,
           slotGroupId: slotGroup.id,
           timeSlotId,
           memberId: selectedMember.id,
@@ -151,7 +146,6 @@ const AdminClassOfferingSignupModal = ({
         }
         result = await adminCreateSignup({
           formId,
-          categoryId,
           slotGroupId: slotGroup.id,
           timeSlotId,
           email: trimmedEmail,
@@ -191,7 +185,6 @@ const AdminClassOfferingSignupModal = ({
         <div className="px-6 py-4 space-y-4 text-sm text-gray-700">
           <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 space-y-1">
             <p><span className="font-semibold text-gray-900">Class:</span> {className}</p>
-            <p><span className="font-semibold text-gray-900">Category:</span> {categoryName}</p>
             <p><span className="font-semibold text-gray-900">Offering:</span> {offeringLabel}</p>
             <p><span className="font-semibold text-gray-900">Slot:</span> {slotLabel}</p>
             <p>

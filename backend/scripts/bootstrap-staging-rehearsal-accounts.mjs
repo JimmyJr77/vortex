@@ -106,10 +106,6 @@ async function upsertAdmin(client, facilityId, passwordHash) {
     [userId],
   )
   await client.query(
-    `INSERT INTO app_user_role (user_id, role) VALUES ($1, 'OWNER_ADMIN'::user_role) ON CONFLICT DO NOTHING`,
-    [userId],
-  )
-  await client.query(
     `
       INSERT INTO admin_profile (user_id, is_master_admin)
       VALUES ($1, TRUE)
@@ -271,7 +267,7 @@ async function upsertRehearsalFamily(client, facilityId, passwordHash) {
     passwordHash,
   )
   await client.query(
-    `INSERT INTO app_user_role (user_id, role) VALUES ($1, 'PARENT_GUARDIAN'::user_role) ON CONFLICT DO NOTHING`,
+    `INSERT INTO app_user_role (user_id, role) VALUES ($1, 'MEMBER_ATHLETE'::user_role) ON CONFLICT DO NOTHING`,
     [guardianAppUserId],
   )
 
@@ -313,7 +309,7 @@ async function syncGuardianAppUser(client, facilityId, guardianMemberId, passwor
             email = $2,
             username = $3,
             password_hash = $4,
-            role = 'PARENT_GUARDIAN'::user_role,
+            role = 'MEMBER_ATHLETE'::user_role,
             facility_id = $5,
             is_active = TRUE,
             updated_at = NOW()
@@ -334,7 +330,7 @@ async function syncGuardianAppUser(client, facilityId, guardianMemberId, passwor
       `
         INSERT INTO app_user (
           id, full_name, email, phone, username, password_hash, role, is_active, facility_id, created_at, updated_at
-        ) VALUES ($1, $2, $3, '555-0199', $4, $5, 'PARENT_GUARDIAN'::user_role, TRUE, $6, NOW(), NOW())
+        ) VALUES ($1, $2, $3, '555-0199', $4, $5, 'MEMBER_ATHLETE'::user_role, TRUE, $6, NOW(), NOW())
       `,
       [guardianMemberId, fullName, MEMBER_EMAIL, MEMBER_USERNAME, passwordHash, facilityId],
     )
@@ -349,7 +345,7 @@ async function syncGuardianAppUser(client, facilityId, guardianMemberId, passwor
     const created = await client.query(
       `
         INSERT INTO app_user (facility_id, role, email, phone, full_name, username, password_hash, is_active)
-        VALUES ($1, 'PARENT_GUARDIAN'::user_role, $2, '555-0199', $3, $4, $5, TRUE)
+        VALUES ($1, 'MEMBER_ATHLETE'::user_role, $2, '555-0199', $3, $4, $5, TRUE)
         RETURNING id
       `,
       [facilityId, MEMBER_EMAIL, fullName, MEMBER_USERNAME, passwordHash],
@@ -369,7 +365,7 @@ async function syncGuardianAppUser(client, facilityId, guardianMemberId, passwor
           email = $2,
           username = $3,
           password_hash = $4,
-          role = 'PARENT_GUARDIAN'::user_role,
+          role = 'MEMBER_ATHLETE'::user_role,
           facility_id = $5,
           is_active = TRUE,
           updated_at = NOW()

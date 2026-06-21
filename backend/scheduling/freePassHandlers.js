@@ -485,7 +485,6 @@ export function createFreePassHandlers(pool) {
             sportId: l.sportId ?? null,
             programId: l.programId ?? null,
             formId: l.formId ?? null,
-            categoryId: l.categoryId ?? null,
           })
           lines.push({
             key: l.key ?? `line-${i}`,

@@ -80,7 +80,14 @@ const ensureProductionEnv = () => {
 ensureProductionEnv()
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'launch-hardening-2026-06-21'
+const API_BUILD_ID = 'role-model-consolidation-2026-06-21'
+
+// The default master admin account is permanent: it cannot be deleted,
+// deactivated, or stripped of master admin access. Override via env if the
+// owner account email ever changes.
+const DEFAULT_MASTER_EMAIL = (process.env.DEFAULT_MASTER_EMAIL || 'team.vortexathletics@gmail.com')
+  .trim()
+  .toLowerCase()
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -506,26 +513,23 @@ export const initDatabase = async () => {
     // MODULE 0: Identity, Roles, Facility Settings
     // ============================================================
     
-    // Create user_role enum if it doesn't exist
+    // Create user_role enum if it doesn't exist.
+    // The consolidated role model is MASTER_ADMIN / ADMIN / COACH / MEMBER_ATHLETE
+    // (see migration 032). On a brand-new database the historical migrations
+    // (001+) may still seed legacy labels before 032 collapses them, so the
+    // bootstrap enum is created as the superset and migration 032 narrows it.
+    // We intentionally do NOT re-add legacy values to an existing enum here,
+    // otherwise the consolidation in 032 would be undone on every boot.
     const typeExists = await pool.query(`
       SELECT 1 FROM pg_type WHERE typname = 'user_role'
     `)
     if (typeExists.rows.length === 0) {
       await pool.query(`
-        CREATE TYPE user_role AS ENUM ('OWNER_ADMIN', 'COACH', 'PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE')
+        CREATE TYPE user_role AS ENUM (
+          'MASTER_ADMIN', 'ADMIN', 'COACH', 'MEMBER_ATHLETE',
+          'OWNER_ADMIN', 'PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER'
+        )
       `)
-    } else {
-      // Add ATHLETE to enum if it doesn't exist
-      const athleteExists = await pool.query(`
-        SELECT 1 FROM pg_enum 
-        WHERE enumlabel = 'ATHLETE' 
-        AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'user_role')
-      `)
-      if (athleteExists.rows.length === 0) {
-        await pool.query(`
-          ALTER TYPE user_role ADD VALUE 'ATHLETE'
-        `)
-      }
     }
 
     // Create facility table
@@ -621,7 +625,7 @@ export const initDatabase = async () => {
       )
       SELECT 
         (SELECT id FROM facility LIMIT 1) as facility_id,
-        'OWNER_ADMIN'::user_role as role,
+        'MASTER_ADMIN'::user_role as role,
         email,
         phone,
         COALESCE(first_name || ' ' || last_name, 'Admin User') as full_name,
@@ -2170,6 +2174,16 @@ const userHasAnyRole = async (userId, roles) => {
   return roles.some(role => userRoles.includes(role))
 }
 
+// Adult status is derived from the member's date of birth, not from a role
+// (the legacy PARENT_GUARDIAN/ATHLETE roles were collapsed into MEMBER_ATHLETE).
+// Accounts with an unknown DOB are treated as adults so existing logins are
+// never locked out of family management.
+const userIsAdult = async (userId) => {
+  const member = await getMemberForAppUser(userId)
+  if (!member || !member.date_of_birth) return true
+  return isAdult(member.date_of_birth)
+}
+
 const addUserRole = async (userId, role) => {
   try {
     await pool.query(`
@@ -2219,14 +2233,16 @@ const setUserRoles = async (userId, roles) => {
 
 const syncRoleProfiles = async (userId, roles, { isMasterAdmin = false } = {}) => {
   const normalizedRoles = roles.map((role) => String(role).toUpperCase())
-  if (normalizedRoles.some((role) => ['OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN'].includes(role))) {
+  if (normalizedRoles.some((role) => ['MASTER_ADMIN', 'ADMIN'].includes(role))) {
     await pool.query(`
       INSERT INTO admin_profile (user_id, is_master_admin)
       VALUES ($1, $2)
       ON CONFLICT (user_id) DO UPDATE SET
         is_master_admin = EXCLUDED.is_master_admin,
         updated_at = CURRENT_TIMESTAMP
-    `, [userId, isMasterAdmin || normalizedRoles.includes('MASTER_ADMIN') || normalizedRoles.includes('OWNER_ADMIN')])
+    `, [userId, isMasterAdmin || normalizedRoles.includes('MASTER_ADMIN')])
+  } else {
+    await pool.query(`DELETE FROM admin_profile WHERE user_id = $1`, [userId])
   }
 
   if (normalizedRoles.includes('COACH')) {
@@ -2247,7 +2263,7 @@ const syncRoleProfiles = async (userId, roles, { isMasterAdmin = false } = {}) =
 const hasAdminPermission = async (userId, permission) => {
   if (!userId) return false
   const roles = await getUserRoles(userId)
-  if (roles.some((role) => ['OWNER_ADMIN', 'MASTER_ADMIN'].includes(role))) return true
+  if (roles.some((role) => role === 'MASTER_ADMIN')) return true
 
   const result = await pool.query(`
     WITH base_permissions AS (
@@ -2293,7 +2309,7 @@ const mapAdminAccountRow = (row) => {
     email: row.email,
     phone: row.phone || null,
     username: row.username || '',
-    isMaster: row.is_master_admin === true || row.role === 'MASTER_ADMIN' || row.role === 'OWNER_ADMIN',
+    isMaster: row.is_master_admin === true || row.role === 'MASTER_ADMIN',
     roles: row.roles || [],
     isActive: row.is_active !== false,
     createdAt: row.created_at,
@@ -2352,12 +2368,12 @@ const authenticateAdmin = async (req, res, next) => {
             au.role,
             au.facility_id,
             (
-              au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              au.role::text IN ('MASTER_ADMIN', 'ADMIN')
               OR COALESCE(ap.is_master_admin, false)
               OR EXISTS(
                 SELECT 1 FROM app_user_role ur 
                 WHERE ur.user_id = au.id 
-                AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+                AND ur.role::text IN ('MASTER_ADMIN', 'ADMIN')
               )
             ) as has_admin_role,
             COALESCE(ap.is_master_admin, false) as is_master_admin
@@ -2374,7 +2390,7 @@ const authenticateAdmin = async (req, res, next) => {
             req.adminId = user.id
             req.adminEmail = user.email
             req.isAdmin = true
-            req.isMasterAdmin = user.is_master_admin === true || user.role === 'MASTER_ADMIN' || user.role === 'OWNER_ADMIN'
+            req.isMasterAdmin = user.is_master_admin === true || user.role === 'MASTER_ADMIN'
             console.log('[ADMIN AUTH] Authenticated admin (app_user table, matched by ID and email):', { 
               adminId: user.id, 
               email: user.email,
@@ -2420,12 +2436,12 @@ const authenticateAdmin = async (req, res, next) => {
           au.role,
           au.facility_id,
           (
-            au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+            au.role::text IN ('MASTER_ADMIN', 'ADMIN')
             OR COALESCE(ap.is_master_admin, false)
             OR EXISTS(
               SELECT 1 FROM app_user_role ur 
               WHERE ur.user_id = au.id 
-              AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              AND ur.role::text IN ('MASTER_ADMIN', 'ADMIN')
             )
           ) as has_admin_role,
           COALESCE(ap.is_master_admin, false) as is_master_admin
@@ -2462,7 +2478,7 @@ const authenticateAdmin = async (req, res, next) => {
         req.adminId = user.id
         req.adminEmail = user.email
         req.isAdmin = true
-        req.isMasterAdmin = user.is_master_admin === true || user.role === 'MASTER_ADMIN' || user.role === 'OWNER_ADMIN'
+        req.isMasterAdmin = user.is_master_admin === true || user.role === 'MASTER_ADMIN'
         console.log('[ADMIN AUTH] Authenticated admin (app_user table, ID only):', { 
           adminId: user.id, 
           email: user.email,
@@ -2803,28 +2819,28 @@ app.get('/api/verify/module0', async (req, res) => {
       if (results.appUserTable) {
         // Count admins
         const adminCheck = await pool.query(`
-          SELECT COUNT(*) as count FROM app_user WHERE role = 'OWNER_ADMIN'
+          SELECT COUNT(*) as count FROM app_user WHERE role::text IN ('MASTER_ADMIN', 'ADMIN')
         `)
         results.migratedAdmins.count = parseInt(adminCheck.rows[0].count)
         
         const adminSample = await pool.query(`
           SELECT id, email, full_name, role, is_active 
           FROM app_user 
-          WHERE role = 'OWNER_ADMIN' 
+          WHERE role::text IN ('MASTER_ADMIN', 'ADMIN') 
           LIMIT 5
         `)
         results.migratedAdmins.sample = adminSample.rows
 
         // Count members
         const memberCheck = await pool.query(`
-          SELECT COUNT(*) as count FROM app_user WHERE role = 'PARENT_GUARDIAN'
+          SELECT COUNT(*) as count FROM app_user WHERE role::text = 'MEMBER_ATHLETE'
         `)
         results.migratedMembers.count = parseInt(memberCheck.rows[0].count)
         
         const memberSample = await pool.query(`
           SELECT id, email, full_name, role, is_active 
           FROM app_user 
-          WHERE role = 'PARENT_GUARDIAN' 
+          WHERE role::text = 'MEMBER_ATHLETE' 
           LIMIT 5
         `)
         results.migratedMembers.sample = memberSample.rows
@@ -3821,8 +3837,7 @@ app.post('/api/admin/members/fix-missing-app-users', async (req, res) => {
     for (const member of membersResult.rows) {
       try {
         const fullName = `${member.first_name} ${member.last_name}`.trim()
-        const isChild = member.date_of_birth && !isAdult(member.date_of_birth)
-        const role = isChild ? 'ATHLETE' : 'PARENT_GUARDIAN'
+        const role = 'MEMBER_ATHLETE'
         
         // Check if app_user with this ID already exists (shouldn't happen, but check anyway)
         const existingCheck = await pool.query('SELECT id FROM app_user WHERE id = $1', [member.id])
@@ -4564,7 +4579,7 @@ app.post('/api/admin/users', async (req, res) => {
   try {
     const { fullName, email, phone, password, role, roles, username, address } = req.body
     // Support both single role (backward compatibility) and multiple roles
-    const userRoles = roles && Array.isArray(roles) ? roles : (role ? [role] : ['PARENT_GUARDIAN'])
+    const userRoles = roles && Array.isArray(roles) ? roles : (role ? [role] : ['MEMBER_ATHLETE'])
     
     if (!fullName || !password) {
       return res.status(400).json({
@@ -4653,7 +4668,7 @@ app.post('/api/admin/users', async (req, res) => {
           // For 'revive', we keep the existing family associations (do nothing)
           
           // Update user info and reactivate
-          const primaryRole = userRoles[0] || 'PARENT_GUARDIAN'
+          const primaryRole = userRoles[0] || 'MEMBER_ATHLETE'
           await pool.query(`
             UPDATE app_user 
             SET full_name = $1, 
@@ -4722,7 +4737,7 @@ app.post('/api/admin/users', async (req, res) => {
           // For 'revive', we keep the existing family associations (do nothing)
           
           // Update user info (keep is_active = true for active users)
-          const primaryRole = userRoles[0] || 'PARENT_GUARDIAN'
+          const primaryRole = userRoles[0] || 'MEMBER_ATHLETE'
           await pool.query(`
             UPDATE app_user 
             SET full_name = $1, 
@@ -4768,7 +4783,7 @@ app.post('/api/admin/users', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10)
 
     // Create user with primary role (first role in array or single role)
-    const primaryRole = userRoles[0] || 'PARENT_GUARDIAN'
+    const primaryRole = userRoles[0] || 'MEMBER_ATHLETE'
     const result = await pool.query(`
       INSERT INTO app_user (facility_id, role, email, phone, full_name, password_hash, is_active, username, address)
       VALUES ($1, $2::user_role, $3, $4, $5, $6, TRUE, $7, $8)
@@ -6040,7 +6055,7 @@ app.delete('/api/admin/families/:id', async (req, res) => {
         `, [userId])
         const roles = rolesResult.rows.map((row) => row.role_key)
         const familyOnlyRoles = roles.every((role) =>
-          ['PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER'].includes(role),
+          ['MEMBER_ATHLETE'].includes(role),
         )
         
         if (otherFamiliesCount === 0 && familyOnlyRoles) {
@@ -6082,6 +6097,14 @@ app.delete('/api/admin/users/by-email/:email', async (req, res) => {
   try {
     const { email } = req.params
     const decodedEmail = decodeURIComponent(email)
+
+    // The default master admin account is permanent and cannot be deleted.
+    if (decodedEmail.trim().toLowerCase() === DEFAULT_MASTER_EMAIL) {
+      return res.status(400).json({
+        success: false,
+        message: 'The default master admin account cannot be deleted.'
+      })
+    }
     
     // Get facility ID
     const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
@@ -6837,7 +6860,7 @@ app.post('/api/admin/members', async (req, res) => {
     if ((member.email || member.username) && memberPasswordHash) {
       try {
         const fullName = `${value.firstName} ${value.lastName}`.trim()
-        const memberRole = isChild ? 'ATHLETE' : 'PARENT_GUARDIAN'
+        const memberRole = 'MEMBER_ATHLETE'
         
         // Check if app_user already exists with this ID
         const existingAppUser = await client.query('SELECT id FROM app_user WHERE id = $1', [member.id])
@@ -7255,14 +7278,9 @@ app.put('/api/admin/members/:id', async (req, res) => {
           const memberPasswordHash = value.password !== undefined && value.password ? await bcrypt.hash(value.password, 10) : updatedMemberData.password_hash
           const memberIsActive = value.isActive !== undefined ? value.isActive : updatedMemberData.is_active
           
-          // Determine role (check if child)
-          let memberRole = 'PARENT_GUARDIAN'
-          if (value.dateOfBirth !== undefined || existingMember.date_of_birth) {
-            const dob = value.dateOfBirth || existingMember.date_of_birth
-            if (dob && !isAdult(dob)) {
-              memberRole = 'ATHLETE'
-            }
-          }
+          // All member accounts use the unified MEMBER_ATHLETE role.
+          // Youth vs adult is derived from date_of_birth, not the role.
+          const memberRole = 'MEMBER_ATHLETE'
           
           // Get facility_id
           let memberFacilityId = null
@@ -7942,8 +7960,8 @@ app.post('/api/members/login', async (req, res) => {
           LEFT JOIN app_user_role ur ON ur.user_id = u.id
           WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.email = $2 
-            AND (u.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN')
-                 OR ur.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN'))
+            AND (u.role::text IN ('MEMBER_ATHLETE', 'COACH', 'ADMIN', 'MASTER_ADMIN')
+                 OR ur.role::text IN ('MEMBER_ATHLETE', 'COACH', 'ADMIN', 'MASTER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [facilityId, emailOrUsername]
@@ -7953,8 +7971,8 @@ app.post('/api/members/login', async (req, res) => {
           FROM app_user u
           LEFT JOIN app_user_role ur ON ur.user_id = u.id
           WHERE u.email = $1 
-            AND (u.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN')
-                 OR ur.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN'))
+            AND (u.role::text IN ('MEMBER_ATHLETE', 'COACH', 'ADMIN', 'MASTER_ADMIN')
+                 OR ur.role::text IN ('MEMBER_ATHLETE', 'COACH', 'ADMIN', 'MASTER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [emailOrUsername]
@@ -7970,8 +7988,8 @@ app.post('/api/members/login', async (req, res) => {
           WHERE (u.facility_id = $1 OR u.facility_id IS NULL)
             AND u.username IS NOT NULL
             AND LOWER(u.username) = $2 
-            AND (u.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN')
-                 OR ur.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN'))
+            AND (u.role::text IN ('MEMBER_ATHLETE', 'COACH', 'ADMIN', 'MASTER_ADMIN')
+                 OR ur.role::text IN ('MEMBER_ATHLETE', 'COACH', 'ADMIN', 'MASTER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [facilityId, usernameLower]
@@ -7982,8 +8000,8 @@ app.post('/api/members/login', async (req, res) => {
           LEFT JOIN app_user_role ur ON ur.user_id = u.id
           WHERE u.username IS NOT NULL
             AND LOWER(u.username) = $1 
-            AND (u.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN')
-                 OR ur.role::text IN ('PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER', 'COACH', 'ADMIN', 'MASTER_ADMIN', 'OWNER_ADMIN'))
+            AND (u.role::text IN ('MEMBER_ATHLETE', 'COACH', 'ADMIN', 'MASTER_ADMIN')
+                 OR ur.role::text IN ('MEMBER_ATHLETE', 'COACH', 'ADMIN', 'MASTER_ADMIN'))
             AND u.is_active = TRUE
         `
         params = [usernameLower]
@@ -8058,15 +8076,12 @@ app.post('/api/members/login', async (req, res) => {
     // Note: This includes OWNER_ADMIN users who may also be parents/guardians
     // SECURITY: Only the admin user themselves gets admin portal access, not family members
     let familyMembers = []
-    const adminRoles = ['OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN']
-    const memberPortalRoles = ['PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER']
+    const adminRoles = ['MASTER_ADMIN', 'ADMIN']
+    const memberPortalRoles = ['MEMBER_ATHLETE']
     const isAdminUser = adminRoles.includes(user.role) || allUserRoles.some((role) => adminRoles.includes(role))
     const isCoachUser = user.role === 'COACH' || allUserRoles.includes('COACH')
     const hasMemberPortal = memberPortalRoles.includes(user.role) || allUserRoles.some((role) => memberPortalRoles.includes(role))
-    const isGuardianOrAdmin =
-      user.role === 'PARENT_GUARDIAN' ||
-      allUserRoles.includes('PARENT_GUARDIAN') ||
-      isAdminUser
+    const isGuardianOrAdmin = hasMemberPortal || isAdminUser
     
     if ((isGuardianOrAdmin || hasMemberPortal) && familyContext) {
       try {
@@ -8519,8 +8534,8 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
     
     const currentUser = members[0]
     const accountRoles = await getUserRoles(userId)
-    const adminRoles = ['OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN']
-    const memberPortalRoles = ['PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER']
+    const adminRoles = ['MASTER_ADMIN', 'ADMIN']
+    const memberPortalRoles = ['MEMBER_ATHLETE']
     const isAdminUser = adminRoles.includes(currentAppUser.role) || accountRoles.some((role) => adminRoles.includes(role))
     const isCoachUser = currentAppUser.role === 'COACH' || accountRoles.includes('COACH')
     const hasMemberPortal = memberPortalRoles.includes(currentAppUser.role) || accountRoles.some((role) => memberPortalRoles.includes(role))
@@ -8729,7 +8744,9 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
       user_id: row.user_id,
       app_user_id: row.app_user_id,
       is_primary: row.is_primary,
-      is_adult: row.is_adult || row.role === 'PARENT_GUARDIAN',
+      is_adult: row.date_of_birth ? isAdult(row.date_of_birth) : (row.is_adult === true),
+      athlete_type: row.date_of_birth ? (isAdult(row.date_of_birth) ? 'adult' : 'youth') : null,
+      is_family_rep: row.is_primary === true,
       marked_for_removal: row.marked_for_removal || false
     }))
 
@@ -8757,7 +8774,7 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
 app.post('/api/members/family', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
-    const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
+    const hasParentRole = await userIsAdult(userId)
     if (!hasParentRole) {
       return res.status(403).json({ success: false, message: 'Only adults can add family members' })
     }
@@ -8816,7 +8833,7 @@ app.put('/api/members/family/:id', authenticateMember, async (req, res) => {
     const { first_name, last_name, email, phone } = req.body
 
     // Check if user is an adult (has PARENT_GUARDIAN role)
-    const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
+    const hasParentRole = await userIsAdult(userId)
     
     if (!hasParentRole) {
       return res.status(403).json({
@@ -8928,14 +8945,14 @@ app.post('/api/members/family/:id/mark-for-removal', authenticateMember, async (
     const userId = req.userId || req.memberId
     const familyMemberId = parseInt(req.params.id)
 
-    // Check if user is an adult
+    // Check if user is an adult (derived from date of birth, not role)
     const userResult = await pool.query(`
       SELECT u.role
       FROM app_user u
       WHERE u.id = $1
     `, [userId])
 
-    if (userResult.rows.length === 0 || userResult.rows[0].role !== 'PARENT_GUARDIAN') {
+    if (userResult.rows.length === 0 || !(await userIsAdult(userId))) {
       return res.status(403).json({
         success: false,
         message: 'Only adults can mark family members for removal'
@@ -9079,8 +9096,7 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
         })
       }
 
-      const userRole = userResult.rows[0].role
-      const isParentGuardian = userRole === 'PARENT_GUARDIAN'
+      const isParentGuardian = await userIsAdult(userId)
       
       // Check if the user is the member or is part of the member's family.
       let isFamilyMember = false
@@ -9255,7 +9271,7 @@ app.delete('/api/members/enroll/:enrollmentId', authenticateMember, async (req, 
     
     // Check permission (must be parent/guardian or the member themselves)
     if (!req.isAdmin) {
-      const hasParentRole = await userHasRole(userId, 'PARENT_GUARDIAN')
+      const hasParentRole = await userIsAdult(userId)
       
       // Check if user is the member or part of the member's family.
       let isFamilyMember = false
@@ -10891,12 +10907,12 @@ app.post('/api/admin/login', async (req, res) => {
             au.is_active,
             au.username,
             (
-              au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              au.role::text IN ('MASTER_ADMIN', 'ADMIN')
               OR COALESCE(ap.is_master_admin, false)
               OR EXISTS(
                 SELECT 1 FROM app_user_role ur 
                 WHERE ur.user_id = au.id 
-                AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+                AND ur.role::text IN ('MASTER_ADMIN', 'ADMIN')
               )
             ) as has_admin_role,
             COALESCE(ap.is_master_admin, false) as is_master_admin
@@ -10904,12 +10920,12 @@ app.post('/api/admin/login', async (req, res) => {
           LEFT JOIN admin_profile ap ON ap.user_id = au.id
           WHERE au.email = $1
           AND (
-            au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+            au.role::text IN ('MASTER_ADMIN', 'ADMIN')
             OR COALESCE(ap.is_master_admin, false)
             OR EXISTS(
               SELECT 1 FROM app_user_role ur 
               WHERE ur.user_id = au.id 
-              AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              AND ur.role::text IN ('MASTER_ADMIN', 'ADMIN')
             )
           )
         `
@@ -10926,12 +10942,12 @@ app.post('/api/admin/login', async (req, res) => {
             au.is_active,
             au.username,
             (
-              au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              au.role::text IN ('MASTER_ADMIN', 'ADMIN')
               OR COALESCE(ap.is_master_admin, false)
               OR EXISTS(
                 SELECT 1 FROM app_user_role ur 
                 WHERE ur.user_id = au.id 
-                AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+                AND ur.role::text IN ('MASTER_ADMIN', 'ADMIN')
               )
             ) as has_admin_role,
             COALESCE(ap.is_master_admin, false) as is_master_admin
@@ -10939,12 +10955,12 @@ app.post('/api/admin/login', async (req, res) => {
           LEFT JOIN admin_profile ap ON ap.user_id = au.id
           WHERE LOWER(au.username) = LOWER($1)
           AND (
-            au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+            au.role::text IN ('MASTER_ADMIN', 'ADMIN')
             OR COALESCE(ap.is_master_admin, false)
             OR EXISTS(
               SELECT 1 FROM app_user_role ur 
               WHERE ur.user_id = au.id 
-              AND ur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+              AND ur.role::text IN ('MASTER_ADMIN', 'ADMIN')
             )
           )
         `
@@ -10968,7 +10984,7 @@ app.post('/api/admin/login', async (req, res) => {
             phone: user.phone,
             username: user.username,
             is_active: user.is_active,
-            is_master: user.is_master_admin === true || user.role === 'OWNER_ADMIN' || user.role === 'MASTER_ADMIN',
+            is_master: user.is_master_admin === true || user.role === 'MASTER_ADMIN',
             first_name: user.full_name?.split(' ')[0] || 'Admin',
             last_name: user.full_name?.split(' ').slice(1).join(' ') || 'User'
           }
@@ -11039,12 +11055,12 @@ app.post('/api/admin/login', async (req, res) => {
 
     const adminRolesForLogin = userSource === 'app_user'
       ? await getUserRoles(admin.id)
-      : ['OWNER_ADMIN']
+      : ['MASTER_ADMIN']
     const adminFamilyContext = userSource === 'app_user'
       ? await getUserFamilyContext(admin.id).catch(() => null)
       : null
-    const adminPortalRoles = ['OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN']
-    const memberPortalRoles = ['PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER']
+    const adminPortalRoles = ['MASTER_ADMIN', 'ADMIN']
+    const memberPortalRoles = ['MEMBER_ATHLETE']
     const isAdminPortalUser = adminRolesForLogin.some((role) => adminPortalRoles.includes(role))
     const isCoachPortalUser = adminRolesForLogin.includes('COACH')
     const hasMemberPortal = adminRolesForLogin.some((role) => memberPortalRoles.includes(role)) || Boolean(adminFamilyContext)
@@ -11065,7 +11081,7 @@ app.post('/api/admin/login', async (req, res) => {
         { 
           adminId: admin.id,
           userId: admin.id, // Include for compatibility
-          role: admin.role || 'OWNER_ADMIN',
+          role: admin.role || 'MASTER_ADMIN',
           roles: adminRolesForLogin,
           email: admin.email 
         },
@@ -11086,9 +11102,9 @@ app.post('/api/admin/login', async (req, res) => {
           email: admin.email,
           phone: admin.phone || null,
           username: admin.username || null,
-          role: admin.role || 'OWNER_ADMIN',
+          role: admin.role || 'MASTER_ADMIN',
           roles: adminRolesForLogin,
-          isMaster: admin.is_master || adminRolesForLogin.some((role) => role === 'OWNER_ADMIN' || role === 'MASTER_ADMIN'),
+          isMaster: admin.is_master || adminRolesForLogin.some((role) => role === 'MASTER_ADMIN'),
           isCoach: isCoachPortalUser,
           hasMemberPortal,
           memberId: adminFamilyContext?.current_member_id ?? null,
@@ -11156,8 +11172,8 @@ app.post('/api/admin/request-password-reset', async (req, res) => {
       WHERE LOWER(au.email) = $1
         AND au.is_active = TRUE
         AND (
-          au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
-          OR aur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+          au.role::text IN ('MASTER_ADMIN', 'ADMIN')
+          OR aur.role::text IN ('MASTER_ADMIN', 'ADMIN')
           OR COALESCE(ap.is_master_admin, false)
         )
       LIMIT 1
@@ -11212,12 +11228,11 @@ app.get('/api/admin/admins', requireAdminPermission('admins.manage'), async (req
       FROM app_user au
       LEFT JOIN admin_profile ap ON ap.user_id = au.id
       LEFT JOIN app_user_role aur ON aur.user_id = au.id
-      WHERE au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
-         OR ap.user_id IS NOT NULL
+      WHERE au.role::text IN ('MASTER_ADMIN', 'ADMIN')
          OR EXISTS (
           SELECT 1 FROM app_user_role role_check
           WHERE role_check.user_id = au.id
-            AND role_check.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN', 'ADMIN')
+            AND role_check.role::text IN ('MASTER_ADMIN', 'ADMIN')
          )
       GROUP BY au.id, ap.is_master_admin
       ORDER BY au.created_at DESC
@@ -11368,16 +11383,12 @@ app.post('/api/admin/admins', requireAdminPermission('admins.manage'), async (re
 app.get('/api/admin/programs', async (req, res) => {
   try {
     await ensureProgramCategoriesSchema()
-    const { ensureProgramsSchedulingSchema, ensureProgramSchedulingCategoryColumn, ensureDisciplineTagsSchema, ensureNoCategoryDefault, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns } = await import('./programs/schema.js')
-    const { ensureNoCategoryCategory } = await import('./programs/noCategory.js')
+    const { ensureProgramsSchedulingSchema, ensureDisciplineTagsSchema, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns } = await import('./programs/schema.js')
     const { mapClassPricingFields } = await import('./programs/pricingDefaults.js')
     await ensureProgramsSchedulingSchema(pool)
-    await ensureProgramSchedulingCategoryColumn(pool)
-    await ensureNoCategoryDefault(pool)
     await ensureDisciplineTagsSchema(pool)
     await ensurePrimaryDisciplineTagColumn(pool)
     await ensureProgramPricingColumns(pool)
-    const noCategoryId = await ensureNoCategoryCategory(pool)
     const taxonomy = await resolveProgramTaxonomy()
     const { archived, includePricing } = req.query
     const programIsActiveSelect = taxonomy.hasProgramIsActive
@@ -11402,8 +11413,6 @@ app.get('/api/admin/programs', async (req, res) => {
         p.archived,
         p.created_at as "createdAt",
         p.updated_at as "updatedAt",
-        COALESCE(p.scheduling_category_id, ${noCategoryId}) as "schedulingCategoryId",
-        COALESCE(scat.name, 'No Category') as "schedulingCategoryName",
         primary_dt.name AS "primarySport",
         COALESCE((
           SELECT string_agg(dt.name, ', ' ORDER BY dt.sort_order, dt.name)
@@ -11436,7 +11445,6 @@ app.get('/api/admin/programs', async (req, res) => {
       FROM program p
       LEFT JOIN ${taxonomy.programsTable} pc ON p.${taxonomy.programFkColumn} = pc.id
       LEFT JOIN discipline_tag primary_dt ON primary_dt.id = pc.primary_discipline_tag_id
-      LEFT JOIN scheduling_category scat ON scat.id = COALESCE(p.scheduling_category_id, ${noCategoryId})
       ${includePricing === 'true' ? `LEFT JOIN scheduling_form sf ON sf.program_id = p.id AND sf.deleted_at IS NULL` : ''}
     `
     const params = []
@@ -11453,59 +11461,7 @@ app.get('/api/admin/programs', async (req, res) => {
 
     const result = await pool.query(query, params)
 
-    // Attach the list of category "variations" for each class, derived from its
-    // single scheduling form. Admin > Classes fans these out into one row each;
-    // a class with no categories shows a single "No Category" row. Other
-    // consumers of this endpoint can ignore the extra `schedulingCategories`.
-    const namedCatsByProgram = new Map()
-    const uncategorizedPrograms = new Set()
-    try {
-      const namedRes = await pool.query(
-        `SELECT sf.program_id AS program_id, sc.id AS id, sc.name AS name
-         FROM scheduling_form sf
-         JOIN (
-           SELECT form_id, category_id FROM scheduling_form_category
-           UNION SELECT form_id, category_id FROM scheduling_offering WHERE category_id IS NOT NULL
-           UNION SELECT form_id, category_id FROM scheduling_slot_group WHERE category_id IS NOT NULL
-           UNION SELECT form_id, category_id FROM scheduling_time_slot WHERE category_id IS NOT NULL
-         ) link ON link.form_id = sf.id
-         JOIN scheduling_category sc ON sc.id = link.category_id
-         WHERE sf.deleted_at IS NULL AND sf.program_id IS NOT NULL AND sc.id <> $1
-         GROUP BY sf.program_id, sc.id, sc.name, sc.sort_order
-         ORDER BY sc.sort_order, sc.name`,
-        [noCategoryId],
-      )
-      for (const r of namedRes.rows) {
-        const pid = Number(r.program_id)
-        if (!namedCatsByProgram.has(pid)) namedCatsByProgram.set(pid, [])
-        namedCatsByProgram.get(pid).push({ id: Number(r.id), name: r.name })
-      }
-      const uncatRes = await pool.query(
-        `SELECT DISTINCT sf.program_id AS program_id
-         FROM scheduling_form sf
-         WHERE sf.deleted_at IS NULL AND sf.program_id IS NOT NULL
-           AND (
-             EXISTS (SELECT 1 FROM scheduling_offering o WHERE o.form_id = sf.id AND o.category_id IS NULL)
-             OR EXISTS (SELECT 1 FROM scheduling_slot_group g WHERE g.form_id = sf.id AND g.category_id IS NULL)
-             OR EXISTS (SELECT 1 FROM scheduling_time_slot t WHERE t.form_id = sf.id AND t.category_id IS NULL)
-           )`,
-      )
-      for (const r of uncatRes.rows) uncategorizedPrograms.add(Number(r.program_id))
-    } catch (catErr) {
-      console.error('Get programs scheduling categories error:', catErr.message)
-    }
-
-    const NO_CATEGORY_REF = { id: null, name: 'No Category' }
     const rows = result.rows.map((row) => {
-      const named = namedCatsByProgram.get(Number(row.id)) || []
-      let schedulingCategories
-      if (named.length === 0) {
-        schedulingCategories = [NO_CATEGORY_REF]
-      } else if (uncategorizedPrograms.has(Number(row.id))) {
-        schedulingCategories = [NO_CATEGORY_REF, ...named]
-      } else {
-        schedulingCategories = named
-      }
       let pricingFields = {}
       if (includePricing === 'true' && row.schedulingFormId != null) {
         pricingFields = mapClassPricingFields(
@@ -11525,7 +11481,7 @@ app.get('/api/admin/programs', async (req, res) => {
           },
         )
       }
-      return { ...row, schedulingCategories, ...pricingFields }
+      return { ...row, ...pricingFields }
     })
 
     res.json({
@@ -11640,11 +11596,10 @@ app.post('/api/admin/programs', async (req, res) => {
       SELECT column_name 
       FROM information_schema.columns 
       WHERE table_name = 'program' 
-      AND column_name IN ('category_id', 'level_id', 'scheduling_category_id')
+      AND column_name IN ('category_id', 'level_id')
     `)
     const hasCategoryIdColumn = columnCheck.rows.some(row => row.column_name === 'category_id')
     const hasLevelIdColumn = columnCheck.rows.some(row => row.column_name === 'level_id')
-    const hasSchedulingCategoryIdColumn = columnCheck.rows.some(row => row.column_name === 'scheduling_category_id')
 
     // Ensure categoryEnum is a valid enum value before inserting (check against database enum type)
     if (categoryEnum) {
@@ -11701,16 +11656,6 @@ app.post('/api/admin/programs', async (req, res) => {
       value.skillRequirements || null,
       value.isActive !== undefined ? value.isActive : true
     )
-
-    if (hasSchedulingCategoryIdColumn) {
-      const { ensureProgramSchedulingCategoryColumn, ensureNoCategoryDefault } = await import('./programs/schema.js')
-      const { ensureNoCategoryCategory } = await import('./programs/noCategory.js')
-      await ensureProgramSchedulingCategoryColumn(pool)
-      await ensureNoCategoryDefault(pool)
-      const noCategoryId = await ensureNoCategoryCategory(pool)
-      insertColumns.push('scheduling_category_id')
-      insertValues.push(noCategoryId)
-    }
 
     const placeholders = insertValues.map((_, i) => `$${i + 1}`).join(', ')
 

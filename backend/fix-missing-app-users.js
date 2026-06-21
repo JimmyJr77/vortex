@@ -80,7 +80,7 @@ async function fixMissingAppUsers() {
       try {
         const fullName = `${member.first_name} ${member.last_name}`.trim()
         const isChild = member.date_of_birth && !isAdult(member.date_of_birth)
-        const role = isChild ? 'ATHLETE' : 'PARENT_GUARDIAN'
+        const role = 'MEMBER_ATHLETE'
         
         // Check if app_user with this ID already exists (shouldn't happen, but check anyway)
         const existingCheck = await pool.query('SELECT id FROM app_user WHERE id = $1', [member.id])

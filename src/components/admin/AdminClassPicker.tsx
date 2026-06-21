@@ -5,7 +5,6 @@ import {
   fetchTopPrograms,
   fetchTopProgramsLegacy,
   type ClassEvent,
-  type SchedulingCategoryRef,
   type TopProgram,
 } from '../../utils/programsApi'
 
@@ -15,8 +14,6 @@ export type ClassPickerRow = {
   programId: number
   rowKey: string
 }
-
-const NO_CATEGORY_REF: SchedulingCategoryRef = { id: null, name: 'No Category' }
 
 function expandClassPickerRows(events: ClassEvent[]): ClassPickerRow[] {
   const rows: ClassPickerRow[] = []
@@ -32,38 +29,18 @@ function expandClassPickerRows(events: ClassEvent[]): ClassPickerRow[] {
       classEvent.programsDisplayName ??
       'Unknown program'
 
-    const categories =
-      classEvent.schedulingCategories && classEvent.schedulingCategories.length > 0
-        ? classEvent.schedulingCategories
-        : [
-            {
-              id: classEvent.schedulingCategoryId ?? null,
-              name: classEvent.schedulingCategoryName ?? NO_CATEGORY_REF.name,
-            },
-          ]
-
-    for (const category of categories) {
-      rows.push({
-        classEvent: {
-          ...classEvent,
-          schedulingCategoryId: category.id,
-          schedulingCategoryName: category.name,
-        },
-        programName,
-        programId,
-        rowKey: `${classEvent.id}:${category.id ?? 'none'}`,
-      })
-    }
+    rows.push({
+      classEvent,
+      programName,
+      programId,
+      rowKey: `${classEvent.id}`,
+    })
   }
 
   rows.sort((a, b) => {
     const prog = a.programName.localeCompare(b.programName)
     if (prog !== 0) return prog
-    const cls = a.classEvent.displayName.localeCompare(b.classEvent.displayName)
-    if (cls !== 0) return cls
-    return (a.classEvent.schedulingCategoryName || '').localeCompare(
-      b.classEvent.schedulingCategoryName || '',
-    )
+    return a.classEvent.displayName.localeCompare(b.classEvent.displayName)
   })
 
   return rows
@@ -168,7 +145,6 @@ const AdminClassPicker = ({
       (row) =>
         row.classEvent.displayName.toLowerCase().includes(q) ||
         row.programName.toLowerCase().includes(q) ||
-        (row.classEvent.schedulingCategoryName || '').toLowerCase().includes(q) ||
         (row.classEvent.sportTags || '').toLowerCase().includes(q),
     )
   }, [rows, programFilterId, search, programs])
@@ -236,7 +212,6 @@ const AdminClassPicker = ({
                 <tr className="bg-gray-50 border-b border-gray-200 text-left text-gray-600">
                   <th className="px-4 py-2 font-semibold">Class / Event</th>
                   <th className="px-4 py-2 font-semibold">Program</th>
-                  <th className="px-4 py-2 font-semibold">Variation</th>
                   <th className="px-4 py-2 font-semibold">Sport tags</th>
                   <th className="px-4 py-2 font-semibold">Status</th>
                 </tr>
@@ -254,9 +229,6 @@ const AdminClassPicker = ({
                     >
                       <td className="px-4 py-3 font-semibold text-black">{row.classEvent.displayName}</td>
                       <td className="px-4 py-3 text-gray-700">{row.programName}</td>
-                      <td className="px-4 py-3 text-gray-700">
-                        {row.classEvent.schedulingCategoryName || '—'}
-                      </td>
                       <td className="px-4 py-3 text-gray-600 text-xs">
                         {row.classEvent.sportTags || '—'}
                       </td>

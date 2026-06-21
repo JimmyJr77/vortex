@@ -7,11 +7,6 @@ import {
   markSchedulingEnrollSitesUnsupported,
 } from './schedulingEnrollApi'
 
-export interface SchedulingCategoryRef {
-  id: number | null
-  name: string
-}
-
 export interface TopProgram {
   id: number
   name: string
@@ -54,9 +49,6 @@ export interface ClassEvent {
   schedulingFormId?: number | null
   schedulingFormActive?: boolean
   schedulingFormEnrollSites?: EnrollSiteKey[] | null
-  schedulingCategoryId?: number | null
-  schedulingCategoryName?: string | null
-  schedulingCategories?: SchedulingCategoryRef[]
   primarySport?: string | null
   sportTags?: string | null
   createdAt: string
@@ -306,75 +298,6 @@ export async function fetchClassEventSchedulingFormId(classEventId: number): Pro
   return data.id
 }
 
-/**
- * Re-point a class row's scheduling data to a different category (or "No
- * Category" when categoryId is null). This is the Classes -> Scheduling
- * direction of the bidirectional sync.
- */
-export async function setClassSchedulingCategory(
-  classId: number,
-  schedulingCategoryId: number | null,
-): Promise<void> {
-  const res = await adminApiRequest(`/api/admin/programs/${classId}/scheduling-category`, {
-    method: 'PUT',
-    body: JSON.stringify({ schedulingCategoryId }),
-  })
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}))
-    throw new Error(data.message || 'Failed to update scheduling category')
-  }
-}
-
-/**
- * Re-point a single category variation of a class to a different category
- * (or "No Category" when null), moving only that variation's scheduling data.
- */
-export async function reassignClassVariation(
-  classId: number,
-  fromCategoryId: number | null,
-  toCategoryId: number | null,
-): Promise<void> {
-  const res = await adminApiRequest(`/api/admin/programs/${classId}/variations/reassign`, {
-    method: 'PUT',
-    body: JSON.stringify({ fromCategoryId, toCategoryId }),
-  })
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}))
-    throw new Error(data.message || 'Failed to reassign category variation')
-  }
-}
-
-/** Add a new category variation to a class (links the category to its form). */
-export async function addClassVariation(
-  classId: number,
-  categoryId: number | null,
-): Promise<void> {
-  const res = await adminApiRequest(`/api/admin/programs/${classId}/variations`, {
-    method: 'POST',
-    body: JSON.stringify({ categoryId }),
-  })
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}))
-    throw new Error(data.message || 'Failed to add category variation')
-  }
-}
-
-/** Split one Admin > Classes row into a new independent class with a different category. */
-export async function splitClassByCategory(
-  classId: number,
-  payload: ClassEventFormData & {
-    fromCategoryId: number | null
-    toCategoryId: number | null
-  },
-): Promise<{ newProgramId: number }> {
-  const res = await adminApiRequest(`/api/admin/programs/${classId}/split-by-category`, {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-  const data = await parseJson<{ newProgramId: number }>(res)
-  return data
-}
-
 export interface SyncSchedulingStats {
   groups: number
   merged: number
@@ -387,11 +310,11 @@ export interface SyncSchedulingStats {
  * program rows that share a parent + display name back into one class/form.
  * Idempotent and never deletes scheduling data.
  */
-export async function syncSchedulingCategories(opts?: {
+export async function consolidateClasses(opts?: {
   parentProgramId?: number | null
   programId?: number | null
 }): Promise<SyncSchedulingStats> {
-  const res = await adminApiRequest('/api/admin/programs/sync-scheduling-categories', {
+  const res = await adminApiRequest('/api/admin/programs/consolidate', {
     method: 'POST',
     body: JSON.stringify({
       parentProgramId: opts?.parentProgramId ?? null,

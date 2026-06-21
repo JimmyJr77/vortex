@@ -347,11 +347,14 @@ export default function MemberDashboard({
     return phone.replace(/\D/g, '')
   }
 
-  // Check if current member is an adult (can edit family members)
+  // Check if current member is an adult (can edit family members).
+  // Logged-in member/athlete accounts are treated as adults — youth athletes
+  // are added as family members without their own login — and the backend
+  // re-checks adulthood by date of birth on every mutation.
   const isAdult = () => {
-    // Check if user has PARENT_GUARDIAN role (support both single role and multiple roles)
     const roles = profileData?.roles || (profileData?.role ? [profileData.role] : [])
-    return roles.includes('PARENT_GUARDIAN')
+    if (roles.length === 0) return true
+    return roles.some((r: any) => ['MEMBER_ATHLETE', 'ADMIN', 'MASTER_ADMIN'].includes(typeof r === 'string' ? r : r?.role))
   }
 
   // Handle view member - similar to AdminMembers
@@ -694,7 +697,7 @@ export default function MemberDashboard({
           date_of_birth: fm.dateOfBirth || fm.date_of_birth,
           age: fm.age,
           user_id: fm.id,
-          is_adult: fm.roles?.some((r: any) => typeof r === 'string' ? r === 'PARENT_GUARDIAN' : r.role === 'PARENT_GUARDIAN') || false
+          is_adult: fm.is_adult ?? (fm.athlete_type ? fm.athlete_type === 'adult' : false)
         }))
         setFamilyMembers(convertedFamilyMembers)
         
@@ -1014,10 +1017,8 @@ export default function MemberDashboard({
     // This function will need to be updated when we can fetch classes
     const enrolledCategoryIds: number[] = []
 
-    // Check if current user is a parent
-    // Check if user has PARENT_GUARDIAN role (support both single role and multiple roles)
-    const roles = profileData?.roles || (profileData?.role ? [profileData.role] : [])
-    const isParent = roles.includes('PARENT_GUARDIAN')
+    // Family reps / adults can act on behalf of the family (re-checked server-side).
+    const isParent = isAdult()
 
     // Check event tags
     switch (event.tagType) {
@@ -1505,12 +1506,21 @@ export default function MemberDashboard({
                         <tbody>
                           {members.map((member) => {
                             const isCurrent = member.id === profileData?.id
-                            const rolesArr = Array.isArray(member.roles)
-                              ? member.roles.map((r) => (typeof r === 'string' ? r : r.role))
-                              : []
-                            const isGuardian = rolesArr.includes('PARENT_GUARDIAN')
+                            const isFamilyRep = (member as any).is_family_rep === true || (member as any).is_primary === true
+                            const athleteType = (member as any).athlete_type as ('youth' | 'adult' | undefined)
+                            const isGuardian = isFamilyRep
                             const hasEnrollments = !!(member.enrollments && member.enrollments.length > 0)
-                            const relationship = member.relationshipLabel || (isGuardian ? 'Guardian' : hasEnrollments ? 'Athlete' : 'Member')
+                            const relationship =
+                              member.relationshipLabel ||
+                              (isFamilyRep
+                                ? 'Family Rep'
+                                : athleteType === 'youth'
+                                  ? 'Youth Athlete'
+                                  : athleteType === 'adult'
+                                    ? 'Athlete'
+                                    : hasEnrollments
+                                      ? 'Athlete'
+                                      : 'Member')
                             return (
                               <tr key={member.id} className="border-b border-gray-100 hover:bg-gray-50/80">
                                 <td className="py-3 px-4 align-middle">

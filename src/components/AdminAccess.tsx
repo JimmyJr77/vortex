@@ -24,7 +24,23 @@ interface Permission {
   description?: string | null
 }
 
-const roleOrder = ['MASTER_ADMIN', 'ADMIN', 'COACH', 'MEMBER', 'PARENT_GUARDIAN', 'ATHLETE', 'ATHLETE_VIEWER', 'OWNER_ADMIN']
+const roleOrder = ['MASTER_ADMIN', 'ADMIN', 'COACH', 'MEMBER_ATHLETE']
+
+const ROLE_LABELS: Record<string, string> = {
+  MASTER_ADMIN: 'Master Admin',
+  ADMIN: 'Admin',
+  COACH: 'Coach',
+  MEMBER_ATHLETE: 'Member / Athlete',
+}
+
+const ROLE_DESCRIPTIONS: Record<string, string> = {
+  MASTER_ADMIN: 'Full control over everything. Cannot be limited.',
+  ADMIN: 'Full admin access. Master admins can apply limits below.',
+  COACH: 'Access to the coaching portal.',
+  MEMBER_ATHLETE: 'Logged-in account that registers themselves or family for classes.',
+}
+
+const roleLabel = (role: string) => ROLE_LABELS[role] ?? role.replaceAll('_', ' ')
 
 export default function AdminAccess() {
   const [users, setUsers] = useState<AccessUser[]>([])
@@ -41,7 +57,7 @@ export default function AdminAccess() {
     username: '',
     phone: '',
     password: '',
-    roles: ['MEMBER'],
+    roles: ['MEMBER_ATHLETE'],
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -168,7 +184,7 @@ export default function AdminAccess() {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.message || 'Failed to create account')
       }
-      setCreateAccount({ fullName: '', email: '', username: '', phone: '', password: '', roles: ['MEMBER'] })
+      setCreateAccount({ fullName: '', email: '', username: '', phone: '', password: '', roles: ['MEMBER_ATHLETE'] })
       setShowCreateAccount(false)
       await load()
     } catch (err) {
@@ -292,7 +308,7 @@ export default function AdminAccess() {
                           })
                         }
                       />
-                      {role.replaceAll('_', ' ')}
+                      {roleLabel(role)}
                     </label>
                   ))}
                 </div>
@@ -319,7 +335,7 @@ export default function AdminAccess() {
                   <div className="font-semibold text-gray-900">{user.fullName}</div>
                   <div className="text-xs text-gray-500">{user.email}</div>
                   <div className="text-xs text-gray-500 mt-1">
-                    {user.roles.join(', ')} {!user.isActive ? '• Inactive' : ''}
+                    {user.roles.map(roleLabel).join(', ')} {!user.isActive ? '• Inactive' : ''}
                   </div>
                 </button>
               ))}
@@ -361,20 +377,29 @@ export default function AdminAccess() {
                   <h4 className="font-semibold text-gray-900 mb-2">Roles</h4>
                   <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                     {roleOrder.map((role) => (
-                      <label key={role} className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm">
+                      <label key={role} className="flex items-start gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm">
                         <input
                           type="checkbox"
+                          className="mt-0.5"
                           checked={selectedRoles.includes(role)}
                           onChange={() => toggleRole(role)}
                         />
-                        {role.replaceAll('_', ' ')}
+                        <span>
+                          <span className="block font-medium text-gray-900">{roleLabel(role)}</span>
+                          {ROLE_DESCRIPTIONS[role] && (
+                            <span className="block text-xs text-gray-500">{ROLE_DESCRIPTIONS[role]}</span>
+                          )}
+                        </span>
                       </label>
                     ))}
                   </div>
                 </section>
 
                 <section>
-                  <h4 className="font-semibold text-gray-900 mb-2">Permission Overrides</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">Permission Overrides &amp; Limits</h4>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Use <span className="font-medium">Deny</span> to limit what an admin can do, or <span className="font-medium">Allow</span> to grant an extra permission beyond their role. Master admins are never limited.
+                  </p>
                   <div className="grid gap-2 md:grid-cols-2">
                     {permissions.map((permission) => (
                       <div key={permission.key} className="rounded-lg border border-gray-200 px-3 py-2 text-sm space-y-2">

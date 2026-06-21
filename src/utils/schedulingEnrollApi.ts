@@ -80,21 +80,6 @@ export function adaptFormEnrollSitesBody(
   return { isActive: enrollSites.length > 0 }
 }
 
-export function adaptCategoryUpdateForApi(
-  payload: { name: string; sortOrder?: number; isActive?: boolean; enrollSites?: EnrollSiteKey[] },
-  supportsEnrollSites: boolean,
-): typeof payload {
-  if (supportsEnrollSites || payload.enrollSites === undefined) {
-    return payload
-  }
-
-  const { enrollSites, ...rest } = payload
-  return {
-    ...rest,
-    isActive: enrollSites.length > 0,
-  }
-}
-
 /** Best-effort sites list when API only returns legacy schedulingActive. */
 export function enrollSitesFromApiResponse(input: {
   schedulingEnrollSites?: EnrollSiteKey[] | null
