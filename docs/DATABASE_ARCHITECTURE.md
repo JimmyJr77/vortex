@@ -334,6 +334,8 @@ The "class category" (scheduling-category) concept was fully removed: classes no
 | `030_coach_class_scheduling_form.sql` | Not in [initPlatformTables](../backend/platform/initTables.js) list until recently | Also applied via `ensureCoachClassAssignmentSchema()` at boot — add to init list or keep single ensure path. |
 | Duplicate DDL for `001`–`005` | Inline in `initDatabase()` **and** numbered migrations | When editing core tables, update **both** or consolidate long-term. |
 | `006` / `007` not boot-applied | Athlete-status triggers, legacy drops | Run `npm run migrate:all` on each environment so ledger matches reality. |
+| `003` legacy member→family seed | Re-running on a post-`009` DB failed (`CREATE INDEX`/`INSERT` on dropped `family.primary_user_id`) and could resurrect dropped `athlete`/`family_guardian` tables | Now **idempotent/guarded**: the `primary_user_id` index and the seed `DO` block early-return when the modern schema is detected (`family.primary_user_id` absent or `members` table gone). |
+| Ledger drift on long-lived dev DBs | Schema built via `initDatabase()` ahead of `schema_migrations`, so `migrate:all` re-attempts superseded migrations | Reconcile by backfilling `schema_migrations` for already-reflected files (skip them), but **never backfill genuinely-pending migrations** (verify the schema effect first — e.g., `033` was pending and had to actually run). |
 | `member.status = 'legacy'` | Column **value**, not a table | Semantic label for non-enrolled stubs; rename only if product wants clearer vocabulary. |
 
 ### 10.6 Pre-drop verification queries (run on staging/production)

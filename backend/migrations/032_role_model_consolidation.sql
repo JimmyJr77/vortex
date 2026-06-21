@@ -25,6 +25,11 @@
 ALTER TABLE app_user ALTER COLUMN role TYPE text USING role::text;
 ALTER TABLE app_user_role ALTER COLUMN role TYPE text USING role::text;
 
+-- 1b) Drop the (user_id, role) uniqueness while remapping. Collapsing several
+--     legacy roles into MEMBER_ATHLETE would otherwise violate it mid-UPDATE
+--     (the constraint is enforced even with the column typed as text).
+ALTER TABLE app_user_role DROP CONSTRAINT IF EXISTS app_user_role_user_id_role_key;
+
 -- 2) Remap legacy role values onto the consolidated set.
 UPDATE app_user SET role = CASE
   WHEN role IN ('OWNER_ADMIN', 'MASTER_ADMIN') THEN 'MASTER_ADMIN'
@@ -40,8 +45,8 @@ UPDATE app_user_role SET role = CASE
   ELSE 'MEMBER_ATHLETE'
 END;
 
--- 3) Collapsing several legacy roles into MEMBER_ATHLETE can create
---    duplicate (user_id, role) rows. Keep the lowest id per pair.
+-- 3) Remove the duplicate (user_id, role) rows created by the collapse,
+--    keeping the lowest id per pair.
 DELETE FROM app_user_role a
 USING app_user_role b
 WHERE a.user_id = b.user_id
@@ -52,9 +57,10 @@ WHERE a.user_id = b.user_id
 DROP TYPE user_role;
 CREATE TYPE user_role AS ENUM ('MASTER_ADMIN', 'ADMIN', 'COACH', 'MEMBER_ATHLETE');
 
--- 5) Re-attach the columns to the rebuilt enum.
+-- 5) Re-attach the columns to the rebuilt enum and restore uniqueness.
 ALTER TABLE app_user ALTER COLUMN role TYPE user_role USING role::user_role;
 ALTER TABLE app_user_role ALTER COLUMN role TYPE user_role USING role::user_role;
+ALTER TABLE app_user_role ADD CONSTRAINT app_user_role_user_id_role_key UNIQUE (user_id, role);
 
 -- 6) RBAC role catalog: retire legacy rows (role_permission cascades),
 --    then ensure the consolidated member role exists with member perms.

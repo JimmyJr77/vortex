@@ -17,7 +17,16 @@ CREATE TABLE IF NOT EXISTS family (
 );
 
 CREATE INDEX IF NOT EXISTS idx_family_facility ON family(facility_id);
-CREATE INDEX IF NOT EXISTS idx_family_primary_user ON family(primary_user_id);
+-- primary_user_id is dropped by migration 009; only index it when present so
+-- this migration is safe to re-run on a reconciled/drifted database.
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'family' AND column_name = 'primary_user_id'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_family_primary_user ON family(primary_user_id);
+  END IF;
+END $$;
 
 -- ============================================================
 -- 2) FAMILY_GUARDIAN (Many-to-many: guardians linked to family)
@@ -114,6 +123,18 @@ BEGIN
   
   IF facility_record.id IS NULL THEN
     RAISE NOTICE 'No facility found, skipping member migration';
+    RETURN;
+  END IF;
+
+  -- Idempotency / drift guard: this one-time seed targets the original module-0
+  -- schema (family.primary_user_id + the legacy members/member_children/athlete/
+  -- family_guardian tables). Those were superseded by migrations 005-009, so on
+  -- any modern or reconciled database this block must be a no-op.
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'family' AND column_name = 'primary_user_id'
+  ) OR to_regclass('public.members') IS NULL THEN
+    RAISE NOTICE 'Modern schema detected, skipping legacy member->family seed';
     RETURN;
   END IF;
 
