@@ -177,5 +177,9 @@ export async function ensureDiscountEngineSchema(pool) {
   if (fs.existsSync(additionalFeesPath)) {
     await pool.query(fs.readFileSync(additionalFeesPath, 'utf8'))
   }
+  const tierEligibilityPath = path.join(__dirname, '../migrations/add_discount_tier_eligibility.sql')
+  if (fs.existsSync(tierEligibilityPath)) {
+    await pool.query(fs.readFileSync(tierEligibilityPath, 'utf8'))
+  }
   discountEngineReady = true
 }

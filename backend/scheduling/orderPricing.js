@@ -715,6 +715,16 @@ export async function computeDiscountLayer(
   const memberGraduationYear =
     memberContext?.graduationYear != null ? Number(memberContext.graduationYear) : null
 
+  let familyId = memberContext?.familyId != null ? Number(memberContext.familyId) : null
+  if (familyId == null && memberId != null) {
+    try {
+      const famRes = await pool.query('SELECT family_id FROM member WHERE id = $1', [memberId])
+      familyId = famRes.rows[0]?.family_id != null ? Number(famRes.rows[0].family_id) : null
+    } catch {
+      familyId = null
+    }
+  }
+
   const categoryBySlotKey = new Map()
   for (const item of newSignupItems) {
     const parts = String(item.slotKey || '').split(':')
@@ -749,6 +759,7 @@ export async function computeDiscountLayer(
       sportId: scope?.sportId ?? null,
       offeringId: scope?.offeringId ?? null,
       memberId: memberId ?? null,
+      familyId,
       memberCity,
       memberSchool,
       memberGraduationYear,
@@ -764,7 +775,52 @@ export async function computeDiscountLayer(
       costDiscountRuleIds: costBenefits.costDiscountRuleIds,
       costAllowedPromoCodes: costBenefits.costAllowedPromoCodes,
       autoPromoCodes: costBenefits.autoPromoCodes,
+      includeInSubtotal: true,
+      listCents: Math.round((item.incrementalMonthly || 0) * 100),
+      finalCents: Math.round((item.incrementalMonthly || 0) * 100),
     })
+  }
+
+  if (familyId != null || memberId != null) {
+    try {
+      const {
+        computeAccountDiscountStats,
+        isMultiClassSystemRule,
+        isMonthlySpendSystemRule,
+        multiClassMinPerClassCents,
+        monthlySpendMinPerClassCents,
+      } = await import('./systemDiscounts.js')
+      const multiClassRule = rules.find(isMultiClassSystemRule)
+      const spendRule = rules.find(isMonthlySpendSystemRule)
+      if (multiClassRule || spendRule) {
+        const minPerClassCents = Math.max(
+          multiClassRule ? multiClassMinPerClassCents(multiClassRule) : 0,
+          spendRule ? monthlySpendMinPerClassCents(spendRule) : 0,
+        )
+        const accountStats = await computeAccountDiscountStats(
+          pool,
+          { familyId, memberId },
+          lines,
+          { minPerClassCents },
+        )
+        const attachStats = (line) => {
+          line.accountPaidClassCount = accountStats.paidClassCount
+          line.accountMonthlyCents = accountStats.accountMonthlyCents
+          line.accountAllLines = accountStats.allLines
+          line.familyPaidClassCount = accountStats.paidClassCount
+          line.familyMonthlyCents = accountStats.accountMonthlyCents
+          line.familyPayingCount = accountStats.paidClassCount
+          line.familyAllLines = accountStats.allLines
+        }
+        for (const line of lines) attachStats(line)
+        for (const shadow of accountStats.dbLines) {
+          attachStats(shadow)
+          lines.push(shadow)
+        }
+      }
+    } catch {
+      // Account discount context is best-effort.
+    }
   }
 
   const { computeOrderDiscounts } = await import('./discountEngine.js')

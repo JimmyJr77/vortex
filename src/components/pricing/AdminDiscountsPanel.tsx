@@ -13,6 +13,16 @@ import DiscountRuleEditor from './DiscountRuleEditor'
 import PromoCodeEditor from './PromoCodeEditor'
 import OrderSimulator from './OrderSimulator'
 import { describePromoRuleBenefit, getPromoStatus } from '../../utils/promoDiscountModel'
+import {
+  isAccountSystemRule,
+  isMultiClassSystemRule,
+  isMonthlySpendSystemRule,
+  multiClassDiscountTarget,
+  monthlySpendDiscountTarget,
+  MULTI_CLASS_TARGET_LABELS,
+  describeMultiClassTier,
+  describeMonthlySpendTier,
+} from '../../utils/systemDiscounts'
 
 interface Props {
   showSimulator?: boolean
@@ -24,12 +34,23 @@ const TYPE_LABELS: Record<DiscountType, string> = {
   city: 'City',
   multi_class: 'Multi-class',
   multi_child: 'Multi-child',
+  spend_volume: 'Monthly spend',
   free_classes: 'Free classes',
 }
 
 function describeAmount(rule: DiscountRule): string {
+  if (isMultiClassSystemRule(rule)) {
+    const target = MULTI_CLASS_TARGET_LABELS[multiClassDiscountTarget(rule)]
+    if (rule.tiers.length === 1) return describeMultiClassTier(rule.tiers[0])
+    return `${rule.tiers.length} tiers · ${target}`
+  }
+  if (isMonthlySpendSystemRule(rule)) {
+    const target = MULTI_CLASS_TARGET_LABELS[monthlySpendDiscountTarget(rule)]
+    if (rule.tiers.length === 1) return describeMonthlySpendTier(rule.tiers[0])
+    return `${rule.tiers.length} tiers · ${target}`
+  }
   if (rule.type === 'promo_code') return describePromoRuleBenefit(rule)
-  if (rule.type === 'multi_class' || rule.type === 'multi_child') {
+  if (rule.type === 'multi_class' || rule.type === 'multi_child' || rule.type === 'spend_volume') {
     return `${rule.tiers.length} tier${rule.tiers.length === 1 ? '' : 's'}`
   }
   if (rule.type === 'free_classes') {
@@ -38,6 +59,12 @@ function describeAmount(rule: DiscountRule): string {
   return rule.amountType === 'percent'
     ? `${(rule.amountValue / 100).toFixed(rule.amountValue % 100 === 0 ? 0 : 1)}%`
     : `$${(rule.amountValue / 100).toFixed(2)}`
+}
+
+function typeLabel(rule: DiscountRule): string {
+  if (isMultiClassSystemRule(rule)) return 'Multi-class (system)'
+  if (isMonthlySpendSystemRule(rule)) return 'Monthly spend (system)'
+  return TYPE_LABELS[rule.type]
 }
 
 const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
@@ -138,13 +165,24 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
                 <tr key={rule.id} className="border-b border-gray-50 hover:bg-gray-50">
                   <td className="px-4 py-2 font-medium text-gray-900">
                     {rule.name}
+                    {isAccountSystemRule(rule) && (
+                      <span
+                        className={`ml-2 text-xs font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                          isMonthlySpendSystemRule(rule)
+                            ? 'text-emerald-700 bg-emerald-50'
+                            : 'text-indigo-700 bg-indigo-50'
+                        }`}
+                      >
+                        System
+                      </span>
+                    )}
                     {rule.type === 'promo_code' && rule.config.code && (
                       <span className="ml-2 text-xs font-mono uppercase text-gray-500">
                         {String(rule.config.code)}
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-2 text-gray-600">{TYPE_LABELS[rule.type]}</td>
+                  <td className="px-4 py-2 text-gray-600">{typeLabel(rule)}</td>
                   <td className="px-4 py-2 text-gray-600">{describeAmount(rule)}</td>
                   <td className="px-4 py-2 text-gray-600">
                     {rule.applyTo === 'order_total' ? 'Order' : 'Each class'}
@@ -195,13 +233,15 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => void handleDelete(rule)}
-                        className="p-1.5 text-gray-400 hover:text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {!isAccountSystemRule(rule) && (
+                        <button
+                          type="button"
+                          onClick={() => void handleDelete(rule)}
+                          className="p-1.5 text-gray-400 hover:text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

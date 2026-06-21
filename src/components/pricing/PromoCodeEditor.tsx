@@ -38,7 +38,9 @@ interface OfferingOption {
 }
 
 const controlClass =
-  'w-full h-10 rounded-lg border border-gray-300 px-3 text-sm focus:border-vortex-red focus:outline-none'
+  'w-full h-10 rounded-lg border border-gray-300 px-3 text-sm focus:border-vortex-red focus:outline-none box-border'
+
+const selectClass = `${controlClass} py-0`
 
 const sectionClass = 'rounded-xl border border-gray-200 bg-gray-50/80 p-4 space-y-4'
 
@@ -391,7 +393,7 @@ const PromoCodeEditor = ({ open, rule, onSave, onClose }: Props) => {
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Discount</label>
               <select
-                className={controlClass}
+                className={selectClass}
                 value={form.discountKind}
                 onChange={(e) =>
                   update({ discountKind: e.target.value as PromoFormState['discountKind'] })
@@ -441,7 +443,7 @@ const PromoCodeEditor = ({ open, rule, onSave, onClose }: Props) => {
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">Applies to</label>
                   <select
-                    className={controlClass}
+                    className={selectClass}
                     value={form.amountAppliesTo}
                     onChange={(e) =>
                       update({
@@ -742,7 +744,7 @@ const PromoCodeEditor = ({ open, rule, onSave, onClose }: Props) => {
                       Calculate on
                     </label>
                     <select
-                      className={controlClass}
+                      className={selectClass}
                       value={form.calcBase}
                       onChange={(e) =>
                         update({ calcBase: e.target.value as PromoFormState['calcBase'] })

@@ -10,6 +10,17 @@ import {
   ensureDiscountRulePromoCode,
   loadOccupiedPromoCodes,
 } from './promoCodeRegistry.js'
+import {
+  ensureAllSystemDiscountRules,
+  isMultiClassSystemRule,
+  isMonthlySpendSystemRule,
+  isAccountSystemRule,
+  systemRuleSortRank,
+  MULTI_CLASS_SYSTEM_KEY,
+  MONTHLY_SPEND_SYSTEM_KEY,
+  LEGACY_MULTI_FAMILY_SYSTEM_KEY,
+  mapTierRow,
+} from './systemDiscounts.js'
 
 async function getFacilityId(pool) {
   const res = await pool.query('SELECT id FROM facility LIMIT 1')
@@ -20,6 +31,10 @@ const tierSchema = Joi.object({
   threshold: Joi.number().integer().min(1).required(),
   amountType: Joi.string().valid('percent', 'fixed').required(),
   amountValue: Joi.number().integer().min(0).required(),
+  minMonthlyCents: Joi.number().integer().min(0).allow(null).optional(),
+  minPaidEnrollments: Joi.number().integer().min(0).allow(null).optional(),
+  minPerClassCents: Joi.number().integer().min(0).allow(null).optional(),
+  maxDiscountCents: Joi.number().integer().min(0).allow(null).optional(),
 })
 
 const ruleSchema = Joi.object({
@@ -93,9 +108,7 @@ function mapRuleRow(r, tiers = []) {
     config: r.config || {},
     tiers: tiers.map((t) => ({
       id: Number(t.id),
-      threshold: Number(t.threshold),
-      amountType: t.amount_type,
-      amountValue: Number(t.amount_value),
+      ...mapTierRow(t),
     })),
   }
 }
@@ -114,9 +127,20 @@ async function replaceTiers(client, ruleId, tiers) {
   await client.query('DELETE FROM discount_rule_tier WHERE rule_id = $1', [ruleId])
   for (const t of tiers) {
     await client.query(
-      `INSERT INTO discount_rule_tier (rule_id, threshold, amount_type, amount_value)
-       VALUES ($1,$2,$3,$4)`,
-      [ruleId, t.threshold, t.amountType, t.amountValue],
+      `INSERT INTO discount_rule_tier
+         (rule_id, threshold, amount_type, amount_value,
+          min_monthly_cents, min_paid_enrollments, min_per_class_cents, max_discount_cents)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [
+        ruleId,
+        t.threshold,
+        t.amountType,
+        t.amountValue,
+        t.minMonthlyCents ?? null,
+        t.minPaidEnrollments ?? null,
+        t.minPerClassCents ?? null,
+        t.maxDiscountCents ?? null,
+      ],
     )
   }
 }
@@ -127,6 +151,7 @@ export function createDiscountHandlers(pool) {
       try {
         await ensureDiscountEngineSchema(pool)
         const facilityId = await getFacilityId(pool)
+        await ensureAllSystemDiscountRules(pool, facilityId)
         const rulesRes = await pool.query(
           `SELECT * FROM discount_rule
            WHERE facility_id = $1 OR facility_id IS NULL
@@ -154,7 +179,14 @@ export function createDiscountHandlers(pool) {
         res.json({
           success: true,
           data: {
-            rules: rulesRes.rows.map((r) => mapRuleRow(r, tiersByRule.get(Number(r.id)) || [])),
+            rules: rulesRes.rows
+              .map((r) => mapRuleRow(r, tiersByRule.get(Number(r.id)) || []))
+              .sort((a, b) => {
+                const aRank = systemRuleSortRank(a)
+                const bRank = systemRuleSortRank(b)
+                if (aRank !== bRank) return aRank - bRank
+                return (a.priority ?? 100) - (b.priority ?? 100) || a.name.localeCompare(b.name)
+              }),
             globalSettings: settingsRes.rows[0]
               ? {
                   maxFreeUnitsTotal: settingsRes.rows[0].max_free_units_total,
@@ -175,6 +207,13 @@ export function createDiscountHandlers(pool) {
         await ensureDiscountEngineSchema(pool)
         const { error, value } = ruleSchema.validate(req.body, { stripUnknown: true })
         if (error) return res.status(400).json({ success: false, message: error.details[0].message })
+        if (
+          value.config?.system_key === MULTI_CLASS_SYSTEM_KEY ||
+          value.config?.system_key === MONTHLY_SPEND_SYSTEM_KEY ||
+          value.config?.system_key === LEGACY_MULTI_FAMILY_SYSTEM_KEY
+        ) {
+          return res.status(400).json({ success: false, message: 'System discounts are managed automatically' })
+        }
         const facilityId = await getFacilityId(pool)
         const occupied = await loadOccupiedPromoCodes(pool, facilityId)
         const withPromo = ensureDiscountRulePromoCode(value, occupied)
@@ -231,11 +270,53 @@ export function createDiscountHandlers(pool) {
       try {
         await ensureDiscountEngineSchema(pool)
         const id = Number(req.params.id)
+        const existingRes = await pool.query('SELECT * FROM discount_rule WHERE id = $1', [id])
+        if (existingRes.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Discount rule not found' })
+        }
+        const existing = mapRuleRow(existingRes.rows[0])
         const { error, value } = ruleSchema.validate(req.body, { stripUnknown: true })
         if (error) return res.status(400).json({ success: false, message: error.details[0].message })
         const facilityId = await getFacilityId(pool)
         const occupied = await loadOccupiedPromoCodes(pool, facilityId, { excludeDiscountId: id })
-        const withPromo = ensureDiscountRulePromoCode(value, occupied)
+        let withPromo = ensureDiscountRulePromoCode(value, occupied)
+        if (isMultiClassSystemRule(existing)) {
+          withPromo = {
+            ...withPromo,
+            type: 'multi_class',
+            applyTo: 'per_class',
+            calcBase: 'pre',
+            scopeLevel: 'global',
+            scopeRefId: null,
+            exclusivityGroup: withPromo.exclusivityGroup || 'multi_class',
+            config: {
+              ...withPromo.config,
+              system_key: MULTI_CLASS_SYSTEM_KEY,
+              require_paying_enrollment: true,
+              tier_match_mode: withPromo.config?.tier_match_mode ?? 'best_eligible',
+              min_paying_classes:
+                withPromo.config?.min_paying_classes ??
+                withPromo.config?.min_paying_members ??
+                2,
+            },
+          }
+        } else if (isMonthlySpendSystemRule(existing)) {
+          withPromo = {
+            ...withPromo,
+            type: 'spend_volume',
+            applyTo: 'per_class',
+            calcBase: 'pre',
+            scopeLevel: 'global',
+            scopeRefId: null,
+            exclusivityGroup: withPromo.exclusivityGroup || 'monthly_spend',
+            config: {
+              ...withPromo.config,
+              system_key: MONTHLY_SPEND_SYSTEM_KEY,
+              require_paying_enrollment: true,
+              discount_target: withPromo.config?.discount_target ?? 'total',
+            },
+          }
+        }
 
         await client.query('BEGIN')
         const upd = await client.query(
@@ -291,6 +372,16 @@ export function createDiscountHandlers(pool) {
       try {
         await ensureDiscountEngineSchema(pool)
         const id = Number(req.params.id)
+        const existing = await pool.query('SELECT config, type FROM discount_rule WHERE id = $1', [id])
+        if (existing.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Discount rule not found' })
+        }
+        if (isAccountSystemRule({ type: existing.rows[0].type, config: existing.rows[0].config || {} })) {
+          return res.status(403).json({
+            success: false,
+            message: 'System discounts cannot be deleted. Deactivate them instead.',
+          })
+        }
         const del = await pool.query('DELETE FROM discount_rule WHERE id = $1 RETURNING id', [id])
         if (del.rows.length === 0) {
           return res.status(404).json({ success: false, message: 'Discount rule not found' })

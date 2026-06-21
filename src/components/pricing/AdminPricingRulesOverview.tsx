@@ -19,6 +19,10 @@ import {
   type EligibilityRule,
 } from '../../utils/promoDiscountModel'
 import { describeBenefitDateRange } from '../../utils/freePassBenefitDates'
+import {
+  isMonthlySpendSystemRule,
+  describeMonthlySpendTier,
+} from '../../utils/systemDiscounts'
 
 const TYPE_LABELS: Record<DiscountType, string> = {
   promo_code: 'Promo code',
@@ -26,15 +30,29 @@ const TYPE_LABELS: Record<DiscountType, string> = {
   city: 'City',
   multi_class: 'Multi-class',
   multi_child: 'Multi-child',
+  spend_volume: 'Monthly spend',
   free_classes: 'Free classes',
 }
 
-const UNIVERSAL_TYPES: DiscountType[] = ['multi_class', 'multi_child', 'school', 'city', 'free_classes']
+const UNIVERSAL_TYPES: DiscountType[] = [
+  'multi_class',
+  'multi_child',
+  'spend_volume',
+  'school',
+  'city',
+  'free_classes',
+]
 
 function describeBenefit(rule: DiscountRule): string {
   if (rule.type === 'promo_code') return describePromoRuleBenefit(rule)
-  if (rule.type === 'multi_class' || rule.type === 'multi_child') {
+  if (rule.type === 'multi_class' || rule.type === 'multi_child' || rule.type === 'spend_volume') {
     if (rule.tiers.length === 0) return 'No tiers configured'
+    if (isMonthlySpendSystemRule(rule) || rule.type === 'spend_volume') {
+      return rule.tiers
+        .sort((a, b) => a.threshold - b.threshold)
+        .map((t) => describeMonthlySpendTier(t))
+        .join(' · ')
+    }
     return rule.tiers
       .sort((a, b) => a.threshold - b.threshold)
       .map((t) => {

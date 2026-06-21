@@ -4,6 +4,7 @@ const TYPE_PREFIX = {
   city: 'CTY',
   multi_class: 'MCLS',
   multi_child: 'MCHD',
+  spend_volume: 'SPND',
   free_classes: 'FCLS',
 }
 
@@ -215,6 +216,7 @@ function describeDiscountSubtype(type) {
     city: 'City discount',
     multi_class: 'Multi-class',
     multi_child: 'Multi-child',
+    spend_volume: 'Monthly spend',
     free_classes: 'Free classes',
   }
   return labels[type] ?? type

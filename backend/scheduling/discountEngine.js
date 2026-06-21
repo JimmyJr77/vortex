@@ -1,3 +1,16 @@
+import {
+  isMultiClassSystemRule,
+  isMonthlySpendSystemRule,
+  multiClassDiscountTarget,
+  monthlySpendDiscountTarget,
+  multiClassMinPayingClasses,
+  pickMultiClassTier,
+  pickMonthlySpendTier,
+  accountStatsFromLine,
+  attachCartAccountStats,
+  mapTierRow,
+} from './systemDiscounts.js'
+
 // Discount + promo rules engine. Pure computation over already-resolved base (list) prices,
 // plus DB helpers for loading rules and enforcing layered caps via the redemption ledger.
 //
@@ -10,6 +23,7 @@ export const DISCOUNT_TYPES = [
   'city',
   'multi_class',
   'multi_child',
+  'spend_volume',
   'free_classes',
 ]
 
@@ -288,6 +302,7 @@ function makeCapTracker(caps) {
  * }} input
  */
 export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [], caps = {}, now = Date.now() }) {
+  attachCartAccountStats(lines, rules)
   const promoCodesLower = new Set(promoCodes.map(normalizeText).filter(Boolean))
   const capTracker = makeCapTracker(caps)
 
@@ -314,6 +329,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
   const lineState = lines.map((line) => ({
     key: line.key,
     line,
+    includeInSubtotal: line.includeInSubtotal !== false,
     baseCents: Math.max(0, Math.round(Number(line.baseCents) || 0)),
     runningCents: Math.max(0, Math.round(Number(line.baseCents) || 0)),
     applied: [],
@@ -324,7 +340,9 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
   const orderDiscounts = []
   const freeGrants = []
   const redemptions = []
-  const subtotalCents = lineState.reduce((sum, ls) => sum + ls.baseCents, 0)
+  const subtotalCents = lineState
+    .filter((ls) => ls.includeInSubtotal !== false)
+    .reduce((sum, ls) => sum + ls.baseCents, 0)
   let orderRunning = subtotalCents
 
   function applyToLine(ls, rule, amountType, amountValue, kind = 'discount') {
@@ -357,7 +375,173 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     return amount
   }
 
+  function applyTierMaxCap(rule, tier, amount) {
+    let capped = amount
+    if (tier.maxDiscountCents != null) capped = Math.min(capped, tier.maxDiscountCents)
+    if (rule.maxDiscountCents != null) capped = Math.min(capped, rule.maxDiscountCents)
+    return capped
+  }
+
+  function accountGroupKey(line) {
+    if (line.familyId != null) return `family:${Number(line.familyId)}`
+    if (line.memberId != null) return `member:${Number(line.memberId)}`
+    return 'cart:default'
+  }
+
+  function applyAccountSystemDiscount(rule, { pickTier, getTarget, passesGate }) {
+    const target = getTarget(rule)
+    const groups = new Map()
+    for (const ls of lineState) {
+      const key = accountGroupKey(ls.line)
+      if (key == null) continue
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key).push(ls)
+    }
+
+    for (const groupLines of groups.values()) {
+      const sample = groupLines[0]?.line ?? {}
+      const stats = accountStatsFromLine(sample)
+      if (!passesGate(stats)) continue
+      const tier = pickTier(rule, stats)
+      if (!tier) continue
+
+      const cartLines = groupLines.filter(
+        (ls) => ls.includeInSubtotal !== false && ls.line.shadowOnly !== true,
+      )
+      if (cartLines.length === 0) continue
+
+      const classLines = groupLines.filter((ls) => ls.baseCents > 0)
+      if (classLines.length === 0) continue
+
+      if (target === 'total') {
+        const accountSubtotal = classLines.reduce((sum, ls) => sum + ls.baseCents, 0)
+        let amount = discountAmountCents(accountSubtotal, tier.amountType, tier.amountValue)
+        amount = applyTierMaxCap(rule, tier, amount)
+        if (amount <= 0) continue
+
+        const cartSubtotal = cartLines.reduce((sum, ls) => sum + ls.baseCents, 0)
+        if (cartSubtotal <= 0) continue
+        const repLine = cartLines[0]
+        if (!capTracker.canApply(rule, repLine.line, 'discount')) continue
+
+        const eligible = cartLines.filter((ls) => ls.runningCents > 0)
+        let remaining = amount
+        for (let i = 0; i < eligible.length; i += 1) {
+          const ls = eligible[i]
+          const share =
+            i === eligible.length - 1
+              ? remaining
+              : Math.min(remaining, Math.round(amount * (ls.baseCents / cartSubtotal)))
+          if (share <= 0) continue
+          const applied = Math.min(share, ls.runningCents)
+          ls.runningCents -= applied
+          remaining -= applied
+          ls.applied.push({
+            ruleId: rule.id,
+            name: rule.name,
+            type: rule.type,
+            amountCents: applied,
+            kind: 'discount',
+          })
+          if (rule.exclusivityGroup) ls.exclusivityGroups.add(rule.exclusivityGroup)
+          redemptions.push({
+            ruleId: rule.id,
+            memberId: ls.line.memberId,
+            lineKey: ls.key,
+            programId: ls.line.programId,
+            formId: ls.line.formId,
+            kind: 'discount',
+            units: 0,
+            amountCents: applied,
+          })
+        }
+        capTracker.record(rule, repLine.line, 'discount')
+        continue
+      }
+
+      let pick =
+        target === 'highest'
+          ? classLines.reduce((best, ls) => (ls.baseCents > best.baseCents ? ls : best))
+          : classLines.reduce((best, ls) => (ls.baseCents < best.baseCents ? ls : best))
+
+      if (pick.line.shadowOnly) {
+        const cartOnly = cartLines.filter((ls) => ls.runningCents > 0)
+        if (cartOnly.length === 0) continue
+        pick =
+          target === 'highest'
+            ? cartOnly.reduce((best, ls) => (ls.baseCents > best.baseCents ? ls : best))
+            : cartOnly.reduce((best, ls) => (ls.baseCents < best.baseCents ? ls : best))
+      } else if (!cartLines.some((ls) => ls.key === pick.key)) {
+        const cartOnly = cartLines.filter((ls) => ls.runningCents > 0)
+        if (cartOnly.length === 0) continue
+        pick =
+          target === 'highest'
+            ? cartOnly.reduce((best, ls) => (ls.baseCents > best.baseCents ? ls : best))
+            : cartOnly.reduce((best, ls) => (ls.baseCents < best.baseCents ? ls : best))
+      }
+
+      const base = rule.calcBase === 'post' ? pick.runningCents : pick.baseCents
+      let amount = discountAmountCents(base, tier.amountType, tier.amountValue)
+      amount = applyTierMaxCap(rule, tier, amount)
+      amount = Math.min(amount, pick.runningCents)
+      if (amount <= 0) continue
+      if (rule.exclusivityGroup && pick.exclusivityGroups.has(rule.exclusivityGroup)) continue
+      if (
+        !rule.stackable &&
+        pick.applied.length > 0 &&
+        pick.applied.some((a) => a.ruleId !== rule.id)
+      ) {
+        continue
+      }
+      if (!capTracker.canApply(rule, pick.line, 'discount')) continue
+      pick.runningCents -= amount
+      pick.applied.push({
+        ruleId: rule.id,
+        name: rule.name,
+        type: rule.type,
+        amountCents: amount,
+        kind: 'discount',
+      })
+      if (rule.exclusivityGroup) pick.exclusivityGroups.add(rule.exclusivityGroup)
+      capTracker.record(rule, pick.line, 'discount')
+      redemptions.push({
+        ruleId: rule.id,
+        memberId: pick.line.memberId,
+        lineKey: pick.key,
+        programId: pick.line.programId,
+        formId: pick.line.formId,
+        kind: 'discount',
+        units: 0,
+        amountCents: amount,
+      })
+    }
+  }
+
+  function applyMultiClassSystemDiscount(rule) {
+    applyAccountSystemDiscount(rule, {
+      getTarget: multiClassDiscountTarget,
+      pickTier: pickMultiClassTier,
+      passesGate: (stats) => (stats.paidClassCount ?? 0) >= multiClassMinPayingClasses(rule),
+    })
+  }
+
+  function applyMonthlySpendSystemDiscount(rule) {
+    applyAccountSystemDiscount(rule, {
+      getTarget: monthlySpendDiscountTarget,
+      pickTier: pickMonthlySpendTier,
+      passesGate: (stats) => (stats.paidClassCount ?? 0) > 0 || (stats.accountMonthlyCents ?? 0) > 0,
+    })
+  }
+
   for (const rule of activeRules) {
+    if (isMultiClassSystemRule(rule)) {
+      applyMultiClassSystemDiscount(rule)
+      continue
+    }
+    if (isMonthlySpendSystemRule(rule)) {
+      applyMonthlySpendSystemDiscount(rule)
+      continue
+    }
     if (rule.applyTo === 'order_total') {
       if (!orderRuleAllowedByCosts(rule)) continue
       // Order-level: compute on order subtotal/running, applied once, distributed across lines.
@@ -424,6 +608,14 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       let amountType = rule.amountType
       let amountValue = rule.amountValue
       if (rule.type === 'multi_class') {
+        if (isMultiClassSystemRule(rule)) continue
+        if (ls.line.costUsesSelections && !ls.line.costDiscountRuleIds?.has(Number(rule.id))) continue
+        const tier = tierForOrdinal(rule, ls.line.classOrdinal || 0)
+        if (!tier) continue
+        amountType = tier.amountType
+        amountValue = tier.amountValue
+      } else if (rule.type === 'spend_volume') {
+        if (isMonthlySpendSystemRule(rule)) continue
         if (ls.line.costUsesSelections && !ls.line.costDiscountRuleIds?.has(Number(rule.id))) continue
         const tier = tierForOrdinal(rule, ls.line.classOrdinal || 0)
         if (!tier) continue
@@ -442,13 +634,15 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     }
   }
 
-  const lineResults = lineState.map((ls) => ({
-    key: ls.key,
-    baseCents: ls.baseCents,
-    discountCents: ls.baseCents - ls.runningCents,
-    finalCents: ls.runningCents,
-    applied: ls.applied,
-  }))
+  const lineResults = lineState
+    .filter((ls) => ls.includeInSubtotal !== false)
+    .map((ls) => ({
+      key: ls.key,
+      baseCents: ls.baseCents,
+      discountCents: ls.baseCents - ls.runningCents,
+      finalCents: ls.runningCents,
+      applied: ls.applied,
+    }))
 
   const lineDiscountTotal = lineResults.reduce((sum, l) => sum + l.discountCents, 0)
   const orderDiscountTotal = orderDiscounts.reduce((sum, d) => sum + d.amountCents, 0)
@@ -469,6 +663,12 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
 // ---------- DB helpers ----------
 
 export async function loadActiveDiscountRules(pool, facilityId) {
+  try {
+    const { ensureAllSystemDiscountRules } = await import('./systemDiscounts.js')
+    await ensureAllSystemDiscountRules(pool, facilityId)
+  } catch {
+    // System discount seed is best-effort.
+  }
   let rulesRes
   try {
     rulesRes = await pool.query(
@@ -489,11 +689,7 @@ export async function loadActiveDiscountRules(pool, facilityId) {
   const tiersByRule = new Map()
   for (const t of tiersRes.rows) {
     const list = tiersByRule.get(Number(t.rule_id)) || []
-    list.push({
-      threshold: Number(t.threshold),
-      amountType: t.amount_type,
-      amountValue: Number(t.amount_value),
-    })
+    list.push(mapTierRow(t))
     tiersByRule.set(Number(t.rule_id), list)
   }
 

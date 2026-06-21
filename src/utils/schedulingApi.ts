@@ -410,6 +410,7 @@ export type DiscountType =
   | 'city'
   | 'multi_class'
   | 'multi_child'
+  | 'spend_volume'
   | 'free_classes'
 
 export type DiscountAmountType = 'percent' | 'fixed'
@@ -422,6 +423,10 @@ export interface DiscountRuleTier {
   threshold: number
   amountType: DiscountAmountType
   amountValue: number
+  minMonthlyCents?: number | null
+  minPaidEnrollments?: number | null
+  minPerClassCents?: number | null
+  maxDiscountCents?: number | null
 }
 
 export interface DiscountRuleConfig {
