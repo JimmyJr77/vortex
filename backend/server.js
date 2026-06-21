@@ -48,7 +48,7 @@ if (fs.existsSync(envLocalPath)) {
 const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'scheduling-free-passes-2026-06-20'
+const API_BUILD_ID = 'pricing-schema-fix-2026-06-21'
 
 const app = express()
 const PORT = process.env.PORT || 3001

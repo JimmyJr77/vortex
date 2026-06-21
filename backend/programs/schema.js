@@ -174,6 +174,9 @@ export async function ensureDiscountEngineSchema(pool) {
   const __dirname = path.dirname(fileURLToPath(import.meta.url))
   const migrationsDir = path.join(__dirname, '../migrations')
 
+  // Legacy column backfill before base migrations create indexes on discount_rule.
+  await runDiscountMigrationFile(pool, migrationsDir, 'patch_discount_rule_legacy_columns.sql')
+
   if (!discountEngineReady) {
     const migrationPath = path.join(migrationsDir, 'add_discount_engine.sql')
     if (!fs.existsSync(migrationPath)) return
