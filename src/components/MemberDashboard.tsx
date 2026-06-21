@@ -1755,7 +1755,7 @@ export default function MemberDashboard({
   return (
     <div className="min-h-screen bg-white">
       {/* Member Portal Header Section - Dark Background */}
-      <div className="bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header pb-0">
+      <div className="bg-gradient-to-br from-black via-gray-900 to-black pt-4 pb-0">
         <div className="container-admin">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
