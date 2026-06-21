@@ -46,6 +46,30 @@ export async function findMemberById(db, memberId) {
   return res.rows[0] || null
 }
 
+export async function findMemberForAppUser(db, userId) {
+  const userResult = await db.query('SELECT id, email FROM app_user WHERE id = $1', [userId])
+  const appUser = userResult.rows[0]
+  if (!appUser) return null
+
+  const res = await db.query(
+    `
+    SELECT m.*,
+      (m.password_hash IS NOT NULL AND m.password_hash <> '') AS has_password
+    FROM member m
+    WHERE m.is_active = TRUE
+      AND (
+        m.app_user_id = $1
+        OR (m.app_user_id IS NULL AND m.id = $1)
+        OR (m.app_user_id IS NULL AND LOWER(TRIM(m.email)) = LOWER(TRIM($2)))
+      )
+    ORDER BY CASE WHEN m.app_user_id = $1 THEN 0 ELSE 1 END
+    LIMIT 1
+    `,
+    [userId, appUser.email],
+  )
+  return res.rows[0] || null
+}
+
 async function syncAppUser(client, member, passwordHash) {
   const fullName = `${member.first_name} ${member.last_name}`.trim()
   const facilityId = member.facility_id

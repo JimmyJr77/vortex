@@ -1,0 +1,20 @@
+---
+description: Keep the Admin portal master roadmap up to date whenever admin-portal features change
+globs: src/components/Admin*.tsx,src/components/Login.tsx,src/components/scheduling/**,src/components/analytics/**,src/utils/api.ts,src/utils/schedulingApi.ts,src/utils/analyticsApi.ts,backend/platform/registerRoutes.js,backend/scheduling/**,backend/programs/**,backend/analytics/**
+alwaysApply: false
+---
+
+# Admin portal — keep the roadmap current
+
+Any time you build, change, or extend the Admin portal, you MUST update
+[docs/ADMIN_PORTAL_ROADMAP.md](../../docs/ADMIN_PORTAL_ROADMAP.md) in the same change. This doc is the canonical, durable record of what exists and why.
+
+Update it when you:
+- add/alter an admin-managed table or column → reflect it in the data-model section.
+- add/change an `/api/admin/*` endpoint or its permission guard → reflect it in the backend surface.
+- add/change an admin tab or `Admin*` component → reflect it in the frontend tab table.
+- add a new permission key or role, or change RBAC enforcement (legacy map vs platform `requirePermission`) → update the auth/RBAC + decisions sections.
+- make a non-obvious architectural decision (scheduling, discounts, sessions, theming) → add it to the "architecture & key decisions" section with the rationale ("why"), since this doc preserves intent for posterity.
+- close or discover a rough edge → update "Known gaps".
+
+Keep edits accurate and grounded in real code (cite file paths, table/column, endpoint names, permission keys). Do not let the doc drift from reality.

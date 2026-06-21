@@ -991,6 +991,21 @@ export async function loginSchedulingAuth(
   return parseJson(res)
 }
 
+export async function loginSchedulingAuthFromMemberSession(
+  formId: number,
+  memberToken: string,
+): Promise<SchedulingAuthSession> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/auth/member-session`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${memberToken}`,
+    },
+    body: JSON.stringify({ formId }),
+  })
+  return parseJson(res)
+}
+
 export async function changeSchedulingAuthPassword(
   formId: number,
   signupAuthToken: string,

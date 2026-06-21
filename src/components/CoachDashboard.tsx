@@ -1,4 +1,5 @@
 import CoachLayout from './coach/CoachLayout'
+import type { PortalId } from '../utils/portalSession'
 
 interface CoachAccount {
   fullName?: string
@@ -10,7 +11,7 @@ interface CoachDashboardProps {
   coach: CoachAccount
   onLogout: () => void
   onReturnToWebsite?: () => void
-  availablePortals?: string[]
+  availablePortals?: PortalId[]
   onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
 }
 

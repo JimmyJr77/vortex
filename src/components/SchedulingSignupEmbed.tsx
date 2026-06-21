@@ -16,6 +16,7 @@ import {
   fetchSignupOrderPreview,
   formatSchedulingOccurrenceLabel,
   loginSchedulingAuth,
+  loginSchedulingAuthFromMemberSession,
   memberSignupSlotKey,
   requestSchedulingMagicLink,
   schedulingHasMultipleWeeks,
@@ -33,6 +34,7 @@ import {
   type SchedulingSlotGroup,
   type SchedulingTimeSlot,
 } from '../utils/schedulingApi'
+import { getLoggedInMemberEmail, getMemberSessionToken } from '../utils/portalSession'
 
 function formatTimeLabel(time: string) {
   const [h, m] = time.split(':').map(Number)
@@ -864,7 +866,7 @@ const SchedulingSignupEmbed = ({
   const [signupResults, setSignupResults] = useState<SchedulingSignup[]>([])
   const [signupResult, setSignupResult] = useState<SchedulingSignup | null>(null)
   const [identityPhase, setIdentityPhase] = useState<IdentityPhase>('pending')
-  const [accountEmail, setAccountEmail] = useState(initialEmail || '')
+  const [accountEmail, setAccountEmail] = useState(initialEmail || getLoggedInMemberEmail() || '')
   const [accountPassword, setAccountPassword] = useState('')
   const [newAccountPassword, setNewAccountPassword] = useState('')
   const [forcedNewPassword, setForcedNewPassword] = useState('')
@@ -910,7 +912,7 @@ const SchedulingSignupEmbed = ({
     setConfirmedOrderPreview(null)
     setConfirmedOrderPreviewLoading(false)
     setIsNewUser(false)
-    setAccountEmail(initialEmail || '')
+    setAccountEmail(initialEmail || getLoggedInMemberEmail() || '')
     setAccountPassword('')
     setNewAccountPassword('')
     setMagicLinkSent(false)
@@ -983,6 +985,41 @@ const SchedulingSignupEmbed = ({
       .catch((err) => setError(err instanceof Error ? err.message : 'Invalid sign-in link'))
       .finally(() => setIdentityLoading(false))
   }, [formId, initialAuthToken, initialEmail])
+
+  useEffect(() => {
+    if (!formId || initialAuthToken) return
+
+    const memberToken = getMemberSessionToken()
+    if (!memberToken) return
+
+    let cancelled = false
+    setIdentityLoading(true)
+
+    loginSchedulingAuthFromMemberSession(formId, memberToken)
+      .then((session) => {
+        if (cancelled) return
+        saveSchedulingMemberEmail(session.email)
+        setAccountEmail(session.email)
+        setSignupAuthToken(session.signupAuthToken)
+        setIsNewUser(false)
+        setResponses((prev) => ({ ...prev, email: session.email }))
+        if (session.mustChangePassword) {
+          setIdentityPhase('must_change_password')
+        } else {
+          setIdentityPhase('ready')
+        }
+      })
+      .catch(() => {
+        /* Fall back to manual email entry when portal session cannot be reused. */
+      })
+      .finally(() => {
+        if (!cancelled) setIdentityLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [formId, initialAuthToken])
 
   const loadSignedUpSlots = useCallback(async (email: string, options?: { force?: boolean }) => {
     const key = email.trim().toLowerCase()
@@ -1256,7 +1293,7 @@ const SchedulingSignupEmbed = ({
         },
       }))
     }
-    if (!signupAuthToken && identityPhase !== 'ready') {
+    if (!signupAuthToken && identityPhase !== 'ready' && !identityLoading) {
       setIdentityPhase('email')
       setIsNewUser(false)
       setMagicLinkSent(false)
@@ -1264,13 +1301,20 @@ const SchedulingSignupEmbed = ({
   }
 
   useEffect(() => {
-    if (slotGroupId == null || timeSlotId == null || signupAuthToken || identityPhase === 'ready' || identityPhase === 'login') {
+    if (
+      slotGroupId == null ||
+      timeSlotId == null ||
+      signupAuthToken ||
+      identityPhase === 'ready' ||
+      identityPhase === 'login' ||
+      identityLoading
+    ) {
       return
     }
     if (identityPhase === 'pending') {
       setIdentityPhase('email')
     }
-  }, [slotGroupId, timeSlotId, signupAuthToken, identityPhase])
+  }, [slotGroupId, timeSlotId, signupAuthToken, identityPhase, identityLoading])
 
   const handleEmailContinue = async () => {
     const email = accountEmail.trim()
@@ -1467,7 +1511,7 @@ const SchedulingSignupEmbed = ({
     !offeringsLoading &&
     timeSlotId === null &&
     slotOptions.length > 0
-  const showEmailStep = slotSelected && identityPhase === 'email'
+  const showEmailStep = slotSelected && identityPhase === 'email' && !identityLoading
   const showLoginStep = slotSelected && identityPhase === 'login'
   const showMustChangePasswordStep = slotSelected && identityPhase === 'must_change_password'
   const showNewUserForm = slotSelected && identityReady && isNewUser && signupPhase === 'select'
@@ -2031,15 +2075,15 @@ const SchedulingSignupEmbed = ({
         {showSlotPick && (
           <div className={sectionClass}>
             {selectedCategoryName && (
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600 mb-3">
-                <span>
+              <div className="text-sm text-gray-600 mb-3">
+                <div>
                   Category: <span className="font-semibold text-black">{selectedCategoryName}</span>
-                </span>
+                </div>
                 {selectedOfferingLabel && (
-                  <span>
+                  <div>
                     Offering:{' '}
                     <span className="font-semibold text-black">{selectedOfferingLabel}</span>
-                  </span>
+                  </div>
                 )}
                 <button
                   type="button"
@@ -2053,14 +2097,14 @@ const SchedulingSignupEmbed = ({
                     setTimeSlotId(null)
                     setIdentityPhase('pending')
                   }}
-                  className="text-vortex-red font-semibold hover:underline"
+                  className="block mt-2 text-vortex-red font-semibold hover:underline"
                 >
-                  {requiresOfferingSelection ? 'Change offering' : 'Change category'}
+                  {requiresOfferingSelection ? 'Change selection' : 'Change category'}
                 </button>
               </div>
             )}
             <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
-              Time slot
+              Choose a class time
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {slotOptions.map((option) => {
@@ -2149,7 +2193,7 @@ const SchedulingSignupEmbed = ({
               </p>
             )}
             {!signupAuthToken && identityPhase !== 'ready' && (
-              <span className="block sm:inline mt-2 sm:mt-0">
+              <span className="block mt-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -2159,7 +2203,7 @@ const SchedulingSignupEmbed = ({
                   }}
                   className="text-vortex-red font-semibold hover:underline"
                 >
-                  Change slot
+                  Change class time
                 </button>
                 {bookableCategories.length > 1 && (
                   <>

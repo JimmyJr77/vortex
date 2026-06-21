@@ -1,0 +1,19 @@
+---
+description: Keep the Coaching Corner master roadmap up to date whenever coaching features change
+globs: backend/migrations/*_coaching_*.sql,backend/platform/coachPortalRoutes.js,src/components/coach/**,src/coach/**,src/components/MemberTraining.tsx,src/components/NotificationBell.tsx,src/components/MemberDashboard.tsx
+alwaysApply: false
+---
+
+# Coaching Corner — keep the roadmap current
+
+Any time you build, change, or extend the Coaching Corner, you MUST update
+[docs/COACHING_CORNER_ROADMAP.md](../../docs/COACHING_CORNER_ROADMAP.md) in the same change. This doc is the canonical, durable record of what exists and why.
+
+Update it when you:
+- add or alter a `coaching.*` migration (new table/column/enum) → reflect it in Part 5 (data model) and the mermaid diagram.
+- add or change a coach/member endpoint or helper → reflect it in Part 6 (backend surface).
+- add or change a coach panel / member tab / shared store → reflect it in Part 7 (frontend surface).
+- complete or advance a phase → flip its status (✅/🟡/⬜) in the snapshot and phase sections.
+- make a non-obvious architectural decision → add it to Part 4 with the rationale ("why"), since this doc preserves intent for posterity.
+
+Keep edits accurate and grounded in the actual code (cite real file paths, table/column, and endpoint names). Do not let the doc drift from reality. Do NOT edit transient plan files under `.cursor/plans/` as a substitute — this doc is the source of truth.

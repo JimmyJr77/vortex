@@ -1,23 +1,25 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, Home, Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import ClassesOfferedList from './classes/ClassesOfferedList'
 import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
 import EventAttachedSignup from './EventAttachedSignup'
-import { MemberTrainingTab, MemberProgressTab } from './MemberTraining'
+import { MemberTrainingTab, MemberProgressTab, MemberMessagesTab } from './MemberTraining'
+import PortalNavButtons from './PortalNavButtons'
+import NotificationBell from './NotificationBell'
+import type { PortalId } from '../utils/portalSession'
 
 interface MemberDashboardProps {
   member: any
   onLogout: () => void
   onReturnToWebsite?: () => void
-  availablePortals?: string[]
+  availablePortals?: PortalId[]
   onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
 }
 
-type MemberTab = 'profile' | 'classes' | 'events' | 'billing' | 'waivers' | 'training' | 'progress'
+type MemberTab = 'profile' | 'classes' | 'events' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages'
 
 interface FamilyMember {
   id: number
@@ -124,7 +126,6 @@ interface MemberWaiver {
 
 export default function MemberDashboard({
   onLogout,
-  onReturnToWebsite,
   availablePortals = ['member'],
   onSwitchPortal,
 }: MemberDashboardProps) {
@@ -1258,53 +1259,14 @@ export default function MemberDashboard({
             <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
               VORTEX <span className="text-vortex-red">MEMBER</span> PORTAL
             </h1>
-            <div className="flex gap-2 flex-wrap justify-center md:justify-end">
-              {availablePortals.includes('admin') && (
-                <button
-                  type="button"
-                  onClick={() => onSwitchPortal?.('admin')}
-                  className="bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
-                >
-                  Admin
-                </button>
-              )}
-              {availablePortals.includes('coach') && (
-                <button
-                  type="button"
-                  onClick={() => onSwitchPortal?.('coach')}
-                  className="bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
-                >
-                  Coach
-                </button>
-              )}
-              {onReturnToWebsite ? (
-                <motion.button
-                  onClick={onReturnToWebsite}
-                  className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Home className="w-4 h-4" />
-                  <span className="hidden md:inline">Return to Website</span>
-                </motion.button>
-              ) : (
-                <Link
-                  to="/"
-                  className="flex items-center space-x-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
-                >
-                  <Home className="w-4 h-4" />
-                  <span className="hidden md:inline">Return to Website</span>
-                </Link>
-              )}
-              <motion.button
-                onClick={onLogout}
-                className="flex items-center space-x-2 bg-vortex-red text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors text-sm"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden md:inline">Logout</span>
-              </motion.button>
+            <div className="flex items-center gap-2 flex-wrap justify-center md:justify-end">
+              <NotificationBell apiPrefix="member" />
+              <PortalNavButtons
+                activePortal="member"
+                availablePortals={availablePortals}
+                onSwitchPortal={onSwitchPortal}
+                onLogout={onLogout}
+              />
             </div>
           </div>
 
@@ -1316,6 +1278,7 @@ export default function MemberDashboard({
                 ['classes', 'Classes'],
                 ['training', 'Training'],
                 ['progress', 'Progress'],
+                ['messages', 'Messages'],
                 ['events', 'Events'],
                 ['billing', 'Billing'],
                 ['waivers', 'Waivers'],
@@ -1439,9 +1402,9 @@ export default function MemberDashboard({
                 {/* Members Section - Matching AdminMembers Format */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
+                    <h3 className="text-xl font-bold text-black">
                       Family Members ({members.length})
-                    </h2>
+                    </h3>
                     {isAdult() && (
                       <button
                         type="button"
@@ -1619,9 +1582,9 @@ export default function MemberDashboard({
                   )}
                 </div>
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-2">
+                  <h3 className="text-xl font-bold text-black mb-2">
                     Payment History
-                  </h2>
+                  </h3>
                   <p className="text-gray-600 text-sm mb-6">
                     Family payment history is visible to the billing payer and guardian accounts.
                   </p>
@@ -1961,6 +1924,18 @@ export default function MemberDashboard({
                 transition={{ duration: 0.3 }}
               >
                 <MemberProgressTab />
+              </motion.div>
+            )}
+
+            {activeTab === 'messages' && (
+              <motion.div
+                key="messages"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <MemberMessagesTab />
               </motion.div>
             )}
 

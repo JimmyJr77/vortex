@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut } from 'lucide-react'
 import { adminApiRequest, clearAdminSession, getAdminToken } from '../utils/api'
 import AdminAdmins from './AdminAdmins'
 import AdminInquiries from './AdminInquiries'
@@ -20,11 +19,13 @@ import AdminFamilyBilling from './AdminFamilyBilling'
 import AdminWaivers from './AdminWaivers'
 import AdminCoaches from './AdminCoaches'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
+import PortalNavButtons from './PortalNavButtons'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
+import type { PortalId } from '../utils/portalSession'
 
 interface AdminProps {
   onLogout: () => void
-  availablePortals?: string[]
+  availablePortals?: PortalId[]
   onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
 }
 
@@ -222,35 +223,12 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
               VORTEX <span className="text-vortex-red">ADMIN</span>
             </h1>
-          <div className="flex gap-2 flex-wrap justify-center md:justify-end">
-            {availablePortals.includes('member') && (
-              <button
-                type="button"
-                onClick={() => onSwitchPortal?.('member')}
-                className="bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
-              >
-                Member
-              </button>
-            )}
-            {availablePortals.includes('coach') && (
-              <button
-                type="button"
-                onClick={() => onSwitchPortal?.('coach')}
-                className="bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors text-sm"
-              >
-                Coach
-              </button>
-            )}
-            <motion.button
-              onClick={onLogout}
-              className="flex items-center space-x-2 bg-vortex-red text-white px-3 md:px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors text-sm"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Logout</span>
-            </motion.button>
-          </div>
+          <PortalNavButtons
+            activePortal="admin"
+            availablePortals={availablePortals}
+            onSwitchPortal={onSwitchPortal}
+            onLogout={onLogout}
+          />
           </div>
 
           {/* Tabs */}

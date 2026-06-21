@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Loader2, Plus, Save, Trash2, FolderOpen } from 'lucide-react'
+import { Loader2, Plus, Save, Trash2, FolderOpen, Copy } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import type { Workout } from '../../coach/types'
@@ -10,10 +10,16 @@ interface ProgramSession {
   day_of_week?: number | null
 }
 interface ProgramWeek {
+  id?: number
   week_number: number
   focus?: string
+  phase_label?: string | null
+  target_load_pct?: number | null
+  is_deload?: boolean
   sessions: ProgramSession[]
 }
+
+const PHASE_OPTIONS = ['Accumulation', 'Intensification', 'Realization', 'Deload', 'Taper', 'Testing']
 interface TrainingProgram {
   id?: number
   title: string
@@ -71,6 +77,26 @@ export default function ProgramBuilder() {
     setProgram(data)
   }
 
+  const duplicateWeek = async (weekId?: number) => {
+    if (!program.id || !weekId) {
+      setError('Save the program before duplicating a week.')
+      return
+    }
+    const pct = window.prompt('Add what % progression to load? (0 = plain copy)', '5')
+    if (pct === null) return
+    const progressionPct = Number(pct) || 0
+    try {
+      const data = await coachFetch<TrainingProgram>(
+        `/api/coach/training-programs/${program.id}/weeks/${weekId}/duplicate`,
+        { method: 'POST', body: JSON.stringify({ progressionPct, progressWorkouts: progressionPct !== 0 }) },
+      )
+      setProgram(data)
+      await loadList()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to duplicate week')
+    }
+  }
+
   const weeks = program.weeks ?? []
   const setWeeks = (w: ProgramWeek[]) => setProgram({ ...program, weeks: w })
 
@@ -115,12 +141,28 @@ export default function ProgramBuilder() {
           </div>
 
           {weeks.map((week, wi) => (
-            <div key={wi} className="bg-white border border-gray-200 rounded-xl p-4">
+            <div key={wi} className={`bg-white border rounded-xl p-4 ${week.is_deload ? 'border-amber-300 ring-1 ring-amber-200' : 'border-gray-200'}`}>
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-gray-900">Week {week.week_number}</span>
-                <button type="button" onClick={() => setWeeks(weeks.filter((_, j) => j !== wi))} className="text-gray-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                <span className="font-semibold text-gray-900 flex items-center gap-2">
+                  Week {week.week_number}
+                  {week.is_deload && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">Deload</span>}
+                </span>
+                <div className="flex items-center gap-1">
+                  <button type="button" title="Duplicate week with progression" onClick={() => void duplicateWeek(week.id)} className="text-gray-400 hover:text-vortex-red"><Copy className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => setWeeks(weeks.filter((_, j) => j !== wi))} className="text-gray-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                </div>
               </div>
               <input value={week.focus ?? ''} onChange={(e) => setWeeks(weeks.map((w, j) => j === wi ? { ...w, focus: e.target.value } : w))} placeholder="Week focus" className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+              <div className="mt-2 grid grid-cols-[1fr_auto_auto] gap-2 items-center text-sm">
+                <select value={week.phase_label ?? ''} onChange={(e) => setWeeks(weeks.map((w, j) => j === wi ? { ...w, phase_label: e.target.value || null } : w))} className="border border-gray-300 rounded px-2 py-1">
+                  <option value="">Phase...</option>
+                  {PHASE_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+                </select>
+                <input type="number" value={week.target_load_pct ?? ''} onChange={(e) => setWeeks(weeks.map((w, j) => j === wi ? { ...w, target_load_pct: e.target.value ? Number(e.target.value) : null } : w))} placeholder="Load %" className="w-24 border border-gray-300 rounded px-2 py-1" />
+                <label className="flex items-center gap-1.5 text-gray-600 whitespace-nowrap">
+                  <input type="checkbox" checked={week.is_deload === true} onChange={(e) => setWeeks(weeks.map((w, j) => j === wi ? { ...w, is_deload: e.target.checked } : w))} /> Deload
+                </label>
+              </div>
               <div className="mt-3 space-y-2">
                 {week.sessions.map((session, si) => (
                   <div key={si} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center text-sm">

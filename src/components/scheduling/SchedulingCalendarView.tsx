@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { formatDateForDisplay } from '../../utils/dateUtils'
 import {
   formatSchedulingOccurrenceLabel,
   schedulingSignupPath,
@@ -24,6 +23,7 @@ import {
   WEEKDAY_LABELS,
   type CalendarView,
 } from './calendarDateUtils'
+import { buildClassScheduleGroups } from './classScheduleGroups'
 
 function tbdToOccurrence(tbd: SchedulingCalendarTbd): SchedulingTimeSlot {
   return {
@@ -124,6 +124,19 @@ const SchedulingCalendarView = ({
     return patterns.filter((tbd) => tbd.className === match.displayName)
   }, [calendar?.tbdPatterns, view, classFilterId, classOptions])
 
+  const classScheduleGroups = useMemo(
+    () =>
+      buildClassScheduleGroups({
+        events: calendar?.events ?? [],
+        tbdPatterns: calendar?.tbdPatterns ?? [],
+        classFilterId,
+        classOptions,
+        isEventInactive,
+        isTbdInactive,
+      }),
+    [calendar?.events, calendar?.tbdPatterns, classFilterId, classOptions, mode],
+  )
+
   const eventsByDate = useMemo(() => {
     const map = new Map<string, SchedulingCalendarEvent[]>()
     for (const event of calendar?.events ?? []) {
@@ -140,10 +153,6 @@ const SchedulingCalendarView = ({
     }
     return map
   }, [calendar?.events])
-
-  const byClassDates = useMemo(() => {
-    return Array.from(eventsByDate.keys()).sort()
-  }, [eventsByDate])
 
   const monthGridCells = useMemo(() => {
     const firstWeekday = new Date(year, month - 1, 1).getDay()
@@ -395,50 +404,87 @@ const SchedulingCalendarView = ({
   )
 
   const renderByClassView = () => {
-    if (classFilterId === 'none') {
+    if (classScheduleGroups.length === 0) {
       return (
         <div className="p-8 text-center">
           <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
-            Select a class below to see its scheduled offerings.
+            {classFilterId === 'none'
+              ? 'No classes with signup times are available for this period.'
+              : 'No scheduled offerings for this class in this period.'}
           </p>
         </div>
       )
     }
 
-    if (byClassDates.length === 0) {
-      return (
-        <div className="p-8 text-center">
-          <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
-            No scheduled offerings for this class in this period.
-          </p>
-        </div>
-      )
-    }
+    const labelClass = `font-semibold ${isDark ? 'text-white' : 'text-black'}`
+    const valueClass = isDark ? 'text-gray-200' : 'text-gray-800'
 
     return (
       <div className="p-4 md:p-6 space-y-8 max-w-3xl mx-auto">
-        {byClassDates.map((date) => {
-          const events = eventsByDate.get(date) ?? []
-          return (
-            <div key={date}>
-              <h3
-                className={`text-lg font-display font-bold mb-3 ${
-                  isDark ? 'text-white' : 'text-black'
-                }`}
-              >
-                {formatDateForDisplay(date, {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </h3>
-              <div className="space-y-3">
-                {events.map((event) => renderDayListItem(event, mode === 'public'))}
+        {classScheduleGroups.map((program) =>
+          program.classes.map((classGroup) => (
+            <article
+              key={classGroup.key}
+              className={`rounded-xl border p-5 md:p-6 space-y-5 ${
+                isDark ? 'border-gray-700 bg-gray-800/40' : 'border-gray-200 bg-gray-50/50'
+              }`}
+            >
+              <div className={`space-y-1 text-sm ${valueClass}`}>
+                {program.programName && (
+                  <p>
+                    <span className={labelClass}>Program:</span> {program.programName}
+                  </p>
+                )}
+                <p>
+                  <span className={labelClass}>Class:</span> {classGroup.className}
+                </p>
+                {classGroup.classDescription && (
+                  <p className={`pt-1 text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {classGroup.classDescription}
+                  </p>
+                )}
               </div>
-            </div>
-          )
-        })}
+
+              {classGroup.categories.map((category, categoryIndex) => (
+                <div
+                  key={category.key}
+                  className={`space-y-2 text-sm ${categoryIndex > 0 ? `pt-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}` : ''} ${category.inactive ? 'opacity-70' : ''}`}
+                >
+                  <p className={valueClass}>
+                    <span className={labelClass}>Category:</span>{' '}
+                    {category.categoryName ?? 'General'}
+                  </p>
+                  {category.offeringLabel && (
+                    <p className={valueClass}>
+                      <span className={labelClass}>Offering:</span> {category.offeringLabel}
+                    </p>
+                  )}
+                  <p className={labelClass}>Timeslots Available:</p>
+                  <ul className={`space-y-1 ${valueClass}`}>
+                    {category.timeslots.map((slot) => (
+                      <li key={slot.key}>
+                        <span className="font-medium">{slot.dayLabel}:</span> {slot.timeLabel}
+                      </li>
+                    ))}
+                  </ul>
+                  {mode === 'public' && category.enrollVisible && !category.inactive && (
+                    <div className="pt-2">
+                      <Link
+                        to={schedulingSignupPath(category.formId, category.categoryId)}
+                        className="inline-flex items-center justify-center rounded-lg font-semibold text-white bg-vortex-red hover:bg-red-700 transition-colors text-sm px-4 py-2"
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
+                  )}
+                  {mode === 'admin' && category.inactive && showFormActiveFilter && (
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Inactive</p>
+                  )}
+                </div>
+              ))}
+            </article>
+          )),
+        )}
       </div>
     )
   }
@@ -487,41 +533,39 @@ const SchedulingCalendarView = ({
               ))}
             </div>
 
-            {view !== 'byClass' || classFilterId !== 'none' ? (
-              <div className="flex items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={onGoBack}
-                  className={`p-2 rounded-lg border transition-colors ${
-                    isDark
-                      ? 'border-gray-600 hover:bg-gray-800'
-                      : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                  aria-label="Previous period"
-                >
-                  <ChevronLeft className="w-5 h-5 text-vortex-red" />
-                </button>
-                <h2
-                  className={`text-xl font-display font-bold min-w-[200px] text-center ${
-                    isDark ? 'text-white' : 'text-black'
-                  }`}
-                >
-                  {periodTitle(view, year, month, focusDate, selectedClassName)}
-                </h2>
-                <button
-                  type="button"
-                  onClick={onGoForward}
-                  className={`p-2 rounded-lg border transition-colors ${
-                    isDark
-                      ? 'border-gray-600 hover:bg-gray-800'
-                      : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                  aria-label="Next period"
-                >
-                  <ChevronRight className="w-5 h-5 text-vortex-red" />
-                </button>
-              </div>
-            ) : null}
+            <div className="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={onGoBack}
+                className={`p-2 rounded-lg border transition-colors ${
+                  isDark
+                    ? 'border-gray-600 hover:bg-gray-800'
+                    : 'border-gray-200 hover:bg-gray-50'
+                }`}
+                aria-label="Previous period"
+              >
+                <ChevronLeft className="w-5 h-5 text-vortex-red" />
+              </button>
+              <h2
+                className={`text-xl font-display font-bold min-w-[200px] text-center ${
+                  isDark ? 'text-white' : 'text-black'
+                }`}
+              >
+                {periodTitle(view, year, month, focusDate, selectedClassName)}
+              </h2>
+              <button
+                type="button"
+                onClick={onGoForward}
+                className={`p-2 rounded-lg border transition-colors ${
+                  isDark
+                    ? 'border-gray-600 hover:bg-gray-800'
+                    : 'border-gray-200 hover:bg-gray-50'
+                }`}
+                aria-label="Next period"
+              >
+                <ChevronRight className="w-5 h-5 text-vortex-red" />
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center flex-wrap">
@@ -580,7 +624,7 @@ const SchedulingCalendarView = ({
               }
               className={`${selectClass} w-full max-w-md`}
             >
-              <option value="none">Select a class…</option>
+              <option value="none">View all classes</option>
               {classOptions.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.programName ? `${c.programName} · ${c.displayName}` : c.displayName}
@@ -646,13 +690,13 @@ const SchedulingCalendarView = ({
         )}
       </div>
 
-      {!loading && calendar && calendar.events.length === 0 && filteredTbdPatterns.length === 0 && (
+      {!loading && view !== 'byClass' && calendar && calendar.events.length === 0 && filteredTbdPatterns.length === 0 && (
         <p className={`text-center text-sm py-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
           No scheduled classes for this period.
         </p>
       )}
 
-      {!loading && filteredTbdPatterns.length > 0 && (
+      {!loading && view !== 'byClass' && filteredTbdPatterns.length > 0 && (
         <div className={`${shellClass} p-4 md:p-6`}>
           <h3 className={`text-lg font-display font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`}>
             Dates TBD

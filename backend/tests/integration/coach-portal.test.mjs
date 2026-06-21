@@ -21,6 +21,7 @@ const workoutId = process.env.WORKOUT_ID
 
 const runIntegration = process.env.RUN_INTEGRATION_TESTS === 'true' && Boolean(baseUrl)
 const runCoach = runIntegration && Boolean(coachJwt)
+const runMember = runIntegration && Boolean(memberJwt)
 const runRoundTrip = runCoach && Boolean(memberJwt) && Boolean(memberId) && Boolean(workoutId)
 
 async function jsonRequest(path, init = {}, token) {
@@ -129,4 +130,112 @@ test('assignment + member completion log round-trip', { skip: !runRoundTrip }, a
 test('coach routes reject unauthenticated requests', { skip: !runIntegration }, async () => {
   const { response } = await jsonRequest('/api/coach/taxonomy')
   assert.ok([401, 403].includes(response.status), 'unauthenticated coach request should be rejected')
+})
+
+test('GET /api/coach/notifications returns list + unread count', { skip: !runCoach }, async () => {
+  const { response, body } = await jsonRequest('/api/coach/notifications', {}, coachJwt)
+  assert.equal(response.status, 200)
+  const data = body.data ?? body
+  assert.ok(Array.isArray(data.notifications), 'notifications should be an array')
+  assert.ok(typeof data.unreadCount === 'number', 'unreadCount should be a number')
+})
+
+test('GET /api/member/notifications returns list + unread count', { skip: !runMember }, async () => {
+  const { response, body } = await jsonRequest('/api/member/notifications', {}, memberJwt)
+  assert.equal(response.status, 200)
+  const data = body.data ?? body
+  assert.ok(Array.isArray(data.notifications), 'notifications should be an array')
+  assert.ok(typeof data.unreadCount === 'number', 'unreadCount should be a number')
+})
+
+test('member notification mark-read round-trip', { skip: !runRoundTrip }, async () => {
+  const assignRes = await jsonRequest(
+    '/api/coach/assignments',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        target_type: 'member',
+        target_id: Number(memberId),
+        assignable_type: 'workout',
+        assignable_id: Number(workoutId),
+        title: 'Notification test assignment',
+        visibility: 'athlete',
+      }),
+    },
+    coachJwt,
+  )
+  assert.equal(assignRes.response.status, 200)
+
+  const listRes = await jsonRequest('/api/member/notifications?unreadOnly=true', {}, memberJwt)
+  assert.equal(listRes.response.status, 200)
+  const listData = listRes.body.data ?? listRes.body
+  const unread = listData.notifications.filter((n) => n.kind === 'assignment')
+  assert.ok(unread.length > 0, 'assignment should create an in-app notification')
+  const notificationId = unread[0].id
+
+  const readRes = await jsonRequest(`/api/member/notifications/${notificationId}/read`, { method: 'PATCH' }, memberJwt)
+  assert.equal(readRes.response.status, 200)
+  const readRow = readRes.body.data ?? readRes.body
+  assert.ok(readRow.read_at, 'notification should be marked read')
+})
+
+test('GET /api/coach/skill-tree returns nodes and edges', { skip: !runCoach }, async () => {
+  const { response, body } = await jsonRequest('/api/coach/skill-tree', {}, coachJwt)
+  assert.equal(response.status, 200)
+  const data = body.data ?? body
+  assert.ok(Array.isArray(data.nodes))
+  assert.ok(Array.isArray(data.edges))
+})
+
+test('GET /api/coach/athletes/:id/load returns load metrics', { skip: !runRoundTrip }, async () => {
+  const { response, body } = await jsonRequest(`/api/coach/athletes/${memberId}/load`, {}, coachJwt)
+  assert.equal(response.status, 200)
+  const data = body.data ?? body
+  assert.ok(Array.isArray(data.series))
+  assert.ok(['high', 'low', 'ok', 'insufficient'].includes(data.flag))
+})
+
+test('GET /api/coach/messages returns thread list', { skip: !runCoach }, async () => {
+  const { response, body } = await jsonRequest('/api/coach/messages', {}, coachJwt)
+  assert.equal(response.status, 200)
+  const data = body.data ?? body
+  assert.ok(Array.isArray(data))
+})
+
+test('coach message thread round-trip', { skip: !runRoundTrip }, async () => {
+  const createRes = await jsonRequest(
+    '/api/coach/messages',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        member_id: Number(memberId),
+        subject: 'Integration test thread',
+        body: 'Hello from coach integration test',
+      }),
+    },
+    coachJwt,
+  )
+  assert.equal(createRes.response.status, 200)
+  const created = createRes.body.data ?? createRes.body
+  const threadId = created.thread?.id
+  assert.ok(threadId)
+
+  const memberList = await jsonRequest('/api/member/messages', {}, memberJwt)
+  assert.equal(memberList.response.status, 200)
+  const threads = memberList.body.data ?? memberList.body
+  assert.ok(threads.some((t) => t.id === threadId))
+
+  const replyRes = await jsonRequest(
+    `/api/member/messages/${threadId}`,
+    { method: 'POST', body: JSON.stringify({ body: 'Reply from member' }) },
+    memberJwt,
+  )
+  assert.equal(replyRes.response.status, 200)
+})
+
+test('GET /api/member/training/goals returns array', { skip: !runMember }, async () => {
+  const { response, body } = await jsonRequest('/api/member/training/goals', {}, memberJwt)
+  assert.equal(response.status, 200)
+  const data = body.data ?? body
+  assert.ok(Array.isArray(data))
 })

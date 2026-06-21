@@ -8,6 +8,7 @@ import {
   type SchedulingFormSummary,
   type SchedulingSignupCompleteDetail,
 } from '../utils/schedulingApi'
+import { getLoggedInMemberEmail } from '../utils/portalSession'
 import { fetchClassesOffered } from '../utils/publicClassesApi'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 
@@ -299,7 +300,7 @@ const SchedulingPage = () => {
                 formId={selectedFormId}
                 initialCategoryId={urlCategoryId}
                 initialAuthToken={urlAuthToken}
-                initialEmail={urlEmail}
+                initialEmail={urlEmail ?? getLoggedInMemberEmail()}
                 onSignupComplete={handleSignupComplete}
               />
             </div>

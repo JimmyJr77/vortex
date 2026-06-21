@@ -1,0 +1,20 @@
+---
+description: Keep the Member portal master roadmap up to date whenever member-portal features change
+globs: src/components/MemberDashboard.tsx,src/components/MemberLogin.tsx,src/components/MemberTraining.tsx,src/utils/portalSession.ts,backend/platform/registerRoutes.js,backend/server.js
+alwaysApply: false
+---
+
+# Member portal — keep the roadmap current
+
+Any time you build, change, or extend the Member portal, you MUST update
+[docs/MEMBER_PORTAL_ROADMAP.md](../../docs/MEMBER_PORTAL_ROADMAP.md) in the same change. This doc is the canonical, durable record of what exists and why.
+
+Update it when you:
+- add/alter a member-facing table or column → reflect it in the data-model section.
+- add/change a `/api/members/*` or `/api/member/training/*` endpoint or its auth guard → reflect it in the backend surface.
+- add/change a dashboard tab, modal, or member component → reflect it in the frontend surface.
+- change auth/session behavior (login, JWT, must-change-password, portal switching) → update the auth/decisions sections.
+- make a non-obvious architectural decision → add it to the "architecture & key decisions" section with the rationale ("why"), since this doc preserves intent for posterity.
+- close or discover a rough edge → update "Known gaps".
+
+Note: this file's globs include the shared `backend/server.js` and `backend/platform/registerRoutes.js` (also used by Admin). Only update the member doc for member-facing changes. Keep edits accurate and grounded in real code (cite file paths, table/column, endpoint names). Do not let the doc drift from reality.

@@ -56,6 +56,26 @@ export function persistMemberSession(token: string, account: PortalAccount): voi
   localStorage.setItem('vortex_member', JSON.stringify(account))
 }
 
+export function getMemberSessionToken(): string | null {
+  try {
+    return localStorage.getItem('vortex_member_token')
+  } catch {
+    return null
+  }
+}
+
+export function getLoggedInMemberEmail(): string | null {
+  try {
+    const raw = localStorage.getItem('vortex_member')
+    if (!raw) return null
+    const account = JSON.parse(raw) as PortalAccount
+    const email = account.email?.trim()
+    return email || null
+  } catch {
+    return null
+  }
+}
+
 export function persistAdminSessionFromAccount(token: string, account: PortalAccount): void {
   localStorage.setItem('vortex_admin', 'true')
   localStorage.setItem('adminToken', token)

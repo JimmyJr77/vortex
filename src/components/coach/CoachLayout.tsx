@@ -1,6 +1,9 @@
 import { lazy, Suspense, useState } from 'react'
-import { Home, LogOut, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays } from 'lucide-react'
+import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare } from 'lucide-react'
 import HomePanel from './HomePanel'
+import PortalNavButtons from '../PortalNavButtons'
+import NotificationBell from '../NotificationBell'
+import type { PortalId } from '../../utils/portalSession'
 
 const LiveSessionPanel = lazy(() => import('./LiveSessionPanel'))
 const RosterPanel = lazy(() => import('./RosterPanel'))
@@ -12,6 +15,8 @@ const ChallengeBuilder = lazy(() => import('./ChallengeBuilder'))
 const AssessPanel = lazy(() => import('./AssessPanel'))
 const AssignPanel = lazy(() => import('./AssignPanel'))
 const InsightsPanel = lazy(() => import('./InsightsPanel'))
+const SkillTreePanel = lazy(() => import('./SkillTreePanel'))
+const MessagesPanel = lazy(() => import('./MessagesPanel'))
 
 export type CoachTab =
   | 'home'
@@ -26,6 +31,8 @@ export type CoachTab =
   | 'assess'
   | 'assign'
   | 'insights'
+  | 'skills'
+  | 'messages'
 
 interface CoachAccount {
   fullName?: string
@@ -37,7 +44,7 @@ interface CoachLayoutProps {
   coach: CoachAccount
   onLogout: () => void
   onReturnToWebsite?: () => void
-  availablePortals?: string[]
+  availablePortals?: PortalId[]
   onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
 }
 
@@ -51,12 +58,14 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'programs', label: 'Programs', icon: CalendarRange },
   { tab: 'challenges', label: 'Challenges', icon: Trophy },
   { tab: 'assess', label: 'Assess', icon: ClipboardCheck },
+  { tab: 'skills', label: 'Skill Tree', icon: GitBranch },
   { tab: 'assign', label: 'Assign', icon: Send },
+  { tab: 'messages', label: 'Messages', icon: MessageSquare },
   { tab: 'insights', label: 'Insights', icon: BarChart3 },
   { tab: 'roster', label: 'Roster', icon: Users },
 ]
 
-export default function CoachLayout({ coach, onLogout, onReturnToWebsite, availablePortals = ['coach'], onSwitchPortal }: CoachLayoutProps) {
+export default function CoachLayout({ coach, onLogout, availablePortals = ['coach'], onSwitchPortal }: CoachLayoutProps) {
   const [tab, setTab] = useState<CoachTab>('home')
   const [navOpen, setNavOpen] = useState(false)
 
@@ -82,8 +91,12 @@ export default function CoachLayout({ coach, onLogout, onReturnToWebsite, availa
         return <ChallengeBuilder />
       case 'assess':
         return <AssessPanel />
+      case 'skills':
+        return <SkillTreePanel />
       case 'assign':
         return <AssignPanel />
+      case 'messages':
+        return <MessagesPanel />
       case 'insights':
         return <InsightsPanel />
       default:
@@ -104,17 +117,14 @@ export default function CoachLayout({ coach, onLogout, onReturnToWebsite, availa
               {coach.fullName && <p className="text-gray-400 text-xs">{coach.fullName}</p>}
             </div>
           </div>
-          <div className="flex gap-2 flex-wrap justify-end">
-            {availablePortals.includes('admin') && (
-              <button type="button" onClick={() => onSwitchPortal?.('admin')} className="bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-gray-600">Admin</button>
-            )}
-            {availablePortals.includes('member') && (
-              <button type="button" onClick={() => onSwitchPortal?.('member')} className="bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-gray-600">Member</button>
-            )}
-            {onReturnToWebsite && (
-              <button type="button" onClick={onReturnToWebsite} className="flex items-center gap-2 bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-gray-600"><Home className="w-4 h-4" /> Website</button>
-            )}
-            <button type="button" onClick={onLogout} className="flex items-center gap-2 bg-vortex-red text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-red-700"><LogOut className="w-4 h-4" /> Logout</button>
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <NotificationBell apiPrefix="coach" />
+            <PortalNavButtons
+              activePortal="coach"
+              availablePortals={availablePortals}
+              onSwitchPortal={onSwitchPortal}
+              onLogout={onLogout}
+            />
           </div>
         </div>
       </header>

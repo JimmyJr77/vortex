@@ -21,6 +21,11 @@ export async function initPlatformTables(pool) {
     '019_coaching_seed_starter_library.sql',
     '020_coaching_workout_minutes.sql',
     '021_coaching_sessions_attendance.sql',
+    '022_coaching_periodization_load.sql',
+    '023_coaching_engagement.sql',
+    '024_coaching_messaging.sql',
+    '025_coaching_goals_achievements.sql',
+    '026_coaching_thread_scope.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

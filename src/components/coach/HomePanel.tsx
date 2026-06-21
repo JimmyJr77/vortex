@@ -1,4 +1,4 @@
-import { Dumbbell, Flame, Sparkles, ClipboardCheck, Send, BarChart3, Trophy, CalendarRange, Users, BookOpen, CalendarDays } from 'lucide-react'
+import { Dumbbell, Flame, Sparkles, ClipboardCheck, Send, BarChart3, Trophy, CalendarRange, Users, BookOpen, CalendarDays, GitBranch } from 'lucide-react'
 import type { CoachTab } from './CoachLayout'
 
 const cards: Array<{ tab: CoachTab; title: string; description: string; icon: typeof Dumbbell }> = [
@@ -10,8 +10,9 @@ const cards: Array<{ tab: CoachTab; title: string; description: string; icon: ty
   { tab: 'programs', title: 'Training Programs', description: 'Sequence weeks of training.', icon: CalendarRange },
   { tab: 'challenges', title: 'Challenges', description: 'Run scored competitions.', icon: Trophy },
   { tab: 'assess', title: 'Assess & Grade', description: 'Record benchmarks and skills.', icon: ClipboardCheck },
+  { tab: 'skills', title: 'Skill Tree', description: 'Prerequisite progressions and mastery.', icon: GitBranch },
   { tab: 'assign', title: 'Assign & Share', description: 'Push plans to athletes.', icon: Send },
-  { tab: 'insights', title: 'Insights', description: 'Tenet coverage and trends.', icon: BarChart3 },
+  { tab: 'insights', title: 'Insights', description: 'Load, readiness, PRs, and trends.', icon: BarChart3 },
   { tab: 'roster', title: 'Roster', description: 'Attendance, notes, waivers.', icon: Users },
 ]
 

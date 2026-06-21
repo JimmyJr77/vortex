@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Loader2, Dumbbell, CheckCircle2, ChevronRight } from 'lucide-react'
+import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Trophy } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts'
 import { coachFetch } from '../coach/api'
 import type { Workout } from '../coach/types'
@@ -199,13 +199,29 @@ export function MemberTrainingTab() {
   )
 }
 
+interface PrRow {
+  metric_label?: string | null
+  value_numeric?: number | null
+  unit?: string | null
+  achieved_at: string
+  source_type: string
+  assessment_name?: string | null
+  exercise_name?: string | null
+}
+
+interface ProgressData {
+  results: Array<{ assessment_name: string; value_numeric: number | null; unit?: string | null; tested_at: string; tenet_name?: string | null }>
+  skills: Array<{ skill_label?: string | null; exercise_name?: string | null; score: number | null; max_score: number | null; graded_at: string }>
+  prs?: PrRow[]
+}
+
 export function MemberProgressTab() {
-  const [data, setData] = useState<{ results: Array<{ assessment_name: string; value_numeric: number | null; unit?: string | null; tested_at: string; tenet_name?: string | null }>; skills: Array<{ skill_label?: string | null; exercise_name?: string | null; score: number | null; max_score: number | null; graded_at: string }> } | null>(null)
+  const [data, setData] = useState<ProgressData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    coachFetch<typeof data>('/api/member/training/progress')
+    coachFetch<ProgressData>('/api/member/training/progress')
       .then((d) => setData(d))
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load progress'))
       .finally(() => setLoading(false))
@@ -215,11 +231,78 @@ export function MemberProgressTab() {
 
   const trendData = (data?.results ?? []).map((r) => ({ date: new Date(r.tested_at).toLocaleDateString(), [r.assessment_name]: r.value_numeric }))
   const skillData = (data?.skills ?? []).map((s) => ({ name: s.skill_label || s.exercise_name || 'Skill', score: s.score ?? 0 }))
+  const prs = data?.prs ?? []
+
+  const [goals, setGoals] = useState<Array<{ id: number; title: string; description?: string | null; target_date?: string | null }>>([])
+  const [achievements, setAchievements] = useState<Array<{ id: number; kind: string; label: string; description?: string | null; achieved_at: string }>>([])
+
+  useEffect(() => {
+    coachFetch<Array<{ id: number; title: string; description?: string | null; target_date?: string | null }>>('/api/member/training/goals')
+      .then(setGoals)
+      .catch(() => {})
+    coachFetch<Array<{ id: number; kind: string; label: string; description?: string | null; achieved_at: string }>>('/api/member/training/achievements')
+      .then(setAchievements)
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-gray-900">My Progress</h2>
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
+
+      <WellnessCheckinCard />
+
+      {(goals.length > 0 || achievements.length > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {goals.length > 0 && (
+            <div className="bg-white border border-gray-200 rounded-xl p-4">
+              <h3 className="font-semibold text-gray-800 mb-3">My Goals</h3>
+              <ul className="space-y-2">
+                {goals.map((g) => (
+                  <li key={g.id} className="rounded-lg border border-gray-100 px-3 py-2">
+                    <div className="font-medium text-gray-900 text-sm">{g.title}</div>
+                    {g.description && <div className="text-xs text-gray-600 mt-0.5">{g.description}</div>}
+                    {g.target_date && (
+                      <div className="text-[10px] text-gray-400 mt-1">Target: {new Date(g.target_date).toLocaleDateString()}</div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {achievements.length > 0 && (
+            <div className="bg-white border border-gray-200 rounded-xl p-4">
+              <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-amber-500" /> Achievements
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {achievements.map((a) => (
+                  <div key={a.id} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+                    <div className="text-sm font-semibold text-amber-900">{a.label}</div>
+                    {a.description && <div className="text-xs text-amber-700">{a.description}</div>}
+                    <div className="text-[10px] text-amber-600">{new Date(a.achieved_at).toLocaleDateString()}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {prs.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
+          <h3 className="font-semibold text-gray-800 mb-3">Personal Records</h3>
+          <div className="flex flex-wrap gap-2">
+            {prs.map((pr, i) => (
+              <div key={i} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+                <div className="text-sm font-semibold text-amber-900">{pr.metric_label || pr.assessment_name || pr.exercise_name || 'PR'}</div>
+                <div className="text-xs text-amber-700">{pr.value_numeric}{pr.unit ? ` ${pr.unit}` : ''} · {new Date(pr.achieved_at).toLocaleDateString()}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="bg-white border border-gray-200 rounded-xl p-4">
           <h3 className="font-semibold text-gray-800 mb-3">Assessment Trends</h3>
@@ -253,6 +336,316 @@ export function MemberProgressTab() {
                 <Bar dataKey="score" fill="#dc2626" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface WellnessRow {
+  checkin_date: string
+  sleep_hours?: number | null
+  soreness?: number | null
+  rpe?: number | null
+  mood?: number | null
+  energy?: number | null
+  note?: string | null
+}
+
+function WellnessCheckinCard() {
+  const today = new Date().toISOString().slice(0, 10)
+  const [form, setForm] = useState<{ sleep_hours: string; soreness: string; rpe: string; mood: string; energy: string; note: string }>(
+    { sleep_hours: '', soreness: '', rpe: '', mood: '', energy: '', note: '' },
+  )
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    coachFetch<WellnessRow[]>('/api/member/training/wellness')
+      .then((rows) => {
+        const todayRow = rows.find((r) => String(r.checkin_date).slice(0, 10) === today)
+        if (todayRow) {
+          setForm({
+            sleep_hours: todayRow.sleep_hours != null ? String(todayRow.sleep_hours) : '',
+            soreness: todayRow.soreness != null ? String(todayRow.soreness) : '',
+            rpe: todayRow.rpe != null ? String(todayRow.rpe) : '',
+            mood: todayRow.mood != null ? String(todayRow.mood) : '',
+            energy: todayRow.energy != null ? String(todayRow.energy) : '',
+            note: todayRow.note || '',
+          })
+          setSaved(true)
+        }
+      })
+      .catch(() => {})
+  }, [today])
+
+  const submit = async () => {
+    setSaving(true)
+    setError(null)
+    try {
+      await coachFetch('/api/member/training/wellness', {
+        method: 'POST',
+        body: JSON.stringify({
+          checkin_date: today,
+          sleep_hours: form.sleep_hours ? Number(form.sleep_hours) : null,
+          soreness: form.soreness ? Number(form.soreness) : null,
+          rpe: form.rpe ? Number(form.rpe) : null,
+          mood: form.mood ? Number(form.mood) : null,
+          energy: form.energy ? Number(form.energy) : null,
+          note: form.note || null,
+        }),
+      })
+      setSaved(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save check-in')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const fields: Array<{ key: keyof typeof form; label: string; hint: string }> = [
+    { key: 'sleep_hours', label: 'Sleep (hrs)', hint: '0-12' },
+    { key: 'soreness', label: 'Soreness', hint: '1-10' },
+    { key: 'rpe', label: 'Yesterday RPE', hint: '1-10' },
+    { key: 'mood', label: 'Mood', hint: '1-10' },
+    { key: 'energy', label: 'Energy', hint: '1-10' },
+  ]
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-4">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h3 className="font-semibold text-gray-800">Daily Check-in</h3>
+        {saved && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">Logged for today</span>}
+      </div>
+      {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm mb-3">{error}</div>}
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-5">
+        {fields.map((f) => (
+          <label key={f.key} className="text-sm">
+            <span className="block text-xs font-semibold text-gray-600 mb-1">{f.label}</span>
+            <input
+              type="number"
+              value={form[f.key]}
+              onChange={(e) => { setForm({ ...form, [f.key]: e.target.value }); setSaved(false) }}
+              placeholder={f.hint}
+              className="w-full border border-gray-300 rounded-lg px-2 py-1.5"
+            />
+          </label>
+        ))}
+      </div>
+      <input
+        value={form.note}
+        onChange={(e) => { setForm({ ...form, note: e.target.value }); setSaved(false) }}
+        placeholder="Anything your coach should know? (optional)"
+        className="mt-3 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <button type="button" onClick={() => void submit()} disabled={saving} className="mt-3 flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60">
+        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />} {saved ? 'Update Check-in' : 'Save Check-in'}
+      </button>
+    </div>
+  )
+}
+
+interface MemberThread {
+  id: number
+  subject?: string | null
+  last_message_body?: string | null
+}
+
+interface MemberMessage {
+  id: number
+  body: string
+  sender_name?: string | null
+  sender_member_id?: number | null
+  created_at: string
+}
+
+export function MemberMessagesTab() {
+  const [threads, setThreads] = useState<MemberThread[]>([])
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [messages, setMessages] = useState<MemberMessage[]>([])
+  const [subject, setSubject] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [reply, setReply] = useState('')
+  const [newBody, setNewBody] = useState('')
+  const [newSubject, setNewSubject] = useState('')
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [coaches, setCoaches] = useState<Array<{ id: number; name: string }>>([])
+  const [pickedCoachId, setPickedCoachId] = useState<number | ''>('')
+
+  useEffect(() => {
+    coachFetch<Array<{ id: number; name: string }>>('/api/member/training/coaches')
+      .then(setCoaches)
+      .catch(() => {})
+  }, [])
+
+  const loadThreads = useCallback(async () => {
+    setLoading(true)
+    try {
+      setThreads(await coachFetch<MemberThread[]>('/api/member/messages'))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load messages')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadThreads()
+  }, [loadThreads])
+
+  const openThread = async (id: number) => {
+    setSelectedId(id)
+    try {
+      const data = await coachFetch<{ thread: MemberThread; messages: MemberMessage[] }>(`/api/member/messages/${id}`)
+      setSubject(data.thread.subject ?? null)
+      setMessages(data.messages)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load thread')
+    }
+  }
+
+  const sendReply = async () => {
+    if (!selectedId || !reply.trim()) return
+    setSending(true)
+    try {
+      const msg = await coachFetch<MemberMessage>(`/api/member/messages/${selectedId}`, {
+        method: 'POST',
+        body: JSON.stringify({ body: reply.trim() }),
+      })
+      setMessages((prev) => [...prev, msg])
+      setReply('')
+      void loadThreads()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const startThread = async () => {
+    if (!newBody.trim()) return
+    setSending(true)
+    try {
+      const data = await coachFetch<{ thread: MemberThread; message: MemberMessage }>('/api/member/messages', {
+        method: 'POST',
+        body: JSON.stringify({
+          subject: newSubject.trim() || null,
+          body: newBody.trim(),
+          coach_user_id: pickedCoachId !== '' ? pickedCoachId : null,
+        }),
+      })
+      setNewBody('')
+      setNewSubject('')
+      void loadThreads()
+      await openThread(data.thread.id)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
+      </h2>
+      {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
+
+      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+        <h3 className="font-semibold text-gray-800 text-sm">Message your coach</h3>
+        {coaches.length > 0 && (
+          <select
+            value={pickedCoachId}
+            onChange={(e) => setPickedCoachId(e.target.value ? Number(e.target.value) : '')}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">Any coach (coaching circle)</option>
+            {coaches.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        )}
+        <input
+          value={newSubject}
+          onChange={(e) => setNewSubject(e.target.value)}
+          placeholder="Subject (optional)"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        />
+        <textarea
+          value={newBody}
+          onChange={(e) => setNewBody(e.target.value)}
+          placeholder="Your message…"
+          rows={2}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        />
+        <button
+          type="button"
+          onClick={() => void startThread()}
+          disabled={sending || !newBody.trim()}
+          className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
+        >
+          Send
+        </button>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="px-3 py-2 border-b text-sm font-semibold">Threads</div>
+          {loading ? (
+            <div className="p-3 text-sm text-gray-500 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
+          ) : threads.length === 0 ? (
+            <div className="p-3 text-sm text-gray-500">No conversations yet.</div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {threads.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => void openThread(t.id)}
+                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${selectedId === t.id ? 'bg-red-50' : ''}`}
+                >
+                  <div className="font-medium truncate">{t.subject || 'Conversation'}</div>
+                  {t.last_message_body && <div className="text-xs text-gray-400 truncate">{t.last_message_body}</div>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="bg-white border border-gray-200 rounded-xl min-h-[280px] flex flex-col">
+          {!selectedId ? (
+            <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-6">Select a thread.</div>
+          ) : (
+            <>
+              <div className="px-4 py-2 border-b text-sm font-semibold">{subject || 'Conversation'}</div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                {messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={`rounded-lg px-3 py-2 text-sm max-w-[85%] ${
+                      m.sender_member_id ? 'bg-vortex-red text-white ml-auto' : 'bg-gray-100 text-gray-900'
+                    }`}
+                  >
+                    <div>{m.body}</div>
+                    <div className="text-[10px] opacity-70 mt-1">{new Date(m.created_at).toLocaleString()}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="p-3 border-t flex gap-2">
+                <input
+                  value={reply}
+                  onChange={(e) => setReply(e.target.value)}
+                  placeholder="Reply…"
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+                <button type="button" onClick={() => void sendReply()} disabled={sending} className="bg-gray-900 text-white px-3 py-2 rounded-lg text-sm">
+                  Send
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>

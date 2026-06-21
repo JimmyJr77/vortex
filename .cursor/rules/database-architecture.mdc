@@ -1,0 +1,24 @@
+---
+description: Keep the database architecture doc current whenever anything touching the DB changes
+globs: backend/migrations/**,backend/**/initTables.js,backend/platform/initTables.js,backend/run-migration.js,backend/run-unified-member-migration.js,backend/programs/schema.js,backend/scheduling/initTables.js,backend/analytics/initTables.js,backend/dbfeatures/initTables.js,backend/server.js
+alwaysApply: false
+---
+
+# Database — keep the architecture doc current
+
+Anything that touches the database MUST be reflected in
+[docs/DATABASE_ARCHITECTURE.md](../../docs/DATABASE_ARCHITECTURE.md) in the same change. This is the
+canonical, durable record of how the DB is wired and how relationships are linked.
+
+Update it when you:
+- add/alter a table, column, index, enum, FK, trigger, view, or function → update Part 4 (relationship map), Part 5 (triggers/views/functions), and the relevant mermaid/ER diagram.
+- add or reorder a migration, or change how/where migrations are applied (boot `initDatabase`/`initPlatformTables`, CLI `run-migration.js --all` + `schema_migrations`, lazy `ensure*` loaders) → update Part 3.
+- change connection/pool config or env vars → update Part 1.
+- add a new schema or change `search_path` handling → update Part 2.
+- add a seed or change tenancy/facility scoping → update Parts 6–7.
+- make a non-obvious DB decision (loose vs strong FK, idempotency, boot-vs-ledger placement) → record it with the rationale ("why") in Part 3.6 or Part 9.
+
+Rules:
+- Keep boot-applied SQL idempotent (`IF NOT EXISTS`, `ON CONFLICT`, enum-add guards) and say so.
+- Cite real file paths, table/column, and migration names; do not let the doc drift from reality.
+- This doc is the source of truth for DB structure — do not substitute transient plan files.

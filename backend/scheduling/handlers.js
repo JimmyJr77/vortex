@@ -1,11 +1,13 @@
 import crypto from 'crypto'
 import Joi from 'joi'
+import jwt from 'jsonwebtoken'
 import {
   countActiveSignupsForMember,
   countActiveSignupsForPricingScope,
   createMemberStub,
   findMemberByEmail,
   findMemberById,
+  findMemberForAppUser,
   updateMemberPassword,
 } from '../members/createMemberStub.js'
 import { sendConfirmationEmail } from './confirmationEmail.js'
@@ -1285,6 +1287,12 @@ const verifyTokenSchema = Joi.object({
   token: Joi.string().required(),
 })
 
+const authMemberSessionSchema = Joi.object({
+  formId: Joi.number().integer().required(),
+})
+
+const MEMBER_JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
+
 const memberPasswordUpdateSchema = Joi.object({
   mode: Joi.string().valid('manual', 'email_temp').required(),
   password: Joi.when('mode', {
@@ -1921,6 +1929,54 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         console.error('[scheduling] authVerifyToken:', err)
         res.status(401).json({ success: false, message: err.message || 'Invalid or expired link' })
+      }
+    },
+
+    async authMemberSession(req, res) {
+      try {
+        const { error, value } = authMemberSessionSchema.validate(req.body)
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+
+        const token = req.headers.authorization?.split(' ')[1]
+        if (!token) {
+          return res.status(401).json({ success: false, message: 'No token provided' })
+        }
+
+        let decoded
+        try {
+          decoded = jwt.verify(token, MEMBER_JWT_SECRET)
+        } catch {
+          return res.status(401).json({ success: false, message: 'Invalid token' })
+        }
+
+        const userId = decoded.userId || decoded.memberId || decoded.adminId
+        if (!userId) {
+          return res.status(401).json({ success: false, message: 'Invalid token' })
+        }
+
+        const member = await findMemberForAppUser(pool, userId)
+        if (!member) {
+          return res.status(404).json({ success: false, message: 'Member account not found' })
+        }
+
+        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, member)
+        res.json({
+          success: true,
+          data: {
+            signupAuthToken,
+            memberId: Number(member.id),
+            profileComplete: Boolean(member.profile_complete),
+            mustChangePassword: Boolean(member.must_change_password),
+            firstName: member.first_name,
+            lastName: member.last_name,
+            email: member.email,
+          },
+        })
+      } catch (err) {
+        console.error('[scheduling] authMemberSession:', err)
+        res.status(500).json({ success: false, message: 'Failed to start signup session' })
       }
     },
 

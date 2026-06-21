@@ -13,6 +13,8 @@
 import crypto from 'crypto'
 import { authMiddleware, requirePermission } from './registerRoutes.js'
 import { sendEmail, isEmailConfigured } from '../email/sendEmail.js'
+import { llmProgressNarrative } from './aiService.js'
+import { buildProgressReportPdf } from './pdfReport.js'
 
 function ok(res, data) {
   res.json({ success: true, data })
@@ -810,8 +812,12 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     await client.query(`DELETE FROM coaching.training_program_week WHERE training_program_id = $1`, [programId])
     for (const week of weeks || []) {
       const createdWeek = await client.query(
-        `INSERT INTO coaching.training_program_week (training_program_id, week_number, focus, notes) VALUES ($1, $2, $3, $4) RETURNING id`,
-        [programId, Number(week.week_number) || 1, week.focus || null, week.notes || null],
+        `INSERT INTO coaching.training_program_week (training_program_id, week_number, focus, notes, phase_label, target_load_pct, is_deload)
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+        [
+          programId, Number(week.week_number) || 1, week.focus || null, week.notes || null,
+          week.phase_label || null, num(week.target_load_pct), week.is_deload === true,
+        ],
       )
       const weekId = Number(createdWeek.rows[0].id)
       let sortOrder = 0
@@ -902,6 +908,107 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       ok(res, { id })
     } catch (error) {
       bad(res, error.message)
+    }
+  })
+
+  // Apply a progressive-overload factor to a workout's blocks (reps + numeric
+  // load scaled; sets/work untouched to keep structure stable).
+  function progressLoad(load, factor) {
+    if (load == null) return load
+    const str = String(load)
+    return str.replace(/\d+(\.\d+)?/, (match) => {
+      const scaled = Number(match) * factor
+      return Number.isInteger(scaled) ? String(scaled) : scaled.toFixed(1)
+    })
+  }
+
+  function applyProgression(blocks, factor) {
+    return (blocks || []).map((block) => ({
+      ...block,
+      items: (block.items || []).map((item) => ({
+        ...item,
+        reps: item.reps != null ? Math.max(1, Math.round(Number(item.reps) * factor)) : item.reps,
+        load: progressLoad(item.load, factor),
+      })),
+    }))
+  }
+
+  // Duplicate a program week as the next week, optionally advancing load via a
+  // progression percentage. When progressWorkouts is set, each session's workout
+  // is deep-cloned with scaled reps/load so the template is never mutated.
+  app.post('/api/coach/training-programs/:id/weeks/:weekId/duplicate', ...can('training_programs.manage'), async (req, res) => {
+    const programId = num(req.params.id)
+    const weekId = num(req.params.weekId)
+    const facilityId = req.platformAuth.user.facility_id
+    const userId = Number(req.platformAuth.user.id)
+    const progressionPct = Number(req.body?.progressionPct) || 0
+    const factor = 1 + progressionPct / 100
+    const progressWorkouts = req.body?.progressWorkouts === true && progressionPct !== 0
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const program = await client.query(`SELECT id, created_by, visibility FROM coaching.training_program WHERE id = $1 AND facility_id = $2`, [programId, facilityId])
+      if (program.rows.length === 0) {
+        await client.query('ROLLBACK')
+        return bad(res, 'Training program not found.', 404)
+      }
+      if (!canMutateRow(program.rows[0], userId)) {
+        await client.query('ROLLBACK')
+        return bad(res, 'You can only edit private items you created.', 403)
+      }
+      const srcWeek = await client.query(`SELECT * FROM coaching.training_program_week WHERE id = $1 AND training_program_id = $2`, [weekId, programId])
+      if (srcWeek.rows.length === 0) {
+        await client.query('ROLLBACK')
+        return bad(res, 'Week not found.', 404)
+      }
+      const week = srcWeek.rows[0]
+      const sessions = await client.query(`SELECT * FROM coaching.training_program_session WHERE week_id = $1 ORDER BY sort_order, id`, [weekId])
+      const maxWeek = await client.query(`SELECT COALESCE(MAX(week_number), 0) AS n FROM coaching.training_program_week WHERE training_program_id = $1`, [programId])
+      const newWeekNumber = Number(maxWeek.rows[0].n) + 1
+      const newTargetLoad = week.target_load_pct != null ? Number((Number(week.target_load_pct) * factor).toFixed(1)) : null
+
+      const createdWeek = await client.query(
+        `INSERT INTO coaching.training_program_week (training_program_id, week_number, focus, notes, phase_label, target_load_pct, is_deload)
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+        [programId, newWeekNumber, week.focus || null, week.notes || null, week.phase_label || null, newTargetLoad, week.is_deload === true],
+      )
+      const newWeekId = Number(createdWeek.rows[0].id)
+
+      let sortOrder = 0
+      for (const session of sessions.rows) {
+        let workoutId = session.workout_id != null ? Number(session.workout_id) : null
+        if (progressWorkouts && workoutId != null) {
+          const full = await loadWorkout(workoutId, facilityId)
+          if (full) {
+            const clone = await client.query(
+              `INSERT INTO coaching.workout (facility_id, title, type, sport_id, description, target_minutes, notes, created_by, is_published, visibility)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'private') RETURNING id`,
+              [facilityId, `${full.title} (W${newWeekNumber})`, full.type, full.sport_id, full.description, full.target_minutes, full.notes, userId, full.is_published],
+            )
+            const cloneId = Number(clone.rows[0].id)
+            await writeWorkoutStructure(client, cloneId, applyProgression(full.blocks, factor))
+            const reloaded = await loadWorkout(cloneId, facilityId)
+            await client.query(`UPDATE coaching.workout SET computed_minutes = $2 WHERE id = $1`, [cloneId, reloaded?.computed_minutes ?? 0])
+            workoutId = cloneId
+          }
+        }
+        await client.query(
+          `INSERT INTO coaching.training_program_session (week_id, day_of_week, sort_order, title, workout_id) VALUES ($1, $2, $3, $4, $5)`,
+          [newWeekId, session.day_of_week, sortOrder++, session.title || null, workoutId],
+        )
+      }
+
+      await client.query(
+        `UPDATE coaching.training_program SET weeks_count = (SELECT COUNT(*) FROM coaching.training_program_week WHERE training_program_id = $1), updated_at = now() WHERE id = $1`,
+        [programId],
+      )
+      await client.query('COMMIT')
+      ok(res, await loadTrainingProgram(programId, facilityId))
+    } catch (error) {
+      await client.query('ROLLBACK')
+      bad(res, error.message)
+    } finally {
+      client.release()
     }
   })
 
@@ -1105,7 +1212,16 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           req.body?.testedAt || null, Number(req.platformAuth.user.id), req.body?.note || null, req.body?.mediaUrl || null,
         ],
       )
-      ok(res, created.rows[0])
+      const personalRecord = await detectPersonalRecord({
+        sourceType: 'assessment',
+        facilityId: req.platformAuth.user.facility_id,
+        memberId,
+        assessmentId,
+        value: num(req.body?.value),
+        unit: req.body?.unit || null,
+        sourceResultId: Number(created.rows[0].id),
+      })
+      ok(res, { ...created.rows[0], personalRecord })
     } catch (error) {
       bad(res, error.message)
     }
@@ -1123,7 +1239,15 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           req.body?.note || null, req.body?.media_url || null,
         ],
       )
-      ok(res, created.rows[0])
+      const personalRecord = await detectPersonalRecord({
+        sourceType: 'skill',
+        facilityId: req.platformAuth.user.facility_id,
+        memberId,
+        exerciseId: num(req.body?.exercise_id),
+        value: num(req.body?.score),
+        sourceResultId: Number(created.rows[0].id),
+      })
+      ok(res, { ...created.rows[0], personalRecord })
     } catch (error) {
       bad(res, error.message)
     }
@@ -1151,6 +1275,182 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   })
 
   // ==========================================================
+  // PERIODIZATION & TRAINING LOAD (Phase F)
+  // ==========================================================
+
+  // Convert a wellness check-in into a 0-100 readiness score (null if no data).
+  function computeReadiness(checkin) {
+    if (!checkin) return null
+    const parts = []
+    if (checkin.sleep_hours != null) parts.push(Math.max(0, Math.min(1, Number(checkin.sleep_hours) / 8)))
+    if (checkin.soreness != null) parts.push((10 - Number(checkin.soreness)) / 9)
+    if (checkin.rpe != null) parts.push((10 - Number(checkin.rpe)) / 9)
+    if (checkin.mood != null) parts.push((Number(checkin.mood) - 1) / 9)
+    if (checkin.energy != null) parts.push((Number(checkin.energy) - 1) / 9)
+    if (parts.length === 0) return null
+    return Math.round((parts.reduce((a, b) => a + b, 0) / parts.length) * 100)
+  }
+
+  app.get('/api/coach/athletes/:memberId/prs', ...can('coach_insights.view'), async (req, res) => {
+    try {
+      const memberId = num(req.params.memberId)
+      const facilityId = req.platformAuth.user.facility_id
+      const result = await pool.query(
+        `SELECT pr.*, a.name AS assessment_name, e.name AS exercise_name
+         FROM coaching.personal_record pr
+         LEFT JOIN coaching.assessment a ON a.id = pr.assessment_id
+         LEFT JOIN coaching.exercise e ON e.id = pr.exercise_id
+         WHERE pr.member_id = $1 AND pr.facility_id = $2
+         ORDER BY pr.achieved_at DESC LIMIT 100`,
+        [memberId, facilityId],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // Training load: session-RPE (rpe x minutes) aggregated daily, with
+  // acute (7d) / chronic (28d avg week) workload ratio and a risk flag.
+  app.get('/api/coach/athletes/:memberId/load', ...can('coach_insights.view'), async (req, res) => {
+    try {
+      const memberId = num(req.params.memberId)
+      const facilityId = req.platformAuth.user.facility_id
+      const daily = await pool.query(
+        `SELECT to_char(DATE(cl.logged_at), 'YYYY-MM-DD') AS date,
+                ROUND(SUM(
+                  COALESCE(cl.rpe, 0) * COALESCE(
+                    cl.time_seconds / 60.0,
+                    CASE WHEN cl.exercise_id IS NULL THEN w.computed_minutes ELSE 0 END,
+                    0
+                  )
+                )::numeric, 1) AS load
+         FROM coaching.completion_log cl
+         JOIN public.member m ON m.id = cl.member_id
+         LEFT JOIN coaching.workout w ON w.id = cl.workout_id
+         WHERE cl.member_id = $1 AND m.facility_id = $2
+           AND cl.logged_at >= now() - interval '35 days'
+         GROUP BY DATE(cl.logged_at)
+         ORDER BY DATE(cl.logged_at)`,
+        [memberId, facilityId],
+      )
+
+      const loadByDate = new Map(daily.rows.map((r) => [r.date, Number(r.load) || 0]))
+      const today = new Date()
+      const series = []
+      for (let i = 27; i >= 0; i--) {
+        const d = new Date(today)
+        d.setDate(today.getDate() - i)
+        const key = d.toISOString().slice(0, 10)
+        series.push({ date: key, load: loadByDate.get(key) || 0 })
+      }
+      const acute = series.slice(-7).reduce((a, b) => a + b.load, 0)
+      const chronic = series.reduce((a, b) => a + b.load, 0) / 4
+      const hasData = series.some((s) => s.load > 0)
+      const ratio = chronic > 0 ? Number((acute / chronic).toFixed(2)) : null
+      let flag = 'insufficient'
+      if (hasData && ratio != null) {
+        if (ratio > 1.5) flag = 'high'
+        else if (ratio < 0.8) flag = 'low'
+        else flag = 'ok'
+      }
+
+      const wellness = await pool.query(
+        `SELECT * FROM coaching.wellness_checkin
+         WHERE member_id = $1 AND facility_id = $2
+         ORDER BY checkin_date DESC LIMIT 14`,
+        [memberId, facilityId],
+      )
+      const latest = wellness.rows[0] || null
+
+      ok(res, {
+        series,
+        acute: Number(acute.toFixed(1)),
+        chronic: Number(chronic.toFixed(1)),
+        ratio,
+        flag,
+        readiness: computeReadiness(latest),
+        wellness: wellness.rows.slice().reverse(),
+      })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/athletes/:memberId/wellness', ...can('coach_insights.view'), async (req, res) => {
+    try {
+      const memberId = num(req.params.memberId)
+      const facilityId = req.platformAuth.user.facility_id
+      const result = await pool.query(
+        `SELECT * FROM coaching.wellness_checkin
+         WHERE member_id = $1 AND facility_id = $2
+         ORDER BY checkin_date DESC LIMIT 60`,
+        [memberId, facilityId],
+      )
+      ok(res, result.rows.map((r) => ({ ...r, readiness: computeReadiness(r) })))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // Skill tree: exercise nodes + prerequisite edges, with optional per-athlete
+  // mastery overlay from athlete_skill_progress.
+  app.get('/api/coach/skill-tree', ...can('library.view'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const sportId = num(req.query.sportId)
+      const memberId = num(req.query.memberId)
+
+      const nodeParams = [facilityId]
+      let sportFilter = ''
+      if (sportId != null) {
+        nodeParams.push(sportId)
+        sportFilter = ` AND (e.sport_id = $${nodeParams.length} OR e.sport_id IS NULL)`
+      }
+      const nodes = await pool.query(
+        `SELECT e.id, e.name, e.slug, e.sport_id, s.name AS sport_name
+         FROM coaching.exercise e
+         LEFT JOIN coaching.sport s ON s.id = e.sport_id
+         WHERE e.facility_id = $1 AND e.archived = FALSE${sportFilter}
+         ORDER BY e.name`,
+        nodeParams,
+      )
+      const nodeIds = nodes.rows.map((n) => Number(n.id))
+
+      let edges = { rows: [] }
+      if (nodeIds.length > 0) {
+        edges = await pool.query(
+          `SELECT ep.exercise_id, ep.prerequisite_exercise_id
+           FROM coaching.exercise_prerequisite ep
+           WHERE ep.exercise_id = ANY($1::bigint[]) AND ep.prerequisite_exercise_id = ANY($1::bigint[])`,
+          [nodeIds],
+        )
+      }
+
+      let mastery = {}
+      if (memberId != null && nodeIds.length > 0) {
+        const grades = await pool.query(
+          `SELECT exercise_id, MAX(score) AS score, MAX(max_score) AS max_score
+           FROM coaching.athlete_skill_progress
+           WHERE member_id = $1 AND exercise_id = ANY($2::bigint[])
+           GROUP BY exercise_id`,
+          [memberId, nodeIds],
+        )
+        for (const g of grades.rows) {
+          const score = Number(g.score)
+          const max = Number(g.max_score) || 0
+          const status = max > 0 && score >= max ? 'mastered' : 'in_progress'
+          mastery[String(g.exercise_id)] = { score, maxScore: max || null, status }
+        }
+      }
+
+      ok(res, { nodes: nodes.rows, edges: edges.rows, mastery })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // ==========================================================
   // PLAN ASSIGNMENT & COMPLETION
   // ==========================================================
   app.get('/api/coach/assignments', ...can('plans.assign'), async (req, res) => {
@@ -1167,25 +1467,109 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  async function assignmentRecipients(targetType, targetId, facilityId) {
+  async function assignmentRecipientMembers(targetType, targetId, facilityId) {
     if (targetType === 'member') {
-      const r = await pool.query(`SELECT email, first_name FROM public.member WHERE id = $1 AND facility_id = $2 AND email IS NOT NULL`, [targetId, facilityId])
+      const r = await pool.query(
+        `SELECT id, email, first_name FROM public.member WHERE id = $1 AND facility_id = $2`,
+        [targetId, facilityId],
+      )
       return r.rows
     }
     if (targetType === 'family') {
-      const r = await pool.query(`SELECT email, first_name FROM public.member WHERE family_id = $1 AND facility_id = $2 AND email IS NOT NULL`, [targetId, facilityId])
+      const r = await pool.query(
+        `SELECT id, email, first_name FROM public.member WHERE family_id = $1 AND facility_id = $2`,
+        [targetId, facilityId],
+      )
       return r.rows
     }
     if (targetType === 'class') {
       const r = await pool.query(
-        `SELECT DISTINCT m.email, m.first_name FROM public.member m
+        `SELECT DISTINCT m.id, m.email, m.first_name FROM public.member m
          JOIN public.member_program mp ON mp.member_id = m.id
-         WHERE (mp.program_id = $1 OR mp.iteration_id = $1) AND m.facility_id = $2 AND m.email IS NOT NULL`,
+         WHERE (mp.program_id = $1 OR mp.iteration_id = $1) AND m.facility_id = $2`,
         [targetId, facilityId],
       )
       return r.rows
     }
     return []
+  }
+
+  async function createInAppNotification({ facilityId, recipientMemberId, recipientUserId, kind, title, body, payload }) {
+    if (!facilityId || (!recipientMemberId && !recipientUserId)) return
+    await pool.query(
+      `INSERT INTO coaching.notification
+         (facility_id, recipient_member_id, recipient_user_id, kind, title, body, payload)
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb)`,
+      [
+        facilityId,
+        recipientMemberId ?? null,
+        recipientUserId ?? null,
+        kind,
+        title,
+        body ?? null,
+        JSON.stringify(payload ?? {}),
+      ],
+    )
+  }
+
+  /** Coaches assigned to classes the member is enrolled in. */
+  async function resolveAssignedCoachUserIdsForMember(memberId, facilityId) {
+    const r = await pool.query(
+      `
+        SELECT DISTINCT cca.coach_user_id
+        FROM public.member_program mp
+        JOIN public.coach_class_assignment cca ON (
+          cca.program_id = mp.program_id
+          OR (mp.iteration_id IS NOT NULL AND cca.class_iteration_id = mp.iteration_id)
+        )
+        JOIN public.app_user au ON au.id = cca.coach_user_id
+          AND au.facility_id = $2 AND au.is_active = TRUE
+        WHERE mp.member_id = $1
+      `,
+      [memberId, facilityId],
+    )
+    return r.rows.map((row) => Number(row.coach_user_id)).filter((id) => Number.isFinite(id))
+  }
+
+  async function notifyWellnessCheckinToCoaches(memberId, facilityId, checkin) {
+    try {
+      const coachIds = await resolveAssignedCoachUserIdsForMember(memberId, facilityId)
+      if (coachIds.length === 0) return
+      const memberRow = await pool.query(
+        `SELECT first_name, last_name FROM public.member WHERE id = $1`,
+        [memberId],
+      )
+      const name = memberRow.rows[0]
+        ? `${memberRow.rows[0].first_name || ''} ${memberRow.rows[0].last_name || ''}`.trim()
+        : 'Athlete'
+      const readiness = computeReadiness(checkin)
+      const title = `Check-in: ${name}`
+      const body = `Sleep ${checkin.sleep_hours ?? '—'}h · Soreness ${checkin.soreness ?? '—'} · Mood ${checkin.mood ?? '—'}${readiness != null ? ` · Readiness ${readiness}` : ''}`
+      await Promise.all(
+        coachIds.map((coachUserId) =>
+          createInAppNotification({
+            facilityId,
+            recipientUserId: coachUserId,
+            kind: 'system',
+            title,
+            body,
+            payload: {
+              member_id: memberId,
+              checkin_date: checkin.checkin_date,
+              wellness_checkin_id: checkin.id,
+            },
+          }).catch(() => {}),
+        ),
+      )
+    } catch {
+      /* best-effort */
+    }
+  }
+
+  function coachCanAccessThread(thread, coachUserId) {
+    if (thread.thread_scope === 'coaching_circle') return true
+    if (thread.coach_user_id == null) return true
+    return Number(thread.coach_user_id) === coachUserId
   }
 
   async function assignableTitle(type, id) {
@@ -1195,26 +1579,145 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   }
 
   async function notifyAssignment(assignment) {
-    if (!isEmailConfigured() || assignment.visibility !== 'athlete') return
+    if (assignment.visibility !== 'athlete') return
     try {
       const [recipients, title] = await Promise.all([
-        assignmentRecipients(assignment.target_type, assignment.target_id, assignment.facility_id),
+        assignmentRecipientMembers(assignment.target_type, assignment.target_id, assignment.facility_id),
         assignableTitle(assignment.assignable_type, assignment.assignable_id),
       ])
       const label = assignment.assignable_type.replace('_', ' ')
       const due = assignment.due_date ? ` (due ${new Date(assignment.due_date).toLocaleDateString()})` : ''
+      const notificationTitle = `New ${label}: ${title}`
+      const notificationBody = `Your coach assigned you a ${label}: "${title}"${due}.`
+
       await Promise.all(
         recipients.map((rcpt) =>
-          sendEmail({
-            to: rcpt.email,
-            subject: `New ${label} assigned: ${title}`,
-            text: `Hi ${rcpt.first_name || 'there'},\n\nYour coach assigned you a ${label}: "${title}"${due}. Log in to the member portal Training tab to view it.\n\n- Vortex Athletics`,
-            html: `<p>Hi ${rcpt.first_name || 'there'},</p><p>Your coach assigned you a ${label}: <strong>${title}</strong>${due}.</p><p>Log in to the member portal <em>Training</em> tab to view it.</p><p>- Vortex Athletics</p>`,
+          createInAppNotification({
+            facilityId: assignment.facility_id,
+            recipientMemberId: rcpt.id,
+            kind: 'assignment',
+            title: notificationTitle,
+            body: notificationBody,
+            payload: {
+              assignment_id: assignment.id,
+              assignable_type: assignment.assignable_type,
+              assignable_id: assignment.assignable_id,
+            },
           }).catch(() => {}),
         ),
       )
+
+      if (!isEmailConfigured()) return
+      await Promise.all(
+        recipients
+          .filter((rcpt) => rcpt.email)
+          .map((rcpt) =>
+            sendEmail({
+              to: rcpt.email,
+              subject: `New ${label} assigned: ${title}`,
+              text: `Hi ${rcpt.first_name || 'there'},\n\nYour coach assigned you a ${label}: "${title}"${due}. Log in to the member portal Training tab to view it.\n\n- Vortex Athletics`,
+              html: `<p>Hi ${rcpt.first_name || 'there'},</p><p>Your coach assigned you a ${label}: <strong>${title}</strong>${due}.</p><p>Log in to the member portal <em>Training</em> tab to view it.</p><p>- Vortex Athletics</p>`,
+            }).catch(() => {}),
+          ),
+      )
     } catch {
       /* notifications are best-effort */
+    }
+  }
+
+  // ----------------------------------------------------------
+  // PERSONAL RECORD AUTO-DETECTION (Phase F)
+  // ----------------------------------------------------------
+  async function notifyPrDetected(memberId, label, value, unit, facilityId) {
+    try {
+      const valueText = unit ? `${value} ${unit}` : `${value}`
+      const title = `New personal record: ${label}!`
+      const body = `You set a new PR on "${label}": ${valueText}.`
+      await createInAppNotification({
+        facilityId,
+        recipientMemberId: memberId,
+        kind: 'personal_record',
+        title,
+        body,
+        payload: { label, value, unit },
+      }).catch(() => {})
+
+      if (!isEmailConfigured()) return
+      const r = await pool.query(`SELECT email, first_name FROM public.member WHERE id = $1`, [memberId])
+      const member = r.rows[0]
+      if (!member?.email) return
+      await sendEmail({
+        to: member.email,
+        subject: title,
+        text: `Hi ${member.first_name || 'there'},\n\nYou just set a new personal record on "${label}": ${valueText}. Keep up the great work!\n\n- Vortex Athletics`,
+        html: `<p>Hi ${member.first_name || 'there'},</p><p>You just set a new personal record on <strong>${label}</strong>: <strong>${valueText}</strong>. Keep up the great work!</p><p>- Vortex Athletics</p>`,
+      }).catch(() => {})
+    } catch {
+      /* notifications are best-effort */
+    }
+  }
+
+  // Returns the inserted personal_record row when the new value beats the prior
+  // best, otherwise null. Best-effort: never throws into the calling handler.
+  async function detectPersonalRecord({ sourceType, facilityId, memberId, assessmentId, exerciseId, value, unit, sourceResultId }) {
+    try {
+      if (value == null || memberId == null) return null
+      let label = null
+      let higherIsBetter = true
+      let priorBest = null
+      if (sourceType === 'assessment') {
+        if (assessmentId == null) return null
+        const a = await pool.query(`SELECT name, unit, higher_is_better FROM coaching.assessment WHERE id = $1`, [assessmentId])
+        if (a.rows.length === 0) return null
+        label = a.rows[0].name
+        higherIsBetter = a.rows[0].higher_is_better !== false
+        unit = unit || a.rows[0].unit || null
+        const agg = await pool.query(
+          `SELECT MAX(value_numeric) AS hi, MIN(value_numeric) AS lo
+           FROM coaching.assessment_result
+           WHERE member_id = $1 AND assessment_id = $2 AND value_numeric IS NOT NULL AND id <> $3`,
+          [memberId, assessmentId, sourceResultId ?? -1],
+        )
+        priorBest = higherIsBetter ? num(agg.rows[0]?.hi) : num(agg.rows[0]?.lo)
+      } else if (sourceType === 'skill') {
+        const labelRow = exerciseId != null
+          ? await pool.query(`SELECT name FROM coaching.exercise WHERE id = $1`, [exerciseId])
+          : { rows: [] }
+        label = labelRow.rows[0]?.name || 'Skill'
+        const agg = await pool.query(
+          `SELECT MAX(score) AS hi FROM coaching.athlete_skill_progress
+           WHERE member_id = $1 AND score IS NOT NULL AND id <> $2
+             AND ($3::bigint IS NULL OR exercise_id = $3)`,
+          [memberId, sourceResultId ?? -1, exerciseId],
+        )
+        priorBest = num(agg.rows[0]?.hi)
+      } else {
+        return null
+      }
+
+      const isRecord = priorBest == null || (higherIsBetter ? value > priorBest : value < priorBest)
+      if (!isRecord) return null
+
+      const inserted = await pool.query(
+        `INSERT INTO coaching.personal_record
+           (facility_id, member_id, source_type, assessment_id, exercise_id, metric_label, value_numeric, unit, source_result_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+        [facilityId, memberId, sourceType, assessmentId ?? null, exerciseId ?? null, label, value, unit ?? null, sourceResultId ?? null],
+      )
+      void notifyPrDetected(memberId, label, value, unit, facilityId)
+      void recordAchievement({
+        facilityId,
+        memberId,
+        kind: 'milestone',
+        label: `PR: ${label}`,
+        description: unit ? `${value} ${unit}` : String(value),
+        sourceType: 'personal_record',
+        sourceId: inserted.rows[0].id,
+        notify: false,
+      })
+      return inserted.rows[0]
+    } catch {
+      return null
     }
   }
 
@@ -1724,13 +2227,101 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (improvements.length) parts.push(`We're seeing measurable progress in ${improvements.slice(0, 3).join(', ')}.`)
       if (growth.length) parts.push(`Next, we'll focus on developing ${growth.join(' and ')} for more complete development.`)
       parts.push('Keep encouraging consistent attendance — steady reps are how these gains compound.')
-      const narrative = parts.join(' ')
+      const ruleNarrative = parts.join(' ')
+
+      const llmNarrative = await llmProgressNarrative({
+        athleteName: name,
+        tenetCoverage: coverage.rows,
+        assessmentTrends: trends.rows,
+      })
+      const narrative = llmNarrative || ruleNarrative
+      const narrativeSource = llmNarrative ? 'llm' : 'rules'
 
       await pool.query(
         `INSERT INTO coaching.ai_draft_log (facility_id, coach_user_id, kind, prompt, response) VALUES ($1, $2, 'progress_narrative', $3, $4)`,
-        [facilityId, Number(req.platformAuth.user.id), `progress_narrative:member:${memberId}`, JSON.stringify({ narrative })],
+        [facilityId, Number(req.platformAuth.user.id), `progress_narrative:member:${memberId}`, JSON.stringify({ narrative, narrativeSource })],
       )
-      ok(res, { narrative })
+      ok(res, { narrative, narrativeSource })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/ai/progress-report/:memberId/pdf', ...can('coach_insights.view'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const memberId = num(req.params.memberId)
+      const [member, coverage, trends, prs, goals] = await Promise.all([
+        pool.query(`SELECT first_name, last_name FROM public.member WHERE id = $1 AND facility_id = $2`, [memberId, facilityId]),
+        pool.query(
+          `SELECT t.name as tenet_name, COALESCE(SUM(tag.weight), 0)::int as load_score
+           FROM coaching.tenet t
+           LEFT JOIN coaching.exercise_tag tag ON tag.facet_type = 'tenet' AND tag.facet_id = t.id
+           LEFT JOIN coaching.completion_log cl ON cl.exercise_id = tag.exercise_id AND cl.member_id = $1
+           GROUP BY t.name ORDER BY load_score DESC`,
+          [memberId],
+        ),
+        pool.query(
+          `SELECT a.name as assessment_name, a.unit, a.higher_is_better,
+             (array_agg(ar.value_numeric ORDER BY ar.tested_at))[1] as first_value,
+             (array_agg(ar.value_numeric ORDER BY ar.tested_at DESC))[1] as last_value,
+             count(*) as result_count
+           FROM coaching.assessment_result ar JOIN coaching.assessment a ON a.id = ar.assessment_id
+           WHERE ar.member_id = $1 AND ar.value_numeric IS NOT NULL
+           GROUP BY a.id, a.name, a.unit, a.higher_is_better`,
+          [memberId],
+        ),
+        pool.query(
+          `SELECT metric_label, value_numeric, unit, achieved_at FROM coaching.personal_record
+           WHERE member_id = $1 AND facility_id = $2 ORDER BY achieved_at DESC LIMIT 8`,
+          [memberId, facilityId],
+        ),
+        pool.query(
+          `SELECT title, target_date FROM coaching.goal
+           WHERE member_id = $1 AND facility_id = $2 AND status = 'active' ORDER BY target_date NULLS LAST LIMIT 8`,
+          [memberId, facilityId],
+        ),
+      ])
+      if (member.rows.length === 0) return bad(res, 'Member not found.', 404)
+
+      const athleteName = `${member.rows[0].first_name || ''} ${member.rows[0].last_name || ''}`.trim() || 'Athlete'
+      const strengths = coverage.rows.filter((r) => r.load_score > 0).slice(0, 2).map((r) => r.tenet_name)
+      const growth = coverage.rows.filter((r) => r.load_score === 0).slice(0, 2).map((r) => r.tenet_name)
+      const improvements = trends.rows
+        .filter((r) => r.result_count > 1 && r.first_value != null && r.last_value != null)
+        .filter((r) => (r.higher_is_better ? Number(r.last_value) > Number(r.first_value) : Number(r.last_value) < Number(r.first_value)))
+        .map((r) => r.assessment_name)
+
+      const parts = [`${athleteName} has been building a well-rounded athletic base.`]
+      if (strengths.length) parts.push(`Recent training has emphasized ${strengths.join(' and ')}.`)
+      if (improvements.length) parts.push(`We're seeing measurable progress in ${improvements.slice(0, 3).join(', ')}.`)
+      if (growth.length) parts.push(`Next, we'll focus on developing ${growth.join(' and ')} for more complete development.`)
+      parts.push('Keep encouraging consistent attendance — steady reps are how these gains compound.')
+      const ruleNarrative = parts.join(' ')
+
+      const llmNarrative = await llmProgressNarrative({
+        athleteName,
+        tenetCoverage: coverage.rows,
+        assessmentTrends: trends.rows,
+      })
+      const narrative = llmNarrative || ruleNarrative
+
+      const pdfBuffer = await buildProgressReportPdf({
+        athleteName,
+        narrative,
+        prs: prs.rows.map((pr) => ({
+          label: pr.metric_label || 'PR',
+          value: `${pr.value_numeric ?? ''}${pr.unit ? ` ${pr.unit}` : ''} · ${new Date(pr.achieved_at).toLocaleDateString()}`,
+        })),
+        goals: goals.rows.map((g) => ({
+          title: g.title,
+          targetDate: g.target_date ? new Date(g.target_date).toLocaleDateString() : null,
+        })),
+      })
+
+      res.setHeader('Content-Type', 'application/pdf')
+      res.setHeader('Content-Disposition', `attachment; filename="vortex-progress-${memberId}.pdf"`)
+      res.send(pdfBuffer)
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -1809,6 +2400,590 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         [facilityId, Number(req.platformAuth.user.id), text.slice(0, 500), JSON.stringify({ suggestions })],
       )
       ok(res, { suggestions })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // ==========================================================
+  // IN-APP NOTIFICATIONS (Phase G)
+  // ==========================================================
+
+  app.get('/api/coach/notifications', auth, async (req, res) => {
+    try {
+      const userId = Number(req.platformAuth.user.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const unreadOnly = req.query.unreadOnly === 'true'
+      const limit = Math.min(num(req.query.limit) || 50, 100)
+      const params = [userId, facilityId]
+      let where = `recipient_user_id = $1 AND facility_id = $2`
+      if (unreadOnly) where += ` AND read_at IS NULL`
+      params.push(limit)
+      const result = await pool.query(
+        `SELECT id, kind, title, body, payload, read_at, created_at
+         FROM coaching.notification
+         WHERE ${where}
+         ORDER BY created_at DESC
+         LIMIT $${params.length}`,
+        params,
+      )
+      const countRes = await pool.query(
+        `SELECT COUNT(*)::int AS n FROM coaching.notification
+         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+        [userId, facilityId],
+      )
+      ok(res, { notifications: result.rows, unreadCount: countRes.rows[0]?.n ?? 0 })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/coach/notifications/:id/read', auth, async (req, res) => {
+    try {
+      const userId = Number(req.platformAuth.user.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const id = num(req.params.id)
+      const updated = await pool.query(
+        `UPDATE coaching.notification SET read_at = now()
+         WHERE id = $1 AND recipient_user_id = $2 AND facility_id = $3 AND read_at IS NULL
+         RETURNING *`,
+        [id, userId, facilityId],
+      )
+      if (updated.rows.length === 0) return bad(res, 'Notification not found.', 404)
+      ok(res, updated.rows[0])
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/notifications/mark-all-read', auth, async (req, res) => {
+    try {
+      const userId = Number(req.platformAuth.user.id)
+      const facilityId = req.platformAuth.user.facility_id
+      await pool.query(
+        `UPDATE coaching.notification SET read_at = now()
+         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+        [userId, facilityId],
+      )
+      ok(res, { ok: true })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/member/notifications', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const unreadOnly = req.query.unreadOnly === 'true'
+      const limit = Math.min(num(req.query.limit) || 50, 100)
+      const params = [memberId, facilityId]
+      let where = `recipient_member_id = $1 AND facility_id = $2`
+      if (unreadOnly) where += ` AND read_at IS NULL`
+      params.push(limit)
+      const result = await pool.query(
+        `SELECT id, kind, title, body, payload, read_at, created_at
+         FROM coaching.notification
+         WHERE ${where}
+         ORDER BY created_at DESC
+         LIMIT $${params.length}`,
+        params,
+      )
+      const countRes = await pool.query(
+        `SELECT COUNT(*)::int AS n FROM coaching.notification
+         WHERE recipient_member_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+        [memberId, facilityId],
+      )
+      ok(res, { notifications: result.rows, unreadCount: countRes.rows[0]?.n ?? 0 })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/member/notifications/:id/read', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const id = num(req.params.id)
+      const updated = await pool.query(
+        `UPDATE coaching.notification SET read_at = now()
+         WHERE id = $1 AND recipient_member_id = $2 AND facility_id = $3 AND read_at IS NULL
+         RETURNING *`,
+        [id, memberId, facilityId],
+      )
+      if (updated.rows.length === 0) return bad(res, 'Notification not found.', 404)
+      ok(res, updated.rows[0])
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/member/notifications/mark-all-read', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      await pool.query(
+        `UPDATE coaching.notification SET read_at = now()
+         WHERE recipient_member_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+        [memberId, facilityId],
+      )
+      ok(res, { ok: true })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // ==========================================================
+  // MESSAGING (Phase G)
+  // ==========================================================
+
+  async function appendThreadMessage(threadId, { senderUserId, senderMemberId, body }) {
+    const inserted = await pool.query(
+      `INSERT INTO coaching.message (thread_id, sender_user_id, sender_member_id, body)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [threadId, senderUserId ?? null, senderMemberId ?? null, body],
+    )
+    await pool.query(
+      `UPDATE coaching.message_thread SET last_message_at = now(), updated_at = now() WHERE id = $1`,
+      [threadId],
+    )
+    return inserted.rows[0]
+  }
+
+  async function notifyNewMessage(thread, message, senderIsCoach) {
+    const preview = String(message.body || '').slice(0, 160)
+    try {
+      if (senderIsCoach) {
+        await createInAppNotification({
+          facilityId: thread.facility_id,
+          recipientMemberId: thread.member_id,
+          kind: 'message',
+          title: thread.subject || 'New message from your coach',
+          body: preview,
+          payload: { thread_id: thread.id, message_id: message.id },
+        })
+      } else if (thread.coach_user_id) {
+        await createInAppNotification({
+          facilityId: thread.facility_id,
+          recipientUserId: thread.coach_user_id,
+          kind: 'message',
+          title: thread.subject || 'New athlete message',
+          body: preview,
+          payload: { thread_id: thread.id, message_id: message.id, member_id: thread.member_id },
+        })
+      }
+    } catch {
+      /* best-effort */
+    }
+  }
+
+  async function loadThreadMessages(threadId, facilityId) {
+    const thread = await pool.query(
+      `SELECT t.*, m.first_name, m.last_name
+       FROM coaching.message_thread t
+       JOIN public.member m ON m.id = t.member_id
+       WHERE t.id = $1 AND t.facility_id = $2`,
+      [threadId, facilityId],
+    )
+    if (thread.rows.length === 0) return null
+    const messages = await pool.query(
+      `SELECT msg.*,
+         CASE WHEN msg.sender_member_id IS NOT NULL THEN (SELECT first_name FROM public.member WHERE id = msg.sender_member_id)
+              ELSE (SELECT full_name FROM public.app_user WHERE id = msg.sender_user_id) END AS sender_name
+       FROM coaching.message msg
+       WHERE msg.thread_id = $1
+       ORDER BY msg.created_at ASC`,
+      [threadId],
+    )
+    return { thread: thread.rows[0], messages: messages.rows }
+  }
+
+  app.get('/api/coach/messages', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const status = req.query.status === 'archived' ? 'archived' : 'open'
+      const result = await pool.query(
+        `
+          SELECT t.*, m.first_name, m.last_name,
+            lm.body AS last_message_body,
+            lm.created_at AS last_message_created_at
+          FROM coaching.message_thread t
+          JOIN public.member m ON m.id = t.member_id
+          LEFT JOIN LATERAL (
+            SELECT body, created_at FROM coaching.message
+            WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
+          ) lm ON TRUE
+          WHERE t.facility_id = $1 AND t.status = $2
+            AND (
+              t.thread_scope = 'coaching_circle'
+              OR t.coach_user_id IS NULL
+              OR t.coach_user_id = $3
+            )
+          ORDER BY t.last_message_at DESC NULLS LAST, t.created_at DESC
+          LIMIT 100
+        `,
+        [facilityId, status, coachUserId],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/messages/:threadId', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const threadId = num(req.params.threadId)
+      const data = await loadThreadMessages(threadId, facilityId)
+      if (!data) return bad(res, 'Thread not found.', 404)
+      const coachUserId = Number(req.platformAuth.user.id)
+      if (!coachCanAccessThread(data.thread, coachUserId)) return bad(res, 'Thread not found.', 404)
+      ok(res, data)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/messages', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const memberId = num(req.body?.member_id)
+      const body = String(req.body?.body || '').trim()
+      if (memberId == null || !body) return bad(res, 'member_id and body are required.')
+      const memberCheck = await pool.query(
+        `SELECT id FROM public.member WHERE id = $1 AND facility_id = $2`,
+        [memberId, facilityId],
+      )
+      if (memberCheck.rows.length === 0) return bad(res, 'Member not found.', 404)
+      const subject = req.body?.subject ? String(req.body.subject).trim() : null
+      const created = await pool.query(
+        `INSERT INTO coaching.message_thread (facility_id, member_id, coach_user_id, subject, thread_scope, last_message_at)
+         VALUES ($1, $2, $3, $4, 'assigned_coach', now()) RETURNING *`,
+        [facilityId, memberId, coachUserId, subject],
+      )
+      const thread = created.rows[0]
+      const message = await appendThreadMessage(thread.id, { senderUserId: coachUserId, body })
+      void notifyNewMessage(thread, message, true)
+      ok(res, { thread, message })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/messages/:threadId', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const threadId = num(req.params.threadId)
+      const body = String(req.body?.body || '').trim()
+      if (!body) return bad(res, 'body is required.')
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      if (!coachCanAccessThread(thread, coachUserId)) return bad(res, 'Thread not found.', 404)
+      if (!thread.coach_user_id) {
+        await pool.query(`UPDATE coaching.message_thread SET coach_user_id = $1 WHERE id = $2`, [coachUserId, threadId])
+        thread.coach_user_id = coachUserId
+      }
+      const message = await appendThreadMessage(threadId, { senderUserId: coachUserId, body })
+      void notifyNewMessage(thread, message, true)
+      ok(res, message)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/coach/messages/:threadId/open-circle', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const threadId = num(req.params.threadId)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      if (thread.thread_scope === 'coaching_circle') {
+        ok(res, thread)
+        return
+      }
+      if (Number(thread.coach_user_id) !== coachUserId) {
+        return bad(res, 'Only the assigned coach can open this thread to the coaching circle.', 403)
+      }
+      const updated = await pool.query(
+        `UPDATE coaching.message_thread SET thread_scope = 'coaching_circle', updated_at = now() WHERE id = $1 RETURNING *`,
+        [threadId],
+      )
+      ok(res, updated.rows[0])
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/member/messages', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const result = await pool.query(
+        `
+          SELECT t.*,
+            lm.body AS last_message_body,
+            lm.created_at AS last_message_created_at
+          FROM coaching.message_thread t
+          LEFT JOIN LATERAL (
+            SELECT body, created_at FROM coaching.message
+            WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
+          ) lm ON TRUE
+          WHERE t.facility_id = $1 AND t.member_id = $2 AND t.status = 'open'
+          ORDER BY t.last_message_at DESC NULLS LAST, t.created_at DESC
+        `,
+        [facilityId, memberId],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/member/messages/:threadId', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const threadId = num(req.params.threadId)
+      const threadCheck = await pool.query(
+        `SELECT id FROM coaching.message_thread WHERE id = $1 AND facility_id = $2 AND member_id = $3`,
+        [threadId, facilityId, memberId],
+      )
+      if (threadCheck.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const data = await loadThreadMessages(threadId, facilityId)
+      ok(res, data)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/member/messages', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const body = String(req.body?.body || '').trim()
+      if (!body) return bad(res, 'body is required.')
+      const subject = req.body?.subject ? String(req.body.subject).trim() : null
+      const pickedCoachId = num(req.body?.coach_user_id)
+      let coachUserId = null
+      let threadScope = 'coaching_circle'
+      if (pickedCoachId != null) {
+        const coachCheck = await pool.query(
+          `SELECT id FROM public.app_user WHERE id = $1 AND facility_id = $2 AND is_active = TRUE`,
+          [pickedCoachId, facilityId],
+        )
+        if (coachCheck.rows.length === 0) return bad(res, 'Selected coach not found.', 404)
+        const assigned = await resolveAssignedCoachUserIdsForMember(memberId, facilityId)
+        if (!assigned.includes(pickedCoachId)) {
+          return bad(res, 'Selected coach is not assigned to your classes.', 400)
+        }
+        coachUserId = pickedCoachId
+        threadScope = 'assigned_coach'
+      }
+      const created = await pool.query(
+        `INSERT INTO coaching.message_thread (facility_id, member_id, coach_user_id, subject, thread_scope, last_message_at)
+         VALUES ($1, $2, $3, $4, $5, now()) RETURNING *`,
+        [facilityId, memberId, coachUserId, subject, threadScope],
+      )
+      const thread = created.rows[0]
+      const message = await appendThreadMessage(thread.id, { senderMemberId: memberId, body })
+      void notifyNewMessage(thread, message, false)
+      ok(res, { thread, message })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/member/messages/:threadId', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const threadId = num(req.params.threadId)
+      const body = String(req.body?.body || '').trim()
+      if (!body) return bad(res, 'body is required.')
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2 AND member_id = $3`,
+        [threadId, facilityId, memberId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      const message = await appendThreadMessage(threadId, { senderMemberId: memberId, body })
+      void notifyNewMessage(thread, message, false)
+      ok(res, message)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // ==========================================================
+  // GOALS & ACHIEVEMENTS (Phase G)
+  // ==========================================================
+
+  async function recordAchievement({ facilityId, memberId, kind, label, description, valueNumeric, sourceType, sourceId, notify = true }) {
+    const inserted = await pool.query(
+      `INSERT INTO coaching.achievement
+         (facility_id, member_id, kind, label, description, value_numeric, source_type, source_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [facilityId, memberId, kind, label, description ?? null, valueNumeric ?? null, sourceType ?? null, sourceId ?? null],
+    )
+    const row = inserted.rows[0]
+    if (notify) {
+      void createInAppNotification({
+        facilityId,
+        recipientMemberId: memberId,
+        kind: 'achievement',
+        title: `Achievement: ${label}`,
+        body: description || label,
+        payload: { achievement_id: row.id },
+      })
+    }
+    return row
+  }
+
+  app.get('/api/coach/athletes/:memberId/goals', ...can('coach_insights.view'), async (req, res) => {
+    try {
+      const memberId = num(req.params.memberId)
+      const facilityId = req.platformAuth.user.facility_id
+      const result = await pool.query(
+        `SELECT * FROM coaching.goal WHERE member_id = $1 AND facility_id = $2 ORDER BY target_date NULLS LAST, created_at DESC`,
+        [memberId, facilityId],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/athletes/:memberId/goals', ...can('coach_insights.view'), async (req, res) => {
+    try {
+      const memberId = num(req.params.memberId)
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const title = String(req.body?.title || '').trim()
+      if (!title) return bad(res, 'title is required.')
+      const created = await pool.query(
+        `INSERT INTO coaching.goal (facility_id, member_id, coach_user_id, title, description, target_date)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [
+          facilityId, memberId, coachUserId, title,
+          req.body?.description || null,
+          req.body?.target_date || null,
+        ],
+      )
+      ok(res, created.rows[0])
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/coach/goals/:id', ...can('coach_insights.view'), async (req, res) => {
+    try {
+      const id = num(req.params.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const status = req.body?.status
+      const completedAt = status === 'completed' ? new Date() : null
+      const updated = await pool.query(
+        `UPDATE coaching.goal SET
+           title = COALESCE($3, title),
+           description = COALESCE($4, description),
+           target_date = COALESCE($5, target_date),
+           status = COALESCE($6, status),
+           completed_at = CASE WHEN $6 = 'completed' THEN now() WHEN $6 IS NOT NULL AND $6 <> 'completed' THEN NULL ELSE completed_at END,
+           updated_at = now()
+         WHERE id = $1 AND facility_id = $2 RETURNING *`,
+        [
+          id, facilityId,
+          req.body?.title ?? null,
+          req.body?.description ?? null,
+          req.body?.target_date ?? null,
+          status ?? null,
+        ],
+      )
+      if (updated.rows.length === 0) return bad(res, 'Goal not found.', 404)
+      ok(res, updated.rows[0])
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/athletes/:memberId/achievements', ...can('coach_insights.view'), async (req, res) => {
+    try {
+      const memberId = num(req.params.memberId)
+      const facilityId = req.platformAuth.user.facility_id
+      const result = await pool.query(
+        `SELECT * FROM coaching.achievement WHERE member_id = $1 AND facility_id = $2 ORDER BY achieved_at DESC LIMIT 50`,
+        [memberId, facilityId],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/athletes/:memberId/achievements', ...can('coach_insights.view'), async (req, res) => {
+    try {
+      const memberId = num(req.params.memberId)
+      const facilityId = req.platformAuth.user.facility_id
+      const label = String(req.body?.label || '').trim()
+      if (!label) return bad(res, 'label is required.')
+      const row = await recordAchievement({
+        facilityId,
+        memberId,
+        kind: req.body?.kind || 'badge',
+        label,
+        description: req.body?.description || null,
+        valueNumeric: num(req.body?.value_numeric),
+        sourceType: 'manual',
+      })
+      ok(res, row)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/member/training/goals', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const result = await pool.query(
+        `SELECT * FROM coaching.goal WHERE member_id = $1 AND facility_id = $2 AND status = 'active' ORDER BY target_date NULLS LAST`,
+        [memberId, facilityId],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/member/training/achievements', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const result = await pool.query(
+        `SELECT * FROM coaching.achievement WHERE member_id = $1 AND facility_id = $2 ORDER BY achieved_at DESC LIMIT 30`,
+        [memberId, facilityId],
+      )
+      ok(res, result.rows)
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -1915,7 +3090,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     try {
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
-      const [results, skills] = await Promise.all([
+      const [results, skills, prs] = await Promise.all([
         pool.query(
           `SELECT ar.value_numeric, ar.unit, ar.tested_at, a.name as assessment_name, t.name as tenet_name
            FROM coaching.assessment_result ar JOIN coaching.assessment a ON a.id = ar.assessment_id
@@ -1927,8 +3102,89 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
            FROM coaching.athlete_skill_progress sp LEFT JOIN coaching.exercise e ON e.id = sp.exercise_id WHERE sp.member_id = $1 ORDER BY sp.graded_at`,
           [memberId],
         ),
+        pool.query(
+          `SELECT pr.metric_label, pr.value_numeric, pr.unit, pr.achieved_at, pr.source_type,
+                  a.name as assessment_name, e.name as exercise_name
+           FROM coaching.personal_record pr
+           LEFT JOIN coaching.assessment a ON a.id = pr.assessment_id
+           LEFT JOIN coaching.exercise e ON e.id = pr.exercise_id
+           WHERE pr.member_id = $1 ORDER BY pr.achieved_at DESC LIMIT 50`,
+          [memberId],
+        ),
       ])
-      ok(res, { results: results.rows, skills: skills.rows })
+      ok(res, { results: results.rows, skills: skills.rows, prs: prs.rows })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // Daily wellness check-in (athlete self-report); upsert per (member, date).
+  app.post('/api/member/training/wellness', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      if (memberId == null) return bad(res, 'Member context required.')
+      const m = await pool.query(`SELECT facility_id FROM public.member WHERE id = $1`, [memberId])
+      if (m.rows.length === 0) return bad(res, 'Member not found.', 404)
+      const facilityId = m.rows[0].facility_id
+      const checkinDate = req.body?.checkin_date || new Date().toISOString().slice(0, 10)
+      const clamp = (v) => {
+        const n = num(v)
+        return n == null ? null : Math.max(1, Math.min(10, n))
+      }
+      const created = await pool.query(
+        `INSERT INTO coaching.wellness_checkin (facility_id, member_id, checkin_date, sleep_hours, soreness, rpe, mood, energy, note)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         ON CONFLICT (member_id, checkin_date) DO UPDATE SET
+           sleep_hours = EXCLUDED.sleep_hours, soreness = EXCLUDED.soreness, rpe = EXCLUDED.rpe,
+           mood = EXCLUDED.mood, energy = EXCLUDED.energy, note = EXCLUDED.note, updated_at = now()
+         RETURNING *`,
+        [facilityId, memberId, checkinDate, num(req.body?.sleep_hours), clamp(req.body?.soreness), clamp(req.body?.rpe), clamp(req.body?.mood), clamp(req.body?.energy), req.body?.note || null],
+      )
+      const checkin = created.rows[0]
+      void notifyWellnessCheckinToCoaches(memberId, facilityId, checkin)
+      ok(res, checkin)
+    } catch (error) {
+      bad(res, error.message)
+    }
+  })
+
+  app.get('/api/member/training/coaches', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const result = await pool.query(
+        `
+          SELECT DISTINCT au.id, au.full_name AS name
+          FROM public.member_program mp
+          JOIN public.coach_class_assignment cca ON (
+            cca.program_id = mp.program_id
+            OR (mp.iteration_id IS NOT NULL AND cca.class_iteration_id = mp.iteration_id)
+          )
+          JOIN public.app_user au ON au.id = cca.coach_user_id
+            AND au.facility_id = $2 AND au.is_active = TRUE
+          WHERE mp.member_id = $1
+          ORDER BY au.full_name
+        `,
+        [memberId, facilityId],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // Athlete's own recent wellness history (for the check-in form's "today" state).
+  app.get('/api/member/training/wellness', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const result = await pool.query(
+        `SELECT * FROM coaching.wellness_checkin WHERE member_id = $1 ORDER BY checkin_date DESC LIMIT 30`,
+        [memberId],
+      )
+      ok(res, result.rows)
     } catch (error) {
       bad(res, error.message, 500)
     }

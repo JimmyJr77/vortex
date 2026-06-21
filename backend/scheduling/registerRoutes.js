@@ -35,6 +35,7 @@ export function registerSchedulingRoutes(app, pool) {
   app.post('/api/scheduling/auth/change-password', h.authChangePassword)
   app.post('/api/scheduling/auth/magic-link', h.authMagicLink)
   app.post('/api/scheduling/auth/verify-token', h.authVerifyToken)
+  app.post('/api/scheduling/auth/member-session', h.authMemberSession)
   app.post('/api/scheduling/signups', signupLimiter, h.createSignup)
   app.post('/api/scheduling/signups/batch', signupLimiter, h.createSignupBatch)
   app.post('/api/scheduling/promo/validate', d.validatePromo)
