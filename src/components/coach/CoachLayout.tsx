@@ -94,13 +94,13 @@ export default function CoachLayout({ coach, onLogout, onReturnToWebsite, availa
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-gradient-to-br from-black via-gray-900 to-black">
-        <div className="container-custom py-4 flex items-center justify-between gap-4 pt-below-site-header">
+        <div className="container-admin py-4 flex items-center justify-between gap-4 pt-below-site-header">
           <div className="flex items-center gap-3">
             <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
               {navOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             <div>
-              <h1 className="text-xl md:text-3xl font-display font-bold text-white">VORTEX <span className="text-vortex-red">COACH</span></h1>
+              <h1 className="text-3xl md:text-5xl font-display font-bold text-white">VORTEX <span className="text-vortex-red">COACH</span></h1>
               {coach.fullName && <p className="text-gray-400 text-xs">{coach.fullName}</p>}
             </div>
           </div>
@@ -119,7 +119,7 @@ export default function CoachLayout({ coach, onLogout, onReturnToWebsite, availa
         </div>
       </header>
 
-      <div className="container-custom py-6 grid gap-6 lg:grid-cols-[220px_1fr]">
+      <div className="container-admin py-6 grid gap-6 lg:grid-cols-[220px_1fr]">
         <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {NAV.map((item) => {

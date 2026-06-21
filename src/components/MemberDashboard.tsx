@@ -1756,7 +1756,7 @@ export default function MemberDashboard({
     <div className="min-h-screen bg-white">
       {/* Member Portal Header Section - Dark Background */}
       <div className="bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header pb-0">
-        <div className="container-custom">
+        <div className="container-admin">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
               VORTEX <span className="text-vortex-red">MEMBER</span> PORTAL
@@ -1849,7 +1849,7 @@ export default function MemberDashboard({
 
       {/* Content Section - White Background */}
       <div className="bg-white p-4 md:p-8">
-        <div className="container-custom">
+        <div className="container-admin">
           <AnimatePresence mode="wait">
             {activeTab === 'profile' && (
               <motion.div
