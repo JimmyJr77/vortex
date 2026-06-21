@@ -52,3 +52,24 @@ export async function llmProgressNarrative({
     maxTokens: 400,
   })
 }
+
+/**
+ * Coach assistant grounded in RAG chunks + optional chat history.
+ */
+export async function llmCoachAssistant({ athleteName, question, contextChunks, history }) {
+  const contextBlock = contextChunks.length
+    ? contextChunks.map((c, i) => `[${i + 1}] (${c.source_type}) ${c.content}`).join('\n')
+    : 'No retrieved context — answer from general coaching principles only and say when data is missing.'
+  const historyBlock = (history ?? [])
+    .slice(-6)
+    .map((m) => `${m.role === 'user' ? 'Coach' : 'Assistant'}: ${m.content}`)
+    .join('\n')
+  return llmGenerateText({
+    system:
+      'You are an expert youth athletics coach assistant inside a gym management portal. ' +
+      'Ground answers in the retrieved athlete context when present. Be concise (2-5 sentences unless asked for detail). ' +
+      'Never invent metrics, injuries, or results not in context. Suggest safe, age-appropriate training ideas.',
+    prompt: `Athlete: ${athleteName}\n\nRetrieved context:\n${contextBlock}\n\nRecent chat:\n${historyBlock || '(none)'}\n\nCoach question: ${question}`,
+    maxTokens: 500,
+  })
+}

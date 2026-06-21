@@ -15,6 +15,7 @@ import { authMiddleware, requirePermission } from './registerRoutes.js'
 import { sendEmail, isEmailConfigured } from '../email/sendEmail.js'
 import { llmProgressNarrative } from './aiService.js'
 import { buildProgressReportPdf } from './pdfReport.js'
+import { registerCoachingPhaseGHRoutes } from './coachPhaseGHRoutes.js'
 
 function ok(res, data) {
   res.json({ success: true, data })
@@ -3188,6 +3189,16 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     } catch (error) {
       bad(res, error.message, 500)
     }
+  })
+
+  registerCoachingPhaseGHRoutes(app, pool, {
+    ok,
+    bad,
+    num,
+    auth,
+    can,
+    createInAppNotification,
+    resolveAssignedCoachUserIdsForMember,
   })
 
   console.log('✅ Coach portal routes registered')

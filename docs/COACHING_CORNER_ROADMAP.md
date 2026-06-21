@@ -11,8 +11,8 @@ Corner"). It captures both the original build-out roadmap (Phases 0–8) and the
 - ✅ Phases 0–8 (original build-out) — delivered as work tranches **A–D**.
 - ✅ Phase **E** — Run the Gym Floor (live sessions + attendance).
 - ✅ Phase **F** — Develop the Athlete Over Time (periodization & load).
-- 🟡 Phase **G** — Engage Athletes & Parents — notifications ✅, messaging ✅, goals/achievements ✅, print report ✅; video form-review ⬜
-- ⬜ Phase **H** — Make the AI Real.
+- ✅ Phase **G** — Engage Athletes & Parents — notifications, messaging, goals/achievements, PDF reports, **video form-review**.
+- 🟡 Phase **H** — Make the AI Real — LLM narratives/PDF ✅; **coach assistant + embeddings** 🟡 (needs pgvector on Postgres for RAG).
 - ⬜ Phase **I** — Trust, Safety & Depth (woven in throughout).
 
 The complete loop is live: **taxonomy → library → builder → needs engine →
@@ -130,7 +130,7 @@ prevention.
 
 ---
 
-### Phase G — Engage Athletes & Parents (retention) 🟡
+### Phase G — Engage Athletes & Parents (retention) ✅
 
 *Two-way communication and motivation. Email + in-app notifications; messaging threads;
 goals and lightweight achievements.*
@@ -156,14 +156,14 @@ goals and lightweight achievements.*
 - Achievements on member progress tab; print-friendly parent report from narrative + PRs.
 
 **Remaining ⬜**
-- Athlete video submission + coach rubric form-review (Cloudinary).
-- True PDF export (today: browser print from narrative).
+- ~~Athlete video submission + coach rubric form-review~~ ✅ (`027`, `FormReviewPanel`, member Progress upload)
+- ~~True PDF export~~ ✅ (server `pdfkit` PDF)
 
 **Unlocks**: engagement/retention loop; messaging pairs with E session flow and F PR detection.
 
 ---
 
-### Phase H — Make the AI Real ⬜
+### Phase H — Make the AI Real 🟡
 
 *Swap heuristics for an LLM while keeping determinism and auditability.*
 

@@ -5,6 +5,7 @@ import { coachFetch, getCoachToken } from '../../coach/api'
 import { getApiUrl } from '../../utils/api'
 import { useRosterMembers } from './useRosterMembers'
 import { useCoachClasses } from './useCoachClasses'
+import CoachAssistantChat from './CoachAssistantChat'
 import type { RosterMember } from './useCoachClasses'
 
 interface CompletionRow {
@@ -437,6 +438,11 @@ ${prs.length > 0 ? `<h2>Recent Personal Records</h2><ul>${prs.map((p) => `<li>${
           </div>
         </div>
       )}
+
+      <CoachAssistantChat
+        memberId={memberId}
+        athleteName={members.find((m) => m.id === memberId)?.name}
+      />
     </div>
   )
 }

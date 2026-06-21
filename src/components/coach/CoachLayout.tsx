@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from 'react'
-import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare } from 'lucide-react'
+import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video } from 'lucide-react'
 import HomePanel from './HomePanel'
 import PortalNavButtons from '../PortalNavButtons'
 import NotificationBell from '../NotificationBell'
@@ -17,6 +17,7 @@ const AssignPanel = lazy(() => import('./AssignPanel'))
 const InsightsPanel = lazy(() => import('./InsightsPanel'))
 const SkillTreePanel = lazy(() => import('./SkillTreePanel'))
 const MessagesPanel = lazy(() => import('./MessagesPanel'))
+const FormReviewPanel = lazy(() => import('./FormReviewPanel'))
 
 export type CoachTab =
   | 'home'
@@ -33,6 +34,7 @@ export type CoachTab =
   | 'insights'
   | 'skills'
   | 'messages'
+  | 'reviews'
 
 interface CoachAccount {
   fullName?: string
@@ -61,6 +63,7 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'skills', label: 'Skill Tree', icon: GitBranch },
   { tab: 'assign', label: 'Assign', icon: Send },
   { tab: 'messages', label: 'Messages', icon: MessageSquare },
+  { tab: 'reviews', label: 'Form Review', icon: Video },
   { tab: 'insights', label: 'Insights', icon: BarChart3 },
   { tab: 'roster', label: 'Roster', icon: Users },
 ]
@@ -97,6 +100,8 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         return <AssignPanel />
       case 'messages':
         return <MessagesPanel />
+      case 'reviews':
+        return <FormReviewPanel />
       case 'insights':
         return <InsightsPanel />
       default:

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Trophy } from 'lucide-react'
+import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Trophy, Video } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts'
 import { coachFetch } from '../coach/api'
 import type { Workout } from '../coach/types'
@@ -251,6 +251,8 @@ export function MemberProgressTab() {
 
       <WellnessCheckinCard />
 
+      <MemberFormReviewCard />
+
       {(goals.length > 0 || achievements.length > 0) && (
         <div className="grid gap-4 lg:grid-cols-2">
           {goals.length > 0 && (
@@ -350,6 +352,196 @@ interface WellnessRow {
   mood?: number | null
   energy?: number | null
   note?: string | null
+}
+
+interface FormReviewRow {
+  id: number
+  exercise_name?: string | null
+  subject?: string | null
+  video_url: string
+  status: string
+  coach_note?: string | null
+  reviewed_at?: string | null
+  created_at: string
+}
+
+function MemberFormReviewCard() {
+  const [exercises, setExercises] = useState<Array<{ id: number; name: string }>>([])
+  const [submissions, setSubmissions] = useState<FormReviewRow[]>([])
+  const [mode, setMode] = useState<'exercise' | 'free'>('exercise')
+  const [exerciseId, setExerciseId] = useState<number | ''>('')
+  const [subject, setSubject] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    try {
+      setExercises(await coachFetch<Array<{ id: number; name: string }>>('/api/member/training/form-review/exercise-options'))
+      setSubmissions(await coachFetch<FormReviewRow[]>('/api/member/training/form-reviews'))
+    } catch {
+      /* optional */
+    }
+  }, [])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  const uploadVideo = async (file: File) => {
+    setError(null)
+    setSuccess(null)
+    if (!file.type.startsWith('video/')) {
+      setError('Please select a video file.')
+      return
+    }
+    const duration = await new Promise<number>((resolve, reject) => {
+      const v = document.createElement('video')
+      v.preload = 'metadata'
+      v.onloadedmetadata = () => {
+        URL.revokeObjectURL(v.src)
+        resolve(v.duration)
+      }
+      v.onerror = () => reject(new Error('Could not read video metadata'))
+      v.src = URL.createObjectURL(file)
+    }).catch(() => null)
+    if (duration != null && duration > 60) {
+      setError('Video must be 60 seconds or less.')
+      return
+    }
+    setUploading(true)
+    try {
+      const sig = await coachFetch<{
+        configured: boolean
+        uploadUrl?: string
+        apiKey?: string
+        timestamp?: number
+        folder?: string
+        signature?: string
+      }>('/api/member/training/form-review/upload-signature')
+      if (!sig.configured || !sig.uploadUrl) {
+        setError('Video upload is not configured. Ask your coach for help.')
+        return
+      }
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('api_key', sig.apiKey!)
+      fd.append('timestamp', String(sig.timestamp))
+      fd.append('folder', sig.folder!)
+      fd.append('signature', sig.signature!)
+      const resp = await fetch(sig.uploadUrl, { method: 'POST', body: fd })
+      const data = (await resp.json()) as {
+        secure_url?: string
+        public_id?: string
+        error?: { message?: string }
+      }
+      if (!data.secure_url) {
+        setError(data.error?.message || 'Upload failed.')
+        return
+      }
+      if (mode === 'exercise' && exerciseId === '') {
+        setError('Select an exercise or switch to general upload.')
+        return
+      }
+      if (mode === 'free' && !subject.trim()) {
+        setError('Add a short subject for your question.')
+        return
+      }
+      await coachFetch('/api/member/training/form-reviews', {
+        method: 'POST',
+        body: JSON.stringify({
+          exercise_id: mode === 'exercise' && exerciseId !== '' ? exerciseId : null,
+          subject: mode === 'free' ? subject.trim() : null,
+          video_url: data.secure_url,
+          video_public_id: data.public_id,
+          duration_seconds: duration != null ? Math.round(duration) : null,
+        }),
+      })
+      setSuccess('Video submitted! Your coach will review it soon.')
+      setSubject('')
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-4">
+      <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+        <Video className="w-4 h-4 text-vortex-red" /> Form check video
+      </h3>
+      <p className="text-xs text-gray-500 mb-3">Upload a short clip (max 60s) for your coach to review.</p>
+      {error && <div className="rounded-lg bg-red-50 text-red-700 px-3 py-2 text-sm mb-3">{error}</div>}
+      {success && <div className="rounded-lg bg-green-50 text-green-700 px-3 py-2 text-sm mb-3">{success}</div>}
+      <div className="flex gap-2 mb-3">
+        <button
+          type="button"
+          onClick={() => setMode('exercise')}
+          className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${mode === 'exercise' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
+        >
+          Assigned exercise
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('free')}
+          className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${mode === 'free' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
+        >
+          General help
+        </button>
+      </div>
+      {mode === 'exercise' ? (
+        <select
+          value={exerciseId}
+          onChange={(e) => setExerciseId(e.target.value ? Number(e.target.value) : '')}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3"
+        >
+          <option value="">Select exercise from your assignments…</option>
+          {exercises.map((e) => (
+            <option key={e.id} value={e.id}>{e.name}</option>
+          ))}
+        </select>
+      ) : (
+        <input
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          placeholder="What do you need help with? (e.g. handstand shape)"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3"
+        />
+      )}
+      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer">
+        <input
+          type="file"
+          accept="video/*"
+          className="hidden"
+          disabled={uploading}
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) void uploadVideo(file)
+            e.target.value = ''
+          }}
+        />
+        <span className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg text-sm">
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Video className="w-4 h-4" />}
+          {uploading ? 'Uploading…' : 'Choose video'}
+        </span>
+      </label>
+      {submissions.length > 0 && (
+        <div className="mt-4 border-t border-gray-100 pt-3">
+          <div className="text-xs font-semibold text-gray-500 mb-2">Your submissions</div>
+          <ul className="space-y-2">
+            {submissions.slice(0, 5).map((s) => (
+              <li key={s.id} className="text-sm text-gray-700 flex justify-between gap-2">
+                <span>{s.exercise_name || s.subject || 'Upload'} · {s.status}</span>
+                <span className="text-xs text-gray-400">{new Date(s.created_at).toLocaleDateString()}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
 }
 
 function WellnessCheckinCard() {
