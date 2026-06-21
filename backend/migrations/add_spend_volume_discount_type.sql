@@ -3,6 +3,13 @@ DO $$
 DECLARE
   cname TEXT;
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'discount_rule'
+  ) THEN
+    RETURN;
+  END IF;
+
   IF EXISTS (
     SELECT 1
     FROM pg_constraint con
@@ -23,8 +30,10 @@ BEGIN
   WHERE nsp.nspname = 'public'
     AND rel.relname = 'discount_rule'
     AND con.contype = 'c'
-    AND pg_get_constraintdef(con.oid) LIKE '%type%'
-    AND pg_get_constraintdef(con.oid) LIKE '%IN%'
+    AND (
+      con.conname = 'discount_rule_type_check'
+      OR pg_get_constraintdef(con.oid) LIKE '%promo_code%'
+    )
   LIMIT 1;
 
   IF cname IS NOT NULL THEN
