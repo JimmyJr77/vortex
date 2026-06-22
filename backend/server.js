@@ -5230,7 +5230,21 @@ app.get('/api/admin/families/search', async (req, res) => {
       paramCount++
       query += ` AND (
         f.family_name ILIKE $${paramCount} OR 
-        f.family_username ILIKE $${paramCount}
+        f.family_username ILIKE $${paramCount} OR
+        EXISTS (
+          SELECT 1
+          FROM family_member fm_search
+          JOIN member m_search ON m_search.id = fm_search.member_id
+          WHERE fm_search.family_id = f.id
+            AND fm_search.is_active = TRUE
+            AND m_search.is_active = TRUE
+            AND (
+              m_search.first_name ILIKE $${paramCount}
+              OR m_search.last_name ILIKE $${paramCount}
+              OR CONCAT(m_search.first_name, ' ', m_search.last_name) ILIKE $${paramCount}
+              OR m_search.email ILIKE $${paramCount}
+            )
+        )
       )`
       params.push(`%${search}%`)
     }

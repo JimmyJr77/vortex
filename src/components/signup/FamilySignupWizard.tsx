@@ -1,14 +1,69 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, UserPlus } from 'lucide-react'
 import { getApiUrl, adminApiRequest } from '../../utils/api'
-import { formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../utils/phoneUtils'
-import { isAdult } from '../../utils/dateUtils'
+import { cleanPhoneNumber, formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../utils/phoneUtils'
+import { formatDateForInput, isAdult } from '../../utils/dateUtils'
+import { graduationYearsForPicker } from '../../utils/promoDiscountModel'
+import { US_STATES, verifyUsAddressZip } from '../../utils/usStates'
+import SchoolAutocompleteInput from '../scheduling/SchoolAutocompleteInput'
+import FamilySearchCombobox, { type FamilySearchOption } from './FamilySearchCombobox'
 import WaiverSigningBlock, { validateWaiverSigning, type PublicWaiverTemplate } from './WaiverSigningBlock'
 
-type WizardMode = 'public' | 'admin' | 'minor-start'
+type WizardMode = 'public' | 'admin' | 'minor-start' | 'admin-edit'
+type EmailSource = 'parent' | 'youth'
+
+function parseAddress(address: string | null | undefined): { street: string; city: string; state: string; zip: string } {
+  if (!address) return { street: '', city: '', state: '', zip: '' }
+  const parts = address.split(',').map((p) => p.trim()).filter(Boolean)
+  if (parts.length >= 3) {
+    const street = parts[0]
+    const city = parts[1]
+    const stateZipParts = (parts[2] || '').split(/\s+/).filter(Boolean)
+    if (stateZipParts.length >= 2) {
+      return { street, city, state: stateZipParts[0], zip: stateZipParts.slice(1).join(' ') }
+    }
+    if (stateZipParts.length === 1) {
+      const value = stateZipParts[0]
+      return value.length === 2
+        ? { street, city, state: value, zip: '' }
+        : { street, city, state: '', zip: value }
+    }
+    return { street, city, state: '', zip: '' }
+  }
+  if (parts.length === 2) return { street: parts[0], city: parts[1], state: '', zip: '' }
+  return { street: address, city: '', state: '', zip: '' }
+}
+
+function combineAddress(street: string, city: string, state: string, zip: string): string {
+  const parts: string[] = []
+  if (street.trim()) parts.push(street.trim())
+  if (city.trim()) parts.push(city.trim())
+  const stateZip = [state.trim(), zip.trim()].filter(Boolean).join(' ')
+  if (stateZip) parts.push(stateZip)
+  return parts.join(', ')
+}
+
+interface ApiMemberRecord {
+  id: number
+  firstName: string
+  lastName: string
+  email?: string | null
+  phone?: string | null
+  username?: string | null
+  dateOfBirth?: string | null
+  gender?: string | null
+  address?: string | null
+  billingStreet?: string | null
+  billingCity?: string | null
+  billingState?: string | null
+  billingZip?: string | null
+  graduationYear?: number | null
+  currentSchool?: string | null
+}
 
 interface SignupMemberForm {
   clientId: string
+  memberId?: number
   firstName: string
   lastName: string
   email: string
@@ -22,25 +77,52 @@ interface SignupMemberForm {
   username: string
   password: string
   confirmPassword: string
-  sameContactAsPrimary?: boolean
+  emailSource?: EmailSource
+  currentSchool?: string
+  graduationYear?: number | ''
 }
 
-interface ProgramOption {
+interface TopProgramOption {
   id: number
   name: string
-  display_name?: string
+  displayName?: string | null
+}
+
+interface ClassOption {
+  id: number
+  name: string
+  displayName?: string | null
+  schedulingFormId?: number | null
+}
+
+interface OfferingOption {
+  id: number
+  label: string | null
+  startDate: string
+  endDate: string
 }
 
 interface EnrollmentRow {
   memberClientId: string
-  programId: number | ''
+  programsId: number | ''
+  classEventId: number | ''
+  offeringIds: number[]
+  schedulingFormId?: number
+  slotGroupId?: number
+  timeSlotId?: number
+  locked?: boolean
 }
 
-interface FamilyOption {
-  id: number
-  familyName: string
-  familyUsername?: string
-  memberCount?: number
+interface EnrollPrefill {
+  locked: boolean
+  formId: number
+  programsId: number | null
+  classEventId: number | null
+  offeringId?: number
+  slotGroupId?: number
+  timeSlotId?: number
+  classDisplayName?: string | null
+  programDisplayName?: string | null
 }
 
 const emptyMember = (): SignupMemberForm => ({
@@ -58,40 +140,95 @@ const emptyMember = (): SignupMemberForm => ({
   username: '',
   password: '',
   confirmPassword: '',
+  emailSource: 'parent',
+  currentSchool: '',
+  graduationYear: '',
+})
+
+const emptyEnrollment = (memberClientId: string): EnrollmentRow => ({
+  memberClientId,
+  programsId: '',
+  classEventId: '',
+  offeringIds: [],
 })
 
 interface FamilySignupWizardProps {
   mode?: WizardMode
+  editMemberId?: number | null
+  returnTo?: string | null
   onComplete?: (result: unknown) => void
   onCancel?: () => void
 }
 
+function mapApiMemberToForm(
+  record: ApiMemberRecord,
+  primaryEmail?: string,
+  billing?: { billingStreet?: string | null; billingCity?: string | null; billingState?: string | null; billingZip?: string | null },
+): SignupMemberForm {
+  const addressSource = record.address
+    || (record.billingStreet ? combineAddress(record.billingStreet, record.billingCity || '', record.billingState || '', record.billingZip || '') : '')
+    || (billing?.billingStreet ? combineAddress(billing.billingStreet, billing.billingCity || '', billing.billingState || '', billing.billingZip || '') : '')
+  const addressParts = parseAddress(addressSource)
+  const email = record.email || ''
+  const emailSource: EmailSource = primaryEmail && email && email.toLowerCase() !== primaryEmail.toLowerCase() ? 'youth' : 'parent'
+  return {
+    clientId: crypto.randomUUID(),
+    memberId: record.id,
+    firstName: record.firstName || '',
+    lastName: record.lastName || '',
+    email,
+    phone: formatPhoneForDisplay(record.phone),
+    addressStreet: addressParts.street,
+    addressCity: addressParts.city,
+    addressState: addressParts.state,
+    addressZip: addressParts.zip,
+    dateOfBirth: record.dateOfBirth ? formatDateForInput(record.dateOfBirth) : '',
+    gender: record.gender || '',
+    username: record.username || '',
+    password: '',
+    confirmPassword: '',
+    emailSource,
+    currentSchool: record.currentSchool || '',
+    graduationYear: record.graduationYear ?? '',
+  }
+}
+
 export default function FamilySignupWizard({
   mode = 'public',
+  editMemberId = null,
+  returnTo = null,
   onComplete,
   onCancel,
 }: FamilySignupWizardProps) {
   const apiUrl = getApiUrl()
   const isAdmin = mode === 'admin'
+  const isAdminEdit = mode === 'admin-edit'
   const isMinorStart = mode === 'minor-start'
 
   const [step, setStep] = useState(isAdmin ? 0 : 1)
+  const [accountLoaded, setAccountLoaded] = useState(!isAdminEdit)
+  const [editFamilyId, setEditFamilyId] = useState<number | null>(null)
+  const [savedMemberIds, setSavedMemberIds] = useState<number[]>([])
   const [familyMode, setFamilyMode] = useState<'new' | 'existing'>('new')
   const [existingFamilyId, setExistingFamilyId] = useState<number | null>(null)
   const [familySearch, setFamilySearch] = useState('')
-  const [familyPassword, setFamilyPassword] = useState('')
-  const [familyOptions, setFamilyOptions] = useState<FamilyOption[]>([])
   const [primaryAdult, setPrimaryAdult] = useState<SignupMemberForm>(emptyMember)
   const [additionalMembers, setAdditionalMembers] = useState<SignupMemberForm[]>([])
   const [parentEmail, setParentEmail] = useState('')
-  const [programs, setPrograms] = useState<ProgramOption[]>([])
+  const [topPrograms, setTopPrograms] = useState<TopProgramOption[]>([])
+  const [classesByProgram, setClassesByProgram] = useState<Record<number, ClassOption[]>>({})
+  const [offeringsByClass, setOfferingsByClass] = useState<Record<number, { formId: number | null; offerings: OfferingOption[] }>>({})
   const [enrollments, setEnrollments] = useState<EnrollmentRow[]>([])
+  const [enrollPrefill, setEnrollPrefill] = useState<EnrollPrefill | null>(null)
+  const prefillApplied = useRef(false)
   const [waivers, setWaivers] = useState<PublicWaiverTemplate[]>([])
   const [checkedTemplateIds, setCheckedTemplateIds] = useState<number[]>([])
   const [agreeAll, setAgreeAll] = useState(false)
   const [signatureName, setSignatureName] = useState('')
   const [comments, setComments] = useState('')
   const [paymentPolicyAcknowledged, setPaymentPolicyAcknowledged] = useState(false)
+  const [addressVerifyMessage, setAddressVerifyMessage] = useState<string | null>(null)
+  const [addressVerified, setAddressVerified] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -103,15 +240,26 @@ export default function FamilySignupWizard({
     return athletes.filter((m) => m.firstName && m.lastName)
   }, [primaryAdult, additionalMembers, isMinorStart])
 
-  const loadProgramsAndWaivers = useCallback(async () => {
+  const parentEmailOptions = useMemo(() => {
+    const emails: Array<{ value: string; label: string }> = []
+    if (primaryAdult.email.trim()) {
+      emails.push({
+        value: primaryAdult.email.trim(),
+        label: `${primaryAdult.firstName || 'Primary'} ${primaryAdult.lastName || 'adult'} — ${primaryAdult.email.trim()}`,
+      })
+    }
+    return emails
+  }, [primaryAdult])
+
+  const loadCatalogAndWaivers = useCallback(async () => {
     try {
       const [programsRes, waiversRes] = await Promise.all([
-        fetch(`${apiUrl}/api/signup/programs`),
+        fetch(`${apiUrl}/api/signup/catalog/programs`),
         fetch(`${apiUrl}/api/signup/waivers`),
       ])
       const programsData = await programsRes.json()
       const waiversData = await waiversRes.json()
-      setPrograms(programsData.data ?? [])
+      setTopPrograms(programsData.data ?? [])
       setWaivers(waiversData.data ?? [])
     } catch {
       setError('Failed to load programs or waivers.')
@@ -119,8 +267,190 @@ export default function FamilySignupWizard({
   }, [apiUrl])
 
   useEffect(() => {
-    void loadProgramsAndWaivers()
-  }, [loadProgramsAndWaivers])
+    void loadCatalogAndWaivers()
+  }, [loadCatalogAndWaivers])
+
+  useEffect(() => {
+    if (!isAdminEdit || !editMemberId) return
+    let cancelled = false
+    const loadAccount = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const anchorRes = await adminApiRequest(`/api/admin/members/${editMemberId}`)
+        const anchorData = await anchorRes.json()
+        if (!anchorRes.ok || !anchorData.success) {
+          throw new Error(anchorData.message || 'Failed to load member')
+        }
+        const anchor = anchorData.data as ApiMemberRecord & { familyId?: number | null }
+        const familyId = anchor.familyId ?? null
+        setEditFamilyId(familyId)
+
+        if (familyId) {
+          const familyRes = await adminApiRequest(`/api/admin/families/${familyId}`)
+          const familyData = await familyRes.json()
+          if (!familyRes.ok || !familyData.success) {
+            throw new Error(familyData.message || 'Failed to load family')
+          }
+          const family = familyData.data
+          const billing = family.billingAccount
+          const payerId = billing?.payerMemberId ?? family.members?.find((m: { isFamilyPayer?: boolean }) => m.isFamilyPayer)?.id
+          const memberIds: number[] = (family.members || []).map((m: { id: number }) => m.id)
+          setSavedMemberIds(memberIds)
+
+          const fullRecords = await Promise.all(
+            memberIds.map(async (id) => {
+              const res = await adminApiRequest(`/api/admin/members/${id}`)
+              const json = await res.json()
+              return json.success ? (json.data as ApiMemberRecord) : null
+            }),
+          )
+          const records = fullRecords.filter(Boolean) as ApiMemberRecord[]
+          const payerRecord = records.find((r) => r.id === payerId) || records[0]
+          const others = records.filter((r) => r.id !== payerRecord?.id)
+          if (!payerRecord) throw new Error('Family has no members to edit')
+
+          const primary = mapApiMemberToForm(payerRecord, payerRecord.email || undefined, billing)
+          if (!cancelled) {
+            setPrimaryAdult(primary)
+            setAdditionalMembers(
+              others.map((m) => mapApiMemberToForm(m, primary.email || undefined, billing)),
+            )
+          }
+        } else {
+          setSavedMemberIds([anchor.id])
+          if (!cancelled) {
+            setPrimaryAdult(mapApiMemberToForm(anchor))
+            setAdditionalMembers([])
+          }
+        }
+        if (!cancelled) setAccountLoaded(true)
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to load account')
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    void loadAccount()
+    return () => { cancelled = true }
+  }, [isAdminEdit, editMemberId])
+
+  useEffect(() => {
+    if (!isAdminEdit || !accountLoaded || !primaryAdult.memberId) return
+    void adminApiRequest(`/api/admin/members/${primaryAdult.memberId}/waivers`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.success || !Array.isArray(data.data)) return
+        const mapped: PublicWaiverTemplate[] = data.data.map((row: Record<string, unknown>) => ({
+          id: Number(row.id),
+          name: String(row.name || ''),
+          version: String(row.version || ''),
+          body: String(row.body || ''),
+          waiver_type: row.waiver_type as string | null,
+          is_required: row.is_required !== false,
+          acceptance_id: row.acceptance_id != null ? Number(row.acceptance_id) : null,
+          accepted_at: row.accepted_at as string | null,
+        }))
+        setWaivers(mapped)
+        setCheckedTemplateIds(
+          mapped.filter((w) => w.acceptance_id != null).map((w) => w.id),
+        )
+      })
+      .catch(() => {})
+  }, [isAdminEdit, accountLoaded, primaryAdult.memberId])
+
+  useEffect(() => {
+    if (!returnTo) return
+    try {
+      const url = new URL(returnTo, window.location.origin)
+      const formId = url.searchParams.get('form')
+      if (!formId) return
+      const offeringId = url.searchParams.get('offeringId')
+      const slotGroupId = url.searchParams.get('slotGroupId')
+      const timeSlotId = url.searchParams.get('timeSlotId')
+      void fetch(`${apiUrl}/api/signup/catalog/prefill/${formId}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (!data.success) return
+          setEnrollPrefill({
+            locked: true,
+            formId: Number(formId),
+            programsId: data.data.programsId,
+            classEventId: data.data.classEventId,
+            offeringId: offeringId ? Number(offeringId) : undefined,
+            slotGroupId: slotGroupId ? Number(slotGroupId) : undefined,
+            timeSlotId: timeSlotId ? Number(timeSlotId) : undefined,
+            classDisplayName: data.data.classDisplayName,
+            programDisplayName: data.data.programDisplayName,
+          })
+        })
+        .catch(() => {})
+    } catch {
+      // ignore invalid return URL
+    }
+  }, [returnTo, apiUrl])
+
+  const loadClassesForProgram = useCallback(async (programsId: number) => {
+    if (classesByProgram[programsId]) return
+    const res = await fetch(`${apiUrl}/api/signup/catalog/programs/${programsId}/classes`)
+    const data = await res.json()
+    setClassesByProgram((prev) => ({ ...prev, [programsId]: data.data ?? [] }))
+  }, [apiUrl, classesByProgram])
+
+  const loadOfferingsForClass = useCallback(async (classEventId: number) => {
+    if (offeringsByClass[classEventId]) return
+    const res = await fetch(`${apiUrl}/api/signup/catalog/classes/${classEventId}/offerings`)
+    const data = await res.json()
+    setOfferingsByClass((prev) => ({
+      ...prev,
+      [classEventId]: data.data ?? { formId: null, offerings: [] },
+    }))
+  }, [apiUrl, offeringsByClass])
+
+  const applyEnrollPrefill = useCallback(async () => {
+    if (!enrollPrefill || prefillApplied.current) return
+    prefillApplied.current = true
+    const memberId = allAthletes[0]?.clientId ?? primaryAdult.clientId
+    if (enrollPrefill.programsId) {
+      await loadClassesForProgram(enrollPrefill.programsId)
+    }
+    if (enrollPrefill.classEventId) {
+      await loadOfferingsForClass(enrollPrefill.classEventId)
+    }
+    const offeringIds = enrollPrefill.offeringId ? [enrollPrefill.offeringId] : []
+    setEnrollments([
+      {
+        memberClientId: memberId,
+        programsId: enrollPrefill.programsId ?? '',
+        classEventId: enrollPrefill.classEventId ?? '',
+        offeringIds,
+        schedulingFormId: enrollPrefill.formId,
+        slotGroupId: enrollPrefill.slotGroupId,
+        timeSlotId: enrollPrefill.timeSlotId,
+        locked: true,
+      },
+    ])
+  }, [enrollPrefill, allAthletes, primaryAdult.clientId, loadClassesForProgram, loadOfferingsForClass])
+
+  useEffect(() => {
+    const onEnrollmentStep = (step === 2 && isMinorStart) || (step === 3 && !isMinorStart)
+    if (onEnrollmentStep && enrollPrefill?.locked) {
+      void applyEnrollPrefill()
+    }
+  }, [step, isMinorStart, enrollPrefill, applyEnrollPrefill])
+
+  useEffect(() => {
+    if (!primaryAdult.email.trim()) return
+    setAdditionalMembers((prev) =>
+      prev.map((m) =>
+        m.emailSource === 'youth'
+          ? m
+          : { ...m, emailSource: 'parent' as EmailSource, email: primaryAdult.email.trim() },
+      ),
+    )
+  }, [primaryAdult.email])
 
   useEffect(() => {
     if (isMinorStart && additionalMembers.length === 0) {
@@ -128,94 +458,327 @@ export default function FamilySignupWizard({
     }
   }, [isMinorStart, additionalMembers.length])
 
-  const searchFamilies = async () => {
-    if (!familySearch.trim()) return
+  const suggestUsername = async (firstName: string, lastName: string) => {
+    if (!firstName.trim()) return ''
     try {
-      const res = await adminApiRequest(`/api/admin/families/search?search=${encodeURIComponent(familySearch.trim())}`)
+      const res = await fetch(
+        `${apiUrl}/api/signup/suggest-username?firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}`,
+      )
       const data = await res.json()
-      setFamilyOptions(data.data ?? [])
+      return data.data?.username ?? ''
     } catch {
-      setError('Failed to search families.')
+      return ''
     }
   }
 
-  const verifyExistingFamily = async () => {
-    if (!existingFamilyId || !familyPassword) {
-      setError('Select a family and enter the family password.')
-      return false
-    }
-    try {
-      const res = await adminApiRequest('/api/admin/families/verify', {
-        method: 'POST',
-        body: JSON.stringify({ familyId: existingFamilyId, familyPassword }),
-      })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.message || 'Family verification failed')
-      }
-      return true
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Family verification failed')
-      return false
-    }
+  const graduationYears = useMemo(() => graduationYearsForPicker(), [])
+
+  const handleVerifyAddress = async () => {
+    setAddressVerifyMessage(null)
+    const result = await verifyUsAddressZip(
+      primaryAdult.addressZip,
+      primaryAdult.addressState,
+      primaryAdult.addressCity,
+    )
+    setAddressVerifyMessage(result.message)
+    setAddressVerified(result.ok)
   }
 
-  const renderMemberFields = (
+  const renderYouthAthleteFields = (
     member: SignupMemberForm,
     onChange: (updates: Partial<SignupMemberForm>) => void,
-    { showLogin = true, showSameContact = false } = {},
+    fieldIdPrefix: string,
+  ) => {
+    const showYouthFields = isMinorStart || (member.dateOfBirth !== '' && !isAdult(member.dateOfBirth))
+    if (!showYouthFields) return null
+    return (
+      <>
+        <div className="md:col-span-2">
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Current School</label>
+          <SchoolAutocompleteInput
+            id={`${fieldIdPrefix}-current-school`}
+            value={member.currentSchool ?? ''}
+            onChange={(value) => onChange({ currentSchool: value })}
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Graduation Year</label>
+          <select
+            className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
+            value={member.graduationYear ?? ''}
+            onChange={(e) =>
+              onChange({
+                graduationYear: e.target.value === '' ? '' : Number(e.target.value),
+              })
+            }
+          >
+            <option value="">Select year</option>
+            {graduationYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
+      </>
+    )
+  }
+
+  const renderPrimaryAdultFields = (
+    member: SignupMemberForm,
+    onChange: (updates: Partial<SignupMemberForm>) => void,
+    fieldIdPrefix: string,
+    showLogin = true,
   ) => (
     <div className="grid gap-3 md:grid-cols-2">
-      {showSameContact && (
-        <label className="md:col-span-2 flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={member.sameContactAsPrimary === true}
-            onChange={(e) => onChange({ sameContactAsPrimary: e.target.checked })}
-          />
-          Same email/phone as primary adult
-        </label>
-      )}
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} />
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email" value={member.email} onChange={(e) => onChange({ email: e.target.value })} disabled={member.sameContactAsPrimary} />
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder={PHONE_INPUT_PLACEHOLDER} maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} disabled={member.sameContactAsPrimary} />
-      <input className="md:col-span-2 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Street address" value={member.addressStreet} onChange={(e) => onChange({ addressStreet: e.target.value })} />
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="City" value={member.addressCity} onChange={(e) => onChange({ addressCity: e.target.value })} />
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="State" value={member.addressState} onChange={(e) => onChange({ addressState: e.target.value })} />
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="ZIP" value={member.addressZip} onChange={(e) => onChange({ addressZip: e.target.value })} />
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="date" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} />
-      <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email *" value={member.email} onChange={(e) => onChange({ email: e.target.value })} />
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder={`${PHONE_INPUT_PLACEHOLDER} *`} maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
+      <input className="md:col-span-2 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Street address *" value={member.addressStreet} onChange={(e) => { onChange({ addressStreet: e.target.value }); setAddressVerified(false) }} />
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="City *" value={member.addressCity} onChange={(e) => { onChange({ addressCity: e.target.value }); setAddressVerified(false) }} />
+      <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.addressState} onChange={(e) => { onChange({ addressState: e.target.value }); setAddressVerified(false) }}>
+        <option value="">State *</option>
+        {US_STATES.map((s) => (
+          <option key={s.code} value={s.code}>{s.name}</option>
+        ))}
+      </select>
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="ZIP *" value={member.addressZip} onChange={(e) => { onChange({ addressZip: e.target.value }); setAddressVerified(false) }} />
+      <div className="md:col-span-2 flex flex-wrap items-center gap-3">
+        <button type="button" onClick={() => void handleVerifyAddress()} className="px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+          Verify address
+        </button>
+        {addressVerifyMessage && (
+          <span className={`text-xs ${addressVerified ? 'text-green-700' : 'text-amber-800'}`}>{addressVerifyMessage}</span>
+        )}
+      </div>
+      <div>
+        <label className="block text-xs font-semibold text-gray-600 mb-1">Date of birth (DOB) *</label>
+        <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="date" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} />
+      </div>
+      <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm self-end" value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
         <option value="">Gender</option>
         <option value="female">Female</option>
         <option value="male">Male</option>
         <option value="non-binary">Non-binary</option>
         <option value="prefer-not-to-say">Prefer not to say</option>
       </select>
-      {showLogin && (!member.dateOfBirth || isAdult(member.dateOfBirth)) && (
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username *" value={member.username} onChange={(e) => onChange({ username: e.target.value })} />
+      {showLogin && (
         <>
-          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username" value={member.username} onChange={(e) => onChange({ username: e.target.value })} />
-          <div />
-          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder="Password" value={member.password} onChange={(e) => onChange({ password: e.target.value })} />
-          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder="Confirm password" value={member.confirmPassword} onChange={(e) => onChange({ confirmPassword: e.target.value })} />
+          <div className="hidden md:block" aria-hidden />
+          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'New password (optional)' : 'Password *'} value={member.password} onChange={(e) => onChange({ password: e.target.value })} />
+          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'Confirm new password' : 'Confirm password *'} value={member.confirmPassword} onChange={(e) => onChange({ confirmPassword: e.target.value })} />
         </>
       )}
+      {!showLogin && <div className="hidden md:block" aria-hidden />}
+      {renderYouthAthleteFields(member, onChange, fieldIdPrefix)}
     </div>
   )
+
+  const renderFamilyMemberFields = (
+    member: SignupMemberForm,
+    onChange: (updates: Partial<SignupMemberForm>) => void,
+    fieldIdPrefix: string,
+    index: number,
+  ) => {
+    const emailSource = member.emailSource ?? 'parent'
+    const parentEmailValue = parentEmailOptions[0]?.value ?? primaryAdult.email
+
+    const handleNameBlur = async () => {
+      if (member.username.trim()) return
+      if (!member.firstName.trim()) return
+      const suggested = await suggestUsername(member.firstName, member.lastName)
+      if (suggested) onChange({ username: suggested })
+    }
+
+    return (
+      <div className="grid gap-3 md:grid-cols-2">
+        <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} onBlur={() => void handleNameBlur()} />
+        <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} onBlur={() => void handleNameBlur()} />
+        <div className="md:col-span-2">
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Email *</label>
+          <select
+            className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm mb-2"
+            value={emailSource === 'youth' ? 'youth' : parentEmailValue || 'parent'}
+            onChange={(e) => {
+              const val = e.target.value
+              if (val === 'youth') {
+                onChange({ emailSource: 'youth', email: '' })
+              } else {
+                onChange({ emailSource: 'parent', email: val })
+              }
+            }}
+          >
+            {parentEmailOptions.length > 0 ? (
+              parentEmailOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>Use parent/guardian email — {opt.label.split(' — ')[1]}</option>
+              ))
+            ) : (
+              <option value="parent">Use parent/guardian email</option>
+            )}
+            <option value="youth">Youth Athlete Email (all emails and messaging sent to the athlete are also sent to the parent/guardian by default)</option>
+          </select>
+          {emailSource === 'youth' && (
+            <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Athlete email *" value={member.email} onChange={(e) => onChange({ email: e.target.value })} />
+          )}
+          {emailSource === 'parent' && member.email && (
+            <p className="text-xs text-gray-500">Using: {member.email}</p>
+          )}
+        </div>
+        <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder={PHONE_INPUT_PLACEHOLDER} maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Date of birth (DOB) *</label>
+          <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="date" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} />
+        </div>
+        <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm self-end" value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
+          <option value="">Gender</option>
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+          <option value="non-binary">Non-binary</option>
+          <option value="prefer-not-to-say">Prefer not to say</option>
+        </select>
+        <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username *" value={member.username} onChange={(e) => onChange({ username: e.target.value })} />
+        <div className="hidden md:block" aria-hidden />
+        <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'New password (optional)' : 'Password *'} value={member.password} onChange={(e) => onChange({ password: e.target.value })} />
+        <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'Confirm new password' : 'Confirm password *'} value={member.confirmPassword} onChange={(e) => onChange({ confirmPassword: e.target.value })} />
+        {renderYouthAthleteFields(member, onChange, `${fieldIdPrefix}-${index}`)}
+        <p className="md:col-span-2 text-xs text-gray-500 italic">
+          Athlete accounts support additional training and learning opportunities, to include challenges, workout tips, skill libraries and other fitness related items.
+        </p>
+      </div>
+    )
+  }
+
+  const renderMemberFields = (
+    member: SignupMemberForm,
+    onChange: (updates: Partial<SignupMemberForm>) => void,
+    { showLogin = true, fieldIdPrefix = 'member', memberIndex = 0, variant = 'primary' as 'primary' | 'family' } = {},
+  ) => {
+    if (variant === 'family') {
+      return renderFamilyMemberFields(member, onChange, fieldIdPrefix, memberIndex)
+    }
+    return renderPrimaryAdultFields(member, onChange, fieldIdPrefix, showLogin)
+  }
 
   const validatePrimaryStep = () => {
     if (isMinorStart) {
       const minor = additionalMembers[0]
       if (!minor?.firstName || !minor?.lastName) return 'Minor first and last name are required.'
       if (!minor.dateOfBirth || isAdult(minor.dateOfBirth)) return 'Minor must be under 18.'
+      if (!minor.currentSchool?.trim()) return 'Current school is required for youth athletes.'
+      if (minor.graduationYear === '' || minor.graduationYear == null) {
+        return 'Graduation year is required for youth athletes.'
+      }
       if (!parentEmail.trim()) return 'Parent/guardian email is required.'
       return null
     }
     if (!primaryAdult.firstName || !primaryAdult.lastName) return 'First and last name are required.'
+    if (!primaryAdult.email?.trim()) return 'Email is required.'
+    if (cleanPhoneNumber(primaryAdult.phone || '').length !== 10) return 'A valid 10-digit phone number is required.'
+    if (!primaryAdult.addressStreet?.trim()) return 'Street address is required.'
+    if (!primaryAdult.addressCity?.trim()) return 'City is required.'
+    if (!primaryAdult.addressState?.trim()) return 'State is required.'
+    if (!primaryAdult.addressZip?.trim()) return 'ZIP code is required.'
     if (!primaryAdult.dateOfBirth || !isAdult(primaryAdult.dateOfBirth)) return 'Primary account holder must be 18 or older.'
-    if (!primaryAdult.password || primaryAdult.password.length < 8) return 'Password must be at least 8 characters.'
-    if (primaryAdult.password !== primaryAdult.confirmPassword) return 'Passwords do not match.'
+    if (!primaryAdult.username?.trim()) return 'Username is required.'
+    if (!isAdminEdit) {
+      if (!primaryAdult.password || primaryAdult.password.length < 8) return 'Password must be at least 8 characters.'
+      if (primaryAdult.password !== primaryAdult.confirmPassword) return 'Passwords do not match.'
+    } else if (primaryAdult.password) {
+      if (primaryAdult.password.length < 8) return 'Password must be at least 8 characters.'
+      if (primaryAdult.password !== primaryAdult.confirmPassword) return 'Passwords do not match.'
+    }
     return null
+  }
+
+  const validateFamilyMembersStep = () => {
+    for (const member of additionalMembers) {
+      if (!member.firstName || !member.lastName) return 'Each family member needs a first and last name.'
+      if (!member.username?.trim()) return `Username is required for ${member.firstName || 'each member'}.`
+      if (!member.email?.trim()) return `Email is required for ${member.firstName || 'each member'}.`
+      if (!isAdminEdit) {
+        if (!member.password || member.password.length < 8) return `Password must be at least 8 characters for ${member.firstName || 'each member'}.`
+        if (member.password !== member.confirmPassword) return `Passwords do not match for ${member.firstName || 'each member'}.`
+      } else if (member.password) {
+        if (member.password.length < 8) return `Password must be at least 8 characters for ${member.firstName || 'each member'}.`
+        if (member.password !== member.confirmPassword) return `Passwords do not match for ${member.firstName || 'each member'}.`
+      }
+      if (!member.dateOfBirth) return `Date of birth is required for ${member.firstName || 'each member'}.`
+    }
+    return null
+  }
+
+  const buildMemberUpdatePayload = (member: SignupMemberForm, inheritPrimaryAddress = false) => {
+    const street = inheritPrimaryAddress ? primaryAdult.addressStreet : member.addressStreet
+    const city = inheritPrimaryAddress ? primaryAdult.addressCity : member.addressCity
+    const state = inheritPrimaryAddress ? primaryAdult.addressState : member.addressState
+    const zip = inheritPrimaryAddress ? primaryAdult.addressZip : member.addressZip
+    const payload: Record<string, unknown> = {
+      firstName: member.firstName,
+      lastName: member.lastName,
+      email: member.email || null,
+      phone: member.phone ? cleanPhoneNumber(member.phone) : null,
+      address: combineAddress(street, city, state, zip) || null,
+      username: member.username || null,
+      dateOfBirth: member.dateOfBirth || null,
+      gender: member.gender || null,
+    }
+    if (member === primaryAdult) {
+      payload.billingStreet = primaryAdult.addressStreet || null
+      payload.billingCity = primaryAdult.addressCity || null
+      payload.billingState = primaryAdult.addressState || null
+      payload.billingZip = primaryAdult.addressZip || null
+    }
+    if (member.graduationYear !== '' && member.graduationYear != null) {
+      payload.graduationYear = member.graduationYear
+    }
+    if (member.password && member.password.length >= 8) {
+      payload.password = member.password
+    }
+    return payload
+  }
+
+  const saveAdminEdit = async () => {
+    const membersToSave = [primaryAdult, ...additionalMembers]
+    for (const member of membersToSave) {
+      if (!member.memberId) continue
+      const inheritAddress = member !== primaryAdult
+      const res = await adminApiRequest(`/api/admin/members/${member.memberId}`, {
+        method: 'PUT',
+        body: JSON.stringify(buildMemberUpdatePayload(member, inheritAddress)),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.message || `Failed to update ${member.firstName} ${member.lastName}`)
+      }
+    }
+
+    const unsignedRequired = waivers.filter((w) => w.is_required !== false && !w.acceptance_id)
+    if (unsignedRequired.some((w) => !checkedTemplateIds.includes(w.id))) {
+      throw new Error('All required waivers must be accepted.')
+    }
+
+    if (checkedTemplateIds.length > 0 && signatureName.trim() && savedMemberIds.length > 0) {
+      const signerId = primaryAdult.memberId ?? savedMemberIds[0]
+      for (const memberId of savedMemberIds) {
+        for (const templateId of checkedTemplateIds) {
+          const waiver = waivers.find((w) => w.id === templateId)
+          if (waiver?.acceptance_id) continue
+          await adminApiRequest(`/api/admin/members/${memberId}/waivers/acceptance`, {
+            method: 'POST',
+            body: JSON.stringify({
+              waiverTemplateId: templateId,
+              acceptedByMemberId: signerId,
+              signatureName: signatureName.trim(),
+            }),
+          })
+        }
+      }
+    }
+
+    setSuccessMessage('Account updated successfully!')
+    onComplete?.({ familyId: editFamilyId, memberIds: savedMemberIds })
   }
 
   const buildPayload = () => {
@@ -230,22 +793,21 @@ export default function FamilySignupWizard({
       primaryAdult: isMinorStart ? undefined : primaryAdult,
       additionalMembers: (isMinorStart ? additionalMembers.slice(0, 1) : additionalMembers).map((member) => ({
         ...member,
-        ...(member.sameContactAsPrimary
-          ? {
-              email: primaryAdult.email,
-              phone: primaryAdult.phone,
-              addressStreet: primaryAdult.addressStreet,
-              addressCity: primaryAdult.addressCity,
-              addressState: primaryAdult.addressState,
-              addressZip: primaryAdult.addressZip,
-            }
-          : {}),
+        addressStreet: primaryAdult.addressStreet,
+        addressCity: primaryAdult.addressCity,
+        addressState: primaryAdult.addressState,
+        addressZip: primaryAdult.addressZip,
       })),
       enrollments: enrollments
-        .filter((row) => row.programId !== '')
+        .filter((row) => row.classEventId !== '')
         .map((row) => ({
           memberIndex: memberIndexMap.get(row.memberClientId) ?? 0,
-          programId: Number(row.programId),
+          classEventId: Number(row.classEventId),
+          programId: Number(row.classEventId),
+          offeringIds: row.offeringIds,
+          schedulingFormId: row.schedulingFormId,
+          slotGroupId: row.slotGroupId,
+          timeSlotId: row.timeSlotId,
           daysPerWeek: 1,
         })),
       waivers: {
@@ -257,30 +819,75 @@ export default function FamilySignupWizard({
     }
   }
 
+  const updateEnrollmentRow = (index: number, patch: Partial<EnrollmentRow>) => {
+    setEnrollments((prev) => prev.map((row, i) => {
+      if (i !== index) return row
+      const next = { ...row, ...patch }
+      if (patch.programsId !== undefined && patch.programsId !== row.programsId) {
+        next.classEventId = ''
+        next.offeringIds = []
+        next.schedulingFormId = undefined
+        if (patch.programsId !== '') void loadClassesForProgram(Number(patch.programsId))
+      }
+      if (patch.classEventId !== undefined && patch.classEventId !== row.classEventId) {
+        next.offeringIds = []
+        if (patch.classEventId !== '') {
+          void loadOfferingsForClass(Number(patch.classEventId))
+          const cls = classesByProgram[Number(next.programsId)]?.find((c) => c.id === Number(patch.classEventId))
+          next.schedulingFormId = cls?.schedulingFormId ?? undefined
+        }
+      }
+      return next
+    }))
+  }
+
+  const toggleOffering = (rowIndex: number, offeringId: number, checked: boolean) => {
+    setEnrollments((prev) => prev.map((row, i) => {
+      if (i !== rowIndex || row.locked) return row
+      const offeringIds = checked
+        ? [...row.offeringIds, offeringId]
+        : row.offeringIds.filter((id) => id !== offeringId)
+      return { ...row, offeringIds }
+    }))
+  }
+
   const submit = async () => {
-    const waiverError = validateWaiverSigning({
-      waivers,
-      checkedTemplateIds,
-      agreeAll,
-      signatureName,
-      paymentPolicyAcknowledged,
-    })
-    if (waiverError) {
-      setError(waiverError)
-      return
+    const allWaiversAlreadySigned = waivers.length > 0
+      && waivers.every((w) => w.is_required === false || w.acceptance_id != null)
+    if (!allWaiversAlreadySigned) {
+      const waiverError = validateWaiverSigning({
+        waivers,
+        checkedTemplateIds,
+        agreeAll,
+        signatureName,
+        paymentPolicyAcknowledged,
+      })
+      if (waiverError) {
+        setError(waiverError)
+        return
+      }
     }
 
     setLoading(true)
     setError(null)
     try {
+      if (isAdminEdit) {
+        await saveAdminEdit()
+        return
+      }
       if (isMinorStart) {
         const minor = additionalMembers[0]
         const payload = {
           minor,
           parentEmail,
           enrollments: enrollments
-            .filter((row) => row.programId !== '')
-            .map((row) => ({ programId: Number(row.programId), daysPerWeek: 1 })),
+            .filter((row) => row.classEventId !== '')
+            .map((row) => ({
+              classEventId: Number(row.classEventId),
+              programId: Number(row.classEventId),
+              offeringIds: row.offeringIds,
+              daysPerWeek: 1,
+            })),
         }
         const res = await fetch(`${apiUrl}/api/signup/minor-start`, {
           method: 'POST',
@@ -294,6 +901,10 @@ export default function FamilySignupWizard({
             ? 'Invite sent! A parent/guardian will receive an email to complete signup.'
             : `Invite created. Share this link: ${data.data?.inviteUrl ?? ''}`,
         )
+        if (returnTo) {
+          window.location.href = returnTo
+          return
+        }
         onComplete?.(data.data)
         return
       }
@@ -309,6 +920,10 @@ export default function FamilySignupWizard({
           })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Signup failed')
+      if (returnTo) {
+        window.location.href = returnTo
+        return
+      }
       setSuccessMessage('Account created successfully!')
       onComplete?.(data.data)
     } catch (err) {
@@ -319,13 +934,23 @@ export default function FamilySignupWizard({
   }
 
   const maxStep = isMinorStart ? 3 : 4
+  const enrollmentStep = isMinorStart ? 2 : 3
+
+  if (isAdminEdit && !accountLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-600">
+        <Loader2 className="w-8 h-8 animate-spin text-vortex-red" />
+        <p className="text-sm">Loading account…</p>
+      </div>
+    )
+  }
 
   const goNext = async () => {
     setError(null)
     if (step === 0 && isAdmin) {
-      if (familyMode === 'existing') {
-        const ok = await verifyExistingFamily()
-        if (!ok) return
+      if (familyMode === 'existing' && !existingFamilyId) {
+        setError('Search for and select an existing family to continue.')
+        return
       }
       setStep(1)
       return
@@ -342,7 +967,11 @@ export default function FamilySignupWizard({
       }
     }
     if (step === 2 && !isMinorStart) {
-      // family members step — optional
+      const err = validateFamilyMembersStep()
+      if (err) {
+        setError(err)
+        return
+      }
     }
     if (step === maxStep) {
       await submit()
@@ -350,6 +979,119 @@ export default function FamilySignupWizard({
     }
     setStep((prev) => prev + 1)
   }
+
+  const renderEnrollmentSection = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-gray-900">Program enrollment</h3>
+        {!enrollPrefill?.locked && (
+          <button
+            type="button"
+            onClick={() => setEnrollments((prev) => [...prev, emptyEnrollment(allAthletes[0]?.clientId ?? primaryAdult.clientId)])}
+            className="inline-flex items-center gap-1 text-sm text-vortex-red font-semibold"
+          >
+            <UserPlus className="w-4 h-4" /> Add enrollment
+          </button>
+        )}
+      </div>
+      {enrollPrefill?.locked && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+          Pre-selected from scheduling: {enrollPrefill.programDisplayName || 'Program'}
+          {enrollPrefill.classDisplayName ? ` → ${enrollPrefill.classDisplayName}` : ''}
+          {enrollPrefill.offeringId ? ' (offering selected)' : ''}
+        </div>
+      )}
+      {enrollments.length === 0 && (
+        <p className="text-sm text-gray-500">Optional: enroll in a program now, or continue without enrolling and sign up for classes later.</p>
+      )}
+      {enrollments.map((row, index) => {
+        const classes = row.programsId !== '' ? (classesByProgram[Number(row.programsId)] ?? []) : []
+        const offeringPack = row.classEventId !== '' ? offeringsByClass[Number(row.classEventId)] : null
+        const offerings = offeringPack?.offerings ?? []
+        return (
+          <div key={index} className="rounded-xl border border-gray-200 p-4 space-y-3">
+            <div className="grid gap-2 md:grid-cols-2">
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Family member</label>
+                <select
+                  className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                  value={row.memberClientId}
+                  disabled={row.locked}
+                  onChange={(e) => updateEnrollmentRow(index, { memberClientId: e.target.value })}
+                >
+                  {allAthletes.map((m) => (
+                    <option key={m.clientId} value={m.clientId}>{m.firstName} {m.lastName}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Program</label>
+                <select
+                  className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                  value={row.programsId}
+                  disabled={row.locked}
+                  onChange={(e) => updateEnrollmentRow(index, {
+                    programsId: e.target.value === '' ? '' : Number(e.target.value),
+                  })}
+                >
+                  <option value="">Select program</option>
+                  {topPrograms.map((p) => (
+                    <option key={p.id} value={p.id}>{p.displayName || p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Class</label>
+                <select
+                  className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                  value={row.classEventId}
+                  disabled={row.locked || row.programsId === ''}
+                  onChange={(e) => updateEnrollmentRow(index, {
+                    classEventId: e.target.value === '' ? '' : Number(e.target.value),
+                  })}
+                >
+                  <option value="">Select class</option>
+                  {classes.map((c) => (
+                    <option key={c.id} value={c.id}>{c.displayName || c.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {offerings.length > 0 && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-2">Offerings (select all that apply)</label>
+                <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-100 rounded-lg p-3">
+                  {offerings.map((offering) => (
+                    <label key={offering.id} className="flex items-start gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={row.offeringIds.includes(offering.id)}
+                        disabled={row.locked && row.offeringIds.includes(offering.id)}
+                        onChange={(e) => toggleOffering(index, offering.id, e.target.checked)}
+                      />
+                      <span>
+                        {offering.label || `Offering ${offering.id}`}
+                        {' '}
+                        <span className="text-gray-500 text-xs">
+                          ({offering.startDate} – {offering.endDate})
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+            {!row.locked && enrollments.length > 1 && (
+              <button type="button" onClick={() => setEnrollments((prev) => prev.filter((_, i) => i !== index))} className="text-xs text-red-600 font-semibold">
+                Remove enrollment
+              </button>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
 
   if (successMessage) {
     return (
@@ -369,10 +1111,16 @@ export default function FamilySignupWizard({
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">
-          {isMinorStart ? 'Youth signup — invite a parent' : isAdmin ? 'Create Vortex account' : 'Join Vortex Athletics'}
+          {isAdminEdit
+            ? 'Edit Vortex account'
+            : isMinorStart
+              ? 'Youth signup — invite a parent'
+              : isAdmin
+                ? 'Create Vortex account'
+                : 'Join Vortex Athletics'}
         </h2>
         <p className="text-sm text-gray-600 mt-1">
-          Step {step + (isAdmin ? 0 : 0)} of {maxStep + (isAdmin ? 0 : 0)} —{' '}
+          Step {step} of {maxStep} —{' '}
           {step === 0 && isAdmin && 'Family setup'}
           {step === 1 && (isMinorStart ? 'Athlete info' : 'Primary adult')}
           {step === 2 && (isMinorStart ? 'Enrollment' : 'Family members')}
@@ -386,7 +1134,7 @@ export default function FamilySignupWizard({
       {step === 0 && isAdmin && (
         <div className="space-y-4">
           <div className="flex gap-3">
-            <button type="button" onClick={() => setFamilyMode('new')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${familyMode === 'new' ? 'bg-vortex-red text-white' : 'border border-gray-300'}`}>
+            <button type="button" onClick={() => { setFamilyMode('new'); setExistingFamilyId(null); setFamilySearch('') }} className={`px-4 py-2 rounded-lg text-sm font-semibold ${familyMode === 'new' ? 'bg-vortex-red text-white' : 'border border-gray-300'}`}>
               New family
             </button>
             <button type="button" onClick={() => setFamilyMode('existing')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${familyMode === 'existing' ? 'bg-vortex-red text-white' : 'border border-gray-300'}`}>
@@ -395,17 +1143,17 @@ export default function FamilySignupWizard({
           </div>
           {familyMode === 'existing' && (
             <div className="space-y-3 rounded-xl border border-gray-200 p-4">
-              <div className="flex gap-2">
-                <input className="flex-1 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Search family name or username" value={familySearch} onChange={(e) => setFamilySearch(e.target.value)} />
-                <button type="button" onClick={() => void searchFamilies()} className="px-4 py-2 border border-gray-300 rounded-lg text-sm">Search</button>
-              </div>
-              <select className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" value={existingFamilyId ?? ''} onChange={(e) => setExistingFamilyId(Number(e.target.value) || null)}>
-                <option value="">Select family</option>
-                {familyOptions.map((f) => (
-                  <option key={f.id} value={f.id}>{f.familyName} ({f.familyUsername})</option>
-                ))}
-              </select>
-              <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder="Family password" value={familyPassword} onChange={(e) => setFamilyPassword(e.target.value)} />
+              <p className="text-sm text-gray-600">
+                Start typing a family name from the Vortex accounts list. Select a match — no family password is required for admin setup.
+              </p>
+              <FamilySearchCombobox
+                value={familySearch}
+                selectedFamilyId={existingFamilyId}
+                onQueryChange={setFamilySearch}
+                onSelect={(family: FamilySearchOption | null) => {
+                  setExistingFamilyId(family?.id ?? null)
+                }}
+              />
             </div>
           )}
         </div>
@@ -414,7 +1162,7 @@ export default function FamilySignupWizard({
       {step === 1 && !isMinorStart && (
         <div className="rounded-xl border border-gray-200 p-4">
           <h3 className="font-semibold text-gray-900 mb-3">Primary adult (parent/guardian or adult athlete)</h3>
-          {renderMemberFields(primaryAdult, (updates) => setPrimaryAdult((prev) => ({ ...prev, ...updates })), { showLogin: true })}
+          {renderMemberFields(primaryAdult, (updates) => setPrimaryAdult((prev) => ({ ...prev, ...updates })), { fieldIdPrefix: 'primary' })}
         </div>
       )}
 
@@ -425,7 +1173,7 @@ export default function FamilySignupWizard({
             {additionalMembers[0] && renderMemberFields(
               additionalMembers[0],
               (updates) => setAdditionalMembers((prev) => [{ ...prev[0], ...updates }]),
-              { showLogin: false },
+              { showLogin: false, fieldIdPrefix: 'minor-athlete' },
             )}
           </div>
           <div>
@@ -439,11 +1187,26 @@ export default function FamilySignupWizard({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-gray-900">Additional family members</h3>
-            <button type="button" onClick={() => setAdditionalMembers((prev) => [...prev, emptyMember()])} className="inline-flex items-center gap-1 text-sm text-vortex-red font-semibold">
+            {!isAdminEdit && (
+            <button
+              type="button"
+              onClick={() => {
+                const m = emptyMember()
+                if (primaryAdult.email) {
+                  m.emailSource = 'parent'
+                  m.email = primaryAdult.email
+                }
+                setAdditionalMembers((prev) => [...prev, m])
+              }}
+              className="inline-flex items-center gap-1 text-sm text-vortex-red font-semibold"
+            >
               <Plus className="w-4 h-4" /> Add member
             </button>
+            )}
           </div>
-          {additionalMembers.length === 0 && <p className="text-sm text-gray-500">No additional members yet. Skip if only one athlete.</p>}
+          {additionalMembers.length === 0 && (
+            <p className="text-sm text-gray-500">No additional members yet. Continue if only one person is joining.</p>
+          )}
           {additionalMembers.map((member, index) => (
             <div key={member.clientId} className="rounded-xl border border-gray-200 p-4 space-y-3">
               <div className="flex justify-between items-center">
@@ -455,43 +1218,14 @@ export default function FamilySignupWizard({
               {renderMemberFields(
                 member,
                 (updates) => setAdditionalMembers((prev) => prev.map((m) => (m.clientId === member.clientId ? { ...m, ...updates } : m))),
-                { showLogin: true, showSameContact: true },
+                { variant: 'family', fieldIdPrefix: `family-${index}`, memberIndex: index },
               )}
             </div>
           ))}
         </div>
       )}
 
-      {((step === 2 && isMinorStart) || (step === 3 && !isMinorStart)) && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Program enrollment</h3>
-            <button
-              type="button"
-              onClick={() => setEnrollments((prev) => [...prev, { memberClientId: allAthletes[0]?.clientId ?? primaryAdult.clientId, programId: '' }])}
-              className="inline-flex items-center gap-1 text-sm text-vortex-red font-semibold"
-            >
-              <UserPlus className="w-4 h-4" /> Add enrollment
-            </button>
-          </div>
-          {enrollments.length === 0 && <p className="text-sm text-gray-500">Optional: add class enrollments now or enroll later from scheduling.</p>}
-          {enrollments.map((row, index) => (
-            <div key={index} className="grid gap-2 md:grid-cols-2">
-              <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={row.memberClientId} onChange={(e) => setEnrollments((prev) => prev.map((r, i) => (i === index ? { ...r, memberClientId: e.target.value } : r)))}>
-                {allAthletes.map((m) => (
-                  <option key={m.clientId} value={m.clientId}>{m.firstName} {m.lastName}</option>
-                ))}
-              </select>
-              <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={row.programId} onChange={(e) => setEnrollments((prev) => prev.map((r, i) => (i === index ? { ...r, programId: e.target.value === '' ? '' : Number(e.target.value) } : r)))}>
-                <option value="">Select program</option>
-                {programs.map((p) => (
-                  <option key={p.id} value={p.id}>{p.display_name || p.name}</option>
-                ))}
-              </select>
-            </div>
-          ))}
-        </div>
-      )}
+      {step === enrollmentStep && renderEnrollmentSection()}
 
       {step === 3 && isMinorStart && (
         <div className="rounded-xl border border-gray-200 p-4 text-sm text-gray-700">
@@ -537,7 +1271,7 @@ export default function FamilySignupWizard({
             className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {step >= maxStep ? (isMinorStart ? 'Send invite' : 'Create account') : 'Continue'}
+            {step >= maxStep ? (isMinorStart ? 'Send invite' : isAdminEdit ? 'Save account' : 'Create account') : 'Continue'}
             {step < maxStep && <ChevronRight className="w-4 h-4" />}
           </button>
         </div>

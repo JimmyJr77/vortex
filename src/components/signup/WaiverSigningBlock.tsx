@@ -46,17 +46,26 @@ export default function WaiverSigningBlock({
   return (
     <div className="space-y-5">
       <p className="text-sm text-gray-600">
-        Read each waiver in full, check the box to attest you agree, then sign once at the bottom.
+        Expand each waiver to read it in full, check the box to attest you agree, then sign once at the bottom.
       </p>
+
+      {waivers.length === 0 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Waivers could not be loaded. Refresh the page or contact the gym office before creating your account.
+        </div>
+      )}
 
       {waivers.map((waiver) => {
         const alreadySigned = waiver.acceptance_id != null
         const checked = checkedTemplateIds.includes(waiver.id)
         return (
-          <div key={waiver.id} className="rounded-xl border border-gray-200 p-4 space-y-3">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <details key={waiver.id} className="rounded-xl border border-gray-200 group" open={waivers.length <= 2}>
+            <summary className="cursor-pointer list-none p-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h3 className="font-bold text-gray-900">{waiver.name}</h3>
+                <h3 className="font-bold text-gray-900 inline">{waiver.name}</h3>
+                {waiver.is_required !== false && (
+                  <span className="ml-2 text-xs font-semibold text-vortex-red">Required</span>
+                )}
                 {alreadySigned && (
                   <p className="text-xs text-green-700 mt-1">
                     Signed {waiver.accepted_at ? new Date(waiver.accepted_at).toLocaleDateString() : ''}
@@ -64,24 +73,28 @@ export default function WaiverSigningBlock({
                 )}
               </div>
               {waiver.waiver_type && (
-                <span className="rounded-full bg-gray-100 text-gray-700 px-2 py-1 text-xs font-medium">
+                <span className="rounded-full bg-gray-100 text-gray-700 px-2 py-1 text-xs font-medium shrink-0">
                   {waiver.waiver_type.replace(/_/g, ' ')}
                 </span>
               )}
+            </summary>
+            <div className="px-4 pb-4 space-y-3 border-t border-gray-100">
+              <div className="text-sm text-gray-600 whitespace-pre-wrap max-h-64 overflow-y-auto border border-gray-100 rounded-lg p-3 bg-gray-50">
+                {waiver.body || 'Waiver text unavailable.'}
+              </div>
+              {!alreadySigned && !readOnly && (
+                <label className="flex items-start gap-2 text-sm text-gray-800">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={checked}
+                    onChange={(e) => onToggleTemplate(waiver.id, e.target.checked)}
+                  />
+                  <span>I&apos;ve read the above and agree to {waiver.name}</span>
+                </label>
+              )}
             </div>
-            <p className="text-sm text-gray-600 whitespace-pre-wrap max-h-64 overflow-y-auto">{waiver.body}</p>
-            {!alreadySigned && !readOnly && (
-              <label className="flex items-start gap-2 text-sm text-gray-800">
-                <input
-                  type="checkbox"
-                  className="mt-1"
-                  checked={checked}
-                  onChange={(e) => onToggleTemplate(waiver.id, e.target.checked)}
-                />
-                <span>I&apos;ve read the above and agree</span>
-              </label>
-            )}
-          </div>
+          </details>
         )
       })}
 

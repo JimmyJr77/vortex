@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Calendar, Loader2, X } from 'lucide-react'
 import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
 import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
-import AdminSchedulingFormTab from './scheduling/AdminSchedulingFormTab'
 import AdminSchedulingOfferings from './scheduling/AdminSchedulingOfferings'
 import AdminSchedulingLegacyForms from './scheduling/AdminSchedulingLegacyForms'
 import {
@@ -26,11 +25,10 @@ import {
   type TopProgram,
 } from '../utils/programsApi'
 import {
-  allSignupFieldKeys,
   type SchedulingNavigationIntent,
 } from '../utils/schedulingNavigation'
 
-type Panel = 'overview' | 'form' | 'offerings' | 'slots'
+type Panel = 'overview' | 'offerings' | 'slots'
 
 interface AdminSchedulingProps {
   navigationIntent?: SchedulingNavigationIntent | null
@@ -38,10 +36,9 @@ interface AdminSchedulingProps {
 }
 
 const PANELS: { id: Panel; label: string }[] = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'form', label: 'Form' },
+  { id: 'overview', label: 'Classes' },
   { id: 'offerings', label: 'Offerings' },
-  { id: 'slots', label: 'Slots' },
+  { id: 'slots', label: 'Timeslots' },
 ]
 
 const AdminScheduling = ({
@@ -59,7 +56,6 @@ const AdminScheduling = ({
   const [signups, setSignups] = useState<SchedulingSignup[]>([])
   const [orphanedSignups, setOrphanedSignups] = useState<SchedulingOrphanedSignup[]>([])
   const [panel, setPanel] = useState<Panel>('overview')
-  const [forwardFormSelectAll, setForwardFormSelectAll] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
@@ -148,23 +144,10 @@ const AdminScheduling = ({
       setSignups([])
       setOrphanedSignups([])
       setSelectedOffering(null)
-      setForwardFormSelectAll(false)
       setPanel('overview')
     },
     [],
   )
-
-  const applyProgramDraftDefaults = useCallback((program: TopProgram): TopProgram => {
-    const allFields = allSignupFieldKeys()
-    return {
-      ...program,
-      schedulingActive: program.schedulingActive ?? true,
-      schedulingSignupFields: allFields,
-      schedulingMandateWaiver: true,
-      schedulingOverviewSavedAt:
-        program.schedulingOverviewSavedAt ?? new Date().toISOString(),
-    }
-  }, [])
 
   const applyNavigationIntent = useCallback(
     async (intent: SchedulingNavigationIntent, programs: TopProgram[]) => {
@@ -173,11 +156,6 @@ const AdminScheduling = ({
         throw new Error('Program not found for scheduling setup')
       }
 
-      const draftedProgram = applyProgramDraftDefaults(program)
-      setTopPrograms((prev) =>
-        prev.map((p) => (p.id === draftedProgram.id ? draftedProgram : p)),
-      )
-      setForwardFormSelectAll(true)
       setSelectedProgramId(intent.programsId)
       setSelectedOffering(null)
       setPanel(intent.targetPanel)
@@ -201,7 +179,7 @@ const AdminScheduling = ({
         loadOrphanedSignups(formId),
       ])
     },
-    [applyProgramDraftDefaults, loadDetail, loadSignups, loadOrphanedSignups],
+    [loadDetail, loadSignups, loadOrphanedSignups],
   )
 
   useEffect(() => {
@@ -253,7 +231,7 @@ const AdminScheduling = ({
 
   const selectedProgram = topPrograms.find((p) => p.id === selectedProgramId) ?? null
 
-  const needsClassEvent = ['form', 'offerings', 'slots'].includes(panel)
+  const needsClassEvent = ['offerings', 'slots'].includes(panel)
   const showClassEventPrompt = needsClassEvent && !selectedClassEvent
 
   const handleOfferingContinueToSlots = useCallback(() => {
@@ -267,7 +245,6 @@ const AdminScheduling = ({
       : null)
 
   const handleProgramSaved = (updated: TopProgram) => {
-    setForwardFormSelectAll(false)
     setTopPrograms((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))
   }
 
@@ -299,10 +276,10 @@ const AdminScheduling = ({
       <div>
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Calendar className="w-7 h-7 text-vortex-red" />
-          Class &amp; Event Scheduling &amp; Signup Forms
+          Class &amp; Event Scheduling
         </h2>
         <p className="text-gray-600 text-sm mt-1">
-          Configure offerings, slots, and signup forms for each class and event.
+          Configure class offerings and timeslots. New athletes complete the official account signup form before enrolling.
         </p>
       </div>
 
@@ -337,7 +314,7 @@ const AdminScheduling = ({
                     )}
                   </>
                 ) : (
-                  <span className="text-amber-700"> · Select a class in Overview to continue</span>
+                  <span className="text-amber-700"> · Select a class in Classes to continue</span>
                 )}
               </div>
 
@@ -367,7 +344,7 @@ const AdminScheduling = ({
 
               {showClassEventPrompt && (
                 <p className="text-gray-600 py-8">
-                  Select a class in <strong>Overview</strong> to manage {panel}.
+                  Select a class in <strong>Classes</strong> to manage {panel === 'slots' ? 'timeslots' : panel}.
                 </p>
               )}
 
@@ -376,21 +353,7 @@ const AdminScheduling = ({
                   program={selectedProgram}
                   onSaved={handleProgramSaved}
                   onSelectClassEvent={handleSelectClassEvent}
-                  onOpenForm={() => setPanel('form')}
-                />
-              )}
-
-              {panel === 'form' && selectedClassEvent && selectedId && detail && (
-                <AdminSchedulingFormTab
-                  formId={selectedId}
-                  initialSignupFields={detail.signupFields}
-                  initialMandateWaiver={detail.mandateWaiver}
-                  selectAllFields={forwardFormSelectAll}
-                  onSaved={async () => {
-                    setForwardFormSelectAll(false)
-                    await refresh()
-                  }}
-                  onContinue={() => setPanel('offerings')}
+                  onOpenOfferings={() => setPanel('offerings')}
                 />
               )}
 

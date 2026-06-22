@@ -2,6 +2,9 @@ import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { sendAccountInviteEmail } from '../email/accountInviteEmail.js'
+import { linkMemberToSchoolFromName } from '../schools/handlers.js'
+import { ensureSignupSchema } from './ensureSignupSchema.js'
+import { resolveProgramsSchema } from '../programs/schema.js'
 
 function isAdult(dateOfBirth) {
   if (!dateOfBirth) return true
@@ -59,6 +62,21 @@ async function activeRequiredWaiverTemplateIds(client, facilityId) {
     [facilityId],
   )
   return res.rows.map((row) => Number(row.id))
+}
+
+async function applyYouthAthleteFields(client, memberId, memberInput) {
+  const school = String(memberInput.currentSchool || memberInput.current_school || '').trim()
+  if (school) {
+    await linkMemberToSchoolFromName(client, memberId, school, 'family_signup')
+  }
+  const gradRaw = memberInput.graduationYear ?? memberInput.graduation_year
+  const graduationYear = gradRaw != null && String(gradRaw).trim() !== '' ? Number(gradRaw) : null
+  if (Number.isFinite(graduationYear)) {
+    await client.query(
+      `UPDATE member SET graduation_year = $2, updated_at = now() WHERE id = $1`,
+      [memberId, graduationYear],
+    )
+  }
 }
 
 async function syncMemberWaiverFlag(client, memberId) {
@@ -138,11 +156,39 @@ async function recordWaiverAcceptances(client, {
   }
 }
 
+async function suggestUsername(client, firstName, lastName) {
+  const cleanFirstName = String(firstName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '')
+  const cleanLastName = String(lastName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '').substring(0, 2)
+  const baseUsername = cleanFirstName + cleanLastName
+  if (!baseUsername) return ''
+
+  let username = baseUsername
+  let counter = 1
+  while (counter < 100) {
+    const existing = await client.query(
+      `
+        SELECT 1 FROM member WHERE LOWER(username) = LOWER($1)
+        UNION ALL
+        SELECT 1 FROM app_user WHERE LOWER(username) = LOWER($1)
+        LIMIT 1
+      `,
+      [username],
+    )
+    if (existing.rows.length === 0) return username
+    username = `${baseUsername}${counter}`
+    counter += 1
+  }
+  return `${baseUsername}${Date.now()}`
+}
+
 async function createMemberRecord(client, facilityId, familyId, memberInput, { parentGuardianIds = [] } = {}) {
   const passwordHash = memberInput.password ? await bcrypt.hash(memberInput.password, 10) : null
   const dob = memberInput.dateOfBirth || memberInput.date_of_birth || null
   const minor = dob && !isAdult(dob)
   const address = memberInput.addressStreet || memberInput.address || null
+  const hasCredentials = Boolean(memberInput.username && passwordHash)
+  const storeUsername = hasCredentials ? memberInput.username : (!minor ? memberInput.username : null)
+  const storePasswordHash = hasCredentials ? passwordHash : (!minor ? passwordHash : null)
 
   const inserted = await client.query(
     `
@@ -163,8 +209,8 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
       memberInput.email || null,
       memberInput.phone || null,
       dob,
-      !minor && memberInput.username ? memberInput.username : null,
-      !minor ? passwordHash : null,
+      storeUsername,
+      storePasswordHash,
       address,
       memberInput.addressStreet || memberInput.billingStreet || null,
       memberInput.addressCity || memberInput.billingCity || null,
@@ -186,7 +232,7 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
     [familyId, member.id],
   )
 
-  if (!minor && passwordHash && (memberInput.email || memberInput.username)) {
+  if (hasCredentials && (memberInput.email || memberInput.username)) {
     const fullName = `${memberInput.firstName} ${memberInput.lastName}`.trim()
     await client.query(
       `
@@ -220,6 +266,10 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
     await client.query(`UPDATE member SET app_user_id = $1 WHERE id = $1`, [member.id])
   }
 
+  if (minor) {
+    await applyYouthAthleteFields(client, member.id, memberInput)
+  }
+
   return member
 }
 
@@ -240,8 +290,30 @@ async function processFamilySignup(client, payload, options = {}) {
   if (!primaryAdult?.firstName || !primaryAdult?.lastName) {
     throw new Error('Primary adult first and last name are required.')
   }
+  if (!String(primaryAdult.email || '').trim()) {
+    throw new Error('Primary adult email is required.')
+  }
+  const primaryPhoneDigits = String(primaryAdult.phone || '').replace(/\D/g, '')
+  if (primaryPhoneDigits.length !== 10) {
+    throw new Error('Primary adult phone must be a valid 10-digit number.')
+  }
+  if (!String(primaryAdult.addressStreet || '').trim()) {
+    throw new Error('Primary adult street address is required.')
+  }
+  if (!String(primaryAdult.addressCity || '').trim()) {
+    throw new Error('Primary adult city is required.')
+  }
+  if (!String(primaryAdult.addressState || '').trim()) {
+    throw new Error('Primary adult state is required.')
+  }
+  if (!String(primaryAdult.addressZip || '').trim()) {
+    throw new Error('Primary adult ZIP code is required.')
+  }
   if (!primaryAdult.dateOfBirth || !isAdult(primaryAdult.dateOfBirth)) {
     throw new Error('Primary account holder must be 18 or older.')
+  }
+  if (!String(primaryAdult.username || '').trim()) {
+    throw new Error('Primary adult username is required.')
   }
   if (!primaryAdult.password || primaryAdult.password.length < 8) {
     throw new Error('Primary adult password must be at least 8 characters.')
@@ -330,24 +402,29 @@ async function processFamilySignup(client, payload, options = {}) {
 
   for (let i = 0; i < additionalMembers.length; i += 1) {
     const input = additionalMembers[i]
-    const contact = input.sameContactAsPrimary
-      ? {
-          email: primaryAdult.email,
-          phone: primaryAdult.phone,
-          addressStreet: primaryAdult.addressStreet,
-          addressCity: primaryAdult.addressCity,
-          addressState: primaryAdult.addressState,
-          addressZip: primaryAdult.addressZip,
-        }
-      : {}
-    const merged = { ...input, ...contact }
+    const merged = {
+      ...input,
+      addressStreet: primaryAdult.addressStreet,
+      addressCity: primaryAdult.addressCity,
+      addressState: primaryAdult.addressState,
+      addressZip: primaryAdult.addressZip,
+    }
     const dob = merged.dateOfBirth
     const minor = dob && !isAdult(dob)
     const guardians = minor ? [payerMember.id] : []
-    if (minor && (!merged.firstName || !merged.lastName)) {
-      throw new Error('Each family athlete needs a first and last name.')
+    if (!merged.firstName || !merged.lastName) {
+      throw new Error('Each family member needs a first and last name.')
     }
-    if (!minor && merged.password && merged.password !== merged.confirmPassword) {
+    if (!merged.username?.trim()) {
+      throw new Error(`Username is required for ${merged.firstName} ${merged.lastName}.`)
+    }
+    if (!merged.email?.trim()) {
+      throw new Error(`Email is required for ${merged.firstName} ${merged.lastName}.`)
+    }
+    if (!merged.password || merged.password.length < 8) {
+      throw new Error(`Password must be at least 8 characters for ${merged.firstName} ${merged.lastName}.`)
+    }
+    if (merged.password !== merged.confirmPassword) {
       throw new Error(`Passwords do not match for ${merged.firstName} ${merged.lastName}.`)
     }
     const member = await createMemberRecord(client, facilityId, familyId, merged, {
@@ -363,8 +440,8 @@ async function processFamilySignup(client, payload, options = {}) {
 
   for (const enrollment of enrollments) {
     const memberId = memberIdByClientIndex[Number(enrollment.memberIndex)]
-    const programId = Number(enrollment.programId)
-    if (!Number.isFinite(memberId) || !Number.isFinite(programId)) continue
+    const classEventId = Number(enrollment.classEventId ?? enrollment.programId)
+    if (!Number.isFinite(memberId) || !Number.isFinite(classEventId)) continue
     await client.query(
       `
         INSERT INTO member_program (member_id, program_id, days_per_week, selected_days, created_at, updated_at)
@@ -372,11 +449,46 @@ async function processFamilySignup(client, payload, options = {}) {
       `,
       [
         memberId,
-        programId,
+        classEventId,
         enrollment.daysPerWeek ?? 1,
         enrollment.selectedDays ?? [],
       ],
     )
+
+    const schedulingFormId = Number(enrollment.schedulingFormId)
+    const slotGroupId = Number(enrollment.slotGroupId)
+    if (Number.isFinite(schedulingFormId) && Number.isFinite(slotGroupId)) {
+      const memberRow = createdMembers.find(({ member }) => Number(member.id) === memberId)?.member
+      const timeSlotId = Number(enrollment.timeSlotId)
+      const responses = {
+        first_name: memberRow?.first_name,
+        last_name: memberRow?.last_name,
+        email: memberRow?.email,
+        phone: memberRow?.phone,
+        offering_ids: (enrollment.offeringIds || []).map(Number).filter(Number.isFinite),
+      }
+      await client.query(
+        `
+          INSERT INTO scheduling_signup (
+            form_id, time_slot_id, slot_group_id, member_id,
+            first_name, last_name, email, phone, field_responses, responses, status
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'confirmed')
+        `,
+        [
+          schedulingFormId,
+          Number.isFinite(timeSlotId) ? timeSlotId : null,
+          slotGroupId,
+          memberId,
+          responses.first_name,
+          responses.last_name,
+          responses.email,
+          responses.phone,
+          JSON.stringify(responses),
+          JSON.stringify(responses),
+        ],
+      )
+    }
   }
 
   await recordWaiverAcceptances(client, {
@@ -437,6 +549,163 @@ function adminAuthMiddleware(pool, jwtSecret) {
 }
 
 export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl = process.env.PUBLIC_APP_URL || 'http://localhost:5173' }) {
+  void ensureSignupSchema(pool).catch((err) => {
+    console.error('[signup] ensureSignupSchema failed:', err.message)
+  })
+
+  app.get('/api/signup/suggest-username', async (req, res) => {
+    try {
+      await ensureSignupSchema(pool)
+      const firstName = String(req.query.firstName || '').trim()
+      const lastName = String(req.query.lastName || '').trim()
+      if (!firstName) {
+        return res.status(400).json({ success: false, message: 'firstName is required' })
+      }
+      const username = await suggestUsername(pool, firstName, lastName)
+      res.json({ success: true, data: { username } })
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message })
+    }
+  })
+
+  app.get('/api/signup/catalog/programs', async (_req, res) => {
+    try {
+      await ensureSignupSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const result = await pool.query(
+        `
+          SELECT id, name, display_name, description
+          FROM ${schema.programsTable}
+          WHERE archived = FALSE
+          ORDER BY COALESCE(display_name, name), id
+        `,
+      )
+      res.json({
+        success: true,
+        data: result.rows.map((row) => ({
+          id: Number(row.id),
+          name: row.name,
+          displayName: row.display_name,
+          description: row.description,
+        })),
+      })
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message })
+    }
+  })
+
+  app.get('/api/signup/catalog/programs/:programsId/classes', async (req, res) => {
+    try {
+      await ensureSignupSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const programsId = Number(req.params.programsId)
+      const result = await pool.query(
+        `
+          SELECT
+            p.id,
+            p.name,
+            p.display_name,
+            sf.id AS scheduling_form_id
+          FROM program p
+          LEFT JOIN scheduling_form sf
+            ON sf.program_id = p.id AND sf.deleted_at IS NULL AND sf.is_active = TRUE
+          WHERE p.${schema.programFkColumn} = $1
+            AND COALESCE(p.is_active, TRUE) = TRUE
+            AND COALESCE(p.archived, FALSE) = FALSE
+          ORDER BY COALESCE(p.display_name, p.name), p.id
+        `,
+        [programsId],
+      )
+      res.json({
+        success: true,
+        data: result.rows.map((row) => ({
+          id: Number(row.id),
+          name: row.name,
+          displayName: row.display_name,
+          schedulingFormId: row.scheduling_form_id != null ? Number(row.scheduling_form_id) : null,
+        })),
+      })
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message })
+    }
+  })
+
+  app.get('/api/signup/catalog/classes/:classEventId/offerings', async (req, res) => {
+    try {
+      await ensureSignupSchema(pool)
+      const classEventId = Number(req.params.classEventId)
+      const formRes = await pool.query(
+        `
+          SELECT id FROM scheduling_form
+          WHERE program_id = $1 AND deleted_at IS NULL AND is_active = TRUE
+          ORDER BY id LIMIT 1
+        `,
+        [classEventId],
+      )
+      if (formRes.rows.length === 0) {
+        return res.json({ success: true, data: { formId: null, offerings: [] } })
+      }
+      const formId = Number(formRes.rows[0].id)
+      const offeringsRes = await pool.query(
+        `SELECT id, label, start_date, end_date FROM scheduling_offering WHERE form_id = $1 ORDER BY start_date DESC, id DESC`,
+        [formId],
+      )
+      res.json({
+        success: true,
+        data: {
+          formId,
+          offerings: offeringsRes.rows.map((row) => ({
+            id: Number(row.id),
+            label: row.label,
+            startDate: row.start_date,
+            endDate: row.end_date,
+          })),
+        },
+      })
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message })
+    }
+  })
+
+  app.get('/api/signup/catalog/prefill/:formId', async (req, res) => {
+    try {
+      await ensureSignupSchema(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const formId = Number(req.params.formId)
+      const result = await pool.query(
+        `
+          SELECT
+            sf.id AS form_id,
+            sf.program_id AS class_event_id,
+            sf.programs_id,
+            p.display_name AS class_display_name,
+            pr.display_name AS program_display_name
+          FROM scheduling_form sf
+          LEFT JOIN program p ON p.id = sf.program_id
+          LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
+          WHERE sf.id = $1 AND sf.deleted_at IS NULL
+        `,
+        [formId],
+      )
+      if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Scheduling form not found' })
+      }
+      const row = result.rows[0]
+      res.json({
+        success: true,
+        data: {
+          formId: Number(row.form_id),
+          classEventId: row.class_event_id != null ? Number(row.class_event_id) : null,
+          programsId: row.programs_id != null ? Number(row.programs_id) : null,
+          classDisplayName: row.class_display_name,
+          programDisplayName: row.program_display_name,
+        },
+      })
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message })
+    }
+  })
+
   app.get('/api/signup/programs', async (_req, res) => {
     try {
       const result = await pool.query(
@@ -456,6 +725,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
 
   app.get('/api/signup/waivers', async (_req, res) => {
     try {
+      await ensureSignupSchema(pool)
       const facilityId = await resolveFacilityId(pool)
       const result = await pool.query(
         `
@@ -485,6 +755,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
   app.post('/api/signup/family', async (req, res) => {
     const client = await pool.connect()
     try {
+      await ensureSignupSchema(pool)
       await client.query('BEGIN')
       const result = await processFamilySignup(client, req.body, {
         ipAddress: req.ip,
@@ -582,6 +853,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
         `,
         [familyId, minorMember.id],
       )
+      await applyYouthAthleteFields(client, minorMember.id, minor)
 
       for (const enrollment of enrollments) {
         const programId = Number(enrollment.programId)

@@ -910,7 +910,7 @@ export default function AdminClasses({
     onOpenScheduling?.({
       programsId: program.categoryId,
       classEventId: program.id,
-      targetPanel: 'form',
+      targetPanel: 'offerings',
     })
   }
 

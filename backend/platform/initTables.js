@@ -34,6 +34,7 @@ export async function initPlatformTables(pool) {
     '031_coach_assignment_drilldown.sql',
     '037_waiver_types.sql',
     '038_account_invite.sql',
+    '039_member_graduation_year.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

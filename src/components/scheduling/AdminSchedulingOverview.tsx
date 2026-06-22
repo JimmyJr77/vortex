@@ -26,7 +26,7 @@ interface Props {
   program: TopProgram
   onSaved: (program: TopProgram) => void
   onSelectClassEvent: (classEvent: ClassEvent) => void | Promise<void>
-  onOpenForm: () => void
+  onOpenOfferings: () => void
 }
 
 type SetupStatus = 'none' | 'partial' | 'ready'
@@ -57,7 +57,7 @@ const AdminSchedulingOverview = ({
   program,
   onSaved,
   onSelectClassEvent,
-  onOpenForm,
+  onOpenOfferings,
 }: Props) => {
   const [programEnrollSiteSelection, setProgramEnrollSiteSelection] = useState<EnrollSiteKey[]>(
     () => programEnrollSites(program),
@@ -189,7 +189,7 @@ const AdminSchedulingOverview = ({
 
   const handleClassClick = async (classEvent: ClassEvent) => {
     await onSelectClassEvent(classEvent)
-    onOpenForm()
+    onOpenOfferings()
   }
 
   const classVisibilityDisabled = !programVisible || bulkSavingClasses
@@ -238,7 +238,7 @@ const AdminSchedulingOverview = ({
       <section>
         <h4 className="text-base font-bold text-black mb-3">Classes &amp; Events</h4>
         <p className="text-sm text-gray-600 mb-3 flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span>Select a class to configure its signup form, offerings, and slots.</span>
+          <span>Select a class to configure offerings and timeslots.</span>
           {classEvents.length > 0 && (
             <span className="inline-flex items-center gap-1 text-xs">
               <button

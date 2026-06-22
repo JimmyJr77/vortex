@@ -3,7 +3,7 @@ import { SCHEDULING_SIGNUP_FIELD_CATALOG } from '../config/schedulingSignupField
 export type SchedulingNavigationIntent = {
   programsId: number
   classEventId: number
-  targetPanel: 'form' | 'slots'
+  targetPanel: 'offerings' | 'slots'
 }
 
 export function allSignupFieldKeys(): string[] {

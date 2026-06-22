@@ -302,6 +302,7 @@ exists · **Removed** = already dropped in a migration.
 | `family_guardian` | Removed | Dropped in [009](../backend/migrations/009_family_identity_cleanup.sql). Canonical link: `family_member`. |
 | `family.primary_*` / legacy guardian columns on `family` | Removed | [009](../backend/migrations/009_family_identity_cleanup.sql). |
 | `member.parent_guardian_ids` + `parent_guardian_authority` | Active | **Keep** — used for minors messaging and guardian access. |
+| `family.family_password_hash` + `/api/admin/families/verify` | Candidate | Admin signup + unified wizard (no password); column still written on family create in `familySignup.js` / legacy POST `/api/admin/members` | Verify zero public callers needing password join; then stop writing hash and drop column. |
 
 ### 10.3a Role model consolidation ([032](../backend/migrations/032_role_model_consolidation.sql))
 

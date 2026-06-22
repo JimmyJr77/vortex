@@ -1,11 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Calendar, CheckCircle, Clock, Loader2, Plus, Trash2, Users, X } from 'lucide-react'
-import {
-  getSignupFieldDef,
-  isParentFieldLockedByWaiver,
-  type SchedulingSignupFieldDef,
-} from '../config/schedulingSignupFields'
-import SchoolAutocompleteInput from './scheduling/SchoolAutocompleteInput'
+import { Calendar, CheckCircle, Clock, Loader2, Trash2, Users, X } from 'lucide-react'
 import {
   changeSchedulingAuthPassword,
   checkSchedulingEmail,
@@ -34,6 +28,20 @@ import {
   type SchedulingTimeSlot,
 } from '../utils/schedulingApi'
 import { getLoggedInMemberEmail, getMemberSessionToken } from '../utils/portalSession'
+
+function buildSchedulingReturnUrl(
+  formId: number,
+  offeringId?: number | null | undefined,
+  slotGroupId?: number | null,
+  timeSlotId?: number | null,
+) {
+  const params = new URLSearchParams()
+  params.set('form', String(formId))
+  if (offeringId != null) params.set('offeringId', String(offeringId))
+  if (slotGroupId != null) params.set('slotGroupId', String(slotGroupId))
+  if (timeSlotId != null) params.set('timeSlotId', String(timeSlotId))
+  return `/enroll?${params.toString()}`
+}
 
 function formatTimeLabel(time: string) {
   const [h, m] = time.split(':').map(Number)
@@ -228,99 +236,6 @@ function collectSignedUpSlotKeysFromOptions(options: ProgramClassOption[]): Set<
     }
   }
   return keys
-}
-
-function SignupFieldInput({
-  field,
-  value,
-  onChange,
-}: {
-  field: SchedulingSignupFieldDef
-  value: string | string[]
-  onChange: (val: string | string[]) => void
-}) {
-  const id = `signup-${field.key}`
-
-  if (field.type === 'email_list') {
-    const emails = Array.isArray(value) ? value : value ? [String(value)] : ['']
-    return (
-      <div className="space-y-2">
-        {emails.map((email, idx) => (
-          <div key={idx} className="flex gap-2">
-            <input
-              type="email"
-              value={email}
-              placeholder="friend@email.com"
-              onChange={(e) => {
-                const next = [...emails]
-                next[idx] = e.target.value
-                onChange(next)
-              }}
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-vortex-red"
-            />
-            {emails.length > 1 && (
-              <button
-                type="button"
-                onClick={() => onChange(emails.filter((_, i) => i !== idx))}
-                className="text-red-600 p-2"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={() => onChange([...emails, ''])}
-          className="inline-flex items-center gap-1 text-sm text-vortex-red font-semibold"
-        >
-          <Plus className="w-4 h-4" /> Add email
-        </button>
-      </div>
-    )
-  }
-
-  if (field.type === 'textarea') {
-    return (
-      <textarea
-        id={id}
-        rows={3}
-        required={field.required}
-        value={String(value || '')}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-vortex-red focus:ring-2 focus:ring-vortex-red/20 outline-none"
-      />
-    )
-  }
-
-  if (field.key === 'current_school') {
-    return (
-      <SchoolAutocompleteInput
-        id={id}
-        required={field.required}
-        value={String(value || '')}
-        onChange={(val) => onChange(val)}
-      />
-    )
-  }
-
-  const inputType =
-    field.type === 'number' ? 'number'
-    : field.type === 'email' ? 'email'
-    : field.type === 'phone' ? 'tel'
-    : field.type === 'date' ? 'date'
-    : 'text'
-
-  return (
-    <input
-      id={id}
-      type={inputType}
-      required={field.required}
-      value={String(value || '')}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-vortex-red focus:ring-2 focus:ring-vortex-red/20 outline-none"
-    />
-  )
 }
 
 type IdentityPhase = 'pending' | 'email' | 'login' | 'must_change_password' | 'ready'
@@ -837,7 +752,6 @@ const SchedulingSignupEmbed = ({
   const [identityPhase, setIdentityPhase] = useState<IdentityPhase>('pending')
   const [accountEmail, setAccountEmail] = useState(initialEmail || getLoggedInMemberEmail() || '')
   const [accountPassword, setAccountPassword] = useState('')
-  const [newAccountPassword, setNewAccountPassword] = useState('')
   const [forcedNewPassword, setForcedNewPassword] = useState('')
   const [forcedConfirmPassword, setForcedConfirmPassword] = useState('')
   const [signupAuthToken, setSignupAuthToken] = useState<string | null>(null)
@@ -880,7 +794,6 @@ const SchedulingSignupEmbed = ({
     setIsNewUser(false)
     setAccountEmail(initialEmail || getLoggedInMemberEmail() || '')
     setAccountPassword('')
-    setNewAccountPassword('')
     setMagicLinkSent(false)
     fetchPublicSchedulingForm(formId, { fromEvent })
       .then((detail) => {
@@ -1046,11 +959,6 @@ const SchedulingSignupEmbed = ({
         timeSlotId: item.timeSlotId,
       })),
       promoCodes: appliedPromoCodes,
-      currentSchool: typeof responses.current_school === 'string' ? responses.current_school : null,
-      graduationYear:
-        responses.graduation_year != null && String(responses.graduation_year).trim() !== ''
-          ? Number(responses.graduation_year)
-          : null,
     })
       .then((preview) => {
         if (!cancelled) setOrderPreview(preview)
@@ -1071,8 +979,6 @@ const SchedulingSignupEmbed = ({
     cartItems,
     accountEmail,
     responses.email,
-    responses.current_school,
-    responses.graduation_year,
     initialEmail,
     signupAuthToken,
     formId,
@@ -1174,20 +1080,6 @@ const SchedulingSignupEmbed = ({
 
   const mandateWaiver = formDetail?.mandateWaiver ?? false
 
-  const enabledFields = useMemo(() => {
-    if (!formDetail) return []
-    return formDetail.signupFields
-      .map((key) => {
-        const def = getSignupFieldDef(key)
-        if (!def) return null
-        if (isParentFieldLockedByWaiver(key, mandateWaiver)) {
-          return { ...def, required: true }
-        }
-        return def
-      })
-      .filter((f): f is SchedulingSignupFieldDef => Boolean(f))
-  }, [formDetail, mandateWaiver])
-
   const handleOfferingSelect = (nextOfferingId: number) => {
     setSlotGroupId(null)
     setTimeSlotId(null)
@@ -1273,9 +1165,8 @@ const SchedulingSignupEmbed = ({
           setMagicLinkSent(true)
         }
       } else {
-        setIsNewUser(true)
-        setIdentityPhase('ready')
-        setResponses((prev) => ({ ...prev, email }))
+        const returnTo = buildSchedulingReturnUrl(formId, offeringId, slotGroupId, timeSlotId)
+        window.location.assign(`/signup/family?return=${encodeURIComponent(returnTo)}`)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to check email')
@@ -1449,7 +1340,6 @@ const SchedulingSignupEmbed = ({
   const showEmailStep = slotSelected && identityPhase === 'email' && !identityLoading
   const showLoginStep = slotSelected && identityPhase === 'login'
   const showMustChangePasswordStep = slotSelected && identityPhase === 'must_change_password'
-  const showNewUserForm = slotSelected && identityReady && isNewUser && signupPhase === 'select'
   const showSubmit = slotSelected && identityReady && signupPhase === 'select'
   const showReview = signupPhase === 'review'
   const showAddMoreClasses =
@@ -1555,24 +1445,6 @@ const SchedulingSignupEmbed = ({
       setError('Select at least one new class time to sign up')
       return
     }
-    if (isNewUser) {
-      if (!newAccountPassword || newAccountPassword.length < 6) {
-        setError('Account password must be at least 6 characters')
-        return
-      }
-      for (const field of enabledFields) {
-        if (!field.required) continue
-        const raw = responses[field.key]
-        const empty =
-          field.type === 'email_list'
-            ? !(Array.isArray(raw) ? raw : []).some((s) => String(s).trim())
-            : raw == null || String(raw).trim() === ''
-        if (empty) {
-          setError(`${field.label} is required`)
-          return
-        }
-      }
-    }
     setError(null)
     setCartItems([...pendingSlotList])
     setSignupPhase('review')
@@ -1583,18 +1455,6 @@ const SchedulingSignupEmbed = ({
     setSubmitting(true)
     setError(null)
     try {
-      const payload: Record<string, string | boolean | number | string[]> = {}
-      if (isNewUser) {
-        for (const field of enabledFields) {
-          const raw = responses[field.key]
-          if (field.type === 'email_list') {
-            const list = (Array.isArray(raw) ? raw : []).map((s) => s.trim()).filter(Boolean)
-            if (list.length > 0) payload[field.key] = list
-          } else if (raw != null && String(raw).trim() !== '') {
-            payload[field.key] = field.type === 'number' ? Number(raw) : String(raw).trim()
-          }
-        }
-      }
       const result = await submitSchedulingSignupBatch({
         signups: cartItems
           .filter(
@@ -1610,9 +1470,8 @@ const SchedulingSignupEmbed = ({
           slotGroupId: item.slotGroupId,
           timeSlotId: item.timeSlotId,
         })),
-        responses: isNewUser ? payload : { email: accountEmail.trim() },
+        responses: { email: accountEmail.trim() },
         signupAuthToken: signupAuthToken || undefined,
-        password: isNewUser ? newAccountPassword : undefined,
         promoCodes: appliedPromoCodes,
       })
       setSignupResults(result.signups)
@@ -2076,7 +1935,8 @@ const SchedulingSignupEmbed = ({
               Your email
             </h4>
             <p className="text-sm text-gray-600 mb-3">
-              Enter the email for your Vortex account. Returning members can sign in and skip the form.
+              Enter the email for your Vortex account. Returning members can sign in. New families are
+              directed to the official account signup form before enrollment is completed.
             </p>
             <input
               type="email"
@@ -2191,54 +2051,6 @@ const SchedulingSignupEmbed = ({
         {slotSelected && identityReady && !isNewUser && (
           <div className={`${sectionClass} text-sm text-green-800 bg-green-50 border border-green-200`}>
             Signed in as <span className="font-semibold">{accountEmail}</span>.
-          </div>
-        )}
-
-        {showNewUserForm && (
-          <div className={sectionClass}>
-            <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
-              Your information
-            </h4>
-            {mandateWaiver && (
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 mb-4">
-                A waiver is required. Your parent or guardian will receive a separate email with a waiver link.
-              </div>
-            )}
-            <div className="space-y-4">
-              {enabledFields.map((field) => (
-                <div key={field.key}>
-                  <label htmlFor={`signup-${field.key}`} className="block text-sm font-semibold text-gray-700 mb-2">
-                    {field.label}
-                    {field.required && <span className="text-vortex-red ml-1">*</span>}
-                  </label>
-                  <SignupFieldInput
-                    field={field}
-                    value={responses[field.key] ?? (field.type === 'email_list' ? [''] : '')}
-                    onChange={(val) => setResponses((prev) => ({ ...prev, [field.key]: val }))}
-                  />
-                </div>
-              ))}
-              <div>
-                <label htmlFor="signup-account-password" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Account password
-                  <span className="text-vortex-red ml-1">*</span>
-                </label>
-                <input
-                  id="signup-account-password"
-                  type="password"
-                  required
-                  minLength={6}
-                  value={newAccountPassword}
-                  onChange={(e) => setNewAccountPassword(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-vortex-red outline-none"
-                  autoComplete="new-password"
-                  placeholder="Create a password for your member account"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  You can complete your full profile later in the member portal.
-                </p>
-              </div>
-            </div>
           </div>
         )}
 
