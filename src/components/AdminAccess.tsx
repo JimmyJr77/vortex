@@ -67,6 +67,17 @@ function normalizeAdminRoleSelection(roles: string[]): string[] {
   return roles
 }
 
+function splitFullName(fullName: string): { firstName: string; lastName: string } {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return { firstName: '', lastName: '' }
+  if (parts.length === 1) return { firstName: parts[0], lastName: '' }
+  return { firstName: parts[0], lastName: parts.slice(1).join(' ') }
+}
+
+function combineFullName(firstName: string, lastName: string): string {
+  return `${firstName.trim()} ${lastName.trim()}`.trim()
+}
+
 interface AdminAccessProps {
   isMasterAdmin?: boolean
   currentUserId?: number | null
@@ -84,7 +95,8 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [profileForm, setProfileForm] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     username: '',
@@ -136,8 +148,10 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
   useEffect(() => {
     if (selectedUser) {
       setSelectedRoles(normalizeAdminRoleSelection(selectedUser.roles))
+      const { firstName, lastName } = splitFullName(selectedUser.fullName)
       setProfileForm({
-        fullName: selectedUser.fullName,
+        firstName,
+        lastName,
         email: selectedUser.email,
         phone: formatPhoneForDisplay(selectedUser.phone ?? ''),
         username: selectedUser.username ?? '',
@@ -189,7 +203,7 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
             phone: profileForm.phone.trim(),
           }
         : {
-            fullName: profileForm.fullName.trim(),
+            fullName: combineFullName(profileForm.firstName, profileForm.lastName),
             email: profileForm.email.trim(),
             phone: profileForm.phone.trim(),
             username: profileForm.username.trim(),
@@ -396,12 +410,22 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                 )}
 
                 <section className="grid gap-3 sm:grid-cols-2">
-                  <div className="sm:col-span-2">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Full name</label>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">First name</label>
                     <input
                       type="text"
-                      value={profileForm.fullName}
-                      onChange={(e) => setProfileForm((prev) => ({ ...prev, fullName: e.target.value }))}
+                      value={profileForm.firstName}
+                      onChange={(e) => setProfileForm((prev) => ({ ...prev, firstName: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100"
+                      disabled={selectedUserIsProtected}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Last name</label>
+                    <input
+                      type="text"
+                      value={profileForm.lastName}
+                      onChange={(e) => setProfileForm((prev) => ({ ...prev, lastName: e.target.value }))}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100"
                       disabled={selectedUserIsProtected}
                     />

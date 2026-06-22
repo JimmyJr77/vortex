@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Calendar, ChevronRight, Loader2 } from 'lucide-react'
 import {
@@ -214,6 +214,22 @@ const SchedulingPage = () => {
             Enroll
           </motion.h1>
           <p className="text-gray-300 max-w-2xl mx-auto text-lg">{heroSubtitle}</p>
+          {step === 'program' && (
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                to="/signup/family"
+                className="inline-flex items-center rounded-lg bg-vortex-red px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
+              >
+                Create a new family account
+              </Link>
+              <Link
+                to="/signup/family?mode=minor"
+                className="inline-flex items-center rounded-lg border border-white/40 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
+              >
+                Under 18? Invite a parent to finish
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 

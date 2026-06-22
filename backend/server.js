@@ -30,6 +30,7 @@ import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
 import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
 import { initPlatformTables } from './platform/initTables.js'
 import { registerPlatformRoutes } from './platform/registerRoutes.js'
+import { registerFamilySignupRoutes } from './platform/familySignup.js'
 import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
 import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
 import { ensureCoachingNotificationSchema } from './platform/coachingSchemaEnsure.js'
@@ -2681,6 +2682,7 @@ registerSchedulingRoutes(app, pool)
 registerProgramsPublicRoutes(app, pool)
 registerProgramsAdminRoutes(app, pool)
 registerPlatformRoutes(app, pool, { jwtSecret: JWT_SECRET })
+registerFamilySignupRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerCoachPortalRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerCampRegistrationRoutes(app, pool)
 registerDevMemberRoutes(app, pool)

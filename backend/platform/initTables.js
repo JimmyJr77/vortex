@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -31,6 +32,8 @@ export async function initPlatformTables(pool) {
     '029_coaching_video_submission_assign.sql',
     '030_coach_class_scheduling_form.sql',
     '031_coach_assignment_drilldown.sql',
+    '037_waiver_types.sql',
+    '038_account_invite.sql',
   ]
 
   for (const migrationFile of migrationFiles) {
@@ -38,6 +41,8 @@ export async function initPlatformTables(pool) {
     const sql = fs.readFileSync(migrationPath, 'utf8')
     await pool.query(sql)
   }
+
+  await seedCanonicalWaivers(pool)
 
   console.log('✅ Platform access, billing, and waiver tables initialized')
 }

@@ -31,6 +31,8 @@ const Ninja = lazy(() => import('./components/Ninja'))
 const Value = lazy(() => import('./components/Value'))
 const ReadBoard = lazy(() => import('./components/ReadBoard'))
 const SchedulingPage = lazy(() => import('./components/SchedulingPage'))
+const SignupFamilyPage = lazy(() => import('./components/signup/SignupFamilyPage'))
+const SignupInvitePage = lazy(() => import('./components/signup/SignupInvitePage'))
 const Admin = lazy(() => import('./components/Admin'))
 const MemberDashboard = lazy(() => import('./components/MemberDashboard'))
 const CoachDashboard = lazy(() => import('./components/CoachDashboard'))
@@ -244,6 +246,14 @@ function App() {
           <Route
             path="/enroll"
             element={<SchedulingPage />}
+          />
+          <Route
+            path="/signup/family"
+            element={<SignupFamilyPage />}
+          />
+          <Route
+            path="/signup/invite"
+            element={<SignupInvitePage />}
           />
           <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
           <Route path="/schedule" element={<Navigate to="/enroll" replace />} />

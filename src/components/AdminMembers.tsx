@@ -6,6 +6,7 @@ import { isDefaultMasterEmail } from '../utils/defaultMasterAccount'
 import MemberFormSection from './MemberFormSection'
 import MemberSchoolsNotes from './MemberSchoolsNotes'
 import MemberPricingModal from './admin/MemberPricingModal'
+import FamilySignupWizard from './signup/FamilySignupWizard'
 import { formatDateForInput, formatDateForDisplay, formatTimestampDate, calculateAge, isAdult } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 
@@ -333,6 +334,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
   
   // Unified member/family modal state
   const [showMemberModal, setShowMemberModal] = useState(false)
+  const [showFamilySignupWizard, setShowFamilySignupWizard] = useState(false)
   const [memberSearchResults, setMemberSearchResults] = useState<Family[]>([])
   const [selectedFamilyForMember, setSelectedFamilyForMember] = useState<Family | null>(null)
   const [memberModalMode, setMemberModalMode] = useState<'search' | 'new-family' | 'existing-family'>('search')
@@ -2763,16 +2765,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
             )}
             <button
               type="button"
-              onClick={() => {
-                setUnifiedModalMode('create-new')
-                setShowMemberModal(true)
-                setMemberModalMode('search')
-                setSelectedFamilyForMember(null)
-                setMemberSearchQuery('')
-                setEditingFamilyId(null)
-                setEditingMemberUserId(null)
-                setMemberSearchResults([])
-              }}
+              onClick={() => setShowFamilySignupWizard(true)}
               className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
             >
               <UserPlus className="w-5 h-5" />
@@ -4794,6 +4787,28 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
           memberLabel={`${pricingMember.firstName} ${pricingMember.lastName}`.trim()}
           onClose={() => setPricingMember(null)}
         />
+      )}
+      {showFamilySignupWizard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
+          <div className="relative bg-white rounded-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto p-6 shadow-xl">
+            <button
+              type="button"
+              onClick={() => setShowFamilySignupWizard(false)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 text-gray-500"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <FamilySignupWizard
+              mode="admin"
+              onComplete={() => {
+                setShowFamilySignupWizard(false)
+                void fetchMembers()
+              }}
+              onCancel={() => setShowFamilySignupWizard(false)}
+            />
+          </div>
+        </div>
       )}
     </>
   )

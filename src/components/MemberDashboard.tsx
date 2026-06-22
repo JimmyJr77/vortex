@@ -10,6 +10,7 @@ import EventAttachedSignup from './EventAttachedSignup'
 import { MemberTrainingTab, MemberProgressTab, MemberMessagesTab } from './MemberTraining'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
+import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
 import type { PortalId } from '../utils/portalSession'
 
 interface MemberDashboardProps {
@@ -120,6 +121,8 @@ interface MemberWaiver {
   name: string
   version: string
   body: string
+  waiver_type?: string | null
+  is_required?: boolean
   acceptance_id?: number | null
   accepted_at?: string | null
   signature_name?: string | null
@@ -231,6 +234,12 @@ export default function MemberDashboard({
   const [waivers, setWaivers] = useState<MemberWaiver[]>([])
   const [waiversLoading, setWaiversLoading] = useState(false)
   const [waiverSignature, setWaiverSignature] = useState('')
+  const [waiverComments, setWaiverComments] = useState('')
+  const [waiverAgreeAll, setWaiverAgreeAll] = useState(false)
+  const [waiverCheckedIds, setWaiverCheckedIds] = useState<number[]>([])
+  const [paymentPolicyAcknowledged, setPaymentPolicyAcknowledged] = useState(false)
+  const [waiverSubmitting, setWaiverSubmitting] = useState(false)
+  const [waiverError, setWaiverError] = useState<string | null>(null)
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [changingPassword, setChangingPassword] = useState(false)
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null)
@@ -865,10 +874,24 @@ export default function MemberDashboard({
     }
   }
 
-  const acceptWaiver = async (templateId: number) => {
+  const acceptAllWaivers = async () => {
     if (!token) return
+    const validationError = validateWaiverSigning({
+      waivers,
+      checkedTemplateIds: waiverCheckedIds,
+      agreeAll: waiverAgreeAll,
+      signatureName: waiverSignature,
+      paymentPolicyAcknowledged,
+    })
+    if (validationError) {
+      setWaiverError(validationError)
+      return
+    }
+    setWaiverSubmitting(true)
+    setWaiverError(null)
     try {
-      const response = await fetch(`${apiUrl}/api/members/waivers/${templateId}/accept`, {
+      const unsignedIds = waivers.filter((w) => !w.acceptance_id).map((w) => w.id)
+      const response = await fetch(`${apiUrl}/api/members/waivers/accept-all`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -880,6 +903,9 @@ export default function MemberDashboard({
             [profileData?.firstName ?? profileData?.first_name, profileData?.lastName ?? profileData?.last_name]
               .filter(Boolean)
               .join(' '),
+          comments: waiverComments,
+          acceptedTemplateIds: unsignedIds.length > 0 ? unsignedIds : waiverCheckedIds,
+          paymentPolicyAcknowledged,
         }),
       })
       if (!response.ok) {
@@ -887,10 +913,15 @@ export default function MemberDashboard({
         throw new Error(data.message || `Backend returned ${response.status}`)
       }
       setWaiverSignature('')
+      setWaiverComments('')
+      setWaiverAgreeAll(false)
+      setWaiverCheckedIds([])
+      setPaymentPolicyAcknowledged(false)
       await fetchWaivers()
-      await fetchProfileData()
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to accept waiver')
+      setWaiverError(error instanceof Error ? error.message : 'Failed to submit waivers')
+    } finally {
+      setWaiverSubmitting(false)
     }
   }
 
@@ -2294,59 +2325,60 @@ export default function MemberDashboard({
                     Athlete Waivers
                   </h2>
                   <p className="text-gray-600 text-sm mb-6">
-                    Every athlete must have current waivers on file. Accepted waivers are stored with signature history.
+                    Every athlete must have current waivers on file. Check each waiver, then sign once at the bottom.
                   </p>
-                  <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700">
-                    Read each waiver in full before signing. Your signature is stored with timestamped acceptance history.
-                  </div>
-                  <div className="mb-5">
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Signature name</label>
-                    <input
-                      className="w-full max-w-md h-10 rounded-lg border border-gray-300 px-3 text-sm"
-                      value={waiverSignature}
-                      onChange={(e) => setWaiverSignature(e.target.value)}
-                      placeholder="Legal name for waiver signature"
-                    />
-                  </div>
+                  {waiverError && (
+                    <div className="mb-4 rounded-lg bg-red-50 text-red-700 px-3 py-2 text-sm">{waiverError}</div>
+                  )}
                   {waiversLoading ? (
                     <div className="text-center py-12 text-gray-600">Loading waivers...</div>
                   ) : waivers.length === 0 ? (
                     <div className="text-center py-12 text-gray-500">No waiver templates are currently required.</div>
+                  ) : waivers.every((w) => w.acceptance_id != null) ? (
+                    <div className="space-y-4">
+                      <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+                        All required waivers are signed.
+                      </div>
+                      <WaiverSigningBlock
+                        waivers={waivers}
+                        checkedTemplateIds={[]}
+                        onToggleTemplate={() => {}}
+                        agreeAll={false}
+                        onAgreeAllChange={() => {}}
+                        signatureName=""
+                        onSignatureNameChange={() => {}}
+                        comments=""
+                        onCommentsChange={() => {}}
+                        paymentPolicyAcknowledged={false}
+                        onPaymentPolicyAcknowledgedChange={() => {}}
+                        readOnly
+                      />
+                    </div>
                   ) : (
                     <div className="space-y-4">
-                      {waivers.map((waiver) => {
-                        const accepted = waiver.acceptance_id != null
-                        return (
-                          <div key={waiver.id} className="rounded-xl border border-gray-200 p-4">
-                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                              <div>
-                                <h3 className="font-bold text-gray-900">
-                                  {waiver.name} v{waiver.version}
-                                </h3>
-                                {accepted ? (
-                                  <p className="text-xs text-green-700 mt-1">
-                                    Accepted {waiver.accepted_at ? new Date(waiver.accepted_at).toLocaleDateString() : ''}
-                                    {waiver.signature_name ? ` by ${waiver.signature_name}` : ''}
-                                  </p>
-                                ) : (
-                                  <p className="text-xs text-red-700 mt-1">Signature required</p>
-                                )}
-                              </div>
-                              {!accepted && (
-                                <button
-                                  type="button"
-                                  onClick={() => void acceptWaiver(waiver.id)}
-                                  className="px-4 py-2 bg-vortex-red text-white rounded-lg font-semibold text-sm"
-                                >
-                                  Accept Waiver
-                                </button>
-                              )}
-                            </div>
-                            <p className="text-xs text-gray-500 mt-3">Version: {waiver.version}</p>
-                            <p className="text-sm text-gray-600 mt-2 whitespace-pre-wrap">{waiver.body}</p>
-                          </div>
-                        )
-                      })}
+                      <WaiverSigningBlock
+                        waivers={waivers}
+                        checkedTemplateIds={waiverCheckedIds}
+                        onToggleTemplate={(id, checked) =>
+                          setWaiverCheckedIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)))
+                        }
+                        agreeAll={waiverAgreeAll}
+                        onAgreeAllChange={setWaiverAgreeAll}
+                        signatureName={waiverSignature}
+                        onSignatureNameChange={setWaiverSignature}
+                        comments={waiverComments}
+                        onCommentsChange={setWaiverComments}
+                        paymentPolicyAcknowledged={paymentPolicyAcknowledged}
+                        onPaymentPolicyAcknowledgedChange={setPaymentPolicyAcknowledged}
+                      />
+                      <button
+                        type="button"
+                        disabled={waiverSubmitting}
+                        onClick={() => void acceptAllWaivers()}
+                        className="px-6 py-3 bg-vortex-red text-white rounded-lg font-semibold text-sm disabled:opacity-60"
+                      >
+                        {waiverSubmitting ? 'Submitting…' : 'Submit all waivers'}
+                      </button>
                     </div>
                   )}
                 </div>

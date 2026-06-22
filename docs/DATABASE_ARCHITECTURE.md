@@ -186,6 +186,22 @@ BIGINT refs (no FK)** are deliberate for polymorphic/calendar wiring:
 `session_attendance.member_id`, `personal_record.source_result_id`, and `exercise_tag.facet_id`
 (validated in app, not by FK).
 
+### 4.6 Waivers ([037](../backend/migrations/037_waiver_types.sql))
+
+`waiver_template` is versioned per facility (`UNIQUE (facility_id, name, version)`). Columns added in **037**:
+
+| Column | Purpose |
+|--------|---------|
+| `waiver_type` | Stable code: `ASSUMPTION_OF_RISK`, `RELEASE_OF_LIABILITY`, `MEDICAL_EMERGENCY`, `PAYMENT_POLICY`, or custom/`NULL` |
+| `is_required` | When `FALSE`, template is optional for compliance (`has_completed_waivers` ignores it) |
+| `requires_resign` | Present since `008`; **not yet enforced** in compliance logic (see §10.7) |
+
+Four canonical templates are seeded per facility on boot via [seedCanonicalWaivers.js](../backend/platform/seedCanonicalWaivers.js); the legacy generic **Athlete Waiver** placeholder is retired when canonical types are present.
+
+`member_waiver_acceptance` stores one row per `(member_id, waiver_template_id)` with `signature_name`, `ip_address`, `user_agent`, optional `comments`, and `payment_policy_acknowledged` (037). Minors may have acceptances recorded with `accepted_by_member_id` set to a guardian.
+
+**Minor-invite flow ([038](../backend/migrations/038_account_invite.sql)):** `account_invite` holds bcrypt-hashed magic tokens (`token_hash`), `inviter_member_id` (minor), `invitee_email`, `pending_family_id`, JSON `pending_payload`, and expiry/used timestamps. Parent completion uses `POST /api/signup/invite/:token/complete`.
+
 ---
 
 ## 5. Triggers, views, functions
@@ -339,6 +355,9 @@ The "class category" (scheduling-category) concept was fully removed: classes no
 | Ledger drift on long-lived dev DBs | Schema built via `initDatabase()` ahead of `schema_migrations`, so `migrate:all` re-attempts superseded migrations | Reconcile by backfilling `schema_migrations` for already-reflected files (skip them), but **never backfill genuinely-pending migrations** (verify the schema effect first — e.g., `033` was pending and had to actually run). |
 | `032` backfilled-but-not-run on data DBs | When `032` is marked applied in `schema_migrations` without its body executing, legacy `app_user`/`app_user_role` role labels (`OWNER_ADMIN`, `MEMBER`, `PARENT_GUARDIAN`, `ATHLETE`, `ATHLETE_VIEWER`) and stray enum values persist, surfacing as old roles in Access Control / Members views | Fixed by the **idempotent** [036](../backend/migrations/036_normalize_legacy_account_roles.sql) (new file → always runs): re-remaps both columns to the canonical four, dedupes `app_user_role`, and rebuilds the `user_role` enum. **Must be run against the database the app actually uses** (set `DATABASE_URL`/`DB_*` for prod, then `npm run migrate:all`). |
 | `member.status = 'legacy'` | Column **value**, not a table | Semantic label for non-enrolled stubs; rename only if product wants clearer vocabulary. |
+| `waiver_template` name **Athlete Waiver** (no `waiver_type`) | Superseded | Four canonical types in [037](../backend/migrations/037_waiver_types.sql) | Boot seed in [008](../backend/migrations/008_member_access_billing_waivers.sql) + retire in [seedCanonicalWaivers.js](../backend/platform/seedCanonicalWaivers.js). Pre-drop: `SELECT COUNT(*) FROM waiver_template WHERE name = 'Athlete Waiver' AND waiver_type IS NULL AND active_to IS NULL;` |
+| `member.has_completed_waivers` | Active (legacy flag) | Derived from `member_waiver_acceptance` + required templates | Can drift if rows are inserted outside `updateMemberWaiverCompatibility()`; accept-all and single-accept sync it. |
+| `waiver_template.requires_resign` | Active (unused) | Version bump + re-accept flow | Column exists; compliance query counts all active templates regardless. |
 | `008`/`011` re-run on every boot | `initPlatformTables()` executes `008`–`031` SQL on each start (idempotent), so any `INSERT INTO role`/`role_permission` seed re-creates rows that later numbered migrations (e.g. `032`/`035`) delete | Keep these seeds in sync with the canonical role set when consolidating; `OWNER_ADMIN` already trimmed. Long-term: move one-time RBAC seeds out of the boot-replayed range. |
 | Legacy module0 scripts `run-module0-migration.js`, `verify-module0.js`, `diagnose-member-login.js` | Reference the **pre-032** `user_role` enum (`OWNER_ADMIN`, `PARENT_GUARDIAN`, `ATHLETE_VIEWER`) which no longer exists; running them would fail or seed dead values | Orphaned helpers — `Candidate` for deletion once confirmed unused by any runbook. |
 

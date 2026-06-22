@@ -263,7 +263,7 @@ async function memberBelongsToFamily(pool, memberId, familyId) {
   return res.rows.length > 0
 }
 
-async function activeWaiverTemplateIds(pool, facilityId) {
+async function activeWaiverTemplateIds(pool, facilityId, { requiredOnly = true } = {}) {
   const res = await pool.query(
     `
       SELECT id
@@ -271,11 +271,68 @@ async function activeWaiverTemplateIds(pool, facilityId) {
       WHERE facility_id = $1
         AND active_from <= now()
         AND (active_to IS NULL OR active_to > now())
+        AND ($2::boolean = FALSE OR is_required = TRUE)
       ORDER BY id
     `,
-    [facilityId],
+    [facilityId, requiredOnly],
   )
   return res.rows.map((r) => Number(r.id))
+}
+
+async function canSignWaiversForMembers(pool, signerMemberId, targetMemberIds) {
+  const uniqueTargets = [...new Set(targetMemberIds.map(Number).filter(Number.isFinite))]
+  if (uniqueTargets.length === 0) return { ok: false, message: 'No members specified.' }
+
+  const signerRes = await pool.query(
+    `SELECT id, facility_id FROM member WHERE id = $1 AND is_active = TRUE`,
+    [signerMemberId],
+  )
+  if (signerRes.rows.length === 0) return { ok: false, message: 'Signer member not found.' }
+  const facilityId = signerRes.rows[0].facility_id
+
+  const targetsRes = await pool.query(
+    `
+      SELECT m.id, m.parent_guardian_ids, fm.family_id
+      FROM member m
+      LEFT JOIN family_member fm ON fm.member_id = m.id AND fm.is_active = TRUE
+      WHERE m.id = ANY($1::bigint[]) AND m.facility_id = $2 AND m.is_active = TRUE
+    `,
+    [uniqueTargets, facilityId],
+  )
+  if (targetsRes.rows.length !== uniqueTargets.length) {
+    return { ok: false, message: 'One or more members were not found.' }
+  }
+
+  const signerFamily = await pool.query(
+    `
+      SELECT fm.family_id, fba.payer_member_id
+      FROM family_member fm
+      LEFT JOIN family_billing_account fba ON fba.family_id = fm.family_id
+      WHERE fm.member_id = $1 AND fm.is_active = TRUE
+      LIMIT 1
+    `,
+    [signerMemberId],
+  )
+  const signerFamilyId = signerFamily.rows[0]?.family_id ?? null
+  const payerMemberId = signerFamily.rows[0]?.payer_member_id != null
+    ? Number(signerFamily.rows[0].payer_member_id)
+    : null
+
+  for (const row of targetsRes.rows) {
+    const targetId = Number(row.id)
+    if (targetId === signerMemberId) continue
+    if (signerFamilyId == null || Number(row.family_id) !== Number(signerFamilyId)) {
+      return { ok: false, message: 'You can only sign waivers for members in your family.' }
+    }
+    const guardians = (row.parent_guardian_ids ?? []).map(Number)
+    const isGuardian = guardians.includes(signerMemberId)
+    const isPayer = payerMemberId === signerMemberId
+    if (!isGuardian && !isPayer) {
+      return { ok: false, message: 'Only a parent, guardian, or billing contact can sign for another member.' }
+    }
+  }
+
+  return { ok: true, facilityId, targetMemberIds: uniqueTargets }
 }
 
 async function updateMemberWaiverCompatibility(pool, memberId) {
@@ -1295,10 +1352,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!facilityId || !req.body?.name || !req.body?.version || !req.body?.body) {
       return res.status(400).json({ success: false, message: 'name, version, and body are required.' })
     }
+    const waiverType = req.body?.waiverType ?? req.body?.waiver_type ?? null
+    const isRequired = req.body?.isRequired !== false && req.body?.is_required !== false
     const created = await pool.query(
       `
-        INSERT INTO waiver_template (facility_id, name, version, body, active_from, active_to, requires_resign)
-        VALUES ($1, $2, $3, $4, COALESCE($5::timestamptz, now()), $6::timestamptz, COALESCE($7, false))
+        INSERT INTO waiver_template (
+          facility_id, name, version, body, waiver_type, is_required,
+          active_from, active_to, requires_resign
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7::timestamptz, now()), $8::timestamptz, COALESCE($9, false))
         RETURNING *
       `,
       [
@@ -1306,6 +1368,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         req.body.name,
         req.body.version,
         req.body.body,
+        waiverType || null,
+        isRequired,
         req.body?.activeFrom ?? null,
         req.body?.activeTo ?? null,
         req.body?.requiresResign === true,
@@ -1331,6 +1395,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           FROM waiver_template
           WHERE active_from <= now()
             AND (active_to IS NULL OR active_to > now())
+            AND is_required = TRUE
         )
         SELECT
           m.id,
@@ -1467,7 +1532,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           wt.*,
           mwa.id as acceptance_id,
           mwa.accepted_at,
-          mwa.signature_name
+          mwa.signature_name,
+          mwa.comments,
+          mwa.payment_policy_acknowledged
         FROM member m
         JOIN waiver_template wt ON wt.facility_id = m.facility_id
         LEFT JOIN member_waiver_acceptance mwa
@@ -1475,11 +1542,129 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         WHERE m.id = $1
           AND wt.active_from <= now()
           AND (wt.active_to IS NULL OR wt.active_to > now())
-        ORDER BY wt.name, wt.version
+        ORDER BY
+          CASE wt.waiver_type
+            WHEN 'ASSUMPTION_OF_RISK' THEN 1
+            WHEN 'RELEASE_OF_LIABILITY' THEN 2
+            WHEN 'MEDICAL_EMERGENCY' THEN 3
+            WHEN 'PAYMENT_POLICY' THEN 4
+            ELSE 99
+          END,
+          wt.name,
+          wt.version
       `,
       [memberId],
     )
     res.json({ success: true, data: result.rows })
+  })
+
+  app.post('/api/members/waivers/accept-all', authMiddleware(pool, jwtSecret), async (req, res) => {
+    const signerMemberId = Number(req.platformAuth.user.member_id ?? req.platformAuth.user.id)
+    const signatureName = String(req.body?.signatureName || req.body?.signature_name || '').trim()
+    const comments = req.body?.comments != null ? String(req.body.comments).trim() : null
+    const paymentPolicyAcknowledged = req.body?.paymentPolicyAcknowledged === true
+      || req.body?.payment_policy_acknowledged === true
+    const requestedMemberIds = Array.isArray(req.body?.memberIds)
+      ? req.body.memberIds.map(Number).filter(Number.isFinite)
+      : [signerMemberId]
+    const acceptedTemplateIds = Array.isArray(req.body?.acceptedTemplateIds)
+      ? req.body.acceptedTemplateIds.map(Number).filter(Number.isFinite)
+      : []
+
+    if (!signatureName) {
+      return res.status(400).json({ success: false, message: 'Signature name is required.' })
+    }
+    if (acceptedTemplateIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'At least one waiver template must be accepted.' })
+    }
+
+    const authz = await canSignWaiversForMembers(pool, signerMemberId, requestedMemberIds)
+    if (!authz.ok) {
+      return res.status(403).json({ success: false, message: authz.message })
+    }
+
+    const requiredIds = await activeWaiverTemplateIds(pool, authz.facilityId, { requiredOnly: true })
+    const missingRequired = requiredIds.filter((id) => !acceptedTemplateIds.includes(id))
+    if (missingRequired.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'All required waivers must be accepted.',
+        missingTemplateIds: missingRequired,
+      })
+    }
+
+    const templatesRes = await pool.query(
+      `
+        SELECT id, waiver_type
+        FROM waiver_template
+        WHERE id = ANY($1::bigint[])
+          AND facility_id = $2
+          AND active_from <= now()
+          AND (active_to IS NULL OR active_to > now())
+      `,
+      [acceptedTemplateIds, authz.facilityId],
+    )
+    if (templatesRes.rows.length !== acceptedTemplateIds.length) {
+      return res.status(400).json({ success: false, message: 'One or more waiver templates are invalid.' })
+    }
+
+    const hasPaymentPolicy = templatesRes.rows.some((row) => row.waiver_type === 'PAYMENT_POLICY')
+    if (hasPaymentPolicy && !paymentPolicyAcknowledged) {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment policy and auto-draft authorization must be acknowledged.',
+      })
+    }
+
+    const ipAddress = req.ip
+    const userAgent = req.get('user-agent') ?? null
+
+    await pool.query('BEGIN')
+    try {
+      const rows = []
+      for (const memberId of authz.targetMemberIds) {
+        for (const templateId of acceptedTemplateIds) {
+          const isPaymentTemplate = templatesRes.rows.some(
+            (row) => Number(row.id) === templateId && row.waiver_type === 'PAYMENT_POLICY',
+          )
+          const inserted = await pool.query(
+            `
+              INSERT INTO member_waiver_acceptance (
+                member_id, waiver_template_id, accepted_by_member_id,
+                signature_name, ip_address, user_agent, comments, payment_policy_acknowledged
+              )
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+              ON CONFLICT (member_id, waiver_template_id) DO UPDATE SET
+                accepted_by_member_id = EXCLUDED.accepted_by_member_id,
+                accepted_at = now(),
+                signature_name = EXCLUDED.signature_name,
+                ip_address = EXCLUDED.ip_address,
+                user_agent = EXCLUDED.user_agent,
+                comments = EXCLUDED.comments,
+                payment_policy_acknowledged = EXCLUDED.payment_policy_acknowledged
+              RETURNING *
+            `,
+            [
+              memberId,
+              templateId,
+              signerMemberId,
+              signatureName,
+              ipAddress,
+              userAgent,
+              comments,
+              isPaymentTemplate ? paymentPolicyAcknowledged : false,
+            ],
+          )
+          rows.push(inserted.rows[0])
+        }
+        await updateMemberWaiverCompatibility(pool, memberId)
+      }
+      await pool.query('COMMIT')
+      res.json({ success: true, data: { acceptances: rows, memberIds: authz.targetMemberIds } })
+    } catch (error) {
+      await pool.query('ROLLBACK')
+      res.status(400).json({ success: false, message: error.message })
+    }
   })
 
   app.post('/api/members/waivers/:templateId/accept', authMiddleware(pool, jwtSecret), async (req, res) => {

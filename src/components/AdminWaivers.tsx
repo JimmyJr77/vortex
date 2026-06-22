@@ -10,7 +10,17 @@ interface WaiverTemplate {
   active_from: string
   active_to?: string | null
   requires_resign: boolean
+  waiver_type?: string | null
+  is_required?: boolean
 }
+
+const WAIVER_TYPE_OPTIONS = [
+  { value: '', label: 'Other / custom' },
+  { value: 'ASSUMPTION_OF_RISK', label: 'Assumption of Risk' },
+  { value: 'RELEASE_OF_LIABILITY', label: 'Release of Liability' },
+  { value: 'MEDICAL_EMERGENCY', label: 'Medical Emergencies' },
+  { value: 'PAYMENT_POLICY', label: 'Payment Policies' },
+]
 
 interface WaiverComplianceRow {
   id: number
@@ -34,6 +44,8 @@ export default function AdminWaivers() {
     version: '1.0',
     body: '',
     requiresResign: false,
+    waiverType: '',
+    isRequired: true,
   })
 
   const load = useCallback(async () => {
@@ -71,13 +83,17 @@ export default function AdminWaivers() {
     try {
       const res = await adminApiRequest('/api/admin/waivers/templates', {
         method: 'POST',
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          waiverType: form.waiverType || null,
+          isRequired: form.isRequired,
+        }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.message || `Backend returned ${res.status}`)
       }
-      setForm({ name: 'Athlete Waiver', version: '', body: '', requiresResign: false })
+      setForm({ name: 'Athlete Waiver', version: '', body: '', requiresResign: false, waiverType: '', isRequired: true })
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create waiver')
@@ -126,6 +142,18 @@ export default function AdminWaivers() {
             />
           </div>
           <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Waiver type</label>
+            <select
+              className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
+              value={form.waiverType}
+              onChange={(e) => setForm((prev) => ({ ...prev, waiverType: e.target.value }))}
+            >
+              {WAIVER_TYPE_OPTIONS.map((option) => (
+                <option key={option.value || 'other'} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Version</label>
             <input
               className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
@@ -143,6 +171,14 @@ export default function AdminWaivers() {
               placeholder="Paste the athlete waiver terms here."
             />
           </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.isRequired}
+              onChange={(e) => setForm((prev) => ({ ...prev, isRequired: e.target.checked }))}
+            />
+            Required for compliance
+          </label>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -182,22 +218,32 @@ export default function AdminWaivers() {
                         Active from {new Date(template.active_from).toLocaleDateString()}
                         {template.active_to ? ` through ${new Date(template.active_to).toLocaleDateString()}` : ''}
                       </div>
+                      {template.waiver_type && (
+                        <span className="inline-block mt-1 rounded-full bg-gray-100 text-gray-700 px-2 py-0.5 text-xs">
+                          {template.waiver_type.replace(/_/g, ' ')}
+                        </span>
+                      )}
                     </div>
-                    {template.requires_resign && (
-                      <span className="rounded-full bg-yellow-100 text-yellow-700 px-3 py-1 text-xs">
-                        Re-sign required
-                      </span>
-                    )}
-                    {!template.active_to && (
-                      <button
-                        type="button"
-                        onClick={() => void retireTemplate(template.id)}
-                        disabled={saving}
-                        className="rounded-lg border border-gray-300 px-3 py-1 text-xs text-gray-700 disabled:opacity-60"
-                      >
-                        Retire
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                      {template.is_required === false && (
+                        <span className="rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-xs">Optional</span>
+                      )}
+                      {template.requires_resign && (
+                        <span className="rounded-full bg-yellow-100 text-yellow-700 px-3 py-1 text-xs">
+                          Re-sign required
+                        </span>
+                      )}
+                      {!template.active_to && (
+                        <button
+                          type="button"
+                          onClick={() => void retireTemplate(template.id)}
+                          disabled={saving}
+                          className="rounded-lg border border-gray-300 px-3 py-1 text-xs text-gray-700 disabled:opacity-60"
+                        >
+                          Retire
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <p className="text-sm text-gray-600 mt-3 line-clamp-3 whitespace-pre-wrap">{template.body}</p>
                 </div>
