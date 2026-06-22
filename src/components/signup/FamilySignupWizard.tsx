@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, UserPlus } from 'luci
 import { getApiUrl, adminApiRequest } from '../../utils/api'
 import { cleanPhoneNumber, formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../utils/phoneUtils'
 import { formatDateForInput, isAdult } from '../../utils/dateUtils'
-import { fetchSuggestedUsername } from '../../utils/signupUsername'
+import { maybeSuggestUsername } from '../../utils/signupUsername'
 import { graduationYearsForPicker } from '../../utils/promoDiscountModel'
 import { US_STATES, verifyUsAddressZip } from '../../utils/usStates'
 import SchoolAutocompleteInput from '../scheduling/SchoolAutocompleteInput'
@@ -439,14 +439,13 @@ export default function FamilySignupWizard({
         schedulingFormId: enrollPrefill.formId,
         slotGroupId: enrollPrefill.slotGroupId,
         timeSlotId: enrollPrefill.timeSlotId,
-        locked: true,
       },
     ])
   }, [enrollPrefill, allAthletes, primaryAdult.clientId, loadClassesForProgram, loadOfferingsForClass])
 
   useEffect(() => {
     const onEnrollmentStep = (step === 2 && isMinorStart) || (step === 3 && !isMinorStart)
-    if (onEnrollmentStep && enrollPrefill?.locked) {
+    if (onEnrollmentStep && enrollPrefill) {
       void applyEnrollPrefill()
     }
   }, [step, isMinorStart, enrollPrefill, applyEnrollPrefill])
@@ -468,8 +467,11 @@ export default function FamilySignupWizard({
     }
   }, [isMinorStart, additionalMembers.length])
 
-  const suggestUsernameForMember = async (firstName: string, lastName: string) =>
-    fetchSuggestedUsername(apiUrl, firstName, lastName)
+  const suggestUsernameForMember = (
+    firstName: string,
+    lastName: string,
+    currentUsername: string,
+  ) => maybeSuggestUsername(apiUrl, firstName, lastName, currentUsername)
 
   const graduationYears = useMemo(() => graduationYearsForPicker(), [])
 
@@ -532,9 +534,7 @@ export default function FamilySignupWizard({
     showLogin = true,
   ) => {
     const handleNameBlur = async () => {
-      if (member.username.trim()) return
-      if (!member.firstName.trim()) return
-      const suggested = await suggestUsernameForMember(member.firstName, member.lastName)
+      const suggested = await suggestUsernameForMember(member.firstName, member.lastName, member.username)
       if (suggested) onChange({ username: suggested })
     }
 
@@ -618,9 +618,7 @@ export default function FamilySignupWizard({
     const parentEmailValue = parentEmailOptions[0]?.value ?? primaryAdult.email
 
     const handleNameBlur = async () => {
-      if (member.username.trim()) return
-      if (!member.firstName.trim()) return
-      const suggested = await suggestUsernameForMember(member.firstName, member.lastName)
+      const suggested = await suggestUsernameForMember(member.firstName, member.lastName, member.username)
       if (suggested) onChange({ username: suggested })
     }
 
@@ -718,7 +716,7 @@ export default function FamilySignupWizard({
     return renderPrimaryAdultFields(member, onChange, fieldIdPrefix, showLogin)
   }
 
-  const validatePrimaryStep = () => {
+  const validatePrimaryStep = (adult: SignupMemberForm = primaryAdult) => {
     if (isMinorStart) {
       const minor = additionalMembers[0]
       if (!minor?.firstName || !minor?.lastName) return 'Minor first and last name are required.'
@@ -730,27 +728,27 @@ export default function FamilySignupWizard({
       if (!parentEmail.trim()) return 'Parent/guardian email is required.'
       return null
     }
-    if (!primaryAdult.firstName || !primaryAdult.lastName) return 'First and last name are required.'
-    if (!primaryAdult.email?.trim()) return 'Email is required.'
-    if (cleanPhoneNumber(primaryAdult.phone || '').length !== 10) return 'A valid 10-digit phone number is required.'
-    if (!primaryAdult.addressStreet?.trim()) return 'Street address is required.'
-    if (!primaryAdult.addressCity?.trim()) return 'City is required.'
-    if (!primaryAdult.addressState?.trim()) return 'State is required.'
-    if (!primaryAdult.addressZip?.trim()) return 'ZIP code is required.'
-    if (!primaryAdult.dateOfBirth || !isAdult(primaryAdult.dateOfBirth)) return 'Primary account holder must be 18 or older.'
-    if (!primaryAdult.username?.trim()) return 'Username is required.'
+    if (!adult.firstName || !adult.lastName) return 'First and last name are required.'
+    if (!adult.email?.trim()) return 'Email is required.'
+    if (cleanPhoneNumber(adult.phone || '').length !== 10) return 'A valid 10-digit phone number is required.'
+    if (!adult.addressStreet?.trim()) return 'Street address is required.'
+    if (!adult.addressCity?.trim()) return 'City is required.'
+    if (!adult.addressState?.trim()) return 'State is required.'
+    if (!adult.addressZip?.trim()) return 'ZIP code is required.'
+    if (!adult.dateOfBirth || !isAdult(adult.dateOfBirth)) return 'Primary account holder must be 18 or older.'
+    if (!adult.username?.trim()) return 'Username is required.'
     if (!isAdminEdit) {
-      if (!primaryAdult.password || primaryAdult.password.length < 8) return 'Password must be at least 8 characters.'
-      if (primaryAdult.password !== primaryAdult.confirmPassword) return 'Passwords do not match.'
-    } else if (primaryAdult.password) {
-      if (primaryAdult.password.length < 8) return 'Password must be at least 8 characters.'
-      if (primaryAdult.password !== primaryAdult.confirmPassword) return 'Passwords do not match.'
+      if (!adult.password || adult.password.length < 8) return 'Password must be at least 8 characters.'
+      if (adult.password !== adult.confirmPassword) return 'Passwords do not match.'
+    } else if (adult.password) {
+      if (adult.password.length < 8) return 'Password must be at least 8 characters.'
+      if (adult.password !== adult.confirmPassword) return 'Passwords do not match.'
     }
     return null
   }
 
-  const validateFamilyMembersStep = () => {
-    for (const member of additionalMembers) {
+  const validateFamilyMembersStep = (members: SignupMemberForm[] = additionalMembers) => {
+    for (const member of members) {
       if (!member.firstName || !member.lastName) return 'Each family member needs a first and last name.'
       if (!member.username?.trim()) return `Username is required for ${member.firstName || 'each member'}.`
       if (!member.email?.trim()) return `Email is required for ${member.firstName || 'each member'}.`
@@ -895,10 +893,14 @@ export default function FamilySignupWizard({
         next.classEventId = ''
         next.offeringIds = []
         next.schedulingFormId = undefined
+        next.slotGroupId = undefined
+        next.timeSlotId = undefined
         if (patch.programsId !== '') void loadClassesForProgram(Number(patch.programsId))
       }
       if (patch.classEventId !== undefined && patch.classEventId !== row.classEventId) {
         next.offeringIds = []
+        next.slotGroupId = undefined
+        next.timeSlotId = undefined
         if (patch.classEventId !== '') {
           void loadOfferingsForClass(Number(patch.classEventId))
           const cls = classesByProgram[Number(next.programsId)]?.find((c) => c.id === Number(patch.classEventId))
@@ -911,7 +913,7 @@ export default function FamilySignupWizard({
 
   const toggleOffering = (rowIndex: number, offeringId: number, checked: boolean) => {
     setEnrollments((prev) => prev.map((row, i) => {
-      if (i !== rowIndex || row.locked) return row
+      if (i !== rowIndex) return row
       const offeringIds = checked
         ? [...row.offeringIds, offeringId]
         : row.offeringIds.filter((id) => id !== offeringId)
@@ -1024,7 +1026,15 @@ export default function FamilySignupWizard({
       return
     }
     if (step === 1) {
-      const err = validatePrimaryStep()
+      let adult = primaryAdult
+      if (!isMinorStart) {
+        const suggested = await suggestUsernameForMember(adult.firstName, adult.lastName, adult.username)
+        if (suggested) {
+          adult = { ...adult, username: suggested }
+          setPrimaryAdult(adult)
+        }
+      }
+      const err = validatePrimaryStep(adult)
       if (err) {
         setError(err)
         return
@@ -1035,7 +1045,16 @@ export default function FamilySignupWizard({
       }
     }
     if (step === 2 && !isMinorStart) {
-      const err = validateFamilyMembersStep()
+      const updatedMembers = await Promise.all(
+        additionalMembers.map(async (member) => {
+          const suggested = await suggestUsernameForMember(member.firstName, member.lastName, member.username)
+          return suggested ? { ...member, username: suggested } : member
+        }),
+      )
+      if (updatedMembers.some((member, index) => member.username !== additionalMembers[index]?.username)) {
+        setAdditionalMembers(updatedMembers)
+      }
+      const err = validateFamilyMembersStep(updatedMembers)
       if (err) {
         setError(err)
         return
@@ -1052,21 +1071,22 @@ export default function FamilySignupWizard({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-gray-900">Program enrollment</h3>
-        {!enrollPrefill?.locked && (
-          <button
-            type="button"
-            onClick={() => setEnrollments((prev) => [...prev, emptyEnrollment(allAthletes[0]?.clientId ?? primaryAdult.clientId)])}
-            className="inline-flex items-center gap-1 text-sm text-vortex-red font-semibold"
-          >
-            <UserPlus className="w-4 h-4" /> Add enrollment
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setEnrollments((prev) => [...prev, emptyEnrollment(allAthletes[0]?.clientId ?? primaryAdult.clientId)])}
+          className="inline-flex items-center gap-1 text-sm text-vortex-red font-semibold"
+        >
+          <UserPlus className="w-4 h-4" /> Add enrollment
+        </button>
       </div>
-      {enrollPrefill?.locked && (
+      {enrollPrefill && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
           Pre-selected from scheduling: {enrollPrefill.programDisplayName || 'Program'}
           {enrollPrefill.classDisplayName ? ` → ${enrollPrefill.classDisplayName}` : ''}
           {enrollPrefill.offeringId ? ' (offering selected)' : ''}
+          <span className="block mt-1 text-blue-800">
+            You can remove this enrollment or add more classes below.
+          </span>
         </div>
       )}
       {enrollments.length === 0 && (
@@ -1084,7 +1104,6 @@ export default function FamilySignupWizard({
                 <select
                   className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
                   value={row.memberClientId}
-                  disabled={row.locked}
                   onChange={(e) => updateEnrollmentRow(index, { memberClientId: e.target.value })}
                 >
                   {allAthletes.map((m) => (
@@ -1097,7 +1116,6 @@ export default function FamilySignupWizard({
                 <select
                   className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
                   value={row.programsId}
-                  disabled={row.locked}
                   onChange={(e) => updateEnrollmentRow(index, {
                     programsId: e.target.value === '' ? '' : Number(e.target.value),
                   })}
@@ -1113,7 +1131,7 @@ export default function FamilySignupWizard({
                 <select
                   className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
                   value={row.classEventId}
-                  disabled={row.locked || row.programsId === ''}
+                  disabled={row.programsId === ''}
                   onChange={(e) => updateEnrollmentRow(index, {
                     classEventId: e.target.value === '' ? '' : Number(e.target.value),
                   })}
@@ -1135,7 +1153,6 @@ export default function FamilySignupWizard({
                         type="checkbox"
                         className="mt-1"
                         checked={row.offeringIds.includes(offering.id)}
-                        disabled={row.locked && row.offeringIds.includes(offering.id)}
                         onChange={(e) => toggleOffering(index, offering.id, e.target.checked)}
                       />
                       <span>
@@ -1150,11 +1167,13 @@ export default function FamilySignupWizard({
                 </div>
               </div>
             )}
-            {!row.locked && enrollments.length > 1 && (
-              <button type="button" onClick={() => setEnrollments((prev) => prev.filter((_, i) => i !== index))} className="text-xs text-red-600 font-semibold">
-                Remove enrollment
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setEnrollments((prev) => prev.filter((_, i) => i !== index))}
+              className="text-xs text-red-600 font-semibold"
+            >
+              Remove enrollment
+            </button>
           </div>
         )
       })}

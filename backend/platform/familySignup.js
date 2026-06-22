@@ -157,6 +157,11 @@ async function recordWaiverAcceptances(client, {
   }
 }
 
+function selectedDaysJsonb(selectedDays) {
+  const days = Array.isArray(selectedDays) ? selectedDays : []
+  return JSON.stringify(days)
+}
+
 async function suggestUsername(client, firstName, lastName) {
   const cleanFirstName = String(firstName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '')
   const cleanLastName = String(lastName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '').substring(0, 2)
@@ -453,13 +458,13 @@ async function processFamilySignup(client, payload, options = {}) {
     await client.query(
       `
         INSERT INTO member_program (member_id, program_id, days_per_week, selected_days, created_at, updated_at)
-        VALUES ($1, $2, COALESCE($3, 1), COALESCE($4, ARRAY[]::text[]), now(), now())
+        VALUES ($1, $2, COALESCE($3, 1), $4::jsonb, now(), now())
       `,
       [
         memberId,
         classEventId,
         enrollment.daysPerWeek ?? 1,
-        enrollment.selectedDays ?? [],
+        selectedDaysJsonb(enrollment.selectedDays),
       ],
     )
 
@@ -873,9 +878,9 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
         await client.query(
           `
             INSERT INTO member_program (member_id, program_id, days_per_week, selected_days, created_at, updated_at)
-            VALUES ($1, $2, COALESCE($3, 1), COALESCE($4, ARRAY[]::text[]), now(), now())
+            VALUES ($1, $2, COALESCE($3, 1), $4::jsonb, now(), now())
           `,
-          [minorMember.id, programId, enrollment.daysPerWeek ?? 1, enrollment.selectedDays ?? []],
+          [minorMember.id, programId, enrollment.daysPerWeek ?? 1, selectedDaysJsonb(enrollment.selectedDays)],
         )
       }
 

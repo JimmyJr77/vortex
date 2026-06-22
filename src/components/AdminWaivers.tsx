@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Loader2, Plus } from 'lucide-react'
+import { ChevronDown, Loader2, Plus } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
 interface WaiverTemplate {
@@ -207,47 +207,75 @@ export default function AdminWaivers() {
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
-              {templates.map((template) => (
-                <div key={template.id} className="p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div className="font-semibold text-gray-900">
-                        {template.name} v{template.version}
+              {templates.map((template) => {
+                const isActive = !template.active_to
+                return (
+                  <details key={template.id} className="group">
+                    <summary className="p-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-gray-900">
+                              {template.name} v{template.version}
+                            </span>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {isActive ? 'Active' : 'Historical'}
+                            </span>
+                            <ChevronDown className="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180 shrink-0" />
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Active from {new Date(template.active_from).toLocaleDateString()}
+                            {template.active_to
+                              ? ` through ${new Date(template.active_to).toLocaleDateString()}`
+                              : ' · present'}
+                          </div>
+                          {template.waiver_type && (
+                            <span className="inline-block mt-1 rounded-full bg-gray-100 text-gray-700 px-2 py-0.5 text-xs">
+                              {template.waiver_type.replace(/_/g, ' ')}
+                            </span>
+                          )}
+                          <p className="text-xs text-vortex-red font-medium mt-2 group-open:hidden">
+                            Click to view full waiver text
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap justify-end shrink-0">
+                          {template.is_required === false && (
+                            <span className="rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-xs">Optional</span>
+                          )}
+                          {template.requires_resign && (
+                            <span className="rounded-full bg-yellow-100 text-yellow-700 px-3 py-1 text-xs">
+                              Re-sign required
+                            </span>
+                          )}
+                          {isActive && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                void retireTemplate(template.id)
+                              }}
+                              disabled={saving}
+                              className="rounded-lg border border-gray-300 px-3 py-1 text-xs text-gray-700 disabled:opacity-60"
+                            >
+                              Retire
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500">
-                        Active from {new Date(template.active_from).toLocaleDateString()}
-                        {template.active_to ? ` through ${new Date(template.active_to).toLocaleDateString()}` : ''}
+                    </summary>
+                    <div className="px-4 pb-4 border-t border-gray-100">
+                      <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800 whitespace-pre-wrap max-h-[min(70vh,32rem)] overflow-y-auto">
+                        {template.body?.trim() ? template.body : 'No waiver text stored for this version.'}
                       </div>
-                      {template.waiver_type && (
-                        <span className="inline-block mt-1 rounded-full bg-gray-100 text-gray-700 px-2 py-0.5 text-xs">
-                          {template.waiver_type.replace(/_/g, ' ')}
-                        </span>
-                      )}
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap justify-end">
-                      {template.is_required === false && (
-                        <span className="rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-xs">Optional</span>
-                      )}
-                      {template.requires_resign && (
-                        <span className="rounded-full bg-yellow-100 text-yellow-700 px-3 py-1 text-xs">
-                          Re-sign required
-                        </span>
-                      )}
-                      {!template.active_to && (
-                        <button
-                          type="button"
-                          onClick={() => void retireTemplate(template.id)}
-                          disabled={saving}
-                          className="rounded-lg border border-gray-300 px-3 py-1 text-xs text-gray-700 disabled:opacity-60"
-                        >
-                          Retire
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-3 line-clamp-3 whitespace-pre-wrap">{template.body}</p>
-                </div>
-              ))}
+                  </details>
+                )
+              })}
               {templates.length === 0 && <div className="p-4 text-sm text-gray-500">No waiver templates yet.</div>}
             </div>
           )}

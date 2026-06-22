@@ -5,6 +5,13 @@ export function buildSuggestedUsername(firstName: string, lastName: string): str
   return cleanFirst + cleanLast
 }
 
+/** True when the username field is empty or still holds a first-name-only auto suggestion. */
+export function shouldAutoFillUsername(currentUsername: string, firstName: string): boolean {
+  const current = currentUsername.trim().toLowerCase()
+  if (!current) return true
+  return current === buildSuggestedUsername(firstName, '').toLowerCase()
+}
+
 export async function fetchSuggestedUsername(
   apiUrl: string,
   firstName: string,
@@ -22,4 +29,17 @@ export async function fetchSuggestedUsername(
     /* fall back to local suggestion */
   }
   return local
+}
+
+/** Suggest username when both names are present and the field is empty or stale. */
+export async function maybeSuggestUsername(
+  apiUrl: string,
+  firstName: string,
+  lastName: string,
+  currentUsername: string,
+): Promise<string | null> {
+  if (!firstName.trim() || !lastName.trim()) return null
+  if (!shouldAutoFillUsername(currentUsername, firstName)) return null
+  const suggested = await fetchSuggestedUsername(apiUrl, firstName, lastName)
+  return suggested || null
 }
