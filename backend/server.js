@@ -24,7 +24,7 @@ import { registerNotesRoutes } from './notes/registerRoutes.js'
 import { registerDbQueryRoutes } from './dbQueries/registerRoutes.js'
 import { appendStaffNote } from './notes/handlers.js'
 import { setMemberSchools } from './schools/handlers.js'
-import { getEmailConfigSummary, isEmailConfigured, verifySmtpConnection, sendEmail, formatEmailError } from './email/sendEmail.js'
+import { isEmailConfigured, formatEmailError } from './email/sendEmail.js'
 import { sendEnrollmentConfirmedEmail } from './email/enrollmentConfirmedEmail.js'
 import { issueEmailVerification } from './email/emailVerificationService.js'
 import { refreshMemberProfileComplete } from './members/createMemberStub.js'
@@ -83,7 +83,7 @@ const ensureProductionEnv = () => {
 ensureProductionEnv()
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'role-model-consolidation-2026-06-21'
+const API_BUILD_ID = 'transactional-email-2026-06-22'
 
 // The default master admin account is permanent: it cannot be deleted,
 // deactivated, or stripped of master admin access. Override via env if the
@@ -2654,6 +2654,7 @@ function legacyAdminPermissionFor(req) {
   if (path.startsWith('/schools')) return method === 'GET' ? 'schools.view' : 'schools.manage'
   if (path.startsWith('/analytics')) return 'analytics.view'
   if (path.startsWith('/db-queries') || path.startsWith('/database') || path.startsWith('/create-member-program-table')) return 'admin_access.manage'
+  if (path.startsWith('/email')) return 'admin_access.manage'
   return null
 }
 
@@ -2688,65 +2689,6 @@ registerFamilySignupRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerCoachPortalRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerCampRegistrationRoutes(app, pool)
 registerDevMemberRoutes(app, pool)
-
-app.get('/api/admin/email/status', async (req, res) => {
-  try {
-    const config = getEmailConfigSummary()
-    const verify = config.configured ? await verifySmtpConnection() : { ok: false, error: null }
-    res.json({
-      success: true,
-      data: {
-        ...config,
-        smtpVerified: verify.ok,
-        smtpError: verify.error,
-      },
-    })
-  } catch (err) {
-    console.error('[admin] email status:', err)
-    res.status(500).json({ success: false, message: 'Failed to check email status' })
-  }
-})
-
-// Send a test email to verify SMTP configuration (master admin only).
-app.post('/api/admin/email/test', async (req, res) => {
-  if (req.isMasterAdmin !== true) {
-    return res.status(403).json({ success: false, message: 'Master admin access required' })
-  }
-  const to = String(req.body?.to || '').trim()
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
-    return res.status(400).json({ success: false, message: 'A valid recipient email is required' })
-  }
-
-  if (!isEmailConfigured()) {
-    return res.status(400).json({
-      success: false,
-      message: formatEmailError(new Error('not configured')),
-    })
-  }
-
-  const subject = 'Vortex Athletics email test'
-  const text = [
-    'This is a test email from Vortex Athletics.',
-    '',
-    'If you received this, transactional email is configured correctly.',
-    '',
-    '— Vortex Athletics',
-  ].join('\n')
-  const html = `
-    <p>This is a test email from <strong>Vortex Athletics</strong>.</p>
-    <p>If you received this, transactional email is configured correctly.</p>
-    <p style="color:#666;font-size:13px;">Sent ${new Date().toISOString()}</p>
-    <p>— Vortex Athletics</p>
-  `
-
-  try {
-    await sendEmail({ to, subject, text, html })
-    res.json({ success: true, message: `Test email sent to ${to}` })
-  } catch (err) {
-    console.error('[admin] email test send failed:', err?.message || err)
-    res.status(502).json({ success: false, message: err?.message || 'Failed to send test email' })
-  }
-})
 
 // Create + email a single-use verification link for the logged-in user's email.
 app.post('/api/members/email/send-verification', authenticateMember, async (req, res) => {
@@ -2886,6 +2828,7 @@ app.get('/api/health', async (req, res) => {
       schools: hasRegisteredRoute('/api/admin/schools'),
       notes: hasRegisteredRoute('/api/admin/notes'),
       adminEmailStatus: hasRegisteredRoute('/api/admin/email/status'),
+      adminEmailTest: hasRegisteredRoute('/api/admin/email/test'),
       registrationInquiryOverhaul: true,
       schedulingEnrollSites: true,
     },

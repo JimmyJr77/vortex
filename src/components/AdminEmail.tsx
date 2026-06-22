@@ -54,6 +54,14 @@ export default function AdminEmail() {
         body: JSON.stringify({ to: testTo.trim() }),
       })
       const json = await res.json().catch(() => ({}))
+      if (res.status === 404 && json?.message === 'Route not found') {
+        setTestResult({
+          ok: false,
+          message:
+            'Email test API is not on the backend yet. Redeploy the Render service (backend folder, latest main) and confirm GET /api/health returns apiFeatures.adminEmailTest: true.',
+        })
+        return
+      }
       setTestResult({
         ok: res.ok && json.success === true,
         message: json.message || (res.ok ? 'Test email sent' : `Request failed (${res.status})`),

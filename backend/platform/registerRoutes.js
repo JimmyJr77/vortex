@@ -11,6 +11,13 @@ import {
 import { resolveProgramsSchema } from '../programs/schema.js'
 import { queryAssignDrilldown } from './assignmentTargets.js'
 import { sendWaiverRequestEmail } from '../email/waiverRequestEmail.js'
+import {
+  getEmailConfigSummary,
+  isEmailConfigured,
+  verifySmtpConnection,
+  sendEmail,
+  formatEmailError,
+} from '../email/sendEmail.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -1971,6 +1978,63 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       ],
     )
     res.json({ success: true, data: updated.rows[0] })
+  })
+
+  app.get('/api/admin/email/status', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (_req, res) => {
+    try {
+      const config = getEmailConfigSummary()
+      const verify = config.configured ? await verifySmtpConnection() : { ok: false, error: null }
+      res.json({
+        success: true,
+        data: {
+          ...config,
+          smtpVerified: verify.ok,
+          smtpError: verify.error,
+        },
+      })
+    } catch (err) {
+      console.error('[admin] email status:', err)
+      res.status(500).json({ success: false, message: 'Failed to check email status' })
+    }
+  })
+
+  app.post('/api/admin/email/test', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (req, res) => {
+    if (req.isMasterAdmin !== true && req.platformAuth?.isMasterAdmin !== true) {
+      return res.status(403).json({ success: false, message: 'Master admin access required' })
+    }
+    const to = String(req.body?.to || '').trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      return res.status(400).json({ success: false, message: 'A valid recipient email is required' })
+    }
+    if (!isEmailConfigured()) {
+      return res.status(400).json({
+        success: false,
+        message: formatEmailError(new Error('not configured')),
+      })
+    }
+
+    const subject = 'Vortex Athletics email test'
+    const text = [
+      'This is a test email from Vortex Athletics.',
+      '',
+      'If you received this, transactional email is configured correctly.',
+      '',
+      '— Vortex Athletics',
+    ].join('\n')
+    const html = `
+      <p>This is a test email from <strong>Vortex Athletics</strong>.</p>
+      <p>If you received this, transactional email is configured correctly.</p>
+      <p style="color:#666;font-size:13px;">Sent ${new Date().toISOString()}</p>
+      <p>— Vortex Athletics</p>
+    `
+
+    try {
+      await sendEmail({ to, subject, text, html })
+      res.json({ success: true, message: `Test email sent to ${to}` })
+    } catch (err) {
+      console.error('[admin] email test send failed:', err?.message || err)
+      res.status(502).json({ success: false, message: err?.message || 'Failed to send test email' })
+    }
   })
 
   console.log('✅ Platform access, billing, waiver, and coach routes registered')
