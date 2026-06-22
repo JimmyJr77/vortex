@@ -223,6 +223,230 @@ function selectedDaysJsonb(selectedDays) {
   return JSON.stringify(days)
 }
 
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+function formatTimeOnly(value) {
+  if (!value) return ''
+  const s = String(value)
+  return s.length >= 5 ? s.slice(0, 5) : s
+}
+
+function formatDateOnly(value) {
+  if (!value) return null
+  return String(value).slice(0, 10)
+}
+
+function buildSlotScheduleLabel(row) {
+  const parts = []
+  if (row.week_letter) parts.push(`${row.week_letter}-Week`)
+  if (row.schedule_mode === 'date' && row.specific_date) {
+    parts.push(formatDateOnly(row.specific_date))
+  } else if (row.day_of_week != null) {
+    parts.push(DAY_NAMES[row.day_of_week] || row.day_name || 'Day')
+  }
+  const st = formatTimeOnly(row.start_time)
+  const et = formatTimeOnly(row.end_time)
+  if (st && et) parts.push(`${st}–${et}`)
+  return parts.join(' · ')
+}
+
+function buildGroupScheduleLabel(occurrenceRows) {
+  if (!occurrenceRows?.length) return ''
+  return occurrenceRows.map((row) => buildSlotScheduleLabel(row)).join('; ')
+}
+
+function formatSignupPriceLabel(cents, costUnit) {
+  const amount = Number(cents)
+  if (!Number.isFinite(amount) || amount <= 0) return null
+  const dollars = amount / 100
+  const formatted = dollars % 1 === 0 ? String(dollars) : dollars.toFixed(2)
+  const unitSuffix =
+    costUnit === 'per_month'
+      ? '/mo'
+      : costUnit === 'per_week'
+        ? '/wk'
+        : costUnit === 'per_class'
+          ? '/class'
+          : costUnit === 'per_offering'
+            ? '/offering'
+            : ''
+  return `$${formatted}${unitSuffix}`
+}
+
+async function loadClassEnrollmentCatalog(pool, classEventId) {
+  const formRes = await pool.query(
+    `
+      SELECT id, slot_cost_monthly_cents, cost_unit
+      FROM scheduling_form
+      WHERE program_id = $1 AND deleted_at IS NULL AND is_active = TRUE
+      ORDER BY id
+      LIMIT 1
+    `,
+    [classEventId],
+  )
+  if (formRes.rows.length === 0) {
+    return { formId: null, offerings: [], scheduleOptions: [] }
+  }
+  const form = formRes.rows[0]
+  const formId = Number(form.id)
+  const priceCents = Number(form.slot_cost_monthly_cents ?? 0)
+  const costUnit = form.cost_unit || 'per_month'
+  const priceLabel = formatSignupPriceLabel(priceCents, costUnit)
+
+  const offeringsRes = await pool.query(
+    `SELECT id, label, start_date, end_date FROM scheduling_offering WHERE form_id = $1 ORDER BY start_date DESC, id DESC`,
+    [formId],
+  )
+  const offerings = offeringsRes.rows.map((row) => ({
+    id: Number(row.id),
+    label: row.label,
+    startDate: row.start_date,
+    endDate: row.end_date,
+  }))
+
+  const groupsRes = await pool.query(
+    `
+      SELECT id, offering_id
+      FROM scheduling_slot_group
+      WHERE form_id = $1 AND is_active = TRUE
+      ORDER BY offering_id NULLS LAST, id
+    `,
+    [formId],
+  )
+  const slotsRes = await pool.query(
+    `
+      SELECT *
+      FROM scheduling_time_slot
+      WHERE form_id = $1 AND is_active = TRUE
+      ORDER BY slot_group_id, week_letter NULLS LAST, day_of_week NULLS LAST,
+        specific_date NULLS LAST, start_time, id
+    `,
+    [formId],
+  )
+  const slotsByGroup = new Map()
+  for (const row of slotsRes.rows) {
+    const gid = row.slot_group_id
+    if (gid == null) continue
+    if (!slotsByGroup.has(gid)) slotsByGroup.set(gid, [])
+    slotsByGroup.get(gid).push(row)
+  }
+
+  const offeringLabelById = new Map(
+    offerings.map((o) => [o.id, o.label || `Offering ${o.id}`]),
+  )
+
+  const scheduleOptions = []
+  for (const group of groupsRes.rows) {
+    const occurrences = slotsByGroup.get(group.id) || []
+    if (occurrences.length === 0) continue
+    const firstSlot = occurrences[0]
+    const offeringId = group.offering_id != null ? Number(group.offering_id) : null
+    const offering = offerings.find((o) => o.id === offeringId)
+    scheduleOptions.push({
+      slotGroupId: Number(group.id),
+      timeSlotId: Number(firstSlot.id),
+      offeringId,
+      offeringLabel: offeringId != null ? offeringLabelById.get(offeringId) ?? null : null,
+      offeringDates:
+        offering?.startDate && offering?.endDate
+          ? `${offering.startDate} – ${offering.endDate}`
+          : null,
+      scheduleLabel: buildGroupScheduleLabel(occurrences),
+      priceCents: priceCents > 0 ? priceCents : null,
+      priceLabel,
+    })
+  }
+
+  return { formId, offerings, scheduleOptions, priceLabel, costUnit }
+}
+
+async function applyEnrollmentRow(client, {
+  memberId,
+  memberRow,
+  primaryAdultEmail,
+  enrollment,
+  programKeysCreated,
+}) {
+  const classEventId = Number(enrollment.classEventId ?? enrollment.programId)
+  if (!Number.isFinite(memberId) || !Number.isFinite(classEventId)) return null
+
+  const progRes = await client.query(
+    `SELECT COALESCE(display_name, name) AS label FROM program WHERE id = $1`,
+    [classEventId],
+  )
+  const programName = enrollment.programName || progRes.rows[0]?.label || 'Class'
+
+  const programKey = `${memberId}:${classEventId}`
+  let memberProgramId = null
+  if (!programKeysCreated.has(programKey)) {
+    const mpInsert = await client.query(
+      `
+        INSERT INTO member_program (member_id, program_id, days_per_week, selected_days, created_at, updated_at)
+        VALUES ($1, $2, COALESCE($3, 1), $4::jsonb, now(), now())
+        RETURNING id
+      `,
+      [
+        memberId,
+        classEventId,
+        enrollment.daysPerWeek ?? 1,
+        selectedDaysJsonb(enrollment.selectedDays),
+      ],
+    )
+    memberProgramId = Number(mpInsert.rows[0]?.id)
+    programKeysCreated.add(programKey)
+  }
+
+  let schedulingSignupId = null
+  const schedulingFormId = Number(enrollment.schedulingFormId)
+  const slotGroupId = Number(enrollment.slotGroupId)
+  if (Number.isFinite(schedulingFormId) && Number.isFinite(slotGroupId)) {
+    const timeSlotId = Number(enrollment.timeSlotId)
+    const offeringIds = enrollment.offeringId != null
+      ? [Number(enrollment.offeringId)]
+      : (enrollment.offeringIds || []).map(Number).filter(Number.isFinite)
+    const responses = {
+      first_name: memberRow?.first_name,
+      last_name: memberRow?.last_name,
+      email: memberRow?.email || primaryAdultEmail || null,
+      phone: memberRow?.phone,
+      offering_ids: offeringIds,
+    }
+    const ssInsert = await client.query(
+      `
+        INSERT INTO scheduling_signup (
+          form_id, time_slot_id, slot_group_id, member_id,
+          first_name, last_name, email, phone, field_responses, responses, status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'confirmed')
+        RETURNING id
+      `,
+      [
+        schedulingFormId,
+        Number.isFinite(timeSlotId) ? timeSlotId : null,
+        slotGroupId,
+        memberId,
+        responses.first_name,
+        responses.last_name,
+        responses.email,
+        responses.phone,
+        JSON.stringify(responses),
+        JSON.stringify(responses),
+      ],
+    )
+    schedulingSignupId = Number(ssInsert.rows[0]?.id)
+  }
+
+  return {
+    memberId,
+    memberProgramId,
+    schedulingSignupId,
+    programName,
+    slotLabel: enrollment.scheduleLabel || '',
+    status: 'confirmed',
+    selectedDays: Array.isArray(enrollment.selectedDays) ? enrollment.selectedDays : [],
+  }
+}
+
 async function suggestUsername(client, firstName, lastName) {
   const cleanFirstName = String(firstName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '')
   const cleanLastName = String(lastName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '').substring(0, 2)
@@ -535,80 +759,19 @@ async function processFamilySignup(client, payload, options = {}) {
   )
   const allMemberIds = createdMembers.map(({ member }) => Number(member.id))
   const enrollmentReceipts = []
+  const programKeysCreated = new Set()
 
   for (const enrollment of enrollments) {
     const memberId = memberIdByClientIndex[Number(enrollment.memberIndex)]
-    const classEventId = Number(enrollment.classEventId ?? enrollment.programId)
-    if (!Number.isFinite(memberId) || !Number.isFinite(classEventId)) continue
-
-    const progRes = await client.query(
-      `SELECT COALESCE(display_name, name) AS label FROM program WHERE id = $1`,
-      [classEventId],
-    )
-    const programName = progRes.rows[0]?.label || 'Class'
-
-    const mpInsert = await client.query(
-      `
-        INSERT INTO member_program (member_id, program_id, days_per_week, selected_days, created_at, updated_at)
-        VALUES ($1, $2, COALESCE($3, 1), $4::jsonb, now(), now())
-        RETURNING id
-      `,
-      [
-        memberId,
-        classEventId,
-        enrollment.daysPerWeek ?? 1,
-        selectedDaysJsonb(enrollment.selectedDays),
-      ],
-    )
-    const memberProgramId = Number(mpInsert.rows[0]?.id)
-
-    let schedulingSignupId = null
-    const schedulingFormId = Number(enrollment.schedulingFormId)
-    const slotGroupId = Number(enrollment.slotGroupId)
-    if (Number.isFinite(schedulingFormId) && Number.isFinite(slotGroupId)) {
-      const memberRow = createdMembers.find(({ member }) => Number(member.id) === memberId)?.member
-      const timeSlotId = Number(enrollment.timeSlotId)
-      const responses = {
-        first_name: memberRow?.first_name,
-        last_name: memberRow?.last_name,
-        email: memberRow?.email || primaryAdult.email || null,
-        phone: memberRow?.phone,
-        offering_ids: (enrollment.offeringIds || []).map(Number).filter(Number.isFinite),
-      }
-      const ssInsert = await client.query(
-        `
-          INSERT INTO scheduling_signup (
-            form_id, time_slot_id, slot_group_id, member_id,
-            first_name, last_name, email, phone, field_responses, responses, status
-          )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'confirmed')
-          RETURNING id
-        `,
-        [
-          schedulingFormId,
-          Number.isFinite(timeSlotId) ? timeSlotId : null,
-          slotGroupId,
-          memberId,
-          responses.first_name,
-          responses.last_name,
-          responses.email,
-          responses.phone,
-          JSON.stringify(responses),
-          JSON.stringify(responses),
-        ],
-      )
-      schedulingSignupId = Number(ssInsert.rows[0]?.id)
-    }
-
-    enrollmentReceipts.push({
+    const memberRow = createdMembers.find(({ member }) => Number(member.id) === memberId)?.member
+    const receipt = await applyEnrollmentRow(client, {
       memberId,
-      memberProgramId,
-      schedulingSignupId,
-      programName,
-      slotLabel: '',
-      status: 'confirmed',
-      selectedDays: Array.isArray(enrollment.selectedDays) ? enrollment.selectedDays : [],
+      memberRow,
+      primaryAdultEmail: primaryAdult.email,
+      enrollment,
+      programKeysCreated,
     })
+    if (receipt) enrollmentReceipts.push(receipt)
   }
 
   await recordWaiverAcceptances(client, {
@@ -836,34 +999,8 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
     try {
       await ensureSignupSchema(pool)
       const classEventId = Number(req.params.classEventId)
-      const formRes = await pool.query(
-        `
-          SELECT id FROM scheduling_form
-          WHERE program_id = $1 AND deleted_at IS NULL AND is_active = TRUE
-          ORDER BY id LIMIT 1
-        `,
-        [classEventId],
-      )
-      if (formRes.rows.length === 0) {
-        return res.json({ success: true, data: { formId: null, offerings: [] } })
-      }
-      const formId = Number(formRes.rows[0].id)
-      const offeringsRes = await pool.query(
-        `SELECT id, label, start_date, end_date FROM scheduling_offering WHERE form_id = $1 ORDER BY start_date DESC, id DESC`,
-        [formId],
-      )
-      res.json({
-        success: true,
-        data: {
-          formId,
-          offerings: offeringsRes.rows.map((row) => ({
-            id: Number(row.id),
-            label: row.label,
-            startDate: row.start_date,
-            endDate: row.end_date,
-          })),
-        },
-      })
+      const catalog = await loadClassEnrollmentCatalog(pool, classEventId)
+      res.json({ success: true, data: catalog })
     } catch (error) {
       res.status(500).json({ success: false, message: error.message })
     }
@@ -1065,16 +1202,20 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
       )
       await applyYouthAthleteFields(client, minorMember.id, minor)
 
+      const catalogEnrollments = []
       for (const enrollment of enrollments) {
-        const programId = Number(enrollment.programId)
-        if (!Number.isFinite(programId)) continue
-        await client.query(
-          `
-            INSERT INTO member_program (member_id, program_id, days_per_week, selected_days, created_at, updated_at)
-            VALUES ($1, $2, COALESCE($3, 1), $4::jsonb, now(), now())
-          `,
-          [minorMember.id, programId, enrollment.daysPerWeek ?? 1, selectedDaysJsonb(enrollment.selectedDays)],
+        const classEventId = Number(enrollment.classEventId ?? enrollment.programId)
+        if (!Number.isFinite(classEventId)) continue
+        const progRes = await client.query(
+          `SELECT COALESCE(display_name, name) AS label FROM program WHERE id = $1`,
+          [classEventId],
         )
+        catalogEnrollments.push({
+          ...enrollment,
+          classEventId,
+          programId: classEventId,
+          programName: enrollment.programName || progRes.rows[0]?.label || 'Class',
+        })
       }
 
       const token = crypto.randomBytes(32).toString('hex')
@@ -1094,7 +1235,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
           minorMember.id,
           parentEmail,
           familyId,
-          JSON.stringify({ minorMemberId: minorMember.id, enrollments }),
+          JSON.stringify({ minorMemberId: minorMember.id, enrollments: catalogEnrollments }),
           expiresAt,
         ],
       )
@@ -1234,6 +1375,21 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
           })
         } else if (requiredIds.length > 0) {
           throw new Error('All required waivers must be accepted for the minor.')
+        }
+
+        const pendingEnrollments = Array.isArray(payload.enrollments) ? payload.enrollments : []
+        if (pendingEnrollments.length > 0) {
+          const minorRow = await client.query(`SELECT * FROM member WHERE id = $1`, [minorMemberId])
+          const programKeysCreated = new Set()
+          for (const enrollment of pendingEnrollments) {
+            await applyEnrollmentRow(client, {
+              memberId: minorMemberId,
+              memberRow: minorRow.rows[0],
+              primaryAdultEmail: primaryAdult.email,
+              enrollment,
+              programKeysCreated,
+            })
+          }
         }
       }
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, UserPlus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, Loader2, Plus, Trash2, UserPlus } from 'lucide-react'
 import { getApiUrl, adminApiRequest } from '../../utils/api'
 import { cleanPhoneNumber, formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH } from '../../utils/phoneUtils'
 import { formatDateForInput, isAdult } from '../../utils/dateUtils'
@@ -104,15 +104,38 @@ interface OfferingOption {
   endDate: string
 }
 
+interface ScheduleOption {
+  slotGroupId: number
+  timeSlotId: number
+  offeringId: number | null
+  offeringLabel: string | null
+  offeringDates: string | null
+  scheduleLabel: string
+  priceCents: number | null
+  priceLabel: string | null
+}
+
+interface ClassCatalogPack {
+  formId: number | null
+  offerings: OfferingOption[]
+  scheduleOptions: ScheduleOption[]
+  priceLabel?: string | null
+}
+
 interface EnrollmentRow {
   memberClientId: string
   programsId: number | ''
   classEventId: number | ''
   offeringIds: number[]
+  selectedSlotKeys: string[]
   schedulingFormId?: number
   slotGroupId?: number
   timeSlotId?: number
   locked?: boolean
+}
+
+function slotOptionKey(slotGroupId: number, timeSlotId: number) {
+  return `${slotGroupId}:${timeSlotId}`
 }
 
 interface EnrollPrefill {
@@ -153,6 +176,7 @@ const emptyEnrollment = (): EnrollmentRow => ({
   programsId: '',
   classEventId: '',
   offeringIds: [],
+  selectedSlotKeys: [],
 })
 
 interface FamilySignupWizardProps {
@@ -221,7 +245,7 @@ export default function FamilySignupWizard({
   const [parentEmail, setParentEmail] = useState('')
   const [topPrograms, setTopPrograms] = useState<TopProgramOption[]>([])
   const [classesByProgram, setClassesByProgram] = useState<Record<number, ClassOption[]>>({})
-  const [offeringsByClass, setOfferingsByClass] = useState<Record<number, { formId: number | null; offerings: OfferingOption[] }>>({})
+  const [offeringsByClass, setOfferingsByClass] = useState<Record<number, ClassCatalogPack>>({})
   const [enrollments, setEnrollments] = useState<EnrollmentRow[]>([])
   const [enrollPrefill, setEnrollPrefill] = useState<EnrollPrefill | null>(null)
   const prefillApplied = useRef(false)
@@ -413,9 +437,19 @@ export default function FamilySignupWizard({
     if (offeringsByClass[classEventId]) return
     const res = await fetch(`${apiUrl}/api/signup/catalog/classes/${classEventId}/offerings`)
     const data = await res.json()
+    const pack: ClassCatalogPack = data.data ?? {
+      formId: null,
+      offerings: [],
+      scheduleOptions: [],
+    }
     setOfferingsByClass((prev) => ({
       ...prev,
-      [classEventId]: data.data ?? { formId: null, offerings: [] },
+      [classEventId]: {
+        formId: pack.formId ?? null,
+        offerings: pack.offerings ?? [],
+        scheduleOptions: pack.scheduleOptions ?? [],
+        priceLabel: pack.priceLabel ?? null,
+      },
     }))
   }, [apiUrl, offeringsByClass])
 
@@ -435,6 +469,10 @@ export default function FamilySignupWizard({
         programsId: enrollPrefill.programsId ?? '',
         classEventId: enrollPrefill.classEventId ?? '',
         offeringIds,
+        selectedSlotKeys:
+          enrollPrefill.slotGroupId != null && enrollPrefill.timeSlotId != null
+            ? [slotOptionKey(enrollPrefill.slotGroupId, enrollPrefill.timeSlotId)]
+            : [],
         schedulingFormId: enrollPrefill.formId,
         slotGroupId: enrollPrefill.slotGroupId,
         timeSlotId: enrollPrefill.timeSlotId,
@@ -448,6 +486,22 @@ export default function FamilySignupWizard({
       void applyEnrollPrefill()
     }
   }, [step, isMinorStart, enrollPrefill, applyEnrollPrefill])
+
+  useEffect(() => {
+    const onEnrollmentStep = isMinorStart ? step === 2 : step === 3
+    if (!isMinorStart || !onEnrollmentStep) return
+    const minor = additionalMembers[0]
+    if (!minor?.clientId) return
+    setEnrollments((prev) => {
+      if (prev.length === 0) {
+        return [{ ...emptyEnrollment(), memberClientId: minor.clientId }]
+      }
+      if (prev.every((row) => !row.memberClientId)) {
+        return prev.map((row, i) => (i === 0 ? { ...row, memberClientId: minor.clientId } : row))
+      }
+      return prev
+    })
+  }, [isMinorStart, step, additionalMembers])
 
   useEffect(() => {
     if (!primaryAdult.email.trim()) return
@@ -726,9 +780,6 @@ export default function FamilySignupWizard({
       if (!minor?.firstName || !minor?.lastName) return 'Minor first and last name are required.'
       if (!minor.dateOfBirth || isAdult(minor.dateOfBirth)) return 'Minor must be under 18.'
       if (!minor.currentSchool?.trim()) return 'Current school is required for youth athletes.'
-      if (minor.graduationYear === '' || minor.graduationYear == null) {
-        return 'Graduation year is required for youth athletes.'
-      }
       if (!parentEmail.trim()) return 'Parent/guardian email is required.'
       return null
     }
@@ -867,13 +918,62 @@ export default function FamilySignupWizard({
     onComplete?.({ familyId: editFamilyId, memberIds: savedMemberIds })
   }
 
-  const buildPayload = () => {
+  const buildEnrollmentSubmitRows = () => {
     const memberIndexMap = new Map<string, number>()
     if (!isMinorStart) memberIndexMap.set(primaryAdult.clientId, 0)
     additionalMembers.forEach((member, idx) => {
       memberIndexMap.set(member.clientId, isMinorStart ? idx : idx + 1)
     })
 
+    const rows: Array<Record<string, unknown>> = []
+    for (const row of enrollments) {
+      if (row.classEventId === '' || row.memberClientId === '') continue
+      const classEventId = Number(row.classEventId)
+      const pack = offeringsByClass[classEventId]
+      const classes = row.programsId !== '' ? (classesByProgram[Number(row.programsId)] ?? []) : []
+      const classOption = classes.find((c) => c.id === classEventId)
+      const programOption = topPrograms.find((p) => p.id === Number(row.programsId))
+      const memberIndex = memberIndexMap.get(row.memberClientId)
+      const base = {
+        memberIndex,
+        classEventId,
+        programId: classEventId,
+        schedulingFormId: row.schedulingFormId ?? pack?.formId ?? undefined,
+        programName: programOption?.displayName || programOption?.name || classOption?.displayName || classOption?.name,
+        className: classOption?.displayName || classOption?.name,
+        daysPerWeek: 1,
+      }
+
+      if (row.selectedSlotKeys.length > 0) {
+        for (const key of row.selectedSlotKeys) {
+          const opt = pack?.scheduleOptions?.find(
+            (o) => slotOptionKey(o.slotGroupId, o.timeSlotId) === key,
+          )
+          if (!opt) continue
+          rows.push({
+            ...base,
+            slotGroupId: opt.slotGroupId,
+            timeSlotId: opt.timeSlotId,
+            offeringId: opt.offeringId,
+            offeringLabel: opt.offeringLabel,
+            scheduleLabel: opt.scheduleLabel,
+            priceCents: opt.priceCents,
+            priceLabel: opt.priceLabel,
+          })
+        }
+      } else {
+        rows.push({
+          ...base,
+          offeringIds: row.offeringIds,
+          slotGroupId: row.slotGroupId,
+          timeSlotId: row.timeSlotId,
+        })
+      }
+    }
+    return rows
+  }
+
+  const buildPayload = () => {
     return {
       existingFamilyId: isAdmin && familyMode === 'existing' ? existingFamilyId : null,
       primaryAdult: isMinorStart ? undefined : primaryAdult,
@@ -891,18 +991,7 @@ export default function FamilySignupWizard({
         addressState: primaryAdult.addressState,
         addressZip: primaryAdult.addressZip,
       })),
-      enrollments: enrollments
-        .filter((row) => row.classEventId !== '' && row.memberClientId !== '')
-        .map((row) => ({
-          memberIndex: memberIndexMap.get(row.memberClientId)!,
-          classEventId: Number(row.classEventId),
-          programId: Number(row.classEventId),
-          offeringIds: row.offeringIds,
-          schedulingFormId: row.schedulingFormId,
-          slotGroupId: row.slotGroupId,
-          timeSlotId: row.timeSlotId,
-          daysPerWeek: 1,
-        })),
+      enrollments: buildEnrollmentSubmitRows(),
       waivers: {
         signatureName,
         comments,
@@ -919,6 +1008,7 @@ export default function FamilySignupWizard({
       if (patch.programsId !== undefined && patch.programsId !== row.programsId) {
         next.classEventId = ''
         next.offeringIds = []
+        next.selectedSlotKeys = []
         next.schedulingFormId = undefined
         next.slotGroupId = undefined
         next.timeSlotId = undefined
@@ -926,6 +1016,7 @@ export default function FamilySignupWizard({
       }
       if (patch.classEventId !== undefined && patch.classEventId !== row.classEventId) {
         next.offeringIds = []
+        next.selectedSlotKeys = []
         next.slotGroupId = undefined
         next.timeSlotId = undefined
         if (patch.classEventId !== '') {
@@ -938,30 +1029,32 @@ export default function FamilySignupWizard({
     }))
   }
 
-  const toggleOffering = (rowIndex: number, offeringId: number, checked: boolean) => {
+  const toggleSlotSelection = (rowIndex: number, key: string, checked: boolean) => {
     setEnrollments((prev) => prev.map((row, i) => {
       if (i !== rowIndex) return row
-      const offeringIds = checked
-        ? [...row.offeringIds, offeringId]
-        : row.offeringIds.filter((id) => id !== offeringId)
-      return { ...row, offeringIds }
+      const selectedSlotKeys = checked
+        ? [...row.selectedSlotKeys, key]
+        : row.selectedSlotKeys.filter((k) => k !== key)
+      return { ...row, selectedSlotKeys }
     }))
   }
 
   const submit = async () => {
-    const allWaiversAlreadySigned = waivers.length > 0
-      && waivers.every((w) => w.is_required === false || w.acceptance_id != null)
-    if (!allWaiversAlreadySigned) {
-      const waiverError = validateWaiverSigning({
-        waivers,
-        checkedTemplateIds,
-        agreeAll,
-        signatureName,
-        paymentPolicyAcknowledged,
-      })
-      if (waiverError) {
-        setError(waiverError)
-        return
+    if (!isMinorStart) {
+      const allWaiversAlreadySigned = waivers.length > 0
+        && waivers.every((w) => w.is_required === false || w.acceptance_id != null)
+      if (!allWaiversAlreadySigned) {
+        const waiverError = validateWaiverSigning({
+          waivers,
+          checkedTemplateIds,
+          agreeAll,
+          signatureName,
+          paymentPolicyAcknowledged,
+        })
+        if (waiverError) {
+          setError(waiverError)
+          return
+        }
       }
     }
 
@@ -983,14 +1076,7 @@ export default function FamilySignupWizard({
         const payload = {
           minor,
           parentEmail,
-          enrollments: enrollments
-            .filter((row) => row.classEventId !== '')
-            .map((row) => ({
-              classEventId: Number(row.classEventId),
-              programId: Number(row.classEventId),
-              offeringIds: row.offeringIds,
-              daysPerWeek: 1,
-            })),
+          enrollments: buildEnrollmentSubmitRows(),
         }
         const res = await fetch(`${apiUrl}/api/signup/minor-start`, {
           method: 'POST',
@@ -1134,11 +1220,31 @@ export default function FamilySignupWizard({
       )}
       {enrollments.map((row, index) => {
         const classes = row.programsId !== '' ? (classesByProgram[Number(row.programsId)] ?? []) : []
-        const offeringPack = row.classEventId !== '' ? offeringsByClass[Number(row.classEventId)] : null
-        const offerings = offeringPack?.offerings ?? []
+        const catalog = row.classEventId !== '' ? offeringsByClass[Number(row.classEventId)] : null
+        const scheduleOptions = catalog?.scheduleOptions ?? []
+        const groupedScheduleOptions = (() => {
+          const groups = new Map<string, {
+            offeringLabel: string
+            offeringDates: string | null
+            options: ScheduleOption[]
+          }>()
+          for (const opt of scheduleOptions) {
+            const key = opt.offeringId != null ? String(opt.offeringId) : '__general__'
+            if (!groups.has(key)) {
+              groups.set(key, {
+                offeringLabel: opt.offeringLabel || 'Schedule options',
+                offeringDates: opt.offeringDates,
+                options: [],
+              })
+            }
+            groups.get(key)!.options.push(opt)
+          }
+          return [...groups.values()]
+        })()
+
         return (
-          <div key={index} className="rounded-xl border border-gray-200 p-4 space-y-3">
-            <div className="grid gap-2 md:grid-cols-2">
+          <div key={index} className="rounded-xl border border-gray-200 p-4 space-y-4">
+            <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Family member</label>
                 <select
@@ -1167,47 +1273,82 @@ export default function FamilySignupWizard({
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Class</label>
-                <select
-                  className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
-                  value={row.classEventId}
-                  disabled={row.programsId === ''}
-                  onChange={(e) => updateEnrollmentRow(index, {
-                    classEventId: e.target.value === '' ? '' : Number(e.target.value),
-                  })}
-                >
-                  <option value="">Select class</option>
-                  {classes.map((c) => (
-                    <option key={c.id} value={c.id}>{c.displayName || c.name}</option>
-                  ))}
-                </select>
-              </div>
             </div>
-            {offerings.length > 0 && (
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-2">Offerings (select all that apply)</label>
-                <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-100 rounded-lg p-3">
-                  {offerings.map((offering) => (
-                    <label key={offering.id} className="flex items-start gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        className="mt-1"
-                        checked={row.offeringIds.includes(offering.id)}
-                        onChange={(e) => toggleOffering(index, offering.id, e.target.checked)}
-                      />
-                      <span>
-                        {offering.label || `Offering ${offering.id}`}
-                        {' '}
-                        <span className="text-gray-500 text-xs">
-                          ({offering.startDate} – {offering.endDate})
-                        </span>
-                      </span>
-                    </label>
-                  ))}
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Class</label>
+              <select
+                className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                value={row.classEventId}
+                disabled={row.programsId === ''}
+                onChange={(e) => updateEnrollmentRow(index, {
+                  classEventId: e.target.value === '' ? '' : Number(e.target.value),
+                })}
+              >
+                <option value="">Select class</option>
+                {classes.map((c) => (
+                  <option key={c.id} value={c.id}>{c.displayName || c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {scheduleOptions.length > 0 && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Offerings & schedule (select all that apply)
+                  </label>
+                  {catalog?.priceLabel && (
+                    <p className="text-xs text-gray-500 mb-2">Typical price: {catalog.priceLabel}</p>
+                  )}
                 </div>
+                {groupedScheduleOptions.map((group) => (
+                  <div key={`${group.offeringLabel}-${group.offeringDates ?? 'general'}`} className="space-y-2">
+                    <p className="text-sm font-semibold text-gray-800">
+                      {group.offeringLabel}
+                      {group.offeringDates && (
+                        <span className="text-gray-500 font-normal"> · {group.offeringDates}</span>
+                      )}
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {group.options.map((opt) => {
+                        const key = slotOptionKey(opt.slotGroupId, opt.timeSlotId)
+                        const checked = row.selectedSlotKeys.includes(key)
+                        return (
+                          <label
+                            key={key}
+                            className={`flex items-start gap-3 rounded-xl border-2 p-3 cursor-pointer transition-colors ${
+                              checked
+                                ? 'border-vortex-red bg-red-50'
+                                : 'border-gray-200 bg-white hover:border-gray-300'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              className="mt-1 shrink-0"
+                              checked={checked}
+                              onChange={(e) => toggleSlotSelection(index, key, e.target.checked)}
+                            />
+                            <span className="text-sm min-w-0">
+                              <span className="flex items-center gap-1.5 font-medium text-gray-900">
+                                <Clock className="w-3.5 h-3.5 text-vortex-red shrink-0" />
+                                {opt.scheduleLabel}
+                              </span>
+                              {opt.priceLabel && (
+                                <span className="block text-xs font-semibold text-vortex-red mt-1">
+                                  {opt.priceLabel}
+                                </span>
+                              )}
+                            </span>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
+
             <button
               type="button"
               onClick={() => setEnrollments((prev) => prev.filter((_, i) => i !== index))}

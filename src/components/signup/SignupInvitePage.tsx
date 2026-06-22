@@ -18,6 +18,15 @@ export default function SignupInvitePage() {
   const [inviteInfo, setInviteInfo] = useState<{
     inviteeEmail: string
     minor: { firstName: string; lastName: string; dateOfBirth?: string }
+    pendingPayload?: {
+      enrollments?: Array<{
+        programName?: string
+        className?: string
+        scheduleLabel?: string
+        offeringLabel?: string
+        priceLabel?: string
+      }>
+    }
   } | null>(null)
   const [waivers, setWaivers] = useState<PublicWaiverTemplate[]>([])
   const [primaryAdult, setPrimaryAdult] = useState({
@@ -55,7 +64,11 @@ export default function SignupInvitePage() {
       const inviteData = await inviteRes.json()
       const waiversData = await waiversRes.json()
       if (!inviteRes.ok) throw new Error(inviteData.message || 'Invalid invite')
-      setInviteInfo(inviteData.data)
+      setInviteInfo({
+        inviteeEmail: inviteData.data?.inviteeEmail || '',
+        minor: inviteData.data?.minor,
+        pendingPayload: inviteData.data?.pendingPayload,
+      })
       setPrimaryAdult((prev) => ({ ...prev, email: inviteData.data?.inviteeEmail || prev.email }))
       setWaivers(waiversData.data ?? [])
     } catch (err) {
@@ -158,6 +171,36 @@ export default function SignupInvitePage() {
         </div>
 
         {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
+
+        {inviteInfo?.pendingPayload?.enrollments && inviteInfo.pendingPayload.enrollments.length > 0 && (
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-3">
+            <h2 className="text-sm font-semibold text-blue-900">Requested enrollments</h2>
+            <p className="text-xs text-blue-800">
+              Your athlete selected these classes. Enrollment will be finalized when you complete signup below.
+            </p>
+            <ul className="space-y-2">
+              {inviteInfo.pendingPayload.enrollments.map((item, index) => (
+                <li
+                  key={index}
+                  className="rounded-lg border border-blue-100 bg-white px-3 py-2 text-sm text-gray-800"
+                >
+                  <div className="font-semibold text-gray-900">
+                    {item.programName || item.className || 'Class enrollment'}
+                  </div>
+                  {item.scheduleLabel && (
+                    <div className="text-gray-600 mt-0.5">{item.scheduleLabel}</div>
+                  )}
+                  {item.offeringLabel && (
+                    <div className="text-xs text-gray-500 mt-0.5">{item.offeringLabel}</div>
+                  )}
+                  {item.priceLabel && (
+                    <div className="text-xs font-semibold text-vortex-red mt-1">{item.priceLabel}</div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="rounded-xl border border-gray-200 p-4 grid gap-3 md:grid-cols-2">
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={primaryAdult.firstName} onChange={(e) => setPrimaryAdult((p) => ({ ...p, firstName: e.target.value }))} />

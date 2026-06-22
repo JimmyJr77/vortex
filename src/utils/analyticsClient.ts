@@ -12,6 +12,15 @@ type TrackOptions = {
 const pending: object[] = []
 let flushTimer: ReturnType<typeof setTimeout> | null = null
 
+/** Browsers cap total in-flight keepalive/beacon data at 64KB (shared with Cloudflare RUM, etc.). */
+const MAX_BEACON_BYTES = 8192
+const MAX_PENDING_BEFORE_FLUSH = 8
+
+type FlushOptions = {
+  /** Use keepalive transport (page unload). Omit for normal background flush via fetch. */
+  useBeacon?: boolean
+}
+
 const newEventId = (): string => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID()
@@ -54,7 +63,11 @@ export const trackEvent = (eventName: string, pagePath: string, options?: TrackO
     trackGoogleEvent(eventName, options?.properties)
   }
 
-  scheduleFlush()
+  if (pending.length >= MAX_PENDING_BEFORE_FLUSH) {
+    void flushEvents()
+  } else {
+    scheduleFlush()
+  }
 }
 
 export const trackPageViewEvent = (path: string, options?: { googleAnalytics?: boolean }) => {
@@ -94,14 +107,37 @@ const scheduleFlush = () => {
   if (flushTimer) return
   flushTimer = setTimeout(() => {
     flushTimer = null
-    flushEvents()
+    void flushEvents()
   }, 2000)
 }
 
-export const flushEvents = async () => {
+function takeBeaconBatch(events: object[]): object[] {
+  const batch: object[] = []
+  for (const ev of events) {
+    const candidate = [...batch, ev]
+    const size = JSON.stringify({ events: candidate }).length
+    if (size > MAX_BEACON_BYTES && batch.length > 0) break
+    batch.push(ev)
+    if (size >= MAX_BEACON_BYTES) break
+  }
+  return batch
+}
+
+export const flushEvents = async (options?: FlushOptions) => {
   if (!pending.length) return
-  const batch = pending.splice(0, pending.length)
   const consent = getActiveConsent()
+
+  const useBeacon = options?.useBeacon === true
+  let batch: object[]
+  if (useBeacon) {
+    batch = takeBeaconBatch(pending)
+    pending.splice(0, batch.length)
+  } else {
+    batch = pending.splice(0, pending.length)
+  }
+
+  if (!batch.length) return
+
   if (!consent.analytics && batch.every((e: { consentAnalytics?: boolean }) => !e.consentAnalytics)) {
     return
   }
@@ -110,15 +146,22 @@ export const flushEvents = async () => {
   const url = `${getApiUrl()}/api/analytics/event`
 
   try {
-    if (navigator.sendBeacon) {
+    if (useBeacon && navigator.sendBeacon && body.length <= MAX_BEACON_BYTES) {
       const ok = navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }))
-      if (ok) return
+      if (ok) {
+        if (pending.length > 0) void flushEvents({ useBeacon: true })
+        return
+      }
     }
-    await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body })
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      keepalive: useBeacon,
+    })
+    if (useBeacon && pending.length > 0) void flushEvents({ useBeacon: true })
   } catch (e) {
     console.warn('[analytics] flush failed', e)
     pending.unshift(...batch)
   }
 }
-
-// Remove crypto v4 import - I used crypto.randomUUID instead, fix the import at top

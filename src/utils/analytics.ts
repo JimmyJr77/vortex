@@ -45,9 +45,9 @@ export const trackEngagement = (
 
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', () => {
-    flushEvents()
+    void flushEvents({ useBeacon: true })
   })
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') flushEvents()
+    if (document.visibilityState === 'hidden') void flushEvents({ useBeacon: true })
   })
 }
