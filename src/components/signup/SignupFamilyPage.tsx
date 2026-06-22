@@ -8,8 +8,8 @@ export default function SignupFamilyPage() {
 
   if (mode === 'minor') {
     return (
-      <div className="min-h-screen bg-gray-50 py-10 px-4">
-        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
+      <div className="min-h-screen bg-gray-50 px-4 pb-10 pt-below-site-header">
+        <div className="max-w-3xl mx-auto mt-8 md:mt-10 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
           <FamilySignupWizard mode="minor-start" returnTo={returnTo} />
         </div>
       </div>
@@ -17,8 +17,8 @@ export default function SignupFamilyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
+    <div className="min-h-screen bg-gray-50 px-4 pb-10 pt-below-site-header">
+      <div className="max-w-3xl mx-auto mt-8 md:mt-10 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
         <FamilySignupWizard mode="public" returnTo={returnTo} />
       </div>
     </div>

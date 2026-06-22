@@ -55,7 +55,7 @@ export default function WaiverSigningBlock({
         </div>
       )}
 
-      {waivers.map((waiver) => {
+      {waivers.length > 0 && waivers.map((waiver) => {
         const alreadySigned = waiver.acceptance_id != null
         const checked = checkedTemplateIds.includes(waiver.id)
         return (
@@ -185,6 +185,9 @@ export function validateWaiverSigning({
   signatureName: string
   paymentPolicyAcknowledged: boolean
 }): string | null {
+  if (waivers.length === 0) {
+    return 'Waivers could not be loaded. Refresh the page before creating your account.'
+  }
   const required = waivers.filter((w) => w.is_required !== false && !w.acceptance_id)
   for (const waiver of required) {
     if (!checkedTemplateIds.includes(waiver.id)) {

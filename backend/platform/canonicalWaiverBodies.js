@@ -4,7 +4,7 @@ export const CANONICAL_WAIVER_TEMPLATES = [
   {
     waiverType: 'ASSUMPTION_OF_RISK',
     name: 'Assumption of Risk',
-    version: '1.0',
+    version: '1.1',
     body: `Assumption of Risk (Maryland)
 
 Under Maryland law, participants in athletic and recreational activities may voluntarily assume the inherent risks associated with those activities. By participating in programs, classes, events, open gym, training sessions, or other activities at Vortex Athletics (or allowing a minor to participate), the participant and/or parent or legal guardian knowingly, voluntarily, and expressly assumes all inherent risks of such activities.
@@ -18,7 +18,7 @@ This Assumption of Risk is intended to allocate responsibility for inherent risk
   {
     waiverType: 'RELEASE_OF_LIABILITY',
     name: 'Release of Liability',
-    version: '1.0',
+    version: '1.1',
     body: `IMPORTANT: READ CAREFULLY BEFORE SIGNING. This document affects your legal rights. By signing below, you acknowledge that you understand and accept the risks of the activities at Vortex Athletics and are waiving certain potential claims. This waiver is intended for both adult participants and minors (in the case of minors, a parent or legal guardian must review and sign on the minor's behalf).
 
 Assumption of Risk
@@ -50,7 +50,7 @@ Parent/Guardian Certification if for a minor: I am the parent or legal guardian 
   {
     waiverType: 'MEDICAL_EMERGENCY',
     name: 'Medical Emergencies',
-    version: '1.0',
+    version: '1.1',
     body: `Emergency Treatment Authorization and Release
 
 I, the participant or parent/legal guardian if participant is a minor, hereby authorize the staff of the fitness program to administer first aid and to obtain any necessary emergency medical care for the above-named participant in the event of an accident, injury, or illness during classes, training sessions, or events at the facility. I understand that in such an emergency, the staff will make reasonable efforts to contact me (or the emergency contact persons listed above) as soon as possible. If I cannot be reached in a timely manner, I authorize licensed medical professionals (including emergency responders and physicians) to provide treatment deemed necessary for the participant's well-being. I accept responsibility for any medical expenses that may be incurred for such treatment. I also authorize the release of this form's information (such as allergies, medications, or insurance details) to healthcare providers as needed for emergency treatment. Furthermore, I affirm that all information provided above is complete and accurate to the best of my knowledge.`,
@@ -58,7 +58,7 @@ I, the participant or parent/legal guardian if participant is a minor, hereby au
   {
     waiverType: 'PAYMENT_POLICY',
     name: 'Payment Policies',
-    version: '1.0',
+    version: '1.1',
     body: `Vortex Athletics – Payment Policy & Auto-Draft Authorization
 
 All tuition, fees, and charges for classes, programs, camps, clinics, private lessons, and events at Vortex Athletics ("Vortex") are due and payable in accordance with the billing schedule selected at enrollment and processed through the Jackrabbit billing system.

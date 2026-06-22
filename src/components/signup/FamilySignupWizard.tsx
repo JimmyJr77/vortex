@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, UserPlus } from 'luci
 import { getApiUrl, adminApiRequest } from '../../utils/api'
 import { cleanPhoneNumber, formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../utils/phoneUtils'
 import { formatDateForInput, isAdult } from '../../utils/dateUtils'
+import { fetchSuggestedUsername } from '../../utils/signupUsername'
 import { graduationYearsForPicker } from '../../utils/promoDiscountModel'
 import { US_STATES, verifyUsAddressZip } from '../../utils/usStates'
 import SchoolAutocompleteInput from '../scheduling/SchoolAutocompleteInput'
@@ -78,6 +79,7 @@ interface SignupMemberForm {
   password: string
   confirmPassword: string
   emailSource?: EmailSource
+  useParentPassword?: boolean
   currentSchool?: string
   graduationYear?: number | ''
 }
@@ -141,6 +143,7 @@ const emptyMember = (): SignupMemberForm => ({
   password: '',
   confirmPassword: '',
   emailSource: 'parent',
+  useParentPassword: false,
   currentSchool: '',
   graduationYear: '',
 })
@@ -188,6 +191,7 @@ function mapApiMemberToForm(
     password: '',
     confirmPassword: '',
     emailSource,
+    useParentPassword: false,
     currentSchool: record.currentSchool || '',
     graduationYear: record.graduationYear ?? '',
   }
@@ -259,10 +263,16 @@ export default function FamilySignupWizard({
       ])
       const programsData = await programsRes.json()
       const waiversData = await waiversRes.json()
+      if (!programsRes.ok) {
+        throw new Error(programsData.message || 'Failed to load programs')
+      }
+      if (!waiversRes.ok) {
+        throw new Error(waiversData.message || 'Failed to load waivers')
+      }
       setTopPrograms(programsData.data ?? [])
       setWaivers(waiversData.data ?? [])
-    } catch {
-      setError('Failed to load programs or waivers.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load programs or waivers.')
     }
   }, [apiUrl])
 
@@ -458,18 +468,8 @@ export default function FamilySignupWizard({
     }
   }, [isMinorStart, additionalMembers.length])
 
-  const suggestUsername = async (firstName: string, lastName: string) => {
-    if (!firstName.trim()) return ''
-    try {
-      const res = await fetch(
-        `${apiUrl}/api/signup/suggest-username?firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}`,
-      )
-      const data = await res.json()
-      return data.data?.username ?? ''
-    } catch {
-      return ''
-    }
-  }
+  const suggestUsernameForMember = async (firstName: string, lastName: string) =>
+    fetchSuggestedUsername(apiUrl, firstName, lastName)
 
   const graduationYears = useMemo(() => graduationYearsForPicker(), [])
 
@@ -488,8 +488,9 @@ export default function FamilySignupWizard({
     member: SignupMemberForm,
     onChange: (updates: Partial<SignupMemberForm>) => void,
     fieldIdPrefix: string,
+    { alwaysShow = false } = {},
   ) => {
-    const showYouthFields = isMinorStart || (member.dateOfBirth !== '' && !isAdult(member.dateOfBirth))
+    const showYouthFields = alwaysShow || (member.dateOfBirth !== '' && !isAdult(member.dateOfBirth))
     if (!showYouthFields) return null
     return (
       <>
@@ -527,12 +528,20 @@ export default function FamilySignupWizard({
   const renderPrimaryAdultFields = (
     member: SignupMemberForm,
     onChange: (updates: Partial<SignupMemberForm>) => void,
-    fieldIdPrefix: string,
+    _fieldIdPrefix: string,
     showLogin = true,
-  ) => (
+  ) => {
+    const handleNameBlur = async () => {
+      if (member.username.trim()) return
+      if (!member.firstName.trim()) return
+      const suggested = await suggestUsernameForMember(member.firstName, member.lastName)
+      if (suggested) onChange({ username: suggested })
+    }
+
+    return (
     <div className="grid gap-3 md:grid-cols-2">
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} />
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} />
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} onBlur={() => void handleNameBlur()} />
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} onBlur={() => void handleNameBlur()} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email *" value={member.email} onChange={(e) => onChange({ email: e.target.value })} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder={`${PHONE_INPUT_PLACEHOLDER} *`} maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
       <input className="md:col-span-2 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Street address *" value={member.addressStreet} onChange={(e) => { onChange({ addressStreet: e.target.value }); setAddressVerified(false) }} />
@@ -572,7 +581,30 @@ export default function FamilySignupWizard({
         </>
       )}
       {!showLogin && <div className="hidden md:block" aria-hidden />}
-      {renderYouthAthleteFields(member, onChange, fieldIdPrefix)}
+    </div>
+    )
+  }
+
+  const renderMinorAthleteFields = (
+    member: SignupMemberForm,
+    onChange: (updates: Partial<SignupMemberForm>) => void,
+    fieldIdPrefix: string,
+  ) => (
+    <div className="grid gap-3 md:grid-cols-2">
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} />
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} />
+      <div>
+        <label className="block text-xs font-semibold text-gray-600 mb-1">Date of birth (DOB) *</label>
+        <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="date" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} />
+      </div>
+      <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm self-end" value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
+        <option value="">Gender</option>
+        <option value="female">Female</option>
+        <option value="male">Male</option>
+        <option value="non-binary">Non-binary</option>
+        <option value="prefer-not-to-say">Prefer not to say</option>
+      </select>
+      {renderYouthAthleteFields(member, onChange, fieldIdPrefix, { alwaysShow: true })}
     </div>
   )
 
@@ -588,9 +620,11 @@ export default function FamilySignupWizard({
     const handleNameBlur = async () => {
       if (member.username.trim()) return
       if (!member.firstName.trim()) return
-      const suggested = await suggestUsername(member.firstName, member.lastName)
+      const suggested = await suggestUsernameForMember(member.firstName, member.lastName)
       if (suggested) onChange({ username: suggested })
     }
+
+    const useParentPassword = member.useParentPassword ?? false
 
     return (
       <div className="grid gap-3 md:grid-cols-2">
@@ -639,9 +673,29 @@ export default function FamilySignupWizard({
           <option value="prefer-not-to-say">Prefer not to say</option>
         </select>
         <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username *" value={member.username} onChange={(e) => onChange({ username: e.target.value })} />
-        <div className="hidden md:block" aria-hidden />
-        <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'New password (optional)' : 'Password *'} value={member.password} onChange={(e) => onChange({ password: e.target.value })} />
-        <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'Confirm new password' : 'Confirm password *'} value={member.confirmPassword} onChange={(e) => onChange({ confirmPassword: e.target.value })} />
+        <label className="md:col-span-2 flex items-start gap-2 text-sm text-gray-800">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={useParentPassword}
+            onChange={(e) => {
+              const checked = e.target.checked
+              onChange(
+                checked
+                  ? { useParentPassword: true, password: '', confirmPassword: '' }
+                  : { useParentPassword: false },
+              )
+            }}
+          />
+          <span>Use Parent/Guardian password</span>
+        </label>
+        {!useParentPassword && (
+          <>
+            <div className="hidden md:block" aria-hidden />
+            <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'New password (optional)' : 'Password *'} value={member.password} onChange={(e) => onChange({ password: e.target.value })} />
+            <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'Confirm new password' : 'Confirm password *'} value={member.confirmPassword} onChange={(e) => onChange({ confirmPassword: e.target.value })} />
+          </>
+        )}
         {renderYouthAthleteFields(member, onChange, `${fieldIdPrefix}-${index}`)}
         <p className="md:col-span-2 text-xs text-gray-500 italic">
           Athlete accounts support additional training and learning opportunities, to include challenges, workout tips, skill libraries and other fitness related items.
@@ -653,8 +707,11 @@ export default function FamilySignupWizard({
   const renderMemberFields = (
     member: SignupMemberForm,
     onChange: (updates: Partial<SignupMemberForm>) => void,
-    { showLogin = true, fieldIdPrefix = 'member', memberIndex = 0, variant = 'primary' as 'primary' | 'family' } = {},
+    { showLogin = true, fieldIdPrefix = 'member', memberIndex = 0, variant = 'primary' as 'primary' | 'family' | 'minor-athlete' } = {},
   ) => {
+    if (variant === 'minor-athlete') {
+      return renderMinorAthleteFields(member, onChange, fieldIdPrefix)
+    }
     if (variant === 'family') {
       return renderFamilyMemberFields(member, onChange, fieldIdPrefix, memberIndex)
     }
@@ -697,10 +754,15 @@ export default function FamilySignupWizard({
       if (!member.firstName || !member.lastName) return 'Each family member needs a first and last name.'
       if (!member.username?.trim()) return `Username is required for ${member.firstName || 'each member'}.`
       if (!member.email?.trim()) return `Email is required for ${member.firstName || 'each member'}.`
-      if (!isAdminEdit) {
+      if (member.useParentPassword && !isAdminEdit) {
+        if (!primaryAdult.password || primaryAdult.password.length < 8) {
+          return 'Primary adult password is required when sharing login with a family member.'
+        }
+      }
+      if (!isAdminEdit && !member.useParentPassword) {
         if (!member.password || member.password.length < 8) return `Password must be at least 8 characters for ${member.firstName || 'each member'}.`
         if (member.password !== member.confirmPassword) return `Passwords do not match for ${member.firstName || 'each member'}.`
-      } else if (member.password) {
+      } else if (member.password && !member.useParentPassword) {
         if (member.password.length < 8) return `Password must be at least 8 characters for ${member.firstName || 'each member'}.`
         if (member.password !== member.confirmPassword) return `Passwords do not match for ${member.firstName || 'each member'}.`
       }
@@ -793,6 +855,12 @@ export default function FamilySignupWizard({
       primaryAdult: isMinorStart ? undefined : primaryAdult,
       additionalMembers: (isMinorStart ? additionalMembers.slice(0, 1) : additionalMembers).map((member) => ({
         ...member,
+        ...(member.useParentPassword && !isMinorStart
+          ? {
+              password: primaryAdult.password,
+              confirmPassword: primaryAdult.confirmPassword,
+            }
+          : {}),
         addressStreet: primaryAdult.addressStreet,
         addressCity: primaryAdult.addressCity,
         addressState: primaryAdult.addressState,
@@ -1173,7 +1241,7 @@ export default function FamilySignupWizard({
             {additionalMembers[0] && renderMemberFields(
               additionalMembers[0],
               (updates) => setAdditionalMembers((prev) => [{ ...prev[0], ...updates }]),
-              { showLogin: false, fieldIdPrefix: 'minor-athlete' },
+              { variant: 'minor-athlete', fieldIdPrefix: 'minor-athlete' },
             )}
           </div>
           <div>

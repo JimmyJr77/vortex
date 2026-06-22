@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import { sendAccountInviteEmail } from '../email/accountInviteEmail.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { ensureSignupSchema } from './ensureSignupSchema.js'
+import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
 import { resolveProgramsSchema } from '../programs/schema.js'
 
 function isAdult(dateOfBirth) {
@@ -421,6 +422,13 @@ async function processFamilySignup(client, payload, options = {}) {
     if (!merged.email?.trim()) {
       throw new Error(`Email is required for ${merged.firstName} ${merged.lastName}.`)
     }
+    if (merged.useParentPassword) {
+      if (!primaryAdult.password || primaryAdult.password.length < 8) {
+        throw new Error('Primary adult password is required when sharing login with a family member.')
+      }
+      merged.password = primaryAdult.password
+      merged.confirmPassword = primaryAdult.confirmPassword
+    }
     if (!merged.password || merged.password.length < 8) {
       throw new Error(`Password must be at least 8 characters for ${merged.firstName} ${merged.lastName}.`)
     }
@@ -727,8 +735,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
     try {
       await ensureSignupSchema(pool)
       const facilityId = await resolveFacilityId(pool)
-      const result = await pool.query(
-        `
+      const waiverQuery = `
           SELECT id, name, version, body, waiver_type, is_required
           FROM waiver_template
           WHERE facility_id = $1
@@ -743,11 +750,15 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
               ELSE 99
             END,
             name
-        `,
-        [facilityId],
-      )
+        `
+      let result = await pool.query(waiverQuery, [facilityId])
+      if (result.rows.length === 0) {
+        await seedCanonicalWaivers(pool)
+        result = await pool.query(waiverQuery, [facilityId])
+      }
       res.json({ success: true, data: result.rows })
     } catch (error) {
+      console.error('[signup] GET /api/signup/waivers failed:', error.message)
       res.status(500).json({ success: false, message: error.message })
     }
   })
@@ -774,6 +785,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
   app.post('/api/admin/signup/family', adminAuthMiddleware(pool, jwtSecret), async (req, res) => {
     const client = await pool.connect()
     try {
+      await ensureSignupSchema(pool)
       await client.query('BEGIN')
       const result = await processFamilySignup(client, req.body, {
         facilityId: req.adminAuth.facility_id,

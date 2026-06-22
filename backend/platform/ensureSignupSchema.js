@@ -5,20 +5,27 @@ import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-let ensured = false
+let ensurePromise = null
 
 /** Apply signup/waiver DDL idempotently (covers DBs that missed numbered migrations). */
 export async function ensureSignupSchema(pool) {
-  if (ensured) return
-  ensured = true
+  if (ensurePromise) return ensurePromise
 
-  const migrationDir = path.join(__dirname, '..', 'migrations')
-  for (const file of ['037_waiver_types.sql', '038_account_invite.sql', '039_member_graduation_year.sql']) {
-    const migrationPath = path.join(migrationDir, file)
-    if (fs.existsSync(migrationPath)) {
-      await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+  ensurePromise = (async () => {
+    const migrationDir = path.join(__dirname, '..', 'migrations')
+    for (const file of ['037_waiver_types.sql', '038_account_invite.sql', '039_member_graduation_year.sql']) {
+      const migrationPath = path.join(migrationDir, file)
+      if (fs.existsSync(migrationPath)) {
+        await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+      }
     }
-  }
+    await seedCanonicalWaivers(pool)
+  })()
 
-  await seedCanonicalWaivers(pool)
+  try {
+    await ensurePromise
+  } catch (err) {
+    ensurePromise = null
+    throw err
+  }
 }
