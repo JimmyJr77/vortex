@@ -291,7 +291,7 @@ async function upsertRehearsalFamily(client, facilityId, passwordHash) {
 
 async function syncGuardianAppUser(client, facilityId, guardianMemberId, passwordHash) {
   const fullName = `${GUARDIAN_FIRST} ${GUARDIAN_LAST}`
-  const adminRoles = ['MASTER_ADMIN', 'OWNER_ADMIN', 'ADMIN']
+  const adminRoles = ['MASTER_ADMIN', 'ADMIN']
 
   const byEmail = await client.query(
     `SELECT id, role::text AS role FROM app_user WHERE LOWER(email) = LOWER($1) LIMIT 1`,

@@ -8,7 +8,7 @@ import Login from './components/Login'
 import MemberLogin from './components/MemberLogin'
 import { trackPageView, trackEngagement } from './utils/analytics'
 import { captureUtmFromLocation } from './utils/utmCapture'
-import { clearAdminSession, hasAdminSession } from './utils/api'
+import { hasAdminSession } from './utils/api'
 import {
   bestPortalForAccount,
   clearPortalSession,
@@ -111,10 +111,12 @@ function App() {
   }
 
   const handleLogout = () => {
-    clearAdminSession()
+    clearPortalSession()
     setIsAdmin(false)
-    if (activePortal === 'admin') setActivePortal('website')
-    console.log('[Logout] All admin data cleared from localStorage')
+    setMemberToken(null)
+    setMember(null)
+    setShowMemberDashboard(false)
+    setActivePortal('website')
   }
 
   const handleMemberLoginSuccess = (token: string, memberData: PortalAccount) => {

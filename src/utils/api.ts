@@ -34,12 +34,18 @@ export const hasAdminSession = (): boolean => {
   )
 }
 
-/** Clear all admin auth keys (e.g. expired or missing token). */
+/**
+ * Clear all admin auth keys (e.g. expired or missing token).
+ * Also clears member portal session keys so logout does not leave a stale
+ * "Member Portal" button on the public site header.
+ */
 export const clearAdminSession = (): void => {
   localStorage.removeItem('vortex_admin')
   localStorage.removeItem('adminToken')
   localStorage.removeItem('vortex-admin-info')
   localStorage.removeItem('vortex-admin-id')
+  localStorage.removeItem('vortex_member_token')
+  localStorage.removeItem('vortex_member')
 }
 
 /**

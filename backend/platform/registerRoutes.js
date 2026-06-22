@@ -174,6 +174,34 @@ function requireAnyPermission(pool, jwtSecret, permissions) {
   ]
 }
 
+function requireMasterAdmin(pool, jwtSecret) {
+  const auth = authMiddleware(pool, jwtSecret)
+  return [
+    auth,
+    (req, res, next) => {
+      if (req.platformAuth?.isMasterAdmin !== true) {
+        return res.status(403).json({ success: false, message: 'Only master admins can perform this action.' })
+      }
+      next()
+    },
+  ]
+}
+
+async function deleteAppUserCompletely(client, userId, facilityId) {
+  await client.query('DELETE FROM coach_class_assignment WHERE coach_user_id = $1', [userId])
+
+  const members = await client.query(
+    `SELECT id FROM member WHERE app_user_id = $1 AND facility_id = $2`,
+    [userId, facilityId],
+  )
+  const memberIds = members.rows.map((row) => Number(row.id))
+  if (memberIds.length > 0) {
+    await client.query('DELETE FROM member WHERE id = ANY($1::bigint[])', [memberIds])
+  }
+
+  await client.query('DELETE FROM app_user WHERE id = $1 AND facility_id = $2', [userId, facilityId])
+}
+
 async function ensureBillingAccount(pool, familyId) {
   const existing = await pool.query(
     `SELECT * FROM family_billing_account WHERE family_id = $1`,
@@ -684,18 +712,149 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const isActive = req.body?.isActive === true
     if (!Number.isFinite(userId)) return res.status(400).json({ success: false, message: 'Invalid user id.' })
     if (userId === Number(req.platformAuth.user.id) && !isActive) {
-      return res.status(400).json({ success: false, message: 'You cannot deactivate your own account.' })
+      return res.status(400).json({ success: false, message: 'You cannot archive your own account.' })
     }
     if (!isActive && (await isDefaultMasterUser(pool, userId))) {
-      return res.status(400).json({ success: false, message: 'The default master admin account cannot be deactivated.' })
+      return res.status(400).json({ success: false, message: 'The default master admin account cannot be archived.' })
     }
     const roles = await loadUserRoles(pool, { id: userId, role: null })
     if (!isActive && roles.some((role) => role === 'MASTER_ADMIN') && (await countMasterAdmins(pool)) <= 1) {
-      return res.status(400).json({ success: false, message: 'Cannot deactivate the last master admin.' })
+      return res.status(400).json({ success: false, message: 'Cannot archive the last master admin.' })
     }
     await pool.query(`UPDATE app_user SET is_active = $2, updated_at = now() WHERE id = $1`, [userId, isActive])
     await pool.query(`UPDATE member SET is_active = $2, status = CASE WHEN $2 THEN status ELSE 'archived' END, updated_at = now() WHERE app_user_id = $1`, [userId, isActive])
+    await pool.query(
+      `UPDATE coach_profile SET is_active = $2, updated_at = now() WHERE user_id = $1`,
+      [userId, isActive],
+    )
     res.json({ success: true })
+  })
+
+  app.put('/api/admin/access/users/:userId', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (req, res) => {
+    const userId = Number(req.params.userId)
+    if (!Number.isFinite(userId)) return res.status(400).json({ success: false, message: 'Invalid user id.' })
+
+    const existing = await pool.query(
+      `SELECT id, full_name, email, username FROM app_user WHERE id = $1 AND facility_id = $2`,
+      [userId, req.platformAuth.user.facility_id],
+    )
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Account not found.' })
+    }
+
+    const fullName = req.body?.fullName != null ? String(req.body.fullName).trim() : null
+    const email = req.body?.email != null ? String(req.body.email).trim() : null
+    const phone = req.body?.phone != null ? String(req.body.phone).trim() : null
+    const username = req.body?.username != null ? String(req.body.username).trim() : null
+    const password = req.body?.password ? String(req.body.password) : null
+
+    if (fullName !== null && !fullName) {
+      return res.status(400).json({ success: false, message: 'Full name cannot be empty.' })
+    }
+    if (email !== null && !email) {
+      return res.status(400).json({ success: false, message: 'Email cannot be empty.' })
+    }
+
+    if (email || username) {
+      const conflict = await pool.query(
+        `
+          SELECT id FROM app_user
+          WHERE facility_id = $1
+            AND id <> $2
+            AND (
+              ($3::text IS NOT NULL AND LOWER(email) = LOWER($3))
+              OR ($4::text IS NOT NULL AND LOWER(username) = LOWER($4))
+            )
+        `,
+        [req.platformAuth.user.facility_id, userId, email, username],
+      )
+      if (conflict.rows.length > 0) {
+        return res.status(409).json({ success: false, message: 'Email or username already in use.' })
+      }
+    }
+
+    const updates = []
+    const values = []
+    let paramCount = 1
+    if (fullName !== null) {
+      updates.push(`full_name = $${paramCount++}`)
+      values.push(fullName)
+    }
+    if (email !== null) {
+      updates.push(`email = $${paramCount++}`)
+      values.push(email)
+    }
+    if (phone !== null) {
+      updates.push(`phone = $${paramCount++}`)
+      values.push(phone || null)
+    }
+    if (username !== null) {
+      updates.push(`username = $${paramCount++}`)
+      values.push(username || null)
+    }
+    if (password) {
+      const passwordHash = await bcrypt.hash(password, 10)
+      updates.push(`password_hash = $${paramCount++}`)
+      values.push(passwordHash)
+    }
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, message: 'No changes provided.' })
+    }
+
+    updates.push('updated_at = now()')
+    values.push(userId)
+    await pool.query(`UPDATE app_user SET ${updates.join(', ')} WHERE id = $${paramCount}`, values)
+
+    if (fullName !== null || email !== null || phone !== null || username !== null) {
+      const nameParts = (fullName ?? existing.rows[0].full_name ?? '').trim().split(/\s+/).filter(Boolean)
+      const firstName = nameParts[0] || 'Member'
+      const lastName = nameParts.slice(1).join(' ') || 'User'
+      await pool.query(
+        `
+          UPDATE member
+          SET
+            first_name = $2,
+            last_name = $3,
+            email = COALESCE($4, email),
+            phone = COALESCE($5, phone),
+            username = COALESCE($6, username),
+            updated_at = now()
+          WHERE app_user_id = $1
+        `,
+        [userId, firstName, lastName, email, phone || null, username || null],
+      )
+    }
+
+    res.json({ success: true })
+  })
+
+  app.delete('/api/admin/access/users/:userId', ...requireMasterAdmin(pool, jwtSecret), async (req, res) => {
+    const userId = Number(req.params.userId)
+    if (!Number.isFinite(userId)) return res.status(400).json({ success: false, message: 'Invalid user id.' })
+    if (userId === Number(req.platformAuth.user.id)) {
+      return res.status(400).json({ success: false, message: 'You cannot delete your own account.' })
+    }
+    if (await isDefaultMasterUser(pool, userId)) {
+      return res.status(400).json({ success: false, message: 'The default master admin account cannot be deleted.' })
+    }
+    const roles = await loadUserRoles(pool, { id: userId, role: null })
+    if (roles.some((role) => role === 'MASTER_ADMIN') && (await countMasterAdmins(pool)) <= 1) {
+      return res.status(400).json({ success: false, message: 'Cannot delete the last master admin.' })
+    }
+
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      await deleteAppUserCompletely(client, userId, req.platformAuth.user.facility_id)
+      await client.query('COMMIT')
+      res.json({ success: true, message: 'Account deleted permanently.' })
+    } catch (error) {
+      await client.query('ROLLBACK')
+      console.error('Delete access user error:', error)
+      res.status(500).json({ success: false, message: 'Internal server error' })
+    } finally {
+      client.release()
+    }
   })
 
   app.get('/api/admin/coaches', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
@@ -708,6 +867,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           au.full_name,
           au.email,
           au.phone,
+          au.is_active as account_active,
           cp.bio,
           COALESCE(cp.is_active, true) as coach_active,
           COALESCE(
@@ -755,7 +915,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         LEFT JOIN scheduling_offering so ON so.id = cca.scheduling_offering_id
         LEFT JOIN scheduling_time_slot sts ON sts.id = cca.scheduling_time_slot_id
         WHERE au.facility_id = $1
-        GROUP BY au.id, cp.bio, cp.is_active
+        GROUP BY au.id, au.is_active, cp.bio, cp.is_active
         ORDER BY au.full_name, au.email
       `,
       [req.platformAuth.user.facility_id],

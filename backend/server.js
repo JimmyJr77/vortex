@@ -527,7 +527,7 @@ export const initDatabase = async () => {
       await pool.query(`
         CREATE TYPE user_role AS ENUM (
           'MASTER_ADMIN', 'ADMIN', 'COACH', 'MEMBER_ATHLETE',
-          'OWNER_ADMIN', 'PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER'
+          'PARENT_GUARDIAN', 'ATHLETE_VIEWER', 'ATHLETE', 'MEMBER'
         )
       `)
     }
@@ -610,7 +610,7 @@ export const initDatabase = async () => {
       )
     `)
 
-    // Migrate existing admins to app_user as OWNER_ADMIN
+    // Migrate existing legacy admins into app_user as MASTER_ADMIN.
     await pool.query(`
       INSERT INTO app_user (
         facility_id,
@@ -1708,15 +1708,13 @@ const emergencyContactSchema = Joi.object({
 // ============================================================
 // ROLE MANAGEMENT SYSTEM
 // ============================================================
-// Role System Overview:
-// - OWNER_ADMIN: System administrators with full access
-// - COACH: Staff members who can manage classes and athletes
-// - PARENT_GUARDIAN: Adults who can manage family accounts, enroll members, 
-//                   sign documents, add family members, and edit family information.
-//                   All adults in a family should have this role.
-// - ATHLETE_VIEWER: Read-only access for viewing athlete information
-// - ATHLETE: Anyone enrolled in a class (adults or children). This role is 
-//            automatically assigned when someone enrolls in a class.
+// Role System Overview (consolidated model, see migration 032):
+// - MASTER_ADMIN: Super administrators with full access (can delete members).
+// - ADMIN: Administrators with day-to-day management access (can archive,
+//          but cannot permanently delete members).
+// - COACH: Staff members who can manage classes and athletes.
+// - MEMBER_ATHLETE: Members/athletes who manage their family account, enroll,
+//          sign documents, and view their own athlete information.
 //
 // SIMPLIFIED MEMBER SYSTEM RULES:
 // 1. All members are equal - no distinction between users/athletes at creation
@@ -2318,7 +2316,7 @@ const mapAdminAccountRow = (row) => {
 }
 
 // Middleware to verify JWT token (member or admin)
-// Admin authentication middleware - verifies admin has OWNER_ADMIN role
+// Admin authentication middleware - verifies admin has MASTER_ADMIN or ADMIN role
 const authenticateAdmin = async (req, res, next) => {
   const authHeader = req.headers.authorization
   const token = authHeader?.split(' ')[1]
@@ -2346,7 +2344,7 @@ const authenticateAdmin = async (req, res, next) => {
       })
     }
     
-    // CRITICAL SECURITY: Verify admin exists and has OWNER_ADMIN role
+    // CRITICAL SECURITY: Verify admin exists and has MASTER_ADMIN or ADMIN role
     // IMPORTANT: This checks the SPECIFIC user's role only - NOT family relationships
     // Even if an admin is in a family, ONLY the admin user themselves can access admin portal
     // Family members (spouse, children, etc.) will NOT have access even if they share the same family
@@ -2613,6 +2611,9 @@ function legacyAdminPermissionFor(req) {
   if (path.startsWith('/members') || path.startsWith('/families') || path.startsWith('/users')) {
     if (method === 'GET') return 'members.view'
     if (path.includes('/archive')) return 'members.archive'
+    // Permanently deleting a member is master-admin only (enforced again in the
+    // route handler). Family delete keeps the legacy members.edit mapping.
+    if (method === 'DELETE' && path.startsWith('/members')) return 'members.delete'
     return 'members.edit'
   }
   if (path.startsWith('/programs') || path.startsWith('/categories') || path.startsWith('/classes') || path.startsWith('/events') || path.startsWith('/highlights')) {
@@ -7836,22 +7837,78 @@ app.delete('/api/admin/families/:familyId/members/:memberId', async (req, res) =
   }
 })
 
-// Delete member (admin endpoint) - renamed from athletes to members
+// Delete member (admin endpoint) - master admins only.
+// Regular admins can archive members but cannot permanently delete them.
 app.delete('/api/admin/members/:id', async (req, res) => {
+  if (req.isMasterAdmin !== true) {
+    return res.status(403).json({
+      success: false,
+      message: 'Only master admins can permanently delete members.',
+    })
+  }
+
+  const { id } = req.params
+  const client = await pool.connect()
   try {
-    const { id } = req.params
-    await pool.query('DELETE FROM member WHERE id = $1', [id])
-    
+    await client.query('BEGIN')
+
+    // Capture the linked login account before removing the member row.
+    const memberResult = await client.query(
+      'SELECT app_user_id FROM member WHERE id = $1',
+      [id],
+    )
+    if (memberResult.rows.length === 0) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({ success: false, message: 'Member not found' })
+    }
+    const appUserId = memberResult.rows[0].app_user_id
+
+    // Remove the member; FK rules (CASCADE / SET NULL) clean up dependents
+    // such as scheduling signups, waivers, schools, and family links.
+    await client.query('DELETE FROM member WHERE id = $1', [id])
+
+    // Delete the linked login account only when it is a member-only account
+    // that no longer backs any other member record.
+    if (appUserId) {
+      const otherMembers = await client.query(
+        'SELECT COUNT(*)::int AS count FROM member WHERE app_user_id = $1',
+        [appUserId],
+      )
+      if (otherMembers.rows[0].count === 0) {
+        const rolesResult = await client.query(
+          `
+            SELECT role_key FROM (
+              SELECT role::text AS role_key FROM app_user WHERE id = $1
+              UNION
+              SELECT role::text AS role_key FROM app_user_role WHERE user_id = $1
+            ) roles
+          `,
+          [appUserId],
+        )
+        const roles = rolesResult.rows.map((row) => row.role_key)
+        const memberOnly = roles.length > 0 && roles.every((role) => role === 'MEMBER_ATHLETE')
+        // Master admins can fully remove the login account when deleting a member,
+        // even when the account also holds coach/admin roles.
+        if (memberOnly || req.isMasterAdmin === true) {
+          await client.query('DELETE FROM app_user WHERE id = $1', [appUserId])
+        }
+      }
+    }
+
+    await client.query('COMMIT')
     res.json({
       success: true,
-      message: 'Member deleted successfully'
+      message: 'Member deleted successfully',
     })
   } catch (error) {
+    await client.query('ROLLBACK')
     console.error('Delete member error:', error)
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
     })
+  } finally {
+    client.release()
   }
 })
 
@@ -8073,7 +8130,7 @@ app.post('/api/members/login', async (req, res) => {
     const linkedMember = await getMemberForAppUser(user.id)
 
     // Get user's family members if they're a guardian or admin with family
-    // Note: This includes OWNER_ADMIN users who may also be parents/guardians
+    // Note: This includes admin users (MASTER_ADMIN / ADMIN) who may also be members
     // SECURITY: Only the admin user themselves gets admin portal access, not family members
     let familyMembers = []
     const adminRoles = ['MASTER_ADMIN', 'ADMIN']
@@ -8106,7 +8163,7 @@ app.post('/api/members/login', async (req, res) => {
     // This does NOT grant admin portal access to family members because:
     // 1. Family members have different user IDs
     // 2. authenticateAdmin middleware verifies the SPECIFIC user's role by checking their user ID
-    // 3. Only users with OWNER_ADMIN role get adminId in their token
+    // 3. Only users with an admin role (MASTER_ADMIN / ADMIN) get adminId in their token
     const tokenPayload = { 
       userId: user.id, 
       email: user.email, 
@@ -8132,7 +8189,7 @@ app.post('/api/members/login', async (req, res) => {
       phone: user.phone || null,
       username: user.username || '',
       role: user.role || '', // Primary role for backward compatibility
-      roles: allUserRoles, // All roles (may include OWNER_ADMIN for admins)
+      roles: allUserRoles, // All roles (may include MASTER_ADMIN / ADMIN for admins)
       memberId: familyContext?.current_member_id ?? null,
       isAdmin: isAdminUser,
       isCoach: isCoachUser,
@@ -10871,7 +10928,7 @@ app.post('/api/admin/events/seed', async (req, res) => {
 })
 
 // Admin login (accepts username or email)
-// Updated to use app_user table with OWNER_ADMIN role (modern RBAC system)
+// Updated to use app_user table with MASTER_ADMIN / ADMIN roles (modern RBAC system)
 // Falls back to admins table for backward compatibility during migration
 app.post('/api/admin/login', async (req, res) => {
   try {

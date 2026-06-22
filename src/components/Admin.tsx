@@ -64,6 +64,7 @@ interface AccessContext {
   permissions: string[]
   roles: string[]
   isMasterAdmin: boolean
+  userId?: number | null
 }
 
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
@@ -134,6 +135,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             permissions: data.data?.permissions ?? [],
             roles: data.data?.roles ?? [],
             isMasterAdmin: Boolean(data.data?.isMasterAdmin),
+            userId: data.data?.user?.id ?? null,
           })
         }
       } catch (error) {
@@ -275,7 +277,10 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             {activeTab === 'analytics' ? (
               <AdminAnalytics />
             ) : activeTab === 'access' ? (
-              <AdminAccess />
+              <AdminAccess
+                isMasterAdmin={accessContext?.isMasterAdmin ?? false}
+                currentUserId={accessContext?.userId ?? null}
+              />
             ) : activeTab === 'billing' ? (
               <AdminFamilyBilling />
             ) : activeTab === 'waivers' ? (
@@ -305,7 +310,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
                 }}
               />
             ) : activeTab === 'coaches' ? (
-              <AdminCoaches />
+              <AdminCoaches isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
             ) : activeTab === 'highlights' ? (
               <AdminHighlights />
             ) : activeTab === 'events' ? (
@@ -313,7 +318,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             ) : activeTab === 'admins' ? (
               <AdminAdmins adminInfo={adminInfo} setAdminInfo={setAdminInfo} />
             ) : activeTab === 'membership' ? (
-              <AdminMembers />
+              <AdminMembers isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
             ) : (
               <AdminInquiries />
             )}

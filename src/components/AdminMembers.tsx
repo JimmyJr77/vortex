@@ -216,7 +216,6 @@ function formatMemberRoleLabel(role: string): string {
     // Legacy labels kept so historical data still renders nicely.
     PARENT_GUARDIAN: 'Parent/Guardian',
     ATHLETE: 'Athlete',
-    OWNER_ADMIN: 'Owner Admin',
   }
   return labels[role] || role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
@@ -228,7 +227,11 @@ function memberRolesDisplay(member: UnifiedMember): string {
   return hasEnrollments ? 'Athlete' : 'Non-participant'
 }
 
-export default function AdminMembers() {
+interface AdminMembersProps {
+  isMasterAdmin?: boolean
+}
+
+export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProps) {
   // Unified members state
   const [members, setMembers] = useState<UnifiedMember[]>([])
   const [membersLoading, setMembersLoading] = useState(false)
@@ -2420,9 +2423,9 @@ export default function AdminMembers() {
   }
   
   // Archive/Unarchive member handler
-  const handleArchiveMember = async (id: number, archived: boolean) => {
+  const handleArchiveMember = async (id: number, archived: boolean): Promise<boolean> => {
     if (!confirm(archived ? 'Are you sure you want to archive this member?' : 'Are you sure you want to unarchive this member?')) {
-      return
+      return false
     }
     try {
       const response = await adminApiRequest(`/api/admin/members/${id}/archive`, {
@@ -2431,13 +2434,16 @@ export default function AdminMembers() {
       })
       if (response.ok) {
         await fetchMembers()
+        return true
       } else {
         const data = await response.json()
         alert(data.message || 'Failed to archive/unarchive member')
+        return false
       }
     } catch (error) {
       console.error('Error archiving member:', error)
       alert('Failed to archive/unarchive member')
+      return false
     }
   }
   
@@ -2902,12 +2908,12 @@ export default function AdminMembers() {
                             >
                               <Archive className="w-4 h-4" />
                             </button>
-                            {!member.isActive && showArchivedMembers && (
+                            {isMasterAdmin && (
                               <button
                                 type="button"
                                 className={memberIconBtnDanger}
-                                title="Delete member"
-                                aria-label="Delete member"
+                                title="Delete member permanently"
+                                aria-label="Delete member permanently"
                                 onClick={() =>
                                   handleDeleteMemberClick(
                                     member.id,
@@ -4667,7 +4673,7 @@ export default function AdminMembers() {
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-6">
+              <div className="flex flex-wrap gap-3 mt-6">
                 <button
                   onClick={() => {
                     setShowUnifiedMemberViewModal(false)
@@ -4678,6 +4684,39 @@ export default function AdminMembers() {
                 >
                   Close
                 </button>
+                <button
+                  onClick={async () => {
+                    if (!viewingUnifiedMember?.id) return
+                    const ok = await handleArchiveMember(
+                      viewingUnifiedMember.id,
+                      viewingUnifiedMember.isActive,
+                    )
+                    if (ok) {
+                      setViewingUnifiedMember((prev) =>
+                        prev ? { ...prev, isActive: !prev.isActive } : prev,
+                      )
+                    }
+                  }}
+                  className="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-800 py-2 rounded-lg font-semibold transition-colors"
+                >
+                  {viewingUnifiedMember.isActive ? 'Archive' : 'Unarchive'}
+                </button>
+                {isMasterAdmin && (
+                  <button
+                    onClick={() => {
+                      if (!viewingUnifiedMember?.id) return
+                      setShowUnifiedMemberViewModal(false)
+                      handleDeleteMemberClick(
+                        viewingUnifiedMember.id,
+                        viewingUnifiedMember.firstName || '',
+                        viewingUnifiedMember.lastName || '',
+                      )
+                    }}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Delete
+                  </button>
+                )}
                 <button
                   onClick={async () => {
                     setShowUnifiedMemberViewModal(false)

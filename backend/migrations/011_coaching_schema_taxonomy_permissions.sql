@@ -221,7 +221,7 @@ INSERT INTO role_permission (role_id, permission_id)
 SELECT r.id, p.id
 FROM role r
 CROSS JOIN permission p
-WHERE r.key IN ('MASTER_ADMIN', 'OWNER_ADMIN')
+WHERE r.key = 'MASTER_ADMIN'
 ON CONFLICT DO NOTHING;
 
 -- Grant the full coaching toolset to the COACH role.

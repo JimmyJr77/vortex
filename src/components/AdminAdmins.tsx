@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Edit2, Loader2, Save, Shield, UserPlus, X } from 'lucide-react'
+import { Edit2, Loader2, Save, Shield, UserPlus, X, Archive, Trash2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
 interface AdminInfo {
@@ -22,8 +22,9 @@ interface AdminData {
   phone?: string | null
   username: string
   isMaster: boolean
-  createdAt: string
-  updatedAt: string
+  isActive?: boolean
+  createdAt?: string
+  updatedAt?: string
 }
 
 interface AdminUpdateData {
@@ -71,6 +72,17 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     password: '',
   })
   const [savingAccount, setSavingAccount] = useState(false)
+  const [editingOtherAdmin, setEditingOtherAdmin] = useState<AdminData | null>(null)
+  const [otherAdminData, setOtherAdminData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    username: '',
+    password: '',
+  })
+  const [adminToDelete, setAdminToDelete] = useState<AdminData | null>(null)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
 
   const fetchAdmins = useCallback(async () => {
     try {
@@ -208,6 +220,77 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     }
   }
 
+  const handleUpdateOtherAdmin = async () => {
+    if (!editingOtherAdmin) return
+    const updateData: AdminUpdateData = {
+      firstName: otherAdminData.firstName,
+      lastName: otherAdminData.lastName,
+      email: otherAdminData.email,
+      phone: otherAdminData.phone || null,
+      username: otherAdminData.username,
+    }
+    if (otherAdminData.password) updateData.password = otherAdminData.password
+    setSavingAccount(true)
+    try {
+      const response = await adminApiRequest(`/api/admin/admins/${editingOtherAdmin.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updateData),
+      })
+      if (response.ok) {
+        setEditingOtherAdmin(null)
+        await fetchAdmins()
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to update admin')
+      }
+    } catch (error) {
+      console.error('Error updating admin:', error)
+      alert('Failed to update admin')
+    } finally {
+      setSavingAccount(false)
+    }
+  }
+
+  const archiveAdminAccount = async (admin: AdminData) => {
+    const isActive = admin.isActive === false
+    if (isActive && !confirm(`Archive ${admin.firstName} ${admin.lastName}?`)) return
+    try {
+      const response = await adminApiRequest(`/api/admin/access/users/${admin.id}/active`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive }),
+      })
+      if (response.ok) await fetchAdmins()
+      else {
+        const data = await response.json()
+        alert(data.message || 'Failed to archive admin')
+      }
+    } catch (error) {
+      alert('Failed to archive admin')
+    }
+  }
+
+  const deleteAdminAccount = async () => {
+    if (!adminToDelete || deleteConfirmText.toLowerCase().trim() !== 'delete') {
+      alert('Please type "delete" to confirm')
+      return
+    }
+    try {
+      const response = await adminApiRequest(`/api/admin/access/users/${adminToDelete.id}`, {
+        method: 'DELETE',
+      })
+      if (response.ok) {
+        setAdminToDelete(null)
+        setDeleteConfirmText('')
+        await fetchAdmins()
+      } else {
+        const data = await response.json()
+        alert(data.message || 'Failed to delete admin')
+      }
+    } catch (error) {
+      alert('Failed to delete admin')
+    }
+  }
+
   useEffect(() => {
     fetchAdmins()
     fetchMyAccount()
@@ -215,15 +298,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
 
   const myAccountId = adminInfo?.id ?? Number(localStorage.getItem('vortex-admin-id') || 0)
 
-  const renderAdminRow = (admin: {
-    id: number
-    firstName: string
-    lastName: string
-    email: string
-    phone?: string | null
-    username: string
-    isMaster: boolean
-  }, options?: { showEdit?: boolean }) => (
+  const renderAdminRow = (admin: AdminData, options?: { showEdit?: boolean; showMasterActions?: boolean }) => (
     <tr key={admin.id} className="border-b border-gray-100 hover:bg-gray-50/80">
       <td className={tdClass}>{admin.lastName}</td>
       <td className={tdClass}>{admin.firstName}</td>
@@ -235,27 +310,68 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
         >
           {adminCategoryLabel(admin.isMaster)}
         </span>
+        {admin.isActive === false && (
+          <span className="ml-2 text-xs text-gray-500">Archived</span>
+        )}
       </td>
       <td className={tdClass}>{admin.username || '—'}</td>
       <td className={tdClass}>{admin.email}</td>
       <td className={tdClass}>{admin.phone || '—'}</td>
       <td className={`${tdClass} w-0`}>
-        {options?.showEdit ? (
-          <button
-            type="button"
-            className={iconBtn}
-            title="Edit account"
-            aria-label="Edit account"
-            onClick={async () => {
-              await fetchMyAccount()
-              setEditingMyAccount(true)
-            }}
-          >
-            <Edit2 className="w-4 h-4" />
-          </button>
-        ) : (
-          <span className="text-gray-300">—</span>
-        )}
+        <div className="flex items-center gap-1">
+          {options?.showEdit && (
+            <button
+              type="button"
+              className={iconBtn}
+              title="Edit account"
+              aria-label="Edit account"
+              onClick={async () => {
+                if (admin.id === myAccountId) {
+                  await fetchMyAccount()
+                  setEditingMyAccount(true)
+                } else {
+                  setEditingOtherAdmin(admin)
+                  setOtherAdminData({
+                    firstName: admin.firstName,
+                    lastName: admin.lastName,
+                    email: admin.email,
+                    phone: admin.phone || '',
+                    username: admin.username,
+                    password: '',
+                  })
+                }
+              }}
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
+          )}
+          {options?.showMasterActions && admin.id !== myAccountId && (
+            <>
+              <button
+                type="button"
+                className={iconBtn}
+                title={admin.isActive === false ? 'Unarchive admin' : 'Archive admin'}
+                onClick={() => void archiveAdminAccount(admin)}
+              >
+                <Archive className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                className={`${iconBtn} text-red-600 hover:bg-red-50`}
+                title="Delete admin permanently"
+                onClick={() => {
+                  setAdminToDelete(admin)
+                  setDeleteConfirmText('')
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </>
+          )}
+          {!options?.showEdit && !options?.showMasterActions && (
+            <span className="text-gray-300">—</span>
+          )}
+        </div>
       </td>
     </tr>
   )
@@ -345,7 +461,10 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
           <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
             <table className="w-full text-sm border-collapse min-w-[720px]">
               {adminTableHead}
-              <tbody>{admins.map((admin) => renderAdminRow(admin))}</tbody>
+              <tbody>{admins.map((admin) => renderAdminRow(admin, {
+                showEdit: true,
+                showMasterActions: Boolean(adminInfo?.isMaster),
+              }))}</tbody>
             </table>
           </div>
         )}
@@ -579,6 +698,40 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
           </motion.div>
         )}
       </AnimatePresence>
+
+      {editingOtherAdmin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl w-full max-w-2xl p-6 space-y-4">
+            <h3 className="text-xl font-bold">Edit admin — {editingOtherAdmin.firstName} {editingOtherAdmin.lastName}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input type="text" value={otherAdminData.firstName} onChange={(e) => setOtherAdminData({ ...otherAdminData, firstName: e.target.value })} placeholder="First name" className="border rounded-lg px-3 py-2 text-sm" />
+              <input type="text" value={otherAdminData.lastName} onChange={(e) => setOtherAdminData({ ...otherAdminData, lastName: e.target.value })} placeholder="Last name" className="border rounded-lg px-3 py-2 text-sm" />
+              <input type="email" value={otherAdminData.email} onChange={(e) => setOtherAdminData({ ...otherAdminData, email: e.target.value })} placeholder="Email" className="border rounded-lg px-3 py-2 text-sm" />
+              <input type="tel" value={otherAdminData.phone} onChange={(e) => setOtherAdminData({ ...otherAdminData, phone: e.target.value })} placeholder="Phone" className="border rounded-lg px-3 py-2 text-sm" />
+              <input type="text" value={otherAdminData.username} onChange={(e) => setOtherAdminData({ ...otherAdminData, username: e.target.value })} placeholder="Username" className="border rounded-lg px-3 py-2 text-sm" />
+              <input type="password" value={otherAdminData.password} onChange={(e) => setOtherAdminData({ ...otherAdminData, password: e.target.value })} placeholder="New password (optional)" className="border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setEditingOtherAdmin(null)} className="px-4 py-2 bg-gray-200 rounded-lg">Cancel</button>
+              <button type="button" onClick={() => void handleUpdateOtherAdmin()} disabled={savingAccount} className="px-4 py-2 bg-vortex-red text-white rounded-lg">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {adminToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 space-y-4">
+            <h3 className="text-lg font-bold text-red-600">Delete Admin</h3>
+            <p className="text-sm">Permanently delete <strong>{adminToDelete.firstName} {adminToDelete.lastName}</strong>?</p>
+            <input type="text" value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)} placeholder="Type delete to confirm" className="w-full border rounded-lg px-3 py-2 text-sm" />
+            <div className="flex gap-2">
+              <button type="button" onClick={() => void deleteAdminAccount()} disabled={deleteConfirmText.toLowerCase().trim() !== 'delete'} className="flex-1 bg-red-600 text-white rounded-lg py-2 disabled:opacity-50">Delete</button>
+              <button type="button" onClick={() => setAdminToDelete(null)} className="flex-1 bg-gray-200 rounded-lg py-2">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

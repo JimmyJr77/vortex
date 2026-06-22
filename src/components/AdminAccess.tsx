@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Loader2, Save, UserPlus } from 'lucide-react'
+import { Archive, Loader2, Save, Trash2, UserPlus } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
 interface AccessUser {
   id: number
   email: string
   fullName: string
+  phone?: string | null
   username?: string | null
   roles: string[]
   isActive: boolean
@@ -42,7 +43,12 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
 
 const roleLabel = (role: string) => ROLE_LABELS[role] ?? role.replaceAll('_', ' ')
 
-export default function AdminAccess() {
+interface AdminAccessProps {
+  isMasterAdmin?: boolean
+  currentUserId?: number | null
+}
+
+export default function AdminAccess({ isMasterAdmin = false, currentUserId = null }: AdminAccessProps) {
   const [users, setUsers] = useState<AccessUser[]>([])
   const [roles, setRoles] = useState<AccessRole[]>([])
   const [permissions, setPermissions] = useState<Permission[]>([])
@@ -62,6 +68,15 @@ export default function AdminAccess() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [profileForm, setProfileForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    username: '',
+    password: '',
+  })
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
 
   const selectedUser = useMemo(
     () => users.find((u) => u.id === selectedUserId) ?? null,
@@ -102,6 +117,13 @@ export default function AdminAccess() {
   useEffect(() => {
     if (selectedUser) {
       setSelectedRoles(selectedUser.roles)
+      setProfileForm({
+        fullName: selectedUser.fullName,
+        email: selectedUser.email,
+        phone: selectedUser.phone ?? '',
+        username: selectedUser.username ?? '',
+        password: '',
+      })
       const loadOverrides = async () => {
         try {
           const res = await adminApiRequest(`/api/admin/access/users/${selectedUser.id}/permissions`)
@@ -138,6 +160,37 @@ export default function AdminAccess() {
       prev.includes(permission) ? prev.filter((p) => p !== permission) : [...prev, permission],
     )
     setAllowPermissions((prev) => prev.filter((p) => p !== permission))
+  }
+
+  const saveProfile = async () => {
+    if (!selectedUserId) return
+    setSaving(true)
+    setError(null)
+    try {
+      const body: Record<string, string> = {
+        fullName: profileForm.fullName.trim(),
+        email: profileForm.email.trim(),
+        phone: profileForm.phone.trim(),
+        username: profileForm.username.trim(),
+      }
+      if (profileForm.password.trim()) {
+        body.password = profileForm.password
+      }
+      const res = await adminApiRequest(`/api/admin/access/users/${selectedUserId}`, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.message || 'Failed to update account profile')
+      }
+      setProfileForm((prev) => ({ ...prev, password: '' }))
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update account profile')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const save = async () => {
@@ -195,6 +248,9 @@ export default function AdminAccess() {
   }
 
   const setAccountActive = async (userId: number, isActive: boolean) => {
+    if (!isActive && !confirm('Archive this account? They will lose login access until unarchived.')) {
+      return
+    }
     setSaving(true)
     setError(null)
     try {
@@ -209,6 +265,32 @@ export default function AdminAccess() {
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update account status')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const deleteAccount = async () => {
+    if (!selectedUserId || deleteConfirmText.toLowerCase().trim() !== 'delete') {
+      alert('Please type "delete" to confirm permanent deletion')
+      return
+    }
+    setSaving(true)
+    setError(null)
+    try {
+      const res = await adminApiRequest(`/api/admin/access/users/${selectedUserId}`, {
+        method: 'DELETE',
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.message || 'Failed to delete account')
+      }
+      setDeleteConfirmOpen(false)
+      setDeleteConfirmText('')
+      setSelectedUserId(null)
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete account')
     } finally {
       setSaving(false)
     }
@@ -356,10 +438,34 @@ export default function AdminAccess() {
                     <button
                       type="button"
                       onClick={() => void setAccountActive(selectedUser.id, !selectedUser.isActive)}
-                      disabled={saving}
-                      className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-60"
+                      disabled={saving || selectedUser.id === currentUserId}
+                      className="inline-flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-60"
                     >
-                      {selectedUser.isActive ? 'Deactivate' : 'Activate'}
+                      <Archive className="w-4 h-4" />
+                      {selectedUser.isActive ? 'Archive' : 'Unarchive'}
+                    </button>
+                    {isMasterAdmin && selectedUser.id !== currentUserId && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDeleteConfirmOpen(true)
+                          setDeleteConfirmText('')
+                        }}
+                        disabled={saving}
+                        className="inline-flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm disabled:opacity-60"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => void saveProfile()}
+                      disabled={saving}
+                      className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-60"
+                    >
+                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      Save Profile
                     </button>
                     <button
                       type="button"
@@ -368,10 +474,59 @@ export default function AdminAccess() {
                       className="inline-flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg disabled:opacity-60"
                     >
                       {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                      Save
+                      Save Access
                     </button>
                   </div>
                 </div>
+
+                <section className="grid gap-3 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Full name</label>
+                    <input
+                      type="text"
+                      value={profileForm.fullName}
+                      onChange={(e) => setProfileForm((prev) => ({ ...prev, fullName: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={profileForm.email}
+                      onChange={(e) => setProfileForm((prev) => ({ ...prev, email: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      value={profileForm.phone}
+                      onChange={(e) => setProfileForm((prev) => ({ ...prev, phone: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Username</label>
+                    <input
+                      type="text"
+                      value={profileForm.username}
+                      onChange={(e) => setProfileForm((prev) => ({ ...prev, username: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">New password</label>
+                    <input
+                      type="password"
+                      value={profileForm.password}
+                      onChange={(e) => setProfileForm((prev) => ({ ...prev, password: e.target.value }))}
+                      placeholder="Leave blank to keep current"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                </section>
 
                 <section>
                   <h4 className="font-semibold text-gray-900 mb-2">Roles</h4>
@@ -444,6 +599,48 @@ export default function AdminAccess() {
             ) : (
               <p className="text-gray-500">Select an account to edit access.</p>
             )}
+          </div>
+        </div>
+      )}
+
+      {deleteConfirmOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-[200] p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Delete Account</h2>
+            <p className="text-gray-700 mb-4">
+              Permanently delete <strong>{selectedUser.fullName}</strong>? This removes their login,
+              linked member record, coach assignments, and access settings. This cannot be undone.
+            </p>
+            <p className="text-gray-600 mb-4 text-sm">
+              Type <strong>delete</strong> to confirm:
+            </p>
+            <input
+              type="text"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
+              autoFocus
+            />
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => void deleteAccount()}
+                disabled={deleteConfirmText.toLowerCase().trim() !== 'delete' || saving}
+                className="flex-1 px-4 py-2 rounded-lg font-semibold bg-red-600 text-white disabled:opacity-50"
+              >
+                Delete Permanently
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteConfirmOpen(false)
+                  setDeleteConfirmText('')
+                }}
+                className="flex-1 px-4 py-2 rounded-lg font-semibold bg-gray-200 text-gray-800"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

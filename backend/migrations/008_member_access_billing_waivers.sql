@@ -283,8 +283,7 @@ INSERT INTO role (key, name, description, is_system) VALUES
   ('MEMBER', 'Member', 'Athlete or family member portal access.', TRUE),
   ('PARENT_GUARDIAN', 'Parent/Guardian', 'Family management access.', TRUE),
   ('ATHLETE', 'Athlete', 'Athlete account access.', TRUE),
-  ('ATHLETE_VIEWER', 'Athlete Viewer', 'Read-only athlete account access.', TRUE),
-  ('OWNER_ADMIN', 'Owner Admin', 'Legacy owner admin compatibility role.', TRUE)
+  ('ATHLETE_VIEWER', 'Athlete Viewer', 'Read-only athlete account access.', TRUE)
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -321,7 +320,7 @@ INSERT INTO role_permission (role_id, permission_id)
 SELECT r.id, p.id
 FROM role r
 CROSS JOIN permission p
-WHERE r.key IN ('MASTER_ADMIN', 'OWNER_ADMIN')
+WHERE r.key = 'MASTER_ADMIN'
 ON CONFLICT DO NOTHING;
 
 INSERT INTO role_permission (role_id, permission_id)
@@ -355,10 +354,10 @@ ON CONFLICT DO NOTHING;
 INSERT INTO admin_profile (user_id, is_master_admin)
 SELECT au.id, TRUE
 FROM app_user au
-WHERE au.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN')
+WHERE au.role::text = 'MASTER_ADMIN'
    OR EXISTS (
     SELECT 1 FROM app_user_role aur
-    WHERE aur.user_id = au.id AND aur.role::text IN ('OWNER_ADMIN', 'MASTER_ADMIN')
+    WHERE aur.user_id = au.id AND aur.role::text = 'MASTER_ADMIN'
    )
 ON CONFLICT (user_id) DO UPDATE SET
   is_master_admin = admin_profile.is_master_admin OR EXCLUDED.is_master_admin,
