@@ -215,3 +215,47 @@ export function getTodayDateString(): string {
   return `${year}-${month}-${day}`
 }
 
+/** Relative time label for timestamps (e.g. "3 days ago"). */
+export function formatTimeSince(date: string | null | undefined): string {
+  if (!date) return 'Never'
+  try {
+    const enrollmentDate = new Date(date)
+    const now = new Date()
+    const diffMs = now.getTime() - enrollmentDate.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+    const diffMonths = Math.floor(diffDays / 30)
+    const diffYears = Math.floor(diffDays / 365)
+
+    if (diffYears > 0) {
+      return `${diffYears} year${diffYears !== 1 ? 's' : ''} ago`
+    }
+    if (diffMonths > 0) {
+      return `${diffMonths} month${diffMonths !== 1 ? 's' : ''} ago`
+    }
+    if (diffDays > 0) {
+      return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`
+    }
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    if (diffHours > 0) {
+      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`
+    }
+    const diffMinutes = Math.floor(diffMs / (1000 * 60))
+    return diffMinutes > 0 ? `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago` : 'Just now'
+  } catch {
+    return 'Invalid date'
+  }
+}
+
+/** Most recent created_at / createdAt from enrollment rows. */
+export function getMostRecentEnrollmentDate(
+  enrollments: Array<{ created_at?: string; createdAt?: string }>,
+): string | null {
+  if (!enrollments || enrollments.length === 0) return null
+  const dates = enrollments
+    .map((e) => e.created_at || e.createdAt)
+    .filter((d): d is string => d != null)
+    .map((d) => new Date(d).getTime())
+  if (dates.length === 0) return null
+  return new Date(Math.max(...dates)).toISOString()
+}
+
