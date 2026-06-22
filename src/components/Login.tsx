@@ -126,7 +126,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
                 <Lock className="w-8 h-8 text-vortex-red" />
               </div>
               <h2 className="text-3xl font-display font-bold text-black mb-2">
-                {forgotMode ? 'Reset Admin Password' : 'Admin Login'}
+                {forgotMode ? 'Reset Account Password' : 'Account Login'}
               </h2>
               <p className="text-gray-600">
                 {forgotMode

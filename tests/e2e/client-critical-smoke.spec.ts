@@ -19,7 +19,7 @@ test.describe('Client-critical smoke flows', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
     await page.getByRole('button', { name: /^Admin$/ }).first().click()
-    await expect(page.getByRole('heading', { name: 'Admin Login' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Account Login' })).toBeVisible()
     await expect(page.getByText('Forgot password?')).toBeVisible()
   })
 })

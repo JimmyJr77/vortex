@@ -71,7 +71,7 @@ const SportSiteMenuLinks = ({
           Jackrabbit Class Login
         </a>
         <button type="button" onClick={onAdminLoginClick} className={linkClass}>
-          Admin Login
+          Account Login
         </button>
         <button type="button" onClick={onInquireClick} className={linkClass}>
           Inquire
