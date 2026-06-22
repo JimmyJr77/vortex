@@ -33,6 +33,7 @@ const SchedulingPage = lazy(() => import('./components/SchedulingPage'))
 const SignupFamilyPage = lazy(() => import('./components/signup/SignupFamilyPage'))
 const SignupInvitePage = lazy(() => import('./components/signup/SignupInvitePage'))
 const VerifyEmailPage = lazy(() => import('./components/VerifyEmailPage'))
+const EnrollmentReceiptPage = lazy(() => import('./components/EnrollmentReceiptPage'))
 const Admin = lazy(() => import('./components/Admin'))
 const MemberDashboard = lazy(() => import('./components/MemberDashboard'))
 const CoachDashboard = lazy(() => import('./components/CoachDashboard'))
@@ -251,6 +252,10 @@ function App() {
           <Route
             path="/verify-email"
             element={<VerifyEmailPage />}
+          />
+          <Route
+            path="/registration/receipt"
+            element={<EnrollmentReceiptPage />}
           />
           <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
           <Route path="/schedule" element={<Navigate to="/enroll" replace />} />

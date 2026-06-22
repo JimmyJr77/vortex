@@ -10,11 +10,10 @@ import {
   findMemberForAppUser,
   updateMemberPassword,
 } from '../members/createMemberStub.js'
-import { sendConfirmationEmail } from './confirmationEmail.js'
+import { notifyEnrollmentReceipt, notifyWelcomeNewMember } from '../email/memberNotifications.js'
 import { sendDemotionEmail } from './demotionEmail.js'
 import { sendMagicLinkEmail } from './magicLinkEmail.js'
 import { sendPromotionEmail } from './promotionEmail.js'
-import { sendWaitlistEmail } from './waitlistEmail.js'
 import {
   generateTemporaryPassword,
   sendTemporaryPasswordEmail,
@@ -248,43 +247,29 @@ async function insertSignupForMember(
 async function sendSignupNotificationEmails(pool, {
   signupStatus,
   signupId,
+  memberId,
   responses,
   formTitle,
   slotLabel,
-  positions,
   pricing,
   mandateWaiver,
 }) {
   let confirmationEmailSentAt = null
   let waiverEmailSentAt = null
-  const emailParams = {
-    registrantFirstName: String(responses.first_name || ''),
-    registrantEmail: String(responses.email || ''),
-    formTitle,
-    slotLabel,
-    pricing,
-  }
 
-  if (signupStatus === 'confirmed') {
+  if (memberId) {
     try {
-      await sendConfirmationEmail({
-        ...emailParams,
-        signupNumber: positions.signupNumber,
-        maxParticipants: positions.maxParticipants,
+      const receipt = await notifyEnrollmentReceipt(pool, {
+        memberId: Number(memberId),
+        programName: formTitle || 'Class',
+        slotLabel: slotLabel || '',
+        status: signupStatus === 'waitlisted' ? 'waitlisted' : 'confirmed',
+        schedulingSignupId: signupId,
+        athleteName: `${responses.first_name || ''} ${responses.last_name || ''}`.trim() || undefined,
       })
-      confirmationEmailSentAt = new Date().toISOString()
+      if (receipt.sent) confirmationEmailSentAt = new Date().toISOString()
     } catch (emailErr) {
-      console.error('[scheduling] confirmation email failed:', emailErr.message)
-    }
-  } else {
-    try {
-      await sendWaitlistEmail({
-        ...emailParams,
-        waitlistPosition: positions.waitlistPosition,
-      })
-      confirmationEmailSentAt = new Date().toISOString()
-    } catch (emailErr) {
-      console.error('[scheduling] waitlist email failed:', emailErr.message)
+      console.error('[scheduling] enrollment receipt email failed:', emailErr.message)
     }
   }
 
@@ -314,6 +299,30 @@ async function sendSignupNotificationEmails(pool, {
       [confirmationEmailSentAt, waiverEmailSentAt, signupId],
     )
   }
+}
+
+async function notifyEnrollmentReceiptForSignup(pool, signupId, statusOverride) {
+  const ctx = await loadSignupContext(pool, signupId)
+  if (!ctx?.signup?.member_id) return { sent: false }
+
+  const signup = ctx.signup
+  const status =
+    statusOverride ?? (signup.status === 'waitlisted' ? 'waitlisted' : 'confirmed')
+  const responses =
+    signup.responses && Object.keys(signup.responses).length > 0
+      ? signup.responses
+      : signup.field_responses || {}
+
+  return notifyEnrollmentReceipt(pool, {
+    memberId: Number(signup.member_id),
+    programName: ctx.formTitle || 'Class',
+    slotLabel: ctx.slotLabel || '',
+    status,
+    schedulingSignupId: signupId,
+    athleteName:
+      `${responses.first_name || ctx.registrantFirstName || ''} ${responses.last_name || ''}`.trim() ||
+      undefined,
+  })
 }
 
 function mapOrphanedSignupRow(row) {
@@ -1796,6 +1805,7 @@ export function createSchedulingHandlers(pool) {
         }
 
         let memberId = null
+        let createdNewStubMemberId = null
         let responses = { ...value.responses }
 
         if (value.signupAuthToken) {
@@ -1835,6 +1845,7 @@ export function createSchedulingHandlers(pool) {
               password: value.password,
               phone: responses.phone ? String(responses.phone) : null,
             })
+            createdNewStubMemberId = memberId
           }
 
           if (!memberId) {
@@ -1891,6 +1902,10 @@ export function createSchedulingHandlers(pool) {
 
           await client.query('COMMIT')
 
+          if (createdNewStubMemberId) {
+            void notifyWelcomeNewMember(pool, createdNewStubMemberId, { context: 'scheduling_stub' })
+          }
+
           const { signupId, signupStatus, positions, pricing } = signupResult
 
           if (freePassBreakdown?.enabled && freePassBreakdown.redemptions?.length) {
@@ -1925,10 +1940,10 @@ export function createSchedulingHandlers(pool) {
           await sendSignupNotificationEmails(pool, {
             signupStatus,
             signupId,
+            memberId,
             responses,
             formTitle: detail.title,
             slotLabel: signupResult.slotLabel,
-            positions,
             pricing,
             mandateWaiver: detail.mandateWaiver,
           })
@@ -2011,6 +2026,7 @@ export function createSchedulingHandlers(pool) {
 
         const primaryFormRow = resolvedEntries[0].formRow
         let memberId = null
+        let createdNewStubMemberId = null
         let responses = { ...value.responses }
 
         if (value.signupAuthToken) {
@@ -2063,6 +2079,7 @@ export function createSchedulingHandlers(pool) {
               password: value.password,
               phone: responses.phone ? String(responses.phone) : null,
             })
+            createdNewStubMemberId = memberId
           }
 
           if (!memberId) {
@@ -2169,6 +2186,10 @@ export function createSchedulingHandlers(pool) {
 
           await client.query('COMMIT')
 
+          if (createdNewStubMemberId) {
+            void notifyWelcomeNewMember(pool, createdNewStubMemberId, { context: 'scheduling_stub' })
+          }
+
           if (freePassBreakdown?.enabled && freePassBreakdown.redemptions?.length) {
             for (let index = 0; index < resolvedEntries.length; index += 1) {
               const resolved = resolvedEntries[index]
@@ -2215,10 +2236,10 @@ export function createSchedulingHandlers(pool) {
             await sendSignupNotificationEmails(pool, {
               signupStatus,
               signupId,
+              memberId,
               responses: signupResponses,
               formTitle: signupResult.formTitle,
               slotLabel: signupResult.slotLabel,
-              positions,
               pricing,
               mandateWaiver: signupResult.mandateWaiver,
             })
@@ -3107,6 +3128,7 @@ export function createSchedulingHandlers(pool) {
 
           let memberId = value.memberId != null ? Number(value.memberId) : null
           let member = null
+          let createdNewStubMemberId = null
 
           if (memberId) {
             member = await findMemberById(client, memberId)
@@ -3137,6 +3159,7 @@ export function createSchedulingHandlers(pool) {
                 password: generatedPassword,
                 phone: value.phone ? String(value.phone) : null,
               })
+              createdNewStubMemberId = memberId
               member = await findMemberById(client, memberId)
             }
           }
@@ -3180,15 +3203,19 @@ export function createSchedulingHandlers(pool) {
 
           await client.query('COMMIT')
 
+          if (createdNewStubMemberId) {
+            void notifyWelcomeNewMember(pool, createdNewStubMemberId, { context: 'scheduling_stub' })
+          }
+
           const { signupId, signupStatus, positions, pricing } = signupResult
           if (value.sendEmails) {
             await sendSignupNotificationEmails(pool, {
               signupStatus,
               signupId,
+              memberId,
               responses,
               formTitle: detail.title,
               slotLabel: signupResult.slotLabel,
-              positions,
               pricing,
               mandateWaiver: detail.mandateWaiver,
             })
@@ -3426,53 +3453,28 @@ export function createSchedulingHandlers(pool) {
         }
 
         if (updatedRow && targetStatus === 'confirmed' && previousStatus === 'cancelled') {
-          const ctx = await loadSignupContext(pool, updatedRow.id)
-          if (ctx?.registrantEmail) {
-            const positions = await computeSignupPositions(
-              pool,
-              updatedRow.slot_group_id,
-              updatedRow.id,
-            )
-            try {
-              await sendConfirmationEmail({
-                registrantFirstName: ctx.registrantFirstName,
-                registrantEmail: ctx.registrantEmail,
-                formTitle: ctx.formTitle,
-                slotLabel: ctx.slotLabel,
-                signupNumber: positions.signupNumber,
-                maxParticipants: positions.maxParticipants,
-              })
+          try {
+            const receipt = await notifyEnrollmentReceiptForSignup(pool, updatedRow.id, 'confirmed')
+            if (receipt.sent) {
               await pool.query(
                 'UPDATE scheduling_signup SET confirmation_email_sent_at = now() WHERE id = $1',
                 [updatedRow.id],
               )
-            } catch (emailErr) {
-              console.error('[scheduling] reconfirm email failed:', emailErr.message)
             }
+          } catch (emailErr) {
+            console.error('[scheduling] reconfirm email failed:', emailErr.message)
           }
         } else if (updatedRow && targetStatus === 'waitlisted' && previousStatus === 'cancelled') {
-          const ctx = await loadSignupContext(pool, updatedRow.id)
-          if (ctx?.registrantEmail) {
-            const positions = await computeSignupPositions(
-              pool,
-              updatedRow.slot_group_id,
-              updatedRow.id,
-            )
-            try {
-              await sendWaitlistEmail({
-                registrantFirstName: ctx.registrantFirstName,
-                registrantEmail: ctx.registrantEmail,
-                formTitle: ctx.formTitle,
-                slotLabel: ctx.slotLabel,
-                waitlistPosition: positions.waitlistPosition,
-              })
+          try {
+            const receipt = await notifyEnrollmentReceiptForSignup(pool, updatedRow.id, 'waitlisted')
+            if (receipt.sent) {
               await pool.query(
                 'UPDATE scheduling_signup SET confirmation_email_sent_at = now() WHERE id = $1',
                 [updatedRow.id],
               )
-            } catch (emailErr) {
-              console.error('[scheduling] reconfirm waitlist email failed:', emailErr.message)
             }
+          } catch (emailErr) {
+            console.error('[scheduling] reconfirm waitlist email failed:', emailErr.message)
           }
         }
 
@@ -3511,27 +3513,16 @@ export function createSchedulingHandlers(pool) {
               message: 'Cannot resend confirmation for a cancelled signup',
             })
           }
-          if (!ctx.registrantEmail) {
-            return res.status(400).json({ success: false, message: 'Registrant email is missing' })
-          }
 
-          const positions = await computeSignupPositions(pool, signup.slot_group_id, signup.id)
-          if (signup.status === 'waitlisted') {
-            await sendWaitlistEmail({
-              registrantFirstName: ctx.registrantFirstName,
-              registrantEmail: ctx.registrantEmail,
-              formTitle: ctx.formTitle,
-              slotLabel: ctx.slotLabel,
-              waitlistPosition: positions.waitlistPosition,
-            })
-          } else {
-            await sendConfirmationEmail({
-              registrantFirstName: ctx.registrantFirstName,
-              registrantEmail: ctx.registrantEmail,
-              formTitle: ctx.formTitle,
-              slotLabel: ctx.slotLabel,
-              signupNumber: positions.signupNumber,
-              maxParticipants: positions.maxParticipants,
+          const receipt = await notifyEnrollmentReceiptForSignup(
+            pool,
+            signupId,
+            signup.status === 'waitlisted' ? 'waitlisted' : 'confirmed',
+          )
+          if (!receipt.sent) {
+            return res.status(400).json({
+              success: false,
+              message: 'Could not send enrollment receipt — member contact email may be missing.',
             })
           }
           await pool.query(
@@ -3921,10 +3912,10 @@ export function createSchedulingHandlers(pool) {
         await sendSignupNotificationEmails(pool, {
           signupStatus,
           signupId: newSignupId,
+          memberId,
           responses,
           formTitle: detail.title,
           slotLabel,
-          positions,
           pricing: positions.pricing,
           mandateWaiver,
         })

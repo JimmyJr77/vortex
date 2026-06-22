@@ -2,8 +2,14 @@ import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { sendAccountInviteEmail } from '../email/accountInviteEmail.js'
-import { sendFamilySignupSummaryEmail } from '../email/enrollmentConfirmedEmail.js'
 import { issueEmailVerification } from '../email/emailVerificationService.js'
+import {
+  notifyWelcomeNewMembers,
+  notifyEnrollmentReceipt,
+  notifyFamilyGuardiansNewMember,
+} from '../email/memberNotifications.js'
+import { countActiveFamilyMembers } from '../email/memberContact.js'
+import { verifyEnrollmentReceiptToken } from '../email/enrollmentReceiptService.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { ensureSignupSchema } from './ensureSignupSchema.js'
 import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
@@ -406,8 +412,10 @@ async function processFamilySignup(client, payload, options = {}) {
 
   let familyId = joinExistingFamilyId ? Number(joinExistingFamilyId) : null
   let familyUsername = null
+  let familyHadMembersBefore = false
 
   if (familyId) {
+    familyHadMembersBefore = (await countActiveFamilyMembers(client, familyId)) > 0
     const familyCheck = await client.query(
       `SELECT id, family_username FROM family WHERE id = $1 AND archived = FALSE`,
       [familyId],
@@ -526,15 +534,24 @@ async function processFamilySignup(client, payload, options = {}) {
     createdMembers.map(({ clientIndex, member }) => [clientIndex, Number(member.id)]),
   )
   const allMemberIds = createdMembers.map(({ member }) => Number(member.id))
+  const enrollmentReceipts = []
 
   for (const enrollment of enrollments) {
     const memberId = memberIdByClientIndex[Number(enrollment.memberIndex)]
     const classEventId = Number(enrollment.classEventId ?? enrollment.programId)
     if (!Number.isFinite(memberId) || !Number.isFinite(classEventId)) continue
-    await client.query(
+
+    const progRes = await client.query(
+      `SELECT COALESCE(display_name, name) AS label FROM program WHERE id = $1`,
+      [classEventId],
+    )
+    const programName = progRes.rows[0]?.label || 'Class'
+
+    const mpInsert = await client.query(
       `
         INSERT INTO member_program (member_id, program_id, days_per_week, selected_days, created_at, updated_at)
         VALUES ($1, $2, COALESCE($3, 1), $4::jsonb, now(), now())
+        RETURNING id
       `,
       [
         memberId,
@@ -543,7 +560,9 @@ async function processFamilySignup(client, payload, options = {}) {
         selectedDaysJsonb(enrollment.selectedDays),
       ],
     )
+    const memberProgramId = Number(mpInsert.rows[0]?.id)
 
+    let schedulingSignupId = null
     const schedulingFormId = Number(enrollment.schedulingFormId)
     const slotGroupId = Number(enrollment.slotGroupId)
     if (Number.isFinite(schedulingFormId) && Number.isFinite(slotGroupId)) {
@@ -556,13 +575,14 @@ async function processFamilySignup(client, payload, options = {}) {
         phone: memberRow?.phone,
         offering_ids: (enrollment.offeringIds || []).map(Number).filter(Number.isFinite),
       }
-      await client.query(
+      const ssInsert = await client.query(
         `
           INSERT INTO scheduling_signup (
             form_id, time_slot_id, slot_group_id, member_id,
             first_name, last_name, email, phone, field_responses, responses, status
           )
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'confirmed')
+          RETURNING id
         `,
         [
           schedulingFormId,
@@ -577,7 +597,18 @@ async function processFamilySignup(client, payload, options = {}) {
           JSON.stringify(responses),
         ],
       )
+      schedulingSignupId = Number(ssInsert.rows[0]?.id)
     }
+
+    enrollmentReceipts.push({
+      memberId,
+      memberProgramId,
+      schedulingSignupId,
+      programName,
+      slotLabel: '',
+      status: 'confirmed',
+      selectedDays: Array.isArray(enrollment.selectedDays) ? enrollment.selectedDays : [],
+    })
   }
 
   await recordWaiverAcceptances(client, {
@@ -597,14 +628,10 @@ async function processFamilySignup(client, payload, options = {}) {
     payerMemberId: payerMember.id,
     memberIds: allMemberIds,
     loginMemberId: payerMember.id,
-    emailSummary: {
-      primaryEmail: String(primaryAdult.email || '').trim(),
-      primaryName: String(primaryAdult.firstName || '').trim(),
-      athleteNames: createdMembers
-        .map(({ member }) => `${member.first_name || ''} ${member.last_name || ''}`.trim())
-        .filter(Boolean),
-      enrollmentCount: enrollments.length,
-    },
+    familyHadMembersBefore,
+    primaryEmail: String(primaryAdult.email || '').trim(),
+    primaryName: String(primaryAdult.firstName || '').trim(),
+    enrollmentReceipts,
   }
 }
 
@@ -650,43 +677,83 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
     console.error('[signup] ensureSignupSchema failed:', err.message)
   })
 
-  // Best-effort welcome/summary + email verification after a signup commits.
-  const sendFamilySignupSummary = async (result) => {
-    const summary = result?.emailSummary
-    const to = String(summary?.primaryEmail || '').trim()
-    if (!summary || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return
-    try {
-      await sendFamilySignupSummaryEmail({
-        to,
-        primaryName: summary.primaryName,
-        athleteNames: summary.athleteNames,
-        enrollmentCount: summary.enrollmentCount,
-      })
-    } catch (err) {
-      console.warn('[signup] family signup summary email failed:', err?.message || err)
-    }
+  // Best-effort welcome, enrollment receipts, guardian alerts, and email verification after signup commits.
+  const sendPostSignupNotifications = async (result) => {
+    if (!result) return
 
     try {
-      const payerMemberId = Number(result?.payerMemberId)
-      if (Number.isFinite(payerMemberId)) {
-        const userRes = await pool.query(
-          `SELECT app_user_id FROM member WHERE id = $1`,
-          [payerMemberId],
-        )
-        const appUserId = userRes.rows[0]?.app_user_id
-        if (appUserId) {
-          await issueEmailVerification(pool, {
-            userId: appUserId,
-            email: to,
-            name: summary.primaryName,
-            bestEffort: true,
+      await notifyWelcomeNewMembers(pool, result.memberIds || [], { context: 'family_signup' })
+    } catch (err) {
+      console.warn('[signup] welcome emails failed:', err?.message || err)
+    }
+
+    for (const receipt of result.enrollmentReceipts || []) {
+      try {
+        await notifyEnrollmentReceipt(pool, {
+          memberId: receipt.memberId,
+          programName: receipt.programName,
+          slotLabel: receipt.slotLabel,
+          status: receipt.status,
+          selectedDays: receipt.selectedDays,
+          schedulingSignupId: receipt.schedulingSignupId,
+          memberProgramId: receipt.memberProgramId,
+        })
+      } catch (err) {
+        console.warn('[signup] enrollment receipt failed:', err?.message || err)
+      }
+    }
+
+    if (result.familyHadMembersBefore && result.familyId) {
+      for (const memberId of result.memberIds || []) {
+        try {
+          await notifyFamilyGuardiansNewMember(pool, {
+            familyId: Number(result.familyId),
+            newMemberId: Number(memberId),
           })
+        } catch (err) {
+          console.warn('[signup] guardian alert failed:', err?.message || err)
         }
       }
-    } catch (err) {
-      console.warn('[signup] email verification send failed:', err?.message || err)
+    }
+
+    const to = String(result.primaryEmail || '').trim()
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      try {
+        const payerMemberId = Number(result.payerMemberId)
+        if (Number.isFinite(payerMemberId)) {
+          const userRes = await pool.query(
+            `SELECT app_user_id FROM member WHERE id = $1`,
+            [payerMemberId],
+          )
+          const appUserId = userRes.rows[0]?.app_user_id
+          if (appUserId) {
+            await issueEmailVerification(pool, {
+              userId: appUserId,
+              email: to,
+              name: result.primaryName,
+              bestEffort: true,
+            })
+          }
+        }
+      } catch (err) {
+        console.warn('[signup] email verification send failed:', err?.message || err)
+      }
     }
   }
+
+  app.get('/api/enrollment-receipt/:token', async (req, res) => {
+    try {
+      await ensureSignupSchema(pool)
+      const token = String(req.params.token || '').trim()
+      const result = await verifyEnrollmentReceiptToken(pool, token)
+      if (!result.ok) {
+        return res.status(404).json({ success: false, message: result.message })
+      }
+      res.json({ success: true, data: result.data })
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message })
+    }
+  })
 
   app.get('/api/signup/suggest-username', async (req, res) => {
     try {
@@ -900,7 +967,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
         userAgent: req.get('user-agent') ?? null,
       })
       await client.query('COMMIT')
-      void sendFamilySignupSummary(result)
+      void sendPostSignupNotifications(result)
       res.json({ success: true, data: result })
     } catch (error) {
       await client.query('ROLLBACK')
@@ -924,7 +991,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
         userAgent: req.get('user-agent') ?? null,
       })
       await client.query('COMMIT')
-      void sendFamilySignupSummary(result)
+      void sendPostSignupNotifications(result)
       res.json({ success: true, data: result })
     } catch (error) {
       await client.query('ROLLBACK')

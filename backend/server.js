@@ -25,7 +25,12 @@ import { registerDbQueryRoutes } from './dbQueries/registerRoutes.js'
 import { appendStaffNote } from './notes/handlers.js'
 import { setMemberSchools } from './schools/handlers.js'
 import { isEmailConfigured, formatEmailError } from './email/sendEmail.js'
-import { sendEnrollmentConfirmedEmail } from './email/enrollmentConfirmedEmail.js'
+import {
+  notifyWelcomeNewMember,
+  notifyEnrollmentReceipt,
+  notifyFamilyGuardiansNewMember,
+} from './email/memberNotifications.js'
+import { countActiveFamilyMembers } from './email/memberContact.js'
 import { issueEmailVerification } from './email/emailVerificationService.js'
 import { refreshMemberProfileComplete } from './members/createMemberStub.js'
 import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
@@ -6825,6 +6830,7 @@ app.post('/api/admin/members', async (req, res) => {
     
     // Handle family assignment
     let familyId = value.familyId || null
+    let familyHadMembersBefore = false
     
     // Option 1: Create new family
     if (!familyId && value.familyName && value.familyUsername && value.familyPassword) {
@@ -6843,6 +6849,7 @@ app.post('/api/admin/members', async (req, res) => {
     }
     // Option 2: Join existing family by ID (already verified)
     else if (familyId) {
+      familyHadMembersBefore = (await countActiveFamilyMembers(client, familyId)) > 0
       const familyCheck = await client.query('SELECT id, family_username FROM family WHERE id = $1 AND archived = FALSE', [familyId])
       if (familyCheck.rows.length === 0) {
         await client.query('ROLLBACK')
@@ -6879,6 +6886,7 @@ app.post('/api/admin/members', async (req, res) => {
       }
       
       familyId = family.id
+      familyHadMembersBefore = (await countActiveFamilyMembers(client, familyId)) > 0
       console.log('[POST /api/admin/members] Member joining family by username:', familyId)
     }
     // Option 4: No family (orphan member) - allowed
@@ -7105,7 +7113,15 @@ app.post('/api/admin/members', async (req, res) => {
     await updateMemberAthleteStatus(member.id)
     
     await client.query('COMMIT')
-    
+
+    void notifyWelcomeNewMember(pool, member.id, { context: 'admin_create' })
+    if (familyHadMembersBefore && familyId) {
+      void notifyFamilyGuardiansNewMember(pool, {
+        familyId,
+        newMemberId: member.id,
+      })
+    }
+
     // Format response
     res.json({
       success: true,
@@ -9020,6 +9036,13 @@ app.post('/api/members/family', authenticateMember, async (req, res) => {
         updated_at = CURRENT_TIMESTAMP
     `, [familyContext.id, created.rows[0].id, req.body?.relationship_label || req.body?.relationshipLabel || null])
 
+    const newMemberId = created.rows[0].id
+    void notifyWelcomeNewMember(pool, newMemberId, { context: 'portal_add_family' })
+    void notifyFamilyGuardiansNewMember(pool, {
+      familyId: familyContext.id,
+      newMemberId,
+    })
+
     res.json({ success: true, data: created.rows[0] })
   } catch (error) {
     console.error('Create member family member error:', error)
@@ -9379,15 +9402,18 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
     }
     
     // Now insert the enrollment record
+    let memberProgramId = null
     try {
       const selectedDaysJson = JSON.stringify(selectedDays)
       
-      await pool.query(`
+      const enrollInsert = await pool.query(`
         INSERT INTO member_program (member_id, program_id, iteration_id, days_per_week, selected_days, created_at, updated_at)
         VALUES ($1, $2, $3, $4, $5::jsonb, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         ON CONFLICT (member_id, program_id, iteration_id) DO UPDATE
         SET days_per_week = $4, selected_days = $5::jsonb, updated_at = CURRENT_TIMESTAMP
+        RETURNING id
       `, [member.id, programId, iterationId, daysPerWeek, selectedDaysJson])
+      memberProgramId = enrollInsert.rows[0]?.id
     } catch (error) {
       console.error('Error creating enrollment record:', error)
       console.error('Error stack:', error.stack)
@@ -9432,34 +9458,19 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       }
     }
 
-    // Best-effort enrollment confirmation email (never blocks enrollment).
-    try {
-      const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || '').trim())
-      let recipient = isValidEmail(member.email) ? member.email.trim() : null
-      if (!recipient) {
-        const guardianResult = await pool.query(
-          `SELECT email FROM member
-           WHERE family_id = $1 AND email IS NOT NULL AND email <> ''
-             AND (parent_guardian_ids IS NULL OR array_length(parent_guardian_ids, 1) IS NULL)
-           ORDER BY id ASC LIMIT 1`,
-          [member.family_id],
-        )
-        const candidate = guardianResult.rows[0]?.email
-        if (isValidEmail(candidate)) recipient = candidate.trim()
-      }
-      if (recipient) {
-        await sendEnrollmentConfirmedEmail({
-          to: recipient,
-          athleteName: `${member.first_name} ${member.last_name}`.trim(),
-          programName: programCheck.rows[0].display_name,
-          selectedDays,
-          startTime: iteration.start_time,
-          endTime: iteration.end_time,
-        })
-      }
-    } catch (emailError) {
-      console.warn('[Enrollment] Confirmation email failed:', emailError?.message || emailError)
-    }
+    // Best-effort enrollment receipt email (never blocks enrollment).
+    const slotLabel =
+      iteration.start_time && iteration.end_time
+        ? `${selectedDays.join(', ')} · ${iteration.start_time}–${iteration.end_time}`
+        : selectedDays.join(', ')
+    void notifyEnrollmentReceipt(pool, {
+      memberId: member.id,
+      programName: programCheck.rows[0].display_name,
+      slotLabel,
+      status: 'confirmed',
+      selectedDays,
+      memberProgramId,
+    })
 
     res.json({
       success: true,

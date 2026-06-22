@@ -144,9 +144,16 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
   `GET /api/members/enrollments|programs|categories`,
   `GET /api/members/programs/:programId/iterations`. (Enrollment UX primarily lives on `/enroll`
   via `EnrollmentForm` / `SchedulingSignupEmbed`, not the dashboard.) `POST /api/members/enroll`
-  also sends a best-effort confirmation email
-  ([backend/email/enrollmentConfirmedEmail.js](../backend/email/enrollmentConfirmedEmail.js)) to the
-  member or a family guardian.
+  sends a best-effort **enrollment receipt** email with a view-only verification link
+  ([backend/email/enrollmentReceiptService.js](../backend/email/enrollmentReceiptService.js)) to the
+  enrolled member's contact email (guardian fallback for minors); public page at `/registration/receipt`.
+- **Transactional email coverage** (all signup/enrollment paths, best-effort via
+  [backend/email/memberNotifications.js](../backend/email/memberNotifications.js)):
+  - **Welcome** — each distinct contact email when a new member account is created (family signup,
+    admin create, scheduling stub, portal add family member).
+  - **Enrollment receipt** — one per enrollment row (`scheduling_signup` or `member_program`) with
+    link to `/registration/receipt?token=…`.
+  - **Guardian alert** — when a new member joins a family that already had active members.
 - Email verification: `POST /api/members/email/send-verification` (auth; issues a single-use link
   via [backend/email/emailVerificationService.js](../backend/email/emailVerificationService.js)) and
   the public confirm route `POST /api/verify-email/:token` (frontend page at `/verify-email`).
@@ -190,6 +197,7 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
   `email_verified_at` added in `040`).
 - **Email verification** (`040`) — `email_verification_token` (single-use, bcrypt-hashed,
   `user_id` FK, `expires_at`/`used_at`).
+- **Enrollment receipts** (`042`) — `enrollment_receipt_token` (view-only receipt links for class/program enrollments).
 - **Coaching reads** — `coaching.plan_assignment`, `completion_log`, `assessment_result`,
   `athlete_skill_progress`, `personal_record`, `wellness_checkin` (see
   [COACHING_CORNER_ROADMAP.md](COACHING_CORNER_ROADMAP.md)).

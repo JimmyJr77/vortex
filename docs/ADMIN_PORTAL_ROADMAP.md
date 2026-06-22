@@ -155,7 +155,16 @@ programs → platform → coach portal → dev members. Global guard on `/api/ad
   recipient resolved to the member's email or a guardian's.
 - **Email diagnostics** (server.js): `GET /api/admin/email/status` (SMTP config summary + live
   verify) and `POST /api/admin/email/test` (master-admin only; sends a test message). Surfaced in
-  the `Email` admin tab.
+  Admin → Email tab.
+- **Transactional email coverage** ([backend/email/memberNotifications.js](../backend/email/memberNotifications.js)) — all paths below are best-effort (never block commits):
+
+| Event | Trigger paths | Recipient |
+|-------|---------------|-----------|
+| Welcome | Family signup, admin `POST /api/admin/members`, scheduling stub account, portal `POST /api/members/family`, invite complete | Each distinct new member contact email |
+| Enrollment receipt | Scheduling submit/batch/admin, family signup enroll loop, `POST /api/members/enroll`, admin re-enroll/resend | Enrolled member contact (guardian fallback); link → `/registration/receipt` |
+| Guardian alert | Join existing family (family signup `joinExistingFamilyId`, admin create into family, portal add family member) | All adult guardian emails on family (deduped) |
+
+Contact resolution: [backend/email/memberContact.js](../backend/email/memberContact.js). Receipt tokens: `enrollment_receipt_token` (`042`).
 - **Scheduling** ([backend/scheduling/registerRoutes.js](../backend/scheduling/registerRoutes.js);
   `scheduling.*`): forms, offerings, slot batches/groups, signups (+ orphaned),
   calendar. (Scheduling-category CRUD routes `/api/admin/scheduling/categories…` were **removed** — see migration `033`.)
@@ -189,6 +198,7 @@ programs → platform → coach portal → dev members. Global guard on `/api/ad
 | Billing | `family_billing_account`, `billing_charge`, `billing_payment`, `billing_statement`, `billing_statement_line` | `008`, `010` |
 | Waivers | `waiver_template`, `member_waiver_acceptance` | `008` |
 | Email verification | `app_user.email_verified`/`email_verified_at`, `email_verification_token` | `040` |
+| Enrollment receipts | `enrollment_receipt_token` | `042` |
 | Coaches | `coach_profile`, `coach_class_assignment` | `008` |
 | Analytics | `analytics_events`, `visitor_sessions`, `consent_records` | `add_analytics_tables` |
 | Highlights / events / inquiries | `highlights`, `events` (+ edit log/tags), `registrations` | `add_highlights_table`, `seed_events`, `add_inquiry_*` |
