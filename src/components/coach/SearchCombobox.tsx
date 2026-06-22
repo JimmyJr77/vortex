@@ -17,6 +17,7 @@ interface SearchComboboxProps {
   emptyMessage?: string
   loadingMessage?: string
   onFocus?: () => void
+  inputClassName?: string
 }
 
 export default function SearchCombobox({
@@ -29,6 +30,7 @@ export default function SearchCombobox({
   emptyMessage = 'No matches.',
   loadingMessage = 'Loading…',
   onFocus,
+  inputClassName,
 }: SearchComboboxProps) {
   const listId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
@@ -57,7 +59,10 @@ export default function SearchCombobox({
         aria-controls={listId}
         aria-autocomplete="list"
         placeholder={placeholder}
-        className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm pr-8"
+        className={
+          inputClassName ??
+          'w-full border border-gray-300 rounded px-2 py-1.5 text-sm pr-8'
+        }
         onChange={(e) => {
           onChange(e.target.value)
           setOpen(true)
@@ -87,7 +92,7 @@ export default function SearchCombobox({
         }}
       />
       {loading && (
-        <Loader2 className="absolute right-2 top-2 w-4 h-4 animate-spin text-gray-400" />
+        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
       )}
       {showList && (
         <ul

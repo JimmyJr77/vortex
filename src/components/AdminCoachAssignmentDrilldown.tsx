@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import SearchCombobox, { type SearchComboboxOption } from './coach/SearchCombobox'
@@ -81,8 +81,12 @@ function targetFromPath(path: DrillSegment[]): CoachAssignmentTarget | null {
 
 export default function AdminCoachAssignmentDrilldown({
   onTargetChange,
+  coachControl,
+  actionControl,
 }: {
   onTargetChange: (target: CoachAssignmentTarget | null) => void
+  coachControl?: ReactNode
+  actionControl?: ReactNode
 }) {
   const [path, setPath] = useState<DrillSegment[]>([])
   const [levelLabel, setLevelLabel] = useState('Program')
@@ -167,6 +171,9 @@ export default function AdminCoachAssignmentDrilldown({
     if (opt) void drillInto(opt)
   }
 
+  const controlInputClass =
+    'w-full h-10 border border-gray-300 rounded-lg px-3 text-sm pr-8'
+
   return (
     <div className="space-y-3">
       {path.length > 0 && (
@@ -192,19 +199,39 @@ export default function AdminCoachAssignmentDrilldown({
         </div>
       )}
 
-      <label className="text-sm block">
-        <span className="block text-xs font-semibold text-gray-500 mb-1">{levelLabel}</span>
-        <SearchCombobox
-          value={search}
-          onChange={setSearch}
-          onSelect={handleComboboxSelect}
-          options={comboboxOptions}
-          loading={loading}
-          placeholder={`Search ${levelLabel.toLowerCase()}…`}
-          emptyMessage={error ? error : 'No matches.'}
-          loadingMessage="Loading…"
-        />
-      </label>
+      <div
+        className={
+          coachControl != null || actionControl != null
+            ? 'grid gap-3 lg:grid-cols-[minmax(0,240px)_minmax(0,1fr)_auto] lg:items-end'
+            : 'space-y-3'
+        }
+      >
+        {coachControl != null && (
+          <label className="text-sm block min-w-0">
+            <span className="block text-xs font-semibold text-gray-500 mb-1">Coach</span>
+            {coachControl}
+          </label>
+        )}
+
+        <label className="text-sm block min-w-0">
+          <span className="block text-xs font-semibold text-gray-500 mb-1">{levelLabel}</span>
+          <SearchCombobox
+            value={search}
+            onChange={setSearch}
+            onSelect={handleComboboxSelect}
+            options={comboboxOptions}
+            loading={loading}
+            placeholder={`Search ${levelLabel.toLowerCase()}…`}
+            emptyMessage={error ? error : 'No matches.'}
+            loadingMessage="Loading…"
+            inputClassName={controlInputClass}
+          />
+        </label>
+
+        {actionControl != null && (
+          <div className="flex items-end min-w-0">{actionControl}</div>
+        )}
+      </div>
 
       {path.length > 0 && (
         <div className="flex flex-wrap gap-2">

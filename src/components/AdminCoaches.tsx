@@ -199,30 +199,32 @@ export default function AdminCoaches({ isMasterAdmin = false }: AdminCoachesProp
 
       <section className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
         <h3 className="font-semibold text-gray-900">New Assignment</h3>
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,240px)_1fr_auto] lg:items-start">
-          <select
-            value={selectedCoachId}
-            onChange={(e) => setSelectedCoachId(Number(e.target.value) || '')}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full"
-          >
-            <option value="">Select coach</option>
-            {users.map((user) => <option key={user.id} value={user.id}>{user.full_name || user.email}</option>)}
-          </select>
-
-          <AdminCoachAssignmentDrilldown
-            key={drilldownKey}
-            onTargetChange={setAssignmentTarget}
-          />
-
-          <button
-            type="button"
-            onClick={() => void addAssignment()}
-            disabled={saving || !selectedCoachId || !assignmentTarget}
-            className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white rounded-lg px-4 py-2 font-semibold disabled:opacity-60 lg:self-end"
-          >
-            <Plus className="w-4 h-4" /> Assign
-          </button>
-        </div>
+        <AdminCoachAssignmentDrilldown
+          key={drilldownKey}
+          onTargetChange={setAssignmentTarget}
+          coachControl={
+            <select
+              value={selectedCoachId}
+              onChange={(e) => setSelectedCoachId(Number(e.target.value) || '')}
+              className="border border-gray-300 rounded-lg px-3 text-sm w-full h-10 bg-white"
+            >
+              <option value="">Select coach</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>{user.full_name || user.email}</option>
+              ))}
+            </select>
+          }
+          actionControl={
+            <button
+              type="button"
+              onClick={() => void addAssignment()}
+              disabled={saving || !selectedCoachId || !assignmentTarget}
+              className="inline-flex items-center justify-center gap-2 h-10 bg-vortex-red text-white rounded-lg px-4 font-semibold disabled:opacity-60 whitespace-nowrap w-full lg:w-auto"
+            >
+              <Plus className="w-4 h-4" /> Assign
+            </button>
+          }
+        />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
