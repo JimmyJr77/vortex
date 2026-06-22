@@ -36,6 +36,7 @@ export async function initPlatformTables(pool) {
     '038_account_invite.sql',
     '039_member_graduation_year.sql',
     '040_email_verification.sql',
+    '041_app_user_nullable_email.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

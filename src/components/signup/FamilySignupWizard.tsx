@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, UserPlus } from 'lucide-react'
 import { getApiUrl, adminApiRequest } from '../../utils/api'
-import { cleanPhoneNumber, formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../utils/phoneUtils'
+import { cleanPhoneNumber, formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH } from '../../utils/phoneUtils'
 import { formatDateForInput, isAdult } from '../../utils/dateUtils'
 import { maybeSuggestUsername } from '../../utils/signupUsername'
 import { graduationYearsForPicker } from '../../utils/promoDiscountModel'
@@ -148,8 +148,8 @@ const emptyMember = (): SignupMemberForm => ({
   graduationYear: '',
 })
 
-const emptyEnrollment = (memberClientId: string): EnrollmentRow => ({
-  memberClientId,
+const emptyEnrollment = (): EnrollmentRow => ({
+  memberClientId: '',
   programsId: '',
   classEventId: '',
   offeringIds: [],
@@ -422,7 +422,6 @@ export default function FamilySignupWizard({
   const applyEnrollPrefill = useCallback(async () => {
     if (!enrollPrefill || prefillApplied.current) return
     prefillApplied.current = true
-    const memberId = allAthletes[0]?.clientId ?? primaryAdult.clientId
     if (enrollPrefill.programsId) {
       await loadClassesForProgram(enrollPrefill.programsId)
     }
@@ -432,7 +431,7 @@ export default function FamilySignupWizard({
     const offeringIds = enrollPrefill.offeringId ? [enrollPrefill.offeringId] : []
     setEnrollments([
       {
-        memberClientId: memberId,
+        memberClientId: '',
         programsId: enrollPrefill.programsId ?? '',
         classEventId: enrollPrefill.classEventId ?? '',
         offeringIds,
@@ -441,7 +440,7 @@ export default function FamilySignupWizard({
         timeSlotId: enrollPrefill.timeSlotId,
       },
     ])
-  }, [enrollPrefill, allAthletes, primaryAdult.clientId, loadClassesForProgram, loadOfferingsForClass])
+  }, [enrollPrefill, loadClassesForProgram, loadOfferingsForClass])
 
   useEffect(() => {
     const onEnrollmentStep = (step === 2 && isMinorStart) || (step === 3 && !isMinorStart)
@@ -456,7 +455,7 @@ export default function FamilySignupWizard({
       prev.map((m) =>
         m.emailSource === 'youth'
           ? m
-          : { ...m, emailSource: 'parent' as EmailSource, email: primaryAdult.email.trim() },
+          : { ...m, emailSource: 'parent' as EmailSource, email: '' },
       ),
     )
   }, [primaryAdult.email])
@@ -543,7 +542,7 @@ export default function FamilySignupWizard({
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} onBlur={() => void handleNameBlur()} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} onBlur={() => void handleNameBlur()} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email *" value={member.email} onChange={(e) => onChange({ email: e.target.value })} />
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder={`${PHONE_INPUT_PLACEHOLDER} *`} maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder="Phone number *" maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
       <input className="md:col-span-2 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Street address *" value={member.addressStreet} onChange={(e) => { onChange({ addressStreet: e.target.value }); setAddressVerified(false) }} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="City *" value={member.addressCity} onChange={(e) => { onChange({ addressCity: e.target.value }); setAddressVerified(false) }} />
       <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.addressState} onChange={(e) => { onChange({ addressState: e.target.value }); setAddressVerified(false) }}>
@@ -575,7 +574,6 @@ export default function FamilySignupWizard({
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username *" value={member.username} onChange={(e) => onChange({ username: e.target.value })} />
       {showLogin && (
         <>
-          <div className="hidden md:block" aria-hidden />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'New password (optional)' : 'Password *'} value={member.password} onChange={(e) => onChange({ password: e.target.value })} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'Confirm new password' : 'Confirm password *'} value={member.confirmPassword} onChange={(e) => onChange({ confirmPassword: e.target.value })} />
         </>
@@ -638,7 +636,7 @@ export default function FamilySignupWizard({
               if (val === 'youth') {
                 onChange({ emailSource: 'youth', email: '' })
               } else {
-                onChange({ emailSource: 'parent', email: val })
+                onChange({ emailSource: 'parent', email: '' })
               }
             }}
           >
@@ -654,16 +652,23 @@ export default function FamilySignupWizard({
           {emailSource === 'youth' && (
             <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Athlete email *" value={member.email} onChange={(e) => onChange({ email: e.target.value })} />
           )}
-          {emailSource === 'parent' && member.email && (
-            <p className="text-xs text-gray-500">Using: {member.email}</p>
+          {emailSource === 'parent' && (
+            <p className="text-xs text-gray-500">
+              Contact email: {parentEmailValue || primaryAdult.email || '—'} (messages go to parent/guardian)
+            </p>
           )}
         </div>
-        <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder={PHONE_INPUT_PLACEHOLDER} maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1 invisible" aria-hidden="true">
+            Date of birth (DOB) *
+          </label>
+          <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder="Phone number" maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
+        </div>
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-1">Date of birth (DOB) *</label>
           <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="date" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} />
         </div>
-        <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm self-end" value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
+        <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
           <option value="">Gender</option>
           <option value="female">Female</option>
           <option value="male">Male</option>
@@ -689,7 +694,6 @@ export default function FamilySignupWizard({
         </label>
         {!useParentPassword && (
           <>
-            <div className="hidden md:block" aria-hidden />
             <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'New password (optional)' : 'Password *'} value={member.password} onChange={(e) => onChange({ password: e.target.value })} />
             <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'Confirm new password' : 'Confirm password *'} value={member.confirmPassword} onChange={(e) => onChange({ confirmPassword: e.target.value })} />
           </>
@@ -747,11 +751,23 @@ export default function FamilySignupWizard({
     return null
   }
 
+  const usesParentContactEmail = (member: SignupMemberForm) => (member.emailSource ?? 'parent') === 'parent'
+
   const validateFamilyMembersStep = (members: SignupMemberForm[] = additionalMembers) => {
     for (const member of members) {
       if (!member.firstName || !member.lastName) return 'Each family member needs a first and last name.'
       if (!member.username?.trim()) return `Username is required for ${member.firstName || 'each member'}.`
-      if (!member.email?.trim()) return `Email is required for ${member.firstName || 'each member'}.`
+      const minor = Boolean(member.dateOfBirth) && !isAdult(member.dateOfBirth)
+      if (usesParentContactEmail(member)) {
+        if (!minor) {
+          return `${member.firstName} must have their own email address (adults cannot share a parent email).`
+        }
+        if (!primaryAdult.email?.trim()) {
+          return 'Primary adult email is required when a minor uses parent/guardian contact email.'
+        }
+      } else if (!member.email?.trim()) {
+        return `Email is required for ${member.firstName || 'each member'}.`
+      }
       if (member.useParentPassword && !isAdminEdit) {
         if (!primaryAdult.password || primaryAdult.password.length < 8) {
           return 'Primary adult password is required when sharing login with a family member.'
@@ -769,6 +785,15 @@ export default function FamilySignupWizard({
     return null
   }
 
+  const validateEnrollmentStep = () => {
+    for (let i = 0; i < enrollments.length; i++) {
+      if (!enrollments[i].memberClientId) {
+        return `Select a family member for enrollment ${i + 1}.`
+      }
+    }
+    return null
+  }
+
   const buildMemberUpdatePayload = (member: SignupMemberForm, inheritPrimaryAddress = false) => {
     const street = inheritPrimaryAddress ? primaryAdult.addressStreet : member.addressStreet
     const city = inheritPrimaryAddress ? primaryAdult.addressCity : member.addressCity
@@ -777,7 +802,8 @@ export default function FamilySignupWizard({
     const payload: Record<string, unknown> = {
       firstName: member.firstName,
       lastName: member.lastName,
-      email: member.email || null,
+      email: usesParentContactEmail(member) ? null : (member.email || null),
+      emailSource: member.emailSource ?? 'parent',
       phone: member.phone ? cleanPhoneNumber(member.phone) : null,
       address: combineAddress(street, city, state, zip) || null,
       username: member.username || null,
@@ -853,6 +879,7 @@ export default function FamilySignupWizard({
       primaryAdult: isMinorStart ? undefined : primaryAdult,
       additionalMembers: (isMinorStart ? additionalMembers.slice(0, 1) : additionalMembers).map((member) => ({
         ...member,
+        email: usesParentContactEmail(member) ? '' : member.email,
         ...(member.useParentPassword && !isMinorStart
           ? {
               password: primaryAdult.password,
@@ -865,9 +892,9 @@ export default function FamilySignupWizard({
         addressZip: primaryAdult.addressZip,
       })),
       enrollments: enrollments
-        .filter((row) => row.classEventId !== '')
+        .filter((row) => row.classEventId !== '' && row.memberClientId !== '')
         .map((row) => ({
-          memberIndex: memberIndexMap.get(row.memberClientId) ?? 0,
+          memberIndex: memberIndexMap.get(row.memberClientId)!,
           classEventId: Number(row.classEventId),
           programId: Number(row.classEventId),
           offeringIds: row.offeringIds,
@@ -936,6 +963,12 @@ export default function FamilySignupWizard({
         setError(waiverError)
         return
       }
+    }
+
+    const enrollmentErr = validateEnrollmentStep()
+    if (enrollmentErr) {
+      setError(enrollmentErr)
+      return
     }
 
     setLoading(true)
@@ -1060,6 +1093,13 @@ export default function FamilySignupWizard({
         return
       }
     }
+    if (step === enrollmentStep && step < maxStep) {
+      const err = validateEnrollmentStep()
+      if (err) {
+        setError(err)
+        return
+      }
+    }
     if (step === maxStep) {
       await submit()
       return
@@ -1073,7 +1113,7 @@ export default function FamilySignupWizard({
         <h3 className="font-semibold text-gray-900">Program enrollment</h3>
         <button
           type="button"
-          onClick={() => setEnrollments((prev) => [...prev, emptyEnrollment(allAthletes[0]?.clientId ?? primaryAdult.clientId)])}
+          onClick={() => setEnrollments((prev) => [...prev, emptyEnrollment()])}
           className="inline-flex items-center gap-1 text-sm text-vortex-red font-semibold"
         >
           <UserPlus className="w-4 h-4" /> Add enrollment
@@ -1106,6 +1146,7 @@ export default function FamilySignupWizard({
                   value={row.memberClientId}
                   onChange={(e) => updateEnrollmentRow(index, { memberClientId: e.target.value })}
                 >
+                  <option value="">Select family member</option>
                   {allAthletes.map((m) => (
                     <option key={m.clientId} value={m.clientId}>{m.firstName} {m.lastName}</option>
                   ))}
@@ -1281,7 +1322,7 @@ export default function FamilySignupWizard({
                 const m = emptyMember()
                 if (primaryAdult.email) {
                   m.emailSource = 'parent'
-                  m.email = primaryAdult.email
+                  m.email = ''
                 }
                 setAdditionalMembers((prev) => [...prev, m])
               }}

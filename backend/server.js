@@ -584,19 +584,25 @@ export const initDatabase = async () => {
         id                  BIGSERIAL PRIMARY KEY,
         facility_id         BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
         role                user_role NOT NULL,
-        email               TEXT NOT NULL,
+        email               TEXT,
         phone               TEXT,
         full_name           TEXT NOT NULL,
         password_hash       TEXT,
         address             TEXT,
         is_active           BOOLEAN NOT NULL DEFAULT TRUE,
         created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-        UNIQUE (facility_id, email)
+        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `)
     // Ensure address column exists (for existing databases)
     await pool.query('ALTER TABLE app_user ADD COLUMN IF NOT EXISTS address TEXT')
+    await pool.query('ALTER TABLE app_user ALTER COLUMN email DROP NOT NULL')
+    await pool.query('ALTER TABLE app_user DROP CONSTRAINT IF EXISTS app_user_facility_id_email_key')
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS app_user_facility_email_unique
+      ON app_user (facility_id, email)
+      WHERE email IS NOT NULL
+    `)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_facility_role ON app_user(facility_id, role)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_email ON app_user(email)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_app_user_active ON app_user(is_active)`)
@@ -6660,13 +6666,33 @@ app.get('/api/admin/members/:id', async (req, res) => {
     // Get emergency contacts
     let emergencyContacts = []
     try {
-    const contactsResult = await pool.query(`
-      SELECT * FROM emergency_contact WHERE member_id = $1 ORDER BY created_at
-    `, [id])
+      const contactsResult = await pool.query(`
+        SELECT * FROM emergency_contact WHERE member_id = $1 ORDER BY created_at
+      `, [id])
       emergencyContacts = contactsResult.rows
     } catch (contactsError) {
-      // Table might not exist
       console.warn('Error getting emergency contacts:', contactsError.message)
+    }
+
+    // Roles from app_user / app_user_role (same query pattern as member list)
+    let roles = []
+    try {
+      const rolesResult = await pool.query(`
+        SELECT json_agg(DISTINCT jsonb_build_object('id', role_key, 'role', role_key)) as roles
+        FROM member m
+        JOIN app_user au ON au.id = m.app_user_id
+        CROSS JOIN LATERAL (
+          SELECT au.role::text as role_key
+          UNION
+          SELECT aur.role::text as role_key
+          FROM app_user_role aur
+          WHERE aur.user_id = au.id
+        ) role_rows
+        WHERE m.id = $1
+      `, [id])
+      roles = rolesResult.rows[0]?.roles || []
+    } catch (rolesError) {
+      console.warn('Error getting member roles:', rolesError.message)
     }
     
     // Get enrollments
@@ -6739,6 +6765,7 @@ app.get('/api/admin/members/:id', async (req, res) => {
         billingZip: member.billing_zip,
         emergencyContacts: emergencyContacts,
         enrollments: enrollments,
+        roles: roles,
         createdAt: member.created_at,
         updatedAt: member.updated_at
       }

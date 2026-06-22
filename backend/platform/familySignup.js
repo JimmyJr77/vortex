@@ -20,6 +20,59 @@ function isAdult(dateOfBirth) {
   return age >= 18
 }
 
+function memberUsesParentContactEmail(memberInput, payerEmail) {
+  const emailSource = String(memberInput.emailSource || memberInput.email_source || '').toLowerCase()
+  if (emailSource === 'parent') return true
+  if (emailSource === 'youth') return false
+
+  const dob = memberInput.dateOfBirth || memberInput.date_of_birth
+  const minor = dob && !isAdult(dob)
+  if (!minor) return false
+
+  const email = String(memberInput.email || '').trim().toLowerCase()
+  const payer = String(payerEmail || '').trim().toLowerCase()
+  return Boolean(email && payer && email === payer)
+}
+
+function resolveStoredMemberEmail(memberInput, payerEmail) {
+  if (memberUsesParentContactEmail(memberInput, payerEmail)) {
+    return null
+  }
+  const email = String(memberInput.email || '').trim()
+  return email || null
+}
+
+function formatSignupError(error) {
+  if (error?.code === '23505') {
+    const constraint = String(error.constraint || '')
+    if (constraint.includes('email')) {
+      return new Error('An account with this email already exists. Please sign in or use a different email.')
+    }
+    if (constraint.includes('username')) {
+      return new Error('That username is already taken. Please choose another.')
+    }
+  }
+  return error
+}
+
+async function assertMemberEmailAvailable(client, facilityId, email) {
+  const normalized = String(email || '').trim().toLowerCase()
+  if (!normalized) return
+  const existing = await client.query(
+    `
+      SELECT id FROM member
+      WHERE facility_id = $1
+        AND email IS NOT NULL
+        AND LOWER(TRIM(email)) = $2
+      LIMIT 1
+    `,
+    [facilityId, normalized],
+  )
+  if (existing.rows.length > 0) {
+    throw new Error('An account with this email already exists. Please sign in or use a different email.')
+  }
+}
+
 async function generateFamilyUsername(client, familyName, facilityId) {
   const baseUsername = String(familyName || 'family')
     .toLowerCase()
@@ -189,7 +242,7 @@ async function suggestUsername(client, firstName, lastName) {
   return `${baseUsername}${Date.now()}`
 }
 
-async function createMemberRecord(client, facilityId, familyId, memberInput, { parentGuardianIds = [] } = {}) {
+async function createMemberRecord(client, facilityId, familyId, memberInput, { parentGuardianIds = [], payerEmail = null } = {}) {
   const passwordHash = memberInput.password ? await bcrypt.hash(memberInput.password, 10) : null
   const dob = memberInput.dateOfBirth || memberInput.date_of_birth || null
   const minor = dob && !isAdult(dob)
@@ -197,6 +250,9 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
   const hasCredentials = Boolean(memberInput.username && passwordHash)
   const storeUsername = hasCredentials ? memberInput.username : (!minor ? memberInput.username : null)
   const storePasswordHash = hasCredentials ? passwordHash : (!minor ? passwordHash : null)
+  const storedEmail = payerEmail != null
+    ? resolveStoredMemberEmail(memberInput, payerEmail)
+    : (String(memberInput.email || '').trim() || null)
 
   const inserted = await client.query(
     `
@@ -214,7 +270,7 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
       familyId,
       memberInput.firstName,
       memberInput.lastName,
-      memberInput.email || null,
+      storedEmail,
       memberInput.phone || null,
       dob,
       storeUsername,
@@ -240,7 +296,7 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
     [familyId, member.id],
   )
 
-  if (hasCredentials && (memberInput.email || memberInput.username)) {
+  if (hasCredentials && (storedEmail || memberInput.username)) {
     const fullName = `${memberInput.firstName} ${memberInput.lastName}`.trim()
     await client.query(
       `
@@ -259,7 +315,7 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
       [
         member.id,
         facilityId,
-        memberInput.email || null,
+        storedEmail,
         memberInput.phone || null,
         fullName,
         memberInput.username || null,
@@ -329,6 +385,9 @@ async function processFamilySignup(client, payload, options = {}) {
   if (primaryAdult.password !== primaryAdult.confirmPassword) {
     throw new Error('Primary adult passwords do not match.')
   }
+
+  const primaryEmail = String(primaryAdult.email || '').trim()
+  await assertMemberEmailAvailable(client, facilityId, primaryEmail)
 
   const signatureName = String(waivers.signatureName || '').trim()
   const acceptedTemplateIds = (waivers.acceptedTemplateIds || []).map(Number).filter(Number.isFinite)
@@ -426,9 +485,23 @@ async function processFamilySignup(client, payload, options = {}) {
     if (!merged.username?.trim()) {
       throw new Error(`Username is required for ${merged.firstName} ${merged.lastName}.`)
     }
-    if (!merged.email?.trim()) {
+
+    const usesParentContact = memberUsesParentContactEmail(merged, primaryAdult.email)
+    if (usesParentContact) {
+      if (!minor) {
+        throw new Error(`${merged.firstName} ${merged.lastName} must have their own email address.`)
+      }
+      if (!String(primaryAdult.email || '').trim()) {
+        throw new Error('Primary adult email is required when a minor uses parent/guardian contact email.')
+      }
+      merged.email = null
+      merged.emailSource = 'parent'
+    } else if (!merged.email?.trim()) {
       throw new Error(`Email is required for ${merged.firstName} ${merged.lastName}.`)
+    } else {
+      await assertMemberEmailAvailable(client, facilityId, merged.email)
     }
+
     if (merged.useParentPassword) {
       if (!primaryAdult.password || primaryAdult.password.length < 8) {
         throw new Error('Primary adult password is required when sharing login with a family member.')
@@ -444,6 +517,7 @@ async function processFamilySignup(client, payload, options = {}) {
     }
     const member = await createMemberRecord(client, facilityId, familyId, merged, {
       parentGuardianIds: guardians,
+      payerEmail: primaryAdult.email,
     })
     createdMembers.push({ clientIndex: i + 1, member })
   }
@@ -478,7 +552,7 @@ async function processFamilySignup(client, payload, options = {}) {
       const responses = {
         first_name: memberRow?.first_name,
         last_name: memberRow?.last_name,
-        email: memberRow?.email,
+        email: memberRow?.email || primaryAdult.email || null,
         phone: memberRow?.phone,
         offering_ids: (enrollment.offeringIds || []).map(Number).filter(Number.isFinite),
       }
@@ -830,7 +904,8 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
       res.json({ success: true, data: result })
     } catch (error) {
       await client.query('ROLLBACK')
-      res.status(400).json({ success: false, message: error.message })
+      const formatted = formatSignupError(error)
+      res.status(400).json({ success: false, message: formatted.message })
     } finally {
       client.release()
     }
@@ -853,7 +928,8 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
       res.json({ success: true, data: result })
     } catch (error) {
       await client.query('ROLLBACK')
-      res.status(400).json({ success: false, message: error.message })
+      const formatted = formatSignupError(error)
+      res.status(400).json({ success: false, message: formatted.message })
     } finally {
       client.release()
     }

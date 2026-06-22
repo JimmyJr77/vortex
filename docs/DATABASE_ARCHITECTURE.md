@@ -204,6 +204,8 @@ Four canonical templates are seeded per facility on boot via [seedCanonicalWaive
 
 **Email verification ([040](../backend/migrations/040_email_verification.sql)):** `app_user` gains `email_verified BOOLEAN NOT NULL DEFAULT FALSE` and `email_verified_at TIMESTAMPTZ`. `email_verification_token` holds single-use links (bcrypt-hashed `token_hash`, `user_id` FK, `email`, `expires_at`, `used_at`), mirroring `account_invite`. Issued via the shared service [email/emailVerificationService.js](../backend/email/emailVerificationService.js) on family signup (best-effort) and on demand at `POST /api/members/email/send-verification`; confirmed (publicly, the link is the secret) at `POST /api/verify-email/:token`, which sets `email_verified = TRUE` and marks the token used.
 
+**Username-only minors ([041](../backend/migrations/041_app_user_nullable_email.sql)):** `app_user.email` is nullable; partial unique index `app_user_facility_email_unique` on `(facility_id, email) WHERE email IS NOT NULL`. Minors who use parent/guardian contact during family signup store `member.email = NULL`, link guardians via `parent_guardian_ids`, and log in with **username** (optional shared password). Transactional email resolves to a guardian when the member row has no email (see `resolveWaiverRecipient` in [registerRoutes.js](../backend/platform/registerRoutes.js)).
+
 ---
 
 ## 5. Triggers, views, functions
