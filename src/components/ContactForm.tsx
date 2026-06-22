@@ -13,6 +13,7 @@ import { getActiveConsent } from '../utils/consent'
 import { trackEvent } from '../utils/analyticsClient'
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../utils/enrollSite'
+import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 import {
   ATHLETICS_SPORT_INTERESTS,
   ATHLETICS_TRAINING_INTERESTS,
@@ -111,11 +112,8 @@ const ContactForm = ({
 
     let cleanPhone = formData.phone?.trim() || ''
     if (cleanPhone) {
-      cleanPhone = cleanPhone.replace(/[^\d+]/g, '')
-      if (cleanPhone.startsWith('+')) {
-        cleanPhone = '+' + cleanPhone.substring(1).replace(/\D/g, '')
-      }
-      const digitsOnly = cleanPhone.replace(/\D/g, '')
+      cleanPhone = cleanPhoneNumber(cleanPhone)
+      const digitsOnly = cleanPhone
       if (digitsOnly.length > 0 && digitsOnly.length < 10) {
         alert('Phone number must be at least 10 digits long.')
         setIsSubmitting(false)
@@ -275,7 +273,11 @@ const ContactForm = ({
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'phone' ? formatPhoneNumber(value) : value,
+    }))
   }
 
   const handleInterestToggle = (interest: string) => {
@@ -439,7 +441,8 @@ const ContactForm = ({
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
-                  placeholder="Phone Number"
+                  placeholder={PHONE_INPUT_PLACEHOLDER}
+                  maxLength={PHONE_INPUT_MAX_LENGTH}
                 />
               </div>
             </div>

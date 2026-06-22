@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Archive, X, ChevronDown, ChevronUp, UserPlus, Eye, Edit2, Search, Users, Loader2, Trash2, DollarSign } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
+import { isDefaultMasterEmail } from '../utils/defaultMasterAccount'
 import MemberFormSection from './MemberFormSection'
 import MemberSchoolsNotes from './MemberSchoolsNotes'
 import MemberPricingModal from './admin/MemberPricingModal'
 import { formatDateForInput, formatDateForDisplay, formatTimestampDate, calculateAge, isAdult } from '../utils/dateUtils'
+import { cleanPhoneNumber, formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 
 // Member-related interfaces
 interface EmergencyContact {
@@ -317,7 +319,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
   const [memberSearchQuery, setMemberSearchQuery] = useState('')
   const [accountViewFilter, setAccountViewFilter] = useState<AccountViewFilter>('all')
   const [showArchivedMembers, setShowArchivedMembers] = useState(false)
-  const [fixingAppUsers, setFixingAppUsers] = useState(false)
   
   // Delete confirmation state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
@@ -537,58 +538,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
       setMembersLoading(false)
     }
   }, [memberSearchQuery, showArchivedMembers])
-  
-  // Fix missing app_user records
-  const fixMissingAppUsers = useCallback(async () => {
-    if (!confirm('This will create app_user records for members that have login credentials but are missing app_user records. This will allow them to log into the member portal. Continue?')) {
-      return
-    }
-    
-    setFixingAppUsers(true)
-    try {
-      const response = await adminApiRequest('/api/admin/members/fix-missing-app-users', {
-        method: 'POST'
-      })
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        let message = `✅ Success!\n\nFixed: ${data.fixed} member(s)\nErrors: ${data.errors}`
-        
-        // Show diagnostic info if available
-        if (data.diagnostics && data.diagnostics.length > 0) {
-          const needsFix = data.diagnostics.filter((d: any) => d.reason === 'Needs fix')
-          const alreadyHas = data.diagnostics.filter((d: any) => d.reason === 'Already has app_user')
-          const noPassword = data.diagnostics.filter((d: any) => d.reason === 'No password_hash')
-          const noCredentials = data.diagnostics.filter((d: any) => d.reason === 'No email or username')
-          
-          message += `\n\n📊 Diagnostic Info:`
-          if (needsFix.length > 0) {
-            message += `\n  • ${needsFix.length} member(s) need fixing: ${needsFix.map((d: any) => d.name).join(', ')}`
-          }
-          if (alreadyHas.length > 0) {
-            message += `\n  • ${alreadyHas.length} member(s) already have app_user: ${alreadyHas.map((d: any) => d.name).join(', ')}`
-          }
-          if (noPassword.length > 0) {
-            message += `\n  • ${noPassword.length} member(s) missing password: ${noPassword.map((d: any) => d.name).join(', ')}`
-          }
-          if (noCredentials.length > 0) {
-            message += `\n  • ${noCredentials.length} member(s) missing email/username: ${noCredentials.map((d: any) => d.name).join(', ')}`
-          }
-        }
-        
-        message += `\n\nMembers should now be able to log in!`
-        alert(message)
-      } else {
-        alert(`❌ Error: ${data.message || 'Unknown error'}`)
-      }
-    } catch (error) {
-      console.error('Error fixing app users:', error)
-      alert(`❌ Error: ${error instanceof Error ? error.message : 'Failed to fix app users'}`)
-    } finally {
-      setFixingAppUsers(false)
-    }
-  }, [])
 
   const seedDevTestMembers = useCallback(async () => {
     if (
@@ -793,22 +742,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
   }
   
   
-  const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '')
-    const limited = digits.slice(0, 10)
-    if (limited.length <= 3) {
-      return limited
-    } else if (limited.length <= 6) {
-      return `${limited.slice(0, 3)}-${limited.slice(3)}`
-    } else {
-      return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`
-    }
-  }
-  
-  const cleanPhoneNumber = (phone: string): string => {
-    return phone.replace(/\D/g, '')
-  }
-  
   // formatDateForInput is now imported from dateUtils
 
   // Helper function to format time since a date
@@ -953,7 +886,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
         firstName,
         lastName,
         email: email || (member.type === 'guardian' ? (member.data as Guardian).email || '' : ''),
-        phone: member.type === 'guardian' ? (member.data as Guardian).phone || '' : '',
+        phone: formatPhoneForDisplay(member.type === 'guardian' ? (member.data as Guardian).phone || '' : ''),
         addressStreet: parsedAddress.street,
         addressCity: parsedAddress.city,
         addressState: parsedAddress.state,
@@ -980,7 +913,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
               firstName, 
               lastName, 
               email: email || (member.type === 'guardian' ? (member.data as Guardian).email || '' : ''),
-              phone: member.type === 'guardian' ? (member.data as Guardian).phone || '' : '',
+              phone: formatPhoneForDisplay(member.type === 'guardian' ? (member.data as Guardian).phone || '' : ''),
               addressStreet: parsedAddress.street,
               addressCity: parsedAddress.city,
               addressState: parsedAddress.state,
@@ -2347,7 +2280,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                   firstName: member.firstName,
                   lastName: member.lastName,
                   email: member.email,
-                  phone: member.phone,
+                  phone: formatPhoneForDisplay(member.phone),
                   addressStreet: member.addressStreet,
                   addressCity: member.addressCity,
                   addressState: member.addressState,
@@ -2402,7 +2335,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                     firstName: member.firstName,
                     lastName: member.lastName,
                     email: member.email,
-                    phone: member.phone,
+                    phone: formatPhoneForDisplay(member.phone),
                     addressStreet: member.addressStreet,
                     addressCity: member.addressCity,
                     addressState: member.addressState,
@@ -2636,7 +2569,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
           firstName: fullMember.firstName || '',
           lastName: fullMember.lastName || '',
           email: fullMember.email || '',
-          phone: fullMember.phone || '',
+          phone: formatPhoneForDisplay(fullMember.phone),
           addressStreet: addressParts.street,
           addressCity: addressParts.city,
           addressState: addressParts.state,
@@ -2666,7 +2599,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                 firstName: fullMember.firstName || '',
                 lastName: fullMember.lastName || '',
                 email: fullMember.email || '',
-                phone: fullMember.phone || '',
+                phone: formatPhoneForDisplay(fullMember.phone),
                 addressStreet: addressParts.street,
                 addressCity: addressParts.city,
                 addressState: addressParts.state,
@@ -2812,20 +2745,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
             >
               <Archive className="w-5 h-5" />
             </button>
-            <button
-              type="button"
-              onClick={fixMissingAppUsers}
-              disabled={fixingAppUsers}
-              title="Fix login issues"
-              aria-label="Fix login issues"
-              className={`${memberIconBtn} text-blue-700 hover:bg-blue-50`}
-            >
-              {fixingAppUsers ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <span className="text-xs font-semibold px-1">Fix logins</span>
-              )}
-            </button>
             {import.meta.env.DEV && (
               <button
                 type="button"
@@ -2857,27 +2776,27 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
               className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
             >
               <UserPlus className="w-5 h-5" />
-              New member
+              New account
             </button>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="relative max-w-md flex-1">
+          <div className="relative w-full max-w-xs shrink-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             <input
               type="search"
               placeholder="Search accounts…"
               value={memberSearchQuery}
               onChange={(e) => setMemberSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 text-sm"
+              className="w-full h-9 rounded-lg border border-gray-300 pl-9 pr-3 text-sm"
             />
           </div>
           <select
             value={accountViewFilter}
             onChange={(e) => setAccountViewFilter(e.target.value as AccountViewFilter)}
             aria-label="Filter accounts by type"
-            className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white min-w-[280px] max-w-full"
+            className="h-9 rounded-lg border border-gray-300 px-3 text-sm bg-white min-w-[280px] max-w-full"
           >
             {ACCOUNT_VIEW_FILTER_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -3000,6 +2919,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
+                            {!isDefaultMasterEmail(member.email) && (
                             <button
                               type="button"
                               className={memberIconBtn}
@@ -3009,7 +2929,8 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                             >
                               <Archive className="w-4 h-4" />
                             </button>
-                            {isMasterAdmin && (
+                            )}
+                            {isMasterAdmin && !isDefaultMasterEmail(member.email) && (
                               <button
                                 type="button"
                                 className={memberIconBtnDanger}
@@ -3280,7 +3201,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                       onSectionCancel={handleSectionCancel}
                       onFinishedWithMember={handleFinishedWithMember}
                       generateUsername={generateUsername}
-                      formatPhoneNumber={formatPhoneNumber}
                       availableParentGuardians={availableParentGuardians}
                       onSearchParentGuardians={searchParentGuardians}
                       allFamilyMembers={familyMembers}
@@ -3456,7 +3376,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                       onSectionCancel={handleSectionCancel}
                       onFinishedWithMember={handleFinishedWithMember}
                       generateUsername={generateUsername}
-                      formatPhoneNumber={formatPhoneNumber}
                       availableParentGuardians={availableParentGuardians}
                       onSearchParentGuardians={searchParentGuardians}
                       allFamilyMembers={familyMembers}
@@ -3994,8 +3913,8 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                           const formatted = formatPhoneNumber(e.target.value)
                           setEditingMemberData({ ...editingMemberData, phone: formatted })
                         }}
-                        placeholder="###-###-####"
-                        maxLength={12}
+                        placeholder={PHONE_INPUT_PLACEHOLDER}
+                        maxLength={PHONE_INPUT_MAX_LENGTH}
                         className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                         autoComplete="off"
                         required
@@ -4785,6 +4704,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                 >
                   Close
                 </button>
+                {!isDefaultMasterEmail(viewingUnifiedMember?.email) && (
                 <button
                   onClick={async () => {
                     if (!viewingUnifiedMember?.id) return
@@ -4802,7 +4722,8 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                 >
                   {viewingUnifiedMember.isActive ? 'Archive' : 'Unarchive'}
                 </button>
-                {isMasterAdmin && (
+                )}
+                {isMasterAdmin && !isDefaultMasterEmail(viewingUnifiedMember?.email) && (
                   <button
                     onClick={() => {
                       if (!viewingUnifiedMember?.id) return

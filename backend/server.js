@@ -246,6 +246,29 @@ pool.on('error', (err) => {
   process.exit(-1)
 })
 
+async function isDefaultMasterUserById(userId) {
+  if (!userId) return false
+  const result = await pool.query(`SELECT LOWER(email) AS email FROM app_user WHERE id = $1`, [userId])
+  return result.rows[0]?.email === DEFAULT_MASTER_EMAIL
+}
+
+async function isDefaultMasterMemberId(memberId) {
+  const result = await pool.query(
+    `
+      SELECT LOWER(COALESCE(au.email, m.email)) AS email, m.app_user_id
+      FROM member m
+      LEFT JOIN app_user au ON au.id = m.app_user_id
+      WHERE m.id = $1
+    `,
+    [memberId],
+  )
+  if (result.rows.length === 0) return false
+  const row = result.rows[0]
+  if (row.email === DEFAULT_MASTER_EMAIL) return true
+  if (row.app_user_id) return isDefaultMasterUserById(row.app_user_id)
+  return false
+}
+
 // Initialize database tables
 export const initDatabase = async () => {
   try {
@@ -4396,6 +4419,13 @@ app.patch('/api/admin/members/:id/archive', async (req, res) => {
         message: 'archived must be a boolean value'
       })
     }
+
+    if (archived && (await isDefaultMasterMemberId(id))) {
+      return res.status(400).json({
+        success: false,
+        message: 'The default master admin account cannot be archived.',
+      })
+    }
     
     // Check if member table exists
     const tableCheck = await pool.query(`
@@ -7848,6 +7878,14 @@ app.delete('/api/admin/members/:id', async (req, res) => {
   }
 
   const { id } = req.params
+
+  if (await isDefaultMasterMemberId(id)) {
+    return res.status(400).json({
+      success: false,
+      message: 'The default master admin account cannot be deleted.',
+    })
+  }
+
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -13874,12 +13912,23 @@ app.put('/api/admin/admins/:id', async (req, res) => {
       })
     }
 
+    const isDefaultMaster = await isDefaultMasterUserById(id)
+    if (
+      isDefaultMaster &&
+      (value.firstName || value.lastName || value.username || value.password)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'The default master admin account can only update email and phone.',
+      })
+    }
+
     // Build update query dynamically
     const updates = []
     const values = []
     let paramCount = 1
 
-    if (value.firstName || value.lastName) {
+    if (!isDefaultMaster && (value.firstName || value.lastName)) {
       const nameResult = await pool.query(`SELECT full_name FROM app_user WHERE id = $1`, [id])
       const currentParts = String(nameResult.rows[0]?.full_name || '').trim().split(/\s+/).filter(Boolean)
       const fullName = `${value.firstName || currentParts[0] || ''} ${value.lastName || currentParts.slice(1).join(' ') || ''}`.trim()
@@ -13894,7 +13943,7 @@ app.put('/api/admin/admins/:id', async (req, res) => {
       updates.push(`phone = $${paramCount++}`)
       values.push(value.phone || null)
     }
-    if (value.username) {
+    if (!isDefaultMaster && value.username) {
       // Check if username already exists (excluding current admin, case-insensitive)
       const existing = await pool.query(
         'SELECT id FROM app_user WHERE LOWER(username) = LOWER($1) AND id != $2',
@@ -13909,7 +13958,7 @@ app.put('/api/admin/admins/:id', async (req, res) => {
       updates.push(`username = $${paramCount++}`)
       values.push(value.username)
     }
-    if (value.password) {
+    if (!isDefaultMaster && value.password) {
       const passwordHash = await bcrypt.hash(value.password, 10)
       updates.push(`password_hash = $${paramCount++}`)
       values.push(passwordHash)

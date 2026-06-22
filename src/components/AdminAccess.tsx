@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Archive, Loader2, Save, Trash2, UserPlus } from 'lucide-react'
+import { Archive, Loader2, Save, Trash2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
+import { isDefaultMasterEmail } from '../utils/defaultMasterAccount'
+import { formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 
 interface AccessUser {
   id: number
@@ -78,15 +80,6 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
   const [selectedRoles, setSelectedRoles] = useState<string[]>([])
   const [allowPermissions, setAllowPermissions] = useState<string[]>([])
   const [denyPermissions, setDenyPermissions] = useState<string[]>([])
-  const [showCreateAccount, setShowCreateAccount] = useState(false)
-  const [createAccount, setCreateAccount] = useState({
-    fullName: '',
-    email: '',
-    username: '',
-    phone: '',
-    password: '',
-    roles: ['MEMBER_ATHLETE'],
-  })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -103,6 +96,10 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
   const selectedUser = useMemo(
     () => users.find((u) => u.id === selectedUserId) ?? null,
     [selectedUserId, users],
+  )
+  const selectedUserIsProtected = useMemo(
+    () => isDefaultMasterEmail(selectedUser?.email),
+    [selectedUser?.email],
   )
 
   const load = useCallback(async () => {
@@ -142,7 +139,7 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
       setProfileForm({
         fullName: selectedUser.fullName,
         email: selectedUser.email,
-        phone: selectedUser.phone ?? '',
+        phone: formatPhoneForDisplay(selectedUser.phone ?? ''),
         username: selectedUser.username ?? '',
         password: '',
       })
@@ -186,13 +183,18 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
     setSaving(true)
     setError(null)
     try {
-      const body: Record<string, string> = {
-        fullName: profileForm.fullName.trim(),
-        email: profileForm.email.trim(),
-        phone: profileForm.phone.trim(),
-        username: profileForm.username.trim(),
-      }
-      if (profileForm.password.trim()) {
+      const body: Record<string, string> = selectedUserIsProtected
+        ? {
+            email: profileForm.email.trim(),
+            phone: profileForm.phone.trim(),
+          }
+        : {
+            fullName: profileForm.fullName.trim(),
+            email: profileForm.email.trim(),
+            phone: profileForm.phone.trim(),
+            username: profileForm.username.trim(),
+          }
+      if (!selectedUserIsProtected && profileForm.password.trim()) {
         body.password = profileForm.password
       }
       const profileRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}`, {
@@ -204,53 +206,33 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
         throw new Error(data.message || 'Failed to update account profile')
       }
 
-      const roleRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}/roles`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          roles: selectedRoles,
-          isMasterAdmin: selectedRoles.includes('MASTER_ADMIN'),
-        }),
-      })
-      if (!roleRes.ok) {
-        const data = await roleRes.json().catch(() => ({}))
-        throw new Error(data.message || 'Failed to update roles')
-      }
+      if (!selectedUserIsProtected) {
+        const roleRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}/roles`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            roles: selectedRoles,
+            isMasterAdmin: selectedRoles.includes('MASTER_ADMIN'),
+          }),
+        })
+        if (!roleRes.ok) {
+          const data = await roleRes.json().catch(() => ({}))
+          throw new Error(data.message || 'Failed to update roles')
+        }
 
-      const permRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}/permissions`, {
-        method: 'PUT',
-        body: JSON.stringify({ allow: allowPermissions, deny: denyPermissions }),
-      })
-      if (!permRes.ok) {
-        const data = await permRes.json().catch(() => ({}))
-        throw new Error(data.message || 'Failed to update permissions')
+        const permRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}/permissions`, {
+          method: 'PUT',
+          body: JSON.stringify({ allow: allowPermissions, deny: denyPermissions }),
+        })
+        if (!permRes.ok) {
+          const data = await permRes.json().catch(() => ({}))
+          throw new Error(data.message || 'Failed to update permissions')
+        }
       }
 
       setProfileForm((prev) => ({ ...prev, password: '' }))
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save profile and access settings')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const createNewAccount = async () => {
-    setSaving(true)
-    setError(null)
-    try {
-      const res = await adminApiRequest('/api/admin/access/users', {
-        method: 'POST',
-        body: JSON.stringify(createAccount),
-      })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.message || 'Failed to create account')
-      }
-      setCreateAccount({ fullName: '', email: '', username: '', phone: '', password: '', roles: ['MEMBER_ATHLETE'] })
-      setShowCreateAccount(false)
-      await load()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create account')
     } finally {
       setSaving(false)
     }
@@ -336,81 +318,9 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
       ) : (
         <div className="grid gap-4 lg:grid-cols-[minmax(260px,360px)_1fr]">
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-3">
+            <div className="px-4 py-3 border-b border-gray-100">
               <span className="font-semibold">Accounts</span>
-              <button
-                type="button"
-                onClick={() => setShowCreateAccount((value) => !value)}
-                className="inline-flex items-center gap-1 text-xs bg-vortex-red text-white px-2 py-1 rounded-lg"
-              >
-                <UserPlus className="w-3 h-3" />
-                New
-              </button>
             </div>
-            {showCreateAccount && (
-              <div className="p-4 border-b border-gray-100 space-y-3 bg-gray-50">
-                <input
-                  type="text"
-                  value={createAccount.fullName}
-                  onChange={(e) => setCreateAccount((prev) => ({ ...prev, fullName: e.target.value }))}
-                  placeholder="Full name"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-                <input
-                  type="email"
-                  value={createAccount.email}
-                  onChange={(e) => setCreateAccount((prev) => ({ ...prev, email: e.target.value }))}
-                  placeholder="Email"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-                <input
-                  type="text"
-                  value={createAccount.username}
-                  onChange={(e) => setCreateAccount((prev) => ({ ...prev, username: e.target.value }))}
-                  placeholder="Username"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-                <input
-                  type="tel"
-                  value={createAccount.phone}
-                  onChange={(e) => setCreateAccount((prev) => ({ ...prev, phone: e.target.value }))}
-                  placeholder="Phone"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-                <input
-                  type="password"
-                  value={createAccount.password}
-                  onChange={(e) => setCreateAccount((prev) => ({ ...prev, password: e.target.value }))}
-                  placeholder="Temporary password"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-                <div className="grid grid-cols-2 gap-2">
-                  {roleOrder.map((role) => (
-                    <label key={role} className="flex items-center gap-2 text-xs">
-                      <input
-                        type="checkbox"
-                        checked={createAccount.roles.includes(role)}
-                        onChange={() =>
-                          setCreateAccount((prev) => ({
-                            ...prev,
-                            roles: applyRoleToggle(prev.roles, role),
-                          }))
-                        }
-                      />
-                      {roleLabel(role)}
-                    </label>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => void createNewAccount()}
-                  disabled={saving}
-                  className="w-full bg-vortex-red text-white rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-60"
-                >
-                  Create Account
-                </button>
-              </div>
-            )}
             <div className="divide-y divide-gray-100 max-h-[640px] overflow-y-auto">
               {users.map((user) => (
                 <button
@@ -442,6 +352,7 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-end">
+                    {!selectedUserIsProtected && (
                     <button
                       type="button"
                       onClick={() => void setAccountActive(selectedUser.id, !selectedUser.isActive)}
@@ -451,7 +362,8 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                       <Archive className="w-4 h-4" />
                       {selectedUser.isActive ? 'Archive' : 'Unarchive'}
                     </button>
-                    {isMasterAdmin && selectedUser.id !== currentUserId && (
+                    )}
+                    {isMasterAdmin && selectedUser.id !== currentUserId && !selectedUserIsProtected && (
                       <button
                         type="button"
                         onClick={() => {
@@ -472,10 +384,16 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                       className="inline-flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg text-sm disabled:opacity-60"
                     >
                       {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                      Save Profile & Access
+                      {selectedUserIsProtected ? 'Save contact info' : 'Save Profile & Access'}
                     </button>
                   </div>
                 </div>
+
+                {selectedUserIsProtected && (
+                  <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    This is the permanent owner account. Only email and phone can be changed; it cannot be archived or deleted.
+                  </p>
+                )}
 
                 <section className="grid gap-3 sm:grid-cols-2">
                   <div className="sm:col-span-2">
@@ -484,7 +402,8 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                       type="text"
                       value={profileForm.fullName}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, fullName: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100"
+                      disabled={selectedUserIsProtected}
                     />
                   </div>
                   <div>
@@ -501,8 +420,12 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                     <input
                       type="tel"
                       value={profileForm.phone}
-                      onChange={(e) => setProfileForm((prev) => ({ ...prev, phone: e.target.value }))}
+                      onChange={(e) =>
+                        setProfileForm((prev) => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))
+                      }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      placeholder={PHONE_INPUT_PLACEHOLDER}
+                      maxLength={PHONE_INPUT_MAX_LENGTH}
                     />
                   </div>
                   <div>
@@ -511,9 +434,11 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                       type="text"
                       value={profileForm.username}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, username: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100"
+                      disabled={selectedUserIsProtected}
                     />
                   </div>
+                  {!selectedUserIsProtected && (
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">New password</label>
                     <input
@@ -524,9 +449,10 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     />
                   </div>
+                  )}
                 </section>
 
-                <section>
+                <section className={selectedUserIsProtected ? 'opacity-60 pointer-events-none' : undefined}>
                   <h4 className="font-semibold text-gray-900 mb-2">Roles</h4>
                   <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                     {roleOrder.map((role) => (

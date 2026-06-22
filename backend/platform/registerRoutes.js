@@ -629,6 +629,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       return res.status(400).json({ success: false, message: 'At least one role is required.' })
     }
 
+    if (await isDefaultMasterUser(pool, userId)) {
+      return res.status(400).json({ success: false, message: 'The default master admin account roles cannot be changed.' })
+    }
+
     const primaryRole = roles[0]
     const previousRoles = await loadUserRoles(pool, { id: userId, role: null })
     const wasMaster = previousRoles.some((role) => role === 'MASTER_ADMIN')
@@ -689,6 +693,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const allow = Array.isArray(req.body?.allow) ? req.body.allow.map(String) : []
     const deny = Array.isArray(req.body?.deny) ? req.body.deny.map(String) : []
     if (!Number.isFinite(userId)) return res.status(400).json({ success: false, message: 'Invalid user id.' })
+    if (await isDefaultMasterUser(pool, userId)) {
+      return res.status(400).json({ success: false, message: 'The default master admin account permissions cannot be changed.' })
+    }
 
     await pool.query('BEGIN')
     try {
@@ -755,6 +762,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const phone = req.body?.phone != null ? String(req.body.phone).trim() : null
     const username = req.body?.username != null ? String(req.body.username).trim() : null
     const password = req.body?.password ? String(req.body.password) : null
+
+    if (await isDefaultMasterUser(pool, userId)) {
+      if (fullName !== null || username !== null || password) {
+        return res.status(400).json({
+          success: false,
+          message: 'The default master admin account can only update email and phone.',
+        })
+      }
+    }
 
     if (fullName !== null && !fullName) {
       return res.status(400).json({ success: false, message: 'Full name cannot be empty.' })

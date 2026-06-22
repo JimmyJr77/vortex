@@ -5,6 +5,7 @@ import { adminApiRequest } from '../utils/api'
 import { notesApi, type Note } from '../utils/adminFeaturesApi'
 import type { InquiryCamper } from '../config/inquiryOptions'
 import { INQUIRY_CLASS_TYPES, LEGACY_INQUIRY_CLASS_TYPES } from '../config/inquiryOptions'
+import { formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 
 const PROGRAM_INTEREST_VALUES = new Set<string>([
   ...INQUIRY_CLASS_TYPES,
@@ -361,7 +362,7 @@ export default function AdminInquiries() {
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email,
-      phone: user.phone,
+      phone: formatPhoneForDisplay(user.phone),
       athlete_age: user.athlete_age,
       interests: user.interests,
       interests_array: user.interests_array,
@@ -951,7 +952,11 @@ export default function AdminInquiries() {
                                         <input
                                           type="tel"
                                           value={editData.phone || ''}
-                                          onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                                          onChange={(e) =>
+                                            setEditData({ ...editData, phone: formatPhoneNumber(e.target.value) })
+                                          }
+                                          placeholder={PHONE_INPUT_PLACEHOLDER}
+                                          maxLength={PHONE_INPUT_MAX_LENGTH}
                                           className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
                                         />
                                       </div>

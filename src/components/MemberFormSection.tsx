@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { formatDateForInput, calculateAge, getTodayDateString, formatTimestampDate } from '../utils/dateUtils'
+import { formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 
 type FamilyMemberData = {
   id: string
@@ -67,7 +68,6 @@ interface MemberFormSectionProps {
   onSectionCancel: (memberId: string, section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses') => void
   onFinishedWithMember: (memberId: string) => void
   generateUsername: (firstName: string, lastName?: string) => Promise<string>
-  formatPhoneNumber: (value: string) => string
   // New props for parent/guardian selection
   availableParentGuardians?: Array<{ id: number; firstName: string; lastName: string; email?: string; phone?: string }>
   onSearchParentGuardians?: (query: string) => void
@@ -86,7 +86,6 @@ export default function MemberFormSection({
   onSectionCancel,
   onFinishedWithMember,
   generateUsername,
-  formatPhoneNumber,
   availableParentGuardians = [],
   onSearchParentGuardians,
   allFamilyMembers = []
@@ -278,8 +277,8 @@ export default function MemberFormSection({
                         const formatted = formatPhoneNumber(e.target.value)
                         handleContactInfoChange('phone', formatted)
                       }}
-                      placeholder="###-###-####"
-                      maxLength={12}
+                      placeholder={PHONE_INPUT_PLACEHOLDER}
+                      maxLength={PHONE_INPUT_MAX_LENGTH}
                       className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       autoComplete="off"
                       required

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
+import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 import ClassesOfferedList from './classes/ClassesOfferedList'
 import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
 import EventAttachedSignup from './EventAttachedSignup'
@@ -343,10 +344,6 @@ export default function MemberDashboard({
   }
 
 
-  const cleanPhoneNumber = (phone: string): string => {
-    return phone.replace(/\D/g, '')
-  }
-
   // Check if current member is an adult (can edit family members).
   // Logged-in member/athlete accounts are treated as adults — youth athletes
   // are added as family members without their own login — and the backend
@@ -495,13 +492,14 @@ export default function MemberDashboard({
 
   // Light edit-form field updater (writes into contactInfo.tempData consumed by handleSaveMemberEdit)
   const updateEditContact = useCallback((memberId: string, field: string, value: string) => {
+    const nextValue = field === 'phone' ? formatPhoneNumber(value) : value
     handleUpdateMember(memberId, (prev) => ({
       ...prev,
       sections: {
         ...prev.sections,
         contactInfo: {
           ...prev.sections.contactInfo,
-          tempData: { ...prev.sections.contactInfo.tempData, [field]: value },
+          tempData: { ...prev.sections.contactInfo.tempData, [field]: nextValue },
         },
       },
     }))
@@ -1452,8 +1450,14 @@ export default function MemberDashboard({
                         <input
                           type="tel"
                           value={addFamilyMemberData.phone}
-                          onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, phone: e.target.value }))}
-                          placeholder="Phone"
+                          onChange={(e) =>
+                            setAddFamilyMemberData((prev) => ({
+                              ...prev,
+                              phone: formatPhoneNumber(e.target.value),
+                            }))
+                          }
+                          placeholder={PHONE_INPUT_PLACEHOLDER}
+                          maxLength={PHONE_INPUT_MAX_LENGTH}
                           className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
                         />
                         <input
@@ -2742,6 +2746,8 @@ export default function MemberDashboard({
                           type="tel"
                           value={field('phone', member.phone)}
                           onChange={(e) => updateEditContact(member.id, 'phone', e.target.value)}
+                          placeholder={PHONE_INPUT_PLACEHOLDER}
+                          maxLength={PHONE_INPUT_MAX_LENGTH}
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-vortex-red focus:border-transparent"
                         />
                       </div>

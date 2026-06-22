@@ -17,20 +17,11 @@ import { getActiveConsent } from '../../../utils/consent'
 import { trackEvent } from '../../../utils/analyticsClient'
 import { getVisitorId, getSessionId } from '../../../utils/visitorId'
 import { getAttributionPayload } from '../../../utils/utmCapture'
+import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../../utils/phoneUtils'
 
 type CamperRow = { dateOfBirth: string }
 
 const emptyCamper = (): CamperRow => ({ dateOfBirth: '' })
-
-function cleanPhone(raw: string): string {
-  let clean = raw.trim()
-  if (!clean) return ''
-  clean = clean.replace(/[^\d+]/g, '')
-  if (clean.startsWith('+')) {
-    clean = '+' + clean.substring(1).replace(/\D/g, '')
-  }
-  return clean
-}
 
 const SummerCampInquiryForm = () => {
   const navigate = useNavigate()
@@ -54,7 +45,11 @@ const SummerCampInquiryForm = () => {
   }, [location.pathname])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'phone' ? formatPhoneNumber(value) : value,
+    }))
   }
 
   const handleInterestToggle = (interest: string) => {
@@ -110,7 +105,7 @@ const SummerCampInquiryForm = () => {
       return
     }
 
-    const phone = cleanPhone(formData.phone)
+    const phone = cleanPhoneNumber(formData.phone)
     if (!phone) {
       alert('Phone number is required.')
       setIsSubmitting(false)
@@ -237,7 +232,8 @@ const SummerCampInquiryForm = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent"
-                placeholder="Phone Number"
+                placeholder={PHONE_INPUT_PLACEHOLDER}
+                maxLength={PHONE_INPUT_MAX_LENGTH}
               />
             </div>
           </div>

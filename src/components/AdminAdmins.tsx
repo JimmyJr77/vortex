@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Edit2, Loader2, Save, Shield, UserPlus, X, Archive, Trash2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
+import { isDefaultMasterEmail } from '../utils/defaultMasterAccount'
+import { formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 
 interface AdminInfo {
   email: string
@@ -48,6 +50,10 @@ const tdClass = 'py-3 pr-4 align-middle whitespace-nowrap'
 
 function adminCategoryLabel(isMaster: boolean): string {
   return isMaster ? 'Master' : 'Admin'
+}
+
+function isProtectedDefaultMaster(admin: Pick<AdminData, 'email'>): boolean {
+  return isDefaultMasterEmail(admin.email)
 }
 
 export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProps) {
@@ -115,7 +121,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
             firstName: data.data.firstName,
             lastName: data.data.lastName,
             email: data.data.email,
-            phone: data.data.phone || '',
+            phone: formatPhoneForDisplay(data.data.phone),
             username: data.data.username || '',
             password: '',
           })
@@ -172,15 +178,24 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
       if (!adminId) return
 
       setSavingAccount(true)
-      const updateData: AdminUpdateData = {
-        firstName: myAccountData.firstName,
-        lastName: myAccountData.lastName,
-        email: myAccountData.email,
-        phone: myAccountData.phone || null,
-        username: myAccountData.username,
-      }
+      const isProtected = isDefaultMasterEmail(myAccountData.email)
+      const updateData: AdminUpdateData = isProtected
+        ? {
+            firstName: myAccountData.firstName,
+            lastName: myAccountData.lastName,
+            email: myAccountData.email,
+            phone: myAccountData.phone || null,
+            username: myAccountData.username,
+          }
+        : {
+            firstName: myAccountData.firstName,
+            lastName: myAccountData.lastName,
+            email: myAccountData.email,
+            phone: myAccountData.phone || null,
+            username: myAccountData.username,
+          }
 
-      if (myAccountData.password) {
+      if (!isProtected && myAccountData.password) {
         updateData.password = myAccountData.password
       }
 
@@ -222,14 +237,23 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
 
   const handleUpdateOtherAdmin = async () => {
     if (!editingOtherAdmin) return
-    const updateData: AdminUpdateData = {
-      firstName: otherAdminData.firstName,
-      lastName: otherAdminData.lastName,
-      email: otherAdminData.email,
-      phone: otherAdminData.phone || null,
-      username: otherAdminData.username,
-    }
-    if (otherAdminData.password) updateData.password = otherAdminData.password
+    const isProtected = isProtectedDefaultMaster(editingOtherAdmin)
+    const updateData: AdminUpdateData = isProtected
+      ? {
+          firstName: editingOtherAdmin.firstName,
+          lastName: editingOtherAdmin.lastName,
+          email: otherAdminData.email,
+          phone: otherAdminData.phone || null,
+          username: editingOtherAdmin.username,
+        }
+      : {
+          firstName: otherAdminData.firstName,
+          lastName: otherAdminData.lastName,
+          email: otherAdminData.email,
+          phone: otherAdminData.phone || null,
+          username: otherAdminData.username,
+        }
+    if (!isProtected && otherAdminData.password) updateData.password = otherAdminData.password
     setSavingAccount(true)
     try {
       const response = await adminApiRequest(`/api/admin/admins/${editingOtherAdmin.id}`, {
@@ -298,7 +322,9 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
 
   const myAccountId = adminInfo?.id ?? Number(localStorage.getItem('vortex-admin-id') || 0)
 
-  const renderAdminRow = (admin: AdminData, options?: { showEdit?: boolean; showMasterActions?: boolean }) => (
+  const renderAdminRow = (admin: AdminData, options?: { showEdit?: boolean; showMasterActions?: boolean }) => {
+    const protectedDefaultMaster = isProtectedDefaultMaster(admin)
+    return (
     <tr key={admin.id} className="border-b border-gray-100 hover:bg-gray-50/80">
       <td className={tdClass}>{admin.lastName}</td>
       <td className={tdClass}>{admin.firstName}</td>
@@ -335,7 +361,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                     firstName: admin.firstName,
                     lastName: admin.lastName,
                     email: admin.email,
-                    phone: admin.phone || '',
+                    phone: formatPhoneForDisplay(admin.phone),
                     username: admin.username,
                     password: '',
                   })
@@ -345,7 +371,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
               <Edit2 className="w-4 h-4" />
             </button>
           )}
-          {options?.showMasterActions && admin.id !== myAccountId && (
+          {options?.showMasterActions && admin.id !== myAccountId && !protectedDefaultMaster && (
             <>
               <button
                 type="button"
@@ -374,7 +400,8 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
         </div>
       </td>
     </tr>
-  )
+    )
+  }
 
   const adminTableHead = (
     <thead>
@@ -499,6 +526,11 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                 </button>
               </div>
               <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
+                {isDefaultMasterEmail(myAccountData.email) && (
+                  <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    This is the permanent owner account. Only email and phone can be updated here.
+                  </p>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">First name *</label>
@@ -506,8 +538,9 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                       type="text"
                       value={myAccountData.firstName}
                       onChange={(e) => setMyAccountData({ ...myAccountData, firstName: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100"
                       required
+                      disabled={isDefaultMasterEmail(myAccountData.email)}
                     />
                   </div>
                   <div>
@@ -516,8 +549,9 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                       type="text"
                       value={myAccountData.lastName}
                       onChange={(e) => setMyAccountData({ ...myAccountData, lastName: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100"
                       required
+                      disabled={isDefaultMasterEmail(myAccountData.email)}
                     />
                   </div>
                   <div>
@@ -535,8 +569,12 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                     <input
                       type="tel"
                       value={myAccountData.phone}
-                      onChange={(e) => setMyAccountData({ ...myAccountData, phone: e.target.value })}
+                      onChange={(e) =>
+                        setMyAccountData({ ...myAccountData, phone: formatPhoneNumber(e.target.value) })
+                      }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      placeholder={PHONE_INPUT_PLACEHOLDER}
+                      maxLength={PHONE_INPUT_MAX_LENGTH}
                     />
                   </div>
                   <div>
@@ -545,10 +583,12 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                       type="text"
                       value={myAccountData.username}
                       onChange={(e) => setMyAccountData({ ...myAccountData, username: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100"
                       required
+                      disabled={isDefaultMasterEmail(myAccountData.email)}
                     />
                   </div>
+                  {!isDefaultMasterEmail(myAccountData.email) && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       New password (optional)
@@ -561,6 +601,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                       placeholder="Leave blank to keep current"
                     />
                   </div>
+                  )}
                 </div>
               </div>
               <div className="flex justify-end gap-2 px-6 py-4 border-t bg-gray-50">
@@ -651,8 +692,12 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                     <input
                       type="tel"
                       value={adminFormData.phone}
-                      onChange={(e) => setAdminFormData({ ...adminFormData, phone: e.target.value })}
+                      onChange={(e) =>
+                        setAdminFormData({ ...adminFormData, phone: formatPhoneNumber(e.target.value) })
+                      }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      placeholder={PHONE_INPUT_PLACEHOLDER}
+                      maxLength={PHONE_INPUT_MAX_LENGTH}
                     />
                   </div>
                   <div>
@@ -703,13 +748,20 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="bg-white rounded-2xl w-full max-w-2xl p-6 space-y-4">
             <h3 className="text-xl font-bold">Edit admin — {editingOtherAdmin.firstName} {editingOtherAdmin.lastName}</h3>
+            {isProtectedDefaultMaster(editingOtherAdmin) && (
+              <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                This is the permanent owner account. Only email and phone can be updated here.
+              </p>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="text" value={otherAdminData.firstName} onChange={(e) => setOtherAdminData({ ...otherAdminData, firstName: e.target.value })} placeholder="First name" className="border rounded-lg px-3 py-2 text-sm" />
-              <input type="text" value={otherAdminData.lastName} onChange={(e) => setOtherAdminData({ ...otherAdminData, lastName: e.target.value })} placeholder="Last name" className="border rounded-lg px-3 py-2 text-sm" />
+              <input type="text" value={otherAdminData.firstName} onChange={(e) => setOtherAdminData({ ...otherAdminData, firstName: e.target.value })} placeholder="First name" className="border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100" disabled={isProtectedDefaultMaster(editingOtherAdmin)} />
+              <input type="text" value={otherAdminData.lastName} onChange={(e) => setOtherAdminData({ ...otherAdminData, lastName: e.target.value })} placeholder="Last name" className="border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100" disabled={isProtectedDefaultMaster(editingOtherAdmin)} />
               <input type="email" value={otherAdminData.email} onChange={(e) => setOtherAdminData({ ...otherAdminData, email: e.target.value })} placeholder="Email" className="border rounded-lg px-3 py-2 text-sm" />
-              <input type="tel" value={otherAdminData.phone} onChange={(e) => setOtherAdminData({ ...otherAdminData, phone: e.target.value })} placeholder="Phone" className="border rounded-lg px-3 py-2 text-sm" />
-              <input type="text" value={otherAdminData.username} onChange={(e) => setOtherAdminData({ ...otherAdminData, username: e.target.value })} placeholder="Username" className="border rounded-lg px-3 py-2 text-sm" />
-              <input type="password" value={otherAdminData.password} onChange={(e) => setOtherAdminData({ ...otherAdminData, password: e.target.value })} placeholder="New password (optional)" className="border rounded-lg px-3 py-2 text-sm" />
+              <input type="tel" value={otherAdminData.phone} onChange={(e) => setOtherAdminData({ ...otherAdminData, phone: formatPhoneNumber(e.target.value) })} placeholder={PHONE_INPUT_PLACEHOLDER} maxLength={PHONE_INPUT_MAX_LENGTH} className="border rounded-lg px-3 py-2 text-sm" />
+              <input type="text" value={otherAdminData.username} onChange={(e) => setOtherAdminData({ ...otherAdminData, username: e.target.value })} placeholder="Username" className="border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100" disabled={isProtectedDefaultMaster(editingOtherAdmin)} />
+              {!isProtectedDefaultMaster(editingOtherAdmin) && (
+                <input type="password" value={otherAdminData.password} onChange={(e) => setOtherAdminData({ ...otherAdminData, password: e.target.value })} placeholder="New password (optional)" className="border rounded-lg px-3 py-2 text-sm" />
+              )}
             </div>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setEditingOtherAdmin(null)} className="px-4 py-2 bg-gray-200 rounded-lg">Cancel</button>
