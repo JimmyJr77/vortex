@@ -273,6 +273,24 @@ function formatSignupPriceLabel(cents, costUnit) {
   return `$${formatted}${unitSuffix}`
 }
 
+/** Class (program row) has an active scheduling form with at least one signup slot group + time slot. */
+function sqlClassHasSignupSlots(programAlias) {
+  return `
+    EXISTS (
+      SELECT 1
+      FROM scheduling_form sf
+      INNER JOIN scheduling_slot_group sg ON sg.form_id = sf.id AND sg.is_active = TRUE
+      INNER JOIN scheduling_time_slot ts
+        ON ts.form_id = sf.id
+        AND ts.slot_group_id = sg.id
+        AND ts.is_active = TRUE
+      WHERE sf.program_id = ${programAlias}.id
+        AND sf.deleted_at IS NULL
+        AND sf.is_active = TRUE
+    )
+  `
+}
+
 async function loadClassEnrollmentCatalog(pool, classEventId) {
   const formRes = await pool.query(
     `
@@ -937,12 +955,34 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
     try {
       await ensureSignupSchema(pool)
       const schema = await resolveProgramsSchema(pool)
+      const hasProgramIsActive = await pool.query(
+        `
+          SELECT 1 FROM information_schema.columns
+          WHERE table_schema = 'public'
+            AND table_name = $1
+            AND column_name = 'is_active'
+          LIMIT 1
+        `,
+        [schema.programsTable],
+      )
+      const programActiveClause =
+        hasProgramIsActive.rows.length > 0 ? 'AND COALESCE(pr.is_active, TRUE) = TRUE' : ''
+      const signupSlotsClause = sqlClassHasSignupSlots('p')
       const result = await pool.query(
         `
-          SELECT id, name, display_name, description
-          FROM ${schema.programsTable}
-          WHERE archived = FALSE
-          ORDER BY COALESCE(display_name, name), id
+          SELECT pr.id, pr.name, pr.display_name, pr.description
+          FROM ${schema.programsTable} pr
+          WHERE COALESCE(pr.archived, FALSE) = FALSE
+            ${programActiveClause}
+            AND EXISTS (
+              SELECT 1
+              FROM program p
+              WHERE p.${schema.programFkColumn} = pr.id
+                AND COALESCE(p.is_active, TRUE) = TRUE
+                AND COALESCE(p.archived, FALSE) = FALSE
+                AND ${signupSlotsClause}
+            )
+          ORDER BY COALESCE(pr.display_name, pr.name), pr.id
         `,
       )
       res.json({
@@ -964,6 +1004,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
       await ensureSignupSchema(pool)
       const schema = await resolveProgramsSchema(pool)
       const programsId = Number(req.params.programsId)
+      const signupSlotsClause = sqlClassHasSignupSlots('p')
       const result = await pool.query(
         `
           SELECT
@@ -972,11 +1013,12 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
             p.display_name,
             sf.id AS scheduling_form_id
           FROM program p
-          LEFT JOIN scheduling_form sf
+          INNER JOIN scheduling_form sf
             ON sf.program_id = p.id AND sf.deleted_at IS NULL AND sf.is_active = TRUE
           WHERE p.${schema.programFkColumn} = $1
             AND COALESCE(p.is_active, TRUE) = TRUE
             AND COALESCE(p.archived, FALSE) = FALSE
+            AND ${signupSlotsClause}
           ORDER BY COALESCE(p.display_name, p.name), p.id
         `,
         [programsId],
