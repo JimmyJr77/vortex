@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronDown, Loader2, Plus } from 'lucide-react'
+import { ChevronDown, Loader2, Mail, Plus } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
 interface WaiverTemplate {
@@ -39,6 +39,9 @@ export default function AdminWaivers() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [remindingId, setRemindingId] = useState<number | null>(null)
+  const [remindingAll, setRemindingAll] = useState(false)
+  const [reminderMsg, setReminderMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [form, setForm] = useState({
     name: 'Athlete Waiver',
     version: '1.0',
@@ -99,6 +102,44 @@ export default function AdminWaivers() {
       setError(err instanceof Error ? err.message : 'Failed to create waiver')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const sendReminder = async (row: WaiverComplianceRow) => {
+    setRemindingId(row.id)
+    setReminderMsg(null)
+    try {
+      const outstanding = Math.max(0, Number(row.required_count) - Number(row.accepted_count))
+      const res = await adminApiRequest(`/api/admin/members/${row.id}/waivers/request`, {
+        method: 'POST',
+        body: JSON.stringify({ outstandingCount: outstanding }),
+      })
+      const data = await res.json().catch(() => ({}))
+      setReminderMsg({
+        ok: res.ok && data.success === true,
+        text: data.message || (res.ok ? 'Reminder sent' : `Failed (${res.status})`),
+      })
+    } catch (err) {
+      setReminderMsg({ ok: false, text: err instanceof Error ? err.message : 'Failed to send reminder' })
+    } finally {
+      setRemindingId(null)
+    }
+  }
+
+  const sendAllReminders = async () => {
+    setRemindingAll(true)
+    setReminderMsg(null)
+    try {
+      const res = await adminApiRequest('/api/admin/waivers/request-all', { method: 'POST' })
+      const data = await res.json().catch(() => ({}))
+      setReminderMsg({
+        ok: res.ok && data.success === true,
+        text: data.message || (res.ok ? 'Reminders sent' : `Failed (${res.status})`),
+      })
+    } catch (err) {
+      setReminderMsg({ ok: false, text: err instanceof Error ? err.message : 'Failed to send reminders' })
+    } finally {
+      setRemindingAll(false)
     }
   }
 
@@ -283,7 +324,23 @@ export default function AdminWaivers() {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-100 font-semibold">Compliance Report</div>
+        <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+          <span className="font-semibold">Compliance Report</span>
+          <button
+            type="button"
+            onClick={() => void sendAllReminders()}
+            disabled={remindingAll}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+          >
+            {remindingAll ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
+            Email all non-compliant
+          </button>
+        </div>
+        {reminderMsg && (
+          <div className={`px-4 py-2 text-sm ${reminderMsg.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+            {reminderMsg.text}
+          </div>
+        )}
         <div className="divide-y divide-gray-100 max-h-[520px] overflow-y-auto">
           {compliance.map((row) => {
             const complete = Number(row.required_count) <= Number(row.accepted_count)
@@ -300,6 +357,17 @@ export default function AdminWaivers() {
                     {row.accepted_count}/{row.required_count} signed
                   </span>
                   {row.last_accepted_at && <span className="text-xs text-gray-500">Last: {new Date(row.last_accepted_at).toLocaleDateString()}</span>}
+                  {!complete && (
+                    <button
+                      type="button"
+                      onClick={() => void sendReminder(row)}
+                      disabled={remindingId === row.id}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+                    >
+                      {remindingId === row.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
+                      Send reminder
+                    </button>
+                  )}
                 </div>
               </div>
             )

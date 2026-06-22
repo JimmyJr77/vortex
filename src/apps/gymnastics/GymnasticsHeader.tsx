@@ -18,7 +18,6 @@ const GYMNASTICS_CONFIG = STUB_SITES['vortex-gymnastics.com']
 interface GymnasticsHeaderProps {
   onContactClick: () => void
   onAdminLoginClick: () => void
-  onMemberLoginClick: () => void
   member?: any
   onMemberDashboardClick?: () => void
 }
@@ -30,7 +29,6 @@ interface GymnasticsHeaderProps {
 const GymnasticsHeader = ({
   onContactClick,
   onAdminLoginClick,
-  onMemberLoginClick,
   member,
   onMemberDashboardClick,
 }: GymnasticsHeaderProps) => {
@@ -188,10 +186,6 @@ const GymnasticsHeader = ({
               includeSportHome={false}
               includeHubLogo={false}
               onNavigate={closeMenu}
-              onMemberLoginClick={() => {
-                onMemberLoginClick()
-                closeMenu()
-              }}
               onAdminLoginClick={() => {
                 onAdminLoginClick()
                 closeMenu()
@@ -200,7 +194,6 @@ const GymnasticsHeader = ({
                 onContactClick()
                 closeMenu()
               }}
-              showMemberLogin={!member}
             />
             <SportSiteHubMenuLogo onNavigate={closeMenu} />
           </div>

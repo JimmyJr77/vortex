@@ -1,16 +1,17 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Lock, User } from 'lucide-react'
+import { X, Lock, Mail } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
+import type { PortalAccount } from '../utils/portalSession'
 
 interface LoginProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: (admin?: Record<string, unknown>, token?: string) => void
+  onSuccess: (token: string, account: PortalAccount) => void
 }
 
 export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
-  const [usernameOrEmail, setUsernameOrEmail] = useState('')
+  const [emailOrUsername, setEmailOrUsername] = useState('')
   const [password, setPassword] = useState('')
   const [resetEmail, setResetEmail] = useState('')
   const [forgotMode, setForgotMode] = useState(false)
@@ -25,48 +26,24 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
 
     try {
       const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/login`, {
+      const response = await fetch(`${apiUrl}/api/members/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usernameOrEmail, password })
+        body: JSON.stringify({ emailOrUsername, password }),
       })
 
       const data = await response.json()
-      
-      if (response.ok && data.success) {
-        // Store login state in localStorage
-        localStorage.setItem('vortex_admin', 'true')
-        // Store admin token - check both 'token' and 'adminToken' field names
-        const tokenValue = data.token || data.adminToken
 
-        if (tokenValue) {
-          localStorage.setItem('adminToken', tokenValue)
-        } else {
-          setError('Login succeeded but no auth token was returned by the server.')
-          return
-        }
-        // Store admin info for edit tracking
-        const adminData = {
-          email: data.admin.email,
-          name: `${data.admin.firstName} ${data.admin.lastName}`,
-          id: data.admin.id,
-          firstName: data.admin.firstName,
-          lastName: data.admin.lastName,
-          phone: data.admin.phone,
-          username: data.admin.username,
-          isMaster: data.admin.isMaster
-        }
-        localStorage.setItem('vortex-admin-info', JSON.stringify(adminData))
-        localStorage.setItem('vortex-admin-id', data.admin.id.toString())
-        onSuccess(data.admin, tokenValue)
+      if (response.ok && data.success) {
+        onSuccess(data.token, data.member)
         onClose()
-        setUsernameOrEmail('')
+        setEmailOrUsername('')
         setPassword('')
       } else {
-        setError(data.message || 'Invalid username/email or password')
+        setError(data.message || 'Invalid email/username or password')
       }
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('Account login error:', error)
       setError('Unable to connect to server. Please try again.')
     } finally {
       setIsSubmitting(false)
@@ -80,19 +57,19 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
     setIsSubmitting(true)
     try {
       const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/admin/request-password-reset`, {
+      const response = await fetch(`${apiUrl}/api/members/request-password-reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: resetEmail }),
       })
       const data = await response.json().catch(() => ({}))
       if (!response.ok || data.success === false) {
-        setError(data.message || 'Unable to process password reset request')
+        setError(data.message || 'Unable to process password reset request.')
       } else {
         setResetSent(true)
       }
     } catch (err) {
-      console.error('Admin reset request error:', err)
+      console.error('Account password reset error:', err)
       setError('Unable to connect to server. Please try again.')
     } finally {
       setIsSubmitting(false)
@@ -130,8 +107,8 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
               </h2>
               <p className="text-gray-600">
                 {forgotMode
-                  ? 'Enter your admin account email to receive a temporary password.'
-                  : 'Enter your credentials to access the admin dashboard'}
+                  ? 'Enter your account email to receive a temporary password.'
+                  : 'Enter your email or username to access your account'}
               </p>
             </div>
 
@@ -145,22 +122,22 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
             <form onSubmit={forgotMode ? handleReset : handleSubmit} className="space-y-4">
               {resetSent && (
                 <div className="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded">
-                  If an admin account exists for this email, a temporary password has been sent.
+                  If an account exists for this email, a temporary password has been sent.
                 </div>
               )}
               <div>
-                <label htmlFor="usernameOrEmail" className="block text-gray-700 text-sm font-bold mb-2">
-                  {forgotMode ? 'Admin Email' : 'Username or Email'}
+                <label htmlFor="emailOrUsername" className="block text-gray-700 text-sm font-bold mb-2">
+                  {forgotMode ? 'Account Email' : 'Email or Username'}
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type={forgotMode ? 'email' : 'text'}
-                    id="usernameOrEmail"
-                    name="usernameOrEmail"
-                    value={forgotMode ? resetEmail : usernameOrEmail}
-                    onChange={(e) => (forgotMode ? setResetEmail(e.target.value) : setUsernameOrEmail(e.target.value))}
-                    placeholder={forgotMode ? 'Enter admin email' : 'Enter username or email'}
+                    id="emailOrUsername"
+                    name="emailOrUsername"
+                    value={forgotMode ? resetEmail : emailOrUsername}
+                    onChange={(e) => (forgotMode ? setResetEmail(e.target.value) : setEmailOrUsername(e.target.value))}
+                    placeholder={forgotMode ? 'Enter your account email' : 'Enter your email or username'}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
                     required
                     autoFocus
@@ -169,23 +146,23 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
               </div>
 
               {!forgotMode && (
-              <div>
-                <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
-                    required
-                  />
+                <div>
+                  <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
               )}
 
               <motion.button
@@ -215,4 +192,3 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
     </AnimatePresence>
   )
 }
-

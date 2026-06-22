@@ -7,7 +7,6 @@ const files = {
   platformRoutes: readFileSync(resolve(root, 'backend/platform/registerRoutes.js'), 'utf8'),
   runMigration: readFileSync(resolve(root, 'backend/run-migration.js'), 'utf8'),
   login: readFileSync(resolve(root, 'src/components/Login.tsx'), 'utf8'),
-  memberLogin: readFileSync(resolve(root, 'src/components/MemberLogin.tsx'), 'utf8'),
 }
 
 const checks = [
@@ -20,7 +19,7 @@ const checks = [
   ['payment reconciliation fields', files.platformRoutes.includes('external_reference') && files.platformRoutes.includes('external_status')],
   ['schema migrations ledger', files.runMigration.includes('schema_migrations') && files.runMigration.includes('--all')],
   ['admin login no temp token fallback', !files.login.includes('temp-admin-')],
-  ['member login forgot password flow', files.memberLogin.includes('/api/members/request-password-reset')],
+  ['account login forgot password flow', files.login.includes('/api/members/request-password-reset')],
 ]
 
 const failures = checks.filter(([, passed]) => !passed)

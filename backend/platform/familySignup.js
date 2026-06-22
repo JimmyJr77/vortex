@@ -2,6 +2,8 @@ import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { sendAccountInviteEmail } from '../email/accountInviteEmail.js'
+import { sendFamilySignupSummaryEmail } from '../email/enrollmentConfirmedEmail.js'
+import { issueEmailVerification } from '../email/emailVerificationService.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { ensureSignupSchema } from './ensureSignupSchema.js'
 import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
@@ -521,6 +523,14 @@ async function processFamilySignup(client, payload, options = {}) {
     payerMemberId: payerMember.id,
     memberIds: allMemberIds,
     loginMemberId: payerMember.id,
+    emailSummary: {
+      primaryEmail: String(primaryAdult.email || '').trim(),
+      primaryName: String(primaryAdult.firstName || '').trim(),
+      athleteNames: createdMembers
+        .map(({ member }) => `${member.first_name || ''} ${member.last_name || ''}`.trim())
+        .filter(Boolean),
+      enrollmentCount: enrollments.length,
+    },
   }
 }
 
@@ -565,6 +575,44 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
   void ensureSignupSchema(pool).catch((err) => {
     console.error('[signup] ensureSignupSchema failed:', err.message)
   })
+
+  // Best-effort welcome/summary + email verification after a signup commits.
+  const sendFamilySignupSummary = async (result) => {
+    const summary = result?.emailSummary
+    const to = String(summary?.primaryEmail || '').trim()
+    if (!summary || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return
+    try {
+      await sendFamilySignupSummaryEmail({
+        to,
+        primaryName: summary.primaryName,
+        athleteNames: summary.athleteNames,
+        enrollmentCount: summary.enrollmentCount,
+      })
+    } catch (err) {
+      console.warn('[signup] family signup summary email failed:', err?.message || err)
+    }
+
+    try {
+      const payerMemberId = Number(result?.payerMemberId)
+      if (Number.isFinite(payerMemberId)) {
+        const userRes = await pool.query(
+          `SELECT app_user_id FROM member WHERE id = $1`,
+          [payerMemberId],
+        )
+        const appUserId = userRes.rows[0]?.app_user_id
+        if (appUserId) {
+          await issueEmailVerification(pool, {
+            userId: appUserId,
+            email: to,
+            name: summary.primaryName,
+            bestEffort: true,
+          })
+        }
+      }
+    } catch (err) {
+      console.warn('[signup] email verification send failed:', err?.message || err)
+    }
+  }
 
   app.get('/api/signup/suggest-username', async (req, res) => {
     try {
@@ -778,6 +826,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
         userAgent: req.get('user-agent') ?? null,
       })
       await client.query('COMMIT')
+      void sendFamilySignupSummary(result)
       res.json({ success: true, data: result })
     } catch (error) {
       await client.query('ROLLBACK')
@@ -800,6 +849,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
         userAgent: req.get('user-agent') ?? null,
       })
       await client.query('COMMIT')
+      void sendFamilySignupSummary(result)
       res.json({ success: true, data: result })
     } catch (error) {
       await client.query('ROLLBACK')

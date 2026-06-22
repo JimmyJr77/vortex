@@ -15,10 +15,9 @@ import {
 interface FooterProps {
   onContactClick: () => void
   onLoginClick?: () => void
-  onMemberLoginClick?: () => void
 }
 
-const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginClick }: FooterProps) => {
+const Footer = ({ onContactClick: _onContactClick, onLoginClick }: FooterProps) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -144,23 +143,13 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick, onMemberLoginCl
                     )}
                   </li>
                 ))}
-                {onMemberLoginClick && (
-                  <li>
-                    <button
-                      onClick={onMemberLoginClick}
-                      className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
-                    >
-                      Member Portal Login
-                    </button>
-                  </li>
-                )}
                 {onLoginClick && (
                   <li>
                     <button
                       onClick={onLoginClick}
                       className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
                     >
-                      Admin
+                      Account Login
                     </button>
                   </li>
                 )}

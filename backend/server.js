@@ -24,7 +24,9 @@ import { registerNotesRoutes } from './notes/registerRoutes.js'
 import { registerDbQueryRoutes } from './dbQueries/registerRoutes.js'
 import { appendStaffNote } from './notes/handlers.js'
 import { setMemberSchools } from './schools/handlers.js'
-import { getEmailConfigSummary, isEmailConfigured, verifySmtpConnection } from './email/sendEmail.js'
+import { getEmailConfigSummary, isEmailConfigured, verifySmtpConnection, sendEmail, formatEmailError } from './email/sendEmail.js'
+import { sendEnrollmentConfirmedEmail } from './email/enrollmentConfirmedEmail.js'
+import { issueEmailVerification } from './email/emailVerificationService.js'
 import { refreshMemberProfileComplete } from './members/createMemberStub.js'
 import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
 import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
@@ -2702,6 +2704,125 @@ app.get('/api/admin/email/status', async (req, res) => {
   } catch (err) {
     console.error('[admin] email status:', err)
     res.status(500).json({ success: false, message: 'Failed to check email status' })
+  }
+})
+
+// Send a test email to verify SMTP configuration (master admin only).
+app.post('/api/admin/email/test', async (req, res) => {
+  if (req.isMasterAdmin !== true) {
+    return res.status(403).json({ success: false, message: 'Master admin access required' })
+  }
+  const to = String(req.body?.to || '').trim()
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+    return res.status(400).json({ success: false, message: 'A valid recipient email is required' })
+  }
+
+  if (!isEmailConfigured()) {
+    return res.status(400).json({
+      success: false,
+      message: formatEmailError(new Error('not configured')),
+    })
+  }
+
+  const subject = 'Vortex Athletics email test'
+  const text = [
+    'This is a test email from Vortex Athletics.',
+    '',
+    'If you received this, transactional email is configured correctly.',
+    '',
+    '— Vortex Athletics',
+  ].join('\n')
+  const html = `
+    <p>This is a test email from <strong>Vortex Athletics</strong>.</p>
+    <p>If you received this, transactional email is configured correctly.</p>
+    <p style="color:#666;font-size:13px;">Sent ${new Date().toISOString()}</p>
+    <p>— Vortex Athletics</p>
+  `
+
+  try {
+    await sendEmail({ to, subject, text, html })
+    res.json({ success: true, message: `Test email sent to ${to}` })
+  } catch (err) {
+    console.error('[admin] email test send failed:', err?.message || err)
+    res.status(502).json({ success: false, message: err?.message || 'Failed to send test email' })
+  }
+})
+
+// Create + email a single-use verification link for the logged-in user's email.
+app.post('/api/members/email/send-verification', authenticateMember, async (req, res) => {
+  try {
+    const userId = req.userId
+    const userRes = await pool.query(
+      `SELECT id, email, full_name, email_verified FROM app_user WHERE id = $1 AND is_active = TRUE`,
+      [userId],
+    )
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Account not found.' })
+    }
+    const user = userRes.rows[0]
+    const email = String(user.email || '').trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(422).json({ success: false, message: 'No valid email on file for this account.' })
+    }
+    if (user.email_verified === true) {
+      return res.json({ success: true, message: 'Email is already verified.', data: { alreadyVerified: true } })
+    }
+    if (!isEmailConfigured()) {
+      return res.status(400).json({ success: false, message: formatEmailError(new Error('not configured')) })
+    }
+
+    try {
+      await issueEmailVerification(pool, { userId: user.id, email, name: user.full_name })
+      res.json({ success: true, message: `Verification email sent to ${email}` })
+    } catch (err) {
+      console.error('[verify-email] send failed:', err?.message || err)
+      res.status(502).json({ success: false, message: err?.message || 'Failed to send verification email.' })
+    }
+  } catch (error) {
+    console.error('[verify-email] send-verification error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+// Confirm an email verification token (public; link is the secret).
+app.post('/api/verify-email/:token', async (req, res) => {
+  try {
+    const token = String(req.params.token || '').trim()
+    if (!token) return res.status(400).json({ success: false, message: 'Token is required.' })
+
+    const candidates = await pool.query(
+      `SELECT * FROM email_verification_token
+       WHERE used_at IS NULL AND expires_at > now()
+       ORDER BY created_at DESC LIMIT 100`,
+    )
+    let match = null
+    for (const row of candidates.rows) {
+      if (await bcrypt.compare(token, row.token_hash)) {
+        match = row
+        break
+      }
+    }
+    if (!match) {
+      return res.status(404).json({ success: false, message: 'Verification link is invalid or expired.' })
+    }
+
+    await pool.query('BEGIN')
+    try {
+      await pool.query(
+        `UPDATE app_user SET email_verified = TRUE, email_verified_at = now() WHERE id = $1`,
+        [match.user_id],
+      )
+      await pool.query(`UPDATE email_verification_token SET used_at = now() WHERE id = $1`, [match.id])
+      await pool.query('COMMIT')
+    } catch (txErr) {
+      await pool.query('ROLLBACK')
+      throw txErr
+    }
+
+    res.json({ success: true, message: 'Email verified.', data: { email: match.email } })
+  } catch (error) {
+    console.error('[verify-email] confirm error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
   }
 })
 
@@ -9339,6 +9460,35 @@ app.post('/api/members/enroll', authenticateMember, async (req, res) => {
       } catch (billingError) {
         console.warn('[Enrollment] Billing charge creation failed:', billingError.message)
       }
+    }
+
+    // Best-effort enrollment confirmation email (never blocks enrollment).
+    try {
+      const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || '').trim())
+      let recipient = isValidEmail(member.email) ? member.email.trim() : null
+      if (!recipient) {
+        const guardianResult = await pool.query(
+          `SELECT email FROM member
+           WHERE family_id = $1 AND email IS NOT NULL AND email <> ''
+             AND (parent_guardian_ids IS NULL OR array_length(parent_guardian_ids, 1) IS NULL)
+           ORDER BY id ASC LIMIT 1`,
+          [member.family_id],
+        )
+        const candidate = guardianResult.rows[0]?.email
+        if (isValidEmail(candidate)) recipient = candidate.trim()
+      }
+      if (recipient) {
+        await sendEnrollmentConfirmedEmail({
+          to: recipient,
+          athleteName: `${member.first_name} ${member.last_name}`.trim(),
+          programName: programCheck.rows[0].display_name,
+          selectedDays,
+          startTime: iteration.start_time,
+          endTime: iteration.end_time,
+        })
+      }
+    } catch (emailError) {
+      console.warn('[Enrollment] Confirmation email failed:', emailError?.message || emailError)
     }
 
     res.json({

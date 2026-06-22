@@ -86,7 +86,7 @@ flowchart TB
 Runs on every server start; idempotent SQL, **no `schema_migrations` tracking**.
 - Inline DDL duplicates much of modules `001`–`005` (facility, app_user, program/class/class_iteration, member/family/member_program/emergency_contact/parent_guardian_authority).
 - Calls `initAnalyticsTables()` ([backend/analytics/initTables.js](../backend/analytics/initTables.js)) and `initSchedulingTables()` ([backend/scheduling/initTables.js](../backend/scheduling/initTables.js)) — the latter also re-applies several scheduling `add_*.sql` files and `ensureDiscountEngineSchema`.
-- Calls **`initPlatformTables(pool)`** ([backend/platform/initTables.js](../backend/platform/initTables.js)) which executes migrations **`008`–`030`** (incl. all `coaching.*` + coach assignment scheduling link) from disk on every boot.
+- Calls **`initPlatformTables(pool)`** ([backend/platform/initTables.js](../backend/platform/initTables.js)) which executes migrations **`008`–`031`** plus the explicitly-listed later files **`037`, `038`, `039`, `040`** (incl. all `coaching.*` + coach assignment scheduling link, waiver types, account invites, and email verification) from disk on every boot.
 - Creates the family active-status trigger inline.
 - `initDbFeatureTables(pool)` ([backend/dbfeatures/initTables.js](../backend/dbfeatures/initTables.js)) creates `school`/`member_school`/`note`/`saved_query` and seeds schools.
 
@@ -201,6 +201,8 @@ Four canonical templates are seeded per facility on boot via [seedCanonicalWaive
 `member_waiver_acceptance` stores one row per `(member_id, waiver_template_id)` with `signature_name`, `ip_address`, `user_agent`, optional `comments`, and `payment_policy_acknowledged` (037). Minors may have acceptances recorded with `accepted_by_member_id` set to a guardian.
 
 **Minor-invite flow ([038](../backend/migrations/038_account_invite.sql)):** `account_invite` holds bcrypt-hashed magic tokens (`token_hash`), `inviter_member_id` (minor), `invitee_email`, `pending_family_id`, JSON `pending_payload`, and expiry/used timestamps. Parent completion uses `POST /api/signup/invite/:token/complete`.
+
+**Email verification ([040](../backend/migrations/040_email_verification.sql)):** `app_user` gains `email_verified BOOLEAN NOT NULL DEFAULT FALSE` and `email_verified_at TIMESTAMPTZ`. `email_verification_token` holds single-use links (bcrypt-hashed `token_hash`, `user_id` FK, `email`, `expires_at`, `used_at`), mirroring `account_invite`. Issued via the shared service [email/emailVerificationService.js](../backend/email/emailVerificationService.js) on family signup (best-effort) and on demand at `POST /api/members/email/send-verification`; confirmed (publicly, the link is the secret) at `POST /api/verify-email/:token`, which sets `email_verified = TRUE` and marks the token used.
 
 ---
 

@@ -11,14 +11,12 @@ interface StubHeaderProps {
   config: StubSiteConfig
   onContactClick: () => void
   onAdminLoginClick: () => void
-  onMemberLoginClick: () => void
 }
 
 const StubHeader = ({
   config,
   onContactClick,
   onAdminLoginClick,
-  onMemberLoginClick,
 }: StubHeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const sportBrandName = getSportBrandName(config.sportLabel)
@@ -89,10 +87,6 @@ const StubHeader = ({
               sportBrandName={sportBrandName}
               sportHomeHref={sportHomeHref}
               onNavigate={closeMenu}
-              onMemberLoginClick={() => {
-                onMemberLoginClick()
-                closeMenu()
-              }}
               onAdminLoginClick={() => {
                 onAdminLoginClick()
                 closeMenu()

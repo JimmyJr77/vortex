@@ -5,7 +5,6 @@ import HubSeo from './components/HubSeo'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
 import Login from './components/Login'
-import MemberLogin from './components/MemberLogin'
 import { trackPageView, trackEngagement } from './utils/analytics'
 import { captureUtmFromLocation } from './utils/utmCapture'
 import { hasAdminSession } from './utils/api'
@@ -33,6 +32,7 @@ const ReadBoard = lazy(() => import('./components/ReadBoard'))
 const SchedulingPage = lazy(() => import('./components/SchedulingPage'))
 const SignupFamilyPage = lazy(() => import('./components/signup/SignupFamilyPage'))
 const SignupInvitePage = lazy(() => import('./components/signup/SignupInvitePage'))
+const VerifyEmailPage = lazy(() => import('./components/VerifyEmailPage'))
 const Admin = lazy(() => import('./components/Admin'))
 const MemberDashboard = lazy(() => import('./components/MemberDashboard'))
 const CoachDashboard = lazy(() => import('./components/CoachDashboard'))
@@ -49,7 +49,6 @@ function App() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [inquirySourcePath, setInquirySourcePath] = useState('')
   const [isLoginOpen, setIsLoginOpen] = useState(false)
-  const [isMemberLoginOpen, setIsMemberLoginOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(() => hasAdminSession())
   const [member, setMember] = useState<PortalAccount | null>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
@@ -93,23 +92,30 @@ function App() {
     trackPageView(location.pathname)
   }, [location.pathname])
 
+  // Deep link from emails (e.g. waiver requests): ?login=1 opens the login modal.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('login') === '1' && !localStorage.getItem('vortex_member_token')) {
+      setIsLoginOpen(true)
+    }
+  }, [location.search])
+
   const handleContactClick = () => {
     trackEngagement('form_open', 'Contact Form', location.pathname)
     setInquirySourcePath(location.pathname)
     setIsContactFormOpen(true)
   }
 
-  const handleLoginSuccess = (adminData?: Record<string, unknown>, token?: string) => {
-    setIsAdmin(true)
-    if (adminData) {
-      const account = adminData as PortalAccount
-      setMember(account)
-      if (token) {
-        persistMemberSession(token, account)
-        setMemberToken(token)
-      }
+  const handleAccountLoginSuccess = (token: string, accountData: PortalAccount) => {
+    persistMemberSession(token, accountData)
+    if (getAvailablePortals(accountData).includes('admin')) {
+      persistAdminSessionFromAccount(token, accountData)
+      setIsAdmin(true)
     }
-    setActivePortal('admin')
+    setMemberToken(token)
+    setMember(accountData)
+    setActivePortal(bestPortalForAccount(accountData))
+    setShowMemberDashboard(true)
   }
 
   const handleLogout = () => {
@@ -119,18 +125,6 @@ function App() {
     setMember(null)
     setShowMemberDashboard(false)
     setActivePortal('website')
-  }
-
-  const handleMemberLoginSuccess = (token: string, memberData: PortalAccount) => {
-    persistMemberSession(token, memberData)
-    if (getAvailablePortals(memberData).includes('admin')) {
-      persistAdminSessionFromAccount(token, memberData)
-      setIsAdmin(true)
-    }
-    setMemberToken(token)
-    setMember(memberData)
-    setActivePortal(bestPortalForAccount(memberData))
-    setShowMemberDashboard(true)
   }
 
   const handleMemberLogout = () => {
@@ -201,7 +195,6 @@ function App() {
       <Header 
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
-        onMemberLoginClick={() => setIsMemberLoginOpen(true)}
         member={member}
         onMemberDashboardClick={() => {
           const portals = getAvailablePortals(member)
@@ -255,6 +248,10 @@ function App() {
             path="/signup/invite"
             element={<SignupInvitePage />}
           />
+          <Route
+            path="/verify-email"
+            element={<VerifyEmailPage />}
+          />
           <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
           <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
         </Routes>
@@ -269,21 +266,12 @@ function App() {
       <Footer 
         onContactClick={handleContactClick} 
         onLoginClick={() => setIsLoginOpen(true)}
-        onMemberLoginClick={() => setIsMemberLoginOpen(true)}
       />
 
-      {/* Admin Login Modal */}
       <Login
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
-        onSuccess={handleLoginSuccess}
-      />
-
-      {/* Member Login Modal */}
-      <MemberLogin
-        isOpen={isMemberLoginOpen}
-        onClose={() => setIsMemberLoginOpen(false)}
-        onSuccess={handleMemberLoginSuccess}
+        onSuccess={handleAccountLoginSuccess}
       />
 
       {hasHighlights && (

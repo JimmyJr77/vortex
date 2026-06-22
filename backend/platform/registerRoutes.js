@@ -10,6 +10,7 @@ import {
 } from './coachRoster.js'
 import { resolveProgramsSchema } from '../programs/schema.js'
 import { queryAssignDrilldown } from './assignmentTargets.js'
+import { sendWaiverRequestEmail } from '../email/waiverRequestEmail.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -18,6 +19,46 @@ function tokenFrom(req) {
 
 function normalizeRoleKey(role) {
   return String(role || '').trim().toUpperCase()
+}
+
+const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || '').trim())
+
+/**
+ * Resolve who should receive a member's waiver-request email.
+ * Prefers the member's own email; for minors falls back to a guardian's email
+ * (from parent_guardian_ids), then any adult in the family.
+ * Returns { email, guardianName } or null when no usable recipient exists.
+ */
+async function resolveWaiverRecipient(pool, memberRow) {
+  if (isValidEmail(memberRow?.email)) {
+    return { email: String(memberRow.email).trim(), guardianName: null }
+  }
+
+  const guardianIds = Array.isArray(memberRow?.parent_guardian_ids) ? memberRow.parent_guardian_ids : []
+  if (guardianIds.length > 0) {
+    const guardians = await pool.query(
+      `SELECT email, first_name FROM member
+       WHERE id = ANY($1::bigint[]) AND email IS NOT NULL AND email <> ''
+       ORDER BY id ASC`,
+      [guardianIds],
+    )
+    const guardian = guardians.rows.find((row) => isValidEmail(row.email))
+    if (guardian) return { email: String(guardian.email).trim(), guardianName: guardian.first_name || null }
+  }
+
+  if (memberRow?.family_id) {
+    const adults = await pool.query(
+      `SELECT email, first_name FROM member
+       WHERE family_id = $1 AND email IS NOT NULL AND email <> ''
+         AND (parent_guardian_ids IS NULL OR array_length(parent_guardian_ids, 1) IS NULL)
+       ORDER BY id ASC LIMIT 1`,
+      [memberRow.family_id],
+    )
+    const adult = adults.rows.find((row) => isValidEmail(row.email))
+    if (adult) return { email: String(adult.email).trim(), guardianName: adult.first_name || null }
+  }
+
+  return null
 }
 
 function reconcileAdminRoles(roles) {
@@ -1422,6 +1463,97 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       [req.platformAuth.user.facility_id],
     )
     res.json({ success: true, data: result.rows })
+  })
+
+  // Email a single member (or their guardian) asking them to sign in-app waivers.
+  app.post('/api/admin/members/:memberId/waivers/request', ...requirePermission(pool, jwtSecret, 'waivers.manage'), async (req, res) => {
+    const memberId = Number(req.params.memberId)
+    if (!Number.isFinite(memberId)) {
+      return res.status(400).json({ success: false, message: 'Invalid member id.' })
+    }
+    const memberRes = await pool.query(
+      `SELECT id, first_name, last_name, email, family_id, parent_guardian_ids, facility_id
+       FROM member WHERE id = $1 AND facility_id = $2`,
+      [memberId, req.platformAuth.user.facility_id],
+    )
+    if (memberRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Member not found.' })
+    }
+    const member = memberRes.rows[0]
+    const recipient = await resolveWaiverRecipient(pool, member)
+    if (!recipient) {
+      return res.status(422).json({ success: false, message: 'No email on file for this member or their guardians.' })
+    }
+
+    try {
+      await sendWaiverRequestEmail({
+        to: recipient.email,
+        athleteName: `${member.first_name || ''} ${member.last_name || ''}`.trim(),
+        guardianName: recipient.guardianName,
+        outstandingCount: Number(req.body?.outstandingCount) || 0,
+      })
+      res.json({ success: true, message: `Waiver request sent to ${recipient.email}` })
+    } catch (err) {
+      console.error('[waivers] request email failed:', err?.message || err)
+      res.status(502).json({ success: false, message: err?.message || 'Failed to send waiver request.' })
+    }
+  })
+
+  // Email all non-compliant members in the facility (best-effort, batched).
+  app.post('/api/admin/waivers/request-all', ...requirePermission(pool, jwtSecret, 'waivers.manage'), async (req, res) => {
+    const facilityId = req.platformAuth.user.facility_id
+    const nonCompliant = await pool.query(
+      `
+        WITH active_templates AS (
+          SELECT id, facility_id
+          FROM waiver_template
+          WHERE active_from <= now()
+            AND (active_to IS NULL OR active_to > now())
+            AND is_required = TRUE
+        )
+        SELECT
+          m.id, m.first_name, m.last_name, m.email, m.family_id, m.parent_guardian_ids,
+          COUNT(DISTINCT at.id)::int AS required_count,
+          COUNT(DISTINCT mwa.waiver_template_id)::int AS accepted_count
+        FROM member m
+        LEFT JOIN active_templates at ON at.facility_id = m.facility_id
+        LEFT JOIN member_waiver_acceptance mwa
+          ON mwa.member_id = m.id AND mwa.waiver_template_id = at.id
+        WHERE m.facility_id = $1 AND m.is_active = TRUE
+        GROUP BY m.id
+        HAVING COUNT(DISTINCT at.id) > COUNT(DISTINCT mwa.waiver_template_id)
+      `,
+      [facilityId],
+    )
+
+    let sent = 0
+    let skipped = 0
+    let failed = 0
+    for (const member of nonCompliant.rows) {
+      const recipient = await resolveWaiverRecipient(pool, member)
+      if (!recipient) {
+        skipped += 1
+        continue
+      }
+      try {
+        await sendWaiverRequestEmail({
+          to: recipient.email,
+          athleteName: `${member.first_name || ''} ${member.last_name || ''}`.trim(),
+          guardianName: recipient.guardianName,
+          outstandingCount: Number(member.required_count) - Number(member.accepted_count),
+        })
+        sent += 1
+      } catch (err) {
+        console.warn('[waivers] bulk request email failed for member', member.id, err?.message || err)
+        failed += 1
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Sent ${sent}, skipped ${skipped} (no email), failed ${failed}.`,
+      data: { sent, skipped, failed, total: nonCompliant.rows.length },
+    })
   })
 
   app.get('/api/admin/members/:memberId/waivers', ...requirePermission(pool, jwtSecret, 'waivers.view'), async (req, res) => {

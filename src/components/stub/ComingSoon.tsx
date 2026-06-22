@@ -5,12 +5,16 @@ import { GraduationCap, PlayCircle, Users, Dumbbell } from 'lucide-react'
 import SeoHead from '../SeoHead'
 import ContactForm from '../ContactForm'
 import Login from '../Login'
-import MemberLogin from '../MemberLogin'
 import StubHeader from './StubHeader'
 import { getStubSeo, type StubSiteConfig } from '../../config/stubSites'
 import { getHubSiteUrl } from '../../utils/crossDomainConsent'
 import { trackPageView } from '../../utils/analytics'
 import { setSportSiteContext } from '../../utils/sportSite'
+import {
+  getAvailablePortals,
+  persistAdminSessionFromAccount,
+  type PortalAccount,
+} from '../../utils/portalSession'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
 import HighlightsModal from '../HighlightsModal'
 
@@ -59,7 +63,6 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [inquirySourcePath, setInquirySourcePath] = useState('')
   const [isLoginOpen, setIsLoginOpen] = useState(false)
-  const [isMemberLoginOpen, setIsMemberLoginOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(
     () => localStorage.getItem('vortex_admin') === 'true',
   )
@@ -92,24 +95,16 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
     trackPageView(window.location.pathname, { googleAnalytics: !isPreview })
   }, [isPreview])
 
-  const handleAdminLoginSuccess = () => {
-    setIsAdmin(true)
-  }
-
-  const handleAdminLogout = () => {
-    localStorage.removeItem('vortex_admin')
-    localStorage.removeItem('adminToken')
-    localStorage.removeItem('vortex-admin-info')
-    localStorage.removeItem('vortex-admin-id')
-    setIsAdmin(false)
-  }
-
-  const handleMemberLoginSuccess = (token: string, memberData: unknown) => {
+  const handleAccountLoginSuccess = (token: string, accountData: PortalAccount) => {
     setSportSiteContext(config.key)
     localStorage.setItem('vortex_member_token', token)
-    localStorage.setItem('vortex_member', JSON.stringify(memberData))
+    localStorage.setItem('vortex_member', JSON.stringify(accountData))
+    if (getAvailablePortals(accountData).includes('admin')) {
+      persistAdminSessionFromAccount(token, accountData)
+      setIsAdmin(true)
+    }
     setMemberToken(token)
-    setMember(memberData)
+    setMember(accountData)
     setShowMemberDashboard(true)
   }
 
@@ -119,6 +114,14 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
     setMemberToken(null)
     setMember(null)
     setShowMemberDashboard(false)
+  }
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('vortex_admin')
+    localStorage.removeItem('adminToken')
+    localStorage.removeItem('vortex-admin-info')
+    localStorage.removeItem('vortex-admin-id')
+    setIsAdmin(false)
   }
 
   if (isAdmin) {
@@ -151,7 +154,6 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
           setIsContactFormOpen(true)
         }}
         onAdminLoginClick={() => setIsLoginOpen(true)}
-        onMemberLoginClick={() => setIsMemberLoginOpen(true)}
       />
 
       {/* Hero */}
@@ -294,12 +296,7 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
       <Login
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
-        onSuccess={handleAdminLoginSuccess}
-      />
-      <MemberLogin
-        isOpen={isMemberLoginOpen}
-        onClose={() => setIsMemberLoginOpen(false)}
-        onSuccess={handleMemberLoginSuccess}
+        onSuccess={handleAccountLoginSuccess}
       />
       {hasHighlights && (
         <HighlightsModal

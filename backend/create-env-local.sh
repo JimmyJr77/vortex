@@ -9,6 +9,17 @@ NODE_ENV=development
 # Frontend URL (for CORS)
 FRONTEND_URL=http://localhost:5173
 
+# Public URL used to build links in emails
+PUBLIC_APP_URL=http://localhost:5173
+
+# Email / SMTP (Google Workspace App Password recommended).
+# Leave SMTP_USER / SMTP_PASS blank locally to skip sending (calls no-op).
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM="Vortex Athletics <team@vortexathletics.com>"
+
 # PostgreSQL Database Configuration
 DB_HOST=localhost
 DB_PORT=5432

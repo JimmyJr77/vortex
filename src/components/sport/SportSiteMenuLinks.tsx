@@ -9,10 +9,8 @@ export interface SportSiteMenuLinksProps {
   /** When true, sport home uses React Router Link (in-app). */
   useRouterHome?: boolean
   onNavigate?: () => void
-  onMemberLoginClick: () => void
   onAdminLoginClick: () => void
   onInquireClick: () => void
-  showMemberLogin?: boolean
   /** When false, omit sport home link and top divider (home lives in parent nav). */
   includeSportHome?: boolean
   /** When false, parent renders {@link SportSiteHubMenuLogo} (e.g. gymnastics nav). */
@@ -27,10 +25,8 @@ const SportSiteMenuLinks = ({
   sportHomeHref,
   useRouterHome = false,
   onNavigate,
-  onMemberLoginClick,
   onAdminLoginClick,
   onInquireClick,
-  showMemberLogin = true,
   includeSportHome = true,
   includeHubLogo = true,
 }: SportSiteMenuLinksProps) => {
@@ -56,11 +52,9 @@ const SportSiteMenuLinks = ({
         </>
       )}
       <div className="space-y-3">
-        {showMemberLogin && (
-          <button type="button" onClick={onMemberLoginClick} className={linkClass}>
-            Member Login
-          </button>
-        )}
+        <button type="button" onClick={onAdminLoginClick} className={linkClass}>
+          Account Login
+        </button>
         <a
           href={JACKRABBIT_CLASS_REGISTRATION_URL}
           target="_blank"
@@ -70,9 +64,6 @@ const SportSiteMenuLinks = ({
         >
           Jackrabbit Class Login
         </a>
-        <button type="button" onClick={onAdminLoginClick} className={linkClass}>
-          Account Login
-        </button>
         <button type="button" onClick={onInquireClick} className={linkClass}>
           Inquire
         </button>

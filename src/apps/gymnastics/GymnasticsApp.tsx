@@ -5,7 +5,6 @@ import GymnasticsSeo from './GymnasticsSeo'
 import ContactForm from '../../components/ContactForm'
 import Footer from '../../components/Footer'
 import Login from '../../components/Login'
-import MemberLogin from '../../components/MemberLogin'
 import { trackPageView, trackEngagement } from '../../utils/analytics'
 import { captureUtmFromLocation } from '../../utils/utmCapture'
 import CookieConsent from '../../components/CookieConsent'
@@ -68,7 +67,6 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [inquirySourcePath, setInquirySourcePath] = useState('')
   const [isLoginOpen, setIsLoginOpen] = useState(false)
-  const [isMemberLoginOpen, setIsMemberLoginOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(
     () => localStorage.getItem('vortex_admin') === 'true',
   )
@@ -115,17 +113,17 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
     setIsContactFormOpen(true)
   }
 
-  const handleAdminLoginSuccess = (adminData?: Record<string, unknown>, token?: string) => {
-    setIsAdmin(true)
-    if (adminData) {
-      const account = adminData as PortalAccount
-      setMember(account)
-      if (token) {
-        persistMemberSession(token, account)
-        setMemberToken(token)
-      }
+  const handleAccountLoginSuccess = (token: string, accountData: PortalAccount) => {
+    setSportSiteContext('gymnastics')
+    persistMemberSession(token, accountData)
+    if (getAvailablePortals(accountData).includes('admin')) {
+      persistAdminSessionFromAccount(token, accountData)
+      setIsAdmin(true)
     }
-    setActivePortal('admin')
+    setMemberToken(token)
+    setMember(accountData)
+    setActivePortal(bestPortalForAccount(accountData))
+    setShowMemberDashboard(true)
   }
 
   const handleAdminLogout = () => {
@@ -135,19 +133,6 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
     localStorage.removeItem('vortex-admin-id')
     setIsAdmin(false)
     if (activePortal === 'admin') setActivePortal('website')
-  }
-
-  const handleMemberLoginSuccess = (token: string, memberData: PortalAccount) => {
-    setSportSiteContext('gymnastics')
-    persistMemberSession(token, memberData)
-    if (getAvailablePortals(memberData).includes('admin')) {
-      persistAdminSessionFromAccount(token, memberData)
-      setIsAdmin(true)
-    }
-    setMemberToken(token)
-    setMember(memberData)
-    setActivePortal(bestPortalForAccount(memberData))
-    setShowMemberDashboard(true)
   }
 
   const handleMemberLogout = () => {
@@ -215,7 +200,6 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
       <GymnasticsHeader
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
-        onMemberLoginClick={() => setIsMemberLoginOpen(true)}
         member={member}
         onMemberDashboardClick={() => {
           const portals = getAvailablePortals(member)
@@ -326,17 +310,11 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
       <Footer
         onContactClick={handleContactClick}
         onLoginClick={() => setIsLoginOpen(true)}
-        onMemberLoginClick={() => setIsMemberLoginOpen(true)}
       />
       <Login
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
-        onSuccess={handleAdminLoginSuccess}
-      />
-      <MemberLogin
-        isOpen={isMemberLoginOpen}
-        onClose={() => setIsMemberLoginOpen(false)}
-        onSuccess={handleMemberLoginSuccess}
+        onSuccess={handleAccountLoginSuccess}
       />
       {hasHighlights && (
         <HighlightsModal

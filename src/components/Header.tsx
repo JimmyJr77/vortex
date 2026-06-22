@@ -18,12 +18,11 @@ import {
 interface HeaderProps {
   onContactClick: () => void
   onAdminLoginClick?: () => void
-  onMemberLoginClick?: () => void
   member?: any
   onMemberDashboardClick?: () => void
 }
 
-const Header = ({ onContactClick, onAdminLoginClick, onMemberLoginClick, member, onMemberDashboardClick }: HeaderProps) => {
+const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
   useSiteHeaderHeight(headerRef)
@@ -185,26 +184,6 @@ const Header = ({ onContactClick, onAdminLoginClick, onMemberLoginClick, member,
             
             {/* Login Links */}
             <div className="space-y-3">
-              {!member && (
-                <button
-                  onClick={() => {
-                    onMemberLoginClick?.()
-                    setIsMenuOpen(false)
-                  }}
-                  className="block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium"
-                >
-                  Member Login
-                </button>
-              )}
-              <a
-                href={JACKRABBIT_CLASS_REGISTRATION_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsMenuOpen(false)}
-                className="block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium"
-              >
-                Jackrabbit Class Login
-              </a>
               {onAdminLoginClick && (
                 <button
                   onClick={() => {
@@ -216,6 +195,15 @@ const Header = ({ onContactClick, onAdminLoginClick, onMemberLoginClick, member,
                   Account Login
                 </button>
               )}
+              <a
+                href={JACKRABBIT_CLASS_REGISTRATION_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsMenuOpen(false)}
+                className="block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium"
+              >
+                Jackrabbit Class Login
+              </a>
               <button
                 onClick={() => {
                   onContactClick()

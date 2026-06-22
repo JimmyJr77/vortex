@@ -143,7 +143,15 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
 - Enrollment: `POST /api/members/enroll`, `DELETE /api/members/enroll/:id`,
   `GET /api/members/enrollments|programs|categories`,
   `GET /api/members/programs/:programId/iterations`. (Enrollment UX primarily lives on `/enroll`
-  via `EnrollmentForm` / `SchedulingSignupEmbed`, not the dashboard.)
+  via `EnrollmentForm` / `SchedulingSignupEmbed`, not the dashboard.) `POST /api/members/enroll`
+  also sends a best-effort confirmation email
+  ([backend/email/enrollmentConfirmedEmail.js](../backend/email/enrollmentConfirmedEmail.js)) to the
+  member or a family guardian.
+- Email verification: `POST /api/members/email/send-verification` (auth; issues a single-use link
+  via [backend/email/emailVerificationService.js](../backend/email/emailVerificationService.js)) and
+  the public confirm route `POST /api/verify-email/:token` (frontend page at `/verify-email`).
+  Family signup auto-sends a verification email to the primary adult; the waiver-request email links
+  members to the portal via `/?login=1`.
 
 ### Billing & waivers ([backend/platform/registerRoutes.js](../backend/platform/registerRoutes.js), guard `authMiddleware`)
 - `GET /api/members/billing/statements`, `GET /api/members/billing/payments` (payer/
@@ -178,7 +186,10 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
   `billing_payment` (+ external/Stripe refs in `010`), `billing_statement`,
   `billing_statement_line`.
 - **Waivers** (`008`) — `waiver_template`, `member_waiver_acceptance`.
-- **Login identity** — `app_user` (`password_hash`, roles via `app_user_role`).
+- **Login identity** — `app_user` (`password_hash`, roles via `app_user_role`; `email_verified`/
+  `email_verified_at` added in `040`).
+- **Email verification** (`040`) — `email_verification_token` (single-use, bcrypt-hashed,
+  `user_id` FK, `expires_at`/`used_at`).
 - **Coaching reads** — `coaching.plan_assignment`, `completion_log`, `assessment_result`,
   `athlete_skill_progress`, `personal_record`, `wellness_checkin` (see
   [COACHING_CORNER_ROADMAP.md](COACHING_CORNER_ROADMAP.md)).

@@ -119,8 +119,9 @@ RBAC-filtered from `/api/admin/access/me`. Cross-tab deep-linking (Classes → S
 | Calendar | `scheduling/AdminCalendar.tsx` | Month/week/day/by-class calendar | `scheduling.view` |
 | Pricing | `AdminPricing.tsx` | Costs, discounts, free passes, rules, promo codes | `pricing.view` |
 | Billing | `AdminFamilyBilling.tsx` | Family billing accounts, charges, statements, payments | `billing.view` |
-| Waivers | `AdminWaivers.tsx` | Waiver templates + compliance | `waivers.view` |
+| Waivers | `AdminWaivers.tsx` | Waiver templates + compliance + per-row/bulk waiver-request emails | `waivers.view` (send needs `waivers.manage`) |
 | Signups | `AdminSignups.tsx` | Roster, archived/orphaned signups, password reset | `scheduling.view` |
+| Email | `AdminEmail.tsx` | SMTP status (`/api/admin/email/status`) + send test email | `admin_access.manage` (test send is master-admin only) |
 | Highlights | `AdminHighlights.tsx` | Site highlight popups | `classes.view` |
 | Events | `AdminEvents.tsx` | Facility events + edit log | `classes.view` |
 | DB Queries | `AdminDbQueries.tsx` | Ad-hoc query builder + CSV export | `admin_access.manage` |
@@ -148,6 +149,13 @@ programs → platform → coach portal → dev members. Global guard on `/api/ad
   (+ options, profile, assignments).
 - **Billing & waivers** (registerRoutes.js; `billing.*`/`waivers.*`): family billing accounts,
   charges, payments, statements, status; waiver templates + compliance.
+  Waiver-request emails: `POST /api/admin/members/:memberId/waivers/request` (single) and
+  `POST /api/admin/waivers/request-all` (bulk, non-compliant members) — both `waivers.manage`,
+  best-effort via [backend/email/waiverRequestEmail.js](../backend/email/waiverRequestEmail.js),
+  recipient resolved to the member's email or a guardian's.
+- **Email diagnostics** (server.js): `GET /api/admin/email/status` (SMTP config summary + live
+  verify) and `POST /api/admin/email/test` (master-admin only; sends a test message). Surfaced in
+  the `Email` admin tab.
 - **Scheduling** ([backend/scheduling/registerRoutes.js](../backend/scheduling/registerRoutes.js);
   `scheduling.*`): forms, offerings, slot batches/groups, signups (+ orphaned),
   calendar. (Scheduling-category CRUD routes `/api/admin/scheduling/categories…` were **removed** — see migration `033`.)
@@ -180,6 +188,7 @@ programs → platform → coach portal → dev members. Global guard on `/api/ad
 | Discount engine | `discount_rule`, `discount_global_settings`, `sport_pricing_default`, promo/redemption tables | `add_discount_engine`, `add_*_discount_*` |
 | Billing | `family_billing_account`, `billing_charge`, `billing_payment`, `billing_statement`, `billing_statement_line` | `008`, `010` |
 | Waivers | `waiver_template`, `member_waiver_acceptance` | `008` |
+| Email verification | `app_user.email_verified`/`email_verified_at`, `email_verification_token` | `040` |
 | Coaches | `coach_profile`, `coach_class_assignment` | `008` |
 | Analytics | `analytics_events`, `visitor_sessions`, `consent_records` | `add_analytics_tables` |
 | Highlights / events / inquiries | `highlights`, `events` (+ edit log/tags), `registrations` | `add_highlights_table`, `seed_events`, `add_inquiry_*` |

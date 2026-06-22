@@ -17,6 +17,7 @@ import AdminSchools from './AdminSchools'
 import AdminAccess from './AdminAccess'
 import AdminFamilyBilling from './AdminFamilyBilling'
 import AdminWaivers from './AdminWaivers'
+import AdminEmail from './AdminEmail'
 import AdminCoaches from './AdminCoaches'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
 import PortalNavButtons from './PortalNavButtons'
@@ -58,7 +59,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'email'
 
 interface AccessContext {
   permissions: string[]
@@ -83,6 +84,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'highlights', label: 'Highlights', permission: 'classes.view' },
   { id: 'events', label: 'Events', permission: 'classes.view' },
   { id: 'dbQueries', label: 'DB Queries', permission: 'admin_access.manage' },
+  { id: 'email', label: 'Email', permission: 'admin_access.manage' },
   { id: 'schools', label: 'Schools', permission: 'schools.view' },
   { id: 'analytics', label: 'Analytics & Engagement', permission: 'analytics.view' },
 ]
@@ -287,6 +289,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
               <AdminWaivers />
             ) : activeTab === 'dbQueries' ? (
               <AdminDbQueries />
+            ) : activeTab === 'email' ? (
+              <AdminEmail />
             ) : activeTab === 'schools' ? (
               <AdminSchools />
             ) : activeTab === 'scheduling' ? (

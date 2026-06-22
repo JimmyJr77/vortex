@@ -7,18 +7,10 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page.getByRole('button', { name: 'Classes & Events' }).first()).toBeVisible()
   })
 
-  test('member login modal opens from public flow', async ({ page }) => {
+  test('account login modal opens from public flow', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
-    await page.getByRole('button', { name: /Member Portal Login|Member Login/i }).first().click()
-    await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible()
-    await expect(page.getByText('Forgot password?')).toBeVisible()
-  })
-
-  test('admin login modal opens from public flow', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' })
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
-    await page.getByRole('button', { name: /^Admin$/ }).first().click()
+    await page.getByRole('button', { name: /^Account Login$/i }).first().click()
     await expect(page.getByRole('heading', { name: 'Account Login' })).toBeVisible()
     await expect(page.getByText('Forgot password?')).toBeVisible()
   })
