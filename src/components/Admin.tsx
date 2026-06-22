@@ -69,8 +69,8 @@ interface AccessContext {
 
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
   { id: 'admins', label: 'Admins', permission: 'admins.manage' },
+  { id: 'membership', label: 'Vortex Accounts', permission: 'members.view' },
   { id: 'access', label: 'Access', permission: 'admin_access.manage' },
-  { id: 'membership', label: 'Members', permission: 'members.view' },
   { id: 'users', label: 'Inquiries', permission: 'members.view' },
   { id: 'classes', label: 'Classes', permission: 'classes.view' },
   { id: 'coaches', label: 'Coaches', permission: 'classes.manage' },

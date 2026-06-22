@@ -185,6 +185,7 @@ interface UnifiedMember {
   familyId?: number | null
   familyName?: string | null
   username?: string | null
+  isFamilyPayer?: boolean
   roles: Array<{ id: string; role: string }>
   enrollments: Array<{
     id: number
@@ -227,6 +228,84 @@ function memberRolesDisplay(member: UnifiedMember): string {
   return hasEnrollments ? 'Athlete' : 'Non-participant'
 }
 
+type AccountViewFilter =
+  | 'all'
+  | 'master_admins'
+  | 'admins'
+  | 'coaches'
+  | 'member_athletes_all'
+  | 'member_athletes_parents'
+  | 'member_athletes_youth'
+  | 'member_athletes_adult'
+
+const ACCOUNT_VIEW_FILTER_OPTIONS: Array<{ value: AccountViewFilter; label: string }> = [
+  { value: 'all', label: 'View all' },
+  { value: 'master_admins', label: 'View Master Admins' },
+  { value: 'admins', label: 'View Admins' },
+  { value: 'coaches', label: 'View Coaches' },
+  { value: 'member_athletes_all', label: 'View Member / Athletes (All)' },
+  { value: 'member_athletes_parents', label: 'View Member / Athletes (Parents / Guardians)' },
+  { value: 'member_athletes_youth', label: 'View Member / Athletes (Youth Athletes)' },
+  { value: 'member_athletes_adult', label: 'View Member / Athletes (Adult Athletes)' },
+]
+
+function memberHasRole(member: UnifiedMember, role: string): boolean {
+  return member.roles?.some((r) => r.role === role) ?? false
+}
+
+/** Member-side accounts: MEMBER_ATHLETE login role or no staff portal roles. */
+function isInMemberAthleteScope(member: UnifiedMember): boolean {
+  if (memberHasRole(member, 'MEMBER_ATHLETE')) return true
+  const hasStaffRole =
+    memberHasRole(member, 'MASTER_ADMIN') ||
+    memberHasRole(member, 'ADMIN') ||
+    memberHasRole(member, 'COACH')
+  return !hasStaffRole
+}
+
+function isYouthAthleteMember(member: UnifiedMember): boolean {
+  return Boolean(member.dateOfBirth && !isAdult(member.dateOfBirth))
+}
+
+function memberDerivedAttributes(member: UnifiedMember): string[] {
+  const attrs: string[] = []
+  if (member.isFamilyPayer) attrs.push('Parent/Guardian')
+  if (isYouthAthleteMember(member)) {
+    attrs.push('Youth Athlete')
+  } else if (isInMemberAthleteScope(member) && isAdult(member.dateOfBirth)) {
+    attrs.push('Athlete (18+)')
+  }
+  return attrs
+}
+
+function memberDerivedAttributesDisplay(member: UnifiedMember): string {
+  const attrs = memberDerivedAttributes(member)
+  return attrs.length > 0 ? attrs.join(', ') : '—'
+}
+
+function matchesAccountViewFilter(member: UnifiedMember, filter: AccountViewFilter): boolean {
+  switch (filter) {
+    case 'all':
+      return true
+    case 'master_admins':
+      return memberHasRole(member, 'MASTER_ADMIN')
+    case 'admins':
+      return memberHasRole(member, 'ADMIN') && !memberHasRole(member, 'MASTER_ADMIN')
+    case 'coaches':
+      return memberHasRole(member, 'COACH')
+    case 'member_athletes_all':
+      return isInMemberAthleteScope(member)
+    case 'member_athletes_parents':
+      return isInMemberAthleteScope(member) && Boolean(member.isFamilyPayer)
+    case 'member_athletes_youth':
+      return isInMemberAthleteScope(member) && isYouthAthleteMember(member)
+    case 'member_athletes_adult':
+      return isInMemberAthleteScope(member) && isAdult(member.dateOfBirth)
+    default:
+      return true
+  }
+}
+
 interface AdminMembersProps {
   isMasterAdmin?: boolean
 }
@@ -236,6 +315,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
   const [members, setMembers] = useState<UnifiedMember[]>([])
   const [membersLoading, setMembersLoading] = useState(false)
   const [memberSearchQuery, setMemberSearchQuery] = useState('')
+  const [accountViewFilter, setAccountViewFilter] = useState<AccountViewFilter>('all')
   const [showArchivedMembers, setShowArchivedMembers] = useState(false)
   const [fixingAppUsers, setFixingAppUsers] = useState(false)
   
@@ -2710,13 +2790,16 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
           <div>
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               <Users className="w-7 h-7 text-vortex-red" />
-              Members
+              Vortex Accounts
               <span className="text-lg font-semibold text-gray-500">
-                ({members.filter((m) => (showArchivedMembers ? !m.isActive : m.isActive)).length})
+                ({members.filter((m) =>
+                  (showArchivedMembers ? !m.isActive : m.isActive) &&
+                  matchesAccountViewFilter(m, accountViewFilter),
+                ).length})
               </span>
             </h2>
             <p className="text-gray-600 text-sm mt-1">
-              Search, view, and manage member accounts and family records.
+              Search, view, and manage Vortex accounts and family records.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -2779,43 +2862,60 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
           </div>
         </div>
 
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          <input
-            type="search"
-            placeholder="Search members…"
-            value={memberSearchQuery}
-            onChange={(e) => setMemberSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 text-sm"
-          />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="relative max-w-md flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <input
+              type="search"
+              placeholder="Search accounts…"
+              value={memberSearchQuery}
+              onChange={(e) => setMemberSearchQuery(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 text-sm"
+            />
+          </div>
+          <select
+            value={accountViewFilter}
+            onChange={(e) => setAccountViewFilter(e.target.value as AccountViewFilter)}
+            aria-label="Filter accounts by type"
+            className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white min-w-[280px] max-w-full"
+          >
+            {ACCOUNT_VIEW_FILTER_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {membersLoading ? (
           <div className="py-12 text-center text-gray-500 inline-flex items-center gap-2 w-full justify-center">
             <Loader2 className="w-5 h-5 animate-spin" />
-            Loading members…
+            Loading Vortex accounts…
           </div>
         ) : (() => {
-          const filteredMembers = members.filter((m) =>
-            showArchivedMembers ? !m.isActive : m.isActive,
+          const filteredMembers = members.filter(
+            (m) =>
+              (showArchivedMembers ? !m.isActive : m.isActive) &&
+              matchesAccountViewFilter(m, accountViewFilter),
           )
 
           if (filteredMembers.length === 0) {
             return (
               <div className="py-12 text-center text-gray-500 border border-dashed rounded-xl">
-                No {showArchivedMembers ? 'archived' : 'active'} members yet.
+                No {showArchivedMembers ? 'archived' : 'active'} accounts match this view.
               </div>
             )
           }
 
           return (
             <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
-              <table className="w-full text-sm border-collapse min-w-[960px]">
+              <table className="w-full text-sm border-collapse min-w-[1100px]">
                 <thead>
                   <tr className="border-b border-gray-200 text-left text-gray-600">
                     <th className={memberThClass}>Last name</th>
                     <th className={memberThClass}>First name</th>
-                    <th className={memberThClass}>Role</th>
+                    <th className={memberThClass}>Roles</th>
+                    <th className={memberThClass}>Derived attributes</th>
                     <th className={memberThClass}>Username</th>
                     <th className={memberThClass}>Email</th>
                     <th className={memberThClass}>Phone</th>
@@ -2846,6 +2946,7 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                             )}
                           </div>
                         </td>
+                        <td className={memberTdClass}>{memberDerivedAttributesDisplay(member)}</td>
                         <td className={memberTdClass}>{member.username || '—'}</td>
                         <td className={memberTdClass}>{member.email || '—'}</td>
                         <td className={memberTdClass}>{member.phone || '—'}</td>

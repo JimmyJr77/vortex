@@ -20,6 +20,14 @@ function normalizeRoleKey(role) {
   return String(role || '').trim().toUpperCase()
 }
 
+function reconcileAdminRoles(roles) {
+  const normalized = [...new Set(roles.map(normalizeRoleKey).filter(Boolean))]
+  if (normalized.includes('MASTER_ADMIN') && normalized.includes('ADMIN')) {
+    return normalized.filter((role) => role !== 'ADMIN')
+  }
+  return normalized
+}
+
 // The default master admin account is permanent: it can never lose its
 // MASTER_ADMIN role, be deactivated, or be deleted. Override via env if the
 // owner account email ever changes.
@@ -501,7 +509,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const username = req.body?.username ? String(req.body.username).trim() : null
     const phone = req.body?.phone ? String(req.body.phone).trim() : null
     const password = String(req.body?.password || '')
-    const roles = Array.isArray(req.body?.roles) ? req.body.roles.map(normalizeRoleKey).filter(Boolean) : ['MEMBER_ATHLETE']
+    const roles = reconcileAdminRoles(Array.isArray(req.body?.roles) ? req.body.roles : ['MEMBER_ATHLETE'])
     if (!fullName || !password || roles.length === 0) {
       return res.status(400).json({ success: false, message: 'Full name, password, and at least one role are required.' })
     }
@@ -615,7 +623,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.put('/api/admin/access/users/:userId/roles', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (req, res) => {
     const userId = Number(req.params.userId)
-    const roles = Array.isArray(req.body?.roles) ? req.body.roles.map(normalizeRoleKey).filter(Boolean) : []
+    const roles = reconcileAdminRoles(Array.isArray(req.body?.roles) ? req.body.roles : [])
     const isMasterAdmin = req.body?.isMasterAdmin === true || roles.includes('MASTER_ADMIN')
     if (!Number.isFinite(userId) || roles.length === 0) {
       return res.status(400).json({ success: false, message: 'At least one role is required.' })

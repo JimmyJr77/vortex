@@ -43,6 +43,28 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
 
 const roleLabel = (role: string) => ROLE_LABELS[role] ?? role.replaceAll('_', ' ')
 
+/** Master Admin and Admin are mutually exclusive admin tiers. */
+function applyRoleToggle(currentRoles: string[], role: string): string[] {
+  if (currentRoles.includes(role)) {
+    const next = currentRoles.filter((r) => r !== role)
+    return next.length > 0 ? next : currentRoles
+  }
+  let next = [...currentRoles, role]
+  if (role === 'MASTER_ADMIN') {
+    next = next.filter((r) => r !== 'ADMIN')
+  } else if (role === 'ADMIN') {
+    next = next.filter((r) => r !== 'MASTER_ADMIN')
+  }
+  return next
+}
+
+function normalizeAdminRoleSelection(roles: string[]): string[] {
+  if (roles.includes('MASTER_ADMIN') && roles.includes('ADMIN')) {
+    return roles.filter((role) => role !== 'ADMIN')
+  }
+  return roles
+}
+
 interface AdminAccessProps {
   isMasterAdmin?: boolean
   currentUserId?: number | null
@@ -102,7 +124,7 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
       const initial = selectedUserId ?? nextUsers[0]?.id ?? null
       setSelectedUserId(initial)
       const currentUser = nextUsers.find((u) => u.id === initial)
-      setSelectedRoles(currentUser?.roles ?? [])
+      setSelectedRoles(normalizeAdminRoleSelection(currentUser?.roles ?? []))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load access settings')
     } finally {
@@ -116,7 +138,7 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
 
   useEffect(() => {
     if (selectedUser) {
-      setSelectedRoles(selectedUser.roles)
+      setSelectedRoles(normalizeAdminRoleSelection(selectedUser.roles))
       setProfileForm({
         fullName: selectedUser.fullName,
         email: selectedUser.email,
@@ -142,10 +164,7 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
   }, [selectedUser])
 
   const toggleRole = (role: string) => {
-    setSelectedRoles((prev) => {
-      const next = prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
-      return next.length > 0 ? next : prev
-    })
+    setSelectedRoles((prev) => applyRoleToggle(prev, role))
   }
 
   const togglePermission = (permission: string) => {
@@ -162,7 +181,7 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
     setAllowPermissions((prev) => prev.filter((p) => p !== permission))
   }
 
-  const saveProfile = async () => {
+  const saveProfileAndAccess = async () => {
     if (!selectedUserId) return
     setSaving(true)
     setError(null)
@@ -176,28 +195,15 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
       if (profileForm.password.trim()) {
         body.password = profileForm.password
       }
-      const res = await adminApiRequest(`/api/admin/access/users/${selectedUserId}`, {
+      const profileRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}`, {
         method: 'PUT',
         body: JSON.stringify(body),
       })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
+      if (!profileRes.ok) {
+        const data = await profileRes.json().catch(() => ({}))
         throw new Error(data.message || 'Failed to update account profile')
       }
-      setProfileForm((prev) => ({ ...prev, password: '' }))
-      await load()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update account profile')
-    } finally {
-      setSaving(false)
-    }
-  }
 
-  const save = async () => {
-    if (!selectedUserId) return
-    setSaving(true)
-    setError(null)
-    try {
       const roleRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}/roles`, {
         method: 'PUT',
         body: JSON.stringify({
@@ -209,6 +215,7 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
         const data = await roleRes.json().catch(() => ({}))
         throw new Error(data.message || 'Failed to update roles')
       }
+
       const permRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}/permissions`, {
         method: 'PUT',
         body: JSON.stringify({ allow: allowPermissions, deny: denyPermissions }),
@@ -217,9 +224,11 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
         const data = await permRes.json().catch(() => ({}))
         throw new Error(data.message || 'Failed to update permissions')
       }
+
+      setProfileForm((prev) => ({ ...prev, password: '' }))
       await load()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save access settings')
+      setError(err instanceof Error ? err.message : 'Failed to save profile and access settings')
     } finally {
       setSaving(false)
     }
@@ -382,12 +391,10 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                         type="checkbox"
                         checked={createAccount.roles.includes(role)}
                         onChange={() =>
-                          setCreateAccount((prev) => {
-                            const roles = prev.roles.includes(role)
-                              ? prev.roles.filter((r) => r !== role)
-                              : [...prev.roles, role]
-                            return { ...prev, roles: roles.length > 0 ? roles : prev.roles }
-                          })
+                          setCreateAccount((prev) => ({
+                            ...prev,
+                            roles: applyRoleToggle(prev.roles, role),
+                          }))
                         }
                       />
                       {roleLabel(role)}
@@ -460,21 +467,12 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                     )}
                     <button
                       type="button"
-                      onClick={() => void saveProfile()}
+                      onClick={() => void saveProfileAndAccess()}
                       disabled={saving}
-                      className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-60"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg text-sm disabled:opacity-60"
                     >
                       {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                      Save Profile
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void save()}
-                      disabled={saving}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg disabled:opacity-60"
-                    >
-                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                      Save Access
+                      Save Profile & Access
                     </button>
                   </div>
                 </div>
