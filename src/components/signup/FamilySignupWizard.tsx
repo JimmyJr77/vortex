@@ -120,6 +120,7 @@ interface ClassCatalogPack {
   offerings: OfferingOption[]
   scheduleOptions: ScheduleOption[]
   priceLabel?: string | null
+  classActiveDates?: string | null
 }
 
 interface EnrollmentRow {
@@ -449,6 +450,7 @@ export default function FamilySignupWizard({
         offerings: pack.offerings ?? [],
         scheduleOptions: pack.scheduleOptions ?? [],
         priceLabel: pack.priceLabel ?? null,
+        classActiveDates: pack.classActiveDates ?? null,
       },
     }))
   }, [apiUrl, offeringsByClass])
@@ -941,6 +943,7 @@ export default function FamilySignupWizard({
         schedulingFormId: row.schedulingFormId ?? pack?.formId ?? undefined,
         programName: programOption?.displayName || programOption?.name || classOption?.displayName || classOption?.name,
         className: classOption?.displayName || classOption?.name,
+        classActiveDates: pack?.classActiveDates ?? undefined,
         daysPerWeek: 1,
       }
 
@@ -1087,7 +1090,7 @@ export default function FamilySignupWizard({
         if (!res.ok) throw new Error(data.message || 'Signup failed')
         setSuccessMessage(
           data.data?.inviteSent
-            ? 'Invite sent! A parent/guardian will receive an email to complete signup.'
+            ? 'We emailed your parent/guardian a secure link to create the adult account, sign waivers on your behalf, and finalize enrollment.'
             : `Invite created. Share this link: ${data.data?.inviteUrl ?? ''}`,
         )
         if (returnTo) {
@@ -1122,7 +1125,7 @@ export default function FamilySignupWizard({
     }
   }
 
-  const maxStep = isMinorStart ? 3 : 4
+  const maxStep = isMinorStart ? 2 : 4
   const enrollmentStep = isMinorStart ? 2 : 3
 
   if (isAdminEdit && !accountLoaded) {
@@ -1179,7 +1182,7 @@ export default function FamilySignupWizard({
         return
       }
     }
-    if (step === enrollmentStep && step < maxStep) {
+    if (step === enrollmentStep) {
       const err = validateEnrollmentStep()
       if (err) {
         setError(err)
@@ -1292,6 +1295,12 @@ export default function FamilySignupWizard({
               </select>
             </div>
 
+            {catalog?.classActiveDates && (
+              <p className="text-sm text-gray-700">
+                Class active dates: <span className="font-medium">{catalog.classActiveDates}</span>
+              </p>
+            )}
+
             {scheduleOptions.length > 0 && (
               <div className="space-y-4">
                 <div>
@@ -1304,12 +1313,12 @@ export default function FamilySignupWizard({
                 </div>
                 {groupedScheduleOptions.map((group) => (
                   <div key={`${group.offeringLabel}-${group.offeringDates ?? 'general'}`} className="space-y-2">
-                    <p className="text-sm font-semibold text-gray-800">
-                      {group.offeringLabel}
-                      {group.offeringDates && (
-                        <span className="text-gray-500 font-normal"> · {group.offeringDates}</span>
-                      )}
-                    </p>
+                    {group.offeringDates && (
+                      <p className="text-sm text-gray-600">{group.offeringDates}</p>
+                    )}
+                    {group.offeringLabel && group.offeringLabel !== 'Schedule options' && (
+                      <p className="text-sm font-semibold text-gray-800">{group.offeringLabel}</p>
+                    )}
                     <div className="grid gap-2 sm:grid-cols-2">
                       {group.options.map((opt) => {
                         const key = slotOptionKey(opt.slotGroupId, opt.timeSlotId)
@@ -1392,8 +1401,8 @@ export default function FamilySignupWizard({
           Step {step} of {maxStep} —{' '}
           {step === 0 && isAdmin && 'Family setup'}
           {step === 1 && (isMinorStart ? 'Athlete info' : 'Primary adult')}
-          {step === 2 && (isMinorStart ? 'Enrollment' : 'Family members')}
-          {step === 3 && (isMinorStart ? 'Review & send invite' : 'Enrollment')}
+          {step === 2 && (isMinorStart ? 'Enrollment & send invite' : 'Family members')}
+          {step === 3 && !isMinorStart && 'Enrollment'}
           {step === 4 && 'Waivers'}
         </p>
       </div>
@@ -1495,12 +1504,6 @@ export default function FamilySignupWizard({
       )}
 
       {step === enrollmentStep && renderEnrollmentSection()}
-
-      {step === 3 && isMinorStart && (
-        <div className="rounded-xl border border-gray-200 p-4 text-sm text-gray-700">
-          <p>We&apos;ll email your parent/guardian a secure link to create the adult account, sign waivers on your behalf, and finalize enrollment.</p>
-        </div>
-      )}
 
       {step === 4 && !isMinorStart && (
         <WaiverSigningBlock

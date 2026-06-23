@@ -24,6 +24,7 @@ export default function SignupInvitePage() {
         className?: string
         scheduleLabel?: string
         offeringLabel?: string
+        classActiveDates?: string
         priceLabel?: string
       }>
     }
@@ -187,6 +188,9 @@ export default function SignupInvitePage() {
                   <div className="font-semibold text-gray-900">
                     {item.programName || item.className || 'Class enrollment'}
                   </div>
+                  {item.classActiveDates && (
+                    <div className="text-gray-600 mt-0.5">{item.classActiveDates}</div>
+                  )}
                   {item.scheduleLabel && (
                     <div className="text-gray-600 mt-0.5">{item.scheduleLabel}</div>
                   )}

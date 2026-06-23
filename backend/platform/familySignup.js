@@ -236,6 +236,21 @@ function formatDateOnly(value) {
   return String(value).slice(0, 10)
 }
 
+function formatSignupUsDate(value) {
+  const iso = formatDateOnly(value)
+  if (!iso) return null
+  const [year, month, day] = iso.split('-').map(Number)
+  if (!year || !month || !day) return iso
+  return `${month}/${day}/${year}`
+}
+
+function formatSignupDateRange(start, end) {
+  const startLabel = formatSignupUsDate(start)
+  const endLabel = formatSignupUsDate(end)
+  if (startLabel && endLabel) return `${startLabel}-${endLabel}`
+  return startLabel || endLabel || null
+}
+
 function buildSlotScheduleLabel(row) {
   const parts = []
   if (row.week_letter) parts.push(`${row.week_letter}-Week`)
@@ -248,6 +263,31 @@ function buildSlotScheduleLabel(row) {
   const et = formatTimeOnly(row.end_time)
   if (st && et) parts.push(`${st}–${et}`)
   return parts.join(' · ')
+}
+
+function buildCompactScheduleLabel(occurrenceRows) {
+  if (!occurrenceRows?.length) return ''
+  if (occurrenceRows.length === 1) return buildSlotScheduleLabel(occurrenceRows[0])
+
+  const dayLabels = occurrenceRows.map((row) => {
+    if (row.schedule_mode === 'date' && row.specific_date) {
+      return formatSignupUsDate(row.specific_date)
+    }
+    if (row.day_of_week != null) {
+      const name = DAY_NAMES[row.day_of_week] || row.day_name || 'Day'
+      return name.length > 3 ? name.slice(0, 3) : name
+    }
+    return row.day_name?.slice(0, 3) || 'Day'
+  })
+  const startTime = formatTimeOnly(occurrenceRows[0].start_time)
+  const endTime = formatTimeOnly(occurrenceRows[0].end_time)
+  const sameTime = occurrenceRows.every(
+    (row) =>
+      formatTimeOnly(row.start_time) === startTime && formatTimeOnly(row.end_time) === endTime,
+  )
+  const daysPart = dayLabels.join(', ')
+  if (sameTime && startTime && endTime) return `${daysPart} · ${startTime}–${endTime}`
+  return daysPart
 }
 
 function buildGroupScheduleLabel(occurrenceRows) {
@@ -294,7 +334,7 @@ function sqlClassHasSignupSlots(programAlias) {
 async function loadClassEnrollmentCatalog(pool, classEventId) {
   const formRes = await pool.query(
     `
-      SELECT id, slot_cost_monthly_cents, cost_unit
+      SELECT id, slot_cost_monthly_cents, cost_unit, start_date, end_date
       FROM scheduling_form
       WHERE program_id = $1 AND deleted_at IS NULL AND is_active = TRUE
       ORDER BY id
@@ -303,7 +343,7 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
     [classEventId],
   )
   if (formRes.rows.length === 0) {
-    return { formId: null, offerings: [], scheduleOptions: [] }
+    return { formId: null, offerings: [], scheduleOptions: [], classActiveDates: null }
   }
   const form = formRes.rows[0]
   const formId = Number(form.id)
@@ -321,6 +361,18 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
     startDate: row.start_date,
     endDate: row.end_date,
   }))
+
+  let classActiveDates = formatSignupDateRange(form.start_date, form.end_date)
+  if (!classActiveDates && offerings.length > 0) {
+    const starts = offerings.map((o) => formatDateOnly(o.startDate)).filter(Boolean)
+    const ends = offerings.map((o) => formatDateOnly(o.endDate)).filter(Boolean)
+    if (starts.length && ends.length) {
+      classActiveDates = formatSignupDateRange(
+        starts.sort()[0],
+        ends.sort().reverse()[0],
+      )
+    }
+  }
 
   const groupsRes = await pool.query(
     `
@@ -365,17 +417,16 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
       timeSlotId: Number(firstSlot.id),
       offeringId,
       offeringLabel: offeringId != null ? offeringLabelById.get(offeringId) ?? null : null,
-      offeringDates:
-        offering?.startDate && offering?.endDate
-          ? `${offering.startDate} – ${offering.endDate}`
-          : null,
-      scheduleLabel: buildGroupScheduleLabel(occurrences),
+      offeringDates: offering
+        ? formatSignupDateRange(offering.startDate, offering.endDate)
+        : null,
+      scheduleLabel: buildCompactScheduleLabel(occurrences),
       priceCents: priceCents > 0 ? priceCents : null,
       priceLabel,
     })
   }
 
-  return { formId, offerings, scheduleOptions, priceLabel, costUnit }
+  return { formId, offerings, scheduleOptions, priceLabel, costUnit, classActiveDates }
 }
 
 async function applyEnrollmentRow(client, {
