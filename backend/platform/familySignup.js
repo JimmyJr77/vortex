@@ -662,6 +662,61 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
   return member
 }
 
+/** Add a family member from the member portal (children or adults without login). */
+export async function createPortalFamilyMember(client, {
+  facilityId,
+  familyId,
+  payerMember,
+  input,
+}) {
+  const firstName = String(input?.firstName || input?.first_name || '').trim()
+  const lastName = String(input?.lastName || input?.last_name || '').trim()
+  if (!firstName || !lastName) {
+    throw new Error('First and last name are required.')
+  }
+
+  const dob = input?.dateOfBirth || input?.date_of_birth || null
+  // Portal add is parent-driven; missing DOB almost always means a child profile.
+  const minor = !dob || !isAdult(dob)
+  if (minor && !payerMember?.id) {
+    throw new Error('Could not resolve guardian for this family member.')
+  }
+
+  const payerEmail = String(payerMember?.email || '').trim() || null
+  let email = String(input?.email || '').trim() || null
+  if (minor && email && payerEmail && email.toLowerCase() === payerEmail.toLowerCase()) {
+    email = null
+  } else if (email) {
+    await assertMemberEmailAvailable(client, facilityId, email)
+  }
+
+  const member = await createMemberRecord(client, facilityId, familyId, {
+    firstName,
+    lastName,
+    email,
+    phone: input?.phone || null,
+    dateOfBirth: dob,
+    signupSource: 'portal_add_family',
+  }, {
+    parentGuardianIds: minor ? [Number(payerMember.id)] : [],
+    payerEmail: minor ? payerEmail : null,
+  })
+
+  const relationshipLabel = input?.relationshipLabel || input?.relationship_label || null
+  if (relationshipLabel) {
+    await client.query(
+      `
+        UPDATE family_member
+        SET relationship_label = $3, updated_at = now()
+        WHERE family_id = $1 AND member_id = $2
+      `,
+      [familyId, member.id, relationshipLabel],
+    )
+  }
+
+  return member
+}
+
 async function processFamilySignup(client, payload, options = {}) {
   const {
     facilityId: explicitFacilityId = null,

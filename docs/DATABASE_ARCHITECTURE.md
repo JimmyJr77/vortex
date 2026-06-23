@@ -353,6 +353,7 @@ The "class category" (scheduling-category) concept was fully removed: classes no
 | `account_invite` verify/complete `LIMIT 50` bcrypt scan | [familySignup.js](../backend/platform/familySignup.js) (pre-fix) | [findAccountInviteByToken](../backend/email/accountInviteTokens.js) — full scan; returns 410 when token matches a used invite |
 | Reminder job rotating `token_hash` on decrypt failure | [accountInviteReminderService.js](../backend/email/accountInviteReminderService.js) `recoverInviteUrl` (pre-fix) | Skip reminder when `token_ciphertext` cannot be decrypted; never overwrite `token_hash` |
 | `POST /api/members/family` 404 when solo account has no `family` row | [server.js](../backend/server.js) `getUserFamilyContext` only (pre-fix) | [ensureUserFamilyContext](../backend/server.js) on first portal add-family |
+| `POST /api/members/family` raw INSERT with `status = 'family_active'` | [server.js](../backend/server.js) (pre-fix) | [createPortalFamilyMember](../backend/platform/familySignup.js) — same path as signup, `legacy` status, guardian email rules |
 
 ### 10.5 Migration / boot hygiene (tech debt, not user data)
 

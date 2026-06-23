@@ -37,7 +37,7 @@ import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
 import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
 import { initPlatformTables } from './platform/initTables.js'
 import { registerPlatformRoutes } from './platform/registerRoutes.js'
-import { registerFamilySignupRoutes } from './platform/familySignup.js'
+import { registerFamilySignupRoutes, createPortalFamilyMember } from './platform/familySignup.js'
 import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
 import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
 import { ensureCoachingNotificationSchema } from './platform/coachingSchemaEnsure.js'
@@ -2017,6 +2017,48 @@ const getUserFamilyContext = async (userId, client = pool) => {
   return result.rows[0] ?? null
 }
 
+async function familyContextFromMemberRow(client, member) {
+  if (!member?.family_id) return null
+  const familyRow = await client.query(
+    `
+      SELECT id, facility_id, family_name
+      FROM family
+      WHERE id = $1 AND archived = FALSE
+    `,
+    [member.family_id],
+  )
+  if (familyRow.rows.length === 0) return null
+
+  await client.query(
+    `
+      INSERT INTO family_member (family_id, member_id, is_active)
+      VALUES ($1, $2, TRUE)
+      ON CONFLICT (family_id, member_id) DO UPDATE SET
+        is_active = TRUE,
+        updated_at = CURRENT_TIMESTAMP
+    `,
+    [member.family_id, member.id],
+  )
+
+  const payer = await client.query(
+    `
+      SELECT payer_member_id
+      FROM family_billing_account
+      WHERE family_id = $1 AND is_active = TRUE
+      LIMIT 1
+    `,
+    [member.family_id],
+  )
+
+  return {
+    id: familyRow.rows[0].id,
+    facility_id: familyRow.rows[0].facility_id,
+    family_name: familyRow.rows[0].family_name,
+    current_member_id: member.id,
+    payer_member_id: payer.rows[0]?.payer_member_id ?? null,
+  }
+}
+
 /** Create and link a family when a logged-in member has no family yet (solo signup / legacy account). */
 const ensureUserFamilyContext = async (userId, client = pool) => {
   const existing = await getUserFamilyContext(userId, client)
@@ -2024,6 +2066,9 @@ const ensureUserFamilyContext = async (userId, client = pool) => {
 
   const member = await getMemberForAppUser(userId, client)
   if (!member) return null
+
+  const linkedFamily = await familyContextFromMemberRow(client, member)
+  if (linkedFamily) return linkedFamily
 
   let facilityId = member.facility_id
   if (!facilityId) {
@@ -8650,8 +8695,13 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       LIMIT 1
     `
     
-    const memberResult = await pool.query(memberQuery, [userId, currentAppUser.email])
-    
+    let memberResult = await pool.query(memberQuery, [userId, currentAppUser.email])
+
+    if (memberResult.rows.length === 0) {
+      await ensureMemberForAppUser(userId)
+      memberResult = await pool.query(memberQuery, [userId, currentAppUser.email])
+    }
+
     if (memberResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
@@ -9080,46 +9130,42 @@ app.post('/api/members/family', authenticateMember, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Could not resolve facility for this family' })
     }
 
-    const created = await client.query(`
-      INSERT INTO member (
-        facility_id, first_name, last_name, email, phone, date_of_birth,
-        status, is_active, parent_guardian_ids, family_id
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, 'family_active', TRUE, $7, $8)
-      RETURNING *
-    `, [
+    const createdMember = await createPortalFamilyMember(client, {
       facilityId,
-      firstName,
-      lastName,
-      req.body?.email || null,
-      req.body?.phone || null,
-      req.body?.date_of_birth || req.body?.dateOfBirth || null,
-      currentMember?.id ? [currentMember.id] : [],
-      familyContext.id,
-    ])
-
-    await client.query(`
-      INSERT INTO family_member (family_id, member_id, relationship_label, is_active)
-      VALUES ($1, $2, $3, TRUE)
-      ON CONFLICT (family_id, member_id) DO UPDATE SET
-        relationship_label = EXCLUDED.relationship_label,
-        is_active = TRUE,
-        updated_at = CURRENT_TIMESTAMP
-    `, [familyContext.id, created.rows[0].id, req.body?.relationship_label || req.body?.relationshipLabel || null])
+      familyId: familyContext.id,
+      payerMember: currentMember,
+      input: {
+        firstName,
+        lastName,
+        email: req.body?.email,
+        phone: req.body?.phone,
+        dateOfBirth: req.body?.date_of_birth || req.body?.dateOfBirth,
+        relationshipLabel: req.body?.relationship_label || req.body?.relationshipLabel,
+      },
+    })
 
     await client.query('COMMIT')
 
-    const newMemberId = created.rows[0].id
+    const newMemberId = createdMember.id
     void notifyWelcomeNewMember(pool, newMemberId, { context: 'portal_add_family' })
     void notifyFamilyGuardiansNewMember(pool, {
       familyId: familyContext.id,
       newMemberId,
     })
 
-    res.json({ success: true, data: created.rows[0] })
+    res.json({ success: true, data: createdMember })
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {})
     console.error('Create member family member error:', error)
+    if (error.code === '23505') {
+      return res.status(409).json({
+        success: false,
+        message: 'A member with this email already exists. Leave email blank for a child using your contact info.',
+      })
+    }
+    if (error.message && typeof error.message === 'string') {
+      return res.status(400).json({ success: false, message: error.message })
+    }
     res.status(500).json({ success: false, message: 'Internal server error' })
   } finally {
     client.release()
