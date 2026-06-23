@@ -940,6 +940,7 @@ export default function FamilySignupWizard({
         memberIndex,
         classEventId,
         programId: classEventId,
+        programsId: row.programsId !== '' ? Number(row.programsId) : undefined,
         schedulingFormId: row.schedulingFormId ?? pack?.formId ?? undefined,
         programName: programOption?.displayName || programOption?.name || classOption?.displayName || classOption?.name,
         className: classOption?.displayName || classOption?.name,

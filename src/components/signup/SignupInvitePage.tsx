@@ -5,6 +5,16 @@ import { getApiUrl } from '../../utils/api'
 import { formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../utils/phoneUtils'
 import { isAdult } from '../../utils/dateUtils'
 import WaiverSigningBlock, { validateWaiverSigning, type PublicWaiverTemplate } from './WaiverSigningBlock'
+import SignupEnrollmentPicker from './SignupEnrollmentPicker'
+import {
+  buildEnrollmentSubmitPayload,
+  pendingEnrollmentsToRows,
+  type PendingInviteEnrollment,
+  type SignupClassCatalog,
+  type SignupClassOption,
+  type SignupEnrollmentRow,
+  type SignupProgramOption,
+} from './signupEnrollmentUtils'
 
 export default function SignupInvitePage() {
   const [params] = useSearchParams()
@@ -18,17 +28,16 @@ export default function SignupInvitePage() {
   const [inviteInfo, setInviteInfo] = useState<{
     inviteeEmail: string
     minor: { firstName: string; lastName: string; dateOfBirth?: string }
-    pendingPayload?: {
-      enrollments?: Array<{
-        programName?: string
-        className?: string
-        scheduleLabel?: string
-        offeringLabel?: string
-        classActiveDates?: string
-        priceLabel?: string
-      }>
-    }
+    pendingPayload?: { enrollments?: PendingInviteEnrollment[] }
   } | null>(null)
+  const [enrollments, setEnrollments] = useState<SignupEnrollmentRow[]>([])
+  const [enrollmentMeta, setEnrollmentMeta] = useState<{
+    programs: SignupProgramOption[]
+    classesByProgram: Record<number, SignupClassOption[]>
+    catalogsByClass: Record<number, SignupClassCatalog>
+  }>({ programs: [], classesByProgram: {}, catalogsByClass: {} })
+  const [enrollmentsInitialized, setEnrollmentsInitialized] = useState(false)
+
   const [waivers, setWaivers] = useState<PublicWaiverTemplate[]>([])
   const [primaryAdult, setPrimaryAdult] = useState({
     firstName: '',
@@ -51,6 +60,14 @@ export default function SignupInvitePage() {
   const [comments, setComments] = useState('')
   const [paymentPolicyAcknowledged, setPaymentPolicyAcknowledged] = useState(false)
 
+  const handleMetaChange = useCallback((meta: {
+    programs: SignupProgramOption[]
+    classesByProgram: Record<number, SignupClassOption[]>
+    catalogsByClass: Record<number, SignupClassCatalog>
+  }) => {
+    setEnrollmentMeta(meta)
+  }, [])
+
   const loadInvite = useCallback(async () => {
     if (!token) {
       setError('Missing invite token.')
@@ -65,23 +82,33 @@ export default function SignupInvitePage() {
       const inviteData = await inviteRes.json()
       const waiversData = await waiversRes.json()
       if (!inviteRes.ok) throw new Error(inviteData.message || 'Invalid invite')
+      const pending = inviteData.data?.pendingPayload?.enrollments ?? []
       setInviteInfo({
         inviteeEmail: inviteData.data?.inviteeEmail || '',
         minor: inviteData.data?.minor,
         pendingPayload: inviteData.data?.pendingPayload,
       })
       setPrimaryAdult((prev) => ({ ...prev, email: inviteData.data?.inviteeEmail || prev.email }))
+      if (!enrollmentsInitialized) {
+        const rows = pendingEnrollmentsToRows(pending)
+        setEnrollments(rows.length > 0 ? rows : [])
+        setEnrollmentsInitialized(true)
+      }
       setWaivers(waiversData.data ?? [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load invite')
     } finally {
       setLoading(false)
     }
-  }, [apiUrl, token])
+  }, [apiUrl, token, enrollmentsInitialized])
 
   useEffect(() => {
     void loadInvite()
   }, [loadInvite])
+
+  const initialClassIds = enrollments
+    .map((r) => (r.classEventId !== '' ? Number(r.classEventId) : null))
+    .filter((id): id is number => id != null)
 
   const submit = async () => {
     const waiverError = validateWaiverSigning({
@@ -112,6 +139,13 @@ export default function SignupInvitePage() {
       return
     }
 
+    const enrollmentPayload = buildEnrollmentSubmitPayload(
+      enrollments,
+      enrollmentMeta.catalogsByClass,
+      enrollmentMeta.classesByProgram,
+      enrollmentMeta.programs,
+    )
+
     setSubmitting(true)
     setError(null)
     try {
@@ -120,6 +154,7 @@ export default function SignupInvitePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           primaryAdult,
+          enrollments: enrollmentPayload,
           waivers: {
             signatureName,
             comments,
@@ -173,38 +208,15 @@ export default function SignupInvitePage() {
 
         {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
 
-        {inviteInfo?.pendingPayload?.enrollments && inviteInfo.pendingPayload.enrollments.length > 0 && (
-          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-3">
-            <h2 className="text-sm font-semibold text-blue-900">Requested enrollments</h2>
-            <p className="text-xs text-blue-800">
-              Your athlete selected these classes. Enrollment will be finalized when you complete signup below.
-            </p>
-            <ul className="space-y-2">
-              {inviteInfo.pendingPayload.enrollments.map((item, index) => (
-                <li
-                  key={index}
-                  className="rounded-lg border border-blue-100 bg-white px-3 py-2 text-sm text-gray-800"
-                >
-                  <div className="font-semibold text-gray-900">
-                    {item.programName || item.className || 'Class enrollment'}
-                  </div>
-                  {item.classActiveDates && (
-                    <div className="text-gray-600 mt-0.5">{item.classActiveDates}</div>
-                  )}
-                  {item.scheduleLabel && (
-                    <div className="text-gray-600 mt-0.5">{item.scheduleLabel}</div>
-                  )}
-                  {item.offeringLabel && (
-                    <div className="text-xs text-gray-500 mt-0.5">{item.offeringLabel}</div>
-                  )}
-                  {item.priceLabel && (
-                    <div className="text-xs font-semibold text-vortex-red mt-1">{item.priceLabel}</div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+          <SignupEnrollmentPicker
+            apiUrl={apiUrl}
+            enrollments={enrollments}
+            onEnrollmentsChange={setEnrollments}
+            initialClassIds={initialClassIds}
+            onMetaChange={handleMetaChange}
+          />
+        </div>
 
         <div className="rounded-xl border border-gray-200 p-4 grid gap-3 md:grid-cols-2">
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={primaryAdult.firstName} onChange={(e) => setPrimaryAdult((p) => ({ ...p, firstName: e.target.value }))} />

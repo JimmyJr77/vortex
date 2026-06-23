@@ -3,10 +3,7 @@ import { sendAccountInviteReminderEmail } from './accountInviteEmail.js'
 import {
   buildAccountInviteUrl,
   decryptAccountInviteToken,
-  encryptAccountInviteToken,
 } from './accountInviteTokens.js'
-import crypto from 'crypto'
-import bcrypt from 'bcryptjs'
 import { POLICY } from './emailPolicy.js'
 import { isSuppressed } from './emailDeliveryStore.js'
 
@@ -15,18 +12,17 @@ const REMINDER_INTERVAL_DAYS = POLICY.reminderIntervalDays
 const REMINDER_JOB_INTERVAL_MS = 6 * 60 * 60 * 1000
 const ADVISORY_LOCK_ID = 943028471
 
-async function recoverInviteUrl(client, invite) {
+async function recoverInviteUrl(invite) {
   const decrypted = decryptAccountInviteToken(invite.token_ciphertext)
   if (decrypted) return buildAccountInviteUrl(decrypted)
 
-  const token = crypto.randomBytes(32).toString('hex')
-  const tokenHash = await bcrypt.hash(token, 10)
-  const tokenCiphertext = encryptAccountInviteToken(token)
-  await client.query(
-    `UPDATE account_invite SET token_hash = $2, token_ciphertext = $3 WHERE id = $1`,
-    [invite.id, tokenHash, tokenCiphertext],
+  // Do not rotate token_hash here — that would invalidate the link in the original invite email.
+  console.warn(
+    '[accountInviteReminders] cannot decrypt token_ciphertext for invite',
+    invite.id,
+    '- skipping reminder',
   )
-  return buildAccountInviteUrl(token)
+  return null
 }
 
 /**
@@ -64,6 +60,9 @@ export async function processAccountInviteReminders(pool) {
       const supp = await isSuppressed(row.invitee_email, 'transactional')
       if (supp.suppressed) continue
 
+      const inviteUrl = await recoverInviteUrl(row)
+      if (!inviteUrl) continue
+
       const claim = await client.query(
         `
           UPDATE account_invite
@@ -80,7 +79,6 @@ export async function processAccountInviteReminders(pool) {
 
       const invite = claim.rows[0]
       const minorName = `${row.minor_first_name || ''} ${row.minor_last_name || ''}`.trim() || 'Your athlete'
-      const inviteUrl = await recoverInviteUrl(client, invite)
       toSend.push({ inviteId: invite.id, to: invite.invitee_email, inviteUrl, minorName, weekNumber })
     }
 

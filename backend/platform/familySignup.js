@@ -2,7 +2,11 @@ import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { sendAccountInviteEmail, sendInviteSignupCompleteEmail } from '../email/accountInviteEmail.js'
-import { createAccountInviteTokenRecord, buildAccountInviteUrl } from '../email/accountInviteTokens.js'
+import {
+  createAccountInviteTokenRecord,
+  buildAccountInviteUrl,
+  findAccountInviteByToken,
+} from '../email/accountInviteTokens.js'
 import { issueEmailVerification } from '../email/emailVerificationService.js'
 import {
   notifyWelcomeNewMembers,
@@ -428,6 +432,27 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
   }
 
   return { formId, offerings, scheduleOptions, priceLabel, costUnit, classActiveDates }
+}
+
+async function enrichInviteEnrollments(pool, enrollments) {
+  if (!Array.isArray(enrollments) || enrollments.length === 0) return []
+  const schema = await resolveProgramsSchema(pool)
+  const out = []
+  for (const raw of enrollments) {
+    const e = { ...raw }
+    const classEventId = Number(e.classEventId ?? e.programId)
+    if (!e.programsId && Number.isFinite(classEventId)) {
+      const progRes = await pool.query(
+        `SELECT ${schema.programFkColumn} AS programs_id FROM program WHERE id = $1`,
+        [classEventId],
+      )
+      if (progRes.rows[0]?.programs_id != null) {
+        e.programsId = Number(progRes.rows[0].programs_id)
+      }
+    }
+    out.push(e)
+  }
+  return out
 }
 
 async function applyEnrollmentRow(client, {
@@ -1378,25 +1403,20 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
       const token = String(req.params.token || '').trim()
       if (!token) return res.status(400).json({ success: false, message: 'Token is required.' })
 
-      const invites = await pool.query(
-        `
-          SELECT ai.*, m.first_name as minor_first_name, m.last_name as minor_last_name, m.date_of_birth as minor_dob
-          FROM account_invite ai
-          JOIN member m ON m.id = ai.inviter_member_id
-          WHERE ai.used_at IS NULL
-          ORDER BY ai.created_at DESC
-          LIMIT 50
-        `,
-      )
-      let invite = null
-      for (const row of invites.rows) {
-        if (await bcrypt.compare(token, row.token_hash)) {
-          invite = row
-          break
-        }
+      const match = await findAccountInviteByToken(pool, token, { withMinor: true })
+      if (!match) {
+        return res.status(404).json({ success: false, message: 'Invite link is invalid.' })
       }
-      if (!invite) return res.status(404).json({ success: false, message: 'Invite link is invalid.' })
+      if (match.state === 'used') {
+        return res.status(410).json({
+          success: false,
+          message: 'This invite has already been used. Log in to the member portal instead.',
+        })
+      }
 
+      const invite = match.invite
+      const payload = invite.pending_payload || {}
+      const enrichedEnrollments = await enrichInviteEnrollments(pool, payload.enrollments)
       res.json({
         success: true,
         data: {
@@ -1407,7 +1427,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
             lastName: invite.minor_last_name,
             dateOfBirth: invite.minor_dob,
           },
-          pendingPayload: invite.pending_payload,
+          pendingPayload: { ...payload, enrollments: enrichedEnrollments },
         },
       })
     } catch (error) {
@@ -1419,23 +1439,17 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
     const client = await pool.connect()
     try {
       const token = String(req.params.token || '').trim()
-      const invites = await client.query(
-        `
-          SELECT *
-          FROM account_invite
-          WHERE used_at IS NULL
-          ORDER BY created_at DESC
-          LIMIT 50
-        `,
-      )
-      let invite = null
-      for (const row of invites.rows) {
-        if (await bcrypt.compare(token, row.token_hash)) {
-          invite = row
-          break
-        }
+      const match = await findAccountInviteByToken(client, token)
+      if (!match) {
+        return res.status(404).json({ success: false, message: 'Invite link is invalid.' })
       }
-      if (!invite) return res.status(404).json({ success: false, message: 'Invite link is invalid.' })
+      if (match.state === 'used') {
+        return res.status(410).json({
+          success: false,
+          message: 'This invite has already been used. Log in to the member portal instead.',
+        })
+      }
+      const invite = match.invite
 
       const primaryAdult = req.body?.primaryAdult || req.body?.adult || req.body
       const waivers = req.body?.waivers || {}
@@ -1486,7 +1500,9 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           throw new Error('All required waivers must be accepted for the minor.')
         }
 
-        const pendingEnrollments = Array.isArray(payload.enrollments) ? payload.enrollments : []
+        const bodyEnrollments = Array.isArray(req.body?.enrollments) ? req.body.enrollments : null
+        const pendingEnrollments = bodyEnrollments
+          ?? (Array.isArray(payload.enrollments) ? payload.enrollments : [])
         if (pendingEnrollments.length > 0) {
           const minorRow = await client.query(`SELECT * FROM member WHERE id = $1`, [minorMemberId])
           if (minorRow.rows[0]) {

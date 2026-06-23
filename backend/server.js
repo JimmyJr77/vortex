@@ -1986,8 +1986,8 @@ const getUserRoles = async (userId) => {
   }
 }
 
-const getUserFamilyContext = async (userId) => {
-  const result = await pool.query(`
+const getUserFamilyContext = async (userId, client = pool) => {
+  const result = await client.query(`
     WITH linked_member AS (
       SELECT m.*
       FROM member m
@@ -1998,6 +1998,7 @@ const getUserFamilyContext = async (userId) => {
     )
     SELECT
       f.id,
+      f.facility_id,
       f.family_name,
       lm.id as current_member_id,
       fba.payer_member_id
@@ -2014,6 +2015,62 @@ const getUserFamilyContext = async (userId) => {
     LIMIT 1
   `, [userId])
   return result.rows[0] ?? null
+}
+
+/** Create and link a family when a logged-in member has no family yet (solo signup / legacy account). */
+const ensureUserFamilyContext = async (userId, client = pool) => {
+  const existing = await getUserFamilyContext(userId, client)
+  if (existing) return existing
+
+  const member = await getMemberForAppUser(userId, client)
+  if (!member) return null
+
+  let facilityId = member.facility_id
+  if (!facilityId) {
+    const userResult = await client.query(
+      'SELECT facility_id FROM app_user WHERE id = $1',
+      [userId],
+    )
+    facilityId = userResult.rows[0]?.facility_id
+  }
+  if (!facilityId) return null
+
+  const lastName = String(member.last_name || '').trim() || 'Member'
+  const familyResult = await client.query(
+    `
+      INSERT INTO family (facility_id, family_name)
+      VALUES ($1, $2)
+      RETURNING id, facility_id, family_name
+    `,
+    [facilityId, `${lastName} Family`],
+  )
+  const family = familyResult.rows[0]
+
+  await moveMemberToFamily(member.id, family.id, client)
+
+  await client.query(
+    `
+      INSERT INTO family_billing_account (
+        family_id, payer_member_id, billing_email, billing_phone, is_active
+      )
+      VALUES ($1, $2, $3, $4, TRUE)
+      ON CONFLICT (family_id) DO UPDATE SET
+        payer_member_id = COALESCE(family_billing_account.payer_member_id, EXCLUDED.payer_member_id),
+        billing_email = COALESCE(family_billing_account.billing_email, EXCLUDED.billing_email),
+        billing_phone = COALESCE(family_billing_account.billing_phone, EXCLUDED.billing_phone),
+        is_active = TRUE,
+        updated_at = CURRENT_TIMESTAMP
+    `,
+    [family.id, member.id, member.email, member.phone],
+  )
+
+  return {
+    id: family.id,
+    facility_id: family.facility_id,
+    family_name: family.family_name,
+    current_member_id: member.id,
+    payer_member_id: member.id,
+  }
 }
 
 const getMemberForAppUser = async (userId, client = pool) => {
@@ -8994,16 +9051,12 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
 
 // Add a family member from the member portal.
 app.post('/api/members/family', authenticateMember, async (req, res) => {
+  const client = await pool.connect()
   try {
     const userId = req.userId || req.memberId
     const hasParentRole = await userIsAdult(userId)
     if (!hasParentRole) {
       return res.status(403).json({ success: false, message: 'Only adults can add family members' })
-    }
-
-    const familyContext = await getUserFamilyContext(userId)
-    if (!familyContext) {
-      return res.status(404).json({ success: false, message: 'Family not found' })
     }
 
     const firstName = String(req.body?.first_name || req.body?.firstName || '').trim()
@@ -9012,16 +9065,30 @@ app.post('/api/members/family', authenticateMember, async (req, res) => {
       return res.status(400).json({ success: false, message: 'First and last name are required' })
     }
 
-    const currentMember = await getMemberForAppUser(userId)
-    const created = await pool.query(`
+    await client.query('BEGIN')
+
+    const familyContext = await ensureUserFamilyContext(userId, client)
+    if (!familyContext) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({ success: false, message: 'Could not resolve or create a family for your account' })
+    }
+
+    const currentMember = await getMemberForAppUser(userId, client)
+    const facilityId = familyContext.facility_id ?? currentMember?.facility_id
+    if (!facilityId) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({ success: false, message: 'Could not resolve facility for this family' })
+    }
+
+    const created = await client.query(`
       INSERT INTO member (
         facility_id, first_name, last_name, email, phone, date_of_birth,
         status, is_active, parent_guardian_ids, family_id
       )
-      VALUES ($1, $2, $3, $4, $5, $6, 'lead', TRUE, $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6, 'family_active', TRUE, $7, $8)
       RETURNING *
     `, [
-      familyContext.facility_id,
+      facilityId,
       firstName,
       lastName,
       req.body?.email || null,
@@ -9031,7 +9098,7 @@ app.post('/api/members/family', authenticateMember, async (req, res) => {
       familyContext.id,
     ])
 
-    await pool.query(`
+    await client.query(`
       INSERT INTO family_member (family_id, member_id, relationship_label, is_active)
       VALUES ($1, $2, $3, TRUE)
       ON CONFLICT (family_id, member_id) DO UPDATE SET
@@ -9039,6 +9106,8 @@ app.post('/api/members/family', authenticateMember, async (req, res) => {
         is_active = TRUE,
         updated_at = CURRENT_TIMESTAMP
     `, [familyContext.id, created.rows[0].id, req.body?.relationship_label || req.body?.relationshipLabel || null])
+
+    await client.query('COMMIT')
 
     const newMemberId = created.rows[0].id
     void notifyWelcomeNewMember(pool, newMemberId, { context: 'portal_add_family' })
@@ -9049,8 +9118,11 @@ app.post('/api/members/family', authenticateMember, async (req, res) => {
 
     res.json({ success: true, data: created.rows[0] })
   } catch (error) {
+    await client.query('ROLLBACK').catch(() => {})
     console.error('Create member family member error:', error)
     res.status(500).json({ success: false, message: 'Internal server error' })
+  } finally {
+    client.release()
   }
 })
 

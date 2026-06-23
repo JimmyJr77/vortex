@@ -137,8 +137,9 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
 ### Core member API ([backend/server.js](../backend/server.js), guard `authenticateMember`)
 - Public: `POST /api/members/login`, `POST /api/members/request-password-reset`.
 - Self: `POST /api/members/change-password`, `GET/PUT /api/members/me`.
-- Family: `GET /api/members/family`, `POST /api/members/family` (`PARENT_GUARDIAN`),
-  `PUT /api/members/family/:id` (`PARENT_GUARDIAN`),
+- Family: `GET /api/members/family`, `POST /api/members/family` (adult-gated via DOB;
+  auto-provisions a `family` + `family_member` + billing payer when the account has none yet),
+  `PUT /api/members/family/:id` (adult-gated),
   `POST /api/members/family/:id/mark-for-removal`.
 - Enrollment: `POST /api/members/enroll`, `DELETE /api/members/enroll/:id`,
   `GET /api/members/enrollments|programs|categories`,
