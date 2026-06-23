@@ -1,7 +1,7 @@
 import { sendEmail } from '../email/sendEmail.js'
+import { publicAppUrl } from '../email/publicAppUrl.js'
 
 const TEAM_EMAIL = process.env.SMTP_FROM || process.env.SMTP_USER || 'team@vortexathletics.com'
-const FRONTEND_URL = (process.env.FRONTEND_URL || 'https://www.vortexathletics.com').replace(/\/$/, '')
 
 function escapeHtml(str) {
   return String(str ?? '')
@@ -15,7 +15,7 @@ function escapeHtml(str) {
  * @param {{ email: string; formId: number; formTitle: string; token: string }} params
  */
 export async function sendMagicLinkEmail({ email, formId, formTitle, token }) {
-  const link = `${FRONTEND_URL}/enroll?form=${formId}&auth=${encodeURIComponent(token)}`
+  const link = `${publicAppUrl()}/enroll?form=${formId}&auth=${encodeURIComponent(token)}`
   const title = formTitle || 'Vortex Athletics scheduling'
   const subject = `Sign in to complete your signup — ${title}`
 
@@ -46,5 +46,5 @@ Vortex Athletics`
 </body>
 </html>`
 
-  await sendEmail({ to: email, subject, text, html })
+  return sendEmail({ to: email, subject, text, html, category: 'signin_magic_link', templateVersion: 'magic_link_v1' })
 }

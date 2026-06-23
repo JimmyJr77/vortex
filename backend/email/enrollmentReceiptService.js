@@ -1,10 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { randomBytes } from 'crypto'
 import { sendEnrollmentReceiptEmail } from './enrollmentReceiptEmail.js'
-
-function publicAppUrl() {
-  return (process.env.PUBLIC_APP_URL || process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '')
-}
+import { publicAppUrl } from './publicAppUrl.js'
 
 /**
  * @param {import('pg').Pool} pool

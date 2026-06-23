@@ -56,6 +56,5 @@ export async function sendFamilyMemberAddedEmail({
     <p>— Vortex Athletics</p>
   `
 
-  await sendEmail({ to, subject, text, html })
-  return { sent: true }
+  return sendEmail({ to, subject, text, html, category: 'family_member_added', templateVersion: 'family_added_v1' })
 }

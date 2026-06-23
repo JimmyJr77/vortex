@@ -1,10 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { randomBytes } from 'crypto'
 import { sendVerifyEmailEmail } from './verifyEmailEmail.js'
-
-function publicAppUrl() {
-  return (process.env.PUBLIC_APP_URL || process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '')
-}
+import { publicAppUrl } from './publicAppUrl.js'
 
 const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || '').trim())
 

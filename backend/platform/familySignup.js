@@ -1,7 +1,8 @@
 import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { sendAccountInviteEmail } from '../email/accountInviteEmail.js'
+import { sendAccountInviteEmail, sendInviteSignupCompleteEmail } from '../email/accountInviteEmail.js'
+import { createAccountInviteTokenRecord, buildAccountInviteUrl } from '../email/accountInviteTokens.js'
 import { issueEmailVerification } from '../email/emailVerificationService.js'
 import {
   notifyWelcomeNewMembers,
@@ -904,7 +905,7 @@ function adminAuthMiddleware(pool, jwtSecret) {
   }
 }
 
-export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl = process.env.PUBLIC_APP_URL || 'http://localhost:5173' }) {
+export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
   void ensureSignupSchema(pool).catch((err) => {
     console.error('[signup] ensureSignupSchema failed:', err.message)
   })
@@ -913,10 +914,12 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
   const sendPostSignupNotifications = async (result) => {
     if (!result) return
 
-    try {
-      await notifyWelcomeNewMembers(pool, result.memberIds || [], { context: 'family_signup' })
-    } catch (err) {
-      console.warn('[signup] welcome emails failed:', err?.message || err)
+    if (!result.skipWelcome) {
+      try {
+        await notifyWelcomeNewMembers(pool, result.memberIds || [], { context: 'family_signup' })
+      } catch (err) {
+        console.warn('[signup] welcome emails failed:', err?.message || err)
+      }
     }
 
     for (const receipt of result.enrollmentReceipts || []) {
@@ -950,6 +953,19 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
 
     const to = String(result.primaryEmail || '').trim()
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      if (result.inviteCompletion) {
+        try {
+          await sendInviteSignupCompleteEmail({
+            to,
+            parentName: result.primaryName,
+            minorName: result.minorName,
+            enrollmentCount: (result.enrollmentReceipts || []).length,
+          })
+        } catch (err) {
+          console.warn('[signup] invite completion email failed:', err?.message || err)
+        }
+      }
+
       try {
         const payerMemberId = Number(result.payerMemberId)
         if (Number.isFinite(payerMemberId)) {
@@ -1311,31 +1327,29 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
         })
       }
 
-      const token = crypto.randomBytes(32).toString('hex')
-      const tokenHash = await bcrypt.hash(token, 10)
-      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      const { token, tokenHash, tokenCiphertext } = await createAccountInviteTokenRecord()
       await client.query(
         `
           INSERT INTO account_invite (
-            facility_id, token_hash, inviter_member_id, invitee_email,
-            pending_family_id, pending_payload, expires_at
+            facility_id, token_hash, token_ciphertext, inviter_member_id, invitee_email,
+            pending_family_id, pending_payload
           )
-          VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7)
+          VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb)
         `,
         [
           facilityId,
           tokenHash,
+          tokenCiphertext,
           minorMember.id,
           parentEmail,
           familyId,
           JSON.stringify({ minorMemberId: minorMember.id, enrollments: catalogEnrollments }),
-          expiresAt,
         ],
       )
 
       await client.query('COMMIT')
 
-      const inviteUrl = `${publicAppUrl.replace(/\/$/, '')}/signup/invite?token=${token}`
+      const inviteUrl = buildAccountInviteUrl(token)
       const emailResult = await sendAccountInviteEmail({
         to: parentEmail,
         inviteUrl,
@@ -1369,7 +1383,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
           SELECT ai.*, m.first_name as minor_first_name, m.last_name as minor_last_name, m.date_of_birth as minor_dob
           FROM account_invite ai
           JOIN member m ON m.id = ai.inviter_member_id
-          WHERE ai.used_at IS NULL AND ai.expires_at > now()
+          WHERE ai.used_at IS NULL
           ORDER BY ai.created_at DESC
           LIMIT 50
         `,
@@ -1381,7 +1395,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
           break
         }
       }
-      if (!invite) return res.status(404).json({ success: false, message: 'Invite link is invalid or expired.' })
+      if (!invite) return res.status(404).json({ success: false, message: 'Invite link is invalid.' })
 
       res.json({
         success: true,
@@ -1409,7 +1423,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
         `
           SELECT *
           FROM account_invite
-          WHERE used_at IS NULL AND expires_at > now()
+          WHERE used_at IS NULL
           ORDER BY created_at DESC
           LIMIT 50
         `,
@@ -1421,13 +1435,15 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
           break
         }
       }
-      if (!invite) return res.status(404).json({ success: false, message: 'Invite link is invalid or expired.' })
+      if (!invite) return res.status(404).json({ success: false, message: 'Invite link is invalid.' })
 
       const primaryAdult = req.body?.primaryAdult || req.body?.adult || req.body
       const waivers = req.body?.waivers || {}
       const familyId = Number(invite.pending_family_id)
       const payload = invite.pending_payload || {}
       const minorMemberId = Number(payload.minorMemberId)
+      let minorName = null
+      const inviteEnrollmentReceipts = []
 
       await client.query('BEGIN')
 
@@ -1473,21 +1489,44 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret, publicAppUrl 
         const pendingEnrollments = Array.isArray(payload.enrollments) ? payload.enrollments : []
         if (pendingEnrollments.length > 0) {
           const minorRow = await client.query(`SELECT * FROM member WHERE id = $1`, [minorMemberId])
+          if (minorRow.rows[0]) {
+            minorName = `${minorRow.rows[0].first_name || ''} ${minorRow.rows[0].last_name || ''}`.trim() || null
+          }
           const programKeysCreated = new Set()
           for (const enrollment of pendingEnrollments) {
-            await applyEnrollmentRow(client, {
+            const receipt = await applyEnrollmentRow(client, {
               memberId: minorMemberId,
               memberRow: minorRow.rows[0],
               primaryAdultEmail: primaryAdult.email,
               enrollment,
               programKeysCreated,
             })
+            if (receipt) inviteEnrollmentReceipts.push(receipt)
+          }
+        } else {
+          const minorRow = await client.query(
+            `SELECT first_name, last_name FROM member WHERE id = $1`,
+            [minorMemberId],
+          )
+          if (minorRow.rows[0]) {
+            minorName = `${minorRow.rows[0].first_name || ''} ${minorRow.rows[0].last_name || ''}`.trim() || null
           }
         }
       }
 
       await client.query(`UPDATE account_invite SET used_at = now() WHERE id = $1`, [invite.id])
       await client.query('COMMIT')
+
+      void sendPostSignupNotifications({
+        ...result,
+        enrollmentReceipts: [
+          ...(result.enrollmentReceipts || []),
+          ...inviteEnrollmentReceipts,
+        ],
+        inviteCompletion: true,
+        skipWelcome: true,
+        minorName,
+      })
 
       res.json({ success: true, data: result })
     } catch (error) {

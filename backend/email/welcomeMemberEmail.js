@@ -57,6 +57,5 @@ export async function sendWelcomeMemberEmail({ to, firstName, username, hasLogin
     <p>— Vortex Athletics</p>
   `
 
-  await sendEmail({ to, subject, text, html })
-  return { sent: true }
+  return sendEmail({ to, subject, text, html, category: 'account_welcome', templateVersion: 'welcome_v1' })
 }

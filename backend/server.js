@@ -43,6 +43,9 @@ import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
 import { ensureCoachingNotificationSchema } from './platform/coachingSchemaEnsure.js'
 import { generateTemporaryPassword, sendTemporaryPasswordEmail } from './scheduling/tempPasswordEmail.js'
 import { logWarn, reportError } from './observability/logger.js'
+import { startAccountInviteReminderScheduler } from './email/accountInviteReminderService.js'
+import { registerEmailPool } from './email/emailDeliveryStore.js'
+import { registerEmailUnsubscribeRoutes } from './email/marketingUnsubscribe.js'
 
 const { Pool } = pkg
 
@@ -2697,6 +2700,7 @@ registerProgramsPublicRoutes(app, pool)
 registerProgramsAdminRoutes(app, pool)
 registerPlatformRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerFamilySignupRoutes(app, pool, { jwtSecret: JWT_SECRET })
+registerEmailUnsubscribeRoutes(app)
 registerCoachPortalRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerCampRegistrationRoutes(app, pool)
 registerDevMemberRoutes(app, pool)
@@ -14253,6 +14257,8 @@ const startServer = async () => {
   if (process.env.RUN_MIGRATION_ONLY !== 'true') {
     app.listen(PORT, () => {
         console.log(`[Server ${workerId}] 🚀 Server running on port ${PORT} (worker ${workerId})`)
+        registerEmailPool(pool)
+        startAccountInviteReminderScheduler(pool)
         console.log(`[Server ${workerId}] 📊 Health check: http://localhost:${PORT}/api/health`)
         console.log(`[Server ${workerId}] 📝 Registrations: http://localhost:${PORT}/api/registrations`)
         console.log(`[Server ${workerId}] 📧 Newsletter: http://localhost:${PORT}/api/newsletter`)

@@ -1,57 +1,62 @@
 import { sendEmail, isEmailConfigured } from './sendEmail.js'
+import { emailButtonHtml, emailFooterHtml, escapeHtml, preheaderHtml, plainLinkLine } from './emailHtml.js'
+import { BRAND_NAME } from './emailPolicy.js'
 
-function escapeHtml(str) {
-  return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
+const TEMPLATE_VERSION = 'verify_v2'
 
 /**
  * Email asking a user to confirm their email address via a single-use link.
  *
- * @param {{ to: string; verifyUrl: string; name?: string }} params
+ * @param {{ to: string; verifyUrl: string; name?: string; supportContact?: string }} params
  */
-export async function sendVerifyEmailEmail({ to, verifyUrl, name }) {
+export async function sendVerifyEmailEmail({ to, verifyUrl, name, supportContact }) {
   if (!isEmailConfigured()) {
-    console.warn('[verifyEmailEmail] SMTP not configured; verify URL:', verifyUrl)
-    return { sent: false, verifyUrl }
+    // Do NOT log the verify URL — it contains a single-use token.
+    console.warn('[verifyEmailEmail] SMTP not configured; skipping verification email')
+    return { sent: false }
   }
   if (!to) {
     console.warn('[verifyEmailEmail] No recipient email; skipping send')
     return { sent: false }
   }
 
-  const greeting = name ? `Hi ${name},` : 'Hello,'
-  const subject = 'Confirm your email — Vortex Athletics'
+  const greeting = name ? `Hi ${escapeHtml(name)},` : 'Hi there,'
+  const subject = `Verify your email for ${BRAND_NAME}`
+  const preheader = `Complete your secure parent account for ${BRAND_NAME}.`
+  const contactLine = supportContact
+    ? `If you did not start this request, you can ignore this message or contact ${BRAND_NAME} at ${supportContact}.`
+    : `If you did not start this request, you can safely ignore this message.`
 
   const text = [
-    greeting,
+    name ? `Hi ${name},` : 'Hi there,',
     '',
-    'Please confirm your email address for your Vortex Athletics account.',
+    `Confirm your email to finish setting up your parent account for ${BRAND_NAME}.`,
     '',
-    `Confirm your email: ${verifyUrl}`,
+    plainLinkLine('Verify my email', verifyUrl),
     '',
-    'This link expires in 7 days. If you did not create an account, you can ignore this email.',
+    'This secure link can only be used once.',
     '',
-    '— Vortex Athletics',
+    `You requested this email while creating a ${BRAND_NAME} account. ${contactLine}`,
+    '',
+    emailFooterHtml.text,
   ].join('\n')
 
   const html = `
-    <p>${escapeHtml(greeting)}</p>
-    <p>Please confirm your email address for your Vortex Athletics account.</p>
-    <p style="margin: 28px 0;">
-      <a href="${escapeHtml(verifyUrl)}"
-         style="display: inline-block; background: #c41e3a; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">
-        Confirm your email
-      </a>
-    </p>
+    ${preheaderHtml(preheader)}
+    <p>${greeting}</p>
+    <p>Confirm your email to finish setting up your parent account for <strong>${escapeHtml(BRAND_NAME)}</strong>.</p>
+    ${emailButtonHtml('Verify my email', verifyUrl)}
     <p style="font-size: 14px; color: #555;">Or copy this link: <a href="${escapeHtml(verifyUrl)}">${escapeHtml(verifyUrl)}</a></p>
-    <p style="color:#666;font-size:13px;">This link expires in 7 days. If you did not create an account, you can ignore this email.</p>
-    <p>— Vortex Athletics</p>
+    <p style="color:#666;font-size:13px;">This secure link can only be used once. ${escapeHtml(contactLine)}</p>
+    ${emailFooterHtml.html}
   `
 
-  await sendEmail({ to, subject, text, html })
-  return { sent: true }
+  return sendEmail({
+    to,
+    subject,
+    text,
+    html,
+    category: 'parent_email_verification',
+    templateVersion: TEMPLATE_VERSION,
+  })
 }

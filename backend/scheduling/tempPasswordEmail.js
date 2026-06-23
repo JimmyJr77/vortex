@@ -58,5 +58,5 @@ ${TEAM_EMAIL}`
 </body>
 </html>`
 
-  await sendEmail({ to: registrantEmail, subject, text, html })
+  return sendEmail({ to: registrantEmail, subject, text, html, category: 'password_reset', templateVersion: 'temp_password_v1' })
 }

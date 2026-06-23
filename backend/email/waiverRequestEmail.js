@@ -1,4 +1,5 @@
 import { sendEmail, isEmailConfigured } from './sendEmail.js'
+import { publicAppUrl } from './publicAppUrl.js'
 
 const TEAM_EMAIL = process.env.SMTP_FROM || process.env.SMTP_USER || 'team@vortexathletics.com'
 
@@ -11,8 +12,7 @@ function escapeHtml(str) {
 }
 
 function portalUrl() {
-  const base = (process.env.PUBLIC_APP_URL || process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '')
-  return `${base}/?login=1`
+  return `${publicAppUrl()}/?login=1`
 }
 
 function extractEmailAddress(value) {

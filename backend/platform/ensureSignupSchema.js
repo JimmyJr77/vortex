@@ -19,6 +19,7 @@ export async function ensureSignupSchema(pool) {
       '039_member_graduation_year.sql',
       '041_app_user_nullable_email.sql',
       '042_enrollment_receipt_token.sql',
+      '043_account_invite_reminders.sql',
     ]) {
       const migrationPath = path.join(migrationDir, file)
       if (fs.existsSync(migrationPath)) {

@@ -1,4 +1,27 @@
 import nodemailer from 'nodemailer'
+import crypto from 'crypto'
+import {
+  normalizeEmail,
+  isValidEmail,
+  extractEmailAddress as extractAddr,
+} from './emailAddress.js'
+import {
+  isKnownCategory,
+  streamForCategory,
+  isTransactional,
+  isMarketing,
+  isSecurityCategory,
+  findPromotionalContent,
+  STREAM_TRANSACTIONAL,
+} from './emailCategories.js'
+import { POLICY, frontDeskReplyTo, categoryDisabled } from './emailPolicy.js'
+import {
+  isSuppressed,
+  addSuppression,
+  recentSendStats,
+  recordDelivery,
+  updateDeliveryStatus,
+} from './emailDeliveryStore.js'
 
 let transporter = null
 
@@ -74,12 +97,7 @@ export function formatEmailError(err) {
   return msg || 'Failed to send email'
 }
 
-function extractEmailAddress(value) {
-  const s = String(value || '').trim()
-  const bracketed = s.match(/<([^>]+)>/)
-  if (bracketed) return bracketed[1].trim()
-  return s
-}
+export const extractEmailAddress = extractAddr
 
 export function getEmailConfigSummary() {
   const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim()
@@ -116,31 +134,208 @@ export async function verifySmtpConnection() {
   }
 }
 
+function resolveFromAddress() {
+  const fromRaw = (process.env.SMTP_FROM || smtpUser() || '').trim()
+  if (fromRaw.includes('<') && fromRaw.includes('>')) {
+    return fromRaw
+  }
+  const email = extractEmailAddress(fromRaw)
+  return email ? `Vortex Athletics <${email}>` : 'Vortex Athletics'
+}
+
+function resolveReplyTo() {
+  const explicit = (process.env.SMTP_REPLY_TO || '').trim()
+  if (explicit && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(explicit)) {
+    return explicit
+  }
+  const fromEmail = extractEmailAddress(process.env.SMTP_FROM || smtpUser())
+  return fromEmail || undefined
+}
+
 /**
- * @param {{ to: string; subject: string; text: string; html: string }} mail
+ * Send a transactional (or marketing) email.
+ *
+ * Backward compatible: existing callers passing only `{ to, subject, text, html }` keep
+ * working (treated as transactional). New callers should pass a `category` so the message
+ * is classified, suppression/policy is enforced, and delivery is logged.
+ *
+ * @param {{
+ *   to: string;
+ *   subject: string;
+ *   text: string;
+ *   html: string;
+ *   replyTo?: string;
+ *   category?: string;
+ *   idempotencyKey?: string;
+ *   listUnsubscribeUrl?: string;   // marketing only
+ *   templateVersion?: string;
+ *   facilityId?: number | null;
+ *   memberId?: number | null;
+ *   invitationId?: number | null;
+ *   skipPolicy?: boolean;          // bypass cooldown/cap (e.g. one-off security alerts)
+ * }} mail
+ * @returns {Promise<{ sent: boolean; suppressed?: boolean; skipped?: boolean; reason?: string; messageId?: string }>}
  */
-export async function sendEmail({ to, subject, text, html }) {
+export async function sendEmail({
+  to,
+  subject,
+  text,
+  html,
+  replyTo,
+  category,
+  idempotencyKey,
+  listUnsubscribeUrl,
+  templateVersion = null,
+  facilityId = null,
+  memberId = null,
+  invitationId = null,
+  skipPolicy = false,
+}) {
+  const normalizedTo = normalizeEmail(to)
+  if (!isValidEmail(normalizedTo)) {
+    throw new Error('Invalid recipient email address')
+  }
+
+  const stream = category ? streamForCategory(category) : STREAM_TRANSACTIONAL
+  if (category && !isKnownCategory(category)) {
+    throw new Error(`Unknown email category: ${category}`)
+  }
+
+  // Classification guardrails.
+  if (category && isTransactional(category)) {
+    const promo = findPromotionalContent(subject, text)
+    if (promo.length > 0) {
+      throw new Error(
+        `Transactional email (${category}) contains promotional content: ${promo.join(', ')}`,
+      )
+    }
+    if (listUnsubscribeUrl) {
+      throw new Error('Transactional email must not include a marketing unsubscribe link')
+    }
+  }
+  if (category && isMarketing(category) && !listUnsubscribeUrl) {
+    throw new Error('Marketing email requires a one-click unsubscribe URL')
+  }
+
+  // Kill switch / per-category disable.
+  if (category && categoryDisabled(category)) {
+    await recordDelivery({
+      facilityId, memberId, invitationId, category, stream, templateVersion,
+      email: normalizedTo, status: 'suppressed', providerReason: 'category_disabled', idempotencyKey,
+    })
+    return { sent: false, skipped: true, reason: 'category_disabled' }
+  }
+
+  // Suppression list (global blocks all; marketing-only blocks marketing stream).
+  const supp = await isSuppressed(normalizedTo, stream)
+  if (supp.suppressed) {
+    await recordDelivery({
+      facilityId, memberId, invitationId, category: category || 'unknown', stream,
+      templateVersion, email: normalizedTo, status: 'suppressed',
+      providerReason: `suppressed:${supp.reason}`, idempotencyKey,
+    })
+    return { sent: false, suppressed: true, reason: supp.reason }
+  }
+
+  // Cooldown + daily cap (skippable for one-off security messages).
+  if (category && !skipPolicy) {
+    const dayMs = 24 * 60 * 60 * 1000
+    const stats = await recentSendStats(normalizedTo, category, dayMs)
+    if (stats.count >= POLICY.dailyPerAddressMax) {
+      return { sent: false, skipped: true, reason: 'daily_cap' }
+    }
+    if (stats.lastAt && Date.now() - stats.lastAt.getTime() < POLICY.resendCooldownSec * 1000) {
+      return { sent: false, skipped: true, reason: 'cooldown' }
+    }
+  }
+
   const transport = getTransporter()
   if (!transport) {
     throw new Error(formatEmailError(new Error('not configured')))
   }
 
-  const from = extractEmailAddress(process.env.SMTP_FROM || smtpUser())
+  const from = resolveFromAddress()
+  const replyToAddress = resolveValidatedReplyTo(replyTo, category)
+
+  const headers = {
+    'X-Mailer': 'Vortex Athletics',
+    'X-Entity-Ref-ID': idempotencyKey || crypto.randomUUID(),
+  }
+  if (stream === STREAM_TRANSACTIONAL) {
+    // Signal mailbox providers this is an automated, non-bulk message.
+    headers['Auto-Submitted'] = 'auto-generated'
+    headers['X-Auto-Response-Suppress'] = 'All'
+  }
+  if (stream !== STREAM_TRANSACTIONAL && listUnsubscribeUrl) {
+    headers['List-Unsubscribe'] = `<${listUnsubscribeUrl}>`
+    headers['List-Unsubscribe-Post'] = 'List-Unsubscribe=One-Click'
+  }
+
+  const delivery = await recordDelivery({
+    facilityId, memberId, invitationId, category: category || 'unknown', stream,
+    templateVersion, email: normalizedTo, status: 'queued', idempotencyKey,
+  })
+  if (delivery.duplicate) {
+    return { sent: false, skipped: true, reason: 'duplicate' }
+  }
 
   try {
-    await transport.sendMail({
-      from: `Vortex Athletics <${from}>`,
-      to,
+    const info = await transport.sendMail({
+      from,
+      to: normalizedTo,
+      replyTo: replyToAddress,
       subject,
       text,
       html,
+      headers,
+      // Account-security mail: never allow tracking pixels/redirects.
+      ...(category && isSecurityCategory(category) ? { disableUrlAccess: false } : {}),
     })
+    await updateDeliveryStatus(delivery.id, 'accepted', {
+      providerReason: Array.isArray(info?.rejected) && info.rejected.length ? 'partial_reject' : null,
+    })
+    return { sent: true, messageId: info?.messageId }
   } catch (err) {
     if (String(err?.code) === 'EAUTH' || Number(err?.responseCode) === 535) {
       transporter = null
+    }
+    const code = Number(err?.responseCode) || null
+    const isHardBounce = code != null && code >= 500 && code < 600
+    await updateDeliveryStatus(delivery.id, isHardBounce ? 'bounced' : 'failed', {
+      smtpCode: code != null ? String(code) : null,
+      providerReason: classifyFailure(err),
+    })
+    // A permanent (5xx) failure is a hard bounce we observed synchronously — suppress it
+    // so we stop retrying/reminding a dead address (mirrors what an ESP webhook would do).
+    if (isHardBounce) {
+      await addSuppression(normalizedTo, {
+        scope: 'global', reason: 'hard_bounce', source: 'smtp', detail: String(code),
+      })
     }
     const friendly = new Error(formatEmailError(err))
     friendly.cause = err
     throw friendly
   }
+}
+
+/** Validate Reply-To: must be a real address; never a no-reply. Falls back to front desk. */
+function resolveValidatedReplyTo(explicit, category) {
+  const candidate = explicit || frontDeskReplyTo()
+  if (candidate) {
+    const addr = extractEmailAddress(candidate)
+    if (isValidEmail(addr) && !/^no-?reply@/i.test(addr)) {
+      return candidate
+    }
+  }
+  // Fall back to the provider's existing logic (SMTP_REPLY_TO/From).
+  return resolveReplyTo()
+}
+
+/** Short, non-sensitive failure classification for the delivery log. */
+function classifyFailure(err) {
+  const code = Number(err?.responseCode) || 0
+  if (code === 535 || String(err?.code) === 'EAUTH') return 'auth_failed'
+  if (code >= 500 && code < 600) return 'permanent_failure'
+  if (code >= 400 && code < 500) return 'temporary_failure'
+  return 'send_error'
 }

@@ -9,8 +9,9 @@ NODE_ENV=development
 # Frontend URL (for CORS)
 FRONTEND_URL=http://localhost:5173
 
-# Public URL used to build links in emails
-PUBLIC_APP_URL=http://localhost:5173
+# Public URL for email links (optional). When unset, emails always link to
+# https://www.vortexathletics.com — even during local development.
+# PUBLIC_APP_URL=https://www.vortexathletics.com
 
 # Email / SMTP (Google Workspace App Password recommended).
 # Leave SMTP_USER / SMTP_PASS blank locally to skip sending (calls no-op).
