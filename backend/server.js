@@ -9151,6 +9151,7 @@ app.post('/api/members/family', authenticateMember, async (req, res) => {
     void notifyFamilyGuardiansNewMember(pool, {
       familyId: familyContext.id,
       newMemberId,
+      addedByUserId: userId,
     })
 
     res.json({ success: true, data: createdMember })

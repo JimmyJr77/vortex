@@ -6,6 +6,7 @@ import {
   listFamilyGuardianEmails,
   loadMemberRow,
   dedupeEmails,
+  resolveAppUserEmail,
 } from './memberContact.js'
 
 /**
@@ -114,15 +115,29 @@ export async function notifyEnrollmentReceipt(pool, params) {
  * @param {{ familyId: number; newMemberId: number; addedByMemberId?: number | null; familyName?: string | null; bestEffort?: boolean }} params
  */
 export async function notifyFamilyGuardiansNewMember(pool, params) {
-  const { familyId, newMemberId, familyName = null, bestEffort = true } = params
+  const { familyId, newMemberId, familyName = null, addedByUserId = null, bestEffort = true } = params
   try {
     const newMember = await loadMemberRow(pool, newMemberId)
     if (!newMember) return { sent: false, skipped: true }
 
-    const guardianEmails = await listFamilyGuardianEmails(pool, familyId, {
+    let guardianEmails = await listFamilyGuardianEmails(pool, familyId, {
       excludeMemberId: newMemberId,
     })
-    if (guardianEmails.length === 0) return { sent: false, skipped: true, reason: 'no_guardians' }
+
+    const actorEmail = addedByUserId ? await resolveAppUserEmail(pool, addedByUserId) : null
+    if (actorEmail) {
+      guardianEmails = dedupeEmails([...guardianEmails, actorEmail])
+    }
+
+    if (guardianEmails.length === 0) {
+      console.warn(
+        '[memberNotifications] family_member_added: no guardian emails for family',
+        familyId,
+        'newMember',
+        newMemberId,
+      )
+      return { sent: false, skipped: true, reason: 'no_guardians' }
+    }
 
     const newMemberName = `${newMember.first_name || ''} ${newMember.last_name || ''}`.trim() || 'New member'
     let familyLabel = familyName
@@ -134,16 +149,35 @@ export async function notifyFamilyGuardiansNewMember(pool, params) {
     const results = []
     for (const to of dedupeEmails(guardianEmails)) {
       const guardian = await pool.query(
-        `SELECT first_name FROM member WHERE LOWER(email) = LOWER($1) AND family_id = $2 LIMIT 1`,
+        `
+          SELECT m.first_name
+          FROM family_member fm
+          JOIN member m ON m.id = fm.member_id
+          LEFT JOIN app_user au ON au.id = m.app_user_id
+          WHERE fm.family_id = $2
+            AND LOWER(COALESCE(NULLIF(TRIM(m.email), ''), NULLIF(TRIM(au.email), ''))) = LOWER($1)
+          LIMIT 1
+        `,
         [to, familyId],
       )
+      let guardianFirstName = guardian.rows[0]?.first_name || null
+      if (!guardianFirstName && actorEmail && to.toLowerCase() === actorEmail.toLowerCase() && addedByUserId) {
+        const actor = await pool.query(
+          `SELECT split_part(COALESCE(full_name, ''), ' ', 1) AS first_name FROM app_user WHERE id = $1`,
+          [addedByUserId],
+        )
+        guardianFirstName = actor.rows[0]?.first_name || null
+      }
       const r = await sendFamilyMemberAddedEmail({
         to,
-        guardianFirstName: guardian.rows[0]?.first_name || null,
+        guardianFirstName,
         newMemberName,
         familyName: familyLabel,
       })
-      results.push({ to, sent: r.sent === true })
+      if (r.sent !== true) {
+        console.warn('[memberNotifications] family_member_added not sent to', to, r.reason || r.skipped || 'unknown')
+      }
+      results.push({ to, sent: r.sent === true, reason: r.reason || null })
     }
     return { sent: results.some((r) => r.sent), results }
   } catch (err) {

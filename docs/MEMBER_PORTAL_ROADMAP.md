@@ -64,6 +64,10 @@ out of sync with actual access.
   `userIsAdult(userId)` helper ([backend/server.js](../backend/server.js)) instead of a
   `PARENT_GUARDIAN` role check. Accounts with unknown DOB are treated as adults so existing
   logins are never locked out.
+- **Youth without login credentials** still receive the `MEMBER_ATHLETE` (Member / Athlete)
+  label in admin as soon as a parent completes minor-invite signup or adds them via the portal
+  ([ensureMemberAthleteAccount](../backend/platform/familySignup.js) → `app_user` +
+  `app_user_role`, no password required).
 - **Family Rep** is the family billing payer (`family_billing_account.payer_member_id`),
   surfaced as `is_family_rep`/`is_primary` and `athlete_type` (`youth`/`adult`) on the
   family-members API and rendered as a relationship badge in the dashboard.
@@ -154,7 +158,7 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
     admin create, scheduling stub, portal add family member).
   - **Enrollment receipt** — one per enrollment row (`scheduling_signup` or `member_program`) with
     link to `/registration/receipt?token=…`.
-  - **Guardian alert** — when a new member joins a family that already had active members.
+  - **Guardian alert** — when a new member joins the family (portal add-family, admin create, or minor-invite parent completion); resolves guardian email from `member.email`, linked `app_user.email`, or billing payer email.
 - Email verification: `POST /api/members/email/send-verification` (auth; issues a single-use link
   via [backend/email/emailVerificationService.js](../backend/email/emailVerificationService.js)) and
   the public confirm route `POST /api/verify-email/:token` (frontend page at `/verify-email`).

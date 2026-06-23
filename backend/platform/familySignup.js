@@ -567,6 +567,59 @@ async function suggestUsername(client, firstName, lastName) {
   return `${baseUsername}${Date.now()}`
 }
 
+/** Youth / guardian-managed members get MEMBER_ATHLETE without login credentials. */
+async function ensureMemberAthleteAccount(client, memberId) {
+  const res = await client.query(
+    `
+      SELECT id, facility_id, first_name, last_name, email, phone, username, app_user_id
+      FROM member
+      WHERE id = $1 AND is_active = TRUE
+    `,
+    [memberId],
+  )
+  const member = res.rows[0]
+  if (!member) return null
+
+  const fullName = `${member.first_name || ''} ${member.last_name || ''}`.trim()
+  const userId = Number(member.id)
+
+  await client.query(
+    `
+      INSERT INTO app_user (
+        id, facility_id, role, email, phone, full_name, username, password_hash, is_active
+      )
+      VALUES ($1, $2, 'MEMBER_ATHLETE'::user_role, $3, $4, $5, $6, NULL, TRUE)
+      ON CONFLICT (id) DO UPDATE SET
+        role = 'MEMBER_ATHLETE'::user_role,
+        email = EXCLUDED.email,
+        phone = EXCLUDED.phone,
+        full_name = EXCLUDED.full_name,
+        username = COALESCE(EXCLUDED.username, app_user.username),
+        is_active = TRUE,
+        updated_at = now()
+    `,
+    [userId, member.facility_id, member.email, member.phone, fullName, member.username],
+  )
+
+  await client.query(
+    `
+      INSERT INTO app_user_role (user_id, role)
+      VALUES ($1, 'MEMBER_ATHLETE'::user_role)
+      ON CONFLICT DO NOTHING
+    `,
+    [userId],
+  )
+
+  if (Number(member.app_user_id) !== userId) {
+    await client.query(
+      `UPDATE member SET app_user_id = $1, updated_at = now() WHERE id = $1`,
+      [userId],
+    )
+  }
+
+  return userId
+}
+
 async function createMemberRecord(client, facilityId, familyId, memberInput, { parentGuardianIds = [], payerEmail = null } = {}) {
   const passwordHash = memberInput.password ? await bcrypt.hash(memberInput.password, 10) : null
   const dob = memberInput.dateOfBirth || memberInput.date_of_birth || null
@@ -653,6 +706,8 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
       [member.id],
     )
     await client.query(`UPDATE member SET app_user_id = $1 WHERE id = $1`, [member.id])
+  } else if (minor) {
+    await ensureMemberAthleteAccount(client, member.id)
   }
 
   if (minor) {
@@ -1555,6 +1610,20 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           throw new Error('All required waivers must be accepted for the minor.')
         }
 
+        await ensureMemberAthleteAccount(client, minorMemberId)
+        await client.query(
+          `
+            UPDATE member
+            SET signup_source = CASE
+                  WHEN signup_source = 'minor_invite_pending' THEN 'minor_invite'
+                  ELSE signup_source
+                END,
+                updated_at = now()
+            WHERE id = $1
+          `,
+          [minorMemberId],
+        )
+
         const bodyEnrollments = Array.isArray(req.body?.enrollments) ? req.body.enrollments : null
         const pendingEnrollments = bodyEnrollments
           ?? (Array.isArray(payload.enrollments) ? payload.enrollments : [])
@@ -1587,6 +1656,14 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
 
       await client.query(`UPDATE account_invite SET used_at = now() WHERE id = $1`, [invite.id])
       await client.query('COMMIT')
+
+      if (Number.isFinite(minorMemberId)) {
+        void notifyFamilyGuardiansNewMember(pool, {
+          familyId,
+          newMemberId: minorMemberId,
+          addedByUserId: result.payerMemberId ?? null,
+        })
+      }
 
       void sendPostSignupNotifications({
         ...result,

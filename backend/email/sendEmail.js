@@ -22,6 +22,7 @@ import {
   recordDelivery,
   updateDeliveryStatus,
 } from './emailDeliveryStore.js'
+import { normalizeOutboundEmailHtml } from './emailHtml.js'
 
 let transporter = null
 
@@ -286,7 +287,7 @@ export async function sendEmail({
       replyTo: replyToAddress,
       subject,
       text,
-      html,
+      html: normalizeOutboundEmailHtml(html),
       headers,
       // Account-security mail: never allow tracking pixels/redirects.
       ...(category && isSecurityCategory(category) ? { disableUrlAccess: false } : {}),

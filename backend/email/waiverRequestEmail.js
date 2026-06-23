@@ -76,23 +76,18 @@ export async function sendWaiverRequestEmail({
   ].join('\n')
 
   const html = `
-<!DOCTYPE html>
-<html>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #222; max-width: 560px;">
   <p>${escapeHtml(greeting)}</p>
   <p>Before <strong>${escapeHtml(athlete)}</strong> can participate at Vortex Athletics, the required waivers must be completed.</p>
   <p>${escapeHtml(countText)}</p>
   <p style="margin: 28px 0;">
     <a href="${escapeHtml(url)}"
-       style="display: inline-block; background: #c41e3a; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+       style="display: inline-block; background: #c41e3a; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: bold;">
       Sign waivers in the Member Portal
     </a>
   </p>
   <p style="font-size: 14px; color: #555;">Or copy this link: <a href="${escapeHtml(url)}">${escapeHtml(url)}</a></p>
   <p>Questions? Contact us at <a href="mailto:${escapeHtml(teamEmail)}">${escapeHtml(teamEmail)}</a>.</p>
-  <p style="margin-top: 24px;">— <strong>Vortex Athletics</strong></p>
-</body>
-</html>`
+  `
 
   await sendEmail({ to, subject, text, html })
   return { sent: true }

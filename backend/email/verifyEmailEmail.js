@@ -48,7 +48,6 @@ export async function sendVerifyEmailEmail({ to, verifyUrl, name, supportContact
     ${emailButtonHtml('Verify my email', verifyUrl)}
     <p style="font-size: 14px; color: #555;">Or copy this link: <a href="${escapeHtml(verifyUrl)}">${escapeHtml(verifyUrl)}</a></p>
     <p style="color:#666;font-size:13px;">This secure link can only be used once. ${escapeHtml(contactLine)}</p>
-    ${emailFooterHtml.html}
   `
 
   return sendEmail({

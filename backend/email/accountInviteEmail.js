@@ -42,7 +42,6 @@ export async function sendAccountInviteEmail({ to, inviteUrl, minorName, parentN
     ${emailButtonHtml('Create my parent account', inviteUrl)}
     <p style="font-size: 14px; color: #555;">Or copy this link: <a href="${escapeHtml(inviteUrl)}">${escapeHtml(inviteUrl)}</a></p>
     <p style="color:#666;font-size:13px;">This secure link can only be used once. ${escapeHtml(contactLine)}</p>
-    ${emailFooterHtml.html}
   `
 
   if (!isEmailConfigured()) {
@@ -94,7 +93,6 @@ export async function sendAccountInviteReminderEmail({
     ${emailButtonHtml('Create my parent account', inviteUrl)}
     <p style="font-size: 14px; color: #555;">Or copy this link: <a href="${escapeHtml(inviteUrl)}">${escapeHtml(inviteUrl)}</a></p>
     <p style="color:#666;font-size:13px;">This secure link can only be used once. ${escapeHtml(contactLine)}</p>
-    ${emailFooterHtml.html}
   `
 
   if (!isEmailConfigured()) {
@@ -160,7 +158,6 @@ export async function sendInviteSignupCompleteEmail({
     ${emailButtonHtml('Go to Member Portal', portalUrl)}
     <p style="font-size: 14px; color: #555;">Or visit <a href="${escapeHtml(portalUrl)}">${escapeHtml(portalUrl)}</a></p>
     <p style="color:#666;font-size:13px;">You may receive a separate email to confirm your email address — please click that link when it arrives.</p>
-    ${emailFooterHtml.html}
   `
 
   return sendEmail({
