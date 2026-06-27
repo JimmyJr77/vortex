@@ -280,7 +280,7 @@ export default function MemberDashboard({
   }
   
   // Helper function to get most recent enrollment date
-  const getMostRecentEnrollmentDate = (enrollments: Array<{ created_at?: string; createdAt?: string }>): string | null => {
+  const getMostRecentEnrollmentDate = (enrollments: Array<{ created_at?: string | null; createdAt?: string | null }>): string | null => {
     if (!enrollments || enrollments.length === 0) return null
     const dates = enrollments
       .map(e => e.created_at || e.createdAt)
