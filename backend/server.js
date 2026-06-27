@@ -25,6 +25,7 @@ import { registerDbQueryRoutes } from './dbQueries/registerRoutes.js'
 import { appendStaffNote } from './notes/handlers.js'
 import { setMemberSchools } from './schools/handlers.js'
 import { isEmailConfigured, formatEmailError } from './email/sendEmail.js'
+import { EMAIL_LAYOUT_VERSION } from './email/emailHtml.js'
 import {
   notifyWelcomeNewMember,
   notifyEnrollmentReceipt,
@@ -92,7 +93,7 @@ const ensureProductionEnv = () => {
 ensureProductionEnv()
 
 /** Bump when shipping backend features; visible on GET /api/health */
-const API_BUILD_ID = 'transactional-email-2026-06-22'
+const API_BUILD_ID = 'email-layout-v2-2026-06-27'
 
 // The default master admin account is permanent: it cannot be deleted,
 // deactivated, or stripped of master admin access. Override via env if the
@@ -2910,6 +2911,7 @@ app.get('/api/health', async (req, res) => {
     buildId: API_BUILD_ID,
     timestamp: new Date().toISOString(),
     emailConfigured: isEmailConfigured(),
+    emailLayoutVersion: EMAIL_LAYOUT_VERSION,
     dbConnected,
     schemaMigrationsTracked: migrationsTable,
     apiFeatures: {

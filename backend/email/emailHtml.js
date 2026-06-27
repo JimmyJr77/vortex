@@ -3,6 +3,7 @@
 import { publicAppUrl } from './publicAppUrl.js'
 
 export const EMAIL_LAYOUT_MARKER = 'data-vortex-email-layout="vortex"'
+export const EMAIL_LAYOUT_VERSION = 'v2-black-header-white-body'
 
 /** Public logo asset — must be absolute URL for email clients. */
 export const EMAIL_LOGO_URL = 'https://vortexathletics.com/vortex-athletics-logo.png'

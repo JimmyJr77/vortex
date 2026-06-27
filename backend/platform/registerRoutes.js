@@ -18,6 +18,8 @@ import {
   sendEmail,
   formatEmailError,
 } from '../email/sendEmail.js'
+import { composeEmailHtml, emailButtonHtml, EMAIL_LAYOUT_VERSION, escapeHtml } from '../email/emailHtml.js'
+import { publicAppUrl } from '../email/publicAppUrl.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -2019,14 +2021,17 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       '',
       'If you received this, transactional email is configured correctly.',
       '',
+      `Layout version: ${EMAIL_LAYOUT_VERSION}`,
+      '',
       '— Vortex Athletics',
     ].join('\n')
-    const html = `
+    const html = composeEmailHtml(`
       <p>This is a test email from <strong>Vortex Athletics</strong>.</p>
       <p>If you received this, transactional email is configured correctly.</p>
-      <p style="color:#666;font-size:13px;">Sent ${new Date().toISOString()}</p>
-      <p>— Vortex Athletics</p>
-    `
+      ${emailButtonHtml('Visit Vortex Athletics', publicAppUrl())}
+      <p style="color:#666;font-size:13px;">Sent ${escapeHtml(new Date().toISOString())}</p>
+      <p style="color:#666;font-size:13px;">Template: ${escapeHtml(EMAIL_LAYOUT_VERSION)}</p>
+    `)
 
     try {
       await sendEmail({ to, subject, text, html })
