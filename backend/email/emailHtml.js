@@ -92,7 +92,7 @@ export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
           <tr>
             <td align="center" style="background-color:${BRAND.headerBg};padding:36px 24px;">
               <a href="${escapeHtml(siteUrl)}" style="text-decoration:none;">
-                <img src="${escapeHtml(logoSrc)}" alt="Vortex Athletics" width="220" style="display:block;width:220px;max-width:100%;height:auto;border:0;margin:0 auto;" />
+                <img src="${escapeHtml(logoSrc)}" alt="Vortex Athletics" width="440" style="display:block;width:440px;max-width:100%;height:auto;border:0;margin:0 auto;" />
               </a>
             </td>
           </tr>
