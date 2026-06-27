@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react'
+import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
@@ -9,6 +9,7 @@ import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicC
 import EventAttachedSignup from './EventAttachedSignup'
 import { MemberTrainingTab, MemberProgressTab, MemberMessagesTab } from './MemberTraining'
 import MemberEnrollmentsPanel, { type MemberEnrollmentRow } from './member/MemberEnrollmentsPanel'
+import MemberHomePanel from './member/MemberHomePanel'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
 import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
@@ -22,7 +23,19 @@ interface MemberDashboardProps {
   onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
 }
 
-type MemberTab = 'profile' | 'classes' | 'events' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages'
+export type MemberTab = 'home' | 'profile' | 'classes' | 'events' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages'
+
+const NAV: Array<{ tab: MemberTab; label: string; icon: typeof Home }> = [
+  { tab: 'home', label: 'Home', icon: Home },
+  { tab: 'profile', label: 'Profile', icon: Users },
+  { tab: 'classes', label: 'Classes', icon: LayoutGrid },
+  { tab: 'training', label: 'Training', icon: Dumbbell },
+  { tab: 'progress', label: 'Progress', icon: TrendingUp },
+  { tab: 'messages', label: 'Messages', icon: MessageSquare },
+  { tab: 'events', label: 'Events', icon: Calendar },
+  { tab: 'billing', label: 'Billing', icon: CreditCard },
+  { tab: 'waivers', label: 'Waivers', icon: FileText },
+]
 
 interface FamilyMember {
   id: number
@@ -133,7 +146,8 @@ export default function MemberDashboard({
   availablePortals = ['member'],
   onSwitchPortal,
 }: MemberDashboardProps) {
-  const [activeTab, setActiveTab] = useState<MemberTab>('profile')
+  const [activeTab, setActiveTab] = useState<MemberTab>('home')
+  const [navOpen, setNavOpen] = useState(false)
   const [profileData, setProfileData] = useState<any>(null)
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([])
   const [members, setMembers] = useState<UnifiedMember[]>([]) // Combined members list for display
@@ -605,7 +619,10 @@ export default function MemberDashboard({
   }, [])
 
   useEffect(() => {
-    if (activeTab === 'classes') {
+    if (activeTab === 'home') {
+      fetchEnrollments()
+      loadClassesOffered()
+    } else if (activeTab === 'classes') {
       fetchEnrollments()
       loadClassesOffered()
     } else if (activeTab === 'events') {
@@ -1270,66 +1287,67 @@ export default function MemberDashboard({
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Member Portal Header Section - Dark Background */}
-      <div className="bg-gradient-to-br from-black via-gray-900 to-black pt-4 pb-0">
-        <div className="container-admin">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
+      <div className="bg-gradient-to-br from-black via-gray-900 to-black">
+        <div className="container-admin py-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
+              {navOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+            <h1 className="text-3xl md:text-5xl font-display font-bold text-white">
               VORTEX <span className="text-vortex-red">MEMBER</span> PORTAL
             </h1>
-            <div className="flex items-center gap-2 flex-wrap justify-center md:justify-end">
-              <NotificationBell apiPrefix="member" />
-              <PortalNavButtons
-                activePortal="member"
-                availablePortals={availablePortals}
-                onSwitchPortal={onSwitchPortal}
-                onLogout={onLogout}
-              />
-            </div>
           </div>
-
-          {/* Tab Navigation */}
-          <div className="border-t border-gray-700 mt-6">
-            <div className="flex flex-wrap gap-2 md:gap-0">
-              {[
-                ['profile', 'Profile'],
-                ['classes', 'Classes'],
-                ['training', 'Training'],
-                ['progress', 'Progress'],
-                ['messages', 'Messages'],
-                ['events', 'Events'],
-                ['billing', 'Billing'],
-                ['waivers', 'Waivers'],
-              ].map(([id, label]) => (
-                <button
-                  key={id}
-                  onClick={() => setActiveTab(id as MemberTab)}
-                  className={`px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                    activeTab === id
-                      ? 'text-white'
-                      : 'text-gray-400 hover:text-gray-300'
-                  }`}
-                >
-                  {label}
-                  {activeTab === id && (
-                    <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                      layoutId="activeTab"
-                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <NotificationBell apiPrefix="member" />
+            <PortalNavButtons
+              activePortal="member"
+              availablePortals={availablePortals}
+              onSwitchPortal={onSwitchPortal}
+              onLogout={onLogout}
+            />
           </div>
         </div>
       </div>
 
-      {/* Content Section - White Background */}
-      <div className="bg-white p-4 md:p-8">
-        <div className="container-admin">
+      {/* Workspace: sidebar nav + main content */}
+      <div className="container-admin py-6 grid gap-6 lg:grid-cols-[220px_1fr]">
+        <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
+          <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
+            {NAV.map((item) => {
+              const Icon = item.icon
+              const active = activeTab === item.tab
+              return (
+                <button
+                  key={item.tab}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(item.tab)
+                    setNavOpen(false)
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                >
+                  <Icon className="w-4 h-4" /> {item.label}
+                </button>
+              )
+            })}
+          </div>
+        </nav>
+        <main className="min-w-0">
           <AnimatePresence mode="wait">
+            {activeTab === 'home' && (
+              <motion.div
+                key="home"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <MemberHomePanel onNavigate={setActiveTab} firstName={profileData?.firstName} />
+              </motion.div>
+            )}
+
             {activeTab === 'profile' && (
               <motion.div
                 key="profile"
@@ -2126,7 +2144,7 @@ export default function MemberDashboard({
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </main>
       </div>
 
       {/* View Member Modal - Matching AdminMembers */}
