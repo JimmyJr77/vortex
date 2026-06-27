@@ -89,10 +89,10 @@ const AdminSignups = () => {
       <div>
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <ClipboardList className="w-7 h-7 text-vortex-red" />
-          Signups
+          Class Registrations
         </h2>
         <p className="text-gray-600 text-sm mt-1">
-          View and manage signups for each class scheduling form.
+          View and manage registrations for each class scheduling form.
         </p>
       </div>
 

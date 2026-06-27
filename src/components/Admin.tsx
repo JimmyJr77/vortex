@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { adminApiRequest, clearAdminSession, getAdminToken } from '../utils/api'
 import AdminAdmins from './AdminAdmins'
@@ -19,8 +19,12 @@ import AdminFamilyBilling from './AdminFamilyBilling'
 import AdminWaivers from './AdminWaivers'
 import AdminEmail from './AdminEmail'
 import AdminCoaches from './AdminCoaches'
+import AdminEventSignups from './AdminEventSignups'
+import AdminInsurance from './AdminInsurance'
+import AdminHomePanel from './admin/AdminHomePanel'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
 import PortalNavButtons from './PortalNavButtons'
+import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, DollarSign, FileText, Sparkles, Database, Settings, Menu, X } from 'lucide-react'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
 
@@ -59,7 +63,9 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'email'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email'
+
+export type GroupId = 'home' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'settings'
 
 interface AccessContext {
   permissions: string[]
@@ -76,22 +82,53 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'classes', label: 'Classes', permission: 'classes.view' },
   { id: 'coaches', label: 'Coaches', permission: 'classes.manage' },
   { id: 'scheduling', label: 'Scheduling', permission: 'scheduling.view' },
+  { id: 'classesEvents', label: 'All Classes/Events', permission: 'classes.view' },
   { id: 'calendar', label: 'Calendar', permission: 'scheduling.view' },
   { id: 'pricing', label: 'Pricing', permission: 'pricing.view' },
   { id: 'billing', label: 'Billing', permission: 'billing.view' },
   { id: 'waivers', label: 'Waivers', permission: 'waivers.view' },
-  { id: 'signups', label: 'Signups', permission: 'scheduling.view' },
+  { id: 'insurance', label: 'Insurance', permission: 'waivers.view' },
+  { id: 'signups', label: 'Class Registrations', permission: 'scheduling.view' },
+  { id: 'eventSignups', label: 'Signups', permission: 'scheduling.view' },
   { id: 'highlights', label: 'Highlights', permission: 'classes.view' },
   { id: 'events', label: 'Events', permission: 'classes.view' },
-  { id: 'dbQueries', label: 'DB Queries', permission: 'admin_access.manage' },
+  { id: 'dbQueries', label: 'Database Queries', permission: 'admin_access.manage' },
   { id: 'email', label: 'Email', permission: 'admin_access.manage' },
   { id: 'schools', label: 'Schools', permission: 'schools.view' },
   { id: 'analytics', label: 'Analytics & Engagement', permission: 'analytics.view' },
 ]
 
+const tabLabel = (id: TabType): string => tabDefinitions.find((t) => t.id === id)?.label ?? id
+
+interface GroupDef {
+  id: GroupId
+  label: string
+  icon: typeof Home
+  sections: TabType[]
+}
+
+const GROUPS: GroupDef[] = [
+  { id: 'home', label: 'Home', icon: Home, sections: [] },
+  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'access'] },
+  { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
+  { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classes', 'coaches', 'scheduling', 'classesEvents'] },
+  { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'eventSignups'] },
+  { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
+  { id: 'pricingBilling', label: 'Pricing & Billing', icon: DollarSign, sections: ['pricing', 'billing'] },
+  { id: 'legal', label: 'Legal', icon: FileText, sections: ['waivers', 'insurance'] },
+  { id: 'highlightsEvents', label: 'Highlights & Events', icon: Sparkles, sections: ['highlights', 'events'] },
+  { id: 'dataAnalysis', label: 'Database & Analysis', icon: Database, sections: ['analytics', 'dbQueries', 'schools'] },
+  { id: 'settings', label: 'Settings', icon: Settings, sections: ['email'] },
+]
+
+const groupForSection = (tab: TabType): GroupId =>
+  GROUPS.find((g) => g.sections.includes(tab))?.id ?? 'home'
+
 
 export default function Admin({ onLogout, availablePortals = ['admin'], onSwitchPortal }: AdminProps) {
   const [activeTab, setActiveTab] = useState<TabType>('users')
+  const [activeGroup, setActiveGroup] = useState<GroupId>('home')
+  const [navOpen, setNavOpen] = useState(false)
   const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
   const [programs, setPrograms] = useState<Program[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -159,11 +196,48 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     [accessContext],
   )
 
+  const visibleSectionIds = useMemo(() => new Set(visibleTabs.map((t) => t.id)), [visibleTabs])
+
+  const visibleGroups = useMemo(
+    () => GROUPS.filter((g) => g.id === 'home' || g.sections.some((s) => visibleSectionIds.has(s))),
+    [visibleSectionIds],
+  )
+
+  const visibleSectionsForGroup = useCallback(
+    (groupId: GroupId): TabType[] => {
+      const group = GROUPS.find((g) => g.id === groupId)
+      if (!group) return []
+      return group.sections.filter((s) => visibleSectionIds.has(s))
+    },
+    [visibleSectionIds],
+  )
+
+  const goToSection = useCallback((tab: TabType) => {
+    setActiveTab(tab)
+    setActiveGroup(groupForSection(tab))
+  }, [])
+
+  const openGroup = useCallback(
+    (groupId: GroupId) => {
+      setActiveGroup(groupId)
+      if (groupId !== 'home') {
+        const sections = visibleSectionsForGroup(groupId)
+        if (sections.length > 0) setActiveTab(sections[0])
+      }
+      setNavOpen(false)
+    },
+    [visibleSectionsForGroup],
+  )
+
   useEffect(() => {
-    if (visibleTabs.length > 0 && !visibleTabs.some((tab) => tab.id === activeTab)) {
-      setActiveTab(visibleTabs[0].id)
+    if (activeGroup === 'home') return
+    const sections = visibleSectionsForGroup(activeGroup)
+    if (sections.length === 0) {
+      setActiveGroup('home')
+    } else if (!sections.includes(activeTab)) {
+      setActiveTab(sections[0])
     }
-  }, [activeTab, visibleTabs])
+  }, [activeGroup, activeTab, visibleSectionsForGroup])
 
   useEffect(() => {
     if (activeTab === 'events') {
@@ -218,119 +292,175 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     }
   }
 
+  const renderSection = () => {
+    switch (activeTab) {
+      case 'analytics':
+        return <AdminAnalytics />
+      case 'access':
+        return (
+          <AdminAccess
+            isMasterAdmin={accessContext?.isMasterAdmin ?? false}
+            currentUserId={accessContext?.userId ?? null}
+          />
+        )
+      case 'billing':
+        return <AdminFamilyBilling />
+      case 'waivers':
+        return <AdminWaivers />
+      case 'insurance':
+        return <AdminInsurance />
+      case 'dbQueries':
+        return <AdminDbQueries />
+      case 'email':
+        return <AdminEmail />
+      case 'schools':
+        return <AdminSchools />
+      case 'scheduling':
+        return (
+          <AdminScheduling
+            key={`scheduling-${schedulingNavKey}`}
+            navigationIntent={schedulingIntent}
+            onNavigationIntentConsumed={() => setSchedulingIntent(null)}
+          />
+        )
+      case 'calendar':
+        return <AdminCalendar />
+      case 'pricing':
+        return <AdminPricing />
+      case 'signups':
+        return <AdminSignups />
+      case 'eventSignups':
+        return <AdminEventSignups />
+      case 'classes':
+        return (
+          <AdminClasses
+            onOpenScheduling={(intent) => {
+              setSchedulingIntent(intent)
+              setSchedulingNavKey((key) => key + 1)
+              goToSection('scheduling')
+            }}
+          />
+        )
+      case 'coaches':
+        return <AdminCoaches isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
+      case 'classesEvents':
+        return <AdminClasses spreadsheetOnly />
+      case 'highlights':
+        return <AdminHighlights />
+      case 'events':
+        return <AdminEvents programs={programs} categories={categories} adminInfo={adminInfo} />
+      case 'admins':
+        return <AdminAdmins adminInfo={adminInfo} setAdminInfo={setAdminInfo} />
+      case 'membership':
+        return <AdminMembers isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
+      default:
+        return <AdminInquiries />
+    }
+  }
+
+  const groupSections = activeGroup === 'home' ? [] : visibleSectionsForGroup(activeGroup)
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Admin Header Section - Dark Background */}
-      <div className="bg-gradient-to-br from-black via-gray-900 to-black pt-4 pb-0">
-        <div className="container-admin">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <h1 className="text-3xl md:text-5xl font-display font-bold text-white text-center md:text-left">
+      <div className="bg-gradient-to-br from-black via-gray-900 to-black">
+        <div className="container-admin py-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
+              {navOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+            <h1 className="text-3xl md:text-5xl font-display font-bold text-white">
               VORTEX <span className="text-vortex-red">ADMIN</span>
             </h1>
+          </div>
           <PortalNavButtons
             activePortal="admin"
             availablePortals={availablePortals}
             onSwitchPortal={onSwitchPortal}
             onLogout={onLogout}
           />
-          </div>
-
-          {/* Tabs */}
-          <HorizontalScrollContainer
-            className="border-t border-gray-700"
-            fadeFromClassName="from-gray-900"
-          >
-            <div className="flex w-max mx-auto space-x-1">
-              {visibleTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex-shrink-0 whitespace-nowrap px-8 py-4 font-semibold text-base transition-all duration-300 relative ${
-                    activeTab === tab.id
-                      ? 'text-white'
-                      : 'text-gray-400 hover:text-gray-300'
-                  }`}
-                >
-                  {tab.label}
-                  {activeTab === tab.id && (
-                    <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
-                      layoutId="activeTab"
-                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-          </HorizontalScrollContainer>
         </div>
       </div>
 
-      {/* Content Section - White Background */}
-      <div className="bg-white">
-        <div className="container-admin py-4 md:py-8">
+      {/* Workspace: sidebar groups + main content */}
+      <div className="container-admin py-6 grid gap-6 lg:grid-cols-[220px_1fr]">
+        <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
+          <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
+            {visibleGroups.map((group) => {
+              const Icon = group.icon
+              const active = activeGroup === group.id
+              return (
+                <button
+                  key={group.id}
+                  type="button"
+                  onClick={() => openGroup(group.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                >
+                  <Icon className="w-4 h-4" /> {group.label}
+                </button>
+              )
+            })}
+          </div>
+        </nav>
 
+        <main className="min-w-0">
           {accessLoading ? (
             <div className="rounded-xl bg-white p-8 text-center text-gray-600 shadow-sm">
               Loading admin access...
             </div>
+          ) : activeGroup === 'home' ? (
+            <AdminHomePanel
+              groups={visibleGroups.filter((g) => g.id !== 'home').map((g) => ({ id: g.id, label: g.label, icon: g.icon }))}
+              onNavigate={openGroup}
+              adminName={adminInfo?.firstName}
+            />
           ) : (
-          <AnimatePresence mode="wait">
-            {activeTab === 'analytics' ? (
-              <AdminAnalytics />
-            ) : activeTab === 'access' ? (
-              <AdminAccess
-                isMasterAdmin={accessContext?.isMasterAdmin ?? false}
-                currentUserId={accessContext?.userId ?? null}
-              />
-            ) : activeTab === 'billing' ? (
-              <AdminFamilyBilling />
-            ) : activeTab === 'waivers' ? (
-              <AdminWaivers />
-            ) : activeTab === 'dbQueries' ? (
-              <AdminDbQueries />
-            ) : activeTab === 'email' ? (
-              <AdminEmail />
-            ) : activeTab === 'schools' ? (
-              <AdminSchools />
-            ) : activeTab === 'scheduling' ? (
-              <AdminScheduling
-                key={`scheduling-${schedulingNavKey}`}
-                navigationIntent={schedulingIntent}
-                onNavigationIntentConsumed={() => setSchedulingIntent(null)}
-              />
-            ) : activeTab === 'calendar' ? (
-              <AdminCalendar />
-            ) : activeTab === 'pricing' ? (
-              <AdminPricing />
-            ) : activeTab === 'signups' ? (
-              <AdminSignups />
-            ) : activeTab === 'classes' ? (
-              <AdminClasses
-                onOpenScheduling={(intent) => {
-                  setSchedulingIntent(intent)
-                  setSchedulingNavKey((key) => key + 1)
-                  setActiveTab('scheduling')
-                }}
-              />
-            ) : activeTab === 'coaches' ? (
-              <AdminCoaches isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
-            ) : activeTab === 'highlights' ? (
-              <AdminHighlights />
-            ) : activeTab === 'events' ? (
-              <AdminEvents programs={programs} categories={categories} adminInfo={adminInfo} />
-            ) : activeTab === 'admins' ? (
-              <AdminAdmins adminInfo={adminInfo} setAdminInfo={setAdminInfo} />
-            ) : activeTab === 'membership' ? (
-              <AdminMembers isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
-            ) : (
-              <AdminInquiries />
-            )}
-            </AnimatePresence>
+            <div className="space-y-4">
+              {groupSections.length > 1 && (
+                <HorizontalScrollContainer
+                  className="border-b border-gray-200"
+                  fadeFromClassName="from-gray-50"
+                >
+                  <div className="flex w-max space-x-1">
+                    {groupSections.map((sectionId) => (
+                      <button
+                        key={sectionId}
+                        onClick={() => goToSection(sectionId)}
+                        className={`flex-shrink-0 whitespace-nowrap px-5 py-3 font-semibold text-sm transition-all duration-300 relative ${
+                          activeTab === sectionId
+                            ? 'text-gray-900'
+                            : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        {tabLabel(sectionId)}
+                        {activeTab === sectionId && (
+                          <motion.div
+                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-vortex-red"
+                            layoutId="activeAdminSubTab"
+                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </HorizontalScrollContainer>
+              )}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.2 }}
+                  className="min-w-0"
+                >
+                  {renderSection()}
+                </motion.div>
+              </AnimatePresence>
+            </div>
           )}
-          </div>
-        </div>
-
+        </main>
+      </div>
     </div>
   )
 }

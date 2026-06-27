@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment, useCallback, useMemo, useRef, type RefObject } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash2, Layers, ArrowUpDown, ArrowUp, ArrowDown, ArrowRight, Table2, RefreshCw, Filter } from 'lucide-react'
+import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash2, Layers, ArrowUpDown, ArrowUp, ArrowDown, ArrowRight, RefreshCw, Filter } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import ClassEventModal from './programs/ClassEventModal'
 import PrimarySportPicker from './programs/PrimarySportPicker'
@@ -599,8 +599,10 @@ function ActiveToggle({
 
 export default function AdminClasses({
   onOpenScheduling,
+  spreadsheetOnly = false,
 }: {
   onOpenScheduling?: (intent: SchedulingNavigationIntent) => void
+  spreadsheetOnly?: boolean
 }) {
   const [error, setError] = useState<string | null>(null)
   const [programs, setPrograms] = useState<Program[]>([])
@@ -625,7 +627,7 @@ export default function AdminClasses({
     field: 'program',
     direction: 'asc',
   })
-  const [viewMode, setViewMode] = useState<'default' | 'spreadsheet'>('default')
+  const viewMode: 'default' | 'spreadsheet' = spreadsheetOnly ? 'spreadsheet' : 'default'
   const [syncing, setSyncing] = useState(false)
   const [allSportTags, setAllSportTags] = useState<DisciplineTag[]>([])
   const [sportTagsLoading, setSportTagsLoading] = useState(false)
@@ -1191,18 +1193,6 @@ export default function AdminClasses({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setViewMode((mode) => (mode === 'spreadsheet' ? 'default' : 'spreadsheet'))
-                setExpandedProgramId(null)
-                setExpandedClassId(null)
-              }}
-              className="inline-flex items-center gap-2 border border-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-50"
-            >
-              <Table2 className="w-5 h-5" />
-              {viewMode === 'spreadsheet' ? 'Back to Programs & Classes' : 'View All Classes/Events'}
-            </button>
             {viewMode === 'default' && (
             <button
               type="button"
