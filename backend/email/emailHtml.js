@@ -4,6 +4,7 @@ import { publicAppUrl } from './publicAppUrl.js'
 
 export const EMAIL_LAYOUT_MARKER = 'data-vortex-email-layout="vortex"'
 export const EMAIL_LAYOUT_VERSION = 'v2-black-header-white-body'
+export const EMAIL_LOGO_CID = 'vortex-athletics-logo@vortex'
 
 /** Public logo asset — must be absolute URL for email clients. */
 export const EMAIL_LOGO_URL = 'https://vortexathletics.com/vortex-athletics-logo.png'
@@ -15,8 +16,7 @@ const BRAND = {
   bodyColor: '#1a1a1a',
   footerColor: '#000000',
   buttonRed: '#c41e3a',
-  buttonRadius: '4px',
-  emailMaxWidth: '600px',
+  buttonRadius: '14px',
 }
 
 export function escapeHtml(str) {
@@ -70,7 +70,7 @@ export const emailFooterHtml = {
  * the centered email column.
  */
 export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
-  const logoUrl = emailLogoUrl()
+  const logoSrc = `cid:${EMAIL_LOGO_CID}`
   const siteUrl = publicAppUrl()
   const body = String(bodyHtml ?? '').trim()
 
@@ -87,12 +87,12 @@ export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
   ${preheader}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BRAND.footerBg};">
     <tr>
-      <td align="center" style="padding:0;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:${BRAND.emailMaxWidth};width:100%;">
+      <td align="left" style="padding:0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;">
           <tr>
             <td align="center" style="background-color:${BRAND.headerBg};padding:36px 24px;">
               <a href="${escapeHtml(siteUrl)}" style="text-decoration:none;">
-                <img src="${escapeHtml(logoUrl)}" alt="Vortex Athletics" width="220" style="display:block;width:220px;max-width:100%;height:auto;border:0;margin:0 auto;" />
+                <img src="${escapeHtml(logoSrc)}" alt="Vortex Athletics" width="220" style="display:block;width:220px;max-width:100%;height:auto;border:0;margin:0 auto;" />
               </a>
             </td>
           </tr>

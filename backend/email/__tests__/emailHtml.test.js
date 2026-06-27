@@ -2,6 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   composeEmailHtml,
+  EMAIL_LOGO_CID,
   EMAIL_LOGO_URL,
   emailLogoUrl,
   normalizeOutboundEmailHtml,
@@ -13,7 +14,7 @@ test('composeEmailHtml uses black header, white body, grey footer, and logo', ()
   assert.match(html, /background-color:#000000/i)
   assert.match(html, /background-color:#ffffff/i)
   assert.match(html, /background-color:#e5e5e5/i)
-  assert.match(html, new RegExp(escapeRegex(emailLogoUrl())))
+  assert.match(html, new RegExp(escapeRegex(`cid:${EMAIL_LOGO_CID}`)))
   assert.equal(emailLogoUrl(), EMAIL_LOGO_URL)
   assert.match(html, /<p>Hello<\/p>/)
   assert.match(html, /www\.vortexathletics\.com/)

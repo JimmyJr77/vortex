@@ -22,7 +22,7 @@ import {
   recordDelivery,
   updateDeliveryStatus,
 } from './emailDeliveryStore.js'
-import { normalizeOutboundEmailHtml } from './emailHtml.js'
+import { EMAIL_LOGO_CID, EMAIL_LOGO_URL, normalizeOutboundEmailHtml } from './emailHtml.js'
 
 let transporter = null
 
@@ -288,6 +288,13 @@ export async function sendEmail({
       subject,
       text,
       html: normalizeOutboundEmailHtml(html),
+      attachments: [
+        {
+          filename: 'vortex-athletics-logo.png',
+          path: EMAIL_LOGO_URL,
+          cid: EMAIL_LOGO_CID,
+        },
+      ],
       headers,
       // Account-security mail: never allow tracking pixels/redirects.
       ...(category && isSecurityCategory(category) ? { disableUrlAccess: false } : {}),
