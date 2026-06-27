@@ -40,6 +40,7 @@ export async function initPlatformTables(pool) {
     '042_enrollment_receipt_token.sql',
     '043_account_invite_reminders.sql',
     '044_email_deliverability.sql',
+    '045_drop_family_member_relationship_label.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

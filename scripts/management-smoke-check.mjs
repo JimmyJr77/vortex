@@ -15,7 +15,6 @@ const checks = [
   ['access account activation route', files.platformRoutes.includes("app.patch('/api/admin/access/users/:userId/active'")],
   ['admin account routes use app_user', files.server.includes('FROM app_user au') && files.server.includes('INSERT INTO app_user')],
   ['legacy admin permission map exists', files.server.includes('legacyAdminPermissionFor')],
-  ['family relationship route exists', files.server.includes("relationshipLabel") && files.server.includes('/relationship')],
   ['member family self-service route exists', files.server.includes("app.post('/api/members/family'")],
   ['coach assignment routes exist', files.platformRoutes.includes("app.post('/api/admin/coaches/:userId/assignments'")],
   ['coach roster notes exist', files.platformRoutes.includes('coach_roster_note')],

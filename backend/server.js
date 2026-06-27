@@ -38,6 +38,7 @@ import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
 import { initPlatformTables } from './platform/initTables.js'
 import { registerPlatformRoutes } from './platform/registerRoutes.js'
 import { registerFamilySignupRoutes, createPortalFamilyMember } from './platform/familySignup.js'
+import { queryFamilyMemberEnrollments } from './platform/memberEnrollments.js'
 import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
 import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
 import { ensureCoachingNotificationSchema } from './platform/coachingSchemaEnsure.js'
@@ -2221,26 +2222,6 @@ const getFamilyForMember = async (memberId, client = pool) => {
     LIMIT 1
   `, [memberId])
   return result.rows[0] ?? null
-}
-
-const getFamilyMembers = async (familyId, client = pool) => {
-  const result = await client.query(`
-    SELECT
-      m.*,
-      fm.relationship_label,
-      fm.is_active as family_membership_active,
-      au.id as app_user_id,
-      au.email as app_user_email,
-      au.role::text as app_user_role
-    FROM family_member fm
-    JOIN member m ON m.id = fm.member_id
-    LEFT JOIN app_user au ON au.id = m.app_user_id
-    WHERE fm.family_id = $1
-      AND fm.is_active = TRUE
-      AND m.is_active = TRUE
-    ORDER BY m.last_name, m.first_name, m.id
-  `, [familyId])
-  return result.rows
 }
 
 const getFamilyPayer = async (familyId, client = pool) => {
@@ -5570,26 +5551,6 @@ app.post('/api/admin/members/:memberId/join-family', async (req, res) => {
     })
   } finally {
     client.release()
-  }
-})
-
-app.put('/api/admin/families/:familyId/members/:memberId/relationship', async (req, res) => {
-  try {
-    const { familyId, memberId } = req.params
-    const relationshipLabel = req.body?.relationshipLabel == null ? null : String(req.body.relationshipLabel).trim()
-    const result = await pool.query(`
-      UPDATE family_member
-      SET relationship_label = $3, updated_at = CURRENT_TIMESTAMP
-      WHERE family_id = $1 AND member_id = $2 AND is_active = TRUE
-      RETURNING *
-    `, [familyId, memberId, relationshipLabel || null])
-    if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'Family membership not found' })
-    }
-    res.json({ success: true, data: result.rows[0] })
-  } catch (error) {
-    console.error('Update family relationship error:', error)
-    res.status(500).json({ success: false, message: 'Internal server error' })
   }
 })
 
@@ -9034,7 +8995,6 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
             ELSE 'MEMBER'
           END as role,
           CASE WHEN fba.payer_member_id = m.id THEN TRUE ELSE FALSE END as is_primary,
-          fm.relationship_label,
           CASE WHEN m.email IS NOT NULL OR au.id IS NOT NULL THEN TRUE ELSE FALSE END as is_adult,
           m.date_of_birth,
           CASE WHEN m.date_of_birth IS NOT NULL 
@@ -9067,7 +9027,6 @@ app.get('/api/members/family', authenticateMember, async (req, res) => {
       last_name: row.last_name || '',
       email: row.email,
       phone: row.phone,
-      relationship_label: row.relationship_label,
       date_of_birth: row.date_of_birth,
       age: row.age,
       user_id: row.user_id,
@@ -9140,7 +9099,6 @@ app.post('/api/members/family', authenticateMember, async (req, res) => {
         email: req.body?.email,
         phone: req.body?.phone,
         dateOfBirth: req.body?.date_of_birth || req.body?.dateOfBirth,
-        relationshipLabel: req.body?.relationship_label || req.body?.relationshipLabel,
       },
     })
 
@@ -9729,57 +9687,12 @@ app.get('/api/members/enrollments', authenticateMember, async (req, res) => {
 
     const memberIds = members.map(m => m.id)
 
-    // Get enrollments for all family members using member_program
     try {
-      const enrollmentsResult = await pool.query(`
-        SELECT 
-          mp.id,
-          mp.member_id,
-          mp.program_id,
-          mp.iteration_id,
-          mp.days_per_week,
-          mp.selected_days,
-          mp.created_at,
-          mp.updated_at,
-          m.first_name as member_first_name,
-          m.last_name as member_last_name,
-          m.status as member_status,
-          p.display_name as program_display_name,
-          p.name as program_name
-        FROM member_program mp
-        JOIN member m ON mp.member_id = m.id
-        LEFT JOIN program p ON mp.program_id = p.id
-        WHERE mp.member_id = ANY($1::bigint[])
-        ORDER BY mp.created_at DESC
-      `, [memberIds])
-
-      const enrollments = enrollmentsResult.rows.map(row => ({
-        id: row.id,
-        member_id: row.member_id,
-        member_first_name: row.member_first_name,
-        member_last_name: row.member_last_name,
-        member_status: row.member_status,
-        program_id: row.program_id,
-        iteration_id: row.iteration_id,
-        program_display_name: row.program_display_name,
-        program_name: row.program_name,
-        days_per_week: row.days_per_week,
-        selected_days: row.selected_days ? (typeof row.selected_days === 'string' ? JSON.parse(row.selected_days) : row.selected_days) : null,
-        created_at: row.created_at,
-        updated_at: row.updated_at
-      }))
-
-      res.json({
-        success: true,
-        enrollments
-      })
+      const enrollments = await queryFamilyMemberEnrollments(pool, memberIds)
+      res.json({ success: true, enrollments })
     } catch (enrollmentError) {
       console.log('Enrollment query failed (non-critical):', enrollmentError.message)
-      // If table doesn't exist, return empty array
-      res.json({
-        success: true,
-        enrollments: []
-      })
+      res.json({ success: true, enrollments: [] })
     }
   } catch (error) {
     console.error('Get enrollments error:', error)

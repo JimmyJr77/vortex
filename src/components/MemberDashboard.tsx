@@ -8,6 +8,7 @@ import ClassesOfferedList from './classes/ClassesOfferedList'
 import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
 import EventAttachedSignup from './EventAttachedSignup'
 import { MemberTrainingTab, MemberProgressTab, MemberMessagesTab } from './MemberTraining'
+import MemberEnrollmentsPanel, { type MemberEnrollmentRow } from './member/MemberEnrollmentsPanel'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
 import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
@@ -53,7 +54,6 @@ interface UnifiedMember {
   familyIsActive?: boolean
   familyId?: number | null
   familyName?: string | null
-  relationshipLabel?: string | null
   username?: string | null
   roles: Array<{ id: string; role: string }> | string[]
   enrollments: Array<{
@@ -150,7 +150,6 @@ export default function MemberDashboard({
     email: '',
     phone: '',
     dateOfBirth: '',
-    relationshipLabel: '',
   })
   const [addingFamilyMember, setAddingFamilyMember] = useState(false)
   
@@ -214,9 +213,8 @@ export default function MemberDashboard({
   const [editingMemberId, setEditingMemberId] = useState<number | null>(null)
   
   // Classes tab state
-  const [enrollments, setEnrollments] = useState<any[]>([])
+  const [enrollments, setEnrollments] = useState<MemberEnrollmentRow[]>([])
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false)
-  const [enrollmentView, setEnrollmentView] = useState<'class' | 'member'>('class')
   const [classesOffered, setClassesOffered] = useState<PublicProgramOffered[]>([])
   const [classesOfferedLoading, setClassesOfferedLoading] = useState(false)
   const [classesOfferedError, setClassesOfferedError] = useState<string | null>(null)
@@ -682,7 +680,6 @@ export default function MemberDashboard({
         familyIsActive: member.familyIsActive || member.family_is_active,
         familyId: member.familyId || member.family_id,
         familyName: member.familyName || member.family_name,
-        relationshipLabel: member.relationshipLabel || member.relationship_label || null,
         username: member.username,
         roles: member.roles || [],
         enrollments: member.enrollments || [],
@@ -726,7 +723,6 @@ export default function MemberDashboard({
             familyIsActive: fm.familyIsActive || fm.family_is_active,
             familyId: fm.familyId || fm.family_id,
             familyName: fm.familyName || fm.family_name,
-            relationshipLabel: fm.relationshipLabel || fm.relationship_label || null,
             username: fm.username,
             roles: fm.roles || [],
             enrollments: fm.enrollments || [],
@@ -766,14 +762,13 @@ export default function MemberDashboard({
           email: addFamilyMemberData.email || null,
           phone: addFamilyMemberData.phone || null,
           dateOfBirth: addFamilyMemberData.dateOfBirth || null,
-          relationshipLabel: addFamilyMemberData.relationshipLabel || null,
         }),
       })
       const data = await response.json().catch(() => ({}))
       if (!response.ok || data.success === false) {
         throw new Error(data.message || 'Failed to add family member')
       }
-      setAddFamilyMemberData({ firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '', relationshipLabel: '' })
+      setAddFamilyMemberData({ firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '' })
       setShowAddFamilyMember(false)
       await fetchProfileData()
     } catch (err) {
@@ -969,45 +964,39 @@ export default function MemberDashboard({
 
 
   const fetchEnrollments = async () => {
+    if (!token) return
     try {
       setEnrollmentsLoading(true)
-      // Enrollments are already included in profile data from /api/members/me
-      // Combine enrollments from current user and all family members
-      const allEnrollments: any[] = []
-      
-      // Add current user's enrollments
-      if (profileData?.enrollments && Array.isArray(profileData.enrollments)) {
-        profileData.enrollments.forEach((enrollment: any) => {
-          allEnrollments.push({
-            ...enrollment,
-            member_id: profileData.id,
-            member_first_name: profileData.firstName || profileData.first_name,
-            member_last_name: profileData.lastName || profileData.last_name
-          })
-        })
-      }
-      
-      // Add family members' enrollments
-      members.forEach((member) => {
-        if (member.enrollments && Array.isArray(member.enrollments) && member.id !== profileData?.id) {
-          member.enrollments.forEach((enrollment: any) => {
-            allEnrollments.push({
-              ...enrollment,
-              member_id: member.id,
-              member_first_name: member.firstName,
-              member_last_name: member.lastName
-            })
-          })
-        }
+      const response = await fetch(`${apiUrl}/api/members/enrollments`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       })
-      
-      console.log('Combined enrollments:', allEnrollments)
-      setEnrollments(allEnrollments)
+      if (!response.ok) {
+        throw new Error(`Failed to load enrollments (${response.status})`)
+      }
+      const data = await response.json()
+      setEnrollments(Array.isArray(data.enrollments) ? data.enrollments : [])
     } catch (error) {
-      console.error('Error processing enrollments:', error)
+      console.error('Error fetching enrollments:', error)
+      setEnrollments([])
     } finally {
       setEnrollmentsLoading(false)
     }
+  }
+
+  const enrollmentSummaryForMember = (memberId: number) => {
+    const rows = enrollments.filter((e) => e.member_id === memberId)
+    if (rows.length === 0) return null
+    const byClass = new Map<string, number>()
+    for (const row of rows) {
+      const name = row.class_name || 'Class'
+      byClass.set(name, (byClass.get(name) || 0) + 1)
+    }
+    return [...byClass.entries()]
+      .map(([name, count]) => (count > 1 ? `${name} (${count} slots)` : name))
+      .join(', ')
   }
 
   const loadClassesOffered = async () => {
@@ -1465,13 +1454,6 @@ export default function MemberDashboard({
                           className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
                         />
                         <input
-                          type="text"
-                          value={addFamilyMemberData.relationshipLabel}
-                          onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, relationshipLabel: e.target.value }))}
-                          placeholder="Relationship"
-                          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                        />
-                        <input
                           type="email"
                           value={addFamilyMemberData.email}
                           onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, email: e.target.value }))}
@@ -1532,7 +1514,6 @@ export default function MemberDashboard({
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Member</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Contact</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Age</th>
-                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Relationship</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Enrolled In</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Status</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap w-0 text-right">Actions</th>
@@ -1541,21 +1522,8 @@ export default function MemberDashboard({
                         <tbody>
                           {members.map((member) => {
                             const isCurrent = member.id === profileData?.id
-                            const isFamilyRep = (member as any).is_family_rep === true || (member as any).is_primary === true
-                            const athleteType = (member as any).athlete_type as ('youth' | 'adult' | undefined)
-                            const isGuardian = isFamilyRep
-                            const hasEnrollments = !!(member.enrollments && member.enrollments.length > 0)
-                            const relationship =
-                              member.relationshipLabel ||
-                              (isFamilyRep
-                                ? 'Family Rep'
-                                : athleteType === 'youth'
-                                  ? 'Youth Athlete'
-                                  : athleteType === 'adult'
-                                    ? 'Athlete'
-                                    : hasEnrollments
-                                      ? 'Athlete'
-                                      : 'Member')
+                            const enrollmentSummary = enrollmentSummaryForMember(member.id)
+                            const hasEnrollments = !!enrollmentSummary
                             return (
                               <tr key={member.id} className="border-b border-gray-100 hover:bg-gray-50/80">
                                 <td className="py-3 px-4 align-middle">
@@ -1576,14 +1544,9 @@ export default function MemberDashboard({
                                 <td className="py-3 px-4 align-middle text-gray-700">
                                   {member.age ?? '—'}
                                 </td>
-                                <td className="py-3 px-4 align-middle">
-                                  <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${isGuardian ? 'bg-vortex-red/10 text-vortex-red' : 'bg-gray-100 text-gray-700'}`}>
-                                    {relationship}
-                                  </span>
-                                </td>
                                 <td className="py-3 px-4 align-middle text-gray-700 max-w-[220px]">
                                   {hasEnrollments ? (
-                                    <span className="text-xs">{member.enrollments.map((e) => e.program_display_name).join(', ')}</span>
+                                    <span className="text-xs">{enrollmentSummary}</span>
                                   ) : (
                                     <span className="text-gray-400">—</span>
                                   )}
@@ -1695,233 +1658,11 @@ export default function MemberDashboard({
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {/* Current Enrollments */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                    <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-                      Current Enrollments
-                    </h2>
-                    {enrollments.length > 0 && (
-                      <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden">
-                        <button
-                          type="button"
-                          onClick={() => setEnrollmentView('class')}
-                          className={`px-4 py-2 text-sm font-semibold transition-colors ${enrollmentView === 'class' ? 'bg-vortex-red text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                        >
-                          By Class
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEnrollmentView('member')}
-                          className={`px-4 py-2 text-sm font-semibold transition-colors ${enrollmentView === 'member' ? 'bg-vortex-red text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                        >
-                          By Family Member
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {enrollmentsLoading ? (
-                    <div className="text-center py-12 text-gray-600">Loading enrollments...</div>
-                  ) : enrollments.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">No enrollments yet. Sign up for a class from the offerings below.</div>
-                  ) : enrollmentView === 'class' ? (
-                  (() => {
-                    // Group enrollments by program_id
-                    const enrollmentsByProgram = enrollments.reduce((acc, enrollment) => {
-                      const programId = enrollment.program_id
-                      if (!acc[programId]) {
-                        acc[programId] = []
-                      }
-                      acc[programId].push(enrollment)
-                      return acc
-                    }, {} as Record<number, typeof enrollments>)
-
-                    // Get unique programs from enrollments and sort by member's enrollments first
-                    const programIds = Object.keys(enrollmentsByProgram).map(Number)
-                    const sortedProgramIds = programIds.sort((a, b) => {
-                      const aHasCurrentUser = enrollmentsByProgram[a].some((e: any) => e.member_id === profileData?.id)
-                      const bHasCurrentUser = enrollmentsByProgram[b].some((e: any) => e.member_id === profileData?.id)
-                      
-                      // Programs with current user enrollments come first
-                      if (aHasCurrentUser && !bHasCurrentUser) return -1
-                      if (!aHasCurrentUser && bHasCurrentUser) return 1
-                      
-                      // Then sort by program display name
-                      const aName = enrollmentsByProgram[a][0]?.program_display_name || ''
-                      const bName = enrollmentsByProgram[b][0]?.program_display_name || ''
-                      return aName.localeCompare(bName)
-                    })
-
-                    return (
-                      <div className="space-y-6">
-                        {sortedProgramIds.map((programId) => {
-                          const programEnrollments = enrollmentsByProgram[programId]
-                          const firstEnrollment = programEnrollments[0]
-                          const programDisplayName = firstEnrollment.program_display_name || firstEnrollment.program_name || 'Unknown Class'
-
-                          return (
-                            <div key={programId} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                              {/* Red top section with white text (title) */}
-                              <div className="bg-vortex-red p-4 md:p-6">
-                                <h3 className="text-2xl font-display font-bold text-white">
-                                  {programDisplayName}
-                                </h3>
-                              </div>
-                              {/* White bottom section with enrolled members */}
-                              <div className="p-4 md:p-6">
-                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                  <h4 className="text-lg font-display font-semibold text-black mb-4">
-                                    Enrolled Members ({programEnrollments.length})
-                                  </h4>
-                                  <div className="space-y-2">
-                                    {programEnrollments.map((enrollment: any) => {
-                                      // Find member - check familyMembers first, then check if it's the current user
-                                      // enrollment.member_id is the member table ID
-                                      let member = familyMembers.find(fm => 
-                                        fm.id === enrollment.member_id
-                                      )
-                                      
-                                      // If not found in familyMembers, check if it's the current user
-                                      if (!member && enrollment.member_id === profileData?.id) {
-                                        member = {
-                                          id: profileData.id,
-                                          first_name: profileData.firstName || '',
-                                          last_name: profileData.lastName || '',
-                                          user_id: profileData.id
-                                        }
-                                      }
-                                      
-                                      // Fallback to member name from enrollment if available
-                                      const memberName = member 
-                                        ? `${member.first_name || ''} ${member.last_name || ''}`.trim() || 'You'
-                                        : (enrollment.member_first_name && enrollment.member_last_name
-                                            ? `${enrollment.member_first_name} ${enrollment.member_last_name}`
-                                            : 'Unknown Member')
-                                      
-                                      const isCurrentUser = enrollment.member_id === profileData?.id
-                                      const selectedDaysArray = Array.isArray(enrollment.selected_days) 
-                                        ? enrollment.selected_days 
-                                        : (typeof enrollment.selected_days === 'string' 
-                                            ? JSON.parse(enrollment.selected_days || '[]') 
-                                            : [])
-
-                                      return (
-                                        <div key={enrollment.id} className="bg-white rounded-lg p-3 border border-gray-200">
-                                          <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                              <h5 className="font-semibold text-black mb-1">
-                                                {memberName} {isCurrentUser && '(You)'}
-                                              </h5>
-                                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
-                                                <div>
-                                                  <span className="font-medium">Days Per Week:</span> {enrollment.days_per_week || 'N/A'}
-                                                </div>
-                                                {selectedDaysArray.length > 0 && (
-                                                  <div>
-                                                    <span className="font-medium">Selected Days:</span> {selectedDaysArray.join(', ')}
-                                                  </div>
-                                                )}
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )
-                                    })}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )
-                  })()
-                ) : (
-                  (() => {
-                    // Group enrollments by member
-                    const enrollmentsByMember = enrollments.reduce((acc, enrollment) => {
-                      const memberId = enrollment.member_id
-                      if (!acc[memberId]) {
-                        acc[memberId] = []
-                      }
-                      acc[memberId].push(enrollment)
-                      return acc
-                    }, {} as Record<number, typeof enrollments>)
-
-                    const memberIds = Object.keys(enrollmentsByMember).map(Number).sort((a, b) => {
-                      // Current user first
-                      if (a === profileData?.id) return -1
-                      if (b === profileData?.id) return 1
-                      const aFirst = enrollmentsByMember[a][0]
-                      const bFirst = enrollmentsByMember[b][0]
-                      const aName = `${aFirst?.member_first_name || ''} ${aFirst?.member_last_name || ''}`.trim()
-                      const bName = `${bFirst?.member_first_name || ''} ${bFirst?.member_last_name || ''}`.trim()
-                      return aName.localeCompare(bName)
-                    })
-
-                    return (
-                      <div className="space-y-6">
-                        {memberIds.map((memberId) => {
-                          const memberEnrollments = enrollmentsByMember[memberId]
-                          const firstEnrollment = memberEnrollments[0]
-                          const isCurrentUser = memberId === profileData?.id
-                          const memberName = (firstEnrollment.member_first_name && firstEnrollment.member_last_name)
-                            ? `${firstEnrollment.member_first_name} ${firstEnrollment.member_last_name}`
-                            : (isCurrentUser ? 'You' : 'Member')
-
-                          return (
-                            <div key={memberId} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                              {/* Red top section with member name */}
-                              <div className="bg-vortex-red p-4 md:p-6">
-                                <h3 className="text-2xl font-display font-bold text-white">
-                                  {memberName}{isCurrentUser && ' (You)'}
-                                </h3>
-                              </div>
-                              {/* White bottom section with this member's classes */}
-                              <div className="p-4 md:p-6">
-                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                  <h4 className="text-lg font-display font-semibold text-black mb-4">
-                                    Enrolled Classes ({memberEnrollments.length})
-                                  </h4>
-                                  <div className="space-y-2">
-                                    {memberEnrollments.map((enrollment: any) => {
-                                      const programDisplayName = enrollment.program_display_name || enrollment.program_name || 'Unknown Class'
-                                      const selectedDaysArray = Array.isArray(enrollment.selected_days)
-                                        ? enrollment.selected_days
-                                        : (typeof enrollment.selected_days === 'string'
-                                            ? JSON.parse(enrollment.selected_days || '[]')
-                                            : [])
-
-                                      return (
-                                        <div key={enrollment.id} className="bg-white rounded-lg p-3 border border-gray-200">
-                                          <h5 className="font-semibold text-black mb-1">
-                                            {programDisplayName}
-                                          </h5>
-                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
-                                            <div>
-                                              <span className="font-medium">Days Per Week:</span> {enrollment.days_per_week || 'N/A'}
-                                            </div>
-                                            {selectedDaysArray.length > 0 && (
-                                              <div>
-                                                <span className="font-medium">Selected Days:</span> {selectedDaysArray.join(', ')}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </div>
-                                      )
-                                    })}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )
-                  })()
-                )}
-                </div>
+                <MemberEnrollmentsPanel
+                  enrollments={enrollments}
+                  loading={enrollmentsLoading}
+                  currentMemberId={profileData?.id}
+                />
 
                 {/* Classes Offered */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
@@ -2535,46 +2276,39 @@ export default function MemberDashboard({
                 {/* Enrollments */}
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                   <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Active Enrollments</h4>
-                  {viewingMember.enrollments && viewingMember.enrollments.length > 0 ? (
-                    <div className="space-y-2">
-                      {viewingMember.enrollments.map((enrollment: any) => {
-                        const selectedDaysArray = Array.isArray(enrollment.selected_days) 
-                          ? enrollment.selected_days 
-                          : (typeof enrollment.selected_days === 'string' 
-                              ? JSON.parse(enrollment.selected_days || '[]') 
-                              : [])
-                        const enrollmentDate = enrollment.createdAt || enrollment.created_at
-                        return (
-                          <div key={enrollment.id} className="bg-white border border-gray-200 rounded-lg p-3">
-                            <div className="text-gray-900 font-medium">
-                              {enrollment.program_display_name || enrollment.programDisplayName || 'Unknown Class'}
+                  {(() => {
+                    const memberEnrollmentRows = viewingMember
+                      ? enrollments.filter((e) => e.member_id === viewingMember.id)
+                      : []
+                    if (memberEnrollmentRows.length === 0) {
+                      return <div className="text-gray-500 text-sm">No active enrollments</div>
+                    }
+                    return (
+                      <>
+                        <div className="space-y-2">
+                          {memberEnrollmentRows.map((enrollment) => (
+                            <div key={`${enrollment.source || 'row'}-${enrollment.id}`} className="bg-white border border-gray-200 rounded-lg p-3">
+                              <div className="text-gray-900 font-medium">{enrollment.class_name}</div>
+                              <div className="text-gray-500 text-sm mt-1">{enrollment.slot_label}</div>
+                              {enrollment.created_at && (
+                                <div className="text-gray-500 text-xs mt-1">
+                                  Enrolled: {formatTimeSince(enrollment.created_at)}
+                                </div>
+                              )}
                             </div>
-                            <div className="text-gray-500 text-sm mt-1">
-                              {enrollment.days_per_week || enrollment.daysPerWeek} day{(enrollment.days_per_week || enrollment.daysPerWeek) !== 1 ? 's' : ''}/week
-                              {selectedDaysArray.length > 0 && ` • ${selectedDaysArray.join(', ')}`}
-                            </div>
-                            {enrollmentDate && (
-                              <div className="text-gray-500 text-xs mt-1">
-                                Enrolled: {formatTimeSince(enrollmentDate)}
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-gray-500 text-sm">No active enrollments</div>
-                  )}
-                  {viewingMember.enrollments && viewingMember.enrollments.length > 0 && (
-                    <div className="mt-3 text-sm text-gray-600">
-                      <span className="font-semibold">Last Enrollment:</span> {formatTimeSince(
-                        getMostRecentEnrollmentDate(viewingMember.enrollments.map((e: any) => ({ 
-                          created_at: e.created_at, 
-                          createdAt: e.createdAt 
-                        })))
-                      )}
-                    </div>
-                  )}
+                          ))}
+                        </div>
+                        <div className="mt-3 text-sm text-gray-600">
+                          <span className="font-semibold">Last Enrollment:</span>{' '}
+                          {formatTimeSince(
+                            getMostRecentEnrollmentDate(
+                              memberEnrollmentRows.map((e) => ({ created_at: e.created_at })),
+                            ),
+                          )}
+                        </div>
+                      </>
+                    )
+                  })()}
                 </div>
 
                 {/* Family Members */}
@@ -2829,7 +2563,7 @@ export default function MemberDashboard({
                     )}
 
                     <p className="text-xs text-gray-500">
-                      To change a member's family relationship or move them between families, contact your facility administrator.
+                      To move a member between families, contact your facility administrator.
                     </p>
                   </div>
                 )

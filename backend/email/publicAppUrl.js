@@ -27,3 +27,8 @@ export function publicAppUrl() {
   }
   return PRODUCTION_APP_URL
 }
+
+/** Member Portal deep link — opens the Vortex Account login modal on the public site. */
+export function memberPortalLoginUrl() {
+  return `${publicAppUrl()}/?login=1`
+}

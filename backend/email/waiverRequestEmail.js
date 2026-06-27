@@ -1,5 +1,5 @@
 import { sendEmail, isEmailConfigured } from './sendEmail.js'
-import { publicAppUrl } from './publicAppUrl.js'
+import { memberPortalLoginUrl } from './publicAppUrl.js'
 
 const TEAM_EMAIL = process.env.SMTP_FROM || process.env.SMTP_USER || 'team@vortexathletics.com'
 
@@ -9,10 +9,6 @@ function escapeHtml(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-}
-
-function portalUrl() {
-  return `${publicAppUrl()}/?login=1`
 }
 
 function extractEmailAddress(value) {
@@ -48,7 +44,7 @@ export async function sendWaiverRequestEmail({
     return { sent: false }
   }
 
-  const url = portalUrl()
+  const url = memberPortalLoginUrl()
   const teamEmail = extractEmailAddress(TEAM_EMAIL)
   const greeting = guardianName ? `Hi ${guardianName},` : 'Hello,'
   const athlete = athleteName || 'your athlete'

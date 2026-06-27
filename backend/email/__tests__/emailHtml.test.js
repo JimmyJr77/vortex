@@ -2,20 +2,22 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   composeEmailHtml,
+  EMAIL_LOGO_URL,
   emailLogoUrl,
   normalizeOutboundEmailHtml,
   preheaderHtml,
 } from '../emailHtml.js'
 
-test('composeEmailHtml uses black background, grey card, red border, and logo', () => {
+test('composeEmailHtml uses black header, white body, grey footer, and logo', () => {
   const html = composeEmailHtml('<p>Hello</p>')
   assert.match(html, /background-color:#000000/i)
+  assert.match(html, /background-color:#ffffff/i)
   assert.match(html, /background-color:#e5e5e5/i)
-  assert.match(html, /border:1px solid #c41e3a/i)
-  assert.match(html, /border-radius:4px/i)
   assert.match(html, new RegExp(escapeRegex(emailLogoUrl())))
+  assert.equal(emailLogoUrl(), EMAIL_LOGO_URL)
   assert.match(html, /<p>Hello<\/p>/)
   assert.match(html, /www\.vortexathletics\.com/)
+  assert.doesNotMatch(html, /border:1px solid #c41e3a/i)
 })
 
 test('normalizeOutboundEmailHtml wraps fragments and preserves preheader', () => {

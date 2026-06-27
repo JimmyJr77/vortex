@@ -4,14 +4,18 @@ import { publicAppUrl } from './publicAppUrl.js'
 
 export const EMAIL_LAYOUT_MARKER = 'data-vortex-email-layout="vortex"'
 
+/** Public logo asset — must be absolute URL for email clients. */
+export const EMAIL_LOGO_URL = 'https://vortexathletics.com/vortex-athletics-logo.png'
+
 const BRAND = {
-  black: '#000000',
-  cardBg: '#e5e5e5',
-  cardBorder: '#c41e3a',
-  cardRadius: '4px',
+  headerBg: '#000000',
+  bodyBg: '#ffffff',
+  footerBg: '#e5e5e5',
   bodyColor: '#1a1a1a',
-  footerColor: '#888888',
+  footerColor: '#000000',
   buttonRed: '#c41e3a',
+  buttonRadius: '4px',
+  emailMaxWidth: '600px',
 }
 
 export function escapeHtml(str) {
@@ -26,9 +30,9 @@ export function plainLinkLine(label, url) {
   return `${label}: ${url}`
 }
 
-/** Logo used on the public site header (see src/utils/seo.ts HUB_HEADER_LOGO). */
+/** Logo shown in the black email header (see src/utils/seo.ts HUB_HEADER_LOGO). */
 export function emailLogoUrl() {
-  return `${publicAppUrl()}/vortex-athletics-logo.png`
+  return EMAIL_LOGO_URL
 }
 
 /**
@@ -45,14 +49,14 @@ export function emailButtonHtml(label, url) {
   return `
     <p style="margin: 28px 0;">
       <a href="${escapeHtml(url)}"
-         style="display: inline-block; background: ${BRAND.buttonRed}; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: ${BRAND.cardRadius}; font-weight: bold;">
+         style="display: inline-block; background: ${BRAND.buttonRed}; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: ${BRAND.buttonRadius}; font-weight: bold;">
         ${escapeHtml(label)}
       </a>
     </p>
   `
 }
 
-/** Plain-text + HTML footer (rendered below the card in grey text). */
+/** Plain-text + HTML footer (rendered in the grey footer band). */
 export const emailFooterHtml = {
   text: '— Vortex Athletics\nwww.vortexathletics.com',
   html: `
@@ -61,8 +65,8 @@ export const emailFooterHtml = {
 }
 
 /**
- * Full email document: black outer background, logo, light-grey card with thin red border,
- * body inside the card, footer below the card.
+ * Full email document: black header (logo), white body, grey footer — each full width of
+ * the centered email column.
  */
 export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
   const logoUrl = emailLogoUrl()
@@ -78,26 +82,26 @@ export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vortex Athletics</title>
 </head>
-<body style="margin:0;padding:0;background-color:${BRAND.black};">
+<body style="margin:0;padding:0;background-color:${BRAND.footerBg};">
   ${preheader}
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BRAND.black};">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BRAND.footerBg};">
     <tr>
-      <td align="center" style="padding:32px 16px;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+      <td align="center" style="padding:0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:${BRAND.emailMaxWidth};width:100%;">
           <tr>
-            <td align="center" style="padding:0 0 24px 0;">
+            <td align="center" style="background-color:${BRAND.headerBg};padding:36px 24px;">
               <a href="${escapeHtml(siteUrl)}" style="text-decoration:none;">
-                <img src="${escapeHtml(logoUrl)}" alt="Vortex Athletics" width="220" style="display:block;width:220px;max-width:100%;height:auto;border:0;" />
+                <img src="${escapeHtml(logoUrl)}" alt="Vortex Athletics" width="220" style="display:block;width:220px;max-width:100%;height:auto;border:0;margin:0 auto;" />
               </a>
             </td>
           </tr>
           <tr>
-            <td style="background-color:${BRAND.cardBg};border:1px solid ${BRAND.cardBorder};border-radius:${BRAND.cardRadius};padding:28px 24px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:${BRAND.bodyColor};">
+            <td style="background-color:${BRAND.bodyBg};padding:32px 28px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:${BRAND.bodyColor};">
               ${body}
             </td>
           </tr>
           <tr>
-            <td align="center" style="padding:20px 8px 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:${BRAND.footerColor};">
+            <td align="center" style="background-color:${BRAND.footerBg};padding:24px 28px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:${BRAND.footerColor};">
               ${emailFooterHtml.html}
             </td>
           </tr>

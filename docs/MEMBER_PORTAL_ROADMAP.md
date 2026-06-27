@@ -42,7 +42,7 @@ A single `public.member` replaces the old `members` / `athlete` split. Login ide
 
 ### `family_member` is the canonical family link
 Family membership is the `(family_id, member_id)` row in `public.family_member` (with
-`relationship_label`, `is_active`) — **not** `family.primary_user_id` or `family_guardian`
+`is_active`) — **not** `family.primary_user_id` or `family_guardian`
 (both dropped in `009_family_identity_cleanup.sql`). Billing payer is
 `family_billing_account.payer_member_id`. **Why:** supports multi-guardian families and equal
 member records with a clean billing payer.
@@ -70,7 +70,7 @@ out of sync with actual access.
   `app_user_role`, no password required).
 - **Family Rep** is the family billing payer (`family_billing_account.payer_member_id`),
   surfaced as `is_family_rep`/`is_primary` and `athlete_type` (`youth`/`adult`) on the
-  family-members API and rendered as a relationship badge in the dashboard.
+  family-members API.
 - The default master account (`team.vortexathletics@gmail.com`, override via
   `DEFAULT_MASTER_EMAIL`) cannot be deleted, deactivated, or stripped of `MASTER_ADMIN`.
 
@@ -90,9 +90,11 @@ embed force a change afterward. **Why:** simpler ops flow than tokenized magic l
 
 ### Classes tab = public catalog + authoritative enrollments
 "Classes Offered" reads `GET /api/public/classes-offered` (the same pipeline as `/enroll`,
-built from Admin Programs/Classes + Scheduling forms and enroll-site visibility). Current
-enrollments come embedded in `GET /api/members/me` (`member_program`). **Why:** single source of
-truth for what's marketed publicly; enrollments are authoritative from member records.
+built from Admin Programs/Classes + Scheduling forms and enroll-site visibility). **Current
+enrollments** on the Classes tab load from `GET /api/members/enrollments`, which returns one row
+per `scheduling_signup` slot (with time labels), falling back to legacy `member_program` rows when
+no signup exists. **Why:** scheduling signups are the source of truth for day/time; the public
+catalog and self-service signup flow stay on the scheduling pipeline.
 
 ### Light-theme portal UI
 Dashboard uses white content panels and light modals (`bg-white rounded-2xl`), with a dark brand
@@ -118,9 +120,10 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
     `PUT /api/members/family/:id`; add via `POST /api/members/family`;
     `POST /api/members/change-password`. Family members + payment-history tables; guardian-gated
     add/edit (`isAdult()` checks `PARENT_GUARDIAN`).
-  - **Classes**: enrollments from `/me`; catalog via `fetchClassesOffered()` →
-    `GET /api/public/classes-offered?site=` rendered by the shared `ClassesOfferedList`. Toggle
-    by family member / by class.
+  - **Classes**: current enrollments via `GET /api/members/enrollments` →
+    [MemberEnrollmentsPanel.tsx](../src/components/member/MemberEnrollmentsPanel.tsx) (one row per
+    scheduling slot; By Class / By Family Member tables). Catalog via `fetchClassesOffered()` →
+    `GET /api/public/classes-offered?site=` rendered by the shared `ClassesOfferedList`.
   - **Training / Progress**: delegate to `MemberTrainingTab` / `MemberProgressTab`.
   - **Events**: `GET /api/events` (public), filtered by enrollment tags.
   - **Billing**: `GET /api/members/billing/statements`, `…/payments`.
@@ -190,7 +193,7 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
   `has_completed_waivers`, `must_change_password`, `is_active`.
 - **`public.family`** (`003`; normalized in `006`/`009`) — `family_name`, `family_username`,
   `family_password_hash` (legacy `primary_*` / `family_guardian` dropped).
-- **`public.family_member`** (`008`/`009`) — `(family_id, member_id)` PK, `relationship_label`,
+- **`public.family_member`** (`008`/`009`, `045`) — `(family_id, member_id)` PK,
   `is_active` — the sole family link.
 - **`public.member_program`** (`005`) — enrollments: `member_id`, `program_id`, `iteration_id`,
   `days_per_week`, `selected_days JSONB`.

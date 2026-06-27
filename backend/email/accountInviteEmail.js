@@ -1,5 +1,5 @@
 import { sendEmail, isEmailConfigured } from './sendEmail.js'
-import { publicAppUrl } from './publicAppUrl.js'
+import { memberPortalLoginUrl, publicAppUrl } from './publicAppUrl.js'
 import { emailButtonHtml, emailFooterHtml, escapeHtml, plainLinkLine, preheaderHtml } from './emailHtml.js'
 import { BRAND_NAME } from './emailPolicy.js'
 
@@ -125,7 +125,8 @@ export async function sendInviteSignupCompleteEmail({
     return { sent: false }
   }
 
-  const portalUrl = publicAppUrl()
+  const portalUrl = memberPortalLoginUrl()
+  const siteUrl = publicAppUrl()
   const athlete = firstNameOf(minorName)
   const greeting = parentName ? `Hi ${parentName},` : 'Hi,'
   const subject = `Your ${BRAND_NAME} family account is ready`
@@ -156,7 +157,7 @@ export async function sendInviteSignupCompleteEmail({
     <p>Thank you for completing signup for <strong>${escapeHtml(athlete)}</strong>. Your family account is ready.</p>
     <p>${escapeHtml(enrollmentLine)}</p>
     ${emailButtonHtml('Go to Member Portal', portalUrl)}
-    <p style="font-size: 14px; color: #555;">Or visit <a href="${escapeHtml(portalUrl)}">${escapeHtml(portalUrl)}</a></p>
+    <p style="font-size: 14px; color: #555;">Or visit <a href="${escapeHtml(siteUrl)}">${escapeHtml(siteUrl)}</a></p>
     <p style="color:#666;font-size:13px;">You may receive a separate email to confirm your email address — please click that link when it arrives.</p>
   `
 

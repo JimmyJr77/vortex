@@ -24,6 +24,8 @@ export function useSiteHighlights(options: UseSiteHighlightsOptions = {}) {
   const [hasAutoOpened, setHasAutoOpened] = useState(false)
 
   const isHomePage = location.pathname === '/' || location.pathname === ''
+  const skipAutoOpenForLogin =
+    new URLSearchParams(location.search).get('login') === '1'
 
   useEffect(() => {
     let cancelled = false
@@ -54,9 +56,10 @@ export function useSiteHighlights(options: UseSiteHighlightsOptions = {}) {
 
   const shouldAutoOpen = useMemo(() => {
     if (highlights.length === 0) return false
+    if (skipAutoOpenForLogin) return false
     if (homePageOnly && !isHomePage) return false
     return shouldAutoOpenCarousel(siteKey, highlights)
-  }, [highlights, homePageOnly, isHomePage, siteKey])
+  }, [highlights, homePageOnly, isHomePage, siteKey, skipAutoOpenForLogin])
 
   useEffect(() => {
     if (

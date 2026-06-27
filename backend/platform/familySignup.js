@@ -757,18 +757,6 @@ export async function createPortalFamilyMember(client, {
     payerEmail: minor ? payerEmail : null,
   })
 
-  const relationshipLabel = input?.relationshipLabel || input?.relationship_label || null
-  if (relationshipLabel) {
-    await client.query(
-      `
-        UPDATE family_member
-        SET relationship_label = $3, updated_at = now()
-        WHERE family_id = $1 AND member_id = $2
-      `,
-      [familyId, member.id, relationshipLabel],
-    )
-  }
-
   return member
 }
 
