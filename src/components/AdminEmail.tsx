@@ -2,6 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { CheckCircle2, Loader2, Mail, RefreshCw, XCircle } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
+/** Current transactional email template — update when composeEmailHtml changes. */
+export const EXPECTED_EMAIL_LAYOUT_VERSION = 'v2-black-header-white-body'
+
 interface EmailStatus {
   configured: boolean
   smtpHost: string
@@ -15,6 +18,8 @@ interface EmailStatus {
   smtpFromHasDisplayName: boolean
   smtpVerified: boolean
   smtpError: string | null
+  buildId?: string | null
+  emailLayoutVersion?: string | null
 }
 
 export default function AdminEmail() {
@@ -64,7 +69,13 @@ export default function AdminEmail() {
       }
       setTestResult({
         ok: res.ok && json.success === true,
-        message: json.message || (res.ok ? 'Test email sent' : `Request failed (${res.status})`),
+        message: [
+          json.message || (res.ok ? 'Test email sent' : `Request failed (${res.status})`),
+          json.emailLayoutVersion ? `Backend template: ${json.emailLayoutVersion}` : null,
+          json.buildId ? `Backend build: ${json.buildId}` : null,
+        ]
+          .filter(Boolean)
+          .join(' · '),
       })
     } catch (err) {
       setTestResult({ ok: false, message: err instanceof Error ? err.message : 'Failed to send test email' })
@@ -81,6 +92,9 @@ export default function AdminEmail() {
       </span>
     </div>
   )
+
+  const layoutIsCurrent =
+    status?.emailLayoutVersion === EXPECTED_EMAIL_LAYOUT_VERSION
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -110,6 +124,26 @@ export default function AdminEmail() {
       ) : error ? (
         <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>
       ) : status ? (
+        <>
+          {!layoutIsCurrent && (
+            <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+              <p className="font-semibold">Backend email template is out of date</p>
+              <p className="mt-1">
+                The API serving test emails is still on build{' '}
+                <code className="text-xs">{status.buildId || 'unknown'}</code>
+                {status.emailLayoutVersion
+                  ? ` (template ${status.emailLayoutVersion})`
+                  : ' (no template version — pre-layout backend)'}
+                . Expected template{' '}
+                <code className="text-xs">{EXPECTED_EMAIL_LAYOUT_VERSION}</code>.
+              </p>
+              <p className="mt-2">
+                Redeploy the <strong>Render</strong> backend service (<code>backend/</code> root on{' '}
+                <code>main</code>). Vercel frontend deploys do not update email HTML. After deploy,
+                refresh this page — build should be <code>email-layout-v2-2026-06-27</code> or newer.
+              </p>
+            </div>
+          )}
         <div className="rounded-xl border border-gray-200 bg-white p-5">
           <div className="flex items-center gap-2 mb-3">
             {status.configured && status.smtpVerified ? (
@@ -143,7 +177,15 @@ export default function AdminEmail() {
           {status.smtpError && (
             <div className="mt-3 rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{status.smtpError}</div>
           )}
+
+          <StatusRow label="Backend build" value={status.buildId || '(unknown)'} good={layoutIsCurrent} />
+          <StatusRow
+            label="Email template"
+            value={status.emailLayoutVersion || '(legacy — redeploy backend)'}
+            good={layoutIsCurrent}
+          />
         </div>
+        </>
       ) : null}
 
       <div className="rounded-xl border border-gray-200 bg-white p-5">

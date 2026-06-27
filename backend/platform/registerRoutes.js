@@ -20,6 +20,7 @@ import {
 } from '../email/sendEmail.js'
 import { composeEmailHtml, emailButtonHtml, EMAIL_LAYOUT_VERSION, escapeHtml } from '../email/emailHtml.js'
 import { publicAppUrl } from '../email/publicAppUrl.js'
+import { API_BUILD_ID } from '../buildInfo.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -1992,6 +1993,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           ...config,
           smtpVerified: verify.ok,
           smtpError: verify.error,
+          buildId: API_BUILD_ID,
+          emailLayoutVersion: EMAIL_LAYOUT_VERSION,
         },
       })
     } catch (err) {
@@ -2035,7 +2038,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
     try {
       await sendEmail({ to, subject, text, html })
-      res.json({ success: true, message: `Test email sent to ${to}` })
+      res.json({
+        success: true,
+        message: `Test email sent to ${to}`,
+        buildId: API_BUILD_ID,
+        emailLayoutVersion: EMAIL_LAYOUT_VERSION,
+      })
     } catch (err) {
       console.error('[admin] email test send failed:', err?.message || err)
       res.status(502).json({ success: false, message: err?.message || 'Failed to send test email' })
