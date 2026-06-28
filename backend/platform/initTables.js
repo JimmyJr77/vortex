@@ -48,7 +48,16 @@ export async function initPlatformTables(pool) {
   for (const migrationFile of migrationFiles) {
     const migrationPath = path.join(__dirname, '..', 'migrations', migrationFile)
     const sql = fs.readFileSync(migrationPath, 'utf8')
-    await pool.query(sql)
+    try {
+      await pool.query(sql)
+    } catch (err) {
+      // Migrations re-run on every local boot; tolerate duplicate DDL objects.
+      if (/already exists/i.test(String(err.message))) {
+        console.warn(`[initPlatformTables] Skipping duplicate in ${migrationFile}:`, err.message)
+        continue
+      }
+      throw err
+    }
   }
 
   await seedCanonicalWaivers(pool)

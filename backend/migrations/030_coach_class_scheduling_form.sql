@@ -7,6 +7,9 @@ ALTER TABLE coach_class_assignment
   DROP CONSTRAINT IF EXISTS coach_class_assignment_check;
 
 ALTER TABLE coach_class_assignment
+  DROP CONSTRAINT IF EXISTS coach_class_assignment_target_check;
+
+ALTER TABLE coach_class_assignment
   ADD CONSTRAINT coach_class_assignment_target_check
   CHECK (
     program_id IS NOT NULL

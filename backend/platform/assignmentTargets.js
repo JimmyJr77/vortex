@@ -17,6 +17,14 @@ const ACTIVE_SIGNUP = `
   AND s.status IN ('confirmed', 'waitlisted')
 `
 
+/** scheduling_signup has no offering_id — resolve via slot_group. */
+const SIGNUP_OFFERING_MATCH = (offeringParam) => `
+  EXISTS (
+    SELECT 1 FROM scheduling_slot_group sg
+    WHERE sg.id = s.slot_group_id AND sg.offering_id = ${offeringParam}
+  )
+`
+
 /** Member IDs for a plan_assignment target (notifications, fan-out). */
 export async function queryAssignmentTargetMemberIds(pool, { targetType, targetId, facilityId }) {
   const tid = Number(targetId)
@@ -88,7 +96,8 @@ export async function queryAssignmentTargetMemberIds(pool, { targetType, targetI
         FROM scheduling_signup s
         JOIN member m ON m.id = s.member_id
         WHERE m.facility_id = $2 AND m.is_active = TRUE
-          AND s.offering_id = $1 AND ${ACTIVE_SIGNUP}
+          AND ${SIGNUP_OFFERING_MATCH('$1')}
+          AND ${ACTIVE_SIGNUP}
       `,
       [tid, fid],
     )
@@ -317,7 +326,7 @@ export function planAssignmentMemberMatchSql(memberIdx, familyIdx) {
                     OR EXISTS (
                       SELECT 1 FROM program px
                       WHERE px.id = sf.program_id
-                        AND (px.programs_id = cca.programs_id OR px.category_id = cca.programs_id)
+                        AND px.programs_id = cca.programs_id
                     )
                   )
                 )
@@ -336,7 +345,7 @@ export function planAssignmentMemberMatchSql(memberIdx, familyIdx) {
                   AND EXISTS (
                     SELECT 1 FROM program px
                     WHERE px.id = mp.program_id
-                      AND (px.programs_id = cca.programs_id OR px.category_id = cca.programs_id)
+                      AND px.programs_id = cca.programs_id
                   )
                 )
               )
@@ -367,7 +376,7 @@ export function planAssignmentMemberMatchSql(memberIdx, familyIdx) {
     OR (pa.target_type = 'offering' AND EXISTS (
       SELECT 1 FROM scheduling_signup s
       WHERE s.member_id = $${memberIdx}
-        AND s.offering_id = pa.target_id
+        AND ${SIGNUP_OFFERING_MATCH(`pa.target_id`)}
         AND s.orphaned_at IS NULL
         AND s.status IN ('confirmed', 'waitlisted')
     ))
