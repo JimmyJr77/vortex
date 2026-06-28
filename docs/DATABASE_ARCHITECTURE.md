@@ -312,6 +312,7 @@ exists · **Removed** = already dropped in a migration.
 | `family_guardian` | Removed | Dropped in [009](../backend/migrations/009_family_identity_cleanup.sql). Canonical link: `family_member`. |
 | `family.primary_*` / legacy guardian columns on `family` | Removed | [009](../backend/migrations/009_family_identity_cleanup.sql). |
 | `family_member.relationship_label` | Removed | Dropped in [045](../backend/migrations/045_drop_family_member_relationship_label.sql); unused free-text label on family membership. |
+| `member.family_id` vs `family_member` junction | Active (dual path) | Some accounts have `member.family_id` set without `family_member` rows (invite signup, legacy create). Member portal enrollments previously queried junction only → empty list despite `scheduling_signup` rows. | Canonical: both in sync via `moveMemberToFamily` / `syncFamilyMemberLinks` ([familyMembers.js](../backend/platform/familyMembers.js)). |
 | `member.parent_guardian_ids` + `parent_guardian_authority` | Active | **Keep** — used for minors messaging and guardian access. |
 | `family.family_password_hash` + `/api/admin/families/verify` | Candidate | Admin signup + unified wizard (no password); column still written on family create in `familySignup.js` / legacy POST `/api/admin/members` | Verify zero public callers needing password join; then stop writing hash and drop column. |
 

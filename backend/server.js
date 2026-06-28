@@ -41,6 +41,7 @@ import { initPlatformTables } from './platform/initTables.js'
 import { registerPlatformRoutes } from './platform/registerRoutes.js'
 import { registerFamilySignupRoutes, createPortalFamilyMember } from './platform/familySignup.js'
 import { queryFamilyMemberEnrollments } from './platform/memberEnrollments.js'
+import { listActiveFamilyMemberIds, syncFamilyMemberLinks } from './platform/familyMembers.js'
 import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
 import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
 import { ensureCoachingNotificationSchema } from './platform/coachingSchemaEnsure.js'
@@ -2057,7 +2058,10 @@ async function familyContextFromMemberRow(client, member) {
 /** Create and link a family when a logged-in member has no family yet (solo signup / legacy account). */
 const ensureUserFamilyContext = async (userId, client = pool) => {
   const existing = await getUserFamilyContext(userId, client)
-  if (existing) return existing
+  if (existing) {
+    await syncFamilyMemberLinks(client, existing.id)
+    return existing
+  }
 
   const member = await getMemberForAppUser(userId, client)
   if (!member) return null
@@ -8671,7 +8675,8 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
     // Get all family members if family exists, otherwise just return the single member
     let allMembers = [currentMemberRow]
     if (familyId) {
-      const familyQuery = `
+      const familyResult = await pool.query(
+        `
         SELECT 
           m.id,
           m.first_name,
@@ -8698,16 +8703,24 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
             THEN EXTRACT(YEAR FROM AGE(m.date_of_birth))::INTEGER 
             ELSE NULL 
           END as age
-        FROM family_member fm
-        JOIN member m ON m.id = fm.member_id
-        LEFT JOIN family f ON fm.family_id = f.id
-        WHERE fm.family_id = $1
-          AND fm.is_active = TRUE
-          AND m.is_active = TRUE
+        FROM member m
+        LEFT JOIN family f ON f.id = m.family_id
+        WHERE m.is_active = TRUE
+          AND (
+            m.family_id = $1
+            OR m.id IN (
+              SELECT fm.member_id
+              FROM family_member fm
+              WHERE fm.family_id = $1 AND fm.is_active = TRUE
+            )
+          )
         ORDER BY m.last_name, m.first_name
-      `
-      const familyResult = await pool.query(familyQuery, [familyId])
-      allMembers = familyResult.rows
+        `,
+        [familyId],
+      )
+      if (familyResult.rows.length > 0) {
+        allMembers = familyResult.rows
+      }
     }
     
     const result = { rows: allMembers }
@@ -9632,55 +9645,34 @@ app.get('/api/members/enrollments', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
 
-    // Get user's family through member.app_user_id + family_member.
     let familyContext = null
     try {
-      familyContext = await getUserFamilyContext(userId)
+      familyContext = await ensureUserFamilyContext(userId)
     } catch (familyError) {
       console.log('Family query failed (non-critical):', familyError.message)
-      return res.json({
-        success: true,
-        enrollments: []
-      })
     }
 
     if (!familyContext) {
-      return res.json({
-        success: true,
-        enrollments: []
-      })
+      const member = await getMemberForAppUser(userId)
+      if (!member) {
+        return res.json({ success: true, enrollments: [] })
+      }
+      try {
+        const enrollments = await queryFamilyMemberEnrollments(pool, [member.id])
+        return res.json({ success: true, enrollments })
+      } catch (enrollmentError) {
+        console.log('Enrollment query failed (non-critical):', enrollmentError.message)
+        return res.json({ success: true, enrollments: [] })
+      }
     }
 
-    const familyId = familyContext.id
+    const memberIds = await listActiveFamilyMemberIds(pool, familyContext.id, {
+      fallbackMemberId: familyContext.current_member_id,
+    })
 
-    // Get all members in the family
-    let members = []
-    try {
-      const membersResult = await pool.query(`
-        SELECT m.id, m.first_name, m.last_name, m.status, m.is_active
-        FROM family_member fm
-        JOIN member m ON m.id = fm.member_id
-        WHERE fm.family_id = $1
-          AND fm.is_active = TRUE
-          AND m.is_active = TRUE
-      `, [familyId])
-      members = membersResult.rows
-    } catch (memberError) {
-      console.log('Member query failed (non-critical):', memberError.message)
-      return res.json({
-        success: true,
-        enrollments: []
-      })
+    if (memberIds.length === 0) {
+      return res.json({ success: true, enrollments: [] })
     }
-
-    if (members.length === 0) {
-      return res.json({
-        success: true,
-        enrollments: []
-      })
-    }
-
-    const memberIds = members.map(m => m.id)
 
     try {
       const enrollments = await queryFamilyMemberEnrollments(pool, memberIds)
