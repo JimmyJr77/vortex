@@ -1,8 +1,7 @@
 import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
+import { resolveJwtSecret } from '../auth/jwtSecret.js'
 
 export function issueSignupAuthToken({ formId, memberId, email, programsId = null }) {
   const payload = {
@@ -14,11 +13,11 @@ export function issueSignupAuthToken({ formId, memberId, email, programsId = nul
   if (programsId != null) {
     payload.programsId = Number(programsId)
   }
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '30m' })
+  return jwt.sign(payload, resolveJwtSecret(), { expiresIn: '30m' })
 }
 
 export function verifySignupAuthToken(token, formId, { programsId = null } = {}) {
-  const decoded = jwt.verify(token, JWT_SECRET)
+  const decoded = jwt.verify(token, resolveJwtSecret())
   if (decoded.type !== 'scheduling_signup') {
     throw new Error('Invalid signup session')
   }

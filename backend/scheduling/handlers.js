@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import Joi from 'joi'
 import jwt from 'jsonwebtoken'
+import { resolveJwtSecret } from '../auth/jwtSecret.js'
 import {
   countActiveSignupsForMember,
   countActiveSignupsForPricingScope,
@@ -1101,8 +1102,6 @@ const authMemberSessionSchema = Joi.object({
   targetMemberId: Joi.number().integer().optional(),
 })
 
-const MEMBER_JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
-
 const memberPasswordUpdateSchema = Joi.object({
   mode: Joi.string().valid('manual', 'email_temp').required(),
   password: Joi.when('mode', {
@@ -1728,21 +1727,22 @@ export function createSchedulingHandlers(pool) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
 
-        const token = req.headers.authorization?.split(' ')[1]
+        const token = req.headers.authorization?.split(' ')[1]?.trim()
         if (!token) {
           return res.status(401).json({ success: false, message: 'No token provided' })
         }
 
         let decoded
         try {
-          decoded = jwt.verify(token, MEMBER_JWT_SECRET)
-        } catch {
+          decoded = jwt.verify(token, resolveJwtSecret())
+        } catch (err) {
+          console.error('[scheduling] authMemberSession token verify failed:', err.message)
           return res.status(401).json({ success: false, message: 'Invalid token' })
         }
 
         const userId = decoded.userId || decoded.memberId || decoded.adminId
         if (!userId) {
-          return res.status(401).json({ success: false, message: 'Invalid token' })
+          return res.status(401).json({ success: false, message: 'Token missing user identity' })
         }
 
         const member = await findMemberForAppUser(pool, userId)

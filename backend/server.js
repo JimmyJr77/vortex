@@ -49,6 +49,7 @@ import { logWarn, reportError } from './observability/logger.js'
 import { startAccountInviteReminderScheduler } from './email/accountInviteReminderService.js'
 import { registerEmailPool } from './email/emailDeliveryStore.js'
 import { registerEmailUnsubscribeRoutes } from './email/marketingUnsubscribe.js'
+import { resolveJwtSecret } from './auth/jwtSecret.js'
 
 const { Pool } = pkg
 
@@ -67,13 +68,7 @@ if (fs.existsSync(envLocalPath)) {
   console.log('📝 Loaded .env')
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? undefined : 'dev-insecure-jwt-secret')
-if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
-  throw new Error('JWT_SECRET is required in production.')
-}
-if (!process.env.JWT_SECRET && process.env.NODE_ENV !== 'production') {
-  console.warn('⚠️ JWT_SECRET is not set. Development fallback token signing is enabled.')
-}
+const JWT_SECRET = resolveJwtSecret()
 
 const ensureProductionEnv = () => {
   if (process.env.NODE_ENV !== 'production') return
