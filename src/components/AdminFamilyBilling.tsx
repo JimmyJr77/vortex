@@ -44,6 +44,16 @@ interface BillingPayment {
   stripePaymentIntentId?: string | null
 }
 
+interface BillingCharge {
+  id: number
+  memberId: number | null
+  memberName: string | null
+  sourceType: string
+  description: string
+  amountCents: number
+  createdAt: string
+}
+
 function money(cents: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
 }
@@ -53,6 +63,7 @@ export default function AdminFamilyBilling() {
   const [account, setAccount] = useState<BillingAccount | null>(null)
   const [statements, setStatements] = useState<BillingStatement[]>([])
   const [payments, setPayments] = useState<BillingPayment[]>([])
+  const [charges, setCharges] = useState<BillingCharge[]>([])
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -72,23 +83,27 @@ export default function AdminFamilyBilling() {
     setLoading(true)
     setError(null)
     try {
-      const [accountRes, statementsRes, paymentsRes, providerRes] = await Promise.all([
+      const [accountRes, statementsRes, paymentsRes, chargesRes, providerRes] = await Promise.all([
         adminApiRequest(`/api/admin/families/${familyId}/billing-account`),
         adminApiRequest(`/api/admin/families/${familyId}/statements`),
         adminApiRequest(`/api/admin/families/${familyId}/payments`),
+        adminApiRequest(`/api/admin/families/${familyId}/charges`),
         adminApiRequest('/api/admin/billing/provider-config'),
       ])
       if (!accountRes.ok) throw new Error(`Billing account request failed: ${accountRes.status}`)
       if (!statementsRes.ok) throw new Error(`Statements request failed: ${statementsRes.status}`)
       if (!paymentsRes.ok) throw new Error(`Payments request failed: ${paymentsRes.status}`)
+      if (!chargesRes.ok) throw new Error(`Charges request failed: ${chargesRes.status}`)
       if (!providerRes.ok) throw new Error(`Provider request failed: ${providerRes.status}`)
       const accountJson = await accountRes.json()
       const statementsJson = await statementsRes.json()
       const paymentsJson = await paymentsRes.json()
+      const chargesJson = await chargesRes.json()
       const providerJson = await providerRes.json()
       setAccount(accountJson.data)
       setStatements(statementsJson.data ?? [])
       setPayments(paymentsJson.data ?? [])
+      setCharges(chargesJson.data ?? [])
       setPaymentProviderName(providerJson.data?.externalProcessorName || 'External Payment Processor')
       setStripeEnabled(providerJson.data?.stripeEnabled === true)
     } catch (err) {
@@ -391,6 +406,31 @@ export default function AdminFamilyBilling() {
             </div>
           </div>
 
+          <div className="space-y-5">
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-100 font-semibold">
+              Charge ledger ({charges.length})
+            </div>
+            <div className="divide-y divide-gray-100">
+              {charges.map((item) => (
+                <div key={item.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
+                  <div className="min-w-0">
+                    <div className="font-medium text-gray-900">{item.description}</div>
+                    <div className="text-xs text-gray-500">
+                      {item.memberName ? `${item.memberName} · ` : ''}
+                      {new Date(item.createdAt).toLocaleDateString()}
+                      {item.sourceType && item.sourceType !== 'manual'
+                        ? ` · ${item.sourceType.replace(/_/g, ' ')}`
+                        : ' · manual'}
+                    </div>
+                  </div>
+                  <span className="shrink-0 font-semibold text-gray-900">{money(item.amountCents)}</span>
+                </div>
+              ))}
+              {charges.length === 0 && <div className="p-4 text-sm text-gray-500">No charges yet.</div>}
+            </div>
+          </div>
+
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-3">
               <div className="font-semibold">Statements</div>
@@ -444,6 +484,7 @@ export default function AdminFamilyBilling() {
               ))}
               {statements.length === 0 && <div className="p-4 text-sm text-gray-500">No statements yet.</div>}
             </div>
+          </div>
           </div>
         </div>
       )}

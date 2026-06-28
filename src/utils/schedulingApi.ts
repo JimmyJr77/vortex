@@ -93,6 +93,7 @@ export interface SignupOrderPreviewClass {
   offeringId?: number | null
   status?: string
   incrementalMonthly?: number
+  monthlyPrice?: number
   passCreditCents?: number
   passItems?: FreePassLineItem[]
   hoursPerMonth?: number | null
@@ -955,6 +956,7 @@ export async function loginSchedulingAuth(
 export async function loginSchedulingAuthFromMemberSession(
   formId: number,
   memberToken: string,
+  targetMemberId?: number,
 ): Promise<SchedulingAuthSession> {
   const res = await fetch(`${getApiUrl()}/api/scheduling/auth/member-session`, {
     method: 'POST',
@@ -962,7 +964,9 @@ export async function loginSchedulingAuthFromMemberSession(
       'Content-Type': 'application/json',
       Authorization: `Bearer ${memberToken}`,
     },
-    body: JSON.stringify({ formId }),
+    body: JSON.stringify(
+      targetMemberId != null ? { formId, targetMemberId } : { formId },
+    ),
   })
   return parseJson(res)
 }

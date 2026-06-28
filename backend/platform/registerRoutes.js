@@ -21,6 +21,12 @@ import {
 import { composeEmailHtml, emailButtonHtml, EMAIL_LAYOUT_VERSION, escapeHtml } from '../email/emailHtml.js'
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { API_BUILD_ID } from '../buildInfo.js'
+import {
+  stripeEnabled as isStripeEnabled,
+  createCheckoutSession,
+  parseWebhookEvent,
+  recordStripePayment,
+} from '../billing/stripeBilling.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -460,6 +466,22 @@ function mapPayment(row) {
     externalStatus: row.external_status ?? null,
     stripeCustomerId: row.stripe_customer_id ?? null,
     stripePaymentIntentId: row.stripe_payment_intent_id ?? null,
+    createdAt: row.created_at,
+  }
+}
+
+function mapCharge(row) {
+  return {
+    id: Number(row.id),
+    familyBillingAccountId: Number(row.family_billing_account_id),
+    memberId: row.member_id != null ? Number(row.member_id) : null,
+    memberName: row.member_name ?? null,
+    sourceType: row.source_type ?? 'manual',
+    sourceId: row.source_id ?? null,
+    description: row.description,
+    amountCents: Number(row.amount_cents ?? 0),
+    servicePeriodStart: row.service_period_start ?? null,
+    servicePeriodEnd: row.service_period_end ?? null,
     createdAt: row.created_at,
   }
 }
@@ -1242,6 +1264,22 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: charge.rows[0] })
   })
 
+  app.get('/api/admin/families/:familyId/charges', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
+    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+    if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
+    const charges = await pool.query(
+      `
+        SELECT c.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
+        FROM billing_charge c
+        LEFT JOIN member m ON m.id = c.member_id
+        WHERE c.family_billing_account_id = $1
+        ORDER BY c.created_at DESC, c.id DESC
+      `,
+      [account.id],
+    )
+    res.json({ success: true, data: charges.rows.map(mapCharge) })
+  })
+
   app.get('/api/admin/families/:familyId/payments', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
     const account = await ensureBillingAccount(pool, Number(req.params.familyId))
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
@@ -1622,6 +1660,133 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     )
     await updateMemberWaiverCompatibility(pool, memberId)
     res.json({ success: true, data: created.rows[0] })
+  })
+
+  app.get('/api/members/billing/account', authMiddleware(pool, jwtSecret), async (req, res) => {
+    const ctx = req.platformAuth
+    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
+    const familyId = ctx.user.family_id
+    if (!familyId) {
+      return res.json({
+        success: true,
+        data: { account: null, charges: [], payments: [], chargesCents: 0, paymentsCents: 0, balanceCents: 0, canSeeFamily: false },
+      })
+    }
+    const account = await ensureBillingAccount(pool, familyId)
+    if (!account) {
+      return res.json({
+        success: true,
+        data: { account: null, charges: [], payments: [], chargesCents: 0, paymentsCents: 0, balanceCents: 0, canSeeFamily: false },
+      })
+    }
+    const canSeeFamily =
+      Number(account.payer_member_id) === memberId || ctx.roles.includes('PARENT_GUARDIAN')
+
+    const chargeFilter = canSeeFamily ? '' : 'AND c.member_id = $2'
+    const chargeParams = canSeeFamily ? [account.id] : [account.id, memberId]
+    const chargesRes = await pool.query(
+      `
+        SELECT c.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
+        FROM billing_charge c
+        LEFT JOIN member m ON m.id = c.member_id
+        WHERE c.family_billing_account_id = $1 ${chargeFilter}
+        ORDER BY c.created_at DESC, c.id DESC
+      `,
+      chargeParams,
+    )
+    const charges = chargesRes.rows.map(mapCharge)
+    const chargesCents = charges.reduce((sum, c) => sum + c.amountCents, 0)
+
+    let payments = []
+    let paymentsCents = 0
+    if (canSeeFamily) {
+      const paymentsRes = await pool.query(
+        `SELECT * FROM billing_payment WHERE family_billing_account_id = $1 ORDER BY paid_at DESC, id DESC`,
+        [account.id],
+      )
+      payments = paymentsRes.rows.map(mapPayment)
+      paymentsCents = payments.reduce((sum, p) => sum + p.amountCents, 0)
+    }
+
+    res.json({
+      success: true,
+      data: {
+        account: mapBillingAccount(account),
+        charges,
+        payments,
+        chargesCents,
+        paymentsCents,
+        balanceCents: chargesCents - paymentsCents,
+        canSeeFamily,
+        stripeEnabled: process.env.STRIPE_ENABLED === 'true',
+      },
+    })
+  })
+
+  app.post('/api/members/billing/checkout-session', authMiddleware(pool, jwtSecret), async (req, res) => {
+    if (!isStripeEnabled()) {
+      return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.', stripeEnabled: false })
+    }
+    const ctx = req.platformAuth
+    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
+    const familyId = ctx.user.family_id
+    if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    const account = await ensureBillingAccount(pool, familyId)
+    if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    const canPay = Number(account.payer_member_id) === memberId || ctx.roles.includes('PARENT_GUARDIAN')
+    if (!canPay) return res.status(403).json({ success: false, message: 'Only the family payer can make a payment.' })
+
+    const ledger = await pool.query(
+      `
+        SELECT
+          COALESCE((SELECT SUM(amount_cents) FROM billing_charge WHERE family_billing_account_id = $1), 0)::int as charges_cents,
+          COALESCE((SELECT SUM(amount_cents) FROM billing_payment WHERE family_billing_account_id = $1), 0)::int as payments_cents
+      `,
+      [account.id],
+    )
+    const balanceCents = Number(ledger.rows[0]?.charges_cents ?? 0) - Number(ledger.rows[0]?.payments_cents ?? 0)
+    if (balanceCents <= 0) {
+      return res.status(400).json({ success: false, message: 'No outstanding balance to pay.' })
+    }
+    try {
+      const base = publicAppUrl()
+      const session = await createCheckoutSession(pool, {
+        account,
+        balanceCents,
+        successUrl: `${base}/?billing=paid`,
+        cancelUrl: `${base}/?billing=cancelled`,
+      })
+      if (!session) return res.status(503).json({ success: false, message: 'Online payments are not available right now.' })
+      res.json({ success: true, data: session })
+    } catch (err) {
+      console.error('[stripe] checkout-session:', err)
+      res.status(500).json({ success: false, message: 'Failed to start checkout.' })
+    }
+  })
+
+  app.post('/api/stripe/webhook', async (req, res) => {
+    if (!isStripeEnabled()) return res.status(503).json({ success: false })
+    try {
+      const rawBody = req.rawBody ?? req.body
+      const event = await parseWebhookEvent(rawBody, req.headers['stripe-signature'])
+      if (!event) return res.status(400).json({ success: false })
+      if (event.type === 'checkout.session.completed' || event.type === 'payment_intent.succeeded') {
+        const obj = event.data?.object ?? {}
+        const accountId = obj.metadata?.familyBillingAccountId
+          ? Number(obj.metadata.familyBillingAccountId)
+          : null
+        await recordStripePayment(pool, {
+          paymentIntentId: obj.payment_intent || obj.id,
+          amountCents: obj.amount_total ?? obj.amount_received ?? obj.amount ?? 0,
+          accountId,
+          customerId: obj.customer ?? null,
+        })
+      }
+      res.json({ received: true })
+    } catch (err) {
+      console.error('[stripe] webhook:', err)
+      res.status(400).json({ success: false, message: err.message })
+    }
   })
 
   app.get('/api/members/billing/statements', authMiddleware(pool, jwtSecret), async (req, res) => {

@@ -192,8 +192,29 @@ async function buildMarginalPricing(
   const allCosts = [...existingCosts, ...newCosts]
   const allHours = [...existingHours, ...newHours]
 
+  // Allocate the existing monthly total across each existing slot so the per-class
+  // prices reconcile to pricingBefore.discountedMonthly.
+  const existingIncrementsById = new Map()
+  for (let i = 1; i <= memberSignups.length; i += 1) {
+    const before = computeMonthlyPricingFromCosts(
+      existingCosts.slice(0, i - 1),
+      freeBefore,
+      pricingMetaFromRow(effectiveDbRow, existingHours[0] ?? null),
+    )
+    const after = computeMonthlyPricingFromCosts(
+      existingCosts.slice(0, i),
+      freeBefore,
+      pricingMetaFromRow(effectiveDbRow, existingHours[0] ?? null),
+    )
+    existingIncrementsById.set(
+      memberSignups[i - 1].id,
+      Math.max(0, after.discountedMonthly - before.discountedMonthly),
+    )
+  }
+
   return {
     increments,
+    existingIncrementsById,
     pricingBefore: computeMonthlyPricingFromCosts(
       existingCosts,
       freeBefore,
@@ -368,6 +389,7 @@ export async function buildSignupOrderPreview(
   }
 
   const incrementsBySignupKey = new Map()
+  const existingPriceById = new Map()
   const formSummaries = []
   let existingMonthlyTotal = 0
   let estimatedMonthlyTotal = 0
@@ -386,7 +408,7 @@ export async function buildSignupOrderPreview(
 
     const newEntries = newByScope.get(scope) || []
     const formRow = formRows.get(meta.representativeFormId)
-    const { increments, pricingBefore, pricingAfter, existingCount, newCount } =
+    const { increments, existingIncrementsById, pricingBefore, pricingAfter, existingCount, newCount } =
       await buildMarginalPricing(
         pool,
         formRow,
@@ -395,6 +417,12 @@ export async function buildSignupOrderPreview(
         meta.effectiveDbRow,
         timeSlotsByGroup,
       )
+
+    if (existingIncrementsById) {
+      for (const [signupId, monthly] of existingIncrementsById) {
+        existingPriceById.set(signupId, monthly)
+      }
+    }
     const totalCount = existingCount + newCount
     const incrementalMonthly = Math.max(0, pricingAfter.discountedMonthly - pricingBefore.discountedMonthly)
 
@@ -479,6 +507,7 @@ export async function buildSignupOrderPreview(
     formTitle: entry.formTitle,
     slotLabel: entry.slotLabel,
     status: entry.status,
+    monthlyPrice: existingPriceById.get(entry.id) ?? 0,
     isNew: false,
   }))
 

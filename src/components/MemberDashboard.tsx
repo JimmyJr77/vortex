@@ -4,8 +4,8 @@ import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye
 import { getApiUrl } from '../utils/api'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
-import ClassesOfferedList from './classes/ClassesOfferedList'
 import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
+import MemberClassesOfferedEnroll, { type EnrollableMember } from './member/MemberClassesOfferedEnroll'
 import EventAttachedSignup from './EventAttachedSignup'
 import { MemberTrainingTab, MemberProgressTab, MemberMessagesTab } from './MemberTraining'
 import MemberEnrollmentsPanel, { type MemberEnrollmentRow } from './member/MemberEnrollmentsPanel'
@@ -129,6 +129,26 @@ interface BillingPayment {
   externalStatus?: string | null
 }
 
+interface BillingCharge {
+  id: number
+  memberId: number | null
+  memberName: string | null
+  sourceType: string
+  description: string
+  amountCents: number
+  createdAt: string
+}
+
+interface BillingAccountSummary {
+  charges: BillingCharge[]
+  payments: BillingPayment[]
+  chargesCents: number
+  paymentsCents: number
+  balanceCents: number
+  canSeeFamily: boolean
+  stripeEnabled?: boolean
+}
+
 interface MemberWaiver {
   id: number
   name: string
@@ -242,6 +262,7 @@ export default function MemberDashboard({
   const [eventView, setEventView] = useState<'upcoming' | 'past'>('upcoming') // Toggle between past and upcoming events
   const [billingStatements, setBillingStatements] = useState<BillingStatement[]>([])
   const [billingPayments, setBillingPayments] = useState<BillingPayment[]>([])
+  const [billingAccount, setBillingAccount] = useState<BillingAccountSummary | null>(null)
   const [billingLoading, setBillingLoading] = useState(false)
   const [waivers, setWaivers] = useState<MemberWaiver[]>([])
   const [waiversLoading, setWaiversLoading] = useState(false)
@@ -836,19 +857,14 @@ export default function MemberDashboard({
     if (!token) return
     try {
       setBillingLoading(true)
-      const [statementsResponse, paymentsResponse] = await Promise.all([
-        fetch(`${apiUrl}/api/members/billing/statements`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }),
-        fetch(`${apiUrl}/api/members/billing/payments`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }),
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      }
+      const [accountResponse, statementsResponse, paymentsResponse] = await Promise.all([
+        fetch(`${apiUrl}/api/members/billing/account`, { headers }),
+        fetch(`${apiUrl}/api/members/billing/statements`, { headers }),
+        fetch(`${apiUrl}/api/members/billing/payments`, { headers }),
       ])
       if (!statementsResponse.ok) throw new Error(`Backend returned ${statementsResponse.status}`)
       if (!paymentsResponse.ok) throw new Error(`Backend returned ${paymentsResponse.status}`)
@@ -856,12 +872,42 @@ export default function MemberDashboard({
       const paymentsData = await paymentsResponse.json()
       setBillingStatements(statementsData.data ?? [])
       setBillingPayments(paymentsData.data ?? [])
+      if (accountResponse.ok) {
+        const accountData = await accountResponse.json()
+        setBillingAccount(accountData.data ?? null)
+      } else {
+        setBillingAccount(null)
+      }
     } catch (error) {
       console.error('Error fetching billing statements:', error)
       setBillingStatements([])
       setBillingPayments([])
+      setBillingAccount(null)
     } finally {
       setBillingLoading(false)
+    }
+  }
+
+  const [payNowLoading, setPayNowLoading] = useState(false)
+  const handlePayNow = async () => {
+    if (!token) return
+    setPayNowLoading(true)
+    try {
+      const res = await fetch(`${apiUrl}/api/members/billing/checkout-session`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      })
+      const data = await res.json()
+      if (res.ok && data.data?.url) {
+        window.location.href = data.data.url
+      } else {
+        alert(data.message || 'Online payments are not available right now.')
+      }
+    } catch {
+      alert('Failed to start checkout.')
+    } finally {
+      setPayNowLoading(false)
     }
   }
 
@@ -1015,6 +1061,26 @@ export default function MemberDashboard({
       .map(([name, count]) => (count > 1 ? `${name} (${count} slots)` : name))
       .join(', ')
   }
+
+  const enrollableMembers: EnrollableMember[] = (() => {
+    const out: EnrollableMember[] = []
+    const seen = new Set<number>()
+    if (profileData?.id != null) {
+      const id = Number(profileData.id)
+      const first = profileData.firstName || profileData.first_name || ''
+      const last = profileData.lastName || profileData.last_name || ''
+      out.push({ id, label: `${first} ${last} (You)`.trim() })
+      seen.add(id)
+    }
+    for (const fm of familyMembers) {
+      const id = fm.id != null ? Number(fm.id) : null
+      if (id != null && !Number.isNaN(id) && !seen.has(id)) {
+        out.push({ id, label: `${fm.first_name} ${fm.last_name}`.trim() })
+        seen.add(id)
+      }
+    }
+    return out
+  })()
 
   const loadClassesOffered = async () => {
     try {
@@ -1679,17 +1745,20 @@ export default function MemberDashboard({
                 <MemberEnrollmentsPanel
                   enrollments={enrollments}
                   loading={enrollmentsLoading}
-                  currentMemberId={profileData?.id}
+                  currentMemberId={profileData?.id != null ? Number(profileData.id) : undefined}
                 />
 
                 {/* Classes Offered */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-2">
-                    Classes <span className="text-vortex-red">Offered</span>
-                  </h2>
-                  <p className="text-gray-600 mb-6">
-                    Browse the classes offered at your facility and sign up. Availability is managed through your facility's classes and schedule.
-                  </p>
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                      <LayoutGrid className="w-7 h-7 text-vortex-red" />
+                      Classes Offered
+                    </h2>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Browse the classes offered at your facility and sign up. Availability is managed through your facility's classes and schedule.
+                    </p>
+                  </div>
 
                   {classesOfferedLoading && (
                     <div className="text-center py-12 text-gray-600">Loading classes…</div>
@@ -1700,8 +1769,15 @@ export default function MemberDashboard({
                   {!classesOfferedLoading && !classesOfferedError && classesOffered.length === 0 && (
                     <div className="text-center py-12 text-gray-500">No classes are listed at this time.</div>
                   )}
-                  {!classesOfferedLoading && !classesOfferedError && classesOffered.length > 0 && (
-                    <ClassesOfferedList programs={classesOffered} animate={false} className="space-y-8" />
+                  {!classesOfferedLoading && !classesOfferedError && classesOffered.length > 0 && token && profileData?.id != null && (
+                    <MemberClassesOfferedEnroll
+                      apiUrl={apiUrl}
+                      memberToken={token}
+                      programs={classesOffered}
+                      members={enrollableMembers}
+                      defaultMemberId={Number(profileData.id)}
+                      onEnrolled={fetchEnrollments}
+                    />
                   )}
                 </div>
               </motion.div>
@@ -2025,6 +2101,71 @@ export default function MemberDashboard({
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                      <CreditCard className="w-7 h-7 text-vortex-red" />
+                      Account Balance
+                    </h2>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Your family account ledger. Charges post automatically when you enroll in classes.
+                    </p>
+                  </div>
+                  {billingLoading ? (
+                    <div className="text-center py-12 text-gray-600">Loading your account…</div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                        <div className="rounded-xl border border-gray-200 p-4">
+                          <p className="text-xs uppercase tracking-wide text-gray-500">Total charges</p>
+                          <p className="text-xl font-bold text-gray-900">{formatMoney(billingAccount?.chargesCents ?? 0)}</p>
+                        </div>
+                        <div className="rounded-xl border border-gray-200 p-4">
+                          <p className="text-xs uppercase tracking-wide text-gray-500">Payments</p>
+                          <p className="text-xl font-bold text-gray-900">{formatMoney(billingAccount?.paymentsCents ?? 0)}</p>
+                        </div>
+                        <div className="rounded-xl border-2 border-black p-4">
+                          <p className="text-xs uppercase tracking-wide text-gray-500">Balance due</p>
+                          <p className="text-xl font-bold text-black">{formatMoney(billingAccount?.balanceCents ?? 0)}</p>
+                        </div>
+                      </div>
+
+                      {billingAccount?.stripeEnabled && billingAccount.canSeeFamily && (billingAccount.balanceCents ?? 0) > 0 && (
+                        <div className="mb-6">
+                          <button
+                            type="button"
+                            onClick={handlePayNow}
+                            disabled={payNowLoading}
+                            className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+                          >
+                            {payNowLoading ? 'Starting checkout…' : 'Pay now'}
+                          </button>
+                        </div>
+                      )}
+
+                      <h3 className="text-sm font-semibold text-gray-900 mb-2">Charges</h3>
+                      {!billingAccount || billingAccount.charges.length === 0 ? (
+                        <div className="text-sm text-gray-500 mb-6">No charges on file yet.</div>
+                      ) : (
+                        <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
+                          {billingAccount.charges.map((charge) => (
+                            <div key={charge.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
+                              <div className="min-w-0">
+                                <p className="font-medium text-gray-900">{charge.description}</p>
+                                <p className="text-xs text-gray-500">
+                                  {charge.memberName ? `${charge.memberName} · ` : ''}
+                                  {new Date(charge.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <span className="shrink-0 font-semibold text-gray-900">{formatMoney(charge.amountCents)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-2">
                     Billing Statements

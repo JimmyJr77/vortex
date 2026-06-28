@@ -207,6 +207,16 @@ export default function AnalyticsDashboard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <TrendingUp className="w-7 h-7 text-vortex-red" />
+          Analytics &amp; Engagement
+        </h2>
+        <p className="text-gray-600 text-sm mt-1">
+          Traffic, inquiries, conversion, and engagement insights.
+        </p>
+      </div>
+
       <div className="flex flex-wrap gap-2 mb-4 border-b border-gray-200 pb-2">
         {TABS.map((t) => (
           <button

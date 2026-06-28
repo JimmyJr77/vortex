@@ -21,6 +21,7 @@ import {
 import { sendWaiverEmail } from './waiverEmail.js'
 import { buildSignupOrderPreview, loadMemberScopeSignups, pricingScopeKey } from './orderPricing.js'
 import { persistDiscountSnapshot } from './discountEngine.js'
+import { persistSignupCharges } from './persistSignupCharges.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
 import { computeMonthlyPricing } from './pricing.js'
 import {
@@ -1097,6 +1098,7 @@ const verifyTokenSchema = Joi.object({
 
 const authMemberSessionSchema = Joi.object({
   formId: Joi.number().integer().required(),
+  targetMemberId: Joi.number().integer().optional(),
 })
 
 const MEMBER_JWT_SECRET = process.env.JWT_SECRET || 'vortex-secret-key-change-in-production'
@@ -1748,17 +1750,38 @@ export function createSchedulingHandlers(pool) {
           return res.status(404).json({ success: false, message: 'Member account not found' })
         }
 
-        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, member)
+        // Optionally enroll a different family member (chosen in the member portal).
+        // Authorize the caller as a member of the same family as the target.
+        let enrollMember = member
+        if (value.targetMemberId && Number(value.targetMemberId) !== Number(member.id)) {
+          const target = await findMemberById(pool, value.targetMemberId)
+          if (!target) {
+            return res.status(404).json({ success: false, message: 'Selected family member not found' })
+          }
+          const sameFamily =
+            member.family_id != null &&
+            target.family_id != null &&
+            Number(member.family_id) === Number(target.family_id)
+          if (!sameFamily) {
+            return res.status(403).json({
+              success: false,
+              message: 'You do not have permission to enroll this family member',
+            })
+          }
+          enrollMember = target
+        }
+
+        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, enrollMember)
         res.json({
           success: true,
           data: {
             signupAuthToken,
-            memberId: Number(member.id),
-            profileComplete: Boolean(member.profile_complete),
-            mustChangePassword: Boolean(member.must_change_password),
-            firstName: member.first_name,
-            lastName: member.last_name,
-            email: member.email,
+            memberId: Number(enrollMember.id),
+            profileComplete: Boolean(enrollMember.profile_complete),
+            mustChangePassword: Boolean(enrollMember.must_change_password),
+            firstName: enrollMember.first_name,
+            lastName: enrollMember.last_name,
+            email: enrollMember.email,
           },
         })
       } catch (err) {
@@ -2136,6 +2159,7 @@ export function createSchedulingHandlers(pool) {
 
           let discountBreakdown = null
           let freePassBreakdown = null
+          let orderPreviewSnapshot = null
           try {
             const preview = await buildSignupOrderPreview(pool, {
               memberId,
@@ -2157,6 +2181,7 @@ export function createSchedulingHandlers(pool) {
             })
             discountBreakdown = preview.discounts
             freePassBreakdown = preview.freePasses
+            orderPreviewSnapshot = preview
           } catch (previewErr) {
             console.warn('[scheduling] discount preview at batch submit:', previewErr.message)
           }
@@ -2227,6 +2252,24 @@ export function createSchedulingHandlers(pool) {
               keyToSignupId,
               fallbackSignupId: signupResults[0]?.signupId ?? null,
             })
+          }
+
+          // Bridge the created signups into the persisted family billing ledger.
+          try {
+            await persistSignupCharges(pool, {
+              memberId,
+              signups: signupResults.map((result, index) => ({
+                signupId: result.signupId,
+                formId: resolvedEntries[index].entry.formId,
+                slotGroupId: resolvedEntries[index].entry.slotGroupId,
+                timeSlotId: resolvedEntries[index].firstOccurrence.id,
+                formTitle: result.formTitle,
+                slotLabel: result.slotLabel,
+              })),
+              preview: orderPreviewSnapshot,
+            })
+          } catch (chargeErr) {
+            console.warn('[scheduling] persistSignupCharges:', chargeErr.message)
           }
 
           const mappedSignups = []

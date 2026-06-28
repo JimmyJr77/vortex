@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, Fragment } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown, Filter, Flag, Check } from 'lucide-react'
+import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown, Filter, Flag, Check, Inbox } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import { notesApi, type Note } from '../utils/adminFeaturesApi'
 import type { InquiryCamper } from '../config/inquiryOptions'
@@ -541,9 +541,15 @@ export default function AdminInquiries() {
       {/* Header */}
       <div className="p-4 md:p-6 border-b border-gray-200">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-black">
-            Inquiries ({filteredUsers.length} of {users.length})
-          </h2>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <Inbox className="w-7 h-7 text-vortex-red" />
+              Inquiries ({filteredUsers.length} of {users.length})
+            </h2>
+            <p className="text-gray-600 text-sm mt-1">
+              Inbound inquiries from prospective families.
+            </p>
+          </div>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFilter('all')}

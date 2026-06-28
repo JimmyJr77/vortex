@@ -133,10 +133,11 @@ export default function MemberEnrollmentsPanel({
     <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6 border-b border-gray-200 bg-gray-50/80">
         <div>
-          <h2 className="text-xl md:text-2xl font-display font-bold text-black">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Calendar className="w-7 h-7 text-vortex-red" />
             Current Enrollments
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-gray-600 text-sm mt-1">
             Active class signups for your family, including day and time for each slot.
           </p>
         </div>

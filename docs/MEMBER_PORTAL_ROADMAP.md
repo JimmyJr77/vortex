@@ -12,7 +12,8 @@ decisions worth preserving. Keep it current as the portal evolves (see the proje
 - ✅ Multi-portal session + login (one JWT spans member/coach/admin where eligible).
 - ✅ Dashboard with 7 tabs: Profile, Classes, Training, Progress, Events, Billing, Waivers.
 - ✅ Family self-service (add/edit family members inline, guardian-gated).
-- ✅ Billing statements + payment history; waiver acceptance.
+- ✅ Billing: account balance + itemized charge ledger, statements + payment history; waiver acceptance.
+- ✅ In-portal class enrollment with day/time checkboxes → real-price checkout → family billing ledger (Stripe scaffold flag-gated).
 - ✅ Coaching Corner athlete views (assignments, completion logging, progress, wellness).
 - ✅ Light-theme modernization of profile + view/edit modals.
 - 🟡 Known rough edges (see "Known gaps").
@@ -122,11 +123,22 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
     add/edit (`isAdult()` checks `PARENT_GUARDIAN`).
   - **Classes**: current enrollments via `GET /api/members/enrollments` →
     [MemberEnrollmentsPanel.tsx](../src/components/member/MemberEnrollmentsPanel.tsx) (one row per
-    scheduling slot; By Class / By Family Member tables). Catalog via `fetchClassesOffered()` →
-    `GET /api/public/classes-offered?site=` rendered by the shared `ClassesOfferedList`.
+    scheduling slot; By Class / By Family Member tables). Catalog + **in-portal enrollment** via
+    `fetchClassesOffered()` → `GET /api/public/classes-offered?site=` rendered by
+    [MemberClassesOfferedEnroll.tsx](../src/components/member/MemberClassesOfferedEnroll.tsx): a top
+    "Enroll athlete" selector, family-signup-style day/date/time checkboxes
+    ([ScheduleOptionCheckboxGrid.tsx](../src/components/signup/ScheduleOptionCheckboxGrid.tsx)), and a
+    sticky **Enroll** button → in-tab checkout. Checkout mints a member session
+    (`POST /api/scheduling/auth/member-session` with `targetMemberId`), shows real prices/discounts
+    ([OrderPricingSummary.tsx](../src/components/pricing/OrderPricingSummary.tsx)) via
+    `order-preview`, accepts promo codes, and confirms via `signups/batch` (one batch per form, since
+    the auth token is form-scoped). Confirmed signups post `billing_charge` rows to the family ledger.
   - **Training / Progress**: delegate to `MemberTrainingTab` / `MemberProgressTab`.
   - **Events**: `GET /api/events` (public), filtered by enrollment tags.
-  - **Billing**: `GET /api/members/billing/statements`, `…/payments`.
+  - **Billing**: account balance + itemized charge ledger via `GET /api/members/billing/account`,
+    plus `GET /api/members/billing/statements`, `…/payments`. A flag-gated **Pay now** button
+    (`POST /api/members/billing/checkout-session`) appears for the payer/guardian when
+    `stripeEnabled` and a balance is due.
   - **Waivers**: `GET /api/members/waivers`, `POST /api/members/waivers/:templateId/accept`.
 - **[src/components/MemberLogin.tsx](../src/components/MemberLogin.tsx)** — modal login:
   `POST /api/members/login`, `POST /api/members/request-password-reset`.
