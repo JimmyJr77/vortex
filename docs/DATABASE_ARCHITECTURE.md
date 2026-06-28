@@ -377,6 +377,7 @@ The "class category" (scheduling-category) concept was fully removed: classes no
 | `waiver_template.requires_resign` | Active (unused) | Version bump + re-accept flow | Column exists; compliance query counts all active templates regardless. |
 | `008`/`011` re-run on every boot | `initPlatformTables()` executes `008`–`031` SQL on each start (idempotent), so any `INSERT INTO role`/`role_permission` seed re-creates rows that later numbered migrations (e.g. `032`/`035`) delete | Keep these seeds in sync with the canonical role set when consolidating; `OWNER_ADMIN` already trimmed. Long-term: move one-time RBAC seeds out of the boot-replayed range. |
 | Legacy module0 scripts `run-module0-migration.js`, `verify-module0.js`, `diagnose-member-login.js` | Reference the **pre-032** `user_role` enum (`OWNER_ADMIN`, `PARENT_GUARDIAN`, `ATHLETE_VIEWER`) which no longer exists; running them would fail or seed dead values | Orphaned helpers — `Candidate` for deletion once confirmed unused by any runbook. |
+| `scheduling_slot_group.display_label`, `scheduling_time_slot.display_label` | **Never existed** in schema/migrations; SQL in `orderPricing.js`, `memberEnrollments.js`, and admin pricing summary referenced them → `500` on `/api/scheduling/signups/order-preview` | **Removed** (2026-06): labels built in JS via [slotDisplayLabel.js](../backend/scheduling/slotDisplayLabel.js) from slot time/day columns. |
 
 ### 10.6 Pre-drop verification queries (run on staging/production)
 

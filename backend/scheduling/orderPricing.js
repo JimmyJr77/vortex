@@ -6,6 +6,10 @@ import {
   loadTimeSlotsBySlotGroupIds,
   monthlySlotCostDollars,
 } from './slotHours.js'
+import {
+  loadGroupDisplayLabels,
+  slotLabelForSignupRow,
+} from './slotDisplayLabel.js'
 
 export const SIGNUP_ORDER_PRICING_DISCLAIMER =
   'Pricing shown is a rough estimate and may not reflect your actual billing, current rates, or all discounts that apply to your account.'
@@ -237,8 +241,8 @@ async function loadExistingEnrollments(pool, memberId) {
     `
     SELECT s.id, s.form_id, s.slot_group_id, s.time_slot_id, s.status,
            sf.title AS form_title,
-           sg.display_label AS group_display_label,
-           ts.display_label AS occurrence_display_label
+           ts.week_letter, ts.schedule_mode, ts.specific_date, ts.day_of_week,
+           ts.start_time, ts.end_time
     FROM scheduling_signup s
     JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
     JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
@@ -251,6 +255,11 @@ async function loadExistingEnrollments(pool, memberId) {
     [memberId],
   )
 
+  const groupIds = result.rows
+    .filter((row) => row.time_slot_id == null && row.slot_group_id != null)
+    .map((row) => Number(row.slot_group_id))
+  const groupLabels = await loadGroupDisplayLabels(pool, groupIds)
+
   return result.rows.map((row) => {
     const formId = Number(row.form_id)
     const slotGroupId = Number(row.slot_group_id)
@@ -259,7 +268,7 @@ async function loadExistingEnrollments(pool, memberId) {
       id: Number(row.id),
       formId,
       formTitle: row.form_title,
-      slotLabel: row.occurrence_display_label || row.group_display_label || '',
+      slotLabel: slotLabelForSignupRow(row, groupLabels),
       status: row.status,
       slotGroupId,
       timeSlotId,

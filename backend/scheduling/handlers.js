@@ -64,6 +64,7 @@ import {
   parseCalendarDateRange,
 } from './calendarQuery.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
+import { loadGroupDisplayLabels, slotLabelForSignupRow } from './slotDisplayLabel.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -1463,7 +1464,9 @@ export function createSchedulingHandlers(pool) {
         const signupRes = await pool.query(
           `
           SELECT s.id, s.pricing_breakdown, sf.title AS form_title,
-                 COALESCE(ts.display_label, sg.display_label, '') AS slot_label
+                 s.slot_group_id, s.time_slot_id,
+                 ts.week_letter, ts.schedule_mode, ts.specific_date, ts.day_of_week,
+                 ts.start_time, ts.end_time
           FROM scheduling_signup s
           JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
           JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
@@ -1475,6 +1478,11 @@ export function createSchedulingHandlers(pool) {
           `,
           [memberId],
         )
+
+        const groupIds = signupRes.rows
+          .filter((row) => row.time_slot_id == null && row.slot_group_id != null)
+          .map((row) => Number(row.slot_group_id))
+        const groupLabels = await loadGroupDisplayLabels(pool, groupIds)
 
         res.json({
           success: true,
@@ -1488,7 +1496,7 @@ export function createSchedulingHandlers(pool) {
             signupRows: signupRes.rows.map((row) => ({
               id: Number(row.id),
               formTitle: row.form_title,
-              slotLabel: row.slot_label,
+              slotLabel: slotLabelForSignupRow(row, groupLabels),
               pricingBreakdown: row.pricing_breakdown ?? null,
             })),
           },

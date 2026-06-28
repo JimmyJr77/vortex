@@ -3,6 +3,8 @@
  * (scheduling_signup), with legacy member_program rows when no signup exists.
  */
 
+import { loadGroupDisplayLabels, slotLabelForSignupRow } from '../scheduling/slotDisplayLabel.js'
+
 function parseSelectedDays(raw) {
   if (!raw) return []
   if (Array.isArray(raw)) return raw
@@ -38,7 +40,14 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
         m.last_name AS member_last_name,
         sf.title AS class_name,
         COALESCE(sf.program_id, sf.programs_id) AS program_id,
-        COALESCE(NULLIF(TRIM(ts.display_label), ''), NULLIF(TRIM(sg.display_label), ''), '—') AS slot_label,
+        s.slot_group_id,
+        s.time_slot_id,
+        ts.week_letter,
+        ts.schedule_mode,
+        ts.specific_date,
+        ts.day_of_week,
+        ts.start_time,
+        ts.end_time,
         COUNT(*) OVER (PARTITION BY s.member_id, s.form_id) AS total_slots_for_member
       FROM scheduling_signup s
       JOIN member m ON m.id = s.member_id
@@ -53,6 +62,11 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
     [memberIds],
   )
 
+  const groupIds = schedulingResult.rows
+    .filter((row) => row.time_slot_id == null && row.slot_group_id != null)
+    .map((row) => Number(row.slot_group_id))
+  const groupLabels = await loadGroupDisplayLabels(pool, groupIds)
+
   const schedulingRows = schedulingResult.rows.map((row) => ({
     id: Number(row.id),
     member_id: Number(row.member_id),
@@ -61,7 +75,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
     class_name: row.class_name || 'Class',
     program_id: row.program_id != null ? Number(row.program_id) : null,
     form_id: Number(row.form_id),
-    slot_label: row.slot_label || '—',
+    slot_label: slotLabelForSignupRow(row, groupLabels),
     status: row.status,
     total_slots_for_member:
       row.total_slots_for_member != null ? Number(row.total_slots_for_member) : null,
