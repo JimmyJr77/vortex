@@ -10,6 +10,10 @@ export interface MemberEnrollmentRow {
   class_name: string
   program_id?: number | null
   form_id?: number | null
+  offering_label?: string | null
+  offering_start_date?: string | null
+  offering_end_date?: string | null
+  offering_dates?: string | null
   slot_label: string
   status: string
   total_slots_for_member?: number | null
@@ -31,6 +35,30 @@ function memberDisplayName(row: MemberEnrollmentRow, currentMemberId?: number | 
     return `${name} (You)`
   }
   return name
+}
+
+function offeringsCell(row: MemberEnrollmentRow) {
+  const dates = row.offering_dates?.trim() || '—'
+  const label = row.offering_label?.trim()
+  if (label && label !== dates) {
+    return (
+      <span className="inline-flex flex-col gap-0.5">
+        <span>{label}</span>
+        <span className="text-gray-600">{dates}</span>
+      </span>
+    )
+  }
+  return <span>{dates}</span>
+}
+
+function timeCell(row: MemberEnrollmentRow) {
+  return (
+    <span className="inline-flex flex-col gap-0.5">
+      {row.slot_label.split('; ').map((line) => (
+        <span key={line}>{line}</span>
+      ))}
+    </span>
+  )
 }
 
 function statusBadge(status: string) {
@@ -138,7 +166,7 @@ export default function MemberEnrollmentsPanel({
             Current Enrollments
           </h2>
           <p className="text-gray-600 text-sm mt-1">
-            Active class signups for your family, including day and time for each slot.
+            Active class signups for your family, including offering dates and schedule for each slot.
           </p>
         </div>
         {enrollments.length > 0 && (
@@ -187,15 +215,14 @@ export default function MemberEnrollmentsPanel({
                       cell: (row) => memberDisplayName(row, currentMemberId),
                     },
                     {
+                      key: 'offerings',
+                      header: 'Offerings',
+                      cell: (row) => offeringsCell(row),
+                    },
+                    {
                       key: 'slot',
                       header: 'Time',
-                      cell: (row) => (
-                        <span className="inline-flex flex-col gap-0.5">
-                          {row.slot_label.split('; ').map((line) => (
-                            <span key={line}>{line}</span>
-                          ))}
-                        </span>
-                      ),
+                      cell: (row) => timeCell(row),
                     },
                     {
                       key: 'total',
@@ -229,15 +256,14 @@ export default function MemberEnrollmentsPanel({
                         cell: (row) => row.class_name,
                       },
                       {
+                        key: 'offerings',
+                        header: 'Offerings',
+                        cell: (row) => offeringsCell(row),
+                      },
+                      {
                         key: 'slot',
                         header: 'Time',
-                        cell: (row) => (
-                          <span className="inline-flex flex-col gap-0.5">
-                            {row.slot_label.split('; ').map((line) => (
-                              <span key={line}>{line}</span>
-                            ))}
-                          </span>
-                        ),
+                        cell: (row) => timeCell(row),
                       },
                       {
                         key: 'total',

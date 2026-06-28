@@ -39,3 +39,27 @@ test('slotLabelForSignupRow prefers time slot over group label', () => {
   )
   assert.equal(label, 'Tuesday · 17:00–18:00')
 })
+
+test('resolveEnrollmentOfferingDisplay formats offering date range', async () => {
+  const { resolveEnrollmentOfferingDisplay } = await import('../slotDisplayLabel.js')
+  const result = resolveEnrollmentOfferingDisplay({
+    offering_label: 'Summer Session',
+    offering_start_date: '2025-06-02',
+    offering_end_date: '2025-08-15',
+  })
+  assert.equal(result.offering_label, 'Summer Session')
+  assert.equal(result.offering_start_date, '2025-06-02')
+  assert.equal(result.offering_end_date, '2025-08-15')
+  assert.match(result.offering_dates, /Jun 2, 2025/)
+  assert.match(result.offering_dates, /Aug 15, 2025/)
+})
+
+test('resolveEnrollmentOfferingDisplay falls back to slot group active dates', async () => {
+  const { resolveEnrollmentOfferingDisplay } = await import('../slotDisplayLabel.js')
+  const result = resolveEnrollmentOfferingDisplay({
+    group_active_start: '2025-07-01',
+    group_active_end: '2025-07-31',
+  })
+  assert.match(result.offering_dates, /Jul 1, 2025/)
+  assert.match(result.offering_dates, /Jul 31, 2025/)
+})

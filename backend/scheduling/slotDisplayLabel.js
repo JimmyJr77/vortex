@@ -82,3 +82,52 @@ export function slotLabelForSignupRow(row, groupLabels = new Map()) {
   }
   return '—'
 }
+
+function formatUSDateShort(isoDate) {
+  const normalized = formatDateOnly(isoDate)
+  if (!normalized) return null
+  const [year, month, day] = normalized.split('-').map(Number)
+  const dt = new Date(Date.UTC(year, month - 1, day))
+  return dt.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
+}
+
+/** Course offering window for member enrollment rows (offering → slot group → form). */
+export function resolveEnrollmentOfferingDisplay(row) {
+  if (row?.group_dates_tbd) {
+    return {
+      offering_label: row.offering_label?.trim() || null,
+      offering_start_date: null,
+      offering_end_date: null,
+      offering_dates: 'Dates TBD',
+    }
+  }
+
+  const start =
+    formatDateOnly(row?.offering_start_date) ??
+    formatDateOnly(row?.group_active_start) ??
+    formatDateOnly(row?.form_start_date)
+  const end =
+    formatDateOnly(row?.offering_end_date) ??
+    formatDateOnly(row?.group_active_end) ??
+    formatDateOnly(row?.form_end_date)
+
+  const startLabel = start ? formatUSDateShort(start) : null
+  const endLabel = end ? formatUSDateShort(end) : null
+
+  let offeringDates = '—'
+  if (startLabel && endLabel) offeringDates = `${startLabel} – ${endLabel}`
+  else if (startLabel) offeringDates = `From ${startLabel}`
+  else if (endLabel) offeringDates = `Until ${endLabel}`
+
+  return {
+    offering_label: row?.offering_label?.trim() || null,
+    offering_start_date: start,
+    offering_end_date: end,
+    offering_dates: offeringDates,
+  }
+}

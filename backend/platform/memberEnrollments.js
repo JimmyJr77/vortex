@@ -3,7 +3,11 @@
  * (scheduling_signup), with legacy member_program rows when no signup exists.
  */
 
-import { loadGroupDisplayLabels, slotLabelForSignupRow } from '../scheduling/slotDisplayLabel.js'
+import {
+  loadGroupDisplayLabels,
+  resolveEnrollmentOfferingDisplay,
+  slotLabelForSignupRow,
+} from '../scheduling/slotDisplayLabel.js'
 
 function parseSelectedDays(raw) {
   if (!raw) return []
@@ -48,11 +52,20 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
         ts.day_of_week,
         ts.start_time,
         ts.end_time,
+        o.label AS offering_label,
+        o.start_date AS offering_start_date,
+        o.end_date AS offering_end_date,
+        sg.active_start AS group_active_start,
+        sg.active_end AS group_active_end,
+        sg.dates_tbd AS group_dates_tbd,
+        sf.start_date AS form_start_date,
+        sf.end_date AS form_end_date,
         COUNT(*) OVER (PARTITION BY s.member_id, s.form_id) AS total_slots_for_member
       FROM scheduling_signup s
       JOIN member m ON m.id = s.member_id
       JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
       JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
+      LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
       LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
       WHERE s.member_id = ANY($1::bigint[])
         AND s.orphaned_at IS NULL
@@ -67,21 +80,28 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
     .map((row) => Number(row.slot_group_id))
   const groupLabels = await loadGroupDisplayLabels(pool, groupIds)
 
-  const schedulingRows = schedulingResult.rows.map((row) => ({
-    id: Number(row.id),
-    member_id: Number(row.member_id),
-    member_first_name: row.member_first_name || '',
-    member_last_name: row.member_last_name || '',
-    class_name: row.class_name || 'Class',
-    program_id: row.program_id != null ? Number(row.program_id) : null,
-    form_id: Number(row.form_id),
-    slot_label: slotLabelForSignupRow(row, groupLabels),
-    status: row.status,
-    total_slots_for_member:
-      row.total_slots_for_member != null ? Number(row.total_slots_for_member) : null,
-    created_at: row.created_at,
-    source: 'scheduling',
-  }))
+  const schedulingRows = schedulingResult.rows.map((row) => {
+    const offering = resolveEnrollmentOfferingDisplay(row)
+    return {
+      id: Number(row.id),
+      member_id: Number(row.member_id),
+      member_first_name: row.member_first_name || '',
+      member_last_name: row.member_last_name || '',
+      class_name: row.class_name || 'Class',
+      program_id: row.program_id != null ? Number(row.program_id) : null,
+      form_id: Number(row.form_id),
+      slot_label: slotLabelForSignupRow(row, groupLabels),
+      offering_label: offering.offering_label,
+      offering_start_date: offering.offering_start_date,
+      offering_end_date: offering.offering_end_date,
+      offering_dates: offering.offering_dates,
+      status: row.status,
+      total_slots_for_member:
+        row.total_slots_for_member != null ? Number(row.total_slots_for_member) : null,
+      created_at: row.created_at,
+      source: 'scheduling',
+    }
+  })
 
   let legacyRows = []
   try {
@@ -129,6 +149,10 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
         program_id: row.program_id != null ? Number(row.program_id) : null,
         form_id: null,
         slot_label: formatLegacySlotLabel(selectedDays, row.days_per_week),
+        offering_label: null,
+        offering_start_date: null,
+        offering_end_date: null,
+        offering_dates: '—',
         status: 'enrolled',
         total_slots_for_member: null,
         created_at: row.created_at,
