@@ -23,20 +23,37 @@ export async function getDefaultFacilityId(db) {
 
 export async function findMemberByEmail(db, email) {
   if (!email?.trim()) return null
+  const normalized = String(email).trim().toLowerCase()
   const facilityId = await getDefaultFacilityId(db)
-  if (!facilityId) return null
 
   const res = await db.query(
     `
     SELECT m.*,
-      (m.password_hash IS NOT NULL AND m.password_hash <> '') AS has_password
+      (
+        (m.password_hash IS NOT NULL AND m.password_hash <> '')
+        OR (au.password_hash IS NOT NULL AND au.password_hash <> '')
+      ) AS has_password,
+      au.password_hash AS app_user_password_hash
     FROM member m
-    WHERE LOWER(TRIM(m.email)) = LOWER(TRIM($1))
-      AND m.facility_id = $2
-      AND m.is_active = TRUE
+    LEFT JOIN app_user au ON au.id = m.app_user_id AND au.is_active = TRUE
+    WHERE m.is_active = TRUE
+      AND (
+        LOWER(TRIM(m.email)) = $1
+        OR LOWER(TRIM(au.email)) = $1
+      )
+      AND (
+        $2::bigint IS NULL
+        OR m.facility_id IS NULL
+        OR m.facility_id = $2
+        OR au.facility_id IS NULL
+        OR au.facility_id = $2
+      )
+    ORDER BY
+      CASE WHEN LOWER(TRIM(m.email)) = $1 THEN 0 ELSE 1 END,
+      CASE WHEN m.app_user_id IS NOT NULL THEN 0 ELSE 1 END
     LIMIT 1
     `,
-    [email, facilityId],
+    [normalized, facilityId],
   )
   return res.rows[0] || null
 }

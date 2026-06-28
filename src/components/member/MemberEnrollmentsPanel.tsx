@@ -10,6 +10,9 @@ export interface MemberEnrollmentRow {
   class_name: string
   program_id?: number | null
   form_id?: number | null
+  slot_group_id?: number | null
+  time_slot_id?: number | null
+  offering_id?: number | null
   offering_label?: string | null
   offering_start_date?: string | null
   offering_end_date?: string | null

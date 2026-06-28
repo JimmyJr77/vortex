@@ -15,6 +15,7 @@ import ScheduleOptionCheckboxGrid, {
   groupScheduleOptions,
 } from '../signup/ScheduleOptionCheckboxGrid'
 import OrderPricingSummary from '../pricing/OrderPricingSummary'
+import type { MemberEnrollmentRow } from './MemberEnrollmentsPanel'
 
 export interface EnrollableMember {
   id: number
@@ -27,6 +28,7 @@ interface Props {
   programs: PublicProgramOffered[]
   members: EnrollableMember[]
   defaultMemberId: number
+  enrollments: MemberEnrollmentRow[]
   onEnrolled: () => void
 }
 
@@ -49,6 +51,7 @@ export default function MemberClassesOfferedEnroll({
   programs,
   members,
   defaultMemberId,
+  enrollments,
   onEnrolled,
 }: Props) {
   const [selectedMemberId, setSelectedMemberId] = useState<number>(Number(defaultMemberId))
@@ -119,6 +122,54 @@ export default function MemberClassesOfferedEnroll({
     }
   }, [classesWithForm, catalogs, loadCatalog])
 
+  const memberEnrollmentRows = useMemo(
+    () =>
+      enrollments.filter(
+        (row) =>
+          Number(row.member_id) === Number(selectedMemberId) &&
+          row.source !== 'legacy' &&
+          row.form_id != null,
+      ),
+    [enrollments, selectedMemberId],
+  )
+
+  const disabledOfferingIds = useMemo(() => {
+    const ids = new Set<number>()
+    for (const row of memberEnrollmentRows) {
+      if (row.offering_id != null) ids.add(Number(row.offering_id))
+    }
+    return [...ids]
+  }, [memberEnrollmentRows])
+
+  const disabledSlotKeys = useMemo(() => {
+    const keys = new Set<string>()
+    for (const row of memberEnrollmentRows) {
+      if (row.slot_group_id != null && row.time_slot_id != null) {
+        keys.add(slotOptionKey(row.slot_group_id, row.time_slot_id))
+      }
+    }
+    return [...keys]
+  }, [memberEnrollmentRows])
+
+  useEffect(() => {
+    if (disabledOfferingIds.length === 0 && disabledSlotKeys.length === 0) return
+    setCart((prev) =>
+      prev.filter((item) => {
+        const key = slotOptionKey(item.slotGroupId, item.timeSlotId)
+        if (disabledSlotKeys.includes(key)) return false
+        const catalog = catalogs[item.classEventId]
+        if (!catalog || catalog === 'loading' || catalog === 'error') return true
+        const opt = catalog.scheduleOptions.find(
+          (o) => slotOptionKey(o.slotGroupId, o.timeSlotId) === key,
+        )
+        if (opt?.offeringId != null && disabledOfferingIds.includes(Number(opt.offeringId))) {
+          return false
+        }
+        return true
+      }),
+    )
+  }, [selectedMemberId, disabledOfferingIds, disabledSlotKeys, catalogs])
+
   const toggleSlot = (
     classEventId: number,
     formId: number,
@@ -131,11 +182,13 @@ export default function MemberClassesOfferedEnroll({
       setCart((prev) => prev.filter((c) => c.cartKey !== cartKey))
       return
     }
+    if (disabledSlotKeys.includes(key)) return
     const catalog = catalogs[classEventId]
     if (!catalog || catalog === 'loading' || catalog === 'error') return
     const opt = catalog.scheduleOptions.find(
       (o) => slotOptionKey(o.slotGroupId, o.timeSlotId) === key,
     )
+    if (opt?.offeringId != null && disabledOfferingIds.includes(Number(opt.offeringId))) return
     if (!opt) return
     setCart((prev) => [
       ...prev,
@@ -436,6 +489,8 @@ export default function MemberClassesOfferedEnroll({
                     <ScheduleOptionCheckboxGrid
                       groups={groupScheduleOptions(catalog.scheduleOptions)}
                       selectedSlotKeys={selectedKeysForClass}
+                      disabledSlotKeys={disabledSlotKeys}
+                      disabledOfferingIds={disabledOfferingIds}
                       onToggle={(key, checked) =>
                         toggleSlot(cls.classEventId, cls.formId, cls.label, key, checked)
                       }

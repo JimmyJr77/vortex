@@ -1776,6 +1776,7 @@ export default function MemberDashboard({
                       programs={classesOffered}
                       members={enrollableMembers}
                       defaultMemberId={Number(profileData.id)}
+                      enrollments={enrollments}
                       onEnrolled={fetchEnrollments}
                     />
                   )}
