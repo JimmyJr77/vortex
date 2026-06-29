@@ -925,25 +925,25 @@ const formSchema = Joi.object({
   pricingOverridesProgram: Joi.boolean().optional(),
 })
 
+function sanitizeOfferingBody(body = {}) {
+  const input = { ...(body ?? {}) }
+  if (input.evergreen) {
+    delete input.endDate
+  }
+  return input
+}
+
 const offeringSchema = Joi.object({
   startDate: Joi.string().required(),
   evergreen: Joi.boolean().optional().default(false),
-  endDate: Joi.when('evergreen', {
-    is: true,
-    then: Joi.string().allow('', null).optional(),
-    otherwise: Joi.string().required(),
-  }),
+  endDate: Joi.string().allow('', null).optional(),
   label: Joi.string().max(255).allow('', null).optional(),
 })
 
 const offeringUpdateSchema = Joi.object({
   startDate: Joi.string().optional(),
   evergreen: Joi.boolean().optional(),
-  endDate: Joi.when('evergreen', {
-    is: true,
-    then: Joi.string().allow('', null).optional(),
-    otherwise: Joi.string().optional(),
-  }),
+  endDate: Joi.string().allow('', null).optional(),
   label: Joi.string().max(255).allow('', null).optional(),
 })
 
@@ -2883,7 +2883,7 @@ export function createSchedulingHandlers(pool) {
 
     async createOffering(req, res) {
       try {
-        const { error, value } = offeringSchema.validate(req.body)
+        const { error, value } = offeringSchema.validate(sanitizeOfferingBody(req.body))
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
@@ -2919,7 +2919,7 @@ export function createSchedulingHandlers(pool) {
 
     async updateOffering(req, res) {
       try {
-        const { error, value } = offeringUpdateSchema.validate(req.body)
+        const { error, value } = offeringUpdateSchema.validate(sanitizeOfferingBody(req.body))
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }

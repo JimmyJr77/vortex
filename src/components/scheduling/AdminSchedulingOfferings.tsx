@@ -71,11 +71,18 @@ const AdminSchedulingOfferings = ({
     setSaving(true)
     setError(null)
     try {
-      const payload = {
+      const payload: {
+        startDate: string
+        evergreen: boolean
+        label: string | null
+        endDate?: string
+      } = {
         startDate: draft.startDate,
         evergreen: durationMode === 'evergreen',
-        endDate: durationMode === 'evergreen' ? null : draft.endDate,
         label: draft.label || null,
+      }
+      if (durationMode === 'session') {
+        payload.endDate = draft.endDate
       }
       if (editId) {
         await adminUpdateOffering(editId, payload)
