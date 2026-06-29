@@ -1,4 +1,9 @@
 import { loadEffectivePricingForForm, parseProgramPromoCodes } from '../programs/pricingDefaults.js'
+import { effectiveDbRowFromPricingOption } from '../programs/programPricingOptions.js'
+import {
+  loadProgramPassPackages,
+  totalRemainingClassesForProgram,
+} from '../programs/multiClassPass.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
 import { computeMonthlyPricingFromCosts } from './pricing.js'
 import {
@@ -291,10 +296,20 @@ export async function buildSignupOrderPreview(
   pool,
   { memberId, newSignups = [], promoCodes = [], memberContext = null },
 ) {
+  const slotSignups = []
+  const passPurchases = []
+  for (const entry of newSignups) {
+    if (entry?.lineType === 'multi_class_pass') {
+      passPurchases.push(entry)
+    } else {
+      slotSignups.push(entry)
+    }
+  }
+
   const existing = await loadExistingEnrollments(pool, memberId)
   const existingKeys = new Set(existing.map((entry) => entry.slotKey))
 
-  const filteredNew = newSignups.filter((entry) => {
+  const filteredNew = slotSignups.filter((entry) => {
     const key = programSlotSignupKey(
       entry.formId,
       entry.slotGroupId,
@@ -373,6 +388,7 @@ export async function buildSignupOrderPreview(
       scopeTitle,
       representativeFormId: Number(formRow.id),
       effectiveDbRow,
+      programRow,
       programsId,
       sportId: programRow?.primary_discipline_tag_id != null ? Number(programRow.primary_discipline_tag_id) : null,
       offeringId: null,
@@ -417,13 +433,28 @@ export async function buildSignupOrderPreview(
 
     const newEntries = newByScope.get(scope) || []
     const formRow = formRows.get(meta.representativeFormId)
+    let effectiveDbRow = meta.effectiveDbRow
+    const optionKeys = [
+      ...new Set(
+        newEntries
+          .map((e) => e.selectedPricingOptionKey)
+          .filter((k) => typeof k === 'string' && k.length > 0),
+      ),
+    ]
+    if (optionKeys.length === 1 && meta.programRow) {
+      effectiveDbRow = effectiveDbRowFromPricingOption(
+        effectiveDbRow,
+        meta.programRow,
+        optionKeys[0],
+      )
+    }
     const { increments, existingIncrementsById, pricingBefore, pricingAfter, existingCount, newCount } =
       await buildMarginalPricing(
         pool,
         formRow,
         memberId,
         newEntries,
-        meta.effectiveDbRow,
+        effectiveDbRow,
         timeSlotsByGroup,
       )
 
@@ -473,6 +504,8 @@ export async function buildSignupOrderPreview(
     )
     const incrementalMonthly = incrementsBySignupKey.get(key) ?? 0
     const hoursPerMonth = signupHoursPerMonth(entry, timeSlotsByGroup)
+    const scope = formRow ? scopeMeta.get(pricingScopeKey(formRow)) : null
+    const programsId = scope?.programsId ?? null
 
     return {
       formId: entry.formId,
@@ -485,8 +518,59 @@ export async function buildSignupOrderPreview(
       incrementalMonthly,
       hoursPerMonth: hoursPerMonth > 0 ? Math.round(hoursPerMonth * 100) / 100 : null,
       isNew: true,
+      lineType: 'slot',
+      selectedPricingOptionKey: entry.selectedPricingOptionKey ?? null,
+      useMultiClassPass: entry.useMultiClassPass !== false,
+      programsId,
     }
   })
+
+  const passBalancesByProgram = new Map()
+  if (memberId != null) {
+    for (const scope of scopeMeta.values()) {
+      if (scope.programsId == null) continue
+      const remaining = await totalRemainingClassesForProgram(pool, memberId, scope.programsId)
+      passBalancesByProgram.set(scope.programsId, remaining)
+    }
+  }
+
+  const passRedemptionPreview = []
+  for (const item of newSignupItems) {
+    if (!item.useMultiClassPass || item.programsId == null || memberId == null) continue
+    const remaining = passBalancesByProgram.get(item.programsId) ?? 0
+    const alreadyReserved = passRedemptionPreview.filter((p) => p.programsId === item.programsId).length
+    if (remaining > alreadyReserved) {
+      const after = remaining - alreadyReserved - 1
+      item.incrementalMonthly = 0
+      item.multiClassPassApplied = true
+      item.classesRemainingAfterEnrollment = after
+      passRedemptionPreview.push({
+        programsId: item.programsId,
+        slotKey: item.slotKey,
+        classesRemainingAfter: after,
+      })
+    }
+  }
+
+  const passPurchaseItems = []
+  let passPurchaseTotalCents = 0
+  for (const purchase of passPurchases) {
+    const programsId = Number(purchase.programsId)
+    if (!Number.isFinite(programsId)) continue
+    const packages = await loadProgramPassPackages(pool, programsId)
+    const pkg = packages.find((p) => p.id === purchase.packageId)
+    if (!pkg) continue
+    passPurchaseItems.push({
+      lineType: 'multi_class_pass',
+      programsId,
+      packageId: pkg.id,
+      label: pkg.label,
+      classCount: pkg.classCount,
+      priceCents: pkg.priceCents,
+      priceDollars: pkg.priceCents / 100,
+    })
+    passPurchaseTotalCents += pkg.priceCents
+  }
 
   const freePasses = await computeFreePassLayer(pool, {
     memberId,
@@ -537,6 +621,10 @@ export async function buildSignupOrderPreview(
     memberId: memberId ?? null,
     existingClasses,
     newSignups: freePasses.adjustedSignupItems,
+    passPurchases: passPurchaseItems,
+    passPurchaseTotalCents,
+    passBalancesByProgram: Object.fromEntries(passBalancesByProgram),
+    passRedemptionPreview,
     formSummaries,
     existingMonthlyTotal,
     newSignupMonthlyTotal,
@@ -547,7 +635,7 @@ export async function buildSignupOrderPreview(
     additionalFees,
     additionalFeesMonthly,
     additionalFeesOneTime,
-    hasPricing: formSummaries.some((summary) => summary.pricingAfter != null),
+    hasPricing: formSummaries.some((summary) => summary.pricingAfter != null) || passPurchaseItems.length > 0,
     disclaimer: SIGNUP_ORDER_PRICING_DISCLAIMER,
   }
 }

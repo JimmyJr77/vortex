@@ -8,12 +8,6 @@ export type ProgramPricingOptionKey =
   | 'monthly_5x'
   | 'monthly_6x'
   | 'monthly_7x'
-  | 'discount_off_2x'
-  | 'discount_off_3x'
-  | 'discount_off_4x'
-  | 'discount_off_5x'
-  | 'discount_off_6x'
-  | 'discount_off_7x'
   | 'unlimited_unlimited_daily'
   | 'unlimited_1_daily'
   | 'unlimited_2_daily'
@@ -29,21 +23,18 @@ export interface ProgramPricingOption {
   offeringLabel?: OfferingPriceLabel
 }
 
-export type ProgramPricingOptionSection = 'single' | 'weekly' | 'weekly_discount' | 'unlimited' | 'other'
+export type ProgramPricingOptionSection = 'single' | 'weekly' | 'unlimited' | 'other'
 
 export interface ProgramPricingOptionDef {
   key: ProgramPricingOptionKey
   section: ProgramPricingOptionSection
   label: string
-  /** When true, enabling this option creates class-scoped discount rules on save. */
-  createsClassDiscounts?: boolean
   timesPerWeek?: number
 }
 
 export const PROGRAM_PRICING_SECTION_LABELS: Record<ProgramPricingOptionSection, string> = {
   single: 'Single classes',
   weekly: 'Classes per week',
-  weekly_discount: 'Classes per week',
   unlimited: 'Unlimited classes',
   other: 'Other',
 }
@@ -58,48 +49,6 @@ export const PROGRAM_PRICING_OPTION_DEFS: ProgramPricingOptionDef[] = [
   { key: 'monthly_5x', section: 'weekly', label: '$ for mo @ 5× per week', timesPerWeek: 5 },
   { key: 'monthly_6x', section: 'weekly', label: '$ for mo @ 6× per week', timesPerWeek: 6 },
   { key: 'monthly_7x', section: 'weekly', label: '$ for mo @ 7× per week', timesPerWeek: 7 },
-  {
-    key: 'discount_off_2x',
-    section: 'weekly_discount',
-    label: '$ off for 2× per week',
-    createsClassDiscounts: true,
-    timesPerWeek: 2,
-  },
-  {
-    key: 'discount_off_3x',
-    section: 'weekly_discount',
-    label: '$ off for 3× per week',
-    createsClassDiscounts: true,
-    timesPerWeek: 3,
-  },
-  {
-    key: 'discount_off_4x',
-    section: 'weekly_discount',
-    label: '$ off for 4× per week',
-    createsClassDiscounts: true,
-    timesPerWeek: 4,
-  },
-  {
-    key: 'discount_off_5x',
-    section: 'weekly_discount',
-    label: '$ off for 5× per week',
-    createsClassDiscounts: true,
-    timesPerWeek: 5,
-  },
-  {
-    key: 'discount_off_6x',
-    section: 'weekly_discount',
-    label: '$ off for 6× per week',
-    createsClassDiscounts: true,
-    timesPerWeek: 6,
-  },
-  {
-    key: 'discount_off_7x',
-    section: 'weekly_discount',
-    label: '$ off for 7× per week',
-    createsClassDiscounts: true,
-    timesPerWeek: 7,
-  },
   {
     key: 'unlimited_unlimited_daily',
     section: 'unlimited',
@@ -159,31 +108,31 @@ export function normalizeProgramPricingOptions(raw: unknown): ProgramPricingOpti
   return defaults.map((def) => byKey.get(def.key) ?? def)
 }
 
+export function enabledBasePricingOptions(options: ProgramPricingOption[]): ProgramPricingOption[] {
+  return options.filter((o) => o.enabled && o.amountCents > 0)
+}
+
+export function formatProgramPricingOptionLabel(opt: ProgramPricingOption): string {
+  const def = DEF_BY_KEY.get(opt.key)
+  if (!def) return opt.key
+  const amount = `$${(opt.amountCents / 100).toFixed(2)}`
+  if (opt.key === 'per_offering') {
+    return `${amount} per ${opt.offeringLabel ?? 'offering'}`
+  }
+  if (def.label.startsWith('$ for mo')) {
+    return `${amount}/mo @ ${def.timesPerWeek}×/wk`
+  }
+  if (def.label.startsWith('$ for unlimited')) {
+    return `${amount} — ${def.label.replace(/^\$\s*/, '')}`
+  }
+  return `${amount} ${def.label.replace(/^\$\s*/, '')}`
+}
+
 export function formatProgramPricingOptionsSummary(options: ProgramPricingOption[]): string {
-  const enabled = options.filter((o) => o.enabled && o.amountCents > 0)
+  const enabled = enabledBasePricingOptions(options)
   if (enabled.length === 0) return '—'
 
-  const labels = enabled.slice(0, 3).map((opt) => {
-    const def = DEF_BY_KEY.get(opt.key)!
-    const amount = `$${(opt.amountCents / 100).toFixed(2)}`
-    if (opt.key === 'per_offering') {
-      return `${amount} per ${opt.offeringLabel ?? 'offering'}`
-    }
-    if (def.label.startsWith('$ ')) {
-      return `${amount}${def.label.slice(1)}`
-    }
-    if (def.label.startsWith('$ off')) {
-      return `${amount} off @ ${def.timesPerWeek}×/wk`
-    }
-    if (def.label.startsWith('$ for mo')) {
-      return `${amount}/mo @ ${def.timesPerWeek}×/wk`
-    }
-    if (def.label.startsWith('$ for unlimited')) {
-      return `${amount} — ${def.label.replace(/^\$\s*/, '')}`
-    }
-    return `${amount} ${def.label.replace(/^\$\s*/, '')}`
-  })
-
+  const labels = enabled.slice(0, 3).map(formatProgramPricingOptionLabel)
   const suffix = enabled.length > 3 ? ` +${enabled.length - 3} more` : ''
   return `${labels.join(' · ')}${suffix}`
 }
@@ -197,7 +146,6 @@ export function programPricingOptionsFromProgram(program: {
   const hasEnabled = normalized.some((o) => o.enabled)
   if (hasEnabled) return normalized
 
-  // Legacy single-cost programs: pre-check the closest matching option.
   const cents = program.pricingSlotCostMonthlyCents ?? 0
   const unit = program.pricingCostUnit ?? 'per_month'
   if (cents <= 0) return normalized
@@ -217,4 +165,11 @@ export function programPricingOptionsFromProgram(program: {
   return normalized.map((o) =>
     o.key === legacyKey ? { ...o, enabled: true, amountCents: cents } : o,
   )
+}
+
+/** Serialize pricing options for API — ensures integer amountCents. */
+export function serializeProgramPricingOptionsForApi(
+  options: ProgramPricingOption[],
+): ProgramPricingOption[] {
+  return normalizeProgramPricingOptions(options)
 }

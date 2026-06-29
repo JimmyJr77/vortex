@@ -20,7 +20,7 @@ export default function OrderPricingSummary({
   variant?: 'review' | 'success'
   emphasizeCombinedTotal?: boolean
 }) {
-  if (!preview.hasPricing) return null
+  if (!preview.hasPricing && !(preview.passPurchases?.length ?? 0)) return null
 
   const pricingHeading =
     variant === 'success' ? 'Monthly pricing summary' : 'Estimated monthly pricing'
@@ -92,6 +92,12 @@ export default function OrderPricingSummary({
                         <p className="font-semibold text-black">{item.formTitle}</p>
                       )}
                       {item.slotLabel && <p>{item.slotLabel}</p>}
+                      {item.multiClassPassApplied && item.classesRemainingAfterEnrollment != null && (
+                        <p className="text-xs text-emerald-700 mt-1">
+                          Authorized classes remaining after this enrollment:{' '}
+                          {item.classesRemainingAfterEnrollment}
+                        </p>
+                      )}
                       {item.passItems && item.passItems.length > 0 && (
                         <ul className="mt-1 text-xs text-emerald-700">
                           {item.passItems.map((p, i) => (
@@ -108,6 +114,30 @@ export default function OrderPricingSummary({
                         ? `+${formatMoney(item.incrementalMonthly)}/mo`
                         : 'Free'}
                     </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {preview.passPurchases && preview.passPurchases.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
+                Multi-class packages
+              </p>
+              <ul className="space-y-2">
+                {preview.passPurchases.map((item) => (
+                  <li
+                    key={`${item.programsId}-${item.packageId}`}
+                    className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2"
+                  >
+                    <div>
+                      <p className="font-semibold text-black">{item.label}</p>
+                      <p className="text-xs text-gray-600">
+                        {item.classCount} {item.classCount === 1 ? 'class' : 'classes'} credit
+                      </p>
+                    </div>
+                    <p className="font-semibold text-black">{formatMoney(item.priceDollars)}</p>
                   </li>
                 ))}
               </ul>

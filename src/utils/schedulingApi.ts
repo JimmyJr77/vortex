@@ -98,6 +98,21 @@ export interface SignupOrderPreviewClass {
   passItems?: FreePassLineItem[]
   hoursPerMonth?: number | null
   isNew: boolean
+  multiClassPassApplied?: boolean
+  classesRemainingAfterEnrollment?: number
+  lineType?: 'slot' | 'multi_class_pass'
+  selectedPricingOptionKey?: string | null
+  programsId?: number | null
+}
+
+export interface MultiClassPassPurchasePreview {
+  lineType: 'multi_class_pass'
+  programsId: number
+  packageId: string
+  label: string
+  classCount: number
+  priceCents: number
+  priceDollars: number
 }
 
 export interface SignupOrderPreviewFormSummary {
@@ -199,6 +214,14 @@ export interface SignupOrderPreview {
   memberId: number | null
   existingClasses: SignupOrderPreviewClass[]
   newSignups: SignupOrderPreviewClass[]
+  passPurchases?: MultiClassPassPurchasePreview[]
+  passPurchaseTotalCents?: number
+  passBalancesByProgram?: Record<string, number>
+  passRedemptionPreview?: Array<{
+    programsId: number
+    slotKey: string
+    classesRemainingAfter: number
+  }>
   formSummaries: SignupOrderPreviewFormSummary[]
   existingMonthlyTotal: number
   newSignupMonthlyTotal: number
@@ -842,9 +865,14 @@ export async function fetchSignupOrderPreview(payload: {
   email?: string
   signupAuthToken?: string
   signups: Array<{
-    formId: number
-    slotGroupId: number
+    lineType?: 'slot' | 'multi_class_pass'
+    formId?: number
+    slotGroupId?: number
     timeSlotId?: number
+    selectedPricingOptionKey?: string
+    useMultiClassPass?: boolean
+    programsId?: number
+    packageId?: string
   }>
   promoCodes?: string[]
   currentSchool?: string | null
@@ -1028,9 +1056,14 @@ export async function submitSchedulingSignup(payload: {
 
 export async function submitSchedulingSignupBatch(payload: {
   signups: Array<{
-    formId: number
-    slotGroupId: number
+    lineType?: 'slot' | 'multi_class_pass'
+    formId?: number
+    slotGroupId?: number
     timeSlotId?: number
+    selectedPricingOptionKey?: string
+    useMultiClassPass?: boolean
+    programsId?: number
+    packageId?: string
   }>
   responses: Record<string, string | boolean | number | string[]>
   signupAuthToken?: string

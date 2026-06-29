@@ -125,14 +125,16 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
     [MemberEnrollmentsPanel.tsx](../src/components/member/MemberEnrollmentsPanel.tsx) (one row per
     scheduling slot; By Class / By Family Member tables). Catalog + **in-portal enrollment** via
     `fetchClassesOffered()` → `GET /api/public/classes-offered?site=` rendered by
-    [MemberClassesOfferedEnroll.tsx](../src/components/member/MemberClassesOfferedEnroll.tsx): a top
-    "Enroll athlete" selector, family-signup-style day/date/time checkboxes
-    ([ScheduleOptionCheckboxGrid.tsx](../src/components/signup/ScheduleOptionCheckboxGrid.tsx)), and a
-    sticky **Enroll** button → in-tab checkout. Checkout mints a member session
-    (`POST /api/scheduling/auth/member-session` with `targetMemberId`), shows real prices/discounts
-    ([OrderPricingSummary.tsx](../src/components/pricing/OrderPricingSummary.tsx)) via
-    `order-preview`, accepts promo codes, and confirms via `signups/batch` (one batch per form, since
-    the auth token is form-scoped). Confirmed signups post `billing_charge` rows to the family ledger.
+    [MemberClassesOfferedEnroll.tsx](../src/components/member/MemberClassesOfferedEnroll.tsx): per-program
+    **multi-class package** selection (checkbox list), **base pricing option** picker when multiple
+    Admin costs are enabled, schedule slot grid, checkout preview with pass purchase lines and
+    “authorized classes remaining after this enrollment” when a pass covers a slot. Checkout mints a
+    member session (`POST /api/scheduling/auth/member-session` with `targetMemberId`), shows real
+    prices/discounts ([OrderPricingSummary.tsx](../src/components/pricing/OrderPricingSummary.tsx))
+    via `order-preview`, accepts promo codes, and confirms via `signups/batch`. Confirmed signups and
+    pass purchases post `billing_charge` rows to the family ledger.
+  - **Multi-class pass balances** on the Classes tab ([MemberEnrollmentsPanel.tsx](../src/components/member/MemberEnrollmentsPanel.tsx))
+    via `GET /api/members/multi-class-passes`.
   - **Training / Progress**: delegate to `MemberTrainingTab` / `MemberProgressTab`.
   - **Events**: `GET /api/events` (public), filtered by enrollment tags.
   - **Billing**: account balance + itemized charge ledger via `GET /api/members/billing/account`,

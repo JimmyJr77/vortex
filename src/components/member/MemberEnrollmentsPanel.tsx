@@ -28,6 +28,13 @@ interface Props {
   enrollments: MemberEnrollmentRow[]
   loading: boolean
   currentMemberId?: number | null
+  multiClassPasses?: Array<{
+    id: number
+    programsId: number
+    packageLabel: string | null
+    classesRemaining: number
+    classCountPurchased: number
+  }>
 }
 
 type ViewMode = 'class' | 'member'
@@ -128,6 +135,7 @@ export default function MemberEnrollmentsPanel({
   enrollments,
   loading,
   currentMemberId,
+  multiClassPasses = [],
 }: Props) {
   const [view, setView] = useState<ViewMode>('class')
 
@@ -197,6 +205,27 @@ export default function MemberEnrollmentsPanel({
       </div>
 
       <div className="p-4 md:p-6">
+        {multiClassPasses.length > 0 && (
+          <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
+            <h3 className="text-sm font-bold text-gray-900 mb-2">Multi-class pass balances</h3>
+            <ul className="space-y-2 text-sm">
+              {multiClassPasses.map((pass) => (
+                <li
+                  key={pass.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white border border-emerald-100 px-3 py-2"
+                >
+                  <span className="font-medium text-gray-900">
+                    {pass.packageLabel ?? 'Multi-class pass'}
+                  </span>
+                  <span className="text-emerald-800 font-semibold">
+                    {pass.classesRemaining} of {pass.classCountPurchased} classes remaining
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {loading ? (
           <div className="text-center py-12 text-gray-600">Loading enrollments…</div>
         ) : enrollments.length === 0 ? (

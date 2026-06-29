@@ -4,20 +4,18 @@ import {
   type ProgramPricingOption,
   type ProgramPricingOptionSection,
 } from '../../utils/programPricingOptions'
+import type { MultiClassPassPackage } from '../../utils/multiClassPassPackages'
+import MultiClassPassPackagesField from './MultiClassPassPackagesField'
 
 interface Props {
   options: ProgramPricingOption[]
   onChange: (options: ProgramPricingOption[]) => void
+  passPackages?: MultiClassPassPackage[]
+  onPassPackagesChange?: (packages: MultiClassPassPackage[]) => void
   disabled?: boolean
 }
 
-const SECTION_ORDER: ProgramPricingOptionSection[] = [
-  'single',
-  'weekly',
-  'weekly_discount',
-  'unlimited',
-  'other',
-]
+const SECTION_ORDER: ProgramPricingOptionSection[] = ['single', 'weekly', 'unlimited', 'other']
 
 const inputClass =
   'h-9 w-28 rounded-lg border border-gray-300 px-2 text-sm disabled:bg-gray-50'
@@ -30,28 +28,24 @@ function patchOption(
   return options.map((o) => (o.key === key ? { ...o, ...patch } : o))
 }
 
-const ProgramPricingOptionsFields = ({ options, onChange, disabled = false }: Props) => {
+const ProgramPricingOptionsFields = ({
+  options,
+  onChange,
+  passPackages,
+  onPassPackagesChange,
+  disabled = false,
+}: Props) => {
   return (
     <div className="space-y-6">
       {SECTION_ORDER.map((section) => {
         const defs = PROGRAM_PRICING_OPTION_DEFS.filter((d) => d.section === section)
         if (defs.length === 0) return null
 
-        const showWeeklyDiscountNote =
-          section === 'weekly_discount' &&
-          defs.some((d) => options.find((o) => o.key === d.key)?.enabled)
-
         return (
           <div key={section}>
             <h5 className="text-sm font-bold text-gray-900 mb-2">
               {PROGRAM_PRICING_SECTION_LABELS[section]}
             </h5>
-            {section === 'weekly_discount' && (
-              <p className="text-xs text-gray-500 mb-2">
-                Saving enabled “$ off” options creates a per-class discount under each class in
-                this program.
-              </p>
-            )}
             <ul className="space-y-2">
               {defs.map((def) => {
                 const row = options.find((o) => o.key === def.key)!
@@ -120,10 +114,14 @@ const ProgramPricingOptionsFields = ({ options, onChange, disabled = false }: Pr
                 )
               })}
             </ul>
-            {showWeeklyDiscountNote && (
-              <p className="text-xs text-amber-700 mt-2">
-                Weekly “$ off” discounts are created when you save program defaults.
-              </p>
+            {section === 'single' && passPackages != null && onPassPackagesChange != null && (
+              <div className="mt-6">
+                <MultiClassPassPackagesField
+                  packages={passPackages}
+                  onChange={onPassPackagesChange}
+                  disabled={disabled}
+                />
+              </div>
             )}
           </div>
         )

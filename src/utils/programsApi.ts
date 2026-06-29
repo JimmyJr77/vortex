@@ -1,6 +1,7 @@
 import { type EnrollSiteKey } from '../config/enrollSites'
 import { type CostUnit } from './schedulingApi'
 import { type ProgramPricingOption } from './programPricingOptions'
+import { type MultiClassPassPackage } from './multiClassPassPackages'
 import { adminApiRequest } from './api'
 import {
   adaptProgramSchedulingUpdateForApi,
@@ -23,6 +24,7 @@ export interface TopProgram {
   pricingMaxFreeSlotsTotal?: number | null
   pricingPromoCodes?: string[]
   pricingCostOptions?: ProgramPricingOption[]
+  multiClassPassPackages?: MultiClassPassPackage[]
   archived: boolean
   schedulingActive?: boolean
   schedulingEnrollSites?: EnrollSiteKey[]
@@ -136,10 +138,30 @@ export async function updateTopProgram(
     pricingMaxFreeSlotsTotal: number | null
     pricingPromoCodes: string[]
     pricingCostOptions: ProgramPricingOption[]
+    multiClassPassPackages: MultiClassPassPackage[]
   }>,
 ): Promise<TopProgram> {
   const capabilities = await getSchedulingEnrollApiCapabilities()
   let apiPayload = adaptProgramSchedulingUpdateForApi(payload, capabilities.schedulingEnrollSites)
+  if (apiPayload.pricingCostOptions) {
+    apiPayload = {
+      ...apiPayload,
+      pricingCostOptions: apiPayload.pricingCostOptions.map((o) => ({
+        ...o,
+        amountCents: Math.max(0, Math.round(Number(o.amountCents) || 0)),
+      })),
+    }
+  }
+  if (apiPayload.multiClassPassPackages) {
+    apiPayload = {
+      ...apiPayload,
+      multiClassPassPackages: apiPayload.multiClassPassPackages.map((p) => ({
+        ...p,
+        classCount: Math.max(1, Math.round(Number(p.classCount) || 1)),
+        priceCents: Math.max(0, Math.round(Number(p.priceCents) || 0)),
+      })),
+    }
+  }
   let res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
     method: 'PUT',
     body: JSON.stringify(apiPayload),
@@ -397,4 +419,30 @@ export async function fetchTopProgramsLegacy(archived?: boolean): Promise<TopPro
   const data = await res.json()
   if (!res.ok || !data.success) throw new Error(data.message || 'Request failed')
   return data.data as TopProgram[]
+}
+
+export interface AdminMultiClassPassRow {
+  id: number
+  memberId: number
+  memberName: string
+  programsId: number
+  programDisplayName: string | null
+  packageId: string
+  classCountPurchased: number
+  classesRemaining: number
+  priceCents: number
+  packageLabel: string | null
+  purchasedAt: string
+}
+
+export async function adminFetchMultiClassPasses(opts?: {
+  programsId?: number
+  classEventId?: number
+}): Promise<AdminMultiClassPassRow[]> {
+  const params = new URLSearchParams()
+  if (opts?.programsId != null) params.set('programsId', String(opts.programsId))
+  if (opts?.classEventId != null) params.set('classEventId', String(opts.classEventId))
+  const qs = params.toString() ? `?${params.toString()}` : ''
+  const res = await adminApiRequest(`/api/admin/multi-class-passes${qs}`)
+  return parseJson(res)
 }

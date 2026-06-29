@@ -4,7 +4,7 @@ import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye
 import { getApiUrl } from '../utils/api'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
-import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
+import { fetchClassesOffered, fetchMemberMultiClassPasses, type PublicProgramOffered, type MemberMultiClassPassBalance } from '../utils/publicClassesApi'
 import MemberClassesOfferedEnroll, { type EnrollableMember } from './member/MemberClassesOfferedEnroll'
 import EventAttachedSignup from './EventAttachedSignup'
 import { MemberTrainingTab, MemberProgressTab, MemberMessagesTab } from './MemberTraining'
@@ -252,6 +252,7 @@ export default function MemberDashboard({
   const [classesOffered, setClassesOffered] = useState<PublicProgramOffered[]>([])
   const [classesOfferedLoading, setClassesOfferedLoading] = useState(false)
   const [classesOfferedError, setClassesOfferedError] = useState<string | null>(null)
+  const [multiClassPasses, setMultiClassPasses] = useState<MemberMultiClassPassBalance[]>([])
   
   // Events tab state
   const [events, setEvents] = useState<Event[]>([])
@@ -646,6 +647,11 @@ export default function MemberDashboard({
     } else if (activeTab === 'classes') {
       fetchEnrollments()
       loadClassesOffered()
+      if (token) {
+        void fetchMemberMultiClassPasses(token)
+          .then(setMultiClassPasses)
+          .catch(() => setMultiClassPasses([]))
+      }
     } else if (activeTab === 'events') {
       fetchEvents()
       fetchEnrollments() // Need enrollments for filtering
@@ -1746,6 +1752,13 @@ export default function MemberDashboard({
                   enrollments={enrollments}
                   loading={enrollmentsLoading}
                   currentMemberId={profileData?.id != null ? Number(profileData.id) : undefined}
+                  multiClassPasses={multiClassPasses.map((p) => ({
+                    id: p.id,
+                    programsId: p.programsId,
+                    packageLabel: p.packageLabel,
+                    classesRemaining: p.classesRemaining,
+                    classCountPurchased: p.classCountPurchased,
+                  }))}
                 />
 
                 {/* Classes Offered */}
@@ -1777,7 +1790,14 @@ export default function MemberDashboard({
                       members={enrollableMembers}
                       defaultMemberId={Number(profileData.id)}
                       enrollments={enrollments}
-                      onEnrolled={fetchEnrollments}
+                      onEnrolled={() => {
+                        void fetchEnrollments()
+                        if (token) {
+                          void fetchMemberMultiClassPasses(token)
+                            .then(setMultiClassPasses)
+                            .catch(() => setMultiClassPasses([]))
+                        }
+                      }}
                     />
                   )}
                 </div>
@@ -2155,6 +2175,11 @@ export default function MemberDashboard({
                                 <p className="font-medium text-gray-900">{charge.description}</p>
                                 <p className="text-xs text-gray-500">
                                   {charge.memberName ? `${charge.memberName} · ` : ''}
+                                  {charge.sourceType === 'multi_class_pass_purchase'
+                                    ? 'Multi-class pass · '
+                                    : charge.sourceType === 'scheduling_signup'
+                                      ? 'Class registration · '
+                                      : ''}
                                   {new Date(charge.createdAt).toLocaleDateString()}
                                 </p>
                               </div>

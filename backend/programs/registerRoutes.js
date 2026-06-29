@@ -8,8 +8,9 @@ import { mapProgramPricingFields, resetAllClassesPricingToProgram } from './pric
 import {
   deriveLegacyPricingFromOptions,
   normalizeProgramPricingOptions,
-  syncProgramPricingDiscountRules,
+  deactivateProgramPricingWeeklyOffRules,
 } from './programPricingOptions.js'
+import { normalizeMultiClassPassPackages } from './multiClassPass.js'
 
 const disciplineTagSchema = Joi.object({
   name: Joi.string().trim().min(1).max(255).required(),
@@ -71,6 +72,17 @@ const topProgramUpdateSchema = Joi.object({
         enabled: Joi.boolean().required(),
         amountCents: Joi.number().integer().min(0).required(),
         offeringLabel: Joi.string().valid('offering', 'event').optional(),
+      }),
+    )
+    .optional(),
+  multiClassPassPackages: Joi.array()
+    .items(
+      Joi.object({
+        id: Joi.string().required(),
+        classCount: Joi.number().integer().min(1).required(),
+        priceCents: Joi.number().integer().min(0).required(),
+        enabled: Joi.boolean().required(),
+        label: Joi.string().max(200).optional(),
       }),
     )
     .optional(),
@@ -415,7 +427,8 @@ export function registerProgramsAdminRoutes(app, pool) {
           p.pricing_free_slots_per_user as "pricingFreeSlotsPerUser",
           p.pricing_max_free_slots_total as "pricingMaxFreeSlotsTotal",
           COALESCE(p.pricing_promo_codes, '[]'::jsonb) as "pricingPromoCodes",
-          COALESCE(p.pricing_cost_options, '[]'::jsonb) as "pricingCostOptions"
+          COALESCE(p.pricing_cost_options, '[]'::jsonb) as "pricingCostOptions",
+          COALESCE(p.multi_class_pass_packages, '[]'::jsonb) as "multiClassPassPackages"
           ${schedCols}
         FROM ${schema.programsTable} p
         LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
@@ -502,7 +515,8 @@ export function registerProgramsAdminRoutes(app, pool) {
     try {
       const { error, value } = topProgramUpdateSchema.validate(req.body)
       if (error) {
-        return res.status(400).json({ success: false, message: error.details[0].message })
+        const messages = error.details.map((d) => d.message).join('; ')
+        return res.status(400).json({ success: false, message: messages, errors: error.details.map((d) => d.message) })
       }
       await ensureProgramsSchedulingSchema(pool)
       await ensurePrimaryDisciplineTagColumn(pool)
@@ -613,6 +627,12 @@ export function registerProgramsAdminRoutes(app, pool) {
         updates.push(`pricing_cost_unit = $${n++}`)
         values.push(legacy.pricingCostUnit)
       }
+      if (value.multiClassPassPackages !== undefined) {
+        await ensureProgramPricingColumns(pool)
+        const normalizedPackages = normalizeMultiClassPassPackages(value.multiClassPassPackages)
+        updates.push(`multi_class_pass_packages = $${n++}::jsonb`)
+        values.push(JSON.stringify(normalizedPackages))
+      }
       const hasPricingUpdate =
         value.pricingMaxSlotsPerUser !== undefined ||
         value.pricingSlotCostMonthlyCents !== undefined ||
@@ -620,7 +640,8 @@ export function registerProgramsAdminRoutes(app, pool) {
         value.pricingFreeSlotsPerUser !== undefined ||
         value.pricingMaxFreeSlotsTotal !== undefined ||
         value.pricingPromoCodes !== undefined ||
-        value.pricingCostOptions !== undefined
+        value.pricingCostOptions !== undefined ||
+        value.multiClassPassPackages !== undefined
       if (updates.length === 0 && value.primarySportId === undefined && !hasPricingUpdate) {
         return res.status(400).json({ success: false, message: 'No fields to update' })
       }
@@ -680,23 +701,8 @@ export function registerProgramsAdminRoutes(app, pool) {
         }
       }
 
-      if (normalizedPricingOptions) {
-        const displayName =
-          row?.displayName ??
-          value.displayName ??
-          (
-            await pool.query(
-              `SELECT display_name FROM ${schema.programsTable} WHERE id = $1`,
-              [req.params.id],
-            )
-          ).rows[0]?.display_name ??
-          'Program'
-        await syncProgramPricingDiscountRules(
-          pool,
-          Number(req.params.id),
-          displayName,
-          normalizedPricingOptions,
-        )
+      if (value.pricingCostOptions !== undefined || value.multiClassPassPackages !== undefined) {
+        await deactivateProgramPricingWeeklyOffRules(pool, Number(req.params.id))
       }
 
       if (!row) {
@@ -704,7 +710,8 @@ export function registerProgramsAdminRoutes(app, pool) {
           `SELECT id, name, display_name as "displayName", description, archived,
             pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
             pricing_max_free_slots_total, pricing_cost_unit, pricing_cost_amount_cents,
-            COALESCE(pricing_cost_options, '[]'::jsonb) as "pricingCostOptions"
+            COALESCE(pricing_cost_options, '[]'::jsonb) as "pricingCostOptions",
+            COALESCE(multi_class_pass_packages, '[]'::jsonb) as "multiClassPassPackages"
            FROM ${schema.programsTable} WHERE id = $1`,
           [req.params.id],
         )
@@ -716,7 +723,8 @@ export function registerProgramsAdminRoutes(app, pool) {
         const pricingFetch = await pool.query(
           `SELECT pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
                   pricing_max_free_slots_total, pricing_cost_unit, pricing_cost_amount_cents,
-                  COALESCE(pricing_cost_options, '[]'::jsonb) as "pricingCostOptions"
+                  COALESCE(pricing_cost_options, '[]'::jsonb) as "pricingCostOptions",
+                  COALESCE(multi_class_pass_packages, '[]'::jsonb) as "multiClassPassPackages"
            FROM ${schema.programsTable} WHERE id = $1`,
           [req.params.id],
         )
@@ -724,6 +732,7 @@ export function registerProgramsAdminRoutes(app, pool) {
           ...row,
           ...mapProgramPricingFields(pricingFetch.rows[0] ?? {}),
           pricingCostOptions: pricingFetch.rows[0]?.pricingCostOptions ?? [],
+          multiClassPassPackages: pricingFetch.rows[0]?.multiClassPassPackages ?? [],
         }
       }
       const primarySport = await getProgramPrimarySportFields(pool, req.params.id)
@@ -731,6 +740,70 @@ export function registerProgramsAdminRoutes(app, pool) {
     } catch (err) {
       console.error('[programs] update top program:', err)
       res.status(500).json({ success: false, message: 'Failed to update program' })
+    }
+  })
+
+  app.get('/api/admin/multi-class-passes', async (req, res) => {
+    try {
+      await ensureProgramPricingColumns(pool)
+      const schema = await resolveProgramsSchema(pool)
+      const programsId = req.query.programsId != null ? Number(req.query.programsId) : null
+      const classEventId = req.query.classEventId != null ? Number(req.query.classEventId) : null
+
+      let filterProgramsId = programsId
+      if (classEventId != null && Number.isFinite(classEventId)) {
+        const classRes = await pool.query(
+          `SELECT ${schema.programFkColumn} AS programs_id FROM program WHERE id = $1`,
+          [classEventId],
+        )
+        filterProgramsId =
+          classRes.rows[0]?.programs_id != null ? Number(classRes.rows[0].programs_id) : null
+      }
+
+      const params = []
+      let programFilter = ''
+      if (filterProgramsId != null && Number.isFinite(filterProgramsId)) {
+        params.push(filterProgramsId)
+        programFilter = ` AND mp.programs_id = $1`
+      }
+
+      const result = await pool.query(
+        `SELECT mp.id, mp.member_id, mp.programs_id, mp.package_id, mp.class_count_purchased,
+                mp.classes_remaining, mp.price_cents, mp.package_label, mp.purchased_at,
+                m.first_name, m.last_name,
+                pc.display_name AS program_display_name
+         FROM member_multi_class_pass mp
+         JOIN member m ON m.id = mp.member_id
+         LEFT JOIN ${schema.programsTable} pc ON pc.id = mp.programs_id
+         WHERE EXISTS (
+           SELECT 1 FROM ${schema.programsTable} p
+           WHERE p.id = mp.programs_id
+             AND jsonb_array_length(COALESCE(p.multi_class_pass_packages, '[]'::jsonb)) > 0
+         )${programFilter}
+         ORDER BY mp.purchased_at DESC, mp.id DESC
+         LIMIT 500`,
+        params,
+      )
+
+      res.json({
+        success: true,
+        data: result.rows.map((row) => ({
+          id: Number(row.id),
+          memberId: Number(row.member_id),
+          memberName: [row.first_name, row.last_name].filter(Boolean).join(' '),
+          programsId: Number(row.programs_id),
+          programDisplayName: row.program_display_name,
+          packageId: row.package_id,
+          classCountPurchased: Number(row.class_count_purchased),
+          classesRemaining: Number(row.classes_remaining),
+          priceCents: Number(row.price_cents),
+          packageLabel: row.package_label,
+          purchasedAt: row.purchased_at,
+        })),
+      })
+    } catch (err) {
+      console.error('[programs] list multi-class passes:', err)
+      res.status(500).json({ success: false, message: 'Failed to load multi-class passes' })
     }
   })
 

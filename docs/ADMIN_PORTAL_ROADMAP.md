@@ -13,7 +13,7 @@ as the portal evolves (see the project rule
 - ✅ Members/families/guardians/athletes CRUD + enrollments + archive (light-theme modals).
 - ✅ Access management (roles + per-user allow/deny overrides), Admins, Coaches assignments.
 - ✅ Scheduling v2 (forms, offerings, slots, signups, waitlist, calendar).
-- ✅ Pricing & discount engine (costs, discounts, free passes, rules, promo codes).
+- ✅ Pricing & discount engine (costs, multi-class pass packages, discounts, free passes, rules, promo codes).
 - ✅ Billing & waivers admin; Inquiries, Events, Highlights, Schools, DB Queries.
 - ✅ Analytics & engagement dashboard.
 
@@ -121,6 +121,7 @@ RBAC-filtered from `/api/admin/access/me`. Cross-tab deep-linking (Classes → S
 | Billing | `AdminFamilyBilling.tsx` | Family billing accounts, charges, statements, payments | `billing.view` |
 | Waivers | `AdminWaivers.tsx` | Waiver templates + compliance + per-row/bulk waiver-request emails | `waivers.view` (send needs `waivers.manage`) |
 | Signups | `AdminSignups.tsx` | Roster, archived/orphaned signups, password reset | `scheduling.view` |
+| Multi-Class Passes | `AdminMultiClassPasses.tsx` | Program pass balances (members with remaining credits on programs that offer packages) | `scheduling.view` |
 | Email | `AdminEmail.tsx` | SMTP status (`/api/admin/email/status`) + send test email | `admin_access.manage` (test send is master-admin only) |
 | Highlights | `AdminHighlights.tsx` | Site highlight popups | `classes.view` |
 | Events | `AdminEvents.tsx` | Facility events + edit log | `classes.view` |

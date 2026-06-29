@@ -1662,6 +1662,38 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: created.rows[0] })
   })
 
+  })
+
+  app.get('/api/members/multi-class-passes', authMiddleware(pool, jwtSecret), async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = Number(ctx.user.member_id ?? ctx.user.id)
+      const familyId = ctx.user.family_id
+      const { loadMemberPassBalances } = await import('../programs/multiClassPass.js')
+      const canSeeFamily = ctx.roles.includes('PARENT_GUARDIAN')
+
+      let memberIds = [memberId]
+      if (canSeeFamily && familyId) {
+        const fam = await pool.query(
+          `SELECT id FROM member WHERE family_id = $1 AND is_active = TRUE`,
+          [familyId],
+        )
+        memberIds = fam.rows.map((r) => Number(r.id))
+      }
+
+      const all = []
+      for (const mid of memberIds) {
+        const rows = await loadMemberPassBalances(pool, mid)
+        all.push(...rows.map((r) => ({ ...r, memberId: mid })))
+      }
+
+      res.json({ success: true, data: all })
+    } catch (err) {
+      console.error('[members] multi-class passes:', err)
+      res.status(500).json({ success: false, message: 'Failed to load multi-class passes' })
+    }
+  })
+
   app.get('/api/members/billing/account', authMiddleware(pool, jwtSecret), async (req, res) => {
     const ctx = req.platformAuth
     const memberId = Number(ctx.user.member_id ?? ctx.user.id)

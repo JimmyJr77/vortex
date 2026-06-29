@@ -2,6 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, CheckCircle, Loader2, ShoppingCart } from 'lucide-react'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
 import {
+  enabledBasePricingOptions,
+  formatProgramPricingOptionLabel,
+  type ProgramPricingOptionKey,
+} from '../../utils/programPricingOptions'
+import type { MultiClassPassPackage } from '../../utils/multiClassPassPackages'
+import {
   fetchSignupOrderPreview,
   loginSchedulingAuthFromMemberSession,
   submitSchedulingSignupBatch,
@@ -34,13 +40,19 @@ interface Props {
 
 interface CartItem {
   cartKey: string
-  classEventId: number
-  formId: number
-  slotGroupId: number
-  timeSlotId: number
-  classLabel: string
-  scheduleLabel: string
-  priceLabel: string | null
+  lineType: 'slot' | 'multi_class_pass'
+  classEventId?: number
+  formId?: number
+  slotGroupId?: number
+  timeSlotId?: number
+  classLabel?: string
+  scheduleLabel?: string
+  priceLabel?: string | null
+  programsId?: number
+  programName?: string
+  packageId?: string
+  packageLabel?: string
+  selectedPricingOptionKey?: ProgramPricingOptionKey
 }
 
 type CatalogState = SignupClassCatalog | 'loading' | 'error'
@@ -70,14 +82,26 @@ export default function MemberClassesOfferedEnroll({
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [doneCount, setDoneCount] = useState(0)
 
+  const [selectedPricingByProgram, setSelectedPricingByProgram] = useState<
+    Record<number, ProgramPricingOptionKey>
+  >({})
+
   const classesWithForm = useMemo(() => {
-    const out: Array<{ classEventId: number; formId: number; label: string; description: string | null; programName: string }> = []
+    const out: Array<{
+      classEventId: number
+      formId: number
+      programsId: number
+      label: string
+      description: string | null
+      programName: string
+    }> = []
     for (const program of programs) {
       for (const cls of program.classes) {
         if (cls.formId != null) {
           out.push({
             classEventId: cls.id,
             formId: cls.formId,
+            programsId: program.id,
             label: cls.displayName,
             description: cls.description,
             programName: program.displayName,
@@ -155,9 +179,11 @@ export default function MemberClassesOfferedEnroll({
     if (disabledOfferingIds.length === 0 && disabledSlotKeys.length === 0) return
     setCart((prev) =>
       prev.filter((item) => {
+        if (item.lineType === 'multi_class_pass') return true
+        if (item.slotGroupId == null || item.timeSlotId == null) return true
         const key = slotOptionKey(item.slotGroupId, item.timeSlotId)
         if (disabledSlotKeys.includes(key)) return false
-        const catalog = catalogs[item.classEventId]
+        const catalog = item.classEventId != null ? catalogs[item.classEventId] : null
         if (!catalog || catalog === 'loading' || catalog === 'error') return true
         const opt = catalog.scheduleOptions.find(
           (o) => slotOptionKey(o.slotGroupId, o.timeSlotId) === key,
@@ -194,6 +220,7 @@ export default function MemberClassesOfferedEnroll({
       ...prev,
       {
         cartKey,
+        lineType: 'slot',
         classEventId,
         formId,
         slotGroupId: opt.slotGroupId,
@@ -201,9 +228,56 @@ export default function MemberClassesOfferedEnroll({
         classLabel,
         scheduleLabel: opt.scheduleLabel,
         priceLabel: opt.priceLabel,
+        programsId: classesWithForm.find((c) => c.classEventId === classEventId)?.programsId,
       },
     ])
   }
+
+  const togglePassPackage = (
+    program: PublicProgramOffered,
+    pkg: MultiClassPassPackage,
+    checked: boolean,
+  ) => {
+    const cartKey = `pass:${program.id}:${pkg.id}`
+    if (!checked) {
+      setCart((prev) => prev.filter((c) => c.cartKey !== cartKey))
+      return
+    }
+    setCart((prev) => [
+      ...prev.filter((c) => !(c.lineType === 'multi_class_pass' && c.programsId === program.id)),
+      {
+        cartKey,
+        lineType: 'multi_class_pass',
+        programsId: program.id,
+        programName: program.displayName,
+        packageId: pkg.id,
+        packageLabel: pkg.label,
+        priceLabel: `$${(pkg.priceCents / 100).toFixed(2)}`,
+      },
+    ])
+  }
+
+  const buildPreviewSignups = useCallback(() => {
+    return cart.map((c) => {
+      if (c.lineType === 'multi_class_pass') {
+        return {
+          lineType: 'multi_class_pass' as const,
+          programsId: c.programsId!,
+          packageId: c.packageId!,
+        }
+      }
+      const pricingKey =
+        c.programsId != null ? selectedPricingByProgram[c.programsId] : undefined
+      return {
+        lineType: 'slot' as const,
+        formId: c.formId!,
+        slotGroupId: c.slotGroupId!,
+        timeSlotId: c.timeSlotId!,
+        selectedPricingOptionKey: pricingKey,
+        useMultiClassPass: true,
+      }
+    })
+  }, [cart, selectedPricingByProgram])
 
   const selectedMember =
     members.find((m) => Number(m.id) === Number(selectedMemberId)) ?? members[0]
@@ -220,7 +294,10 @@ export default function MemberClassesOfferedEnroll({
       setPreviewLoading(true)
       setPreviewError(null)
       try {
-        const firstForm = cart[0].formId
+        const firstForm =
+          cart.find((c) => c.lineType === 'slot' && c.formId != null)?.formId ??
+          classesWithForm[0]?.formId
+        if (firstForm == null) throw new Error('Select a class or pass to continue')
         const session = await loginSchedulingAuthFromMemberSession(
           firstForm,
           memberToken,
@@ -229,11 +306,7 @@ export default function MemberClassesOfferedEnroll({
         const result = await fetchSignupOrderPreview({
           formId: firstForm,
           signupAuthToken: session.signupAuthToken,
-          signups: cart.map((c) => ({
-            formId: c.formId,
-            slotGroupId: c.slotGroupId,
-            timeSlotId: c.timeSlotId,
-          })),
+          signups: buildPreviewSignups(),
           promoCodes: codes,
         })
         setPreview(result)
@@ -244,7 +317,7 @@ export default function MemberClassesOfferedEnroll({
         setPreviewLoading(false)
       }
     },
-    [cart, memberToken, selectedMemberId],
+    [cart, memberToken, selectedMemberId, buildPreviewSignups, classesWithForm],
   )
 
   const applyPromo = async () => {
@@ -270,32 +343,34 @@ export default function MemberClassesOfferedEnroll({
     setSubmitting(true)
     setSubmitError(null)
     try {
-      // The signup auth token is form-scoped, so submit one batch per form.
+      const slotItems = cart.filter((c) => c.lineType === 'slot')
+      const passItems = cart.filter((c) => c.lineType === 'multi_class_pass')
       const byForm = new Map<number, CartItem[]>()
-      for (const item of cart) {
+      for (const item of slotItems) {
+        if (item.formId == null) continue
         const list = byForm.get(item.formId) ?? []
         list.push(item)
         byForm.set(item.formId, list)
       }
       let total = 0
-      for (const [formId, items] of byForm) {
-        const session = await loginSchedulingAuthFromMemberSession(
-          formId,
-          memberToken,
-          selectedMemberId,
-        )
-        const result = await submitSchedulingSignupBatch({
-          signups: items.map((c) => ({
-            formId: c.formId,
-            slotGroupId: c.slotGroupId,
-            timeSlotId: c.timeSlotId,
-          })),
-          responses: {},
-          signupAuthToken: session.signupAuthToken,
-          promoCodes,
-        })
-        total += result.signups.length
-      }
+      const firstFormId =
+        slotItems[0]?.formId ?? classesWithForm.find((c) => c.programsId === passItems[0]?.programsId)?.formId
+      if (firstFormId == null) throw new Error('Missing enrollment context')
+
+      const session = await loginSchedulingAuthFromMemberSession(
+        firstFormId,
+        memberToken,
+        selectedMemberId,
+      )
+
+      const allSignups = buildPreviewSignups()
+      const result = await submitSchedulingSignupBatch({
+        signups: allSignups,
+        responses: {},
+        signupAuthToken: session.signupAuthToken,
+        promoCodes,
+      })
+      total += result.signups.length
       setDoneCount(total)
       setCart([])
       setPreview(null)
@@ -347,7 +422,7 @@ export default function MemberClassesOfferedEnroll({
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-2">Selected classes ({cart.length})</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-2">Selected items ({cart.length})</h3>
           <ul className="space-y-2">
             {cart.map((item) => (
               <li
@@ -355,8 +430,17 @@ export default function MemberClassesOfferedEnroll({
                 className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm"
               >
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900">{item.classLabel}</p>
-                  <p className="text-gray-600">{item.scheduleLabel}</p>
+                  {item.lineType === 'multi_class_pass' ? (
+                    <>
+                      <p className="font-semibold text-gray-900">{item.packageLabel}</p>
+                      <p className="text-gray-600">{item.programName} · Multi-class package</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-semibold text-gray-900">{item.classLabel}</p>
+                      <p className="text-gray-600">{item.scheduleLabel}</p>
+                    </>
+                  )}
                 </div>
                 {item.priceLabel && (
                   <span className="shrink-0 text-xs font-semibold text-vortex-red">{item.priceLabel}</span>
@@ -452,64 +536,141 @@ export default function MemberClassesOfferedEnroll({
         <p className="text-sm text-gray-500">No classes are available to enroll in right now.</p>
       )}
 
-      <div className="space-y-6">
-        {classesWithForm.map((cls) => {
-          const catalog = catalogs[cls.classEventId]
-          const selectedKeysForClass = cart
-            .filter((c) => c.classEventId === cls.classEventId)
-            .map((c) => slotOptionKey(c.slotGroupId, c.timeSlotId))
-          return (
-            <div
-              key={cls.classEventId}
-              className="rounded-xl border border-gray-200 p-4 space-y-3"
-            >
-              <div>
-                <h3 className="text-base font-bold text-gray-900">{cls.label}</h3>
-                <p className="text-xs text-gray-500">{cls.programName}</p>
-                {cls.description && (
-                  <p className="text-sm text-gray-600 mt-1">{cls.description}</p>
-                )}
-              </div>
+      {programs.map((program) => {
+        const pricingOptions = enabledBasePricingOptions(program.pricingCostOptions ?? [])
+        const passPackages = (program.multiClassPassPackages ?? []).filter((p) => p.enabled)
+        const programClasses = classesWithForm.filter((c) => c.programsId === program.id)
+        if (programClasses.length === 0) return null
 
-              {catalog === 'loading' && (
-                <p className="text-sm text-gray-500">Loading schedule…</p>
-              )}
-              {catalog === 'error' && (
-                <p className="text-sm text-red-600">Could not load this class's schedule.</p>
-              )}
-              {catalog && catalog !== 'loading' && catalog !== 'error' && (
-                <>
-                  {catalog.classActiveDates && (
-                    <p className="text-sm text-gray-700">
-                      Class active dates:{' '}
-                      <span className="font-medium">{catalog.classActiveDates}</span>
-                    </p>
-                  )}
-                  {catalog.scheduleOptions.length > 0 ? (
-                    <ScheduleOptionCheckboxGrid
-                      groups={groupScheduleOptions(catalog.scheduleOptions)}
-                      selectedSlotKeys={selectedKeysForClass}
-                      disabledSlotKeys={disabledSlotKeys}
-                      disabledOfferingIds={disabledOfferingIds}
-                      onToggle={(key, checked) =>
-                        toggleSlot(cls.classEventId, cls.formId, cls.label, key, checked)
-                      }
-                    />
-                  ) : (
-                    <p className="text-sm text-gray-500">
-                      No schedule options are open for this class yet.
-                    </p>
-                  )}
-                </>
+        return (
+          <div key={program.id} className="space-y-4">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">{program.displayName}</h2>
+              {program.description && (
+                <p className="text-sm text-gray-600 mt-1">{program.description}</p>
               )}
             </div>
-          )
-        })}
-      </div>
+
+            {passPackages.length > 0 && (
+              <div className="rounded-xl border border-gray-200 p-4 space-y-3 bg-white">
+                <h3 className="text-sm font-bold text-gray-900">Multi-class packages</h3>
+                <p className="text-xs text-gray-500">
+                  Prepaid class credits for {program.displayName}. Select one package to add to your
+                  enrollment.
+                </p>
+                <ul className="space-y-2">
+                  {passPackages.map((pkg) => {
+                    const cartKey = `pass:${program.id}:${pkg.id}`
+                    const checked = cart.some((c) => c.cartKey === cartKey)
+                    return (
+                      <li
+                        key={pkg.id}
+                        className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-100 px-3 py-2"
+                      >
+                        <label className="inline-flex items-center gap-2 flex-1 min-w-[12rem] cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => togglePassPackage(program, pkg, e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+                          />
+                          <span className="text-sm font-medium text-gray-900">{pkg.label}</span>
+                          <span className="text-sm text-gray-600">
+                            ({pkg.classCount} {pkg.classCount === 1 ? 'class' : 'classes'})
+                          </span>
+                        </label>
+                        <span className="text-sm font-semibold text-vortex-red">
+                          ${(pkg.priceCents / 100).toFixed(2)}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            )}
+
+            {pricingOptions.length > 1 && (
+              <div className="rounded-xl border border-gray-200 p-4 bg-white">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
+                  Pricing option for {program.displayName}
+                </label>
+                <select
+                  value={selectedPricingByProgram[program.id] ?? pricingOptions[0]?.key ?? ''}
+                  onChange={(e) =>
+                    setSelectedPricingByProgram((prev) => ({
+                      ...prev,
+                      [program.id]: e.target.value as ProgramPricingOptionKey,
+                    }))
+                  }
+                  className="w-full sm:w-96 h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                >
+                  {pricingOptions.map((opt) => (
+                    <option key={opt.key} value={opt.key}>
+                      {formatProgramPricingOptionLabel(opt)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {programClasses.map((cls) => {
+              const catalog = catalogs[cls.classEventId]
+              const selectedKeysForClass = cart
+                .filter((c) => c.classEventId === cls.classEventId && c.lineType === 'slot')
+                .map((c) => slotOptionKey(c.slotGroupId!, c.timeSlotId!))
+              return (
+                <div
+                  key={cls.classEventId}
+                  className="rounded-xl border border-gray-200 p-4 space-y-3"
+                >
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">{cls.label}</h3>
+                    {cls.description && (
+                      <p className="text-sm text-gray-600 mt-1">{cls.description}</p>
+                    )}
+                  </div>
+
+                  {catalog === 'loading' && (
+                    <p className="text-sm text-gray-500">Loading schedule…</p>
+                  )}
+                  {catalog === 'error' && (
+                    <p className="text-sm text-red-600">Could not load this class's schedule.</p>
+                  )}
+                  {catalog && catalog !== 'loading' && catalog !== 'error' && (
+                    <>
+                      {catalog.classActiveDates && (
+                        <p className="text-sm text-gray-700">
+                          Class active dates:{' '}
+                          <span className="font-medium">{catalog.classActiveDates}</span>
+                        </p>
+                      )}
+                      {catalog.scheduleOptions.length > 0 ? (
+                        <ScheduleOptionCheckboxGrid
+                          groups={groupScheduleOptions(catalog.scheduleOptions)}
+                          selectedSlotKeys={selectedKeysForClass}
+                          disabledSlotKeys={disabledSlotKeys}
+                          disabledOfferingIds={disabledOfferingIds}
+                          onToggle={(key, checked) =>
+                            toggleSlot(cls.classEventId, cls.formId, cls.label, key, checked)
+                          }
+                        />
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          No schedule options are open for this class yet.
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )
+      })}
 
       <div className="sticky bottom-0 -mx-4 md:-mx-6 border-t border-gray-200 bg-white px-4 md:px-6 py-3 flex items-center justify-between gap-3">
         <span className="text-sm text-gray-600">
-          {cart.length} {cart.length === 1 ? 'class' : 'classes'} selected
+          {cart.length} {cart.length === 1 ? 'item' : 'items'} selected
         </span>
         <button
           type="button"

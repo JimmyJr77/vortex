@@ -128,6 +128,11 @@ export async function ensureProgramPricingColumns(pool) {
   if (fs.existsSync(costOptionsPath)) {
     await pool.query(fs.readFileSync(costOptionsPath, 'utf8'))
   }
+
+  const multiClassPassPath = path.join(__dirname, '../migrations/049_multi_class_pass.sql')
+  if (fs.existsSync(multiClassPassPath)) {
+    await pool.query(fs.readFileSync(multiClassPassPath, 'utf8'))
+  }
 }
 
 let discountEngineReady = false

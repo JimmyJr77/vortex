@@ -23,6 +23,16 @@ import { sendWaiverEmail } from './waiverEmail.js'
 import { buildSignupOrderPreview, loadMemberScopeSignups, pricingScopeKey } from './orderPricing.js'
 import { persistDiscountSnapshot } from './discountEngine.js'
 import { persistSignupCharges } from './persistSignupCharges.js'
+import {
+  persistMultiClassPassPurchaseCharge,
+  persistPassRedemptionCharge,
+} from './persistMultiClassPassCharges.js'
+import {
+  createMemberPassPurchase,
+  loadProgramPassPackages,
+  redeemPassForSignup,
+  selectPassForRedemption,
+} from '../programs/multiClassPass.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
 import { computeMonthlyPricing } from './pricing.js'
 import {
@@ -144,6 +154,7 @@ async function insertSignupForMember(
     groupDisplayLabel,
     firstOccurrenceLabel,
     adminStub = false,
+    pricingOptionKey = null,
   },
 ) {
   const activeCount = await countActiveSignupsForPricingScope(client, formRow, memberId)
@@ -184,8 +195,9 @@ async function insertSignupForMember(
     `
     INSERT INTO scheduling_signup
       (form_id, time_slot_id, slot_group_id, member_id,
-       first_name, last_name, email, phone, field_responses, responses, status, admin_stub)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+       first_name, last_name, email, phone, field_responses, responses, status, admin_stub,
+       pricing_option_key)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
     RETURNING *
     `,
     [
@@ -201,6 +213,7 @@ async function insertSignupForMember(
       JSON.stringify(responses),
       signupStatus,
       adminStub,
+      pricingOptionKey || null,
     ],
   )
 
@@ -994,11 +1007,22 @@ const signupSchema = Joi.object({
   return val
 })
 
-const signupItemSchema = Joi.object({
+const slotSignupItemSchema = Joi.object({
+  lineType: Joi.string().valid('slot').default('slot'),
   formId: Joi.number().integer().required(),
   slotGroupId: Joi.number().integer().required(),
   timeSlotId: Joi.number().integer().optional(),
+  selectedPricingOptionKey: Joi.string().trim().optional(),
+  useMultiClassPass: Joi.boolean().optional(),
 })
+
+const passSignupItemSchema = Joi.object({
+  lineType: Joi.string().valid('multi_class_pass').required(),
+  programsId: Joi.number().integer().required(),
+  packageId: Joi.string().trim().required(),
+})
+
+const signupItemSchema = Joi.alternatives().try(passSignupItemSchema, slotSignupItemSchema)
 
 const batchSignupSchema = Joi.object({
   signups: Joi.array().items(signupItemSchema).min(1).max(20).required(),
@@ -2026,8 +2050,11 @@ export function createSchedulingHandlers(pool) {
           })
         }
 
+        const slotSignups = value.signups.filter((s) => s.lineType !== 'multi_class_pass')
+        const passSignups = value.signups.filter((s) => s.lineType === 'multi_class_pass')
+
         const seenKeys = new Set()
-        for (const entry of value.signups) {
+        for (const entry of slotSignups) {
           const key = programSlotSignupKey(
             entry.formId,
             entry.slotGroupId,
@@ -2043,7 +2070,7 @@ export function createSchedulingHandlers(pool) {
         }
 
         const resolvedEntries = []
-        for (const entry of value.signups) {
+        for (const entry of slotSignups) {
           try {
             const resolved = await resolveSignupEntryForInsert(pool, entry)
             resolvedEntries.push({ entry, ...resolved })
@@ -2055,15 +2082,19 @@ export function createSchedulingHandlers(pool) {
           }
         }
 
-        const primaryFormRow = resolvedEntries[0].formRow
+        const primaryFormRow = resolvedEntries[0]?.formRow ?? null
         let memberId = null
         let createdNewStubMemberId = null
         let responses = { ...value.responses }
 
         if (value.signupAuthToken) {
-          const auth = verifySignupAuthToken(value.signupAuthToken, value.signups[0].formId, {
+          const authFormId =
+            resolvedEntries[0]?.entry.formId ??
+            slotSignups[0]?.formId ??
+            value.signups.find((s) => s.formId != null)?.formId
+          const auth = verifySignupAuthToken(value.signupAuthToken, authFormId, {
             programsId:
-              primaryFormRow.programs_id != null ? Number(primaryFormRow.programs_id) : null,
+              primaryFormRow?.programs_id != null ? Number(primaryFormRow.programs_id) : null,
           })
           memberId = Number(auth.memberId)
           const member = await findMemberById(pool, memberId)
@@ -2083,7 +2114,7 @@ export function createSchedulingHandlers(pool) {
             phone: member.phone || responses.phone,
             ...responses,
           }
-        } else if (value.password) {
+        } else if (value.password && resolvedEntries.length > 0) {
           const validationErrors = validateSignupResponses(
             resolvedEntries[0].detail.signupFields,
             responses,
@@ -2171,12 +2202,22 @@ export function createSchedulingHandlers(pool) {
           try {
             const preview = await buildSignupOrderPreview(pool, {
               memberId,
-              newSignups: resolvedEntries.map((resolved) => ({
-                formId: resolved.entry.formId,
-                slotGroupId: resolved.entry.slotGroupId,
-                timeSlotId: resolved.firstOccurrence.id,
-                formTitle: resolved.detail.title,
-              })),
+              newSignups: [
+                ...resolvedEntries.map((resolved) => ({
+                  formId: resolved.entry.formId,
+                  slotGroupId: resolved.entry.slotGroupId,
+                  timeSlotId: resolved.firstOccurrence.id,
+                  formTitle: resolved.detail.title,
+                  selectedPricingOptionKey: resolved.entry.selectedPricingOptionKey,
+                  useMultiClassPass: resolved.entry.useMultiClassPass,
+                  lineType: 'slot',
+                })),
+                ...passSignups.map((p) => ({
+                  lineType: 'multi_class_pass',
+                  programsId: p.programsId,
+                  packageId: p.packageId,
+                })),
+              ],
               promoCodes: value.promoCodes || [],
               memberContext: {
                 city: null,
@@ -2207,8 +2248,61 @@ export function createSchedulingHandlers(pool) {
               mandateWaiver: resolved.detail.mandateWaiver,
               groupDisplayLabel: resolved.group.displayLabel,
               firstOccurrenceLabel: resolved.firstOccurrence.displayLabel,
+              pricingOptionKey: resolved.entry.selectedPricingOptionKey ?? null,
             })
             signupResults.push(signupResult)
+          }
+
+          const purchasedPasses = []
+          for (const passEntry of passSignups) {
+            const programsId = Number(passEntry.programsId)
+            const packages = await loadProgramPassPackages(client, programsId)
+            const pkg = packages.find((p) => p.id === passEntry.packageId)
+            if (!pkg) {
+              const err = new Error('Multi-class pass package is no longer available')
+              err.code = 'INVALID_PASS'
+              throw err
+            }
+            const created = await createMemberPassPurchase(client, {
+              memberId,
+              programsId,
+              packageDef: pkg,
+            })
+            purchasedPasses.push({ ...created, programsId, packageDef: pkg })
+          }
+
+          const passRedemptionResults = []
+          if (orderPreviewSnapshot?.newSignups) {
+            for (let index = 0; index < resolvedEntries.length; index += 1) {
+              const resolved = resolvedEntries[index]
+              const signupId = signupResults[index]?.signupId
+              if (signupId == null) continue
+              const lineKey = programSlotSignupKey(
+                resolved.entry.formId,
+                resolved.entry.slotGroupId,
+                resolved.firstOccurrence.id,
+              )
+              const previewLine = orderPreviewSnapshot.newSignups.find((l) => l.slotKey === lineKey)
+              if (!previewLine?.multiClassPassApplied || previewLine.programsId == null) continue
+              const passRow = await selectPassForRedemption(
+                client,
+                memberId,
+                Number(previewLine.programsId),
+              )
+              if (!passRow) continue
+              const redemption = await redeemPassForSignup(client, {
+                memberPassId: Number(passRow.id),
+                signupId,
+                memberId,
+                programsId: Number(previewLine.programsId),
+              })
+              passRedemptionResults.push({
+                signupId,
+                ...redemption,
+                formTitle: resolved.detail.title,
+                slotLabel: signupResults[index]?.slotLabel ?? '',
+              })
+            }
           }
 
           const currentSchool =
@@ -2264,18 +2358,50 @@ export function createSchedulingHandlers(pool) {
 
           // Bridge the created signups into the persisted family billing ledger.
           try {
+            for (const redemption of passRedemptionResults) {
+              await persistPassRedemptionCharge(pool, {
+                memberId,
+                signupId: redemption.signupId,
+                formTitle: redemption.formTitle,
+                slotLabel: redemption.slotLabel,
+                packageLabel: redemption.packageLabel,
+                classesRemainingAfter: redemption.classesRemainingAfter,
+              })
+            }
+
+            const passRedemptionSignupIds = new Set(passRedemptionResults.map((r) => r.signupId))
             await persistSignupCharges(pool, {
               memberId,
-              signups: signupResults.map((result, index) => ({
-                signupId: result.signupId,
-                formId: resolvedEntries[index].entry.formId,
-                slotGroupId: resolvedEntries[index].entry.slotGroupId,
-                timeSlotId: resolvedEntries[index].firstOccurrence.id,
-                formTitle: result.formTitle,
-                slotLabel: result.slotLabel,
-              })),
+              signups: signupResults
+                .map((result, index) => ({ result, index }))
+                .filter(({ result }) => !passRedemptionSignupIds.has(result.signupId))
+                .map(({ result, index }) => ({
+                  signupId: result.signupId,
+                  formId: resolvedEntries[index].entry.formId,
+                  slotGroupId: resolvedEntries[index].entry.slotGroupId,
+                  timeSlotId: resolvedEntries[index].firstOccurrence.id,
+                  formTitle: result.formTitle,
+                  slotLabel: result.slotLabel,
+                })),
               preview: orderPreviewSnapshot,
             })
+
+            const { resolveProgramsSchema } = await import('../programs/schema.js')
+            const schema = await resolveProgramsSchema(pool)
+            for (const purchased of purchasedPasses) {
+              const progRes = await pool.query(
+                `SELECT display_name FROM ${schema.programsTable} WHERE id = $1`,
+                [purchased.programsId],
+              )
+              await persistMultiClassPassPurchaseCharge(pool, {
+                memberId,
+                passId: purchased.passId,
+                programsId: purchased.programsId,
+                packageLabel: purchased.packageDef.label,
+                priceCents: purchased.packageDef.priceCents,
+                programDisplayName: progRes.rows[0]?.display_name ?? null,
+              })
+            }
           } catch (chargeErr) {
             console.warn('[scheduling] persistSignupCharges:', chargeErr.message)
           }
@@ -2316,8 +2442,12 @@ export function createSchedulingHandlers(pool) {
                     maxParticipants: mappedSignups[0].maxParticipants,
                     waitlistPosition: mappedSignups[0].waitlistPosition,
                   })
-                : `Signed up for ${mappedSignups.length} classes`,
-            data: { signups: mappedSignups },
+                : mappedSignups.length > 0
+                  ? `Signed up for ${mappedSignups.length} classes`
+                  : purchasedPasses.length > 0
+                    ? `Purchased ${purchasedPasses.length} multi-class pass(es)`
+                    : 'Enrollment complete',
+            data: { signups: mappedSignups, purchasedPasses },
           })
         } catch (txErr) {
           await client.query('ROLLBACK')

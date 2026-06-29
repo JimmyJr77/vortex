@@ -5,8 +5,13 @@ import type { AdminProgramPricing } from '../../utils/programsApi'
 import {
   normalizeProgramPricingOptions,
   programPricingOptionsFromProgram,
+  serializeProgramPricingOptionsForApi,
   type ProgramPricingOption,
 } from '../../utils/programPricingOptions'
+import {
+  normalizeMultiClassPassPackages,
+  type MultiClassPassPackage,
+} from '../../utils/multiClassPassPackages'
 import ProgramPricingOptionsFields from './ProgramPricingOptionsFields'
 import AdminPricingClassTable from './AdminPricingClassTable'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
@@ -22,6 +27,9 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
   const [options, setOptions] = useState<ProgramPricingOption[]>(() =>
     programPricingOptionsFromProgram(program),
   )
+  const [passPackages, setPassPackages] = useState<MultiClassPassPackage[]>(() =>
+    normalizeMultiClassPassPackages(program.multiClassPassPackages),
+  )
   const [saving, setSaving] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,6 +38,7 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
 
   useEffect(() => {
     setOptions(programPricingOptionsFromProgram(program))
+    setPassPackages(normalizeMultiClassPassPackages(program.multiClassPassPackages))
     setSaved(false)
     setError(null)
   }, [program])
@@ -42,9 +51,8 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
     setSaved(false)
     try {
       await updateTopProgram(program.id, {
-        pricingCostOptions: normalizeProgramPricingOptions(options),
-        pricingFreeSlotsPerUser: 0,
-        pricingMaxFreeSlotsTotal: null,
+        pricingCostOptions: serializeProgramPricingOptionsForApi(options),
+        multiClassPassPackages: normalizeMultiClassPassPackages(passPackages),
       })
       await onRefresh()
       setSaved(true)
@@ -79,7 +87,12 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
         </p>
       </div>
 
-      <ProgramPricingOptionsFields options={options} onChange={setOptions} />
+      <ProgramPricingOptionsFields
+        options={options}
+        onChange={setOptions}
+        passPackages={passPackages}
+        onPassPackagesChange={setPassPackages}
+      />
 
       <PricingBenefitSelectionField
         scopeLevel="program"

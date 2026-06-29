@@ -12,6 +12,7 @@ import AdminScheduling from './AdminScheduling'
 import AdminCalendar from './scheduling/AdminCalendar'
 import AdminPricing from './AdminPricing'
 import AdminSignups from './AdminSignups'
+import AdminMultiClassPasses from './AdminMultiClassPasses'
 import AdminDbQueries from './AdminDbQueries'
 import AdminSchools from './AdminSchools'
 import AdminAccess from './AdminAccess'
@@ -63,7 +64,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email'
 
 export type GroupId = 'home' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'settings'
 
@@ -89,6 +90,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'waivers', label: 'Waivers', permission: 'waivers.view' },
   { id: 'insurance', label: 'Insurance', permission: 'waivers.view' },
   { id: 'signups', label: 'Class Registrations', permission: 'scheduling.view' },
+  { id: 'multiClassPasses', label: 'Multi-Class Passes', permission: 'scheduling.view' },
   { id: 'eventSignups', label: 'Signups', permission: 'scheduling.view' },
   { id: 'highlights', label: 'Highlights', permission: 'classes.view' },
   { id: 'events', label: 'Events', permission: 'classes.view' },
@@ -112,7 +114,7 @@ const GROUPS: GroupDef[] = [
   { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'access'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classes', 'coaches', 'scheduling', 'classesEvents'] },
-  { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'eventSignups'] },
+  { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
   { id: 'pricingBilling', label: 'Pricing & Billing', icon: DollarSign, sections: ['pricing', 'billing'] },
   { id: 'legal', label: 'Legal', icon: FileText, sections: ['waivers', 'insurance'] },
@@ -329,6 +331,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
         return <AdminPricing />
       case 'signups':
         return <AdminSignups />
+      case 'multiClassPasses':
+        return <AdminMultiClassPasses />
       case 'eventSignups':
         return <AdminEventSignups />
       case 'classes':

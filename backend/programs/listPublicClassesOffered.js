@@ -7,9 +7,16 @@ export async function listPublicClassesOffered(pool, site = 'athletics') {
     site = 'athletics'
   }
 
-  const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import('./schema.js')
+  const { resolveProgramsSchema, hasProgramSchedulingColumns, ensureProgramPricingColumns } =
+    await import('./schema.js')
+  await ensureProgramPricingColumns(pool)
   const schema = await resolveProgramsSchema(pool)
   const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
+
+  const { normalizeProgramPricingOptions, enabledBasePricingOptions } =
+    await import('./programPricingOptions.js')
+  const { normalizeMultiClassPassPackages, enabledMultiClassPassPackages } =
+    await import('./multiClassPass.js')
 
   const columnCheck = await pool.query(
     `
@@ -25,12 +32,21 @@ export async function listPublicClassesOffered(pool, site = 'athletics') {
     SELECT
       id,
       display_name AS "displayName",
-      ${hasDescription ? 'description' : 'NULL AS description'}
+      ${hasDescription ? 'description' : 'NULL AS description'},
+      COALESCE(pricing_cost_options, '[]'::jsonb) AS "pricingCostOptions",
+      COALESCE(multi_class_pass_packages, '[]'::jsonb) AS "multiClassPassPackages"
     FROM ${schema.programsTable}
     WHERE archived = FALSE
     ORDER BY display_name ASC
     `,
   )
+
+  const programPricingById = new Map()
+  for (const row of programsResult.rows) {
+    const options = enabledBasePricingOptions(normalizeProgramPricingOptions(row.pricingCostOptions))
+    const packages = enabledMultiClassPassPackages(normalizeMultiClassPassPackages(row.multiClassPassPackages))
+    programPricingById.set(Number(row.id), { pricingCostOptions: options, multiClassPassPackages: packages })
+  }
 
   const programSelect = hasSchedCols
     ? 'pr.scheduling_enroll_sites, pr.scheduling_active,'
@@ -98,10 +114,16 @@ export async function listPublicClassesOffered(pool, site = 'athletics') {
     .map((prog) => {
       const classes = classesByProgram.get(Number(prog.id)) ?? []
       if (classes.length === 0) return null
+      const pricing = programPricingById.get(Number(prog.id)) ?? {
+        pricingCostOptions: [],
+        multiClassPassPackages: [],
+      }
       return {
         id: Number(prog.id),
         displayName: prog.displayName,
         description: prog.description ?? null,
+        pricingCostOptions: pricing.pricingCostOptions,
+        multiClassPassPackages: pricing.multiClassPassPackages,
         classes,
       }
     })
