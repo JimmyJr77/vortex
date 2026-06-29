@@ -44,6 +44,21 @@ const classEventSchema = Joi.object({
   isActive: Joi.boolean().optional(),
 })
 
+const pricingCostOptionSchema = Joi.object({
+  key: Joi.string().required(),
+  enabled: Joi.boolean().required(),
+  amountCents: Joi.number().integer().min(0).required(),
+  offeringLabel: Joi.string().valid('offering', 'event').optional().allow(null),
+}).unknown(true)
+
+const multiClassPassPackageSchema = Joi.object({
+  id: Joi.string().required(),
+  classCount: Joi.number().integer().min(1).required(),
+  priceCents: Joi.number().integer().min(0).required(),
+  enabled: Joi.boolean().required(),
+  label: Joi.string().max(200).optional().allow('', null),
+}).unknown(true)
+
 const topProgramUpdateSchema = Joi.object({
   name: Joi.string().min(1).max(100).optional(),
   displayName: Joi.string().min(1).max(255).optional(),
@@ -65,28 +80,21 @@ const topProgramUpdateSchema = Joi.object({
   pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
   pricingMaxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),
   pricingPromoCodes: Joi.array().items(Joi.string().trim().max(100)).optional(),
-  pricingCostOptions: Joi.array()
-    .items(
-      Joi.object({
-        key: Joi.string().required(),
-        enabled: Joi.boolean().required(),
-        amountCents: Joi.number().integer().min(0).required(),
-        offeringLabel: Joi.string().valid('offering', 'event').optional(),
-      }),
-    )
-    .optional(),
-  multiClassPassPackages: Joi.array()
-    .items(
-      Joi.object({
-        id: Joi.string().required(),
-        classCount: Joi.number().integer().min(1).required(),
-        priceCents: Joi.number().integer().min(0).required(),
-        enabled: Joi.boolean().required(),
-        label: Joi.string().max(200).optional(),
-      }),
-    )
-    .optional(),
+  pricingCostOptions: Joi.array().items(pricingCostOptionSchema).optional(),
+  multiClassPassPackages: Joi.array().items(multiClassPassPackageSchema).optional(),
 })
+
+/** Strip legacy/extra pricing fields before Joi validation. */
+function sanitizeTopProgramUpdateBody(body) {
+  const sanitized = { ...(body ?? {}) }
+  if (sanitized.pricingCostOptions !== undefined) {
+    sanitized.pricingCostOptions = normalizeProgramPricingOptions(sanitized.pricingCostOptions)
+  }
+  if (sanitized.multiClassPassPackages !== undefined) {
+    sanitized.multiClassPassPackages = normalizeMultiClassPassPackages(sanitized.multiClassPassPackages)
+  }
+  return sanitized
+}
 
 async function getFacilityId(pool) {
   const facilityId = await pool.query('SELECT id FROM facility LIMIT 1')
@@ -513,7 +521,8 @@ export function registerProgramsAdminRoutes(app, pool) {
 
   app.put('/api/admin/programs-top/:id', async (req, res) => {
     try {
-      const { error, value } = topProgramUpdateSchema.validate(req.body)
+      const sanitizedBody = sanitizeTopProgramUpdateBody(req.body)
+      const { error, value } = topProgramUpdateSchema.validate(sanitizedBody)
       if (error) {
         const messages = error.details.map((d) => d.message).join('; ')
         return res.status(400).json({ success: false, message: messages, errors: error.details.map((d) => d.message) })

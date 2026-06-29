@@ -167,9 +167,14 @@ export function programPricingOptionsFromProgram(program: {
   )
 }
 
-/** Serialize pricing options for API — ensures integer amountCents. */
+/** Serialize pricing options for API — canonical keys only, integer amountCents. */
 export function serializeProgramPricingOptionsForApi(
   options: ProgramPricingOption[],
 ): ProgramPricingOption[] {
-  return normalizeProgramPricingOptions(options)
+  return normalizeProgramPricingOptions(options).map(({ key, enabled, amountCents, offeringLabel }) => ({
+    key,
+    enabled,
+    amountCents,
+    ...(key === 'per_offering' ? { offeringLabel: offeringLabel ?? 'offering' } : {}),
+  }))
 }

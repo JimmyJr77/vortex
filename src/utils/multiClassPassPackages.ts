@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto'
+import { randomUUID } from './uuid'
 
 export interface MultiClassPassPackage {
   id: string
