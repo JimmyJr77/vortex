@@ -1,23 +1,24 @@
-import { lazy, Suspense, useState } from 'react'
+import { Suspense, useState } from 'react'
+import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video } from 'lucide-react'
 import HomePanel from './HomePanel'
 import PortalNavButtons from '../PortalNavButtons'
 import NotificationBell from '../NotificationBell'
 import type { PortalId } from '../../utils/portalSession'
 
-const LiveSessionPanel = lazy(() => import('./LiveSessionPanel'))
-const RosterPanel = lazy(() => import('./RosterPanel'))
-const LibraryPanel = lazy(() => import('./LibraryPanel'))
-const WorkoutBuilder = lazy(() => import('./WorkoutBuilder'))
-const NeedsEnginePanel = lazy(() => import('./NeedsEnginePanel'))
-const ProgramBuilder = lazy(() => import('./ProgramBuilder'))
-const ChallengeBuilder = lazy(() => import('./ChallengeBuilder'))
-const AssessPanel = lazy(() => import('./AssessPanel'))
-const AssignPanel = lazy(() => import('./AssignPanel'))
-const InsightsPanel = lazy(() => import('./InsightsPanel'))
-const SkillTreePanel = lazy(() => import('./SkillTreePanel'))
-const MessagesPanel = lazy(() => import('./MessagesPanel'))
-const FormReviewPanel = lazy(() => import('./FormReviewPanel'))
+const LiveSessionPanel = lazyWithRetry(() => import('./LiveSessionPanel'))
+const RosterPanel = lazyWithRetry(() => import('./RosterPanel'))
+const LibraryPanel = lazyWithRetry(() => import('./LibraryPanel'))
+const WorkoutBuilder = lazyWithRetry(() => import('./WorkoutBuilder'))
+const NeedsEnginePanel = lazyWithRetry(() => import('./NeedsEnginePanel'))
+const ProgramBuilder = lazyWithRetry(() => import('./ProgramBuilder'))
+const ChallengeBuilder = lazyWithRetry(() => import('./ChallengeBuilder'))
+const AssessPanel = lazyWithRetry(() => import('./AssessPanel'))
+const AssignPanel = lazyWithRetry(() => import('./AssignPanel'))
+const InsightsPanel = lazyWithRetry(() => import('./InsightsPanel'))
+const SkillTreePanel = lazyWithRetry(() => import('./SkillTreePanel'))
+const MessagesPanel = lazyWithRetry(() => import('./MessagesPanel'))
+const FormReviewPanel = lazyWithRetry(() => import('./FormReviewPanel'))
 
 export type CoachTab =
   | 'home'

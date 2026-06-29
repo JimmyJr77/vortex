@@ -5,6 +5,11 @@ import { deleteTopProgramCascade } from './deleteTopProgram.js'
 import { listPublicClassesOffered } from './listPublicClassesOffered.js'
 import { getProgramPrimarySportFields, setProgramPrimarySport } from './primarySport.js'
 import { mapProgramPricingFields, resetAllClassesPricingToProgram } from './pricingDefaults.js'
+import {
+  deriveLegacyPricingFromOptions,
+  normalizeProgramPricingOptions,
+  syncProgramPricingDiscountRules,
+} from './programPricingOptions.js'
 
 const disciplineTagSchema = Joi.object({
   name: Joi.string().trim().min(1).max(255).required(),
@@ -59,6 +64,16 @@ const topProgramUpdateSchema = Joi.object({
   pricingFreeSlotsPerUser: Joi.number().integer().min(0).optional(),
   pricingMaxFreeSlotsTotal: Joi.number().integer().min(0).allow(null).optional(),
   pricingPromoCodes: Joi.array().items(Joi.string().trim().max(100)).optional(),
+  pricingCostOptions: Joi.array()
+    .items(
+      Joi.object({
+        key: Joi.string().required(),
+        enabled: Joi.boolean().required(),
+        amountCents: Joi.number().integer().min(0).required(),
+        offeringLabel: Joi.string().valid('offering', 'event').optional(),
+      }),
+    )
+    .optional(),
 })
 
 async function getFacilityId(pool) {
@@ -399,7 +414,8 @@ export function registerProgramsAdminRoutes(app, pool) {
           COALESCE(p.pricing_cost_amount_cents, p.pricing_slot_cost_monthly_cents) as "pricingCostAmountCents",
           p.pricing_free_slots_per_user as "pricingFreeSlotsPerUser",
           p.pricing_max_free_slots_total as "pricingMaxFreeSlotsTotal",
-          COALESCE(p.pricing_promo_codes, '[]'::jsonb) as "pricingPromoCodes"
+          COALESCE(p.pricing_promo_codes, '[]'::jsonb) as "pricingPromoCodes",
+          COALESCE(p.pricing_cost_options, '[]'::jsonb) as "pricingCostOptions"
           ${schedCols}
         FROM ${schema.programsTable} p
         LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
@@ -582,13 +598,29 @@ export function registerProgramsAdminRoutes(app, pool) {
           ),
         )
       }
+      let normalizedPricingOptions = null
+      if (value.pricingCostOptions !== undefined) {
+        const { ensureDiscountEngineSchema } = await import('./schema.js')
+        await ensureDiscountEngineSchema(pool)
+        normalizedPricingOptions = normalizeProgramPricingOptions(value.pricingCostOptions)
+        updates.push(`pricing_cost_options = $${n++}::jsonb`)
+        values.push(JSON.stringify(normalizedPricingOptions))
+        const legacy = deriveLegacyPricingFromOptions(normalizedPricingOptions)
+        updates.push(`pricing_slot_cost_monthly_cents = $${n++}`)
+        values.push(legacy.pricingSlotCostMonthlyCents)
+        updates.push(`pricing_cost_amount_cents = $${n++}`)
+        values.push(legacy.pricingCostAmountCents)
+        updates.push(`pricing_cost_unit = $${n++}`)
+        values.push(legacy.pricingCostUnit)
+      }
       const hasPricingUpdate =
         value.pricingMaxSlotsPerUser !== undefined ||
         value.pricingSlotCostMonthlyCents !== undefined ||
         value.pricingCostUnit !== undefined ||
         value.pricingFreeSlotsPerUser !== undefined ||
         value.pricingMaxFreeSlotsTotal !== undefined ||
-        value.pricingPromoCodes !== undefined
+        value.pricingPromoCodes !== undefined ||
+        value.pricingCostOptions !== undefined
       if (updates.length === 0 && value.primarySportId === undefined && !hasPricingUpdate) {
         return res.status(400).json({ success: false, message: 'No fields to update' })
       }
@@ -648,11 +680,31 @@ export function registerProgramsAdminRoutes(app, pool) {
         }
       }
 
+      if (normalizedPricingOptions) {
+        const displayName =
+          row?.displayName ??
+          value.displayName ??
+          (
+            await pool.query(
+              `SELECT display_name FROM ${schema.programsTable} WHERE id = $1`,
+              [req.params.id],
+            )
+          ).rows[0]?.display_name ??
+          'Program'
+        await syncProgramPricingDiscountRules(
+          pool,
+          Number(req.params.id),
+          displayName,
+          normalizedPricingOptions,
+        )
+      }
+
       if (!row) {
         const fetch = await pool.query(
           `SELECT id, name, display_name as "displayName", description, archived,
             pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
-            pricing_max_free_slots_total
+            pricing_max_free_slots_total, pricing_cost_unit, pricing_cost_amount_cents,
+            COALESCE(pricing_cost_options, '[]'::jsonb) as "pricingCostOptions"
            FROM ${schema.programsTable} WHERE id = $1`,
           [req.params.id],
         )
@@ -663,11 +715,16 @@ export function registerProgramsAdminRoutes(app, pool) {
       } else {
         const pricingFetch = await pool.query(
           `SELECT pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
-                  pricing_max_free_slots_total
+                  pricing_max_free_slots_total, pricing_cost_unit, pricing_cost_amount_cents,
+                  COALESCE(pricing_cost_options, '[]'::jsonb) as "pricingCostOptions"
            FROM ${schema.programsTable} WHERE id = $1`,
           [req.params.id],
         )
-        row = { ...row, ...mapProgramPricingFields(pricingFetch.rows[0] ?? {}) }
+        row = {
+          ...row,
+          ...mapProgramPricingFields(pricingFetch.rows[0] ?? {}),
+          pricingCostOptions: pricingFetch.rows[0]?.pricingCostOptions ?? [],
+        }
       }
       const primarySport = await getProgramPrimarySportFields(pool, req.params.id)
       res.json({ success: true, data: { ...row, ...primarySport } })

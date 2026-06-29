@@ -79,8 +79,6 @@ export function registerSchedulingRoutes(app, pool) {
   app.put('/api/admin/scheduling/discount-settings', d.updateGlobalSettings)
   app.post('/api/admin/scheduling/discount-simulate', d.simulateOrder)
   app.get('/api/admin/scheduling/promo-codes', pc.listPromoCodes)
-  app.get('/api/admin/scheduling/sport-defaults', d.listSportDefaults)
-  app.put('/api/admin/scheduling/sport-defaults/:id', d.upsertSportDefault)
 
   app.get('/api/admin/scheduling/members/:memberId/pricing-summary', h.adminMemberPricingSummary)
   app.get('/api/admin/scheduling/additional-fees', f.listFees)

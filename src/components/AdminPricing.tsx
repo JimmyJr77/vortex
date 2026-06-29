@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { DollarSign } from 'lucide-react'
 import AdminPricingProgramTable from './pricing/AdminPricingProgramTable'
-import SportDefaultsPanel from './pricing/SportDefaultsPanel'
 import AdminAdditionalFeesPanel from './pricing/AdminAdditionalFeesPanel'
 import AdminDiscountsPanel from './pricing/AdminDiscountsPanel'
 import AdminFreePassesPanel from './pricing/AdminFreePassesPanel'
@@ -30,7 +29,7 @@ const AdminPricing = () => {
         </h2>
         <p className="text-gray-600 text-sm mt-1">
           Set costs and discounts, then review which rules apply to each program and class.
-          Defaults cascade from primary sport to program to class.
+          Program defaults cascade to classes unless a class overrides them.
         </p>
       </div>
 
@@ -56,7 +55,6 @@ const AdminPricing = () => {
       {tab === 'costs' && (
         <div className="space-y-4">
           <AdminAdditionalFeesPanel />
-          <SportDefaultsPanel />
           <AdminPricingProgramTable />
         </div>
       )}

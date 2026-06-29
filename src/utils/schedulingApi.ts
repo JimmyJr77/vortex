@@ -265,7 +265,7 @@ export interface FreePassAttachment {
   sortOrder: number
 }
 
-export type BenefitScopeLevel = 'sport' | 'program' | 'class'
+export type BenefitScopeLevel = 'program' | 'class'
 
 export interface PricingBenefitSelection {
   id?: number
@@ -1090,39 +1090,6 @@ export async function adminUpdateDiscountSettings(
   const res = await adminApiRequest('/api/admin/scheduling/discount-settings', {
     method: 'PUT',
     body: JSON.stringify(settings),
-  })
-  await parseJson(res)
-}
-
-export interface SportPricingDefault {
-  disciplineTagId: number
-  name: string
-  costAmountCents: number
-  costUnit: CostUnit
-  freeSlotsPerUser: number
-  maxFreeSlotsTotal: number | null
-  maxDiscountRedemptions: number | null
-  configured: boolean
-}
-
-export async function adminFetchSportDefaults(): Promise<SportPricingDefault[]> {
-  const res = await adminApiRequest('/api/admin/scheduling/sport-defaults')
-  return parseJson(res)
-}
-
-export async function adminUpsertSportDefault(
-  disciplineTagId: number,
-  input: {
-    costAmountCents: number
-    costUnit: CostUnit
-    freeSlotsPerUser: number
-    maxFreeSlotsTotal: number | null
-    maxDiscountRedemptions: number | null
-  },
-): Promise<void> {
-  const res = await adminApiRequest(`/api/admin/scheduling/sport-defaults/${disciplineTagId}`, {
-    method: 'PUT',
-    body: JSON.stringify(input),
   })
   await parseJson(res)
 }

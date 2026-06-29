@@ -19,6 +19,11 @@ import { captureUtmFromLocation } from './utils/utmCapture.ts'
 import { updateGoogleConsent } from './utils/googleAnalytics.ts'
 import { captureConsentIdFromUrl } from './utils/crossDomainConsent.ts'
 import { getStoredConsent, initCrossDomainConsent } from './utils/consent.ts'
+import { ChunkLoadErrorBoundary } from './components/ChunkLoadErrorBoundary.tsx'
+import { clearChunkReloadFlag, initChunkLoadRecovery } from './utils/chunkLoadRecovery.ts'
+
+initChunkLoadRecovery()
+clearChunkReloadFlag()
 
 initGoogleAnalyticsConsent()
 initGoogleAnalyticsLinker()
@@ -75,36 +80,42 @@ const stubPreview = stubSite
 if (stubSite?.key === 'gymnastics') {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <HelmetProvider>
-        <BrowserRouter>
-          <GymnasticsApp isPreview={stubPreview} />
-        </BrowserRouter>
-      </HelmetProvider>
+      <ChunkLoadErrorBoundary>
+        <HelmetProvider>
+          <BrowserRouter>
+            <GymnasticsApp isPreview={stubPreview} />
+          </BrowserRouter>
+        </HelmetProvider>
+      </ChunkLoadErrorBoundary>
     </StrictMode>,
   )
 } else if (stubSite) {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <HelmetProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/enroll" element={<SchedulingPage />} />
-            <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
-            <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
-            <Route path="*" element={<ComingSoon config={stubSite} isPreview={stubPreview} />} />
-          </Routes>
-        </BrowserRouter>
-      </HelmetProvider>
+      <ChunkLoadErrorBoundary>
+        <HelmetProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/enroll" element={<SchedulingPage />} />
+              <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
+              <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
+              <Route path="*" element={<ComingSoon config={stubSite} isPreview={stubPreview} />} />
+            </Routes>
+          </BrowserRouter>
+        </HelmetProvider>
+      </ChunkLoadErrorBoundary>
     </StrictMode>,
   )
 } else {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <HelmetProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </HelmetProvider>
+      <ChunkLoadErrorBoundary>
+        <HelmetProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </HelmetProvider>
+      </ChunkLoadErrorBoundary>
     </StrictMode>,
   )
 }

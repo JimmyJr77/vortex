@@ -1,4 +1,5 @@
-import { lazy, Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
+import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import GymnasticsHeader from './GymnasticsHeader'
 import GymnasticsSeo from './GymnasticsSeo'
@@ -21,35 +22,35 @@ import {
   type PortalId,
 } from '../../utils/portalSession'
 
-const GymnasticsPage = lazy(() => import('./pages/GymnasticsPage'))
-const ArtisticGymnasticsEarlyLandingPage = lazy(
+const GymnasticsPage = lazyWithRetry(() => import('./pages/GymnasticsPage'))
+const ArtisticGymnasticsEarlyLandingPage = lazyWithRetry(
   () => import('./pages/ArtisticGymnasticsEarlyLandingPage'),
 )
-const ArtisticGymnasticsAges6to12LandingPage = lazy(
+const ArtisticGymnasticsAges6to12LandingPage = lazyWithRetry(
   () => import('./pages/ArtisticGymnasticsAges6to12LandingPage'),
 )
-const ArtisticGymnasticsAges13to18LandingPage = lazy(
+const ArtisticGymnasticsAges13to18LandingPage = lazyWithRetry(
   () => import('./pages/ArtisticGymnasticsAges13to18LandingPage'),
 )
-const GymnasticsReadBoardPage = lazy(() => import('./pages/GymnasticsReadBoardPage'))
-const SummerCamp2026LandingPage = lazy(
+const GymnasticsReadBoardPage = lazyWithRetry(() => import('./pages/GymnasticsReadBoardPage'))
+const SummerCamp2026LandingPage = lazyWithRetry(
   () => import('./pages/SummerCamp2026LandingPage'),
 )
-const CampInterestPage = lazy(() => import('./pages/CampInterestPage'))
-const CampInterestThankYouPage = lazy(() => import('./pages/CampInterestThankYouPage'))
-const SchedulingPage = lazy(() => import('../../components/SchedulingPage'))
-const AcroGymnasticsPage = lazy(() => import('./pages/AcroGymnasticsPage'))
-const ArtisticGymnasticsDisciplinePage = lazy(
+const CampInterestPage = lazyWithRetry(() => import('./pages/CampInterestPage'))
+const CampInterestThankYouPage = lazyWithRetry(() => import('./pages/CampInterestThankYouPage'))
+const SchedulingPage = lazyWithRetry(() => import('../../components/SchedulingPage'))
+const AcroGymnasticsPage = lazyWithRetry(() => import('./pages/AcroGymnasticsPage'))
+const ArtisticGymnasticsDisciplinePage = lazyWithRetry(
   () => import('./pages/ArtisticGymnasticsDisciplinePage'),
 )
-const RhythmicGymnasticsPage = lazy(() => import('./pages/RhythmicGymnasticsPage'))
-const TrampolineTumblingGymnasticsPage = lazy(
+const RhythmicGymnasticsPage = lazyWithRetry(() => import('./pages/RhythmicGymnasticsPage'))
+const TrampolineTumblingGymnasticsPage = lazyWithRetry(
   () => import('./pages/TrampolineTumblingGymnasticsPage'),
 )
-const AerobicGymnasticsPage = lazy(() => import('./pages/AerobicGymnasticsPage'))
-const MemberDashboard = lazy(() => import('../../components/MemberDashboard'))
-const CoachDashboard = lazy(() => import('../../components/CoachDashboard'))
-const Admin = lazy(() => import('../../components/Admin'))
+const AerobicGymnasticsPage = lazyWithRetry(() => import('./pages/AerobicGymnasticsPage'))
+const MemberDashboard = lazyWithRetry(() => import('../../components/MemberDashboard'))
+const CoachDashboard = lazyWithRetry(() => import('../../components/CoachDashboard'))
+const Admin = lazyWithRetry(() => import('../../components/Admin'))
 
 function PageLoader() {
   return (

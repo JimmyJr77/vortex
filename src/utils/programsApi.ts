@@ -1,5 +1,6 @@
 import { type EnrollSiteKey } from '../config/enrollSites'
 import { type CostUnit } from './schedulingApi'
+import { type ProgramPricingOption } from './programPricingOptions'
 import { adminApiRequest } from './api'
 import {
   adaptProgramSchedulingUpdateForApi,
@@ -21,6 +22,7 @@ export interface TopProgram {
   pricingFreeSlotsPerUser?: number
   pricingMaxFreeSlotsTotal?: number | null
   pricingPromoCodes?: string[]
+  pricingCostOptions?: ProgramPricingOption[]
   archived: boolean
   schedulingActive?: boolean
   schedulingEnrollSites?: EnrollSiteKey[]
@@ -133,6 +135,7 @@ export async function updateTopProgram(
     pricingFreeSlotsPerUser: number
     pricingMaxFreeSlotsTotal: number | null
     pricingPromoCodes: string[]
+    pricingCostOptions: ProgramPricingOption[]
   }>,
 ): Promise<TopProgram> {
   const capabilities = await getSchedulingEnrollApiCapabilities()

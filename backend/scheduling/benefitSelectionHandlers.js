@@ -15,7 +15,7 @@ const selectionItemSchema = Joi.object({
 })
 
 const saveSchema = Joi.object({
-  scopeLevel: Joi.string().valid('sport', 'program', 'class').required(),
+  scopeLevel: Joi.string().valid('program', 'class').required(),
   scopeRefId: Joi.number().integer().required(),
   selections: Joi.array().items(selectionItemSchema).required(),
 })

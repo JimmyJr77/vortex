@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { updateTopProgram, resetProgramClassesPricing, type TopProgram } from '../../utils/programsApi'
 import type { AdminProgramPricing } from '../../utils/programsApi'
-import PricingCostsFields, {
-  pricingValuesFromProgram,
-  type PricingCostsValues,
-} from './PricingCostsFields'
+import {
+  normalizeProgramPricingOptions,
+  programPricingOptionsFromProgram,
+  type ProgramPricingOption,
+} from '../../utils/programPricingOptions'
+import ProgramPricingOptionsFields from './ProgramPricingOptionsFields'
 import AdminPricingClassTable from './AdminPricingClassTable'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
 import PricingBenefitSelectionField from './PricingBenefitSelectionField'
@@ -17,7 +19,9 @@ interface Props {
 }
 
 const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
-  const [values, setValues] = useState<PricingCostsValues>(() => pricingValuesFromProgram(program))
+  const [options, setOptions] = useState<ProgramPricingOption[]>(() =>
+    programPricingOptionsFromProgram(program),
+  )
   const [saving, setSaving] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,7 +29,7 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
   const [confirmResetAll, setConfirmResetAll] = useState(false)
 
   useEffect(() => {
-    setValues(pricingValuesFromProgram(program))
+    setOptions(programPricingOptionsFromProgram(program))
     setSaved(false)
     setError(null)
   }, [program])
@@ -38,11 +42,9 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
     setSaved(false)
     try {
       await updateTopProgram(program.id, {
-        pricingSlotCostMonthlyCents: values.slotCostMonthlyCents,
-        pricingCostUnit: values.costUnit,
-        pricingFreeSlotsPerUser: values.freeSlotsPerUser,
-        pricingMaxFreeSlotsTotal:
-          values.maxFreeSlotsTotal === '' ? null : Number(values.maxFreeSlotsTotal),
+        pricingCostOptions: normalizeProgramPricingOptions(options),
+        pricingFreeSlotsPerUser: 0,
+        pricingMaxFreeSlotsTotal: null,
       })
       await onRefresh()
       setSaved(true)
@@ -72,17 +74,12 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
       <div>
         <h4 className="text-base font-bold text-black mb-1">Program default pricing</h4>
         <p className="text-sm text-gray-600">
-          Default strategy for all classes under {program.displayName}. Classes inherit these
-          settings unless overridden.
+          Choose which cost options families can select for classes under {program.displayName}.
+          Classes inherit these settings unless overridden.
         </p>
       </div>
 
-      <PricingCostsFields
-        values={values}
-        onChange={setValues}
-        totalFreeSlotsLabel="Total free slots (program-wide)"
-        totalFreeSlotsHelp="Leave empty for unlimited. Caps free slots across all classes and members in this program."
-      />
+      <ProgramPricingOptionsFields options={options} onChange={setOptions} />
 
       <PricingBenefitSelectionField
         scopeLevel="program"

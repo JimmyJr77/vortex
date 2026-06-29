@@ -123,6 +123,11 @@ export async function ensureProgramPricingColumns(pool) {
   const sql = fs.readFileSync(migrationPath, 'utf8')
   await pool.query(sql)
   programPricingReady = true
+
+  const costOptionsPath = path.join(__dirname, '../migrations/048_program_pricing_cost_options.sql')
+  if (fs.existsSync(costOptionsPath)) {
+    await pool.query(fs.readFileSync(costOptionsPath, 'utf8'))
+  }
 }
 
 let discountEngineReady = false

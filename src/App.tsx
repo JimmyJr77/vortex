@@ -1,4 +1,5 @@
-import { lazy, Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
+import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import Header from './components/Header'
 import HubSeo from './components/HubSeo'
@@ -22,21 +23,21 @@ import { useSiteHighlights } from './hooks/useSiteHighlights'
 import HighlightsModal from './components/HighlightsModal'
 
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
-const HomePage = lazy(() => import('./components/HomePage'))
-const AthleticismAccelerator = lazy(() => import('./components/AthleticismAccelerator'))
-const SummerAthleticTraining = lazy(() => import('./components/SummerAthleticTraining'))
-const StrengthFitness = lazy(() => import('./components/StrengthFitness'))
-const Ninja = lazy(() => import('./components/Ninja'))
-const Value = lazy(() => import('./components/Value'))
-const ReadBoard = lazy(() => import('./components/ReadBoard'))
-const SchedulingPage = lazy(() => import('./components/SchedulingPage'))
-const SignupFamilyPage = lazy(() => import('./components/signup/SignupFamilyPage'))
-const SignupInvitePage = lazy(() => import('./components/signup/SignupInvitePage'))
-const VerifyEmailPage = lazy(() => import('./components/VerifyEmailPage'))
-const EnrollmentReceiptPage = lazy(() => import('./components/EnrollmentReceiptPage'))
-const Admin = lazy(() => import('./components/Admin'))
-const MemberDashboard = lazy(() => import('./components/MemberDashboard'))
-const CoachDashboard = lazy(() => import('./components/CoachDashboard'))
+const HomePage = lazyWithRetry(() => import('./components/HomePage'))
+const AthleticismAccelerator = lazyWithRetry(() => import('./components/AthleticismAccelerator'))
+const SummerAthleticTraining = lazyWithRetry(() => import('./components/SummerAthleticTraining'))
+const StrengthFitness = lazyWithRetry(() => import('./components/StrengthFitness'))
+const Ninja = lazyWithRetry(() => import('./components/Ninja'))
+const Value = lazyWithRetry(() => import('./components/Value'))
+const ReadBoard = lazyWithRetry(() => import('./components/ReadBoard'))
+const SchedulingPage = lazyWithRetry(() => import('./components/SchedulingPage'))
+const SignupFamilyPage = lazyWithRetry(() => import('./components/signup/SignupFamilyPage'))
+const SignupInvitePage = lazyWithRetry(() => import('./components/signup/SignupInvitePage'))
+const VerifyEmailPage = lazyWithRetry(() => import('./components/VerifyEmailPage'))
+const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/EnrollmentReceiptPage'))
+const Admin = lazyWithRetry(() => import('./components/Admin'))
+const MemberDashboard = lazyWithRetry(() => import('./components/MemberDashboard'))
+const CoachDashboard = lazyWithRetry(() => import('./components/CoachDashboard'))
 
 function PageLoader() {
   return (

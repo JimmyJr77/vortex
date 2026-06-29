@@ -6,7 +6,10 @@ import {
   type AdminProgramPricing,
   type TopProgram,
 } from '../../utils/programsApi'
-import { formatSchedulingCosts } from '../../utils/classSchedulingSummary'
+import {
+  formatProgramPricingOptionsSummary,
+  programPricingOptionsFromProgram,
+} from '../../utils/programPricingOptions'
 import AdminPricingProgramPanel from './AdminPricingProgramPanel'
 
 const thClass = 'px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'
@@ -114,11 +117,9 @@ const AdminPricingProgramTable = () => {
                 >
                   <td className={`${tdClass} font-medium`}>{program.displayName}</td>
                   <td className={tdClass}>
-                    {formatSchedulingCosts({
-                      slotCostMonthlyCents: program.pricingSlotCostMonthlyCents,
-                      freeSlotsPerUser: program.pricingFreeSlotsPerUser,
-                      maxFreeSlotsTotal: program.pricingMaxFreeSlotsTotal,
-                    })}
+                    {formatProgramPricingOptionsSummary(
+                      programPricingOptionsFromProgram(program),
+                    )}
                   </td>
                   <td className={tdClass}>{stats.classCount}</td>
                   <td className={tdClass}>{stats.overrideCount}</td>

@@ -1,6 +1,6 @@
 /**
  * Cost-level benefit selections: wire discount rules and free passes at
- * sport / program / class from Pricing → Costs.
+ * program / class from Pricing → Costs.
  */
 
 export function mapBenefitSelectionRow(r) {
@@ -61,16 +61,15 @@ export async function saveBenefitSelectionsForScope(pool, scopeLevel, scopeRefId
   return loadBenefitSelectionsForScope(pool, scopeLevel, scopeRefId)
 }
 
-const SCOPE_PRIORITY = { class: 3, program: 2, sport: 1 }
+const SCOPE_PRIORITY = { class: 2, program: 1 }
 
 /**
- * Collect selections from class → program → sport (most specific wins per benefit).
+ * Collect selections from class → program (most specific wins per benefit).
  */
-export async function resolveBenefitSelectionsForLine(pool, { sportId, programId, formId }) {
+export async function resolveBenefitSelectionsForLine(pool, { programId, formId }) {
   const scopeQueries = []
   if (formId != null) scopeQueries.push({ level: 'class', refId: Number(formId) })
   if (programId != null) scopeQueries.push({ level: 'program', refId: Number(programId) })
-  if (sportId != null) scopeQueries.push({ level: 'sport', refId: Number(sportId) })
 
   if (scopeQueries.length === 0) {
     return emptyResolved()

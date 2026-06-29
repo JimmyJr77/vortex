@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
+import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { GraduationCap, PlayCircle, Users, Dumbbell } from 'lucide-react'
@@ -18,8 +19,8 @@ import {
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
 import HighlightsModal from '../HighlightsModal'
 
-const Admin = lazy(() => import('../Admin'))
-const MemberDashboard = lazy(() => import('../MemberDashboard'))
+const Admin = lazyWithRetry(() => import('../Admin'))
+const MemberDashboard = lazyWithRetry(() => import('../MemberDashboard'))
 
 function AdminLoader() {
   return (
