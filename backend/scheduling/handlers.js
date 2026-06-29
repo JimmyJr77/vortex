@@ -935,14 +935,14 @@ function sanitizeOfferingBody(body = {}) {
 
 const offeringSchema = Joi.object({
   startDate: Joi.string().required(),
-  evergreen: Joi.boolean().optional().default(false),
+  evergreen: Joi.boolean().valid(true).optional(),
   endDate: Joi.string().allow('', null).optional(),
   label: Joi.string().max(255).allow('', null).optional(),
 })
 
 const offeringUpdateSchema = Joi.object({
   startDate: Joi.string().optional(),
-  evergreen: Joi.boolean().optional(),
+  evergreen: Joi.boolean().valid(true).optional(),
   endDate: Joi.string().allow('', null).optional(),
   label: Joi.string().max(255).allow('', null).optional(),
 })

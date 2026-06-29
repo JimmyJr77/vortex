@@ -73,15 +73,16 @@ const AdminSchedulingOfferings = ({
     try {
       const payload: {
         startDate: string
-        evergreen: boolean
         label: string | null
+        evergreen?: boolean
         endDate?: string
       } = {
         startDate: draft.startDate,
-        evergreen: durationMode === 'evergreen',
         label: draft.label || null,
       }
-      if (durationMode === 'session') {
+      if (durationMode === 'evergreen') {
+        payload.evergreen = true
+      } else {
         payload.endDate = draft.endDate
       }
       if (editId) {
