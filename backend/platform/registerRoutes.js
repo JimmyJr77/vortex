@@ -1662,8 +1662,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: created.rows[0] })
   })
 
-  })
-
   app.get('/api/members/multi-class-passes', authMiddleware(pool, jwtSecret), async (req, res) => {
     try {
       const ctx = req.platformAuth
