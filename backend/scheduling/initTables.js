@@ -289,7 +289,7 @@ export async function initSchedulingTables(pool) {
       id           BIGSERIAL PRIMARY KEY,
       form_id      BIGINT NOT NULL REFERENCES scheduling_form(id) ON DELETE CASCADE,
       start_date   DATE NOT NULL,
-      end_date     DATE NOT NULL,
+      end_date     DATE,
       label        VARCHAR(255),
       is_selected  BOOLEAN NOT NULL DEFAULT FALSE,
       created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -318,6 +318,15 @@ export async function initSchedulingTables(pool) {
       await pool.query(fs.readFileSync(offeringsMigration, 'utf8'))
     } catch (err) {
       console.warn('[scheduling] offerings migration:', err.message)
+    }
+  }
+
+  const offeringEvergreenMigration = path.join(__dirname, '../migrations/050_scheduling_offering_evergreen.sql')
+  if (fs.existsSync(offeringEvergreenMigration)) {
+    try {
+      await pool.query(fs.readFileSync(offeringEvergreenMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] offering evergreen migration:', err.message)
     }
   }
 

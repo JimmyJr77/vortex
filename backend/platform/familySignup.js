@@ -376,6 +376,8 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
         starts.sort()[0],
         ends.sort().reverse()[0],
       )
+    } else if (starts.length) {
+      classActiveDates = formatSignupDateRange(starts.sort()[0], null)
     }
   }
 

@@ -121,7 +121,7 @@ export function resolveEnrollmentOfferingDisplay(row) {
 
   let offeringDates = '—'
   if (startLabel && endLabel) offeringDates = `${startLabel} – ${endLabel}`
-  else if (startLabel) offeringDates = `From ${startLabel}`
+  else if (startLabel) offeringDates = `From ${startLabel} · Ongoing`
   else if (endLabel) offeringDates = `Until ${endLabel}`
 
   return {

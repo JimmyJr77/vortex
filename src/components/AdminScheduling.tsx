@@ -14,6 +14,7 @@ import {
   type SchedulingSignup,
   type SchedulingOrphanedSignup,
   type SchedulingOffering,
+  formatOfferingDateRange,
 } from '../utils/schedulingApi'
 import ProgramsSection from './programs/ProgramsSection'
 import {
@@ -240,9 +241,7 @@ const AdminScheduling = ({
 
   const offeringDisplayName =
     selectedOffering?.label?.trim() ||
-    (selectedOffering?.startDate && selectedOffering?.endDate
-      ? `${selectedOffering.startDate} – ${selectedOffering.endDate}`
-      : null)
+    (selectedOffering ? formatOfferingDateRange(selectedOffering) : null)
 
   const handleProgramSaved = (updated: TopProgram) => {
     setTopPrograms((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))

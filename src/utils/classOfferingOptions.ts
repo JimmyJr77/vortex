@@ -1,6 +1,7 @@
 import {
   adminFetchOfferings,
   adminFetchSchedulingForms,
+  formatOfferingDateRange,
 } from './schedulingApi'
 import { fetchDisciplineTags } from './programsApi'
 
@@ -9,7 +10,7 @@ export interface ClassOfferingOption {
   formId: number
   formTitle: string
   startDate: string
-  endDate: string
+  endDate: string | null
   label: string
 }
 
@@ -22,8 +23,12 @@ export function todayDateString(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-/** Offering end date is today or later (current or upcoming session). */
-export function isActiveOrUpcomingOffering(endDate: string, today = todayDateString()): boolean {
+/** Offering end date is today or later, or evergreen with no end date. */
+export function isActiveOrUpcomingOffering(
+  endDate: string | null | undefined,
+  today = todayDateString(),
+): boolean {
+  if (!endDate) return true
   return endDate >= today
 }
 
@@ -60,7 +65,7 @@ export async function loadClassOfferingOptions(): Promise<ClassOfferingOption[]>
           formTitle: form.title,
           startDate: o.startDate,
           endDate: o.endDate,
-          label: o.label?.trim() || `${o.startDate} – ${o.endDate}`,
+          label: o.label?.trim() || formatOfferingDateRange(o),
         }))
       } catch {
         return []

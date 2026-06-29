@@ -554,11 +554,13 @@ async function resolveSignupEntryForInsert(pool, entry) {
 }
 
 function mapOfferingRow(row) {
+  const endDate = row.end_date ? formatDateOnly(row.end_date) : null
   return {
     id: Number(row.id),
     formId: Number(row.form_id),
     startDate: formatDateOnly(row.start_date),
-    endDate: formatDateOnly(row.end_date),
+    endDate,
+    evergreen: endDate == null,
     label: row.label,
     isSelected: Boolean(row.is_selected),
     createdAt: row.created_at,
@@ -925,13 +927,23 @@ const formSchema = Joi.object({
 
 const offeringSchema = Joi.object({
   startDate: Joi.string().required(),
-  endDate: Joi.string().required(),
+  evergreen: Joi.boolean().optional().default(false),
+  endDate: Joi.when('evergreen', {
+    is: true,
+    then: Joi.string().allow('', null).optional(),
+    otherwise: Joi.string().required(),
+  }),
   label: Joi.string().max(255).allow('', null).optional(),
 })
 
 const offeringUpdateSchema = Joi.object({
   startDate: Joi.string().optional(),
-  endDate: Joi.string().optional(),
+  evergreen: Joi.boolean().optional(),
+  endDate: Joi.when('evergreen', {
+    is: true,
+    then: Joi.string().allow('', null).optional(),
+    otherwise: Joi.string().optional(),
+  }),
   label: Joi.string().max(255).allow('', null).optional(),
 })
 
@@ -2877,9 +2889,13 @@ export function createSchedulingHandlers(pool) {
         }
         const formId = Number(req.params.formId)
         const startDate = formatDateOnly(value.startDate)
-        const endDate = formatDateOnly(value.endDate)
-        if (!startDate || !endDate) {
-          return res.status(400).json({ success: false, message: 'Invalid start or end date' })
+        const evergreen = Boolean(value.evergreen)
+        const endDate = evergreen ? null : formatDateOnly(value.endDate)
+        if (!startDate) {
+          return res.status(400).json({ success: false, message: 'Invalid start date' })
+        }
+        if (!evergreen && !endDate) {
+          return res.status(400).json({ success: false, message: 'Invalid end date' })
         }
         const countRes = await pool.query(
           'SELECT COUNT(*)::int AS c FROM scheduling_offering WHERE form_id = $1',
@@ -2914,7 +2930,9 @@ export function createSchedulingHandlers(pool) {
           updates.push(`start_date = $${n++}`)
           vals.push(formatDateOnly(value.startDate))
         }
-        if (value.endDate !== undefined) {
+        if (value.evergreen === true) {
+          updates.push('end_date = NULL')
+        } else if (value.endDate !== undefined) {
           updates.push(`end_date = $${n++}`)
           vals.push(formatDateOnly(value.endDate))
         }

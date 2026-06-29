@@ -3,6 +3,7 @@ import {
   adminFetchSchedulingForm,
   buildSchedulingSignupUrl,
   dayAbbrev,
+  formatOfferingDateRange,
   type SchedulingFormDetail,
   type SchedulingOffering,
   type SchedulingSlotGroup,
@@ -60,7 +61,7 @@ export function schedulingSignupUrl(formId: number): string {
 
 export function formatOfferingDates(offering: SchedulingOffering): string {
   const label = offering.label ? `${offering.label}: ` : ''
-  return `${label}${offering.startDate} → ${offering.endDate}`
+  return `${label}${formatOfferingDateRange(offering)}`
 }
 
 export function formatSlotOccurrence(group: SchedulingSlotGroup): string {

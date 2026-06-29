@@ -6,9 +6,12 @@ import {
   adminFetchOfferings,
   adminSelectOffering,
   adminUpdateOffering,
+  formatOfferingDateRange,
   type SchedulingOffering,
 } from '../../utils/schedulingApi'
 import { dateInputValue } from '../../utils/dateUtils'
+
+type DurationMode = 'session' | 'evergreen'
 
 interface Props {
   formId: number
@@ -28,6 +31,7 @@ const AdminSchedulingOfferings = ({
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [editId, setEditId] = useState<number | null>(null)
+  const [durationMode, setDurationMode] = useState<DurationMode>('session')
   const [draft, setDraft] = useState({ startDate: '', endDate: '', label: '' })
 
   const loadOfferings = useCallback(async () => {
@@ -55,26 +59,28 @@ const AdminSchedulingOfferings = ({
 
   const resetDraft = () => {
     setDraft({ startDate: '', endDate: '', label: '' })
+    setDurationMode('session')
     setEditId(null)
   }
 
+  const canSave =
+    Boolean(draft.startDate) && (durationMode === 'evergreen' || Boolean(draft.endDate))
+
   const handleSave = async () => {
-    if (!draft.startDate || !draft.endDate) return
+    if (!canSave) return
     setSaving(true)
     setError(null)
     try {
+      const payload = {
+        startDate: draft.startDate,
+        evergreen: durationMode === 'evergreen',
+        endDate: durationMode === 'evergreen' ? null : draft.endDate,
+        label: draft.label || null,
+      }
       if (editId) {
-        await adminUpdateOffering(editId, {
-          startDate: draft.startDate,
-          endDate: draft.endDate,
-          label: draft.label || null,
-        })
+        await adminUpdateOffering(editId, payload)
       } else {
-        await adminCreateOffering(formId, {
-          startDate: draft.startDate,
-          endDate: draft.endDate,
-          label: draft.label || null,
-        })
+        await adminCreateOffering(formId, payload)
       }
       resetDraft()
       await loadOfferings()
@@ -100,7 +106,8 @@ const AdminSchedulingOfferings = ({
   }
 
   const handleDelete = async (offering: SchedulingOffering) => {
-    if (!confirm(`Delete offering "${offering.label || `${offering.startDate} – ${offering.endDate}`}"?`)) {
+    const datesLabel = formatOfferingDateRange(offering)
+    if (!confirm(`Delete offering "${offering.label || datesLabel}"?`)) {
       return
     }
     setSaving(true)
@@ -116,12 +123,32 @@ const AdminSchedulingOfferings = ({
   }
 
   const startEdit = (offering: SchedulingOffering) => {
+    const evergreen = offering.evergreen || !offering.endDate
     setEditId(offering.id)
+    setDurationMode(evergreen ? 'evergreen' : 'session')
     setDraft({
       startDate: dateInputValue(offering.startDate) || offering.startDate,
-      endDate: dateInputValue(offering.endDate) || offering.endDate,
+      endDate: evergreen ? '' : dateInputValue(offering.endDate ?? '') || offering.endDate || '',
       label: offering.label || '',
     })
+  }
+
+  const durationBtn = (mode: DurationMode, label: string, hint: string) => {
+    const active = durationMode === mode
+    return (
+      <button
+        type="button"
+        onClick={() => setDurationMode(mode)}
+        className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
+          active
+            ? 'border-vortex-red bg-red-50 text-gray-900 ring-1 ring-vortex-red'
+            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+        }`}
+      >
+        <span className="font-semibold block">{label}</span>
+        <span className="text-xs text-gray-500">{hint}</span>
+      </button>
+    )
   }
 
   return (
@@ -132,9 +159,18 @@ const AdminSchedulingOfferings = ({
         {editId != null && (
           <p className="text-sm font-semibold text-gray-800">Editing offering</p>
         )}
-        <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-semibold mb-2">Offering type</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {durationBtn('session', 'Session dates', 'Fixed start and end dates')}
+            {durationBtn('evergreen', 'Evergreen class', 'No end date — runs ongoing')}
+          </div>
+        </div>
+        <div className={`grid gap-3 ${durationMode === 'session' ? 'grid-cols-2' : 'grid-cols-1'}`}>
           <div>
-            <label className="block text-xs font-semibold mb-1">Start date</label>
+            <label className="block text-xs font-semibold mb-1">
+              {durationMode === 'evergreen' ? 'Starts on' : 'Start date'}
+            </label>
             <input
               type="date"
               value={draft.startDate}
@@ -142,15 +178,17 @@ const AdminSchedulingOfferings = ({
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
           </div>
-          <div>
-            <label className="block text-xs font-semibold mb-1">End date</label>
-            <input
-              type="date"
-              value={draft.endDate}
-              onChange={(e) => setDraft((d) => ({ ...d, endDate: e.target.value }))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
+          {durationMode === 'session' && (
+            <div>
+              <label className="block text-xs font-semibold mb-1">End date</label>
+              <input
+                type="date"
+                value={draft.endDate}
+                onChange={(e) => setDraft((d) => ({ ...d, endDate: e.target.value }))}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              />
+            </div>
+          )}
         </div>
         <div>
           <label className="block text-xs font-semibold mb-1">Label (optional)</label>
@@ -158,7 +196,7 @@ const AdminSchedulingOfferings = ({
             type="text"
             value={draft.label}
             onChange={(e) => setDraft((d) => ({ ...d, label: e.target.value }))}
-            placeholder="e.g. Summer 2026"
+            placeholder={durationMode === 'evergreen' ? 'e.g. Year-round enrollment' : 'e.g. Summer 2026'}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
           />
         </div>
@@ -170,8 +208,8 @@ const AdminSchedulingOfferings = ({
           )}
           <button
             type="button"
-            onClick={handleSave}
-            disabled={saving || !draft.startDate || !draft.endDate}
+            onClick={() => void handleSave()}
+            disabled={saving || !canSave}
             className="px-4 py-1.5 text-sm bg-vortex-red text-white rounded-lg disabled:opacity-50 inline-flex items-center gap-2"
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -210,14 +248,12 @@ const AdminSchedulingOfferings = ({
                         type="radio"
                         name="selected-offering"
                         checked={isChecked}
-                        onChange={() => handleSelect(o)}
+                        onChange={() => void handleSelect(o)}
                         disabled={saving}
                         title="Select for slot building"
                       />
                     </td>
-                    <td className="py-2 px-4">
-                      {o.startDate} – {o.endDate}
-                    </td>
+                    <td className="py-2 px-4">{formatOfferingDateRange(o)}</td>
                     <td className="py-2 px-4 text-gray-600">{o.label || '—'}</td>
                     <td className="py-2 px-4">
                       <div className="flex gap-1">
@@ -232,7 +268,7 @@ const AdminSchedulingOfferings = ({
                         <button
                           type="button"
                           className={`${iconBtn} hover:text-red-700`}
-                          onClick={() => handleDelete(o)}
+                          onClick={() => void handleDelete(o)}
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />

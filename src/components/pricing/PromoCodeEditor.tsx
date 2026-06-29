@@ -5,6 +5,7 @@ import type { DiscountRule, DiscountRuleInput } from '../../utils/schedulingApi'
 import {
   adminFetchOfferings,
   adminFetchSchedulingForms,
+  formatOfferingDateRange,
 } from '../../utils/schedulingApi'
 import {
   AMOUNT_APPLIES_LABELS,
@@ -272,7 +273,7 @@ const PromoCodeEditor = ({ open, rule, onSave, onClose }: Props) => {
             offeringOpts.push({
               id: o.id,
               formTitle: f.title,
-              label: o.label?.trim() || `${o.startDate} – ${o.endDate}`,
+              label: o.label?.trim() || formatOfferingDateRange(o),
             })
           }
         } catch {

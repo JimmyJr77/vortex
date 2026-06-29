@@ -54,6 +54,16 @@ test('resolveEnrollmentOfferingDisplay formats offering date range', async () =>
   assert.match(result.offering_dates, /Aug 15, 2025/)
 })
 
+test('resolveEnrollmentOfferingDisplay shows ongoing when no end date', async () => {
+  const { resolveEnrollmentOfferingDisplay } = await import('../slotDisplayLabel.js')
+  const result = resolveEnrollmentOfferingDisplay({
+    offering_start_date: '2025-06-02',
+    offering_end_date: null,
+  })
+  assert.match(result.offering_dates, /Jun 2, 2025/)
+  assert.match(result.offering_dates, /Ongoing/)
+})
+
 test('resolveEnrollmentOfferingDisplay falls back to slot group active dates', async () => {
   const { resolveEnrollmentOfferingDisplay } = await import('../slotDisplayLabel.js')
   const result = resolveEnrollmentOfferingDisplay({

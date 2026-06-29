@@ -381,6 +381,9 @@ function monthBoundsForOffering(offering) {
   const monthEnd = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
   if (!offering) return { startDate: monthStart, endDate: monthEnd }
   const startDate = offering.startDate > monthStart ? offering.startDate : monthStart
+  if (!offering.endDate) {
+    return { startDate, endDate: monthEnd }
+  }
   const endDate = offering.endDate < monthEnd ? offering.endDate : monthEnd
   if (startDate > endDate) return { startDate: offering.startDate, endDate: offering.endDate }
   return { startDate, endDate }

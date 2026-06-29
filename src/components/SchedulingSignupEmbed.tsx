@@ -8,6 +8,7 @@ import {
   fetchPublicSchedulingForm,
   fetchPublicSchedulingOfferings,
   fetchSignupOrderPreview,
+  formatOfferingDateRange,
   formatSchedulingOccurrenceLabel,
   loginSchedulingAuth,
   loginSchedulingAuthFromMemberSession,
@@ -1109,12 +1110,7 @@ const SchedulingSignupEmbed = ({
     if (offeringId == null) return null
     const offering = formOfferings.find((item) => item.id === offeringId)
     if (!offering) return null
-    return (
-      offering.label?.trim() ||
-      (offering.startDate && offering.endDate
-        ? `${offering.startDate} – ${offering.endDate}`
-        : offering.startDate || offering.endDate || 'Offering')
-    )
+    return offering.label?.trim() || formatOfferingDateRange(offering)
   }, [formOfferings, offeringId])
 
   const selectedGroup = useMemo(
@@ -1543,11 +1539,8 @@ const SchedulingSignupEmbed = ({
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {formOfferings.map((offering) => {
-                const label =
-                  offering.label?.trim() ||
-                  (offering.startDate && offering.endDate
-                    ? `${offering.startDate} – ${offering.endDate}`
-                    : offering.startDate || offering.endDate || 'Offering')
+                const label = offering.label?.trim() || formatOfferingDateRange(offering)
+                const datesLine = formatOfferingDateRange(offering)
                 return (
                   <button
                     key={offering.id}
@@ -1556,10 +1549,8 @@ const SchedulingSignupEmbed = ({
                     className="text-left rounded-xl border-2 p-3 border-gray-200 hover:border-vortex-red transition-all"
                   >
                     <span className="font-bold text-black block text-sm">{label}</span>
-                    {offering.label && offering.startDate && offering.endDate && (
-                      <span className="text-xs text-gray-600 mt-1 block">
-                        {offering.startDate} – {offering.endDate}
-                      </span>
+                    {offering.label && datesLine && (
+                      <span className="text-xs text-gray-600 mt-1 block">{datesLine}</span>
                     )}
                   </button>
                 )

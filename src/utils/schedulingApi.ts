@@ -1482,11 +1482,25 @@ export interface SchedulingOffering {
   id: number
   formId: number
   startDate: string
-  endDate: string
+  endDate: string | null
+  evergreen?: boolean
   label: string | null
   isSelected: boolean
   createdAt: string
   updatedAt: string
+}
+
+export function formatOfferingDateRange(offering: {
+  startDate: string
+  endDate?: string | null
+  evergreen?: boolean
+  label?: string | null
+}): string {
+  const evergreen = offering.evergreen || !offering.endDate
+  if (evergreen) {
+    return offering.startDate ? `${offering.startDate} · Ongoing` : 'Ongoing'
+  }
+  return `${offering.startDate} – ${offering.endDate}`
 }
 
 export async function adminFetchOfferings(
@@ -1498,7 +1512,7 @@ export async function adminFetchOfferings(
 
 export async function adminCreateOffering(
   formId: number,
-  payload: { startDate: string; endDate: string; label?: string | null },
+  payload: { startDate: string; endDate?: string | null; evergreen?: boolean; label?: string | null },
 ): Promise<SchedulingOffering> {
   const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/offerings`, {
     method: 'POST',
@@ -1509,7 +1523,7 @@ export async function adminCreateOffering(
 
 export async function adminUpdateOffering(
   id: number,
-  payload: Partial<{ startDate: string; endDate: string; label: string | null }>,
+  payload: Partial<{ startDate: string; endDate: string | null; evergreen: boolean; label: string | null }>,
 ): Promise<SchedulingOffering> {
   const res = await adminApiRequest(`/api/admin/scheduling/offerings/${id}`, {
     method: 'PUT',
