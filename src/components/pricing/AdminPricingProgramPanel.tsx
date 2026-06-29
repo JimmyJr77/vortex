@@ -3,7 +3,6 @@ import { Loader2 } from 'lucide-react'
 import { updateTopProgram, resetProgramClassesPricing, type TopProgram } from '../../utils/programsApi'
 import type { AdminProgramPricing } from '../../utils/programsApi'
 import {
-  normalizeProgramPricingOptions,
   programPricingOptionsFromProgram,
   serializeProgramPricingOptionsForApi,
   type ProgramPricingOption,
