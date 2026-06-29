@@ -2,6 +2,13 @@ import { type EnrollSiteKey } from '../config/enrollSites'
 import { type CostUnit } from './schedulingApi'
 import { type ProgramPricingOption } from './programPricingOptions'
 import { type MultiClassPassPackage } from './multiClassPassPackages'
+import {
+  adaptProgramPricingUpdateForApi,
+  getProgramPricingApiCapabilities,
+  markProgramPricingCostOptionsUnsupported,
+  multiClassPassPackagesRejected,
+  pricingCostOptionsRejected,
+} from './programPricingApi'
 import { adminApiRequest } from './api'
 import {
   adaptProgramSchedulingUpdateForApi,
@@ -141,8 +148,12 @@ export async function updateTopProgram(
     multiClassPassPackages: MultiClassPassPackage[]
   }>,
 ): Promise<TopProgram> {
-  const capabilities = await getSchedulingEnrollApiCapabilities()
-  let apiPayload = adaptProgramSchedulingUpdateForApi(payload, capabilities.schedulingEnrollSites)
+  const [schedulingCapabilities, pricingCapabilities] = await Promise.all([
+    getSchedulingEnrollApiCapabilities(),
+    getProgramPricingApiCapabilities(),
+  ])
+  let apiPayload = adaptProgramSchedulingUpdateForApi(payload, schedulingCapabilities.schedulingEnrollSites)
+  apiPayload = adaptProgramPricingUpdateForApi(apiPayload, pricingCapabilities.pricingCostOptions)
   if (apiPayload.pricingCostOptions) {
     apiPayload = {
       ...apiPayload,
@@ -153,13 +164,18 @@ export async function updateTopProgram(
     }
   }
   if (apiPayload.multiClassPassPackages) {
-    apiPayload = {
-      ...apiPayload,
-      multiClassPassPackages: apiPayload.multiClassPassPackages.map((p) => ({
-        ...p,
-        classCount: Math.max(1, Math.round(Number(p.classCount) || 1)),
-        priceCents: Math.max(0, Math.round(Number(p.priceCents) || 0)),
-      })),
+    if (!pricingCapabilities.multiClassPassPackages) {
+      const { multiClassPassPackages: _removed, ...rest } = apiPayload
+      apiPayload = rest as typeof apiPayload
+    } else {
+      apiPayload = {
+        ...apiPayload,
+        multiClassPassPackages: apiPayload.multiClassPassPackages.map((p) => ({
+          ...p,
+          classCount: Math.max(1, Math.round(Number(p.classCount) || 1)),
+          priceCents: Math.max(0, Math.round(Number(p.priceCents) || 0)),
+        })),
+      }
     }
   }
   let res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
@@ -167,16 +183,38 @@ export async function updateTopProgram(
     body: JSON.stringify(apiPayload),
   })
 
-  if (
-    !res.ok &&
-    payload.schedulingEnrollSites !== undefined &&
-    capabilities.schedulingEnrollSites
-  ) {
+  if (!res.ok) {
     const data = await res.json().catch(() => ({}))
     const message = typeof data.message === 'string' ? data.message : ''
-    if (message.includes('schedulingEnrollSites') || message.includes('not allowed')) {
+
+    if (
+      payload.schedulingEnrollSites !== undefined &&
+      schedulingCapabilities.schedulingEnrollSites &&
+      (message.includes('schedulingEnrollSites') || message.includes('not allowed'))
+    ) {
       markSchedulingEnrollSitesUnsupported()
       apiPayload = adaptProgramSchedulingUpdateForApi(payload, false)
+      apiPayload = adaptProgramPricingUpdateForApi(apiPayload, pricingCapabilities.pricingCostOptions)
+      res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(apiPayload),
+      })
+    } else if (payload.pricingCostOptions !== undefined && pricingCostOptionsRejected(message)) {
+      markProgramPricingCostOptionsUnsupported()
+      apiPayload = adaptProgramPricingUpdateForApi(payload, false)
+      apiPayload = adaptProgramSchedulingUpdateForApi(apiPayload, schedulingCapabilities.schedulingEnrollSites)
+      res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(apiPayload),
+      })
+    } else if (
+      payload.multiClassPassPackages !== undefined &&
+      multiClassPassPackagesRejected(message)
+    ) {
+      markProgramPricingCostOptionsUnsupported()
+      const { multiClassPassPackages: _removed, ...rest } = payload
+      apiPayload = adaptProgramPricingUpdateForApi(rest, pricingCapabilities.pricingCostOptions)
+      apiPayload = adaptProgramSchedulingUpdateForApi(apiPayload, schedulingCapabilities.schedulingEnrollSites)
       res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
         method: 'PUT',
         body: JSON.stringify(apiPayload),

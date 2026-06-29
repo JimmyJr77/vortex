@@ -26,7 +26,7 @@ import { appendStaffNote } from './notes/handlers.js'
 import { setMemberSchools } from './schools/handlers.js'
 import { isEmailConfigured, formatEmailError } from './email/sendEmail.js'
 import { EMAIL_LAYOUT_VERSION } from './email/emailHtml.js'
-import { API_BUILD_ID } from './buildInfo.js'
+import { API_BUILD_ID, API_FEATURES } from './buildInfo.js'
 import {
   notifyWelcomeNewMember,
   notifyEnrollmentReceipt,
@@ -2928,6 +2928,8 @@ app.get('/api/health', async (req, res) => {
       adminEmailTest: hasRegisteredRoute('/api/admin/email/test'),
       registrationInquiryOverhaul: true,
       schedulingEnrollSites: true,
+      programPricingCostOptions: API_FEATURES.programPricingCostOptions === true,
+      multiClassPassPackages: API_FEATURES.multiClassPassPackages === true,
     },
   }
 

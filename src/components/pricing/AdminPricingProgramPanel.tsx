@@ -12,6 +12,7 @@ import {
   normalizeMultiClassPassPackages,
   type MultiClassPassPackage,
 } from '../../utils/multiClassPassPackages'
+import { getProgramPricingApiCapabilities } from '../../utils/programPricingApi'
 import ProgramPricingOptionsFields from './ProgramPricingOptionsFields'
 import AdminPricingClassTable from './AdminPricingClassTable'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
@@ -35,6 +36,13 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const [confirmResetAll, setConfirmResetAll] = useState(false)
+  const [legacyPricingBackend, setLegacyPricingBackend] = useState(false)
+
+  useEffect(() => {
+    void getProgramPricingApiCapabilities().then((caps) => {
+      setLegacyPricingBackend(!caps.pricingCostOptions)
+    })
+  }, [])
 
   useEffect(() => {
     setOptions(programPricingOptionsFromProgram(program))
@@ -87,11 +95,20 @@ const AdminPricingProgramPanel = ({ program, classes, onRefresh }: Props) => {
         </p>
       </div>
 
+      {legacyPricingBackend && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Production backend is outdated and does not support the full pricing options API yet. Saves
+          will use a single legacy price until Render deploys build{' '}
+          <span className="font-mono">pricing-save-fix-2026-06-29</span> or newer. Enable only one
+          pricing option per save until then.
+        </div>
+      )}
+
       <ProgramPricingOptionsFields
         options={options}
         onChange={setOptions}
-        passPackages={passPackages}
-        onPassPackagesChange={setPassPackages}
+        passPackages={legacyPricingBackend ? undefined : passPackages}
+        onPassPackagesChange={legacyPricingBackend ? undefined : setPassPackages}
       />
 
       <PricingBenefitSelectionField
