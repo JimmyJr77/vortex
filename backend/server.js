@@ -2930,6 +2930,7 @@ app.get('/api/health', async (req, res) => {
       schedulingEnrollSites: true,
       programPricingCostOptions: API_FEATURES.programPricingCostOptions === true,
       multiClassPassPackages: API_FEATURES.multiClassPassPackages === true,
+      evergreenOfferings: API_FEATURES.evergreenOfferings === true,
     },
   }
 
