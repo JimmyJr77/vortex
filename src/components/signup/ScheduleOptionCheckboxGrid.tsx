@@ -1,4 +1,5 @@
 import { Clock } from 'lucide-react'
+import { normalizeDateKey, sortScheduleOptions } from '../../utils/slotSort'
 import { slotOptionKey, type SignupScheduleOption } from './signupEnrollmentUtils'
 
 export interface GroupedScheduleOptions {
@@ -8,12 +9,13 @@ export interface GroupedScheduleOptions {
 }
 
 /**
- * Group flat scheduleOptions by offering, preserving first-seen order. Shared by
- * the family signup picker, the signup wizard, and the member-portal enrollment UI.
+ * Group flat scheduleOptions by offering, sorted by active date then day/date/time.
+ * Shared by the family signup picker, the signup wizard, and the member-portal enrollment UI.
  */
 export function groupScheduleOptions(scheduleOptions: SignupScheduleOption[]): GroupedScheduleOptions[] {
+  const sorted = sortScheduleOptions(scheduleOptions)
   const groups = new Map<string, GroupedScheduleOptions>()
-  for (const opt of scheduleOptions) {
+  for (const opt of sorted) {
     const key = opt.offeringId != null ? String(opt.offeringId) : '__general__'
     if (!groups.has(key)) {
       groups.set(key, {
@@ -24,7 +26,12 @@ export function groupScheduleOptions(scheduleOptions: SignupScheduleOption[]): G
     }
     groups.get(key)!.options.push(opt)
   }
-  return [...groups.values()]
+  return [...groups.values()].sort((a, b) => {
+    const da = normalizeDateKey(a.options[0]?.offeringStartDate) ?? '\u0000'
+    const db = normalizeDateKey(b.options[0]?.offeringStartDate) ?? '\u0000'
+    if (da !== db) return da.localeCompare(db)
+    return (a.options[0]?.offeringLabel ?? '').localeCompare(b.options[0]?.offeringLabel ?? '')
+  })
 }
 
 /**

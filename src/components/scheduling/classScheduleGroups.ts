@@ -5,16 +5,21 @@ import {
   type SchedulingTimeSlot,
 } from '../../utils/schedulingApi'
 import { formatTime12, parseDateString } from './calendarDateUtils'
+import { compareScheduleOptions, daySortIndex } from '../../utils/slotSort'
 
 export interface ClassScheduleOffering {
   key: string
   formId: number
   offeringId: number | null
   offeringLabel: string | null
+  offeringStartDate: string | null
   slotGroupId: number
   timeSlotId: number
   occurrenceLabel: string
   daySort: number
+  startTime: string
+  scheduleMode?: 'day' | 'date'
+  specificDate?: string | null
   maxParticipants: number
   spotsRemaining: number
   waitlistCount: number
@@ -38,13 +43,6 @@ export interface ClassScheduleProgramGroup {
   key: string
   programName: string | null
   classes: ClassScheduleClassGroup[]
-}
-
-const MONDAY_FIRST_ORDER = [1, 2, 3, 4, 5, 6, 0]
-
-function daySortIndex(dayOfWeek: number): number {
-  const idx = MONDAY_FIRST_ORDER.indexOf(dayOfWeek)
-  return idx >= 0 ? idx : dayOfWeek
 }
 
 function weekdayFromDate(date: string): number {
@@ -92,6 +90,9 @@ function occurrenceFromParts(options: {
       formatTime: formatTime12,
     }),
     daySort,
+    startTime: options.startTime,
+    scheduleMode: options.scheduleMode ?? 'day',
+    specificDate: options.specificDate ?? null,
   }
 }
 
@@ -153,6 +154,7 @@ function addOffering(
     formId: number
     offeringId: number | null
     offeringLabel: string | null
+    offeringStartDate: string | null
     slotGroupId: number
     timeSlotId: number
     maxParticipants: number
@@ -162,7 +164,7 @@ function addOffering(
     enrollVisible: boolean
     inactive: boolean
   },
-  occurrence: { label: string; daySort: number },
+  occurrence: { label: string; daySort: number; startTime: string; scheduleMode?: 'day' | 'date'; specificDate?: string | null },
 ) {
   const pKey = programKey(meta.programName)
   if (!programs.has(pKey)) {
@@ -195,6 +197,9 @@ function addOffering(
       timeSlotId: meta.timeSlotId,
       occurrenceLabel: occurrence.label,
       daySort: occurrence.daySort,
+      startTime: occurrence.startTime,
+      scheduleMode: occurrence.scheduleMode,
+      specificDate: occurrence.specificDate ?? null,
       maxParticipants: meta.maxParticipants,
       spotsRemaining: meta.spotsRemaining,
       waitlistCount: meta.waitlistCount,
@@ -275,6 +280,7 @@ export function buildClassScheduleGroups(options: {
       weekLetter: tbd.weekLetter,
       dayOfWeek: tbd.dayOfWeek,
       dayName: tbd.dayName,
+      specificDate: tbd.specificDate,
       startTime: tbd.startTime,
       endTime: tbd.endTime,
       includeWeek: Boolean(tbd.weekLetter),
@@ -321,8 +327,25 @@ export function buildClassScheduleGroups(options: {
           ageMax: classGroup.ageMax,
           skillLevel: classGroup.skillLevel,
           skillRequirements: classGroup.skillRequirements,
-          offerings: [...classGroup.offerings.values()].sort(
-            (a, b) => a.daySort - b.daySort || a.occurrenceLabel.localeCompare(b.occurrenceLabel),
+          offerings: [...classGroup.offerings.values()].sort((a, b) =>
+            compareScheduleOptions(
+              {
+                offeringStartDate: a.offeringStartDate,
+                scheduleMode: a.scheduleMode,
+                specificDate: a.specificDate,
+                daySort: a.daySort,
+                startTime: a.startTime,
+                slotGroupId: a.slotGroupId,
+              },
+              {
+                offeringStartDate: b.offeringStartDate,
+                scheduleMode: b.scheduleMode,
+                specificDate: b.specificDate,
+                daySort: b.daySort,
+                startTime: b.startTime,
+                slotGroupId: b.slotGroupId,
+              },
+            ),
           ),
         })),
     }))

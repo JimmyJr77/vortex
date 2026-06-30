@@ -24,6 +24,13 @@ export interface SignupScheduleOption {
   offeringId: number | null
   offeringLabel: string | null
   offeringDates: string | null
+  offeringStartDate?: string | null
+  activeStart?: string | null
+  datesTbd?: boolean
+  scheduleMode?: 'day' | 'date'
+  specificDate?: string | null
+  daySort?: number
+  startTime?: string | null
   scheduleLabel: string
   priceCents: number | null
   priceLabel: string | null

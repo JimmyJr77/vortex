@@ -75,6 +75,7 @@ import {
 } from './calendarQuery.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { loadGroupDisplayLabels, slotLabelForSignupRow } from './slotDisplayLabel.js'
+import { sortOccurrenceRows, sortSlotGroups } from './slotSort.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -632,7 +633,7 @@ function buildSlotDisplayLabel(row) {
 
 function buildGroupDisplayLabel(occurrenceRows) {
   if (!occurrenceRows?.length) return ''
-  return occurrenceRows.map((row) => buildSlotDisplayLabel(row)).join('; ')
+  return sortOccurrenceRows(occurrenceRows).map((row) => buildSlotDisplayLabel(row)).join('; ')
 }
 
 function mapSlotGroupRow(groupRow, occurrenceRows, signupCount, form, waitlistCount = 0) {
@@ -640,7 +641,8 @@ function mapSlotGroupRow(groupRow, occurrenceRows, signupCount, form, waitlistCo
   const count = Number(signupCount)
   const waitlist = Number(waitlistCount)
   const dates = resolveSlotActiveDates(groupRow, form)
-  const occurrences = (occurrenceRows || []).map((row) => mapSlotRow(row, 0, form))
+  const sortedOccurrenceRows = sortOccurrenceRows(occurrenceRows || [])
+  const occurrences = sortedOccurrenceRows.map((row) => mapSlotRow(row, 0, form))
   return {
     id: Number(groupRow.id),
     formId: Number(groupRow.form_id),
@@ -657,7 +659,7 @@ function mapSlotGroupRow(groupRow, occurrenceRows, signupCount, form, waitlistCo
     datesTbd: dates.datesTbd,
     inheritsFormDates: dates.inheritsFormDates,
     isActive: groupRow.is_active,
-    displayLabel: buildGroupDisplayLabel(occurrenceRows),
+    displayLabel: buildGroupDisplayLabel(sortedOccurrenceRows),
     occurrences,
   }
 }
@@ -888,9 +890,11 @@ async function loadFormDetail(
     occurrencesByGroup.get(gid).push(row)
   }
 
-  const slotGroups = groupsRes.rows
-    .filter((g) => (occurrencesByGroup.get(g.id) || []).length > 0)
-    .map((g) => mapSlotGroupRow(g, occurrencesByGroup.get(g.id), g.signup_count, form, g.waitlist_count))
+  const slotGroups = sortSlotGroups(
+    groupsRes.rows
+      .filter((g) => (occurrencesByGroup.get(g.id) || []).length > 0)
+      .map((g) => mapSlotGroupRow(g, occurrencesByGroup.get(g.id), g.signup_count, form, g.waitlist_count)),
+  )
 
   const timeSlots = filteredOccurrences.map((s) => {
     const group = groupsRes.rows.find((g) => g.id === s.slot_group_id)

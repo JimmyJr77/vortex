@@ -9,6 +9,7 @@ import {
   type SchedulingOrphanedSignup,
   type SchedulingSlotGroup,
 } from '../../utils/schedulingApi'
+import { sortSlotGroups } from '../../utils/slotSort'
 
 interface Props {
   orphanedSignups: SchedulingOrphanedSignup[]
@@ -75,7 +76,7 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
     setSlotGroupId(null)
   }, [targetFormId])
 
-  const slotOptions: SchedulingSlotGroup[] = targetDetail?.slotGroups ?? []
+  const slotOptions: SchedulingSlotGroup[] = sortSlotGroups(targetDetail?.slotGroups ?? [])
 
   const openReEnroll = (orphan: SchedulingOrphanedSignup) => {
     setReEnrollTarget(orphan)

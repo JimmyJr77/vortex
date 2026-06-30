@@ -12,6 +12,12 @@ import {
   type SlotBatchPayload,
 } from '../../utils/schedulingApi'
 import { formatDateForInput } from '../../utils/dateUtils'
+import {
+  groupSlotGroupsByWeek,
+  sortOccurrences,
+  sortSlotGroups,
+  weekBucketLabel,
+} from '../../utils/slotSort'
 import OrphanedSignupsPanel from './OrphanedSignupsPanel'
 import type {
   SchedulingFormSummary,
@@ -139,10 +145,12 @@ const AdminSchedulingSlots = ({
   const offeringScopedSlotGroups = useMemo(() => {
     if (offeringId == null) return []
 
-    return (detail.slotGroups ?? []).filter((group) => {
-      if (!isScheduledSlotVisible(group, signups, orphanedSignups)) return false
-      return group.offeringId === offeringId
-    })
+    return sortSlotGroups(
+      (detail.slotGroups ?? []).filter((group) => {
+        if (!isScheduledSlotVisible(group, signups, orphanedSignups)) return false
+        return group.offeringId === offeringId
+      }),
+    )
   }, [detail.slotGroups, signups, orphanedSignups, offeringId])
 
   const builderRef = useRef<HTMLDivElement>(null)
@@ -538,18 +546,8 @@ const AdminSchedulingSlots = ({
     }
   }
 
-  const groupSchedulesByWeek = (groups: SchedulingSlotGroup[]) => {
-    const map = new Map<string, SchedulingSlotGroup[]>()
-    for (const g of groups) {
-      const key =
-        g.scheduleMode === 'date'
-          ? 'Dates'
-          : `${g.occurrences[0]?.weekLetter || 'A'}-Week`
-      if (!map.has(key)) map.set(key, [])
-      map.get(key)!.push(g)
-    }
-    return [...map.entries()]
-  }
+  const groupSchedulesByWeek = (groups: SchedulingSlotGroup[]) =>
+    groupSlotGroupsByWeek(groups).map(([key, weekGroups]) => [weekBucketLabel(key), weekGroups] as const)
 
   const formatGroupActiveDates = (group: SchedulingSlotGroup) => {
     if (group.datesTbd) return 'Date TBD'
@@ -899,7 +897,7 @@ const AdminSchedulingSlots = ({
                             >
                               <td className="py-2 pr-3 align-top">
                                 <ul className="space-y-1">
-                                  {group.occurrences.map((occ) => (
+                                  {sortOccurrences(group.occurrences).map((occ) => (
                                     <li key={occ.id}>
                                       {occ.scheduleMode === 'date'
                                         ? `${occ.specificDate} · ${occ.startTime} – ${occ.endTime}`

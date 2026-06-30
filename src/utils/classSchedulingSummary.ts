@@ -9,6 +9,7 @@ import {
   type SchedulingSlotGroup,
 } from './schedulingApi'
 import { fetchClassEventSchedulingFormId, fetchClassEvents, type ClassEvent } from './programsApi'
+import { normalizeDateKey, sortOccurrences, sortSlotGroups } from './slotSort'
 
 export interface OfferingWithSlots {
   offering: SchedulingOffering
@@ -65,7 +66,7 @@ export function formatOfferingDates(offering: SchedulingOffering): string {
 }
 
 export function formatSlotOccurrence(group: SchedulingSlotGroup): string {
-  return group.occurrences
+  return sortOccurrences(group.occurrences)
     .map((occ) =>
       occ.scheduleMode === 'date'
         ? `${occ.specificDate} · ${occ.startTime}–${occ.endTime}`
@@ -74,13 +75,23 @@ export function formatSlotOccurrence(group: SchedulingSlotGroup): string {
     .join('; ')
 }
 
+function sortOfferingsChronological(offerings: SchedulingOffering[]): SchedulingOffering[] {
+  return [...offerings].sort((a, b) => {
+    const sa = normalizeDateKey(a.startDate) ?? ''
+    const sb = normalizeDateKey(b.startDate) ?? ''
+    return sa.localeCompare(sb) || a.id - b.id
+  })
+}
+
 export function groupSlotsByOffering(
   offerings: SchedulingOffering[],
   slotGroups: SchedulingSlotGroup[],
 ): { byOffering: OfferingWithSlots[]; unassigned: SchedulingSlotGroup[] } {
+  const sortedOfferings = sortOfferingsChronological(offerings)
+  const sortedSlotGroups = sortSlotGroups(slotGroups)
   const assignedIds = new Set<number>()
-  const byOffering = offerings.map((offering) => {
-    const groups = slotGroups.filter((g) => {
+  const byOffering = sortedOfferings.map((offering) => {
+    const groups = sortedSlotGroups.filter((g) => {
       if (g.offeringId === offering.id) {
         assignedIds.add(g.id)
         return true
@@ -89,7 +100,7 @@ export function groupSlotsByOffering(
     })
     return { offering, slotGroups: groups }
   })
-  const unassigned = slotGroups.filter((g) => !assignedIds.has(g.id))
+  const unassigned = sortedSlotGroups.filter((g) => !assignedIds.has(g.id))
   return { byOffering, unassigned }
 }
 

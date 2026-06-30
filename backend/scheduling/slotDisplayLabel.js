@@ -1,3 +1,5 @@
+import { sortOccurrenceRows } from './slotSort.js'
+
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 export function formatTime(t) {
@@ -38,7 +40,7 @@ export function buildSlotDisplayLabel(row) {
 
 export function buildGroupDisplayLabel(occurrenceRows) {
   if (!occurrenceRows?.length) return ''
-  return occurrenceRows.map((row) => buildSlotDisplayLabel(row)).join('; ')
+  return sortOccurrenceRows(occurrenceRows).map((row) => buildSlotDisplayLabel(row)).join('; ')
 }
 
 /** Load display labels for slot groups that have no single time_slot_id on the signup. */

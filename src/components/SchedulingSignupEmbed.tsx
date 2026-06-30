@@ -30,6 +30,7 @@ import {
 } from '../utils/schedulingApi'
 import { getLoggedInMemberEmail, getMemberSessionToken } from '../utils/portalSession'
 import OrderPricingSummary from './pricing/OrderPricingSummary'
+import { compareScheduleOptions, daySortIndex, sortSlotGroups } from '../utils/slotSort'
 
 function buildSchedulingReturnUrl(
   formId: number,
@@ -78,11 +79,27 @@ type SlotPickOption = {
   occurrence: SchedulingSlotGroup['occurrences'][number]
 }
 
+function programClassSlotSortKey(slot: ProgramClassSlotOption) {
+  return {
+    scheduleMode: slot.scheduleMode,
+    specificDate: slot.specificDate,
+    daySort: daySortIndex(slot.dayOfWeek),
+    startTime: slot.startTime,
+    slotGroupId: slot.slotGroupId,
+  }
+}
+
+function sortProgramClassSlots(slots: ProgramClassSlotOption[]): ProgramClassSlotOption[] {
+  return [...slots].sort((a, b) =>
+    compareScheduleOptions(programClassSlotSortKey(a), programClassSlotSortKey(b)),
+  )
+}
+
 function slotOptionsForForm(
   detail: SchedulingFormDetail,
   filter?: SlotFilter,
 ): SlotPickOption[] {
-  return bookableGroupsForForm(detail, filter).flatMap((group) =>
+  return sortSlotGroups(bookableGroupsForForm(detail, filter)).flatMap((group) =>
     group.occurrences.map((occurrence) => ({
       key: `${group.id}-${occurrence.id}`,
       slotGroupId: group.id,
@@ -137,16 +154,18 @@ function bundlesFromFormDetail(
   signedUpSlotKeys: Set<string>,
 ): ProgramClassOption[] {
   const includeWeek = schedulingHasMultipleWeeks(detail.slotGroups ?? [])
-  const slots = slotOptionsForForm(detail).map((opt) => {
-    const signedUp = signedUpSlotKeys.has(
-      memberSignupSlotKey({
-        formId: detail.id,
-        slotGroupId: opt.slotGroupId,
-        timeSlotId: opt.timeSlotId,
-      }),
-    )
-    return slotOptionFromOccurrence(opt.group, opt.occurrence, includeWeek, signedUp)
-  })
+  const slots = sortProgramClassSlots(
+    slotOptionsForForm(detail).map((opt) => {
+      const signedUp = signedUpSlotKeys.has(
+        memberSignupSlotKey({
+          formId: detail.id,
+          slotGroupId: opt.slotGroupId,
+          timeSlotId: opt.timeSlotId,
+        }),
+      )
+      return slotOptionFromOccurrence(opt.group, opt.occurrence, includeWeek, signedUp)
+    }),
+  )
   if (slots.length === 0) return []
   return [
     {

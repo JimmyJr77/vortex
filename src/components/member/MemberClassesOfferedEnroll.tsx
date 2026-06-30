@@ -539,7 +539,9 @@ export default function MemberClassesOfferedEnroll({
       {programs.map((program) => {
         const pricingOptions = enabledBasePricingOptions(program.pricingCostOptions ?? [])
         const passPackages = (program.multiClassPassPackages ?? []).filter((p) => p.enabled)
-        const programClasses = classesWithForm.filter((c) => c.programsId === program.id)
+        const programClasses = classesWithForm
+          .filter((c) => c.programsId === program.id)
+          .sort((a, b) => a.label.localeCompare(b.label))
         if (programClasses.length === 0) return null
 
         return (

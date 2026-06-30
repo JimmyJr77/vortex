@@ -19,6 +19,12 @@ import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { ensureSignupSchema } from './ensureSignupSchema.js'
 import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
 import { resolveProgramsSchema } from '../programs/schema.js'
+import {
+  daySortIndex,
+  resolveActiveDatesForSort,
+  sortOccurrenceRows,
+  sortScheduleCatalogOptions,
+} from '../scheduling/slotSort.js'
 
 function isAdult(dateOfBirth) {
   if (!dateOfBirth) return true
@@ -271,10 +277,11 @@ function buildSlotScheduleLabel(row) {
 }
 
 function buildCompactScheduleLabel(occurrenceRows) {
-  if (!occurrenceRows?.length) return ''
-  if (occurrenceRows.length === 1) return buildSlotScheduleLabel(occurrenceRows[0])
+  const rows = sortOccurrenceRows(occurrenceRows || [])
+  if (!rows.length) return ''
+  if (rows.length === 1) return buildSlotScheduleLabel(rows[0])
 
-  const dayLabels = occurrenceRows.map((row) => {
+  const dayLabels = rows.map((row) => {
     if (row.schedule_mode === 'date' && row.specific_date) {
       return formatSignupUsDate(row.specific_date)
     }
@@ -284,9 +291,9 @@ function buildCompactScheduleLabel(occurrenceRows) {
     }
     return row.day_name?.slice(0, 3) || 'Day'
   })
-  const startTime = formatTimeOnly(occurrenceRows[0].start_time)
-  const endTime = formatTimeOnly(occurrenceRows[0].end_time)
-  const sameTime = occurrenceRows.every(
+  const startTime = formatTimeOnly(rows[0].start_time)
+  const endTime = formatTimeOnly(rows[0].end_time)
+  const sameTime = rows.every(
     (row) =>
       formatTimeOnly(row.start_time) === startTime && formatTimeOnly(row.end_time) === endTime,
   )
@@ -297,7 +304,7 @@ function buildCompactScheduleLabel(occurrenceRows) {
 
 function buildGroupScheduleLabel(occurrenceRows) {
   if (!occurrenceRows?.length) return ''
-  return occurrenceRows.map((row) => buildSlotScheduleLabel(row)).join('; ')
+  return sortOccurrenceRows(occurrenceRows).map((row) => buildSlotScheduleLabel(row)).join('; ')
 }
 
 function formatSignupPriceLabel(cents, costUnit) {
@@ -357,15 +364,21 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
   const priceLabel = formatSignupPriceLabel(priceCents, costUnit)
 
   const offeringsRes = await pool.query(
-    `SELECT id, label, start_date, end_date FROM scheduling_offering WHERE form_id = $1 ORDER BY start_date DESC, id DESC`,
+    `SELECT id, label, start_date, end_date FROM scheduling_offering WHERE form_id = $1 ORDER BY start_date ASC NULLS LAST, id ASC`,
     [formId],
   )
-  const offerings = offeringsRes.rows.map((row) => ({
-    id: Number(row.id),
-    label: row.label,
-    startDate: row.start_date,
-    endDate: row.end_date,
-  }))
+  const offerings = offeringsRes.rows
+    .map((row) => ({
+      id: Number(row.id),
+      label: row.label,
+      startDate: row.start_date,
+      endDate: row.end_date,
+    }))
+    .sort((a, b) => {
+      const sa = formatDateOnly(a.startDate) ?? ''
+      const sb = formatDateOnly(b.startDate) ?? ''
+      return sa.localeCompare(sb) || a.id - b.id
+    })
 
   let classActiveDates = formatSignupDateRange(form.start_date, form.end_date)
   if (!classActiveDates && offerings.length > 0) {
@@ -383,10 +396,9 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
 
   const groupsRes = await pool.query(
     `
-      SELECT id, offering_id
+      SELECT id, offering_id, active_start, active_end, dates_tbd, start_date, end_date
       FROM scheduling_slot_group
       WHERE form_id = $1 AND is_active = TRUE
-      ORDER BY offering_id NULLS LAST, id
     `,
     [formId],
   )
@@ -407,6 +419,9 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
     if (!slotsByGroup.has(gid)) slotsByGroup.set(gid, [])
     slotsByGroup.get(gid).push(row)
   }
+  for (const [gid, rows] of slotsByGroup) {
+    slotsByGroup.set(gid, sortOccurrenceRows(rows))
+  }
 
   const offeringLabelById = new Map(
     offerings.map((o) => [o.id, o.label || `Offering ${o.id}`]),
@@ -417,6 +432,7 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
     const occurrences = slotsByGroup.get(group.id) || []
     if (occurrences.length === 0) continue
     const firstSlot = occurrences[0]
+    const active = resolveActiveDatesForSort(group, form)
     const offeringId = group.offering_id != null ? Number(group.offering_id) : null
     const offering = offerings.find((o) => o.id === offeringId)
     scheduleOptions.push({
@@ -427,13 +443,27 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
       offeringDates: offering
         ? formatSignupDateRange(offering.startDate, offering.endDate)
         : null,
+      offeringStartDate: offering ? formatDateOnly(offering.startDate) : null,
+      activeStart: active.activeStart,
+      datesTbd: active.datesTbd,
+      scheduleMode: firstSlot.schedule_mode === 'date' ? 'date' : 'day',
+      specificDate: formatDateOnly(firstSlot.specific_date),
+      daySort: daySortIndex(firstSlot.day_of_week),
+      startTime: formatTimeOnly(firstSlot.start_time),
       scheduleLabel: buildCompactScheduleLabel(occurrences),
       priceCents: priceCents > 0 ? priceCents : null,
       priceLabel,
     })
   }
 
-  return { formId, offerings, scheduleOptions, priceLabel, costUnit, classActiveDates }
+  return {
+    formId,
+    offerings,
+    scheduleOptions: sortScheduleCatalogOptions(scheduleOptions),
+    priceLabel,
+    costUnit,
+    classActiveDates,
+  }
 }
 
 async function enrichInviteEnrollments(pool, enrollments) {
