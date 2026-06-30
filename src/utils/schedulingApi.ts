@@ -625,6 +625,7 @@ export interface SchedulingCalendarTbd {
   skillRequirements: string | null
   offeringId: number | null
   offeringLabel: string | null
+  offeringStartDate?: string | null
   slotGroupId: number
   timeSlotId: number
   maxParticipants: number
@@ -640,6 +641,7 @@ export interface SchedulingCalendarTbd {
   weekLetter: string | null
   dayOfWeek: number | null
   dayName: string | null
+  specificDate?: string | null
   startTime: string
   endTime: string
 }

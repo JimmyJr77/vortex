@@ -58,7 +58,13 @@ function occurrenceFromParts(options: {
   startTime: string
   endTime: string
   includeWeek?: boolean
-}): { label: string; daySort: number } {
+}): {
+  label: string
+  daySort: number
+  startTime: string
+  scheduleMode: 'day' | 'date'
+  specificDate: string | null
+} {
   const occ: SchedulingTimeSlot = {
     id: 0,
     formId: 0,
@@ -193,6 +199,7 @@ function addOffering(
       formId: meta.formId,
       offeringId: meta.offeringId,
       offeringLabel: meta.offeringLabel,
+      offeringStartDate: meta.offeringStartDate,
       slotGroupId: meta.slotGroupId,
       timeSlotId: meta.timeSlotId,
       occurrenceLabel: occurrence.label,
@@ -259,6 +266,7 @@ export function buildClassScheduleGroups(options: {
         formId: event.formId,
         offeringId: event.offeringId,
         offeringLabel: event.offeringLabel,
+        offeringStartDate: event.offeringStartDate,
         slotGroupId: event.slotGroupId,
         timeSlotId: event.timeSlotId,
         maxParticipants: event.maxParticipants,
@@ -299,6 +307,7 @@ export function buildClassScheduleGroups(options: {
         formId: tbd.formId,
         offeringId: tbd.offeringId,
         offeringLabel: tbd.offeringLabel,
+        offeringStartDate: tbd.offeringStartDate ?? null,
         slotGroupId: tbd.slotGroupId,
         timeSlotId: tbd.timeSlotId,
         maxParticipants: tbd.maxParticipants,
