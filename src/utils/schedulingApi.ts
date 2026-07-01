@@ -127,6 +127,10 @@ export interface SignupOrderPreviewFormSummary {
   pricingAfter: SchedulingMonthlyPricing | null
   incrementalMonthly: number
   discountMonthly: number
+  usesWeeklyTierPricing?: boolean
+  weeklyTierTotalMonthly?: number | null
+  weeklyTierLabel?: string | null
+  weeklyTierBeforeLabel?: string | null
 }
 
 export interface OrderDiscountAppliedLine {

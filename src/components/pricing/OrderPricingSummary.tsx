@@ -150,12 +150,28 @@ export default function OrderPricingSummary({
                 <p className="font-semibold text-black">{summary.formTitle}</p>
                 {summary.pricingAfter ? (
                   <ul className="mt-1 space-y-0.5">
-                    <li>
-                      Slots: {summary.existingSlotCount} current
-                      {summary.newSlotCount > 0
-                        ? ` + ${summary.newSlotCount} new = ${summary.totalSlotCount} total`
-                        : ''}
-                    </li>
+                    {summary.usesWeeklyTierPricing && summary.weeklyTierLabel ? (
+                      <>
+                        <li>
+                          Program bundle ({summary.totalSlotCount}{' '}
+                          {summary.totalSlotCount === 1 ? 'class' : 'classes'}):{' '}
+                          {summary.weeklyTierLabel}
+                        </li>
+                        {summary.existingSlotCount > 0 && summary.weeklyTierBeforeLabel && (
+                          <li className="text-gray-600">
+                            Was: {summary.weeklyTierBeforeLabel} ({summary.existingSlotCount}{' '}
+                            {summary.existingSlotCount === 1 ? 'class' : 'classes'})
+                          </li>
+                        )}
+                      </>
+                    ) : (
+                      <li>
+                        Slots: {summary.existingSlotCount} current
+                        {summary.newSlotCount > 0
+                          ? ` + ${summary.newSlotCount} new = ${summary.totalSlotCount} total`
+                          : ''}
+                      </li>
+                    )}
                     {summary.pricingAfter.hasFreeSlots && (
                       <li>
                         Free classes remaining after signup:{' '}

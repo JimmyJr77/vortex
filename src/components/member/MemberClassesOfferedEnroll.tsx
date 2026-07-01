@@ -6,6 +6,13 @@ import {
   formatProgramPricingOptionLabel,
   type ProgramPricingOptionKey,
 } from '../../utils/programPricingOptions'
+import {
+  maxEnabledWeeklySlots,
+  programUsesWeeklyTierPricing,
+  weeklyTierExceedsMaxMessage,
+  weeklyTierForSlotCount,
+  weeklyTierTotalDollars,
+} from '../../utils/weeklyTierPricing'
 import type { MultiClassPassPackage } from '../../utils/multiClassPassPackages'
 import {
   fetchSignupOrderPreview,
@@ -157,6 +164,29 @@ export default function MemberClassesOfferedEnroll({
     [enrollments, selectedMemberId],
   )
 
+  const existingSlotsByProgram = useMemo(() => {
+    const formToProgram = new Map(classesWithForm.map((c) => [c.formId, c.programsId]))
+    const counts = new Map<number, number>()
+    for (const row of memberEnrollmentRows) {
+      const programsId = row.form_id != null ? formToProgram.get(row.form_id) : undefined
+      if (programsId != null) {
+        counts.set(programsId, (counts.get(programsId) ?? 0) + 1)
+      }
+    }
+    return counts
+  }, [memberEnrollmentRows, classesWithForm])
+
+  const countProgramSlotsInCart = (programsId: number) =>
+    cart.filter((c) => c.lineType === 'slot' && c.programsId === programsId).length
+
+  const programSlotLimitMessage = (program: PublicProgramOffered): string | null => {
+    if (!programUsesWeeklyTierPricing(program)) return null
+    const max = maxEnabledWeeklySlots(program.pricingCostOptions ?? [])
+    const total = (existingSlotsByProgram.get(program.id) ?? 0) + countProgramSlotsInCart(program.id)
+    if (total >= max) return weeklyTierExceedsMaxMessage(max)
+    return null
+  }
+
   const disabledOfferingIds = useMemo(() => {
     const ids = new Set<number>()
     for (const row of memberEnrollmentRows) {
@@ -216,6 +246,16 @@ export default function MemberClassesOfferedEnroll({
     )
     if (opt?.offeringId != null && disabledOfferingIds.includes(Number(opt.offeringId))) return
     if (!opt) return
+    const programsId = classesWithForm.find((c) => c.classEventId === classEventId)?.programsId
+    const program = programsId != null ? programs.find((p) => p.id === programsId) : undefined
+    if (program && programUsesWeeklyTierPricing(program)) {
+      const max = maxEnabledWeeklySlots(program.pricingCostOptions ?? [])
+      const existing = existingSlotsByProgram.get(program.id) ?? 0
+      const inCart = countProgramSlotsInCart(program.id)
+      if (existing + inCart >= max) {
+        return
+      }
+    }
     setCart((prev) => [
       ...prev,
       {
@@ -267,7 +307,11 @@ export default function MemberClassesOfferedEnroll({
         }
       }
       const pricingKey =
-        c.programsId != null ? selectedPricingByProgram[c.programsId] : undefined
+        c.programsId != null && !programUsesWeeklyTierPricing(
+          programs.find((p) => p.id === c.programsId) ?? {},
+        )
+          ? selectedPricingByProgram[c.programsId]
+          : undefined
       return {
         lineType: 'slot' as const,
         formId: c.formId!,
@@ -277,7 +321,7 @@ export default function MemberClassesOfferedEnroll({
         useMultiClassPass: true,
       }
     })
-  }, [cart, selectedPricingByProgram])
+  }, [cart, selectedPricingByProgram, programs])
 
   const selectedMember =
     members.find((m) => Number(m.id) === Number(selectedMemberId)) ?? members[0]
@@ -537,12 +581,30 @@ export default function MemberClassesOfferedEnroll({
       )}
 
       {programs.map((program) => {
-        const pricingOptions = enabledBasePricingOptions(program.pricingCostOptions ?? [])
+        const usesWeeklyTiers = programUsesWeeklyTierPricing(program)
+        const nonWeeklyPricingOptions = enabledBasePricingOptions(
+          program.pricingCostOptions ?? [],
+        ).filter((o) => !o.key.startsWith('monthly_'))
         const passPackages = (program.multiClassPassPackages ?? []).filter((p) => p.enabled)
         const programClasses = classesWithForm
           .filter((c) => c.programsId === program.id)
           .sort((a, b) => a.label.localeCompare(b.label))
         if (programClasses.length === 0) return null
+
+        const maxWeeklySlots = usesWeeklyTiers
+          ? maxEnabledWeeklySlots(program.pricingCostOptions ?? [])
+          : 0
+        const programSlotTotal =
+          (existingSlotsByProgram.get(program.id) ?? 0) + countProgramSlotsInCart(program.id)
+        const weeklyTier =
+          usesWeeklyTiers && programSlotTotal > 0
+            ? weeklyTierForSlotCount(programSlotTotal, program.pricingCostOptions ?? [])
+            : null
+        const weeklyTotalMonthly =
+          usesWeeklyTiers && programSlotTotal > 0
+            ? weeklyTierTotalDollars(programSlotTotal, program.pricingCostOptions ?? [])
+            : null
+        const limitMsg = programSlotLimitMessage(program)
 
         return (
           <div key={program.id} className="space-y-4">
@@ -550,6 +612,24 @@ export default function MemberClassesOfferedEnroll({
               <h2 className="text-lg font-bold text-gray-900">{program.displayName}</h2>
               {program.description && (
                 <p className="text-sm text-gray-600 mt-1">{program.description}</p>
+              )}
+              {usesWeeklyTiers && (
+                <p className="text-sm text-gray-600 mt-2">
+                  {weeklyTotalMonthly != null && weeklyTier ? (
+                    <>
+                      Estimated monthly total:{' '}
+                      <span className="font-semibold text-gray-900">
+                        ${weeklyTotalMonthly.toFixed(2)}/mo
+                      </span>{' '}
+                      <span className="text-gray-500">({weeklyTier.slotCount} class slots)</span>
+                    </>
+                  ) : (
+                    <>Select up to {maxWeeklySlots} class slots for this program.</>
+                  )}
+                </p>
+              )}
+              {limitMsg && programSlotTotal >= maxWeeklySlots && (
+                <p className="text-sm text-amber-700 mt-1">{limitMsg}</p>
               )}
             </div>
 
@@ -591,13 +671,13 @@ export default function MemberClassesOfferedEnroll({
               </div>
             )}
 
-            {pricingOptions.length > 1 && (
+            {nonWeeklyPricingOptions.length > 1 && (
               <div className="rounded-xl border border-gray-200 p-4 bg-white">
                 <label className="block text-xs font-semibold text-gray-600 mb-1">
                   Pricing option for {program.displayName}
                 </label>
                 <select
-                  value={selectedPricingByProgram[program.id] ?? pricingOptions[0]?.key ?? ''}
+                  value={selectedPricingByProgram[program.id] ?? nonWeeklyPricingOptions[0]?.key ?? ''}
                   onChange={(e) =>
                     setSelectedPricingByProgram((prev) => ({
                       ...prev,
@@ -606,7 +686,7 @@ export default function MemberClassesOfferedEnroll({
                   }
                   className="w-full sm:w-96 h-10 rounded-lg border border-gray-300 px-3 text-sm"
                 >
-                  {pricingOptions.map((opt) => (
+                  {nonWeeklyPricingOptions.map((opt) => (
                     <option key={opt.key} value={opt.key}>
                       {formatProgramPricingOptionLabel(opt)}
                     </option>

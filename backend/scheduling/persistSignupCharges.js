@@ -70,6 +70,15 @@ function netCentsForSlot(preview, slotKey) {
  * @param {Array<{signupId:number, formId:number, slotGroupId:number, timeSlotId:number, formTitle:string, slotLabel:string}>} args.signups
  * @param {object|null} args.preview full order preview built at batch time
  */
+function chargeDescription(preview, signup) {
+  const summary = preview?.formSummaries?.find((s) => s.formId === signup.formId)
+  if (summary?.usesWeeklyTierPricing && summary.weeklyTierLabel) {
+    const slotPart = signup.slotLabel ? ` · ${signup.slotLabel}` : ''
+    return `${summary.formTitle} — ${summary.weeklyTierLabel}${slotPart}`
+  }
+  return [signup.formTitle, signup.slotLabel].filter(Boolean).join(' — ') || 'Class enrollment'
+}
+
 export async function persistSignupCharges(pool, { memberId, signups = [], preview = null }) {
   if (!memberId || signups.length === 0) return { charges: 0 }
 
@@ -91,7 +100,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
     const amountCents = netCentsForSlot(preview, slotKey)
     if (amountCents == null) continue
 
-    const description = [signup.formTitle, signup.slotLabel].filter(Boolean).join(' — ') || 'Class enrollment'
+    const description = chargeDescription(preview, signup)
     const result = await pool.query(
       `
         INSERT INTO billing_charge

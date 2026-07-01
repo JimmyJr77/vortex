@@ -20,7 +20,7 @@ import {
   sendTemporaryPasswordEmail,
 } from './tempPasswordEmail.js'
 import { sendWaiverEmail } from './waiverEmail.js'
-import { buildSignupOrderPreview, loadMemberScopeSignups, pricingScopeKey } from './orderPricing.js'
+import { buildSignupOrderPreview, loadMemberScopeSignups, pricingScopeKey, WeeklyTierSlotLimitError } from './orderPricing.js'
 import { persistDiscountSnapshot } from './discountEngine.js'
 import { persistSignupCharges } from './persistSignupCharges.js'
 import {
@@ -1670,6 +1670,9 @@ export function createSchedulingHandlers(pool) {
         res.json({ success: true, data: preview })
       } catch (err) {
         console.error('[scheduling] previewSignupOrder:', err)
+        if (err instanceof WeeklyTierSlotLimitError || err?.name === 'WeeklyTierSlotLimitError') {
+          return res.status(400).json({ success: false, message: err.message })
+        }
         if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
           return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
         }
@@ -2557,6 +2560,9 @@ export function createSchedulingHandlers(pool) {
         }
       } catch (err) {
         console.error('[scheduling] createSignupBatch:', err)
+        if (err instanceof WeeklyTierSlotLimitError || err?.name === 'WeeklyTierSlotLimitError') {
+          return res.status(400).json({ success: false, message: err.message })
+        }
         if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
           return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
         }

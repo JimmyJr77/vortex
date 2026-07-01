@@ -1,5 +1,17 @@
 import { loadEffectivePricingForForm, parseProgramPromoCodes } from '../programs/pricingDefaults.js'
-import { effectiveDbRowFromPricingOption } from '../programs/programPricingOptions.js'
+import {
+  effectiveDbRowFromPricingOption,
+  normalizeProgramPricingOptions,
+} from '../programs/programPricingOptions.js'
+import {
+  formatWeeklyTierLabel,
+  maxEnabledWeeklySlots,
+  programUsesWeeklyTierPricing,
+  weeklyTierExceedsMaxMessage,
+  weeklyTierForSlotCount,
+  weeklyTierMarginalCostsDollars,
+  weeklyTierTotalDollars,
+} from '../programs/weeklyTierPricing.js'
 import {
   loadProgramPassPackages,
   totalRemainingClassesForProgram,
@@ -148,6 +160,112 @@ function pricingMetaFromRow(effectiveDbRow, hoursPerSlotMonthly = null) {
     maxFreeSlotsTotal: effectiveDbRow?.max_free_slots_total,
     costUnit: effectiveDbRow?.cost_unit ?? 'per_month',
     hoursPerSlotMonthly,
+  }
+}
+
+export class WeeklyTierSlotLimitError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = 'WeeklyTierSlotLimitError'
+    this.statusCode = 400
+  }
+}
+
+/**
+ * Weekly tiers are bundle prices by slot count: 2 slots @ 2×/wk = $250 total, not $250×2.
+ * Marginal cost of slot n = tier(n) − tier(n−1) (e.g. 3rd class +$100 when 1×=$150, 2×=$250).
+ * Free-slot grants apply to the marginal cost array like per-slot pricing.
+ */
+async function buildMarginalWeeklyTierPricing(
+  pool,
+  formRow,
+  memberId,
+  newEntries,
+  programRow,
+  effectiveDbRow,
+) {
+  const pricingOptions = programRow?.pricing_cost_options
+  const memberSignups = await loadMemberScopeSignups(pool, formRow, memberId)
+  const existingCount = memberSignups.length
+  const maxSlots = maxEnabledWeeklySlots(normalizeProgramPricingOptions(pricingOptions))
+  const totalAfter = existingCount + newEntries.length
+
+  if (totalAfter > maxSlots) {
+    throw new WeeklyTierSlotLimitError(weeklyTierExceedsMaxMessage(maxSlots))
+  }
+
+  const existingMarginals = weeklyTierMarginalCostsDollars(existingCount, pricingOptions) ?? []
+  const rawNewMarginals = []
+  for (let i = 1; i <= newEntries.length; i += 1) {
+    const slotIndex = existingCount + i
+    const marginal = weeklyTierMarginalCostsDollars(slotIndex, pricingOptions)
+    if (!marginal || marginal.length < slotIndex) {
+      throw new WeeklyTierSlotLimitError(weeklyTierExceedsMaxMessage(maxSlots))
+    }
+    rawNewMarginals.push(marginal[slotIndex - 1])
+  }
+
+  const freeByExtra = new Map()
+  for (let i = 0; i <= newEntries.length; i += 1) {
+    freeByExtra.set(
+      i,
+      await countAllocatedFreeSlotsForMember(pool, formRow, memberId, effectiveDbRow, {
+        extraMemberSignups: i,
+      }),
+    )
+  }
+
+  const meta = pricingMetaFromRow(effectiveDbRow, null)
+  const increments = []
+  for (let i = 1; i <= newEntries.length; i += 1) {
+    const costsBefore = [...existingMarginals, ...rawNewMarginals.slice(0, i - 1)]
+    const costsAfter = [...existingMarginals, ...rawNewMarginals.slice(0, i)]
+    const before = computeMonthlyPricingFromCosts(
+      costsBefore,
+      freeByExtra.get(i - 1) ?? 0,
+      meta,
+    )
+    const after = computeMonthlyPricingFromCosts(costsAfter, freeByExtra.get(i) ?? 0, meta)
+    increments.push(Math.max(0, after.discountedMonthly - before.discountedMonthly))
+  }
+
+  const freeBefore = freeByExtra.get(0) ?? 0
+  const freeAfter = freeByExtra.get(newEntries.length) ?? freeBefore
+  const allMarginals = [...existingMarginals, ...rawNewMarginals]
+
+  const existingIncrementsById = new Map()
+  for (let i = 1; i <= memberSignups.length; i += 1) {
+    const before = computeMonthlyPricingFromCosts(
+      existingMarginals.slice(0, i - 1),
+      freeBefore,
+      meta,
+    )
+    const after = computeMonthlyPricingFromCosts(existingMarginals.slice(0, i), freeBefore, meta)
+    existingIncrementsById.set(
+      memberSignups[i - 1].id,
+      Math.max(0, after.discountedMonthly - before.discountedMonthly),
+    )
+  }
+
+  const tierAfter = weeklyTierForSlotCount(totalAfter, pricingOptions)
+  const tierBefore =
+    existingCount > 0 ? weeklyTierForSlotCount(existingCount, pricingOptions) : null
+
+  return {
+    increments,
+    existingIncrementsById,
+    pricingBefore: computeMonthlyPricingFromCosts(existingMarginals, freeBefore, meta),
+    pricingAfter: computeMonthlyPricingFromCosts(allMarginals, freeAfter, meta),
+    existingCount,
+    newCount: newEntries.length,
+    usesWeeklyTierPricing: true,
+    weeklyTierTotalMonthly: weeklyTierTotalDollars(totalAfter, pricingOptions),
+    weeklyTierLabel: tierAfter
+      ? formatWeeklyTierLabel(tierAfter.slotCount, tierAfter.amountCents)
+      : null,
+    weeklyTierBeforeLabel: tierBefore
+      ? formatWeeklyTierLabel(tierBefore.slotCount, tierBefore.amountCents)
+      : null,
   }
 }
 
@@ -364,11 +482,11 @@ export async function buildSignupOrderPreview(
     const { resolveProgramsSchema } = await import('../programs/schema.js')
     const schema = await resolveProgramsSchema(pool)
     const programsRes = await pool.query(
-      `SELECT id, name FROM ${schema.programsTable} WHERE id = ANY($1::int[])`,
+      `SELECT id, name, display_name FROM ${schema.programsTable} WHERE id = ANY($1::int[])`,
       [[...programIds]],
     )
     for (const row of programsRes.rows) {
-      programTitles.set(Number(row.id), row.name)
+      programTitles.set(Number(row.id), row.display_name || row.name)
     }
   }
 
@@ -434,22 +552,37 @@ export async function buildSignupOrderPreview(
     const newEntries = newByScope.get(scope) || []
     const formRow = formRows.get(meta.representativeFormId)
     let effectiveDbRow = meta.effectiveDbRow
-    const optionKeys = [
-      ...new Set(
-        newEntries
-          .map((e) => e.selectedPricingOptionKey)
-          .filter((k) => typeof k === 'string' && k.length > 0),
-      ),
-    ]
-    if (optionKeys.length === 1 && meta.programRow) {
-      effectiveDbRow = effectiveDbRowFromPricingOption(
-        effectiveDbRow,
+    const usesWeeklyTiers =
+      meta.usesProgramPricing &&
+      meta.programRow &&
+      programUsesWeeklyTierPricing(meta.programRow)
+
+    let marginalResult
+    if (usesWeeklyTiers) {
+      marginalResult = await buildMarginalWeeklyTierPricing(
+        pool,
+        formRow,
+        memberId,
+        newEntries,
         meta.programRow,
-        optionKeys[0],
+        effectiveDbRow,
       )
-    }
-    const { increments, existingIncrementsById, pricingBefore, pricingAfter, existingCount, newCount } =
-      await buildMarginalPricing(
+    } else {
+      const optionKeys = [
+        ...new Set(
+          newEntries
+            .map((e) => e.selectedPricingOptionKey)
+            .filter((k) => typeof k === 'string' && k.length > 0),
+        ),
+      ]
+      if (optionKeys.length === 1 && meta.programRow) {
+        effectiveDbRow = effectiveDbRowFromPricingOption(
+          effectiveDbRow,
+          meta.programRow,
+          optionKeys[0],
+        )
+      }
+      marginalResult = await buildMarginalPricing(
         pool,
         formRow,
         memberId,
@@ -457,6 +590,20 @@ export async function buildSignupOrderPreview(
         effectiveDbRow,
         timeSlotsByGroup,
       )
+    }
+
+    const {
+      increments,
+      existingIncrementsById,
+      pricingBefore,
+      pricingAfter,
+      existingCount,
+      newCount,
+      usesWeeklyTierPricing: scopeUsesWeeklyTiers,
+      weeklyTierTotalMonthly,
+      weeklyTierLabel,
+      weeklyTierBeforeLabel,
+    } = marginalResult
 
     if (existingIncrementsById) {
       for (const [signupId, monthly] of existingIncrementsById) {
@@ -491,6 +638,10 @@ export async function buildSignupOrderPreview(
         pricingAfter: pricingAfter.hasPricing ? pricingAfter : null,
         incrementalMonthly,
         discountMonthly: pricingAfter.discountMonthly,
+        usesWeeklyTierPricing: Boolean(scopeUsesWeeklyTiers),
+        weeklyTierTotalMonthly: weeklyTierTotalMonthly ?? null,
+        weeklyTierLabel: weeklyTierLabel ?? null,
+        weeklyTierBeforeLabel: weeklyTierBeforeLabel ?? null,
       })
     }
   }
