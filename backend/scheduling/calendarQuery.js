@@ -106,6 +106,8 @@ export async function loadSchedulingCalendar(pool, options) {
       sg.active_start AS sg_active_start,
       sg.active_end AS sg_active_end,
       sg.dates_tbd AS sg_dates_tbd,
+      sg.offering_id AS sg_offering_id,
+      sg.inherits_offering_dates AS sg_inherits_offering_dates,
       sf.title AS form_title,
       sf.is_active AS form_is_active,
       sf.enroll_sites,

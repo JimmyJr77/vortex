@@ -75,6 +75,7 @@ import {
 } from './calendarQuery.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { loadGroupDisplayLabels, slotLabelForSignupRow } from './slotDisplayLabel.js'
+import { resolveSlotActiveDates } from './slotActiveDates.js'
 import { sortOccurrenceRows, sortSlotGroups } from './slotSort.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -623,49 +624,6 @@ async function syncOfferingDatesToSlotGroups(client, offeringId, { newStart, new
     [groupIds, newStart, newEnd, oldStart, oldEnd],
   )
   return groupIds.length
-}
-
-function resolveSlotActiveDates(slot, form, offeringById = null) {
-  if (slot.dates_tbd) {
-    return {
-      activeStart: null,
-      activeEnd: null,
-      datesTbd: true,
-      inheritsFormDates: false,
-      inheritsOfferingDates: false,
-    }
-  }
-  if (slot.inherits_offering_dates && slot.offering_id != null && offeringById) {
-    const offering = offeringById.get(Number(slot.offering_id))
-    if (offering) {
-      return {
-        activeStart: formatDateOnly(offering.start_date),
-        activeEnd: formatDateOnly(offering.end_date),
-        datesTbd: false,
-        inheritsFormDates: false,
-        inheritsOfferingDates: true,
-      }
-    }
-  }
-  const activeStart =
-    formatDateOnly(slot.active_start) ??
-    formatDateOnly(slot.start_date) ??
-    formatDateOnly(form?.start_date) ??
-    null
-  const activeEnd =
-    formatDateOnly(slot.active_end) ??
-    formatDateOnly(slot.end_date) ??
-    formatDateOnly(form?.end_date) ??
-    null
-  const inheritsFormDates =
-    !slot.active_start && !slot.start_date && Boolean(form?.start_date || form?.end_date)
-  return {
-    activeStart,
-    activeEnd,
-    datesTbd: false,
-    inheritsFormDates,
-    inheritsOfferingDates: false,
-  }
 }
 
 function mapSlotRow(row, signupCount = 0, form = null, offeringById = null, groupRow = null) {

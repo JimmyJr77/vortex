@@ -1,4 +1,5 @@
 import { rowVisibleOnEnrollSite } from './enrollSites.js'
+import { buildOfferingByIdFromRows, formatDateOnly, resolveSlotActiveDates } from './slotActiveDates.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -11,22 +12,6 @@ function computeEnrollVisible(row, site) {
     row.scheduling_active ?? true,
     site,
   )
-}
-
-function formatDateOnly(value) {
-  if (value == null || value === '') return null
-  if (value instanceof Date) {
-    if (Number.isNaN(value.getTime())) return null
-    const y = value.getUTCFullYear()
-    const m = String(value.getUTCMonth() + 1).padStart(2, '0')
-    const d = String(value.getUTCDate()).padStart(2, '0')
-    return `${y}-${m}-${d}`
-  }
-  const s = String(value).trim()
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
-  const d = new Date(s)
-  if (Number.isNaN(d.getTime())) return null
-  return d.toISOString().slice(0, 10)
 }
 
 function formatTime(t) {
@@ -51,39 +36,6 @@ function dateInRange(dateStr, startStr, endStr) {
   if (startStr && dateStr < startStr) return false
   if (endStr && dateStr > endStr) return false
   return true
-}
-
-function intersectRange(...ranges) {
-  let start = null
-  let end = null
-  for (const range of ranges) {
-    if (!range) continue
-    if (range.start) {
-      start = start == null ? range.start : (range.start > start ? range.start : start)
-    }
-    if (range.end) {
-      end = end == null ? range.end : (range.end < end ? range.end : end)
-    }
-  }
-  if (start && end && start > end) return { start: null, end: null }
-  return { start, end }
-}
-
-function resolveActiveDates(entity, form) {
-  if (entity.dates_tbd || entity.datesTbd) {
-    return { activeStart: null, activeEnd: null, datesTbd: true }
-  }
-  const activeStart =
-    formatDateOnly(entity.active_start ?? entity.activeStart) ??
-    formatDateOnly(entity.start_date ?? entity.startDate) ??
-    formatDateOnly(form?.start_date ?? form?.startDate) ??
-    null
-  const activeEnd =
-    formatDateOnly(entity.active_end ?? entity.activeEnd) ??
-    formatDateOnly(entity.end_date ?? entity.endDate) ??
-    formatDateOnly(form?.end_date ?? form?.endDate) ??
-    null
-  return { activeStart, activeEnd, datesTbd: false }
 }
 
 function monthBounds(year, month) {
@@ -114,29 +66,38 @@ function getWeekLetterForDate(dateStr, anchorStr, weekLetters) {
   return sorted[idx]
 }
 
-function mapRowToContext(row, site = 'athletics') {
+function mapRowToContext(row, site = 'athletics', offeringById = null) {
   const form = {
     start_date: row.form_start_date,
     end_date: row.form_end_date,
   }
-  const group = {
+  const offeringId = row.sg_offering_id ?? row.offering_id ?? null
+  const offeringStart = formatDateOnly(row.offering_start_date)
+  const offeringEnd = formatDateOnly(row.offering_end_date)
+  const groupRow = {
     active_start: row.sg_active_start,
     active_end: row.sg_active_end,
     dates_tbd: row.sg_dates_tbd,
-    start_date: null,
-    end_date: null,
+    inherits_offering_dates: row.sg_inherits_offering_dates,
+    offering_id: offeringId,
   }
-  const slotDates = resolveActiveDates(row, form)
-  const groupDates = resolveActiveDates(group, form)
-  const offeringRange = {
-    start: formatDateOnly(row.offering_start_date),
-    end: formatDateOnly(row.offering_end_date),
+  const slotRow = {
+    active_start: row.active_start,
+    active_end: row.active_end,
+    dates_tbd: row.dates_tbd,
+    offering_id: offeringId,
+    inherits_offering_dates: row.sg_inherits_offering_dates,
   }
-  const effective = intersectRange(
-    { start: offeringRange.start, end: offeringRange.end },
-    { start: groupDates.activeStart, end: groupDates.activeEnd },
-    { start: slotDates.activeStart, end: slotDates.activeEnd },
-  )
+
+  let slotDates = resolveSlotActiveDates(slotRow, form, offeringById)
+  if (
+    groupRow.inherits_offering_dates &&
+    !slotRow.dates_tbd &&
+    !slotRow.active_start &&
+    !slotRow.active_end
+  ) {
+    slotDates = resolveSlotActiveDates(groupRow, form, offeringById)
+  }
 
   return {
     timeSlotId: Number(row.id),
@@ -151,13 +112,13 @@ function mapRowToContext(row, site = 'athletics') {
     ageMin: row.age_min != null ? Number(row.age_min) : null,
     ageMax: row.age_max != null ? Number(row.age_max) : null,
     skillRequirements: row.skill_requirements || null,
-    offeringId: row.offering_id != null ? Number(row.offering_id) : null,
+    offeringId: offeringId != null ? Number(offeringId) : null,
     maxParticipants: row.max_participants != null ? Number(row.max_participants) : 0,
     signupCount: row.signup_count != null ? Number(row.signup_count) : 0,
     waitlistCount: row.waitlist_count != null ? Number(row.waitlist_count) : 0,
     offeringLabel: row.offering_label || null,
-    offeringStartDate: offeringRange.start,
-    offeringEndDate: offeringRange.end,
+    offeringStartDate: offeringStart,
+    offeringEndDate: offeringEnd,
     formActive: Boolean(row.form_is_active),
     enrollVisible: computeEnrollVisible(row, site),
     classActive: row.class_is_active == null ? true : Boolean(row.class_is_active),
@@ -170,10 +131,10 @@ function mapRowToContext(row, site = 'athletics') {
     specificDate: formatDateOnly(row.specific_date),
     startTime: formatTime(row.start_time),
     endTime: formatTime(row.end_time),
-    datesTbd: Boolean(row.dates_tbd || row.sg_dates_tbd),
-    effectiveStart: effective.start,
-    effectiveEnd: effective.end,
-    anchorDate: offeringRange.start || effective.start,
+    datesTbd: slotDates.datesTbd,
+    effectiveStart: slotDates.activeStart,
+    effectiveEnd: slotDates.activeEnd,
+    anchorDate: offeringStart || slotDates.activeStart,
   }
 }
 
@@ -259,7 +220,8 @@ function buildTbdPayload(ctx) {
  * Expand flat DB rows into calendar events for a date range (inclusive).
  */
 export function expandCalendarRange({ startDate, endDate, rows, site = 'athletics' }) {
-  const contexts = rows.map((row) => mapRowToContext(row, site))
+  const offeringById = buildOfferingByIdFromRows(rows)
+  const contexts = rows.map((row) => mapRowToContext(row, site, offeringById))
   const weekLettersByGroup = new Map()
   for (const ctx of contexts) {
     if (!weekLettersByGroup.has(ctx.slotGroupId)) {
