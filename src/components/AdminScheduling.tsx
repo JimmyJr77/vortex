@@ -4,9 +4,7 @@ import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
 import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
 import AdminSchedulingOfferings from './scheduling/AdminSchedulingOfferings'
 import AdminSchedulingLegacyForms from './scheduling/AdminSchedulingLegacyForms'
-import SchedulingSetupContextCard, {
-  formatSetupContextLine,
-} from './scheduling/SchedulingSetupContextCard'
+import { formatSetupContextLine } from './scheduling/SchedulingSetupContextCard'
 import {
   adminFetchSchedulingForm,
   adminFetchSchedulingForms,
@@ -417,15 +415,6 @@ const AdminScheduling = ({
 
               {panel === 'slots' && selectedClassEvent && selectedId && detail && selectedOffering && (
                 <>
-                  <SchedulingSetupContextCard
-                    className="mb-4"
-                    primary={formatSetupContextLine([
-                      selectedProgram?.displayName,
-                      selectedClassEvent.displayName,
-                      formatOfferingDateRange(selectedOffering),
-                    ])}
-                    secondary={selectedOffering.label}
-                  />
                   {offerings.length > 1 && (
                     <div className="mb-4 rounded-lg border border-gray-200 bg-white px-4 py-3">
                       <label className="block text-xs font-semibold text-gray-600 mb-1">
@@ -459,6 +448,12 @@ const AdminScheduling = ({
                   offeringId={selectedOffering?.id ?? null}
                   offeringStartDate={selectedOffering?.startDate ?? null}
                   offeringEndDate={selectedOffering?.endDate ?? null}
+                  setupContextPrimary={formatSetupContextLine([
+                    selectedProgram?.displayName,
+                    selectedClassEvent.displayName,
+                    formatOfferingDateRange(selectedOffering),
+                  ])}
+                  offeringLabel={selectedOffering.label}
                   canBuild={Boolean(selectedOffering)}
                   orphanedSignups={orphanedSignups}
                   signups={signups}

@@ -33,6 +33,8 @@ interface Props {
   offeringId?: number | null
   offeringStartDate?: string | null
   offeringEndDate?: string | null
+  setupContextPrimary?: string | null
+  offeringLabel?: string | null
   canBuild?: boolean
   orphanedSignups: SchedulingOrphanedSignup[]
   signups: SchedulingSignup[]
@@ -48,6 +50,11 @@ type DateEntry = { type: 'single' | 'range'; date: string; startDate: string; en
 const defaultTime = (): TimeRow => ({ startTime: '09:00', endTime: '10:00' })
 
 const normalizeTime = (time: string) => (time.length >= 5 ? time.slice(0, 5) : time)
+
+function formatWeekSetupLabel(weekKey: string): string {
+  if (weekKey === '__dates__') return 'Dates'
+  return `${weekKey} Week`
+}
 
 function createDefaultWeeks(inheritedStart: string, inheritedEnd: string): WeekRow[] {
   return [
@@ -102,6 +109,8 @@ const AdminSchedulingSlots = ({
   offeringId,
   offeringStartDate,
   offeringEndDate,
+  setupContextPrimary,
+  offeringLabel,
   canBuild = true,
   orphanedSignups,
   signups: _signups,
@@ -123,7 +132,8 @@ const AdminSchedulingSlots = ({
   const builderRef = useRef<HTMLDivElement>(null)
   const savingRef = useRef(false)
   const deletingRef = useRef(false)
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+  const [slotsContextOpen, setSlotsContextOpen] = useState(true)
+  const [activeWeekKey, setActiveWeekKey] = useState<string | null>(null)
   const [editingSlotGroupId, setEditingSlotGroupId] = useState<number | null>(null)
   const [activeDatesMode, setActiveDatesMode] = useState<'inherit' | 'custom' | 'tbd'>('inherit')
   const [activeStart, setActiveStart] = useState('')
@@ -270,19 +280,24 @@ const AdminSchedulingSlots = ({
     return groupSlotGroupsByWeek(offeringScopedSlotGroups).map(([weekKey, groups]) => ({
       key: weekKey,
       label: weekBucketLabel(weekKey),
+      setupLabel: formatWeekSetupLabel(weekKey),
       groups,
     }))
   }, [offeringId, offeringScopedSlotGroups])
 
-  const sectionKey = (key: string) => key
+  const activeWeekSection =
+    weekSections.find((section) => section.key === activeWeekKey) ?? weekSections[0] ?? null
 
   useEffect(() => {
     if (weekSections.length === 0) {
-      setExpanded({})
+      setActiveWeekKey(null)
       return
     }
-    const initial = weekSections[0]
-    setExpanded({ [sectionKey(initial.key)]: true })
+    setActiveWeekKey((current) =>
+      current && weekSections.some((section) => section.key === current)
+        ? current
+        : weekSections[0].key,
+    )
   }, [offeringId, weekSections])
 
   const applyInheritedDates = () => {
@@ -828,110 +843,155 @@ const AdminSchedulingSlots = ({
       {canBuild && builderForm}
 
       <div className="border-t border-gray-200 pt-8">
-        {weekSections.length === 0 || offeringScopedSlotGroups.length === 0 ? (
-          <p className="text-gray-500 text-sm mb-4">No scheduled slots for this offering yet.</p>
-        ) : null}
-        <div className="space-y-3">
-          {weekSections.map((section) => {
-        const groups = section.groups
-        const key = sectionKey(section.key)
-        const isOpen = expanded[key] ?? false
-        return (
-          <div key={key} className="border border-gray-200 rounded-xl overflow-hidden">
+        {setupContextPrimary ? (
+          <div className="border border-gray-200 rounded-xl overflow-hidden">
             <button
               type="button"
-              onClick={() => setExpanded((e) => ({ ...e, [key]: !isOpen }))}
-              className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 text-left"
+              onClick={() => setSlotsContextOpen((open) => !open)}
+              className="w-full flex items-center justify-between gap-4 px-5 py-4 bg-gray-50 hover:bg-gray-100 text-left"
             >
-              <span className="font-bold text-lg text-black">{section.label}</span>
-              <span className="flex items-center gap-2 text-sm text-gray-600">
-                {groups.length} slot{groups.length !== 1 ? 's' : ''}
-                {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              <div className="min-w-0">
+                <p className="font-semibold text-black">{setupContextPrimary}</p>
+                <p className="text-sm mt-1">
+                  {weekSections.length > 1 ? (
+                    <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <select
+                        value={activeWeekKey ?? weekSections[0]?.key ?? ''}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => setActiveWeekKey(e.target.value)}
+                        className="rounded border border-gray-300 bg-white px-2 py-0.5 text-sm text-gray-800"
+                      >
+                        {weekSections.map((section) => (
+                          <option key={section.key} value={section.key}>
+                            {section.setupLabel}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="text-gray-500">·</span>
+                      {offeringLabel?.trim() ? (
+                        <span className="text-gray-600">{offeringLabel.trim()}</span>
+                      ) : (
+                        <span className="text-gray-400 italic">No label</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span>
+                      {activeWeekSection ? (
+                        <>
+                          <span className="text-gray-800">{activeWeekSection.setupLabel}</span>
+                          <span className="text-gray-500"> · </span>
+                        </>
+                      ) : null}
+                      {offeringLabel?.trim() ? (
+                        <span className="text-gray-600">{offeringLabel.trim()}</span>
+                      ) : (
+                        <span className="text-gray-400 italic">No label</span>
+                      )}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <span className="flex items-center gap-2 text-sm text-gray-600 shrink-0">
+                {activeWeekSection
+                  ? `${activeWeekSection.groups.length} slot${activeWeekSection.groups.length !== 1 ? 's' : ''}`
+                  : '0 slots'}
+                {slotsContextOpen ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
               </span>
             </button>
-            {isOpen && (
-              <div className="p-4 space-y-4">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm align-top">
-                    <thead>
-                      <tr className="text-left text-gray-500 border-b">
-                        <th className="py-2 pr-3 align-top">Schedule</th>
-                        <th className="py-2 pr-3 align-top">Capacity</th>
-                        <th className="py-2 pr-3 align-top">Active dates</th>
-                        <th className="py-2 align-top">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {groups.map((group) => (
-                        <tr
-                          key={group.id}
-                          className={`border-b border-gray-100 align-top ${editingSlotGroupId === group.id ? 'bg-amber-50' : ''}`}
-                        >
-                          <td className="py-2 pr-3 align-top">
-                            <ul className="space-y-1">
-                              {sortOccurrences(group.occurrences).map((occ) => (
-                                <li key={occ.id}>
-                                  {occ.scheduleMode === 'date'
-                                    ? `${occ.specificDate} · ${occ.startTime} – ${occ.endTime}`
-                                    : `${dayAbbrev(occ.dayOfWeek) ?? occ.dayName} · ${occ.startTime} – ${occ.endTime}`}
-                                </li>
-                              ))}
-                            </ul>
-                          </td>
-                          <td className="py-2 pr-3 align-top">
-                            <span className="inline-flex items-center gap-1">
-                              <Users className="w-3 h-3" />
-                              {group.signupCount}/{group.maxParticipants}
-                              {(group.waitlistCount ?? 0) > 0 && (
-                                <span className="text-amber-700">
-                                  {' '}· {group.waitlistCount} waitlisted
-                                </span>
-                              )}
-                            </span>
-                          </td>
-                          <td className="py-2 pr-3 align-top text-gray-600">{formatGroupActiveDates(group)}</td>
-                          <td className="py-2 align-top">
-                            <div className="flex items-start gap-2">
-                              <button
-                                type="button"
-                                onClick={() => handleEditGroup(group)}
-                                className="text-blue-600 hover:text-blue-800 p-1"
-                                title="Edit schedule"
-                                aria-label="Edit schedule"
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleCopyGroup(group)}
-                                    className="text-gray-600 hover:text-gray-900 p-1"
-                                    title="Copy schedule"
-                                    aria-label="Copy schedule"
-                                  >
-                                    <Copy className="w-4 h-4" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteGroup(group)}
-                                    className="text-red-600 hover:text-red-800 p-1"
-                                    title="Delete signup slot"
-                                    aria-label="Delete signup slot"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+            {slotsContextOpen && (
+              <div className="p-4">
+                {!activeWeekSection || activeWeekSection.groups.length === 0 ? (
+                  <p className="text-gray-500 text-sm">No scheduled slots for this offering yet.</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm align-top">
+                      <thead>
+                        <tr className="text-left text-gray-500 border-b">
+                          <th className="py-2 pr-3 align-top">Schedule</th>
+                          <th className="py-2 pr-3 align-top">Capacity</th>
+                          <th className="py-2 pr-3 align-top">Active dates</th>
+                          <th className="py-2 align-top">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activeWeekSection.groups.map((group) => (
+                          <tr
+                            key={group.id}
+                            className={`border-b border-gray-100 align-top ${editingSlotGroupId === group.id ? 'bg-amber-50' : ''}`}
+                          >
+                            <td className="py-2 pr-3 align-top">
+                              <ul className="space-y-1">
+                                {sortOccurrences(group.occurrences).map((occ) => (
+                                  <li key={occ.id}>
+                                    {occ.scheduleMode === 'date'
+                                      ? `${occ.specificDate} · ${occ.startTime} – ${occ.endTime}`
+                                      : `${dayAbbrev(occ.dayOfWeek) ?? occ.dayName} · ${occ.startTime} – ${occ.endTime}`}
+                                  </li>
+                                ))}
+                              </ul>
+                            </td>
+                            <td className="py-2 pr-3 align-top">
+                              <span className="inline-flex items-center gap-1">
+                                <Users className="w-3 h-3" />
+                                {group.signupCount}/{group.maxParticipants}
+                                {(group.waitlistCount ?? 0) > 0 && (
+                                  <span className="text-amber-700">
+                                    {' '}
+                                    · {group.waitlistCount} waitlisted
+                                  </span>
+                                )}
+                              </span>
+                            </td>
+                            <td className="py-2 pr-3 align-top text-gray-600">
+                              {formatGroupActiveDates(group)}
+                            </td>
+                            <td className="py-2 align-top">
+                              <div className="flex items-start gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleEditGroup(group)}
+                                  className="text-blue-600 hover:text-blue-800 p-1"
+                                  title="Edit schedule"
+                                  aria-label="Edit schedule"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyGroup(group)}
+                                  className="text-gray-600 hover:text-gray-900 p-1"
+                                  title="Copy schedule"
+                                  aria-label="Copy schedule"
+                                >
+                                  <Copy className="w-4 h-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteGroup(group)}
+                                  className="text-red-600 hover:text-red-800 p-1"
+                                  title="Delete signup slot"
+                                  aria-label="Delete signup slot"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )
-          })}
-        </div>
+        ) : weekSections.length === 0 || offeringScopedSlotGroups.length === 0 ? (
+          <p className="text-gray-500 text-sm mb-4">No scheduled slots for this offering yet.</p>
+        ) : null}
         <OrphanedSignupsPanel
           orphanedSignups={orphanedSignups}
           forms={forms}
