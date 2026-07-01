@@ -591,7 +591,7 @@ const AdminSchedulingSlots = ({
             <select
               value={scheduleMode}
               onChange={(e) => setScheduleMode(e.target.value as 'day' | 'date')}
-              className="w-full rounded-lg border px-3 py-2 bg-white"
+              className="w-full h-10 rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white"
             >
               <option value="day">Day</option>
               <option value="date">Date</option>
@@ -604,7 +604,7 @@ const AdminSchedulingSlots = ({
               min={1}
               value={maxParticipants}
               onChange={(e) => setMaxParticipants(Number(e.target.value))}
-              className="w-full rounded-lg border px-3 py-2"
+              className="w-full h-10 rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white"
             />
           </div>
         </div>

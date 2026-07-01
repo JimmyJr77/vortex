@@ -188,7 +188,7 @@ const ClassEventModal = ({
               onChange={(e) =>
                 setForm((f) => ({ ...f, skillLevel: e.target.value || null }))
               }
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full h-10 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
             >
               <option value="">None (all levels)</option>
               <option value="EARLY_STAGE">Early stage</option>
@@ -244,7 +244,7 @@ const ClassEventModal = ({
               type="text"
               value={form.skillRequirements || ''}
               onChange={(e) => setForm((f) => ({ ...f, skillRequirements: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full h-10 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
               placeholder="e.g. No experience required"
             />
           </div>
