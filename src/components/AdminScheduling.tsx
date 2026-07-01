@@ -4,6 +4,9 @@ import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
 import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
 import AdminSchedulingOfferings from './scheduling/AdminSchedulingOfferings'
 import AdminSchedulingLegacyForms from './scheduling/AdminSchedulingLegacyForms'
+import SchedulingSetupContextCard, {
+  formatSetupContextLine,
+} from './scheduling/SchedulingSetupContextCard'
 import {
   adminFetchSchedulingForm,
   adminFetchSchedulingForms,
@@ -266,10 +269,6 @@ const AdminScheduling = ({
     setPanel('slots')
   }, [])
 
-  const offeringDisplayName =
-    selectedOffering?.label?.trim() ||
-    (selectedOffering ? formatOfferingDateRange(selectedOffering) : null)
-
   const handleProgramSaved = (updated: TopProgram) => {
     setTopPrograms((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))
   }
@@ -353,13 +352,7 @@ const AdminScheduling = ({
                 {selectedClassEvent ? (
                   <>
                     {' '}
-                    · Class/Event: <strong>{selectedClassEvent.displayName}</strong>
-                    {offeringDisplayName && (
-                      <>
-                        {' '}
-                        · <strong>{offeringDisplayName}</strong>
-                      </>
-                    )}
+                    · Class: <strong>{selectedClassEvent.displayName}</strong>
                   </>
                 ) : (
                   <span className="text-amber-700"> · Select a class in Classes to continue</span>
@@ -408,6 +401,7 @@ const AdminScheduling = ({
               {panel === 'offerings' && selectedClassEvent && selectedId && (
                 <AdminSchedulingOfferings
                   formId={selectedId}
+                  classDisplayName={selectedClassEvent.displayName}
                   selectedOfferingId={selectedOffering?.id ?? null}
                   onOfferingSelect={handleOfferingSelect}
                   onContinueToSlots={handleOfferingContinueToSlots}
@@ -423,6 +417,15 @@ const AdminScheduling = ({
 
               {panel === 'slots' && selectedClassEvent && selectedId && detail && selectedOffering && (
                 <>
+                  <SchedulingSetupContextCard
+                    className="mb-4"
+                    primary={formatSetupContextLine([
+                      selectedProgram?.displayName,
+                      selectedClassEvent.displayName,
+                      formatOfferingDateRange(selectedOffering),
+                    ])}
+                    secondary={selectedOffering.label}
+                  />
                   {offerings.length > 1 && (
                     <div className="mb-4 rounded-lg border border-gray-200 bg-white px-4 py-3">
                       <label className="block text-xs font-semibold text-gray-600 mb-1">
@@ -438,13 +441,14 @@ const AdminScheduling = ({
                       >
                         {offerings.map((o) => (
                           <option key={o.id} value={o.id}>
-                            {o.label?.trim() || formatOfferingDateRange(o)}
+                            {formatSetupContextLine([
+                              selectedClassEvent.displayName,
+                              formatOfferingDateRange(o),
+                            ])}
+                            {o.label?.trim() ? ` — ${o.label.trim()}` : ''}
                           </option>
                         ))}
                       </select>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Timeslots are saved to the offering selected here. Pick the empty offering before adding new slots.
-                      </p>
                     </div>
                   )}
                 <AdminSchedulingSlots
@@ -455,7 +459,6 @@ const AdminScheduling = ({
                   offeringId={selectedOffering?.id ?? null}
                   offeringStartDate={selectedOffering?.startDate ?? null}
                   offeringEndDate={selectedOffering?.endDate ?? null}
-                  offeringLabel={offeringDisplayName}
                   canBuild={Boolean(selectedOffering)}
                   orphanedSignups={orphanedSignups}
                   signups={signups}

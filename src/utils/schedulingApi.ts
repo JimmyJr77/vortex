@@ -1504,7 +1504,7 @@ export function formatOfferingDateRange(offering: {
   if (evergreen) {
     return offering.startDate ? `${offering.startDate} · Ongoing` : 'Ongoing'
   }
-  return `${offering.startDate} – ${offering.endDate}`
+  return `${offering.startDate} to ${offering.endDate}`
 }
 
 export async function adminFetchOfferings(

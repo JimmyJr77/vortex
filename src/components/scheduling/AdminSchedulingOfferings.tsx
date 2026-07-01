@@ -10,11 +10,15 @@ import {
   type SchedulingOffering,
 } from '../../utils/schedulingApi'
 import { dateInputValue } from '../../utils/dateUtils'
+import SchedulingSetupContextCard, {
+  formatSetupContextLine,
+} from './SchedulingSetupContextCard'
 
 type DurationMode = 'session' | 'evergreen'
 
 interface Props {
   formId: number
+  classDisplayName: string
   selectedOfferingId: number | null
   onOfferingSelect: (offering: SchedulingOffering | null) => void
   onContinueToSlots?: () => void
@@ -23,6 +27,7 @@ interface Props {
 
 const AdminSchedulingOfferings = ({
   formId,
+  classDisplayName,
   selectedOfferingId,
   onOfferingSelect,
   onContinueToSlots,
@@ -200,10 +205,22 @@ const AdminSchedulingOfferings = ({
     )
   }
 
+  const selectedOffering = offerings.find((o) => o.id === selectedOfferingId) ?? null
+
   return (
     <div className="space-y-6 w-full">
       {error && <p className="text-sm text-red-600">{error}</p>}
       {validationError && <p className="text-sm text-red-600">{validationError}</p>}
+
+      {selectedOffering && (
+        <SchedulingSetupContextCard
+          primary={formatSetupContextLine([
+            classDisplayName,
+            formatOfferingDateRange(selectedOffering),
+          ])}
+          secondary={selectedOffering.label}
+        />
+      )}
 
       <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50">
         {editId != null && (
@@ -295,15 +312,23 @@ const AdminSchedulingOfferings = ({
             {offerings.map((o) => {
               const isSelected = selectedOfferingId === o.id
               return (
-                <li key={o.id} className={isSelected ? 'bg-red-50' : 'bg-white'}>
+                <li
+                  key={o.id}
+                  className={`flex items-center gap-1 px-2 py-2 ${isSelected ? 'bg-red-50' : 'bg-white'}`}
+                >
                   <button
                     type="button"
                     onClick={() => void handleSelect(o)}
                     disabled={saving}
-                    className="w-full flex items-center justify-between gap-4 px-4 py-3 text-left hover:bg-gray-50 transition-colors disabled:opacity-60"
+                    className="flex-1 flex items-center justify-between gap-4 min-w-0 px-2 py-1 text-left hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-60"
                   >
                     <div className="min-w-0">
-                      <p className="font-semibold text-black">{formatOfferingDateRange(o)}</p>
+                      <p className="font-semibold text-black">
+                        {formatSetupContextLine([
+                          classDisplayName,
+                          formatOfferingDateRange(o),
+                        ])}
+                      </p>
                       {o.label ? (
                         <p className="text-sm text-gray-600 mt-0.5">{o.label}</p>
                       ) : (
@@ -312,10 +337,7 @@ const AdminSchedulingOfferings = ({
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
                   </button>
-                  <div
-                    className="px-4 pb-3 flex gap-1 border-t border-gray-100 pt-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       className={iconBtn}
