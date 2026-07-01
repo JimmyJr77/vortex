@@ -8,6 +8,7 @@ import {
 } from '../../utils/programPricingOptions'
 import {
   maxEnabledWeeklySlots,
+  onlyFlatOneXWeeklyTier,
   programUsesWeeklyTierPricing,
   weeklyTierExceedsMaxMessage,
   weeklyTierForSlotCount,
@@ -594,6 +595,10 @@ export default function MemberClassesOfferedEnroll({
         const maxWeeklySlots = usesWeeklyTiers
           ? maxEnabledWeeklySlots(program.pricingCostOptions ?? [])
           : 0
+        const flatOneXOnly =
+          usesWeeklyTiers && onlyFlatOneXWeeklyTier(program.pricingCostOptions ?? [])
+        const oneXMonthly =
+          flatOneXOnly && weeklyTierTotalDollars(1, program.pricingCostOptions ?? [])
         const programSlotTotal =
           (existingSlotsByProgram.get(program.id) ?? 0) + countProgramSlotsInCart(program.id)
         const weeklyTier =
@@ -621,7 +626,21 @@ export default function MemberClassesOfferedEnroll({
                       <span className="font-semibold text-gray-900">
                         ${weeklyTotalMonthly.toFixed(2)}/mo
                       </span>{' '}
-                      <span className="text-gray-500">({weeklyTier.slotCount} class slots)</span>
+                      <span className="text-gray-500">
+                        ({weeklyTier.slotCount}{' '}
+                        {weeklyTier.slotCount === 1 ? 'class' : 'classes'}
+                        {flatOneXOnly && oneXMonthly != null
+                          ? ` @ $${oneXMonthly.toFixed(2)}/mo each`
+                          : ''}
+                        )
+                      </span>
+                    </>
+                  ) : flatOneXOnly && oneXMonthly != null ? (
+                    <>
+                      Each class:{' '}
+                      <span className="font-semibold text-gray-900">
+                        ${oneXMonthly.toFixed(2)}/mo
+                      </span>
                     </>
                   ) : (
                     <>Select up to {maxWeeklySlots} class slots for this program.</>

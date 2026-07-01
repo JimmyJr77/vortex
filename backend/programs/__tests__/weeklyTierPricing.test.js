@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   maxEnabledWeeklySlots,
+  onlyFlatOneXWeeklyTier,
   weeklyTierMarginalCents,
   weeklyTierTotalCents,
   weeklyTierTotalDollars,
@@ -61,4 +62,16 @@ test('maxEnabledWeeklySlots respects disabled tiers', () => {
     { key: 'monthly_3x', enabled: false, amountCents: 35000 },
   ])
   assert.equal(maxEnabledWeeklySlots(options), 2)
+})
+
+test('only 1x enabled: each class at 1x price, up to 7 slots', () => {
+  const options = opts([{ key: 'monthly_1x', enabled: true, amountCents: 15000 }])
+  assert.equal(onlyFlatOneXWeeklyTier(options), true)
+  assert.equal(maxEnabledWeeklySlots(options), 7)
+  assert.equal(weeklyTierTotalDollars(1, options), 150)
+  assert.equal(weeklyTierTotalDollars(2, options), 300)
+  assert.equal(weeklyTierTotalDollars(3, options), 450)
+  assert.equal(weeklyTierMarginalCents(1, options), 15000)
+  assert.equal(weeklyTierMarginalCents(2, options), 15000)
+  assert.equal(weeklyTierMarginalCents(3, options), 15000)
 })

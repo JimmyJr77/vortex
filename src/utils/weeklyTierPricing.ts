@@ -36,11 +36,31 @@ export function isWeeklyTierEnabled(options: ProgramPricingOption[], slotCount: 
   return Boolean(row?.enabled)
 }
 
-export function maxEnabledWeeklySlots(options: ProgramPricingOption[]): number {
-  for (let n = 7; n >= 1; n -= 1) {
-    if (isWeeklyTierEnabled(options, n)) return n
+/** True when 2×–7× tiers are enabled (bundle pricing by slot count). */
+export function hasWeeklyTierBundlePricing(options: ProgramPricingOption[] | unknown): boolean {
+  const normalized = normalizeProgramPricingOptions(options)
+  for (let n = 2; n <= 7; n += 1) {
+    if (isWeeklyTierEnabled(normalized, n)) return true
   }
-  return 0
+  return false
+}
+
+/** Only 1× enabled: each enrolled class bills at the 1× monthly rate. */
+export function onlyFlatOneXWeeklyTier(options: ProgramPricingOption[] | unknown): boolean {
+  const normalized = normalizeProgramPricingOptions(options)
+  return isWeeklyTierEnabled(normalized, 1) && !hasWeeklyTierBundlePricing(normalized)
+}
+
+export const MAX_WEEKLY_TIER_SLOTS = 7
+
+export function maxEnabledWeeklySlots(options: ProgramPricingOption[]): number {
+  const normalized = normalizeProgramPricingOptions(options)
+  if (!isWeeklyTierEnabled(normalized, 1)) return 0
+  if (onlyFlatOneXWeeklyTier(normalized)) return MAX_WEEKLY_TIER_SLOTS
+  for (let n = MAX_WEEKLY_TIER_SLOTS; n >= 2; n -= 1) {
+    if (isWeeklyTierEnabled(normalized, n)) return n
+  }
+  return 1
 }
 
 export function programUsesWeeklyTierPricing(program: {
