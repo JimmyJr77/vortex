@@ -9,6 +9,7 @@ import { fetchDisciplineTags, consolidateClasses, deleteTopProgram, type Discipl
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import AdminClassesEventsSpreadsheet from './classes/AdminClassesEventsSpreadsheet'
 import ClassSchedulingExpandPanel from './classes/ClassSchedulingExpandPanel'
+import { loadSchedulingCountsForClasses } from '../utils/classSchedulingSummary'
 import { formatAgeRange, formatSkillLevel } from '../utils/classDisplayUtils'
 
 interface Program {
@@ -670,7 +671,24 @@ export default function AdminClasses({
       ])
       
       if (activeData.success && archivedData.success) {
-        setPrograms([...activeData.data, ...archivedData.data])
+        const merged = [...activeData.data, ...archivedData.data]
+        setPrograms(merged)
+        const countTargets = merged.filter((p) => !p.archived).map((p) => ({ id: p.id }))
+        loadSchedulingCountsForClasses(countTargets)
+          .then((countsMap) => {
+            setPrograms((prev) =>
+              prev.map((p) => {
+                const counts = countsMap.get(p.id)
+                if (!counts) return p
+                return {
+                  ...p,
+                  offeringCount: counts.offeringCount,
+                  slotCount: counts.slotCount,
+                }
+              }),
+            )
+          })
+          .catch(() => {})
       }
     } catch (error) {
       console.error('Error fetching programs:', error)

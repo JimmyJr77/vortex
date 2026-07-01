@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Loader2, Pencil, Trash2 } from 'lucide-react'
+import { ChevronRight, Loader2, Pencil, Trash2 } from 'lucide-react'
 import {
   adminCreateOffering,
   adminDeleteOffering,
@@ -87,13 +87,16 @@ const AdminSchedulingOfferings = ({
       }
       if (editId) {
         await adminUpdateOffering(editId, payload)
+        resetDraft()
+        await loadOfferings()
       } else {
         const created = await adminCreateOffering(formId, payload)
         const selected = await adminSelectOffering(created.id)
         onOfferingSelect(selected)
+        resetDraft()
+        await loadOfferings()
+        onContinueToSlots?.()
       }
-      resetDraft()
-      await loadOfferings()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save offering')
     } finally {
@@ -235,61 +238,56 @@ const AdminSchedulingOfferings = ({
       ) : offerings.length === 0 ? (
         <p className="text-sm text-gray-500">No offerings yet for this class.</p>
       ) : (
-        <div className="border border-gray-200 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-left text-gray-600">
-              <tr>
-                <th className="py-2 px-4 font-medium w-8" />
-                <th className="py-2 px-4 font-medium">Dates</th>
-                <th className="py-2 px-4 font-medium">Label</th>
-                <th className="py-2 px-4 font-medium w-24">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {offerings.map((o) => {
-                const isChecked = selectedOfferingId === o.id
-                return (
-                  <tr
-                    key={o.id}
-                    className={`border-t border-gray-100 ${isChecked ? 'bg-red-50' : ''}`}
+        <div className="space-y-2">
+          <p className="text-sm text-gray-600">Click an offering to manage its timeslots.</p>
+          <ul className="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden">
+            {offerings.map((o) => {
+              const isSelected = selectedOfferingId === o.id
+              return (
+                <li key={o.id} className={isSelected ? 'bg-red-50' : 'bg-white'}>
+                  <button
+                    type="button"
+                    onClick={() => void handleSelect(o)}
+                    disabled={saving}
+                    className="w-full flex items-center justify-between gap-4 px-4 py-3 text-left hover:bg-gray-50 transition-colors disabled:opacity-60"
                   >
-                    <td className="py-2 px-4">
-                      <input
-                        type="radio"
-                        name="selected-offering"
-                        checked={isChecked}
-                        onChange={() => void handleSelect(o)}
-                        disabled={saving}
-                        title="Select for slot building"
-                      />
-                    </td>
-                    <td className="py-2 px-4">{formatOfferingDateRange(o)}</td>
-                    <td className="py-2 px-4 text-gray-600">{o.label || '—'}</td>
-                    <td className="py-2 px-4">
-                      <div className="flex gap-1">
-                        <button
-                          type="button"
-                          className={iconBtn}
-                          onClick={() => startEdit(o)}
-                          title="Edit"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          className={`${iconBtn} hover:text-red-700`}
-                          onClick={() => void handleDelete(o)}
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-black">{formatOfferingDateRange(o)}</p>
+                      {o.label ? (
+                        <p className="text-sm text-gray-600 mt-0.5">{o.label}</p>
+                      ) : (
+                        <p className="text-sm text-gray-400 mt-0.5 italic">No label</p>
+                      )}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+                  </button>
+                  <div
+                    className="px-4 pb-3 flex gap-1 border-t border-gray-100 pt-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      className={iconBtn}
+                      onClick={() => startEdit(o)}
+                      title="Edit"
+                      disabled={saving}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      className={`${iconBtn} hover:text-red-700`}
+                      onClick={() => void handleDelete(o)}
+                      title="Delete"
+                      disabled={saving}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
         </div>
       )}
     </div>

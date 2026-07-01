@@ -201,6 +201,9 @@ const ClassSchedulingExpandPanel = ({
                     <div key={offering.id}>
                       <div className="font-semibold text-gray-900 mb-2">
                         {formatOfferingDates(offering)}
+                        <span className="ml-2 text-xs font-normal text-gray-500">
+                          {slotGroups.length} slot{slotGroups.length !== 1 ? 's' : ''}
+                        </span>
                         {offering.isSelected && (
                           <span className="ml-2 text-xs font-semibold text-green-700">
                             Selected

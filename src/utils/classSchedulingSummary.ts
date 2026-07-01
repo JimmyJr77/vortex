@@ -92,7 +92,7 @@ export function groupSlotsByOffering(
   const assignedIds = new Set<number>()
   const byOffering = sortedOfferings.map((offering) => {
     const groups = sortedSlotGroups.filter((g) => {
-      if (g.offeringId === offering.id) {
+      if (Number(g.offeringId) === Number(offering.id)) {
         assignedIds.add(g.id)
         return true
       }

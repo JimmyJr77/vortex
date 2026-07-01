@@ -50,38 +50,6 @@ const defaultTime = (): TimeRow => ({ startTime: '09:00', endTime: '10:00' })
 
 const normalizeTime = (time: string) => (time.length >= 5 ? time.slice(0, 5) : time)
 
-function todayDateString() {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-function isSlotScheduleExpired(group: SchedulingSlotGroup) {
-  if (group.datesTbd) return false
-  const today = todayDateString()
-  return Boolean(group.activeEnd && group.activeEnd < today)
-}
-
-function hasWithdrawnStudents(
-  groupId: number,
-  signups: SchedulingSignup[],
-  orphanedSignups: SchedulingOrphanedSignup[],
-) {
-  const cancelled = signups.some((s) => s.slotGroupId === groupId && s.status === 'cancelled')
-  const orphaned = orphanedSignups.some((s) => s.orphanedSnapshot?.slotGroupId === groupId)
-  return cancelled || orphaned
-}
-
-function isScheduledSlotVisible(
-  group: SchedulingSlotGroup,
-  signups: SchedulingSignup[],
-  orphanedSignups: SchedulingOrphanedSignup[],
-) {
-  const activeEnrollments = (group.signupCount ?? 0) + (group.waitlistCount ?? 0)
-  if (activeEnrollments > 0) return true
-  if (group.isActive && !isSlotScheduleExpired(group)) return true
-  return hasWithdrawnStudents(group.id, signups, orphanedSignups)
-}
-
 function createDefaultWeeks(inheritedStart: string, inheritedEnd: string): WeekRow[] {
   return [
     {
@@ -138,7 +106,7 @@ const AdminSchedulingSlots = ({
   offeringLabel,
   canBuild = true,
   orphanedSignups,
-  signups,
+  signups: _signups,
   forms,
   onRefresh,
 }: Props) => {
@@ -146,12 +114,11 @@ const AdminSchedulingSlots = ({
     if (offeringId == null) return []
 
     return sortSlotGroups(
-      (detail.slotGroups ?? []).filter((group) => {
-        if (!isScheduledSlotVisible(group, signups, orphanedSignups)) return false
-        return Number(group.offeringId) === Number(offeringId)
-      }),
+      (detail.slotGroups ?? []).filter(
+        (group) => Number(group.offeringId) === Number(offeringId),
+      ),
     )
-  }, [detail.slotGroups, signups, orphanedSignups, offeringId])
+  }, [detail.slotGroups, offeringId])
 
   const prevOfferingIdRef = useRef<number | null | undefined>(offeringId)
 
