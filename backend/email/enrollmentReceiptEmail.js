@@ -1,4 +1,5 @@
 import { sendEmail, isEmailConfigured } from './sendEmail.js'
+import { formatReceiptPricingSummaryEmail } from '../scheduling/pricing.js'
 
 function escapeHtml(str) {
   return String(str ?? '')
@@ -18,6 +19,7 @@ function escapeHtml(str) {
  *   selectedDays?: string[]
  *   receiptUrl: string
  *   guardianName?: string | null
+ *   pricingSummary?: object | null
  * }} params
  */
 export async function sendEnrollmentReceiptEmail({
@@ -29,6 +31,7 @@ export async function sendEnrollmentReceiptEmail({
   selectedDays = [],
   receiptUrl,
   guardianName = null,
+  pricingSummary = null,
 }) {
   if (!isEmailConfigured()) {
     console.warn('[enrollmentReceiptEmail] SMTP not configured; receipt URL:', receiptUrl)
@@ -53,6 +56,8 @@ export async function sendEnrollmentReceiptEmail({
   if (days.length) detailLines.push(`Days: ${days.join(', ')}`)
   detailLines.push(`Status: ${isWaitlisted ? 'Waitlisted' : 'Confirmed'}`)
 
+  const pricingBlock = formatReceiptPricingSummaryEmail(pricingSummary)
+
   const text = [
     greeting,
     '',
@@ -61,6 +66,7 @@ export async function sendEnrollmentReceiptEmail({
       : `${name} is registered for ${program} at Vortex Athletics.`,
     '',
     ...detailLines,
+    ...(pricingBlock.text ? ['', pricingBlock.text] : []),
     '',
     `View your registration receipt: ${receiptUrl}`,
     '',
@@ -83,6 +89,7 @@ export async function sendEnrollmentReceiptEmail({
         : `<strong>${escapeHtml(name)}</strong> is registered for <strong>${escapeHtml(program)}</strong> at Vortex Athletics.`
     }</p>
     ${detailHtml}
+    ${pricingBlock.html}
     <p style="margin: 28px 0;">
       <a href="${escapeHtml(receiptUrl)}"
          style="display: inline-block; background: #c41e3a; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">

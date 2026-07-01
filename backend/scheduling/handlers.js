@@ -24,6 +24,10 @@ import { buildSignupOrderPreview, loadMemberScopeSignups, pricingScopeKey, Weekl
 import { persistDiscountSnapshot } from './discountEngine.js'
 import { persistSignupCharges } from './persistSignupCharges.js'
 import {
+  cancelSubscriptionsForSource,
+  reactivateSubscriptionForSource,
+} from './billingSubscriptions.js'
+import {
   persistMultiClassPassPurchaseCharge,
   persistPassRedemptionCharge,
 } from './persistMultiClassPassCharges.js'
@@ -31,10 +35,11 @@ import {
   createMemberPassPurchase,
   loadProgramPassPackages,
   redeemPassForSignup,
+  restorePassCreditsForSignup,
   selectPassForRedemption,
 } from '../programs/multiClassPass.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
-import { computeMonthlyPricing } from './pricing.js'
+import { computeMonthlyPricing, buildReceiptPricingSummary } from './pricing.js'
 import {
   hoursPerMonthForEnrollment,
   loadTimeSlotsBySlotGroupIds,
@@ -126,7 +131,7 @@ async function orphanSignupsForSlotGroup(db, groupId) {
   const snapshot = await buildOrphanSnapshot(db, groupId)
   if (!snapshot) return
 
-  await db.query(
+  const orphaned = await db.query(
     `
     UPDATE scheduling_signup
     SET
@@ -137,9 +142,24 @@ async function orphanSignupsForSlotGroup(db, groupId) {
       time_slot_id = NULL,
       status = 'cancelled'
     WHERE slot_group_id = $1 AND orphaned_at IS NULL
+    RETURNING id
     `,
     [groupId, JSON.stringify(snapshot)],
   )
+
+  // Stop future recurring billing and restore any consumed pass credits.
+  for (const row of orphaned.rows) {
+    try {
+      await cancelSubscriptionsForSource(db, { sourceType: 'scheduling_signup', sourceId: row.id })
+    } catch (err) {
+      console.warn('[scheduling] orphan cancel subscription:', err.message)
+    }
+    try {
+      await restorePassCreditsForSignup(db, { signupId: row.id, reason: 'Class removed' })
+    } catch (err) {
+      console.warn('[scheduling] orphan restore pass credits:', err.message)
+    }
+  }
 }
 
 async function insertSignupForMember(
@@ -284,6 +304,7 @@ async function sendSignupNotificationEmails(pool, {
         status: signupStatus === 'waitlisted' ? 'waitlisted' : 'confirmed',
         schedulingSignupId: signupId,
         athleteName: `${responses.first_name || ''} ${responses.last_name || ''}`.trim() || undefined,
+        pricingSummary: buildReceiptPricingSummary(pricing),
       })
       if (receipt.sent) confirmationEmailSentAt = new Date().toISOString()
     } catch (emailErr) {
@@ -3768,6 +3789,23 @@ export function createSchedulingHandlers(pool) {
               [signup.slot_group_id],
             )
             promotedRows = await promoteFromWaitlist(client, signup.slot_group_id, 1)
+          }
+
+          // Keep recurring subscriptions in sync with signup status.
+          if (targetStatus === 'cancelled' && previousStatus !== 'cancelled') {
+            await cancelSubscriptionsForSource(client, {
+              sourceType: 'scheduling_signup',
+              sourceId: req.params.id,
+            })
+            await restorePassCreditsForSignup(client, {
+              signupId: req.params.id,
+              reason: 'Enrollment cancelled',
+            })
+          } else if (targetStatus !== 'cancelled' && previousStatus === 'cancelled') {
+            await reactivateSubscriptionForSource(client, {
+              sourceType: 'scheduling_signup',
+              sourceId: req.params.id,
+            })
           }
 
           await client.query('COMMIT')

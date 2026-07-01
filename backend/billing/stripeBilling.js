@@ -86,8 +86,8 @@ export async function parseWebhookEvent(rawBody, signature) {
  * Idempotently record a successful Stripe payment into billing_payment.
  */
 export async function recordStripePayment(pool, { paymentIntentId, amountCents, accountId, customerId }) {
-  if (!paymentIntentId || !accountId) return
-  await pool.query(
+  if (!paymentIntentId || !accountId) return null
+  const result = await pool.query(
     `
       INSERT INTO billing_payment
         (family_billing_account_id, amount_cents, method, external_processor,
@@ -95,7 +95,9 @@ export async function recordStripePayment(pool, { paymentIntentId, amountCents, 
       VALUES ($1, $2, 'card', 'stripe', 'settled', $3, $4)
       ON CONFLICT (stripe_payment_intent_id) WHERE stripe_payment_intent_id IS NOT NULL
       DO NOTHING
+      RETURNING *
     `,
     [accountId, Math.round(Number(amountCents) || 0), customerId ?? null, paymentIntentId],
   )
+  return result.rows[0] ?? null
 }

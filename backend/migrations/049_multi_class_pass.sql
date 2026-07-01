@@ -63,3 +63,26 @@ CREATE INDEX IF NOT EXISTS idx_multi_class_pass_redemption_member
 
 ALTER TABLE scheduling_signup
   ADD COLUMN IF NOT EXISTS pricing_option_key TEXT;
+
+-- Bundle ledger hardening (Billing Overhaul Phase 1; mirrored in 053 boot path).
+ALTER TABLE member_multi_class_pass ADD COLUMN IF NOT EXISTS expires_at DATE;
+ALTER TABLE member_multi_class_pass ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'active';
+DO $$
+BEGIN
+  ALTER TABLE member_multi_class_pass
+    ADD CONSTRAINT member_multi_class_pass_status_check
+    CHECK (status IN ('active', 'expired', 'refunded'));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE multi_class_pass_redemption ADD COLUMN IF NOT EXISTS entry_type TEXT NOT NULL DEFAULT 'use';
+ALTER TABLE multi_class_pass_redemption ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE multi_class_pass_redemption ADD COLUMN IF NOT EXISTS credit_delta INTEGER;
+DO $$
+BEGIN
+  ALTER TABLE multi_class_pass_redemption
+    ADD CONSTRAINT multi_class_pass_redemption_entry_type_check
+    CHECK (entry_type IN ('use', 'restore', 'expire', 'refund', 'adjust'));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+UPDATE multi_class_pass_redemption SET credit_delta = -classes_used WHERE credit_delta IS NULL;

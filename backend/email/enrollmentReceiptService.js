@@ -47,6 +47,7 @@ export async function verifyEnrollmentReceiptToken(pool, token) {
       slotLabel: row.payload?.slotLabel ?? null,
       status: row.payload?.status ?? 'confirmed',
       selectedDays: row.payload?.selectedDays ?? [],
+      pricing: row.payload?.pricing ?? null,
       viewedAt: row.viewed_at || new Date().toISOString(),
     },
   }
@@ -66,6 +67,7 @@ export async function verifyEnrollmentReceiptToken(pool, token) {
  *   schedulingSignupId?: number | null
  *   memberProgramId?: number | null
  *   guardianName?: string | null
+ *   pricingSummary?: object | null
  *   bestEffort?: boolean
  * }} params
  */
@@ -81,6 +83,7 @@ export async function issueEnrollmentReceipt(pool, params) {
     schedulingSignupId = null,
     memberProgramId = null,
     guardianName = null,
+    pricingSummary = null,
     bestEffort = true,
   } = params
 
@@ -99,6 +102,7 @@ export async function issueEnrollmentReceipt(pool, params) {
     slotLabel,
     status,
     selectedDays: Array.isArray(selectedDays) ? selectedDays : [],
+    pricing: pricingSummary ?? null,
   }
 
   await pool.query(
@@ -129,6 +133,7 @@ export async function issueEnrollmentReceipt(pool, params) {
       selectedDays,
       receiptUrl,
       guardianName,
+      pricingSummary,
     })
     return { sent: result.sent === true, receiptUrl, skipped: false }
   } catch (err) {

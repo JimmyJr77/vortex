@@ -330,6 +330,38 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
         </div>
       </section>
 
+      {/* Cost + what to bring */}
+      <section className="py-14 md:py-16 bg-white text-neutral-900">
+        <div className="container-custom">
+          <div className="grid gap-6 lg:grid-cols-2 max-w-5xl mx-auto">
+            <article className="rounded-2xl border-4 border-vortex-red bg-red-50 p-6 md:p-8 shadow-lg">
+              <h2 className="text-2xl md:text-3xl font-display font-black uppercase text-vortex-red mb-4">
+                Camp costs
+              </h2>
+              <p className="text-lg font-semibold text-black mb-3">8:30 AM - 3:30 PM</p>
+              <ul className="space-y-2 text-base md:text-lg font-medium text-neutral-800">
+                <li>$400/week</li>
+                <li>$90/day</li>
+                <li>$50 per half day</li>
+              </ul>
+              <p className="mt-4 text-sm md:text-base text-neutral-700">
+                Extended care: Early drop-off and late pick-up available for $10 (30 min).
+              </p>
+            </article>
+
+            <article className="rounded-2xl border-4 border-blue-600 bg-blue-50 p-6 md:p-8 shadow-lg">
+              <h2 className="text-2xl md:text-3xl font-display font-black uppercase text-blue-700 mb-4">
+                What to bring
+              </h2>
+              <p className="text-base md:text-lg leading-relaxed text-neutral-800">
+                Bring comfortable athletic wear or leotard, lunch, 2 snacks, and a refillable water
+                bottle, lots of energy, and a big smile.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       {/* CTA band */}
       <section className="py-16 bg-vortex-red relative overflow-hidden">
         <div

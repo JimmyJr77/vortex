@@ -136,6 +136,41 @@ interface BillingCharge {
   sourceType: string
   description: string
   amountCents: number
+  grossAmountCents?: number
+  discountAmountCents?: number
+  chargeType?: string
+  billingInterval?: string
+  createdAt: string
+}
+
+interface BillingSubscriptionSummary {
+  id: number
+  memberName: string | null
+  description: string
+  monthlyAmountCents: number
+  discountAmountCents: number
+  netMonthlyCents: number
+  status: string
+  nextBillDate: string | null
+}
+
+interface BillingBundlePass {
+  id: number
+  memberName: string | null
+  packageLabel: string | null
+  classCountPurchased: number
+  classesRemaining: number
+  status: string
+  expiresAt: string | null
+}
+
+interface BillingBundleUsage {
+  id: number
+  entryType: string
+  creditDelta: number | null
+  classesRemainingAfter: number
+  reason: string | null
+  packageLabel: string | null
   createdAt: string
 }
 
@@ -144,9 +179,14 @@ interface BillingAccountSummary {
   payments: BillingPayment[]
   chargesCents: number
   paymentsCents: number
+  refundsCents?: number
   balanceCents: number
   canSeeFamily: boolean
   stripeEnabled?: boolean
+  subscriptions?: BillingSubscriptionSummary[]
+  monthlyTotals?: { grossCents: number; discountCents: number; netCents: number }
+  bundlePasses?: BillingBundlePass[]
+  bundleUsage?: BillingBundleUsage[]
 }
 
 interface MemberWaiver {
@@ -657,6 +697,7 @@ export default function MemberDashboard({
       fetchEnrollments() // Need enrollments for filtering
     } else if (activeTab === 'profile') {
       fetchEnrollments() // Need enrollments to display on profile
+      fetchBillingStatements() // Profile shows Payment History; load billing data here too
     } else if (activeTab === 'billing') {
       fetchBillingStatements()
     } else if (activeTab === 'waivers') {
@@ -2136,14 +2177,24 @@ export default function MemberDashboard({
                     <div className="text-center py-12 text-gray-600">Loading your account…</div>
                   ) : (
                     <>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                        <div className="rounded-xl border border-gray-200 p-4">
+                          <p className="text-xs uppercase tracking-wide text-gray-500">Monthly total</p>
+                          <p className="text-xl font-bold text-gray-900">{formatMoney(billingAccount?.monthlyTotals?.netCents ?? 0)}</p>
+                          {(billingAccount?.monthlyTotals?.discountCents ?? 0) > 0 && (
+                            <p className="text-xs text-gray-500">{formatMoney(billingAccount?.monthlyTotals?.grossCents ?? 0)} − {formatMoney(billingAccount?.monthlyTotals?.discountCents ?? 0)}</p>
+                          )}
+                        </div>
                         <div className="rounded-xl border border-gray-200 p-4">
                           <p className="text-xs uppercase tracking-wide text-gray-500">Total charges</p>
                           <p className="text-xl font-bold text-gray-900">{formatMoney(billingAccount?.chargesCents ?? 0)}</p>
                         </div>
                         <div className="rounded-xl border border-gray-200 p-4">
-                          <p className="text-xs uppercase tracking-wide text-gray-500">Payments</p>
-                          <p className="text-xl font-bold text-gray-900">{formatMoney(billingAccount?.paymentsCents ?? 0)}</p>
+                          <p className="text-xs uppercase tracking-wide text-gray-500">Payments / Refunds</p>
+                          <p className="text-xl font-bold text-gray-900">
+                            {formatMoney(billingAccount?.paymentsCents ?? 0)}
+                            <span className="text-xs font-normal text-gray-500"> / {formatMoney(billingAccount?.refundsCents ?? 0)}</span>
+                          </p>
                         </div>
                         <div className="rounded-xl border-2 border-black p-4">
                           <p className="text-xs uppercase tracking-wide text-gray-500">Balance due</p>
@@ -2164,29 +2215,127 @@ export default function MemberDashboard({
                         </div>
                       )}
 
-                      <h3 className="text-sm font-semibold text-gray-900 mb-2">Charges</h3>
-                      {!billingAccount || billingAccount.charges.length === 0 ? (
-                        <div className="text-sm text-gray-500 mb-6">No charges on file yet.</div>
-                      ) : (
-                        <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
-                          {billingAccount.charges.map((charge) => (
-                            <div key={charge.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-                              <div className="min-w-0">
-                                <p className="font-medium text-gray-900">{charge.description}</p>
-                                <p className="text-xs text-gray-500">
-                                  {charge.memberName ? `${charge.memberName} · ` : ''}
-                                  {charge.sourceType === 'multi_class_pass_purchase'
-                                    ? 'Multi-class pass · '
-                                    : charge.sourceType === 'scheduling_signup'
-                                      ? 'Class registration · '
-                                      : ''}
-                                  {new Date(charge.createdAt).toLocaleDateString()}
-                                </p>
+                      {(billingAccount?.subscriptions?.length ?? 0) > 0 && (
+                        <>
+                          <h3 className="text-sm font-semibold text-gray-900 mb-2">Recurring enrollments</h3>
+                          <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
+                            {billingAccount!.subscriptions!.map((sub) => (
+                              <div key={sub.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
+                                <div className="min-w-0">
+                                  <p className="font-medium text-gray-900">{sub.description}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {sub.memberName ? `${sub.memberName} · ` : ''}
+                                    <span className="capitalize">{sub.status}</span>
+                                    {sub.nextBillDate ? ` · next ${new Date(sub.nextBillDate).toLocaleDateString()}` : ''}
+                                  </p>
+                                </div>
+                                <div className="text-right shrink-0">
+                                  <span className="font-semibold text-gray-900">{formatMoney(sub.netMonthlyCents)}/mo</span>
+                                  {sub.discountAmountCents > 0 && (
+                                    <p className="text-xs text-gray-500">{formatMoney(sub.monthlyAmountCents)} − {formatMoney(sub.discountAmountCents)}</p>
+                                  )}
+                                </div>
                               </div>
-                              <span className="shrink-0 font-semibold text-gray-900">{formatMoney(charge.amountCents)}</span>
+                            ))}
+                          </div>
+                        </>
+                      )}
+
+                      {(() => {
+                        const oneTime = (billingAccount?.charges ?? []).filter((c) => c.chargeType !== 'recurring')
+                        return (
+                          <>
+                            <h3 className="text-sm font-semibold text-gray-900 mb-2">One-time purchases &amp; adjustments</h3>
+                            {oneTime.length === 0 ? (
+                              <div className="text-sm text-gray-500 mb-6">No one-time charges on file.</div>
+                            ) : (
+                              <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
+                                {oneTime.map((charge) => (
+                                  <div key={charge.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
+                                    <div className="min-w-0">
+                                      <p className="font-medium text-gray-900">{charge.description}</p>
+                                      <p className="text-xs text-gray-500">
+                                        {charge.memberName ? `${charge.memberName} · ` : ''}
+                                        {charge.sourceType === 'multi_class_pass_purchase'
+                                          ? 'Class bundle · '
+                                          : charge.sourceType === 'scheduling_signup'
+                                            ? 'Class registration · '
+                                            : charge.chargeType === 'credit'
+                                              ? 'Credit · '
+                                              : ''}
+                                        {new Date(charge.createdAt).toLocaleDateString()}
+                                      </p>
+                                    </div>
+                                    <span className={`shrink-0 font-semibold ${charge.amountCents < 0 ? 'text-green-700' : 'text-gray-900'}`}>{formatMoney(charge.amountCents)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        )
+                      })()}
+
+                      {(billingAccount?.bundlePasses?.length ?? 0) > 0 && (
+                        <>
+                          <h3 className="text-sm font-semibold text-gray-900 mb-2">Class bundles</h3>
+                          <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
+                            {billingAccount!.bundlePasses!.map((b) => (
+                              <div key={b.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
+                                <div className="min-w-0">
+                                  <p className="font-medium text-gray-900">{b.packageLabel || `Pass #${b.id}`}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {b.memberName ? `${b.memberName} · ` : ''}
+                                    <span className="capitalize">{b.status}</span>
+                                    {b.expiresAt ? ` · expires ${new Date(b.expiresAt).toLocaleDateString()}` : ''}
+                                  </p>
+                                </div>
+                                <span className="shrink-0 font-semibold text-gray-900">{b.classesRemaining} / {b.classCountPurchased} left</span>
+                              </div>
+                            ))}
+                          </div>
+                          {(billingAccount?.bundleUsage?.length ?? 0) > 0 && (
+                            <details className="mb-6">
+                              <summary className="text-xs font-semibold text-gray-500 cursor-pointer">Bundle usage history</summary>
+                              <div className="mt-2 space-y-1">
+                                {billingAccount!.bundleUsage!.slice(0, 20).map((u) => (
+                                  <div key={u.id} className="flex justify-between gap-3 text-xs text-gray-600">
+                                    <span>
+                                      {new Date(u.createdAt).toLocaleDateString()} · {u.entryType}
+                                      {u.reason ? ` · ${u.reason}` : ''}
+                                    </span>
+                                    <span className={u.creditDelta != null && u.creditDelta > 0 ? 'text-green-700' : 'text-gray-700'}>
+                                      {u.creditDelta != null ? (u.creditDelta > 0 ? `+${u.creditDelta}` : u.creditDelta) : ''} → {u.classesRemainingAfter} left
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </details>
+                          )}
+                        </>
+                      )}
+
+                      {billingAccount?.canSeeFamily && (
+                        <>
+                          <h3 className="text-sm font-semibold text-gray-900 mb-2">Payment history</h3>
+                          {(billingAccount?.payments?.length ?? 0) === 0 ? (
+                            <div className="text-sm text-gray-500">No payments recorded yet.</div>
+                          ) : (
+                            <div className="divide-y divide-gray-100 rounded-xl border border-gray-200">
+                              {billingAccount!.payments.map((payment) => (
+                                <div key={payment.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
+                                  <div className="min-w-0">
+                                    <p className="font-medium text-gray-900">{payment.method || 'Payment'}</p>
+                                    <p className="text-xs text-gray-500">
+                                      {new Date(payment.paidAt).toLocaleDateString()}
+                                      {payment.externalReference ? ` · Ref ${payment.externalReference}` : ''}
+                                    </p>
+                                  </div>
+                                  <span className="shrink-0 font-semibold text-green-700">{formatMoney(payment.amountCents)}</span>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
+                          )}
+                        </>
                       )}
                     </>
                   )}

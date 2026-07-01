@@ -13,6 +13,7 @@
     "seed:dev-members": "node members/runSeedDevMembers.js",
     "migrate": "node run-migration.js",
     "migrate:all": "node run-migration.js --all",
+    "billing:recurring": "node scheduling/runRecurringCharges.js",
     "bootstrap:staging-rehearsal": "node scripts/bootstrap-staging-rehearsal-accounts.mjs",
     "migrate:module0": "node run-module0-migration.js",
     "verify:module0": "node verify-module0.js",

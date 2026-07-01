@@ -106,8 +106,8 @@ export async function redeemPassForSignup(client, { memberPassId, signupId, memb
   const remaining = Number(passRes.rows[0].classes_remaining)
   const redemption = await client.query(
     `INSERT INTO multi_class_pass_redemption
-       (member_pass_id, signup_id, member_id, programs_id, classes_used, classes_remaining_after)
-     VALUES ($1, $2, $3, $4, 1, $5)
+       (member_pass_id, signup_id, member_id, programs_id, classes_used, classes_remaining_after, entry_type, credit_delta)
+     VALUES ($1, $2, $3, $4, 1, $5, 'use', -1)
      RETURNING id`,
     [memberPassId, signupId, memberId, programsId, remaining],
   )
@@ -116,6 +116,133 @@ export async function redeemPassForSignup(client, { memberPassId, signupId, memb
     classesRemainingAfter: remaining,
     packageLabel: passRes.rows[0].package_label,
   }
+}
+
+/**
+ * Restore outstanding pass credits consumed by a signup (e.g. on cancellation).
+ * Idempotent: only restores the net unrestored uses per pass, then writes a
+ * matching `restore` ledger row so re-running is a no-op.
+ * @returns {Promise<{ restored:number }>}
+ */
+export async function restorePassCreditsForSignup(client, { signupId, reason = 'Enrollment cancelled' }) {
+  if (signupId == null) return { restored: 0 }
+  const outstanding = await client.query(
+    `SELECT member_pass_id, member_id, programs_id,
+            COALESCE(SUM(credit_delta), 0)::int AS net
+     FROM multi_class_pass_redemption
+     WHERE signup_id = $1
+     GROUP BY member_pass_id, member_id, programs_id
+     HAVING COALESCE(SUM(credit_delta), 0) < 0`,
+    [signupId],
+  )
+
+  let restored = 0
+  for (const row of outstanding.rows) {
+    const restoreCount = -Number(row.net)
+    if (restoreCount <= 0) continue
+    const passRes = await client.query(
+      `UPDATE member_multi_class_pass
+       SET classes_remaining = classes_remaining + $2,
+           status = CASE WHEN status = 'expired' THEN 'active' ELSE status END,
+           updated_at = now()
+       WHERE id = $1
+       RETURNING classes_remaining`,
+      [row.member_pass_id, restoreCount],
+    )
+    const remainingAfter = Number(passRes.rows[0]?.classes_remaining ?? 0)
+    await client.query(
+      `INSERT INTO multi_class_pass_redemption
+         (member_pass_id, signup_id, member_id, programs_id, classes_used, classes_remaining_after, entry_type, credit_delta, reason)
+       VALUES ($1, $2, $3, $4, $5, $6, 'restore', $5, $7)`,
+      [row.member_pass_id, signupId, row.member_id, row.programs_id, restoreCount, remainingAfter, reason],
+    )
+    restored += restoreCount
+  }
+  return { restored }
+}
+
+/**
+ * Expire passes past their expires_at date. Writes an `expire` ledger row for the
+ * remaining balance and zeroes the pass. Idempotent (only touches active passes
+ * with remaining > 0 that are past expiry).
+ * @returns {Promise<{ expiredPasses:number, expiredCredits:number }>}
+ */
+export async function expirePassCredits(pool, { asOf = new Date() } = {}) {
+  const asOfStr = asOf.toISOString().slice(0, 10)
+  const due = await pool.query(
+    `SELECT id, member_id, programs_id, classes_remaining
+     FROM member_multi_class_pass
+     WHERE status = 'active'
+       AND expires_at IS NOT NULL
+       AND expires_at < $1
+       AND classes_remaining > 0`,
+    [asOfStr],
+  )
+
+  let expiredPasses = 0
+  let expiredCredits = 0
+  for (const pass of due.rows) {
+    const remaining = Number(pass.classes_remaining)
+    await pool.query(
+      `UPDATE member_multi_class_pass
+       SET classes_remaining = 0, status = 'expired', updated_at = now()
+       WHERE id = $1`,
+      [pass.id],
+    )
+    await pool.query(
+      `INSERT INTO multi_class_pass_redemption
+         (member_pass_id, signup_id, member_id, programs_id, classes_used, classes_remaining_after, entry_type, credit_delta, reason)
+       VALUES ($1, NULL, $2, $3, $4, 0, 'expire', $5, 'Pass expired')`,
+      [pass.id, pass.member_id, pass.programs_id, remaining, -remaining],
+    )
+    expiredPasses += 1
+    expiredCredits += remaining
+  }
+  return { expiredPasses, expiredCredits }
+}
+
+/**
+ * Load the full redemption/usage history for a member (or a single pass), including
+ * use/restore/expire/refund/adjust entries. Powers admin + member bundle usage views.
+ */
+export async function loadPassUsageHistory(pool, { memberId = null, memberPassId = null, limit = 200 }) {
+  const params = []
+  const filters = []
+  if (memberId != null) {
+    params.push(memberId)
+    filters.push(`r.member_id = $${params.length}`)
+  }
+  if (memberPassId != null) {
+    params.push(memberPassId)
+    filters.push(`r.member_pass_id = $${params.length}`)
+  }
+  params.push(limit)
+  const where = filters.length ? `WHERE ${filters.join(' AND ')}` : ''
+  const res = await pool.query(
+    `SELECT r.id, r.member_pass_id, r.signup_id, r.member_id, r.programs_id,
+            r.classes_used, r.classes_remaining_after, r.entry_type, r.credit_delta,
+            r.reason, r.created_at, p.package_label
+     FROM multi_class_pass_redemption r
+     LEFT JOIN member_multi_class_pass p ON p.id = r.member_pass_id
+     ${where}
+     ORDER BY r.created_at DESC, r.id DESC
+     LIMIT $${params.length}`,
+    params,
+  )
+  return res.rows.map((row) => ({
+    id: Number(row.id),
+    memberPassId: Number(row.member_pass_id),
+    signupId: row.signup_id != null ? Number(row.signup_id) : null,
+    memberId: row.member_id != null ? Number(row.member_id) : null,
+    programsId: Number(row.programs_id),
+    entryType: row.entry_type || 'use',
+    classesUsed: Number(row.classes_used),
+    creditDelta: row.credit_delta != null ? Number(row.credit_delta) : null,
+    classesRemainingAfter: Number(row.classes_remaining_after),
+    reason: row.reason || null,
+    packageLabel: row.package_label || null,
+    createdAt: row.created_at,
+  }))
 }
 
 export async function createMemberPassPurchase(client, {

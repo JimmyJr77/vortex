@@ -1,6 +1,8 @@
 import { sendWelcomeMemberEmail } from './welcomeMemberEmail.js'
 import { sendFamilyMemberAddedEmail } from './familyMemberAddedEmail.js'
 import { issueEnrollmentReceipt } from './enrollmentReceiptService.js'
+import { sendPaymentReceiptEmail } from './paymentReceiptEmail.js'
+import { sendPaymentFailedEmail } from './paymentFailedEmail.js'
 import {
   resolveMemberContactEmail,
   listFamilyGuardianEmails,
@@ -71,6 +73,7 @@ export async function notifyWelcomeNewMembers(pool, memberIds, options = {}) {
  *   selectedDays?: string[]
  *   schedulingSignupId?: number | null
  *   memberProgramId?: number | null
+ *   pricingSummary?: object | null
  *   bestEffort?: boolean
  * }} params
  */
@@ -99,11 +102,118 @@ export async function notifyEnrollmentReceipt(pool, params) {
       selectedDays: rest.selectedDays || [],
       schedulingSignupId: rest.schedulingSignupId ?? null,
       memberProgramId: rest.memberProgramId ?? null,
+      pricingSummary: rest.pricingSummary ?? null,
       bestEffort,
     })
   } catch (err) {
     if (bestEffort) {
       console.warn(`[memberNotifications] enrollment receipt failed (member ${memberId}):`, err?.message || err)
+      return { sent: false, reason: 'error' }
+    }
+    throw err
+  }
+}
+
+/**
+ * Send a payment receipt to the family billing payer (best-effort).
+ * @param {import('pg').Pool} pool
+ * @param {{
+ *   account: { id:number, family_id?:number, payer_member_id?:number|null, billing_email?:string|null },
+ *   payment: { amount_cents:number, method?:string|null, paid_at?:string|Date|null, external_reference?:string|null },
+ *   bestEffort?: boolean
+ * }} params
+ */
+/**
+ * Resolve the billing payer's email + display name for a family billing account.
+ * Prefers the payer member's contact, falls back to the account billing email.
+ * @returns {Promise<{ to: string|null, guardianName: string|null }>}
+ */
+async function resolvePayerRecipient(pool, account) {
+  let to = null
+  let guardianName = null
+  if (account?.payer_member_id != null) {
+    const payer = await loadMemberRow(pool, Number(account.payer_member_id))
+    if (payer) {
+      const contact = await resolveMemberContactEmail(pool, payer)
+      to = contact?.email ?? null
+      guardianName = contact?.guardianName ?? payer.first_name ?? null
+    }
+  }
+  if (!to && account?.billing_email) to = String(account.billing_email).trim()
+  return { to, guardianName }
+}
+
+export async function notifyPaymentReceipt(pool, { account, payment, bestEffort = true }) {
+  try {
+    if (!account?.id || !payment) return { sent: false, skipped: true }
+
+    const { to, guardianName } = await resolvePayerRecipient(pool, account)
+    if (!to) return { sent: false, skipped: true, reason: 'no_recipient' }
+
+    // Remaining balance after this payment (charges − payments + refunds).
+    let balanceAfterCents = null
+    try {
+      const bal = await pool.query(
+        `
+          SELECT
+            COALESCE((SELECT SUM(amount_cents) FROM billing_charge WHERE family_billing_account_id = $1), 0)::int
+            - COALESCE((SELECT SUM(amount_cents) FROM billing_payment WHERE family_billing_account_id = $1), 0)::int
+            + COALESCE((SELECT SUM(amount_cents) FROM billing_refund WHERE family_billing_account_id = $1), 0)::int
+            AS balance_cents
+        `,
+        [account.id],
+      )
+      balanceAfterCents = Number(bal.rows[0]?.balance_cents ?? 0)
+    } catch {
+      balanceAfterCents = null
+    }
+
+    const result = await sendPaymentReceiptEmail({
+      to,
+      guardianName,
+      amountCents: Number(payment.amount_cents ?? 0),
+      method: payment.method ?? null,
+      paidAt: payment.paid_at ?? null,
+      reference: payment.external_reference ?? null,
+      balanceAfterCents,
+    })
+    return { sent: result.sent === true, email: to }
+  } catch (err) {
+    if (bestEffort) {
+      console.warn('[memberNotifications] payment receipt failed:', err?.message || err)
+      return { sent: false, reason: 'error' }
+    }
+    throw err
+  }
+}
+
+/**
+ * Send a failed-payment / dunning notice to the billing payer (best-effort).
+ * @param {import('pg').Pool} pool
+ * @param {{
+ *   account: { id:number, payer_member_id?:number|null, billing_email?:string|null },
+ *   amountCents: number,
+ *   reason?: string|null,
+ *   updatePaymentUrl?: string|null,
+ *   bestEffort?: boolean
+ * }} params
+ */
+export async function notifyPaymentFailed(pool, { account, amountCents, reason = null, updatePaymentUrl = null, bestEffort = true }) {
+  try {
+    if (!account?.id) return { sent: false, skipped: true }
+    const { to, guardianName } = await resolvePayerRecipient(pool, account)
+    if (!to) return { sent: false, skipped: true, reason: 'no_recipient' }
+    const result = await sendPaymentFailedEmail({
+      to,
+      guardianName,
+      amountCents: Number(amountCents ?? 0),
+      reason,
+      updatePaymentUrl,
+    })
+    return { sent: result.sent === true, email: to }
+  } catch (err) {
+    if (bestEffort) {
+      console.warn('[memberNotifications] payment failed notice error:', err?.message || err)
       return { sent: false, reason: 'error' }
     }
     throw err

@@ -2,14 +2,22 @@
  * Bridge created scheduling signups into the persisted family billing ledger.
  *
  * For each signup we write one `billing_charge` row (idempotent on
- * source_type/source_id) using the per-line net monthly price from the order
- * preview (after free passes and per-line discounts). once-per-year additional
- * fees are recorded in `additional_fee_redemption` so they are not re-charged.
+ * source_type/source_id) using the per-line pricing from the order preview.
+ * Recurring enrollments (per_month / weekly-tier / unlimited / per_hour) also
+ * create a `billing_subscription` (the source of truth for the monthly total);
+ * the first period is charged immediately and the monthly job posts subsequent
+ * cycles. One-time enrollments (per_class / per_offering) post a single one-time
+ * charge and never create a subscription.
  *
- * Limitations (documented in docs/DATABASE_ARCHITECTURE.md §billing):
- * - Order-level discounts and recurring/per-order fees are not yet split into
- *   billing_charge rows; only per-line class pricing is persisted today.
+ * Charges carry gross/discount split so statements can show list price, discount,
+ * and net. Order-level discounts are recorded once as a credit ledger entry.
+ * once-per-year additional fees are recorded in `additional_fee_redemption`.
  */
+
+import {
+  upsertSubscriptionForSource,
+  cancelSubscriptionsForSource,
+} from './billingSubscriptions.js'
 
 async function ensureBillingAccount(pool, familyId) {
   const existing = await pool.query(
@@ -43,33 +51,37 @@ async function ensureBillingAccount(pool, familyId) {
   return created.rows[0] ?? null
 }
 
-function netCentsForSlot(preview, slotKey) {
+/**
+ * Resolve the per-line gross / discount / net (cents) and billing type for a slot.
+ * @returns {{ grossCents:number, discountCents:number, netCents:number, billingType:'recurring'|'one_time', selectedPricingOptionKey:string|null } | null}
+ */
+function lineChargeForSlot(preview, slotKey) {
   if (!preview) return null
+  const item = (preview.newSignups || []).find((s) => s.slotKey === slotKey)
+  const billingType = item?.billingType === 'one_time' ? 'one_time' : 'recurring'
+  const selectedPricingOptionKey = item?.selectedPricingOptionKey ?? null
+
   // Prefer the discount engine's per-line result (post free pass + per-line discounts).
   if (preview.discounts?.enabled && Array.isArray(preview.discounts.lines)) {
     const line = preview.discounts.lines.find((l) => l.key === slotKey)
     if (line) {
-      const base = Math.round(Number(line.baseCents) || 0)
+      const gross = Math.max(0, Math.round(Number(line.baseCents) || 0))
       const discount = (line.applied || []).reduce(
-        (sum, a) => sum + (Math.round(Number(a.amountCents) || 0)),
+        (sum, a) => sum + Math.round(Number(a.amountCents) || 0),
         0,
       )
-      return Math.max(0, base - discount)
+      const net = Math.max(0, gross - discount)
+      return { grossCents: gross, discountCents: Math.min(discount, gross), netCents: net, billingType, selectedPricingOptionKey }
     }
   }
   // Fall back to the free-pass-adjusted incremental monthly from the preview.
-  const item = (preview.newSignups || []).find((s) => s.slotKey === slotKey)
-  if (item) return Math.max(0, Math.round((Number(item.incrementalMonthly) || 0) * 100))
+  if (item) {
+    const net = Math.max(0, Math.round((Number(item.incrementalMonthly) || 0) * 100))
+    return { grossCents: net, discountCents: 0, netCents: net, billingType, selectedPricingOptionKey }
+  }
   return null
 }
 
-/**
- * @param {import('pg').Pool} pool
- * @param {object} args
- * @param {number} args.memberId enrolled athlete
- * @param {Array<{signupId:number, formId:number, slotGroupId:number, timeSlotId:number, formTitle:string, slotLabel:string}>} args.signups
- * @param {object|null} args.preview full order preview built at batch time
- */
 function chargeDescription(preview, signup) {
   const summary = preview?.formSummaries?.find((s) => s.formId === signup.formId)
   if (summary?.usesWeeklyTierPricing && summary.weeklyTierLabel) {
@@ -79,8 +91,15 @@ function chargeDescription(preview, signup) {
   return [signup.formTitle, signup.slotLabel].filter(Boolean).join(' — ') || 'Class enrollment'
 }
 
+/**
+ * @param {import('pg').Pool} pool
+ * @param {object} args
+ * @param {number} args.memberId enrolled athlete
+ * @param {Array<{signupId:number, formId:number, slotGroupId:number, timeSlotId:number, formTitle:string, slotLabel:string}>} args.signups
+ * @param {object|null} args.preview full order preview built at batch time
+ */
 export async function persistSignupCharges(pool, { memberId, signups = [], preview = null }) {
-  if (!memberId || signups.length === 0) return { charges: 0 }
+  if (!memberId || signups.length === 0) return { charges: 0, subscriptions: 0 }
 
   let familyId = null
   try {
@@ -89,35 +108,112 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
   } catch {
     familyId = null
   }
-  if (familyId == null) return { charges: 0 }
+  if (familyId == null) return { charges: 0, subscriptions: 0 }
 
   const account = await ensureBillingAccount(pool, familyId)
-  if (!account) return { charges: 0 }
+  if (!account) return { charges: 0, subscriptions: 0 }
 
   let charges = 0
+  let subscriptions = 0
   for (const signup of signups) {
     const slotKey = `${signup.formId}:${signup.slotGroupId}:${signup.timeSlotId ?? 'none'}`
-    const amountCents = netCentsForSlot(preview, slotKey)
-    if (amountCents == null) continue
+    const line = lineChargeForSlot(preview, slotKey)
+    if (line == null) continue
 
     const description = chargeDescription(preview, signup)
+    let subscriptionId = null
+    let servicePeriodStart = null
+    let servicePeriodEnd = null
+    let chargeType = 'one_time'
+    let billingInterval = 'one_time'
+
+    if (line.billingType === 'recurring') {
+      chargeType = 'recurring'
+      billingInterval = 'month'
+      try {
+        const sub = await upsertSubscriptionForSource(pool, {
+          familyBillingAccountId: account.id,
+          memberId,
+          sourceType: 'scheduling_signup',
+          sourceId: signup.signupId,
+          description,
+          monthlyAmountCents: line.grossCents,
+          discountAmountCents: line.discountCents,
+          pricingOptionKey: line.selectedPricingOptionKey,
+        })
+        if (sub) {
+          subscriptionId = sub.id
+          servicePeriodStart = sub.cycle.startDate
+          servicePeriodEnd = sub.cycle.endDate
+          if (sub.created) subscriptions += 1
+        }
+      } catch (err) {
+        console.warn('[scheduling] persistSignupCharges subscription:', err.message)
+      }
+    }
+
     const result = await pool.query(
       `
         INSERT INTO billing_charge
-          (family_billing_account_id, member_id, source_type, source_id, description, amount_cents)
-        VALUES ($1, $2, 'scheduling_signup', $3, $4, $5)
+          (family_billing_account_id, member_id, source_type, source_id, description,
+           amount_cents, gross_amount_cents, discount_amount_cents,
+           charge_type, billing_interval, subscription_id,
+           service_period_start, service_period_end)
+        VALUES ($1, $2, 'scheduling_signup', $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
         DO NOTHING
         RETURNING id
       `,
-      [account.id, memberId, String(signup.signupId), description, amountCents],
+      [
+        account.id,
+        memberId,
+        String(signup.signupId),
+        description,
+        line.netCents,
+        line.grossCents,
+        line.discountCents,
+        chargeType,
+        billingInterval,
+        subscriptionId,
+        servicePeriodStart,
+        servicePeriodEnd,
+      ],
     )
     if (result.rows.length > 0) charges += 1
   }
 
+  // Record an order-level discount (apply_to = order_total) as a one-time credit entry.
+  const orderDiscounts = preview?.discounts?.enabled ? preview.discounts.orderDiscounts || [] : []
+  const orderDiscountCents = orderDiscounts.reduce(
+    (sum, d) => sum + Math.round(Number(d.amountCents) || 0),
+    0,
+  )
+  const sortedSignupIds = signups
+    .map((s) => Number(s.signupId))
+    .filter((n) => Number.isFinite(n))
+    .sort((a, b) => a - b)
+  const firstSignupId = sortedSignupIds[0] ?? null
+  if (orderDiscountCents > 0 && firstSignupId != null) {
+    try {
+      await pool.query(
+        `
+          INSERT INTO billing_charge
+            (family_billing_account_id, member_id, source_type, source_id, description,
+             amount_cents, gross_amount_cents, discount_amount_cents,
+             charge_type, billing_interval)
+          VALUES ($1, $2, 'order_discount', $3, 'Order discount', $4, $5, 0, 'credit', 'one_time')
+          ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
+          DO NOTHING
+        `,
+        [account.id, memberId, String(firstSignupId), -orderDiscountCents, -orderDiscountCents],
+      )
+    } catch (err) {
+      console.warn('[scheduling] persistSignupCharges order discount:', err.message)
+    }
+  }
+
   // Record once-per-year additional fees so they are not charged again.
   const feeItems = preview?.additionalFees?.enabled ? preview.additionalFees.items || [] : []
-  const firstSignupId = signups[0]?.signupId ?? null
   const year = new Date().getUTCFullYear()
   for (const fee of feeItems) {
     if (fee.triggerType !== 'once_per_year') continue
@@ -137,5 +233,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
     }
   }
 
-  return { charges }
+  return { charges, subscriptions }
 }
+
+export { ensureBillingAccount, cancelSubscriptionsForSource }

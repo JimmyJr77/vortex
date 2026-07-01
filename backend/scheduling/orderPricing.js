@@ -1,5 +1,6 @@
 import { loadEffectivePricingForForm, parseProgramPromoCodes } from '../programs/pricingDefaults.js'
 import {
+  costFromPricingOptionKey,
   effectiveDbRowFromPricingOption,
   normalizeProgramPricingOptions,
 } from '../programs/programPricingOptions.js'
@@ -17,7 +18,7 @@ import {
   totalRemainingClassesForProgram,
 } from '../programs/multiClassPass.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
-import { computeMonthlyPricingFromCosts } from './pricing.js'
+import { billingTypeForCostUnit, computeMonthlyPricingFromCosts } from './pricing.js'
 import {
   hoursPerMonthForEnrollment,
   loadTimeSlotsBySlotGroupIds,
@@ -658,6 +659,21 @@ export async function buildSignupOrderPreview(
     const scope = formRow ? scopeMeta.get(pricingScopeKey(formRow)) : null
     const programsId = scope?.programsId ?? null
 
+    // Classify recurring vs one-time from the effective cost unit / selected option.
+    let costUnit = scope?.effectiveDbRow?.cost_unit ?? 'per_month'
+    const usesWeeklyTiers =
+      scope?.usesProgramPricing && scope?.programRow && programUsesWeeklyTierPricing(scope.programRow)
+    if (usesWeeklyTiers) {
+      costUnit = 'per_month'
+    } else if (entry.selectedPricingOptionKey && scope?.programRow) {
+      const opt = costFromPricingOptionKey(
+        entry.selectedPricingOptionKey,
+        normalizeProgramPricingOptions(scope.programRow.pricing_cost_options),
+      )
+      if (opt?.unit) costUnit = opt.unit
+    }
+    const billingType = billingTypeForCostUnit(costUnit)
+
     return {
       formId: entry.formId,
       formTitle: entry.formTitle || formRow?.title || 'Class',
@@ -673,6 +689,8 @@ export async function buildSignupOrderPreview(
       selectedPricingOptionKey: entry.selectedPricingOptionKey ?? null,
       useMultiClassPass: entry.useMultiClassPass !== false,
       programsId,
+      costUnit,
+      billingType,
     }
   })
 

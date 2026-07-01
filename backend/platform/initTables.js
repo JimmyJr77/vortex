@@ -43,6 +43,7 @@ export async function initPlatformTables(pool) {
     '045_drop_family_member_relationship_label.sql',
     '046_signup_billing_charges.sql',
     '047_stripe_billing_scaffold.sql',
+    '053_billing_recurring_model.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

@@ -597,8 +597,9 @@ export default function MemberClassesOfferedEnroll({
           : 0
         const flatOneXOnly =
           usesWeeklyTiers && onlyFlatOneXWeeklyTier(program.pricingCostOptions ?? [])
-        const oneXMonthly =
-          flatOneXOnly && weeklyTierTotalDollars(1, program.pricingCostOptions ?? [])
+        const oneXMonthly = flatOneXOnly
+          ? weeklyTierTotalDollars(1, program.pricingCostOptions ?? [])
+          : null
         const programSlotTotal =
           (existingSlotsByProgram.get(program.id) ?? 0) + countProgramSlotsInCart(program.id)
         const weeklyTier =

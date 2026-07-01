@@ -5,12 +5,28 @@ import { getApiUrl } from '../utils/api'
 
 type Status = 'loading' | 'success' | 'error'
 
+type ReceiptPricing = {
+  billingType?: 'recurring' | 'one_time' | null
+  billingLabel?: string | null
+  costUnit?: string | null
+  totalSlots?: number | null
+  nonDiscountedCents?: number | null
+  discountCents?: number | null
+  netCents?: number | null
+  hoursPerSlotMonthly?: number | null
+}
+
 type ReceiptData = {
   athleteName?: string | null
   programName?: string | null
   slotLabel?: string | null
   status?: string | null
   selectedDays?: string[]
+  pricing?: ReceiptPricing | null
+}
+
+function formatCents(cents?: number | null): string {
+  return `$${((Number(cents) || 0) / 100).toFixed(2)}`
 }
 
 export default function EnrollmentReceiptPage() {
@@ -51,6 +67,8 @@ export default function EnrollmentReceiptPage() {
     receipt?.selectedDays && receipt.selectedDays.length > 0
       ? receipt.selectedDays.join(', ')
       : null
+  const pricing = receipt?.pricing ?? null
+  const priceSuffix = pricing?.billingType === 'recurring' ? '/mo' : ''
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -107,6 +125,48 @@ export default function EnrollmentReceiptPage() {
                 </dd>
               </div>
             </dl>
+
+            {pricing && (
+              <div className="rounded-xl border border-gray-100 bg-gray-50/80 text-sm">
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                  <span className="font-semibold text-gray-900">Cost summary</span>
+                  <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-700">
+                    {pricing.billingLabel || (pricing.billingType === 'recurring' ? 'Monthly (recurring)' : 'One-time')}
+                  </span>
+                </div>
+                <dl className="divide-y divide-gray-100">
+                  {pricing.totalSlots != null && pricing.totalSlots > 0 && (
+                    <div className="flex justify-between gap-4 px-4 py-3">
+                      <dt className="text-gray-500 shrink-0">Classes</dt>
+                      <dd className="font-medium text-gray-900 text-right">{pricing.totalSlots}</dd>
+                    </div>
+                  )}
+                  <div className="flex justify-between gap-4 px-4 py-3">
+                    <dt className="text-gray-500 shrink-0">Base cost</dt>
+                    <dd className="font-medium text-gray-900 text-right">
+                      {formatCents(pricing.nonDiscountedCents)}
+                      {priceSuffix}
+                    </dd>
+                  </div>
+                  {pricing.discountCents != null && pricing.discountCents > 0 && (
+                    <div className="flex justify-between gap-4 px-4 py-3">
+                      <dt className="text-gray-500 shrink-0">Discount</dt>
+                      <dd className="font-medium text-green-700 text-right">
+                        -{formatCents(pricing.discountCents)}
+                        {priceSuffix}
+                      </dd>
+                    </div>
+                  )}
+                  <div className="flex justify-between gap-4 px-4 py-3">
+                    <dt className="text-gray-700 font-semibold shrink-0">Total</dt>
+                    <dd className="font-bold text-gray-900 text-right">
+                      {formatCents(pricing.netCents)}
+                      {priceSuffix}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            )}
 
             <p className="text-xs text-center text-gray-500">
               If you did not authorize this registration, please contact Vortex Athletics right away.

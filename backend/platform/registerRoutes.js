@@ -27,6 +27,8 @@ import {
   parseWebhookEvent,
   recordStripePayment,
 } from '../billing/stripeBilling.js'
+import { buildBillingAccountView } from '../billing/billingAccountView.js'
+import { notifyPaymentReceipt, notifyPaymentFailed } from '../email/memberNotifications.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -480,6 +482,11 @@ function mapCharge(row) {
     sourceId: row.source_id ?? null,
     description: row.description,
     amountCents: Number(row.amount_cents ?? 0),
+    grossAmountCents: row.gross_amount_cents != null ? Number(row.gross_amount_cents) : Number(row.amount_cents ?? 0),
+    discountAmountCents: Number(row.discount_amount_cents ?? 0),
+    chargeType: row.charge_type ?? 'one_time',
+    billingInterval: row.billing_interval ?? 'one_time',
+    subscriptionId: row.subscription_id != null ? Number(row.subscription_id) : null,
     servicePeriodStart: row.service_period_start ?? null,
     servicePeriodEnd: row.service_period_end ?? null,
     createdAt: row.created_at,
@@ -1183,17 +1190,25 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const familyId = Number(req.params.familyId)
     const account = await ensureBillingAccount(pool, familyId)
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
-    const ledger = await pool.query(
-      `
-        SELECT
-          COALESCE((SELECT SUM(amount_cents) FROM billing_charge WHERE family_billing_account_id = $1), 0)::int as charges_cents,
-          COALESCE((SELECT SUM(amount_cents) FROM billing_payment WHERE family_billing_account_id = $1), 0)::int as payments_cents
-      `,
-      [account.id],
-    )
-    const charges = Number(ledger.rows[0]?.charges_cents ?? 0)
-    const payments = Number(ledger.rows[0]?.payments_cents ?? 0)
-    res.json({ success: true, data: { ...mapBillingAccount(account), chargesCents: charges, paymentsCents: payments, balanceCents: charges - payments } })
+    const view = await buildBillingAccountView(pool, account, { memberScopeId: null })
+    res.json({
+      success: true,
+      data: {
+        ...mapBillingAccount(account),
+        chargesCents: view.chargesCents,
+        paymentsCents: view.paymentsCents,
+        refundsCents: view.refundsCents,
+        balanceCents: view.balanceCents,
+        charges: view.charges.map(mapCharge),
+        payments: view.payments.map(mapPayment),
+        subscriptions: view.subscriptions,
+        monthlyTotals: view.monthlyTotals,
+        refunds: view.refunds,
+        ledger: view.ledger,
+        bundlePasses: view.bundlePasses,
+        bundleUsage: view.bundleUsage,
+      },
+    })
   })
 
   app.put('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'family_billing.manage'), async (req, res) => {
@@ -1241,13 +1256,20 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!Number.isFinite(amountCents) || !req.body?.description) {
       return res.status(400).json({ success: false, message: 'description and amountCents are required.' })
     }
+    const allowedChargeTypes = ['one_time', 'recurring', 'adjustment', 'refund', 'credit']
+    const chargeType = allowedChargeTypes.includes(req.body?.chargeType) ? req.body.chargeType : 'one_time'
+    const billingInterval = req.body?.billingInterval === 'month' ? 'month' : 'one_time'
+    const roundedAmount = Math.round(amountCents)
+    const grossAmount = req.body?.grossAmountCents != null ? Math.round(Number(req.body.grossAmountCents)) : roundedAmount
+    const discountAmount = req.body?.discountAmountCents != null ? Math.round(Number(req.body.discountAmountCents)) : 0
     const charge = await pool.query(
       `
         INSERT INTO billing_charge (
           family_billing_account_id, member_id, source_type, source_id,
-          description, amount_cents, service_period_start, service_period_end
+          description, amount_cents, gross_amount_cents, discount_amount_cents,
+          charge_type, billing_interval, service_period_start, service_period_end
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING *
       `,
       [
@@ -1256,12 +1278,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         req.body?.sourceType ?? 'manual',
         req.body?.sourceId ?? null,
         req.body.description,
-        Math.round(amountCents),
+        roundedAmount,
+        grossAmount,
+        discountAmount,
+        chargeType,
+        billingInterval,
         req.body?.servicePeriodStart ?? null,
         req.body?.servicePeriodEnd ?? null,
       ],
     )
-    res.json({ success: true, data: charge.rows[0] })
+    res.json({ success: true, data: mapCharge(charge.rows[0]) })
   })
 
   app.get('/api/admin/families/:familyId/charges', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
@@ -1340,7 +1366,110 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         req.body?.stripePaymentIntentId ?? null,
       ],
     )
-    res.json({ success: true, data: mapPayment(payment.rows[0]) })
+    const paymentRow = payment.rows[0]
+    res.json({ success: true, data: mapPayment(paymentRow) })
+    notifyPaymentReceipt(pool, { account, payment: paymentRow }).catch(() => {})
+  })
+
+  app.post('/api/admin/families/:familyId/refunds', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+    if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
+    const amountCents = Number(req.body?.amountCents)
+    if (!Number.isFinite(amountCents) || amountCents <= 0) {
+      return res.status(400).json({ success: false, message: 'Positive amountCents is required.' })
+    }
+    let paymentId = req.body?.paymentId != null ? Number(req.body.paymentId) : null
+    if (paymentId != null) {
+      const owns = await pool.query(
+        `SELECT 1 FROM billing_payment WHERE id = $1 AND family_billing_account_id = $2`,
+        [paymentId, account.id],
+      )
+      if (owns.rows.length === 0) paymentId = null
+    }
+    const createdBy = req.platformAuth?.user?.id ?? null
+    const refund = await pool.query(
+      `
+        INSERT INTO billing_refund (
+          family_billing_account_id, payment_id, amount_cents, reason, external_reference, created_by_user_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING *
+      `,
+      [account.id, paymentId, Math.round(amountCents), req.body?.reason ?? null, req.body?.externalReference ?? null, createdBy],
+    )
+    res.json({ success: true, data: refund.rows[0] })
+  })
+
+  app.patch('/api/admin/subscriptions/:id/status', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    const id = Number(req.params.id)
+    const status = req.body?.status
+    if (!['active', 'paused', 'cancelled'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'status must be active, paused, or cancelled.' })
+    }
+    let sql
+    let params
+    if (status === 'cancelled') {
+      sql = `UPDATE billing_subscription SET status = 'cancelled', end_date = CURRENT_DATE, next_bill_date = NULL, updated_at = now() WHERE id = $1 RETURNING *`
+      params = [id]
+    } else if (status === 'paused') {
+      sql = `UPDATE billing_subscription SET status = 'paused', updated_at = now() WHERE id = $1 AND status <> 'cancelled' RETURNING *`
+      params = [id]
+    } else {
+      // Reactivate: if next_bill_date is null, set to today so the next run picks it up.
+      sql = `UPDATE billing_subscription SET status = 'active', end_date = NULL, next_bill_date = COALESCE(next_bill_date, CURRENT_DATE), updated_at = now() WHERE id = $1 AND status <> 'cancelled' RETURNING *`
+      params = [id]
+    }
+    const updated = await pool.query(sql, params)
+    if (updated.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Subscription not found or already cancelled.' })
+    }
+    res.json({ success: true, data: updated.rows[0] })
+  })
+
+  app.post('/api/admin/members/:memberId/passes/:passId/adjust', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    const memberId = Number(req.params.memberId)
+    const passId = Number(req.params.passId)
+    const delta = Math.round(Number(req.body?.delta))
+    if (!Number.isFinite(delta) || delta === 0) {
+      return res.status(400).json({ success: false, message: 'Non-zero integer delta is required.' })
+    }
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const passRes = await client.query(
+        `SELECT id, member_id, programs_id, classes_remaining FROM member_multi_class_pass WHERE id = $1 AND member_id = $2 FOR UPDATE`,
+        [passId, memberId],
+      )
+      if (passRes.rows.length === 0) {
+        await client.query('ROLLBACK')
+        return res.status(404).json({ success: false, message: 'Pass not found for member.' })
+      }
+      const pass = passRes.rows[0]
+      const newRemaining = Math.max(0, Number(pass.classes_remaining) + delta)
+      const appliedDelta = newRemaining - Number(pass.classes_remaining)
+      await client.query(
+        `UPDATE member_multi_class_pass
+         SET classes_remaining = $2,
+             status = CASE WHEN $2 > 0 AND status = 'expired' THEN 'active' ELSE status END,
+             updated_at = now()
+         WHERE id = $1`,
+        [passId, newRemaining],
+      )
+      await client.query(
+        `INSERT INTO multi_class_pass_redemption
+           (member_pass_id, signup_id, member_id, programs_id, classes_used, classes_remaining_after, entry_type, credit_delta, reason)
+         VALUES ($1, NULL, $2, $3, $4, $5, 'adjust', $6, $7)`,
+        [passId, memberId, pass.programs_id, Math.abs(appliedDelta), newRemaining, appliedDelta, req.body?.reason ?? 'Manual adjustment'],
+      )
+      await client.query('COMMIT')
+      res.json({ success: true, data: { passId, classesRemaining: newRemaining, appliedDelta } })
+    } catch (err) {
+      await client.query('ROLLBACK')
+      console.error('[billing] pass adjust failed:', err.message)
+      res.status(500).json({ success: false, message: 'Failed to adjust pass.' })
+    } finally {
+      client.release()
+    }
   })
 
   app.get('/api/admin/families/:familyId/statements', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
@@ -1712,41 +1841,26 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const canSeeFamily =
       Number(account.payer_member_id) === memberId || ctx.roles.includes('PARENT_GUARDIAN')
 
-    const chargeFilter = canSeeFamily ? '' : 'AND c.member_id = $2'
-    const chargeParams = canSeeFamily ? [account.id] : [account.id, memberId]
-    const chargesRes = await pool.query(
-      `
-        SELECT c.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
-        FROM billing_charge c
-        LEFT JOIN member m ON m.id = c.member_id
-        WHERE c.family_billing_account_id = $1 ${chargeFilter}
-        ORDER BY c.created_at DESC, c.id DESC
-      `,
-      chargeParams,
-    )
-    const charges = chargesRes.rows.map(mapCharge)
-    const chargesCents = charges.reduce((sum, c) => sum + c.amountCents, 0)
-
-    let payments = []
-    let paymentsCents = 0
-    if (canSeeFamily) {
-      const paymentsRes = await pool.query(
-        `SELECT * FROM billing_payment WHERE family_billing_account_id = $1 ORDER BY paid_at DESC, id DESC`,
-        [account.id],
-      )
-      payments = paymentsRes.rows.map(mapPayment)
-      paymentsCents = payments.reduce((sum, p) => sum + p.amountCents, 0)
-    }
+    const view = await buildBillingAccountView(pool, account, {
+      memberScopeId: canSeeFamily ? null : memberId,
+    })
 
     res.json({
       success: true,
       data: {
         account: mapBillingAccount(account),
-        charges,
-        payments,
-        chargesCents,
-        paymentsCents,
-        balanceCents: chargesCents - paymentsCents,
+        charges: view.charges.map(mapCharge),
+        payments: view.payments.map(mapPayment),
+        subscriptions: view.subscriptions,
+        monthlyTotals: view.monthlyTotals,
+        refunds: view.refunds,
+        ledger: view.ledger,
+        bundlePasses: view.bundlePasses,
+        bundleUsage: view.bundleUsage,
+        chargesCents: view.chargesCents,
+        paymentsCents: view.paymentsCents,
+        refundsCents: view.refundsCents,
+        balanceCents: view.balanceCents,
         canSeeFamily,
         stripeEnabled: process.env.STRIPE_ENABLED === 'true',
       },
@@ -1805,12 +1919,39 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         const accountId = obj.metadata?.familyBillingAccountId
           ? Number(obj.metadata.familyBillingAccountId)
           : null
-        await recordStripePayment(pool, {
+        const insertedPayment = await recordStripePayment(pool, {
           paymentIntentId: obj.payment_intent || obj.id,
           amountCents: obj.amount_total ?? obj.amount_received ?? obj.amount ?? 0,
           accountId,
           customerId: obj.customer ?? null,
         })
+        if (insertedPayment && accountId) {
+          const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])
+          if (acct.rows[0]) {
+            notifyPaymentReceipt(pool, { account: acct.rows[0], payment: insertedPayment }).catch(() => {})
+          }
+        }
+      } else if (event.type === 'payment_intent.payment_failed' || event.type === 'invoice.payment_failed') {
+        const obj = event.data?.object ?? {}
+        const accountId = obj.metadata?.familyBillingAccountId
+          ? Number(obj.metadata.familyBillingAccountId)
+          : null
+        if (accountId) {
+          const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])
+          if (acct.rows[0]) {
+            const amountCents = obj.amount_due ?? obj.amount ?? obj.amount_total ?? 0
+            const failureReason =
+              obj.last_payment_error?.message ||
+              obj.charges?.data?.[0]?.failure_message ||
+              null
+            notifyPaymentFailed(pool, {
+              account: acct.rows[0],
+              amountCents,
+              reason: failureReason,
+              updatePaymentUrl: `${publicAppUrl()}/?billing=update`,
+            }).catch(() => {})
+          }
+        }
       }
       res.json({ received: true })
     } catch (err) {

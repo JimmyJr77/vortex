@@ -3,6 +3,17 @@ import { Loader2 } from 'lucide-react'
 import { adminApiRequest } from '../../../utils/api'
 import { adminFetchMemberPricingSummary, type MemberPricingSummary } from '../../../utils/schedulingApi'
 
+interface BillingSubscription {
+  id: number
+  memberName: string | null
+  description: string
+  monthlyAmountCents: number
+  discountAmountCents: number
+  netMonthlyCents: number
+  status: string
+  nextBillDate: string | null
+}
+
 interface BillingAccount {
   id: number
   familyId: number
@@ -11,7 +22,10 @@ interface BillingAccount {
   billingPhone: string | null
   chargesCents?: number
   paymentsCents?: number
+  refundsCents?: number
   balanceCents?: number
+  subscriptions?: BillingSubscription[]
+  monthlyTotals?: { grossCents: number; discountCents: number; netCents: number }
 }
 
 interface BillingStatement {
@@ -77,24 +91,21 @@ export default function MemberBillingTab({
         return
       }
 
-      const [accountRes, statementsRes, paymentsRes, pricingSummary] = await Promise.all([
+      const [accountRes, statementsRes, pricingSummary] = await Promise.all([
         adminApiRequest(`/api/admin/families/${familyId}/billing-account`),
         adminApiRequest(`/api/admin/families/${familyId}/statements`),
-        adminApiRequest(`/api/admin/families/${familyId}/payments`),
         pricingPromise,
       ])
 
       if (!accountRes.ok) throw new Error(`Billing account request failed (${accountRes.status})`)
       if (!statementsRes.ok) throw new Error(`Statements request failed (${statementsRes.status})`)
-      if (!paymentsRes.ok) throw new Error(`Payments request failed (${paymentsRes.status})`)
 
       const accountJson = await accountRes.json()
       const statementsJson = await statementsRes.json()
-      const paymentsJson = await paymentsRes.json()
 
       setAccount(accountJson.data ?? null)
       setStatements(statementsJson.data ?? [])
-      setPayments(paymentsJson.data ?? [])
+      setPayments(accountJson.data?.payments ?? [])
       setPricing(pricingSummary)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load billing data')
@@ -130,12 +141,15 @@ export default function MemberBillingTab({
           <h4 className="text-sm font-semibold text-gray-900 mb-3">Family billing summary</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             <div>
-              <span className="text-gray-600">Charges</span>
-              <div className="font-semibold text-gray-900">{money(account.chargesCents ?? 0)}</div>
+              <span className="text-gray-600">Net monthly</span>
+              <div className="font-semibold text-gray-900">{money(account.monthlyTotals?.netCents ?? 0)}</div>
             </div>
             <div>
-              <span className="text-gray-600">Payments</span>
-              <div className="font-semibold text-green-700">{money(account.paymentsCents ?? 0)}</div>
+              <span className="text-gray-600">Payments / Refunds</span>
+              <div className="font-semibold text-green-700">
+                {money(account.paymentsCents ?? 0)}
+                <span className="text-gray-500 text-xs"> / {money(account.refundsCents ?? 0)}</span>
+              </div>
             </div>
             <div>
               <span className="text-gray-600">Balance</span>
@@ -147,6 +161,32 @@ export default function MemberBillingTab({
                 {[account.billingEmail, account.billingPhone].filter(Boolean).join(' · ') || '—'}
               </div>
             </div>
+          </div>
+        </section>
+      )}
+
+      {account && (account.subscriptions?.length ?? 0) > 0 && (
+        <section>
+          <h4 className="text-sm font-semibold text-gray-900 mb-2">Recurring enrollments</h4>
+          <div className="space-y-2">
+            {account.subscriptions!.map((s) => (
+              <div key={s.id} className="rounded-lg border border-gray-200 bg-white p-3 text-sm flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-medium text-gray-900">{s.description}</div>
+                  <div className="text-xs text-gray-500">
+                    {s.memberName ? `${s.memberName} · ` : ''}
+                    <span className="capitalize">{s.status}</span>
+                    {s.nextBillDate ? ` · next ${formatDate(s.nextBillDate)}` : ''}
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="font-semibold text-gray-900">{money(s.netMonthlyCents)}/mo</div>
+                  {s.discountAmountCents > 0 && (
+                    <div className="text-xs text-gray-500">{money(s.monthlyAmountCents)} − {money(s.discountAmountCents)}</div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       )}
