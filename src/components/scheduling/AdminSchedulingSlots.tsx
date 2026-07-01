@@ -148,10 +148,12 @@ const AdminSchedulingSlots = ({
     return sortSlotGroups(
       (detail.slotGroups ?? []).filter((group) => {
         if (!isScheduledSlotVisible(group, signups, orphanedSignups)) return false
-        return group.offeringId === offeringId
+        return Number(group.offeringId) === Number(offeringId)
       }),
     )
   }, [detail.slotGroups, signups, orphanedSignups, offeringId])
+
+  const prevOfferingIdRef = useRef<number | null | undefined>(offeringId)
 
   const builderRef = useRef<HTMLDivElement>(null)
   const savingRef = useRef(false)
@@ -334,8 +336,15 @@ const AdminSchedulingSlots = ({
   }
 
   useEffect(() => {
+    if (prevOfferingIdRef.current !== offeringId) {
+      prevOfferingIdRef.current = offeringId
+      resetBuilderForm()
+    }
+  }, [offeringId])
+
+  useEffect(() => {
     if (activeDatesMode === 'inherit' && !editingSlotGroupId) applyInheritedDates()
-  }, [activeDatesMode, formStartDate, formEndDate, editingSlotGroupId])
+  }, [activeDatesMode, formStartDate, formEndDate, offeringStartDate, offeringEndDate, offeringId, editingSlotGroupId])
 
   const addWeek = () => {
     if (weeks.length >= WEEK_LETTERS.length) return
@@ -486,7 +495,16 @@ const AdminSchedulingSlots = ({
 
     const payload = buildPayload()
     if (!payload) {
-      setSaveError('Complete all required fields before saving.')
+      setSaveError(
+        scheduleMode === 'day'
+          ? 'Enable at least one day with a time before saving.'
+          : 'Add at least one date with a time before saving.',
+      )
+      return
+    }
+
+    if (offeringId == null) {
+      setSaveError('Select an offering before adding timeslots.')
       return
     }
 

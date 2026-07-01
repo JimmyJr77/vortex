@@ -88,7 +88,9 @@ const AdminSchedulingOfferings = ({
       if (editId) {
         await adminUpdateOffering(editId, payload)
       } else {
-        await adminCreateOffering(formId, payload)
+        const created = await adminCreateOffering(formId, payload)
+        const selected = await adminSelectOffering(created.id)
+        onOfferingSelect(selected)
       }
       resetDraft()
       await loadOfferings()

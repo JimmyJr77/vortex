@@ -9,6 +9,8 @@ import {
   adminFetchSchedulingForms,
   adminFetchSignups,
   adminFetchOrphanedSignups,
+  adminFetchOfferings,
+  adminSelectOffering,
   type SchedulingFormDetail,
   type SchedulingFormSummary,
   type SchedulingSignup,
@@ -60,7 +62,25 @@ const AdminScheduling = ({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
+  const [offerings, setOfferings] = useState<SchedulingOffering[]>([])
   const programsLoaded = useRef(false)
+
+  const syncSelectedOffering = useCallback((list: SchedulingOffering[]) => {
+    setSelectedOffering((current) => {
+      if (current && list.some((o) => o.id === current.id)) return current
+      return list.find((o) => o.isSelected) ?? list[0] ?? null
+    })
+  }, [])
+
+  const loadOfferingsForForm = useCallback(
+    async (formId: number) => {
+      const data = await adminFetchOfferings(formId)
+      setOfferings(data)
+      syncSelectedOffering(data)
+      return data
+    },
+    [syncSelectedOffering],
+  )
 
   const loadTopPrograms = useCallback(async () => {
     try {
@@ -103,6 +123,7 @@ const AdminScheduling = ({
         setSignups([])
         setOrphanedSignups([])
         setSelectedOffering(null)
+        setOfferings([])
         return
       }
       try {
@@ -113,12 +134,13 @@ const AdminScheduling = ({
           loadDetail(formId),
           loadSignups(formId),
           loadOrphanedSignups(formId),
+          loadOfferingsForForm(formId),
         ])
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load scheduling form')
       }
     },
-    [loadDetail, loadSignups, loadOrphanedSignups],
+    [loadDetail, loadSignups, loadOrphanedSignups, loadOfferingsForForm],
   )
 
   const handleSelectClassEvent = useCallback(
@@ -145,6 +167,7 @@ const AdminScheduling = ({
       setSignups([])
       setOrphanedSignups([])
       setSelectedOffering(null)
+      setOfferings([])
       setPanel('overview')
     },
     [],
@@ -178,9 +201,10 @@ const AdminScheduling = ({
         loadDetail(formId),
         loadSignups(formId),
         loadOrphanedSignups(formId),
+        loadOfferingsForForm(formId),
       ])
     },
-    [loadDetail, loadSignups, loadOrphanedSignups],
+    [loadDetail, loadSignups, loadOrphanedSignups, loadOfferingsForForm],
   )
 
   useEffect(() => {
@@ -224,9 +248,12 @@ const AdminScheduling = ({
 
   const refresh = async () => {
     if (!selectedId) return
-    await loadDetail(selectedId)
-    await loadSignups(selectedId)
-    await loadOrphanedSignups(selectedId)
+    await Promise.all([
+      loadDetail(selectedId),
+      loadSignups(selectedId),
+      loadOrphanedSignups(selectedId),
+      loadOfferingsForForm(selectedId),
+    ])
     await loadForms()
   }
 
@@ -249,7 +276,24 @@ const AdminScheduling = ({
 
   const handleOfferingSelect = useCallback((offering: SchedulingOffering | null) => {
     setSelectedOffering(offering)
+    if (offering) {
+      setOfferings((prev) =>
+        prev.map((o) => ({ ...o, isSelected: o.id === offering.id })),
+      )
+    }
   }, [])
+
+  const handleOfferingSelectForSlots = useCallback(
+    async (offering: SchedulingOffering) => {
+      try {
+        const updated = await adminSelectOffering(offering.id)
+        handleOfferingSelect(updated)
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to select offering')
+      }
+    },
+    [handleOfferingSelect],
+  )
 
   if (loading && topPrograms.length === 0) {
     return (
@@ -372,6 +416,31 @@ const AdminScheduling = ({
               )}
 
               {panel === 'slots' && selectedClassEvent && selectedId && detail && selectedOffering && (
+                <>
+                  {offerings.length > 1 && (
+                    <div className="mb-4 rounded-lg border border-gray-200 bg-white px-4 py-3">
+                      <label className="block text-xs font-semibold text-gray-600 mb-1">
+                        Offering for timeslots
+                      </label>
+                      <select
+                        value={selectedOffering.id}
+                        onChange={(e) => {
+                          const next = offerings.find((o) => o.id === Number(e.target.value))
+                          if (next) void handleOfferingSelectForSlots(next)
+                        }}
+                        className="w-full max-w-md rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white"
+                      >
+                        {offerings.map((o) => (
+                          <option key={o.id} value={o.id}>
+                            {o.label?.trim() || formatOfferingDateRange(o)}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Timeslots are saved to the offering selected here. Pick the empty offering before adding new slots.
+                      </p>
+                    </div>
+                  )}
                 <AdminSchedulingSlots
                   formId={selectedId}
                   detail={detail}
@@ -387,6 +456,7 @@ const AdminScheduling = ({
                   forms={forms}
                   onRefresh={refresh}
                 />
+                </>
               )}
             </>
           )}
