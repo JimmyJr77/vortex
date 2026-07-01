@@ -330,6 +330,18 @@ export async function initSchedulingTables(pool) {
     }
   }
 
+  const slotGroupInheritsOfferingMigration = path.join(
+    __dirname,
+    '../migrations/051_scheduling_slot_group_inherits_offering.sql',
+  )
+  if (fs.existsSync(slotGroupInheritsOfferingMigration)) {
+    try {
+      await pool.query(fs.readFileSync(slotGroupInheritsOfferingMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] slot group inherits offering migration:', err.message)
+    }
+  }
+
   const enrollSitesMigration = path.join(__dirname, '../migrations/add_scheduling_enroll_sites.sql')
   if (fs.existsSync(enrollSitesMigration)) {
     try {

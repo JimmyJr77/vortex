@@ -35,6 +35,7 @@ export interface SchedulingTimeSlot {
   activeEnd: string | null
   datesTbd: boolean
   inheritsFormDates?: boolean
+  inheritsOfferingDates?: boolean
   isActive: boolean
   displayLabel?: string
 }
@@ -54,6 +55,7 @@ export interface SchedulingSlotGroup {
   activeEnd: string | null
   datesTbd: boolean
   inheritsFormDates?: boolean
+  inheritsOfferingDates?: boolean
   isActive: boolean
   displayLabel?: string
   occurrences: SchedulingTimeSlot[]

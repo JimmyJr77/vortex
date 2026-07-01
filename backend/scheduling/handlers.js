@@ -569,9 +569,83 @@ function mapOfferingRow(row) {
   }
 }
 
-function resolveSlotActiveDates(slot, form) {
+function validateOfferingDateRange(startDate, endDate, evergreen) {
+  const start = formatDateOnly(startDate)
+  if (!start) return { ok: false, message: 'Invalid start date' }
+  if (evergreen) return { ok: true, startDate: start, endDate: null }
+  const end = formatDateOnly(endDate)
+  if (!end) return { ok: false, message: 'Invalid end date' }
+  if (end < start) {
+    return { ok: false, message: 'End date must be on or after the start date.' }
+  }
+  return { ok: true, startDate: start, endDate: end }
+}
+
+async function syncOfferingDatesToSlotGroups(client, offeringId, { newStart, newEnd, oldStart, oldEnd }) {
+  const groupRes = await client.query(
+    `
+    UPDATE scheduling_slot_group sg
+    SET active_start = $2,
+        active_end = $3,
+        updated_at = now()
+    WHERE sg.offering_id = $1
+      AND sg.dates_tbd = FALSE
+      AND (
+        sg.inherits_offering_dates = TRUE
+        OR (
+          sg.active_start IS NOT DISTINCT FROM $4::date
+          AND sg.active_end IS NOT DISTINCT FROM $5::date
+        )
+      )
+    RETURNING id
+    `,
+    [offeringId, newStart, newEnd, oldStart, oldEnd],
+  )
+  const groupIds = groupRes.rows.map((r) => r.id)
+  if (groupIds.length === 0) return 0
+
+  await client.query(
+    `
+    UPDATE scheduling_time_slot ts
+    SET active_start = $2,
+        active_end = $3,
+        updated_at = now()
+    WHERE ts.slot_group_id = ANY($1::bigint[])
+      AND ts.dates_tbd = FALSE
+      AND (
+        (ts.active_start IS NULL AND ts.active_end IS NULL)
+        OR (
+          ts.active_start IS NOT DISTINCT FROM $4::date
+          AND ts.active_end IS NOT DISTINCT FROM $5::date
+        )
+      )
+    `,
+    [groupIds, newStart, newEnd, oldStart, oldEnd],
+  )
+  return groupIds.length
+}
+
+function resolveSlotActiveDates(slot, form, offeringById = null) {
   if (slot.dates_tbd) {
-    return { activeStart: null, activeEnd: null, datesTbd: true, inheritsFormDates: false }
+    return {
+      activeStart: null,
+      activeEnd: null,
+      datesTbd: true,
+      inheritsFormDates: false,
+      inheritsOfferingDates: false,
+    }
+  }
+  if (slot.inherits_offering_dates && slot.offering_id != null && offeringById) {
+    const offering = offeringById.get(Number(slot.offering_id))
+    if (offering) {
+      return {
+        activeStart: formatDateOnly(offering.start_date),
+        activeEnd: formatDateOnly(offering.end_date),
+        datesTbd: false,
+        inheritsFormDates: false,
+        inheritsOfferingDates: true,
+      }
+    }
   }
   const activeStart =
     formatDateOnly(slot.active_start) ??
@@ -585,13 +659,27 @@ function resolveSlotActiveDates(slot, form) {
     null
   const inheritsFormDates =
     !slot.active_start && !slot.start_date && Boolean(form?.start_date || form?.end_date)
-  return { activeStart, activeEnd, datesTbd: false, inheritsFormDates }
+  return {
+    activeStart,
+    activeEnd,
+    datesTbd: false,
+    inheritsFormDates,
+    inheritsOfferingDates: false,
+  }
 }
 
-function mapSlotRow(row, signupCount = 0, form = null) {
+function mapSlotRow(row, signupCount = 0, form = null, offeringById = null, groupRow = null) {
   const max = Number(row.max_participants)
   const count = Number(signupCount)
-  const dates = resolveSlotActiveDates(row, form)
+  let dates = resolveSlotActiveDates(row, form, offeringById)
+  if (
+    groupRow?.inherits_offering_dates &&
+    !row.dates_tbd &&
+    !row.active_start &&
+    !row.active_end
+  ) {
+    dates = resolveSlotActiveDates(groupRow, form, offeringById)
+  }
   const dayOfWeek = row.day_of_week
   return {
     id: Number(row.id),
@@ -612,6 +700,7 @@ function mapSlotRow(row, signupCount = 0, form = null) {
     activeEnd: dates.activeEnd,
     datesTbd: dates.datesTbd,
     inheritsFormDates: dates.inheritsFormDates,
+    inheritsOfferingDates: dates.inheritsOfferingDates,
     isActive: row.is_active,
     displayLabel: buildSlotDisplayLabel(row),
   }
@@ -636,13 +725,22 @@ function buildGroupDisplayLabel(occurrenceRows) {
   return sortOccurrenceRows(occurrenceRows).map((row) => buildSlotDisplayLabel(row)).join('; ')
 }
 
-function mapSlotGroupRow(groupRow, occurrenceRows, signupCount, form, waitlistCount = 0) {
+function mapSlotGroupRow(
+  groupRow,
+  occurrenceRows,
+  signupCount,
+  form,
+  waitlistCount = 0,
+  offeringById = null,
+) {
   const max = Number(groupRow.max_participants)
   const count = Number(signupCount)
   const waitlist = Number(waitlistCount)
-  const dates = resolveSlotActiveDates(groupRow, form)
+  const dates = resolveSlotActiveDates(groupRow, form, offeringById)
   const sortedOccurrenceRows = sortOccurrenceRows(occurrenceRows || [])
-  const occurrences = sortedOccurrenceRows.map((row) => mapSlotRow(row, 0, form))
+  const occurrences = sortedOccurrenceRows.map((row) =>
+    mapSlotRow(row, 0, form, offeringById, groupRow),
+  )
   return {
     id: Number(groupRow.id),
     formId: Number(groupRow.form_id),
@@ -658,6 +756,7 @@ function mapSlotGroupRow(groupRow, occurrenceRows, signupCount, form, waitlistCo
     activeEnd: dates.activeEnd,
     datesTbd: dates.datesTbd,
     inheritsFormDates: dates.inheritsFormDates,
+    inheritsOfferingDates: dates.inheritsOfferingDates,
     isActive: groupRow.is_active,
     displayLabel: buildGroupDisplayLabel(sortedOccurrenceRows),
     occurrences,
@@ -890,16 +989,31 @@ async function loadFormDetail(
     occurrencesByGroup.get(gid).push(row)
   }
 
+  const offeringsRes = await pool.query(
+    'SELECT * FROM scheduling_offering WHERE form_id = $1',
+    [formId],
+  )
+  const offeringById = new Map(offeringsRes.rows.map((o) => [Number(o.id), o]))
+
   const slotGroups = sortSlotGroups(
     groupsRes.rows
       .filter((g) => (occurrencesByGroup.get(g.id) || []).length > 0)
-      .map((g) => mapSlotGroupRow(g, occurrencesByGroup.get(g.id), g.signup_count, form, g.waitlist_count)),
+      .map((g) =>
+        mapSlotGroupRow(
+          g,
+          occurrencesByGroup.get(g.id),
+          g.signup_count,
+          form,
+          g.waitlist_count,
+          offeringById,
+        ),
+      ),
   )
 
   const timeSlots = filteredOccurrences.map((s) => {
     const group = groupsRes.rows.find((g) => g.id === s.slot_group_id)
     const groupCount = group ? Number(group.signup_count) : 0
-    return mapSlotRow(s, groupCount, form)
+    return mapSlotRow(s, groupCount, form, offeringById, group ?? null)
   })
 
   const programRow =
@@ -2892,15 +3006,12 @@ export function createSchedulingHandlers(pool) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
         const formId = Number(req.params.formId)
-        const startDate = formatDateOnly(value.startDate)
         const evergreen = Boolean(value.evergreen)
-        const endDate = evergreen ? null : formatDateOnly(value.endDate)
-        if (!startDate) {
-          return res.status(400).json({ success: false, message: 'Invalid start date' })
+        const validated = validateOfferingDateRange(value.startDate, value.endDate, evergreen)
+        if (!validated.ok) {
+          return res.status(400).json({ success: false, message: validated.message })
         }
-        if (!evergreen && !endDate) {
-          return res.status(400).json({ success: false, message: 'Invalid end date' })
-        }
+        const { startDate, endDate } = validated
         const countRes = await pool.query(
           'SELECT COUNT(*)::int AS c FROM scheduling_offering WHERE form_id = $1',
           [formId],
@@ -2922,11 +3033,23 @@ export function createSchedulingHandlers(pool) {
     },
 
     async updateOffering(req, res) {
+      const client = await pool.connect()
       try {
         const { error, value } = offeringUpdateSchema.validate(sanitizeOfferingBody(req.body))
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
+        await client.query('BEGIN')
+        const existingRes = await client.query(
+          'SELECT * FROM scheduling_offering WHERE id = $1 FOR UPDATE',
+          [req.params.id],
+        )
+        if (existingRes.rows.length === 0) {
+          await client.query('ROLLBACK')
+          return res.status(404).json({ success: false, message: 'Offering not found' })
+        }
+        const existing = existingRes.rows[0]
+
         const updates = []
         const vals = []
         let n = 1
@@ -2945,21 +3068,55 @@ export function createSchedulingHandlers(pool) {
           vals.push(value.label || null)
         }
         if (updates.length === 0) {
+          await client.query('ROLLBACK')
           return res.status(400).json({ success: false, message: 'No fields to update' })
         }
+
+        const newStart =
+          value.startDate !== undefined
+            ? formatDateOnly(value.startDate)
+            : formatDateOnly(existing.start_date)
+        const newEnd =
+          value.evergreen === true
+            ? null
+            : value.endDate !== undefined
+              ? formatDateOnly(value.endDate)
+              : formatDateOnly(existing.end_date)
+        const willBeEvergreen = newEnd == null
+        const validated = validateOfferingDateRange(newStart, newEnd, willBeEvergreen)
+        if (!validated.ok) {
+          await client.query('ROLLBACK')
+          return res.status(400).json({ success: false, message: validated.message })
+        }
+
         updates.push('updated_at = now()')
         vals.push(req.params.id)
-        const result = await pool.query(
+        const result = await client.query(
           `UPDATE scheduling_offering SET ${updates.join(', ')} WHERE id = $${n} RETURNING *`,
           vals,
         )
-        if (result.rows.length === 0) {
-          return res.status(404).json({ success: false, message: 'Offering not found' })
+        const updated = result.rows[0]
+
+        const oldStart = formatDateOnly(existing.start_date)
+        const oldEnd = formatDateOnly(existing.end_date)
+        const datesChanged = oldStart !== validated.startDate || oldEnd !== validated.endDate
+        if (datesChanged) {
+          await syncOfferingDatesToSlotGroups(client, Number(updated.id), {
+            newStart: validated.startDate,
+            newEnd: validated.endDate,
+            oldStart,
+            oldEnd,
+          })
         }
-        res.json({ success: true, data: mapOfferingRow(result.rows[0]) })
+
+        await client.query('COMMIT')
+        res.json({ success: true, data: mapOfferingRow(updated) })
       } catch (err) {
+        await client.query('ROLLBACK').catch(() => {})
         console.error('[scheduling] updateOffering:', err)
         res.status(500).json({ success: false, message: 'Failed to update offering' })
+      } finally {
+        client.release()
       }
     },
 
@@ -3052,6 +3209,8 @@ export function createSchedulingHandlers(pool) {
 
         let resolvedActiveStart = batchActiveStart
         let resolvedActiveEnd = batchActiveEnd
+        const inheritsOfferingDates =
+          value.activeDatesMode === 'inherit' && value.offeringId != null && !batchDatesTbd
         if (value.activeDatesMode === 'inherit') {
           if (offeringRow) {
             resolvedActiveStart = formatDateOnly(offeringRow.start_date)
@@ -3076,8 +3235,8 @@ export function createSchedulingHandlers(pool) {
             `
             INSERT INTO scheduling_slot_group (
               form_id, offering_id, schedule_mode, max_participants,
-              active_start, active_end, dates_tbd, is_active
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE)
+              active_start, active_end, dates_tbd, inherits_offering_dates, is_active
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE)
             RETURNING *
             `,
             [
@@ -3088,6 +3247,7 @@ export function createSchedulingHandlers(pool) {
               resolvedActiveStart,
               resolvedActiveEnd,
               batchDatesTbd,
+              inheritsOfferingDates,
             ],
           )
           groupRow = groupRes.rows[0]
@@ -3129,9 +3289,12 @@ export function createSchedulingHandlers(pool) {
 
         const formRes = await pool.query('SELECT * FROM scheduling_form WHERE id = $1', [req.params.formId])
         const form = formRes.rows[0]
+        const offeringById = offeringRow
+          ? new Map([[Number(offeringRow.id), offeringRow]])
+          : new Map()
         res.json({
           success: true,
-          data: mapSlotGroupRow(groupRow, inserted, 0, form),
+          data: mapSlotGroupRow(groupRow, inserted, 0, form, 0, offeringById),
           count: inserted.length,
         })
       } catch (err) {

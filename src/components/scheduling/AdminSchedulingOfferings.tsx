@@ -18,6 +18,7 @@ interface Props {
   selectedOfferingId: number | null
   onOfferingSelect: (offering: SchedulingOffering | null) => void
   onContinueToSlots?: () => void
+  onOfferingSaved?: () => void | Promise<void>
 }
 
 const AdminSchedulingOfferings = ({
@@ -25,11 +26,13 @@ const AdminSchedulingOfferings = ({
   selectedOfferingId,
   onOfferingSelect,
   onContinueToSlots,
+  onOfferingSaved,
 }: Props) => {
   const [offerings, setOfferings] = useState<SchedulingOffering[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [validationError, setValidationError] = useState<string | null>(null)
   const [editId, setEditId] = useState<number | null>(null)
   const [durationMode, setDurationMode] = useState<DurationMode>('session')
   const [draft, setDraft] = useState({ startDate: '', endDate: '', label: '' })
@@ -61,15 +64,44 @@ const AdminSchedulingOfferings = ({
     setDraft({ startDate: '', endDate: '', label: '' })
     setDurationMode('session')
     setEditId(null)
+    setValidationError(null)
   }
 
+  const getDraftValidation = (): string | null => {
+    if (!draft.startDate) return 'Start date is required.'
+    if (durationMode === 'session') {
+      if (!draft.endDate) return 'End date is required for session offerings.'
+      if (draft.endDate < draft.startDate) {
+        return 'End date must be on or after the start date.'
+      }
+    }
+    return null
+  }
+
+  const draftValidation = getDraftValidation()
+  const endInPast =
+    durationMode === 'session' &&
+    Boolean(draft.endDate) &&
+    draft.endDate < new Date().toISOString().slice(0, 10)
+
   const canSave =
-    Boolean(draft.startDate) && (durationMode === 'evergreen' || Boolean(draft.endDate))
+    Boolean(draft.startDate) && (durationMode === 'evergreen' || Boolean(draft.endDate)) && !draftValidation
 
   const handleSave = async () => {
-    if (!canSave) return
+    const validation = getDraftValidation()
+    if (validation) {
+      setValidationError(validation)
+      return
+    }
+    if (endInPast) {
+      const ok = window.confirm(
+        'This offering ends in the past. Associated timeslots may appear expired. Save anyway?',
+      )
+      if (!ok) return
+    }
     setSaving(true)
     setError(null)
+    setValidationError(null)
     try {
       const payload: {
         startDate: string
@@ -86,9 +118,13 @@ const AdminSchedulingOfferings = ({
         payload.endDate = draft.endDate
       }
       if (editId) {
-        await adminUpdateOffering(editId, payload)
+        const updated = await adminUpdateOffering(editId, payload)
         resetDraft()
         await loadOfferings()
+        if (selectedOfferingId === editId) {
+          onOfferingSelect(updated)
+        }
+        await onOfferingSaved?.()
       } else {
         const created = await adminCreateOffering(formId, payload)
         const selected = await adminSelectOffering(created.id)
@@ -167,6 +203,7 @@ const AdminSchedulingOfferings = ({
   return (
     <div className="space-y-6 w-full">
       {error && <p className="text-sm text-red-600">{error}</p>}
+      {validationError && <p className="text-sm text-red-600">{validationError}</p>}
 
       <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50">
         {editId != null && (
@@ -197,9 +234,23 @@ const AdminSchedulingOfferings = ({
               <input
                 type="date"
                 value={draft.endDate}
-                onChange={(e) => setDraft((d) => ({ ...d, endDate: e.target.value }))}
+                min={draft.startDate || undefined}
+                onChange={(e) => {
+                  setDraft((d) => ({ ...d, endDate: e.target.value }))
+                  setValidationError(null)
+                }}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
               />
+              {draft.endDate && draft.startDate && draft.endDate < draft.startDate && (
+                <p className="text-xs text-red-600 mt-1">
+                  End date must be on or after the start date.
+                </p>
+              )}
+              {endInPast && !(draft.endDate && draft.startDate && draft.endDate < draft.startDate) && (
+                <p className="text-xs text-amber-700 mt-1">
+                  This end date is in the past — you will be asked to confirm before saving.
+                </p>
+              )}
             </div>
           )}
         </div>

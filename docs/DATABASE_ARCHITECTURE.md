@@ -174,7 +174,10 @@ runtime — verify the target before writing queries.
 `add_scheduling_waitlist.sql` / `add_scheduling_orphaned_signups.sql`. The
 `scheduling_category` / `scheduling_form_category` tables and every `category_id` FK were
 **removed** in migration `033` (see §10) — each class now resolves slots/offerings directly
-per form with no category sub-level.
+per form with no category sub-level. **`scheduling_slot_group.inherits_offering_dates`**
+([051](../backend/migrations/051_scheduling_slot_group_inherits_offering.sql)): when true,
+active dates follow the linked `scheduling_offering`; offering date edits cascade to matching
+slot groups and time slots via `updateOffering` in [handlers.js](../backend/scheduling/handlers.js).
 
 ### 4.5 Coaching graph (see [COACHING_CORNER_ROADMAP.md](COACHING_CORNER_ROADMAP.md) Part 5)
 Strong cross-schema FKs to `public.facility`, `public.app_user`, `public.member`. **`023`**

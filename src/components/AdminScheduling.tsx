@@ -283,6 +283,11 @@ const AdminScheduling = ({
     }
   }, [])
 
+  const handleOfferingSaved = useCallback(async () => {
+    if (!selectedId) return
+    await Promise.all([loadDetail(selectedId), loadOfferingsForForm(selectedId)])
+  }, [selectedId, loadDetail, loadOfferingsForForm])
+
   const handleOfferingSelectForSlots = useCallback(
     async (offering: SchedulingOffering) => {
       try {
@@ -406,6 +411,7 @@ const AdminScheduling = ({
                   selectedOfferingId={selectedOffering?.id ?? null}
                   onOfferingSelect={handleOfferingSelect}
                   onContinueToSlots={handleOfferingContinueToSlots}
+                  onOfferingSaved={handleOfferingSaved}
                 />
               )}
 
