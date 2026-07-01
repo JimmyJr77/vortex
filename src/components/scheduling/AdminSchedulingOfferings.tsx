@@ -10,9 +10,7 @@ import {
   type SchedulingOffering,
 } from '../../utils/schedulingApi'
 import { dateInputValue } from '../../utils/dateUtils'
-import SchedulingSetupContextCard, {
-  formatSetupContextLine,
-} from './SchedulingSetupContextCard'
+import { formatSetupContextLine } from './SchedulingSetupContextCard'
 
 type DurationMode = 'session' | 'evergreen'
 
@@ -205,22 +203,10 @@ const AdminSchedulingOfferings = ({
     )
   }
 
-  const selectedOffering = offerings.find((o) => o.id === selectedOfferingId) ?? null
-
   return (
     <div className="space-y-6 w-full">
       {error && <p className="text-sm text-red-600">{error}</p>}
       {validationError && <p className="text-sm text-red-600">{validationError}</p>}
-
-      {selectedOffering && (
-        <SchedulingSetupContextCard
-          primary={formatSetupContextLine([
-            classDisplayName,
-            formatOfferingDateRange(selectedOffering),
-          ])}
-          secondary={selectedOffering.label}
-        />
-      )}
 
       <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50">
         {editId != null && (
