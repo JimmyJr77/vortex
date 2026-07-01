@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { ensureDisciplineTagsSchema, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureProgramsSchedulingSchema, hasProgramSchedulingColumns, mapProgramRow, resolveProgramsSchema } from './schema.js'
+import { ensureDisciplineTagsSchema, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureProgramsSchedulingSchema, ensureAbridgedNameColumns, hasProgramSchedulingColumns, mapProgramRow, resolveAbridgedName, resolveProgramsSchema } from './schema.js'
 import { consolidateClasses } from './reconcile.js'
 import { deleteTopProgramCascade } from './deleteTopProgram.js'
 import { listPublicClassesOffered } from './listPublicClassesOffered.js'
@@ -27,12 +27,14 @@ function mapDisciplineTagRow(row) {
 const topProgramSchema = Joi.object({
   name: Joi.string().min(1).max(100).required(),
   displayName: Joi.string().min(1).max(255).required(),
+  abridgedName: Joi.string().max(255).optional().allow('', null),
   description: Joi.string().max(1000).optional().allow('', null),
   primarySportId: Joi.number().integer().allow(null).optional(),
 })
 
 const classEventSchema = Joi.object({
   displayName: Joi.string().min(1).max(255).required(),
+  abridgedName: Joi.string().max(255).optional().allow('', null),
   skillLevel: Joi.string()
     .valid('EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED')
     .optional()
@@ -62,6 +64,7 @@ const multiClassPassPackageSchema = Joi.object({
 const topProgramUpdateSchema = Joi.object({
   name: Joi.string().min(1).max(100).optional(),
   displayName: Joi.string().min(1).max(255).optional(),
+  abridgedName: Joi.string().max(255).optional().allow('', null),
   description: Joi.string().max(1000).optional().allow('', null),
   archived: Joi.boolean().optional(),
   schedulingActive: Joi.boolean().optional(),
@@ -177,6 +180,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensureProgramsSchedulingSchema(pool)
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
+      await ensureAbridgedNameColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const programsId = Number(req.params.programsId)
       const { archived } = req.query
@@ -188,10 +192,12 @@ export function registerProgramsAdminRoutes(app, pool) {
           p.${schema.programFkColumn} as "categoryId",
           pr.display_name as "programsDisplayName",
           pr.display_name as "categoryDisplayName",
+          pr.abridged_name as "programsAbridgedName",
           pr.name as "programsName",
           pr.name as "categoryName",
           p.name,
           p.display_name as "displayName",
+          p.abridged_name as "abridgedName",
           p.skill_level as "skillLevel",
           p.age_min as "ageMin",
           p.age_max as "ageMax",
@@ -235,6 +241,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensureProgramsSchedulingSchema(pool)
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
+      await ensureAbridgedNameColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const programsId = Number(req.params.programsId)
       if (!Number.isFinite(programsId)) {
@@ -280,13 +287,15 @@ export function registerProgramsAdminRoutes(app, pool) {
       }
 
       const baseName = value.displayName.toUpperCase().replace(/\s+/g, '_')
-      const insertCols = ['facility_id', 'category', fkCol, 'name', 'display_name', 'skill_level']
+      const abridgedName = resolveAbridgedName(value.abridgedName, value.displayName)
+      const insertCols = ['facility_id', 'category', fkCol, 'name', 'display_name', 'abridged_name', 'skill_level']
       const insertVals = [
         facilityId,
         categoryEnum,
         programsId,
         baseName,
         value.displayName,
+        abridgedName,
         value.skillLevel || null,
       ]
       const nameValueIndex = 3
@@ -311,6 +320,7 @@ export function registerProgramsAdminRoutes(app, pool) {
            ${fkCol} as "categoryId",
            name,
            display_name as "displayName",
+           abridged_name as "abridgedName",
            skill_level as "skillLevel",
            age_min as "ageMin",
            age_max as "ageMax",
@@ -404,6 +414,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensureProgramsSchedulingSchema(pool)
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
+      await ensureAbridgedNameColumns(pool)
       const { ensureDiscountEngineSchema } = await import('./schema.js')
       await ensureDiscountEngineSchema(pool)
       const schema = await resolveProgramsSchema(pool)
@@ -423,7 +434,7 @@ export function registerProgramsAdminRoutes(app, pool) {
         : `, FALSE as "schedulingActive", NULL as "schedulingEnrollSites", NULL as "schedulingSignupFields",
            FALSE as "schedulingMandateWaiver", NULL as "schedulingOverviewSavedAt"`
       let query = `
-        SELECT p.id, p.name, p.display_name as "displayName",
+        SELECT p.id, p.name, p.display_name as "displayName", p.abridged_name as "abridgedName",
           ${hasDescription ? 'p.description,' : 'NULL as description,'}
           p.archived, p.created_at as "createdAt", p.updated_at as "updatedAt",
           primary_dt.id as "primarySportId",
@@ -467,6 +478,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensureProgramsSchedulingSchema(pool)
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
+      await ensureAbridgedNameColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const facilityId = await getFacilityId(pool)
       if (!facilityId) return res.status(500).json({ success: false, message: 'No facility found' })
@@ -486,21 +498,23 @@ export function registerProgramsAdminRoutes(app, pool) {
            scheduling_mandate_waiver as "schedulingMandateWaiver",
            scheduling_overview_saved_at as "schedulingOverviewSavedAt"`
         : ''
+      const abridgedName = resolveAbridgedName(value.abridgedName, value.displayName)
 
       const result = await pool.query(
         hasDescription
-          ? `INSERT INTO ${schema.programsTable} (facility_id, name, display_name, description${schedInsert})
-             VALUES ($1, $2, $3, $4${schedValues})
-             RETURNING id, name, display_name as "displayName", description, archived,
+          ? `INSERT INTO ${schema.programsTable} (facility_id, name, display_name, abridged_name, description${schedInsert})
+             VALUES ($1, $2, $3, $4, $5${schedValues})
+             RETURNING id, name, display_name as "displayName", abridged_name as "abridgedName", description, archived,
                created_at as "createdAt", updated_at as "updatedAt"${schedReturn}`
-          : `INSERT INTO ${schema.programsTable} (facility_id, name, display_name${schedInsert})
-             VALUES ($1, $2, $3${schedValues})
-             RETURNING id, name, display_name as "displayName", NULL as description, archived,
+          : `INSERT INTO ${schema.programsTable} (facility_id, name, display_name, abridged_name${schedInsert})
+             VALUES ($1, $2, $3, $4${schedValues})
+             RETURNING id, name, display_name as "displayName", abridged_name as "abridgedName", NULL as description, archived,
                created_at as "createdAt", updated_at as "updatedAt"${schedReturn}`,
         [
           facilityId,
           value.name.toUpperCase().replace(/\s+/g, '_'),
           value.displayName,
+          abridgedName,
           ...(hasDescription ? [value.description || null] : []),
         ],
       )
@@ -530,6 +544,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensureProgramsSchedulingSchema(pool)
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
+      await ensureAbridgedNameColumns(pool)
       if (value.pricingCostUnit !== undefined || value.pricingSlotCostMonthlyCents !== undefined) {
         const { ensureDiscountEngineSchema } = await import('./schema.js')
         await ensureDiscountEngineSchema(pool)
@@ -545,6 +560,18 @@ export function registerProgramsAdminRoutes(app, pool) {
       if (value.displayName !== undefined) {
         updates.push(`display_name = $${n++}`)
         values.push(value.displayName)
+      }
+      if (value.abridgedName !== undefined) {
+        const trimmed = typeof value.abridgedName === 'string' ? value.abridgedName.trim() : ''
+        if (trimmed) {
+          updates.push(`abridged_name = $${n++}`)
+          values.push(trimmed)
+        } else if (value.displayName !== undefined) {
+          updates.push(`abridged_name = $${n++}`)
+          values.push(value.displayName.trim())
+        } else {
+          updates.push('abridged_name = display_name')
+        }
       }
       if (value.description !== undefined) {
         updates.push(`description = $${n++}`)
@@ -668,7 +695,7 @@ export function registerProgramsAdminRoutes(app, pool) {
           : ''
         const result = await pool.query(
           `UPDATE ${schema.programsTable} SET ${updates.join(', ')} WHERE id = $${n}
-           RETURNING id, name, display_name as "displayName", description, archived${returnSched}`,
+           RETURNING id, name, display_name as "displayName", abridged_name as "abridgedName", description, archived${returnSched}`,
           values,
         )
         if (result.rows.length === 0) {

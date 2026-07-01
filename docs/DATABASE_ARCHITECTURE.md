@@ -167,6 +167,12 @@ After `unify_programs_scheduling.sql`: `programs` = top-level sport/category buc
 and/or `program_id`. `programs/schema.js#resolveProgramsSchema()` detects which names exist at
 runtime — verify the target before writing queries.
 
+**Abridged calendar labels** ([052](../backend/migrations/052_scheduling_abridged_names.sql)):
+`programs.abridged_name` and `program.abridged_name` (plus legacy `program_categories`) store
+short monikers for calendar chips; backfilled from `display_name`. Calendar queries use
+`COALESCE(abridged_name, display_name)` in [calendarQuery.js](../backend/scheduling/calendarQuery.js).
+Admin create/edit forms expose **Abridged name** directly under display name.
+
 ### 4.4 Scheduling graph
 `scheduling_form` → `scheduling_time_slot`, `scheduling_offering`,
 `scheduling_slot_group`, `scheduling_signup` (`member_id → member`), `scheduling_auth_token`;

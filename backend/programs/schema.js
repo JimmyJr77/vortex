@@ -41,11 +41,20 @@ export async function hasProgramSchedulingColumns(pool, programsTable) {
   return colCheck.rows.length > 0
 }
 
+/** Calendar / compact label — falls back to display name when abridged is blank. */
+export function resolveAbridgedName(abridgedName, displayName) {
+  const abridged = typeof abridgedName === 'string' ? abridgedName.trim() : ''
+  if (abridged) return abridged
+  const display = typeof displayName === 'string' ? displayName.trim() : ''
+  return display || null
+}
+
 export function mapProgramRow(row, { hasSchedulingCols = false, hasDescription = true } = {}) {
   const base = {
     id: Number(row.id),
     name: row.name,
     displayName: row.display_name,
+    abridgedName: row.abridged_name ?? row.display_name,
     description: hasDescription ? row.description : null,
     archived: row.archived,
     createdAt: row.created_at,
@@ -133,6 +142,20 @@ export async function ensureProgramPricingColumns(pool) {
   if (fs.existsSync(multiClassPassPath)) {
     await pool.query(fs.readFileSync(multiClassPassPath, 'utf8'))
   }
+}
+
+let abridgedNameReady = false
+
+export async function ensureAbridgedNameColumns(pool) {
+  if (abridgedNameReady) return
+  const fs = await import('fs')
+  const path = await import('path')
+  const { fileURLToPath } = await import('url')
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  const migrationPath = path.join(__dirname, '../migrations/052_scheduling_abridged_names.sql')
+  if (!fs.existsSync(migrationPath)) return
+  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+  abridgedNameReady = true
 }
 
 let discountEngineReady = false

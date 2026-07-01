@@ -102,6 +102,7 @@ const ProgramsSection = ({
   const [form, setForm] = useState({
     name: '',
     displayName: '',
+    abridgedName: '',
     description: '',
     primarySportId: null as number | null,
   })
@@ -144,7 +145,7 @@ const ProgramsSection = ({
 
   const openAdd = () => {
     setEditing(null)
-    setForm({ name: '', displayName: '', description: '', primarySportId: null })
+    setForm({ name: '', displayName: '', abridgedName: '', description: '', primarySportId: null })
     setModalOpen(true)
   }
 
@@ -153,6 +154,7 @@ const ProgramsSection = ({
     setForm({
       name: program.name,
       displayName: program.displayName,
+      abridgedName: program.abridgedName ?? program.displayName,
       description: program.description || '',
       primarySportId: program.primarySportId ?? null,
     })
@@ -161,12 +163,14 @@ const ProgramsSection = ({
 
   const handleSave = async () => {
     if (!form.displayName.trim()) return
+    const abridgedName = form.abridgedName.trim() || form.displayName.trim()
     setSaving(true)
     setError(null)
     try {
       if (editing) {
         await updateTopProgram(editing.id, {
           displayName: form.displayName,
+          abridgedName,
           description: form.description || null,
           primarySportId: form.primarySportId,
         })
@@ -177,6 +181,7 @@ const ProgramsSection = ({
         await createTopProgram({
           name,
           displayName: form.displayName,
+          abridgedName,
           description: form.description || null,
           primarySportId: form.primarySportId,
         })
@@ -390,6 +395,19 @@ const ProgramsSection = ({
                 onChange={(e) => setForm((f) => ({ ...f, displayName: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Abridged name</label>
+              <input
+                type="text"
+                value={form.abridgedName}
+                onChange={(e) => setForm((f) => ({ ...f, abridgedName: e.target.value }))}
+                placeholder={form.displayName.trim() || 'Short calendar label'}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Shorter label used on the calendar. Defaults to the display name.
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>

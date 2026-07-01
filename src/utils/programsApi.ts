@@ -20,6 +20,7 @@ export interface TopProgram {
   id: number
   name: string
   displayName: string
+  abridgedName?: string | null
   description?: string | null
   primarySportId?: number | null
   primarySportName?: string | null
@@ -50,6 +51,7 @@ export interface ClassEvent {
   categoryDisplayName?: string | null
   name: string
   displayName: string
+  abridgedName?: string | null
   skillLevel: string | null
   ageMin: number | null
   ageMax: number | null
@@ -88,6 +90,7 @@ export interface AdminProgramPricing extends ClassEvent {
 
 export interface ClassEventFormData {
   displayName: string
+  abridgedName?: string | null
   skillLevel?: string | null
   ageMin?: number | null
   ageMax?: number | null
@@ -115,6 +118,7 @@ export async function fetchTopPrograms(archived?: boolean): Promise<TopProgram[]
 export async function createTopProgram(payload: {
   name: string
   displayName: string
+  abridgedName?: string | null
   description?: string | null
   primarySportId?: number | null
 }): Promise<TopProgram> {
@@ -130,6 +134,7 @@ export async function updateTopProgram(
   payload: Partial<{
     name: string
     displayName: string
+    abridgedName: string | null
     description: string | null
     archived: boolean
     schedulingActive: boolean
@@ -305,11 +310,14 @@ function coerceOptionalInt(value: number | null | undefined): number | null | un
 function sanitizeClassEventUpdateBody(
   payload: Partial<ClassEventFormData> & { programsId?: number | null },
 ): Record<string, unknown> {
-  const { programsId, skillLevel, displayName, ageMin, ageMax, ...rest } = payload
+  const { programsId, skillLevel, displayName, abridgedName, ageMin, ageMax, ...rest } = payload
   const body: Record<string, unknown> = { ...rest }
   if (displayName !== undefined) {
     const trimmed = displayName.trim()
     if (trimmed) body.displayName = trimmed
+  }
+  if (abridgedName !== undefined) {
+    body.abridgedName = typeof abridgedName === 'string' ? abridgedName.trim() : abridgedName
   }
   if (skillLevel !== undefined) {
     body.skillLevel =

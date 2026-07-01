@@ -4,6 +4,7 @@ import {
   loadAllSpreadsheetRows,
   type ClassSpreadsheetRow,
 } from '../../utils/classSchedulingSummary'
+import { compareSkillLevels } from '../../utils/classDisplayUtils'
 import ClassSchedulingExpandPanel from './ClassSchedulingExpandPanel'
 
 type SpreadsheetSortField =
@@ -19,6 +20,7 @@ interface ProgramClass {
   categoryId?: number | null
   description?: string | null
   skillRequirements?: string | null
+  skillLevel?: string | null
 }
 
 interface Props {
@@ -109,8 +111,21 @@ const AdminClassesEventsSpreadsheet = ({
     }))
   }
 
+  const classMetaById = useMemo(() => {
+    const map = new Map<number, ProgramClass>()
+    for (const cls of classes) map.set(cls.id, cls)
+    return map
+  }, [classes])
+
   const sortedRows = useMemo(() => {
     const dir = sortConfig.direction === 'asc' ? 1 : -1
+    const skillLevelFor = (classId: number) => classMetaById.get(classId)?.skillLevel ?? null
+    const compareSameProgramRows = (a: ClassSpreadsheetRow, b: ClassSpreadsheetRow) => {
+      const skillCmp = compareSkillLevels(skillLevelFor(a.classId), skillLevelFor(b.classId))
+      if (skillCmp !== 0) return skillCmp
+      return a.className.localeCompare(b.className)
+    }
+
     return [...rows].sort((a, b) => {
       let cmp = 0
       switch (sortConfig.field) {
@@ -131,17 +146,14 @@ const AdminClassesEventsSpreadsheet = ({
           break
       }
       if (cmp !== 0) return cmp * dir
+      if (sortConfig.field === 'program') {
+        return compareSameProgramRows(a, b)
+      }
       const progCmp = a.programName.localeCompare(b.programName)
       if (progCmp !== 0) return progCmp
-      return a.className.localeCompare(b.className)
+      return compareSameProgramRows(a, b)
     })
-  }, [rows, sortConfig])
-
-  const classMetaById = useMemo(() => {
-    const map = new Map<number, ProgramClass>()
-    for (const cls of classes) map.set(cls.id, cls)
-    return map
-  }, [classes])
+  }, [rows, sortConfig, classMetaById])
 
   if (loading) {
     return (

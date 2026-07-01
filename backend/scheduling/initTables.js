@@ -342,6 +342,18 @@ export async function initSchedulingTables(pool) {
     }
   }
 
+  const abridgedNamesMigration = path.join(
+    __dirname,
+    '../migrations/052_scheduling_abridged_names.sql',
+  )
+  if (fs.existsSync(abridgedNamesMigration)) {
+    try {
+      await pool.query(fs.readFileSync(abridgedNamesMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] abridged names migration:', err.message)
+    }
+  }
+
   const enrollSitesMigration = path.join(__dirname, '../migrations/add_scheduling_enroll_sites.sql')
   if (fs.existsSync(enrollSitesMigration)) {
     try {

@@ -25,6 +25,13 @@ import {
 } from './calendarDateUtils'
 import { buildClassScheduleGroups } from './classScheduleGroups'
 import ClassScheduleByClassPanel from './ClassScheduleByClassPanel'
+import { formatSetupContextLine } from './SchedulingSetupContextCard'
+
+function formatCalendarEventClassLabel(
+  event: Pick<SchedulingCalendarEvent, 'programName' | 'className'>,
+): string {
+  return formatSetupContextLine([event.programName, event.className])
+}
 
 function tbdToOccurrence(tbd: SchedulingCalendarTbd): SchedulingTimeSlot {
   return {
@@ -224,10 +231,10 @@ const SchedulingCalendarView = ({
               ? 'bg-vortex-red/20 border-vortex-red/30 text-gray-100 hover:bg-vortex-red/30'
               : 'bg-vortex-red/5 border-vortex-red/20 text-gray-800 hover:bg-vortex-red/10'
         }`}
-        title={[timeLabel, event.className].filter(Boolean).join(' · ')}
+        title={[timeLabel, formatCalendarEventClassLabel(event)].filter(Boolean).join(' · ')}
       >
         <span className="font-medium text-vortex-red">{timeLabel}</span>
-        <span className="block truncate font-medium">{event.className}</span>
+        <span className="block truncate font-medium">{formatCalendarEventClassLabel(event)}</span>
       </button>
     )
   }
@@ -256,13 +263,8 @@ const SchedulingCalendarView = ({
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <span className="font-semibold text-vortex-red">{timeLabel}</span>
             <span className={`font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
-              {event.className}
+              {formatCalendarEventClassLabel(event)}
             </span>
-            {event.programName && (
-              <span className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                {event.programName}
-              </span>
-            )}
           </div>
           {event.classDescription && (
             <p
@@ -410,8 +412,8 @@ const SchedulingCalendarView = ({
     : 'rounded-xl border border-gray-200 overflow-hidden bg-white shadow-sm'
 
   const selectClass = isDark
-    ? 'border border-gray-600 rounded-lg px-3 py-2 text-sm bg-gray-800 text-gray-100'
-    : 'border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white'
+    ? 'h-10 border border-gray-600 rounded-lg px-3 py-2 text-sm bg-gray-800 text-gray-100'
+    : 'h-10 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white'
 
   return (
     <div className="space-y-6">
@@ -502,7 +504,7 @@ const SchedulingCalendarView = ({
 
             {showFormActiveFilter && (
               <div
-                className={`inline-flex rounded-lg border overflow-hidden text-sm ${
+                className={`inline-flex h-10 rounded-lg border overflow-hidden text-sm ${
                   isDark ? 'border-gray-600' : 'border-gray-300'
                 }`}
               >
@@ -511,7 +513,7 @@ const SchedulingCalendarView = ({
                     key={value}
                     type="button"
                     onClick={() => onFormActiveFilterChange(value)}
-                    className={`px-3 py-2 capitalize transition-colors border-r last:border-r-0 ${
+                    className={`px-3 h-full flex items-center capitalize transition-colors border-r last:border-r-0 ${
                       isDark ? 'border-gray-600' : 'border-gray-300'
                     } ${
                       formActiveFilter === value

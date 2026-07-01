@@ -30,6 +30,7 @@ interface Props {
 
 const emptyForm = (): ClassEventFormData => ({
   displayName: '',
+  abridgedName: '',
   skillLevel: null,
   ageMin: null,
   ageMax: null,
@@ -67,6 +68,7 @@ const ClassEventModal = ({
     if (editing) {
       setForm({
         displayName: editing.displayName,
+        abridgedName: editing.abridgedName ?? editing.displayName,
         skillLevel: editing.skillLevel,
         ageMin: editing.ageMin,
         ageMax: editing.ageMax,
@@ -95,15 +97,17 @@ const ClassEventModal = ({
         setError('Program is required')
         return
       }
+      const abridgedName = (form.abridgedName ?? '').trim() || form.displayName.trim()
+      const payload = { ...form, abridgedName }
       if (editing) {
         await updateClassEvent(editing.id, {
-          ...form,
+          ...payload,
           ...(lockProgram ? {} : { programsId: selectedProgramsId }),
           isActive: parentProgramActive ? form.isActive : false,
         })
       } else {
         await createClassEvent(selectedProgramsId, {
-          ...form,
+          ...payload,
           isActive: parentProgramActive ? form.isActive !== false : false,
         })
       }
@@ -168,6 +172,19 @@ const ClassEventModal = ({
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
               required
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Abridged name</label>
+            <input
+              type="text"
+              value={form.abridgedName ?? ''}
+              onChange={(e) => setForm((f) => ({ ...f, abridgedName: e.target.value }))}
+              placeholder={form.displayName.trim() || 'Short calendar label'}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Shorter label used on the calendar. Defaults to the class name.
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Additional sport tags</label>

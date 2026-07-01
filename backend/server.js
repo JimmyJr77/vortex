@@ -1476,6 +1476,7 @@ const adminUpdateSchema = Joi.object({
 
 const programUpdateSchema = Joi.object({
   displayName: Joi.string().min(1).max(255).optional(),
+  abridgedName: Joi.string().max(255).optional().allow('', null),
   categoryId: Joi.number().integer().optional().allow(null),
   programsId: Joi.number().integer().optional().allow(null),
   skillLevel: Joi.string().valid('EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED').optional().allow(null, ''),
@@ -1490,6 +1491,7 @@ const programUpdateSchema = Joi.object({
 const categorySchema = Joi.object({
   name: Joi.string().min(1).max(100).required(),
   displayName: Joi.string().min(1).max(255).required(),
+  abridgedName: Joi.string().max(255).optional().allow('', null),
   description: Joi.string().max(1000).optional().allow('', null),
   primarySportId: Joi.number().integer().allow(null).optional(),
   pricingMaxSlotsPerUser: Joi.number().integer().min(1).allow(null).optional(),
@@ -1501,6 +1503,7 @@ const categorySchema = Joi.object({
 const categoryUpdateSchema = Joi.object({
   name: Joi.string().min(1).max(100).optional(),
   displayName: Joi.string().min(1).max(255).optional(),
+  abridgedName: Joi.string().max(255).optional().allow('', null),
   description: Joi.string().max(1000).optional().allow('', null),
   archived: Joi.boolean().optional(),
   isActive: Joi.boolean().optional(),
@@ -11651,12 +11654,13 @@ app.post('/api/admin/admins', requireAdminPermission('admins.manage'), async (re
 app.get('/api/admin/programs', async (req, res) => {
   try {
     await ensureProgramCategoriesSchema()
-    const { ensureProgramsSchedulingSchema, ensureDisciplineTagsSchema, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns } = await import('./programs/schema.js')
+    const { ensureProgramsSchedulingSchema, ensureDisciplineTagsSchema, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureAbridgedNameColumns } = await import('./programs/schema.js')
     const { mapClassPricingFields } = await import('./programs/pricingDefaults.js')
     await ensureProgramsSchedulingSchema(pool)
     await ensureDisciplineTagsSchema(pool)
     await ensurePrimaryDisciplineTagColumn(pool)
     await ensureProgramPricingColumns(pool)
+    await ensureAbridgedNameColumns(pool)
     const taxonomy = await resolveProgramTaxonomy()
     const { archived, includePricing } = req.query
     const programIsActiveSelect = taxonomy.hasProgramIsActive
@@ -11671,6 +11675,7 @@ app.get('/api/admin/programs', async (req, res) => {
         pc.display_name as "categoryDisplayName",
         p.name,
         p.display_name as "displayName",
+        p.abridged_name as "abridgedName",
         p.skill_level as "skillLevel",
         p.age_min as "ageMin",
         p.age_max as "ageMax",
@@ -12054,7 +12059,8 @@ app.put('/api/admin/programs/:id', async (req, res) => {
       AND column_name IN ('category_id', 'programs_id')
     `)
     const programCols = new Set(columnCheck.rows.map((row) => row.column_name))
-    const { resolveProgramsSchema } = await import('./programs/schema.js')
+    const { resolveProgramsSchema, ensureAbridgedNameColumns } = await import('./programs/schema.js')
+    await ensureAbridgedNameColumns(pool)
     const schema = await resolveProgramsSchema(pool)
     const fkCol = schema.programFkColumn
     const parentProgramId =
@@ -12107,6 +12113,18 @@ app.put('/api/admin/programs/:id', async (req, res) => {
         )
       } catch {
         /* scheduling_form optional */
+      }
+    }
+    if (value.abridgedName !== undefined) {
+      const trimmed = typeof value.abridgedName === 'string' ? value.abridgedName.trim() : ''
+      if (trimmed) {
+        updates.push(`abridged_name = $${paramCount++}`)
+        values.push(trimmed)
+      } else if (value.displayName !== undefined) {
+        updates.push(`abridged_name = $${paramCount++}`)
+        values.push(value.displayName.trim())
+      } else {
+        updates.push('abridged_name = display_name')
       }
     }
     if (value.skillLevel !== undefined) {
@@ -12192,6 +12210,7 @@ app.put('/api/admin/programs/:id', async (req, res) => {
       ${fkReturning}
       name,
       display_name as "displayName",
+      abridged_name as "abridgedName",
       skill_level as "skillLevel",
       age_min as "ageMin",
       age_max as "ageMax",
@@ -13340,9 +13359,10 @@ app.get('/api/admin/programs/:programId/iterations/stats', async (req, res) => {
 app.get('/api/admin/categories', async (req, res) => {
   try {
     await ensureProgramCategoriesSchema()
-    const { ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns } = await import('./programs/schema.js')
+    const { ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureAbridgedNameColumns } = await import('./programs/schema.js')
     await ensurePrimaryDisciplineTagColumn(pool)
     await ensureProgramPricingColumns(pool)
+    await ensureAbridgedNameColumns(pool)
     const taxonomy = await resolveProgramTaxonomy()
     const { archived } = req.query
     
@@ -13363,6 +13383,7 @@ app.get('/api/admin/categories', async (req, res) => {
         p.id,
         p.name,
         p.display_name as "displayName",
+        p.abridged_name as "abridgedName",
         ${hasDescriptionColumn ? 'p.description,' : 'NULL as description,'}
         ${isActiveSelect}
         p.archived,
@@ -13418,10 +13439,11 @@ app.post('/api/admin/categories', async (req, res) => {
       })
     }
 
-    const { ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns } = await import('./programs/schema.js')
+    const { ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureAbridgedNameColumns, resolveAbridgedName } = await import('./programs/schema.js')
     const { setProgramPrimarySport, getProgramPrimarySportFields } = await import('./programs/primarySport.js')
     await ensurePrimaryDisciplineTagColumn(pool)
     await ensureProgramPricingColumns(pool)
+    await ensureAbridgedNameColumns(pool)
 
     const facilityId = await pool.query('SELECT id FROM facility LIMIT 1')
     if (facilityId.rows.length === 0) {
@@ -13440,36 +13462,39 @@ app.post('/api/admin/categories', async (req, res) => {
       AND column_name = 'description'
     `, [taxonomy.programsTable])
     const hasDescriptionColumn = columnCheck.rows.length > 0
+    const abridgedName = resolveAbridgedName(value.abridgedName, value.displayName)
 
     let query, params
     if (hasDescriptionColumn) {
       query = `
-        INSERT INTO ${taxonomy.programsTable} (facility_id, name, display_name, description)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO ${taxonomy.programsTable} (facility_id, name, display_name, abridged_name, description)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING 
           id,
           name,
           display_name as "displayName",
+          abridged_name as "abridgedName",
           description,
           archived,
           created_at as "createdAt",
           updated_at as "updatedAt"
       `
-      params = [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName, value.description || null]
+      params = [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName, abridgedName, value.description || null]
     } else {
       query = `
-        INSERT INTO ${taxonomy.programsTable} (facility_id, name, display_name)
-        VALUES ($1, $2, $3)
+        INSERT INTO ${taxonomy.programsTable} (facility_id, name, display_name, abridged_name)
+        VALUES ($1, $2, $3, $4)
         RETURNING 
           id,
           name,
           display_name as "displayName",
+          abridged_name as "abridgedName",
           NULL as description,
           archived,
           created_at as "createdAt",
           updated_at as "updatedAt"
       `
-      params = [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName]
+      params = [facilityId.rows[0].id, value.name.toUpperCase().replace(/\s+/g, '_'), value.displayName, abridgedName]
     }
 
     const result = await pool.query(query, params)
@@ -13521,10 +13546,11 @@ app.put('/api/admin/categories/:id', async (req, res) => {
       })
     }
 
-    const { ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns } = await import('./programs/schema.js')
+    const { ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureAbridgedNameColumns } = await import('./programs/schema.js')
     const { setProgramPrimarySport, getProgramPrimarySportFields } = await import('./programs/primarySport.js')
     await ensurePrimaryDisciplineTagColumn(pool)
     await ensureProgramPricingColumns(pool)
+    await ensureAbridgedNameColumns(pool)
 
     const updates = []
     const values = []
@@ -13539,6 +13565,18 @@ app.put('/api/admin/categories/:id', async (req, res) => {
     if (value.displayName !== undefined) {
       updates.push(`display_name = $${paramCount++}`)
       values.push(value.displayName)
+    }
+    if (value.abridgedName !== undefined) {
+      const trimmed = typeof value.abridgedName === 'string' ? value.abridgedName.trim() : ''
+      if (trimmed) {
+        updates.push(`abridged_name = $${paramCount++}`)
+        values.push(trimmed)
+      } else if (value.displayName !== undefined) {
+        updates.push(`abridged_name = $${paramCount++}`)
+        values.push(value.displayName.trim())
+      } else {
+        updates.push('abridged_name = display_name')
+      }
     }
     
     const columnCheck = await pool.query(`
@@ -13609,6 +13647,7 @@ app.put('/api/admin/categories/:id', async (req, res) => {
           id,
           name,
           display_name as "displayName",
+          abridged_name as "abridgedName",
           ${returnDescription}
           ${returnIsActive}
           archived,

@@ -117,14 +117,14 @@ export async function loadSchedulingCalendar(pool, options) {
       o.start_date AS offering_start_date,
       o.end_date AS offering_end_date,
       o.label AS offering_label,
-      p.display_name AS class_name,
+      COALESCE(p.abridged_name, p.display_name) AS class_name,
       p.description AS class_description,
       p.is_active AS class_is_active,
       p.skill_level,
       p.age_min,
       p.age_max,
       p.skill_requirements,
-      pr.display_name AS program_name,
+      COALESCE(pr.abridged_name, pr.display_name) AS program_name,
       sg.offering_id,
       COALESCE((
         SELECT COUNT(*)::int

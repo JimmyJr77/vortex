@@ -10,7 +10,7 @@ import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import AdminClassesEventsSpreadsheet from './classes/AdminClassesEventsSpreadsheet'
 import ClassSchedulingExpandPanel from './classes/ClassSchedulingExpandPanel'
 import { loadSchedulingCountsForClasses } from '../utils/classSchedulingSummary'
-import { formatAgeRange, formatSkillLevel } from '../utils/classDisplayUtils'
+import { compareSkillLevels, formatAgeRange, formatSkillLevel } from '../utils/classDisplayUtils'
 
 interface Program {
   id: number
@@ -40,6 +40,7 @@ interface Category {
   id: number
   name: string
   displayName: string
+  abridgedName?: string | null
   description?: string | null
   primarySportId?: number | null
   primarySportName?: string | null
@@ -799,12 +800,14 @@ export default function AdminClasses({
         alert('Display name is required')
         return
       }
+      const abridgedName = categoryFormData.abridgedName?.trim() || displayName
       const name = displayName.toUpperCase().replace(/\s+/g, '_')
       const response = await adminApiRequest('/api/admin/categories', {
         method: 'POST',
         body: JSON.stringify({
           name,
           displayName,
+          abridgedName,
           description: categoryFormData.description,
           primarySportId: categoryFormData.primarySportId ?? null,
         })
@@ -813,7 +816,7 @@ export default function AdminClasses({
       if (response.ok) {
         await fetchAllCategories()
         await fetchAllPrograms()
-        setCategoryFormData({ displayName: '', description: '', primarySportId: null })
+        setCategoryFormData({ displayName: '', abridgedName: '', description: '', primarySportId: null })
         setShowCategoryModal(false)
         setEditingCategoryId(null)
       } else {
@@ -834,6 +837,8 @@ export default function AdminClasses({
         method: 'PUT',
         body: JSON.stringify({
           displayName: categoryFormData.displayName,
+          abridgedName:
+            categoryFormData.abridgedName?.trim() || categoryFormData.displayName?.trim() || undefined,
           description: categoryFormData.description,
           isActive: categoryFormData.isActive,
           primarySportId: categoryFormData.primarySportId ?? null,
@@ -1073,6 +1078,12 @@ export default function AdminClasses({
     }))
   }
 
+  const compareSameProgramClasses = (a: Program, b: Program): number => {
+    const skillCmp = compareSkillLevels(a.skillLevel, b.skillLevel)
+    if (skillCmp !== 0) return skillCmp
+    return a.displayName.localeCompare(b.displayName)
+  }
+
   const compareActiveClassRows = (a: Program, b: Program): number => {
     const dir = classSortConfig.direction === 'asc' ? 1 : -1
     let cmp = 0
@@ -1103,9 +1114,13 @@ export default function AdminClasses({
 
     if (cmp !== 0) return cmp * dir
 
+    if (classSortConfig.field === 'program') {
+      return compareSameProgramClasses(a, b)
+    }
+
     const progCmp = programNameForClass(a, categories).localeCompare(programNameForClass(b, categories))
     if (progCmp !== 0) return progCmp
-    return a.displayName.localeCompare(b.displayName)
+    return compareSameProgramClasses(a, b)
   }
 
   const filteredActiveClassRows = activeClasses
@@ -1171,6 +1186,7 @@ export default function AdminClasses({
         categoryId: p.categoryId,
         description: p.description,
         skillRequirements: p.skillRequirements,
+        skillLevel: p.skillLevel,
       })),
     [activeClasses],
   )
@@ -1216,7 +1232,7 @@ export default function AdminClasses({
               type="button"
               onClick={() => {
                 setEditingCategoryId(null)
-                setCategoryFormData({ displayName: '', description: '', primarySportId: null })
+                setCategoryFormData({ displayName: '', abridgedName: '', description: '', primarySportId: null })
                 setShowCategoryModal(true)
               }}
               className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
@@ -1508,6 +1524,7 @@ export default function AdminClasses({
                                     setEditingCategoryId(category.id)
                                     setCategoryFormData({
                                       displayName: category.displayName,
+                                      abridgedName: category.abridgedName ?? category.displayName,
                                       description: category.description || '',
                                       isActive: programIsActiveFlag(category),
                                       primarySportId:
@@ -1860,6 +1877,21 @@ export default function AdminClasses({
                     placeholder="e.g., Gymnastics"
                     required
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Abridged name</label>
+                  <input
+                    type="text"
+                    value={categoryFormData.abridgedName ?? ''}
+                    onChange={(e) =>
+                      setCategoryFormData({ ...categoryFormData, abridgedName: e.target.value })
+                    }
+                    placeholder={categoryFormData.displayName?.trim() || 'Short calendar label'}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Shorter label used on the calendar. Defaults to the display name.
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Primary sport</label>
