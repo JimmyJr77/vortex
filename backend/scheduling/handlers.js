@@ -995,8 +995,19 @@ async function loadFormDetail(
     return mapSlotRow(s, groupCount, form, offeringById, group ?? null)
   })
 
-  const programRow =
-    form.programs_id != null ? await loadProgramPricingRow(pool, Number(form.programs_id)) : null
+  let programRow = null
+  if (form.programs_id != null) {
+    // Ensure pricing columns (pricing_cost_options, multi_class_pass_packages) exist before
+    // reading them — the public offerings/enroll path can be hit on a fresh boot before any
+    // program-management route has lazily applied migrations 048/049.
+    try {
+      const { ensureProgramPricingColumns } = await import('../programs/schema.js')
+      await ensureProgramPricingColumns(pool)
+    } catch (err) {
+      console.warn('[scheduling] ensureProgramPricingColumns:', err.message)
+    }
+    programRow = await loadProgramPricingRow(pool, Number(form.programs_id))
+  }
 
   return {
     ...mapFormRow(form, programRow),

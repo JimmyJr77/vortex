@@ -131,7 +131,6 @@ export async function ensureProgramPricingColumns(pool) {
   if (!fs.existsSync(migrationPath)) return
   const sql = fs.readFileSync(migrationPath, 'utf8')
   await pool.query(sql)
-  programPricingReady = true
 
   const costOptionsPath = path.join(__dirname, '../migrations/048_program_pricing_cost_options.sql')
   if (fs.existsSync(costOptionsPath)) {
@@ -142,6 +141,11 @@ export async function ensureProgramPricingColumns(pool) {
   if (fs.existsSync(multiClassPassPath)) {
     await pool.query(fs.readFileSync(multiClassPassPath, 'utf8'))
   }
+
+  // Only mark ready once every dependent column migration has actually applied, so a
+  // failure above does not permanently skip 048/049 (which would leave pricing_cost_options
+  // / multi_class_pass_packages missing and 500 the public offerings path).
+  programPricingReady = true
 }
 
 let abridgedNameReady = false
