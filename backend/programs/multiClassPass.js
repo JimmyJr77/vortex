@@ -161,6 +161,16 @@ export async function restorePassCreditsForSignup(client, { signupId, reason = '
   return { restored }
 }
 
+/** Best-effort — enrollment cancel/delete must succeed even when pass ledger columns are absent. */
+export async function safeRestorePassCreditsForSignup(client, opts) {
+  try {
+    return await restorePassCreditsForSignup(client, opts)
+  } catch (err) {
+    console.warn('[multiClassPass] restorePassCreditsForSignup skipped:', err?.message ?? err)
+    return { restored: 0 }
+  }
+}
+
 /**
  * Expire passes past their expires_at date. Writes an `expire` ledger row for the
  * remaining balance and zeroes the pass. Idempotent (only touches active passes

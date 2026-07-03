@@ -24,10 +24,11 @@ import { buildSignupOrderPreview, loadMemberScopeSignups, pricingScopeKey, Weekl
 import { persistDiscountSnapshot } from './discountEngine.js'
 import { persistSignupCharges } from './persistSignupCharges.js'
 import {
-  cancelSubscriptionsForSource,
-  reactivateSubscriptionForSource,
-  setSubscriptionPausedForSource,
+  safeCancelSubscriptionsForSource,
+  safeReactivateSubscriptionForSource,
+  safeSetSubscriptionPausedForSource,
 } from './billingSubscriptions.js'
+import { ensureEnrollmentLifecycleColumns } from './initTables.js'
 import { buildAdminMemberEnrollments, autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
 import {
   persistMultiClassPassPurchaseCharge,
@@ -37,7 +38,7 @@ import {
   createMemberPassPurchase,
   loadProgramPassPackages,
   redeemPassForSignup,
-  restorePassCreditsForSignup,
+  safeRestorePassCreditsForSignup,
   selectPassForRedemption,
 } from '../programs/multiClassPass.js'
 import { countAllocatedFreeSlotsForMember } from './freeSlotAllocation.js'
@@ -151,16 +152,8 @@ async function orphanSignupsForSlotGroup(db, groupId) {
 
   // Stop future recurring billing and restore any consumed pass credits.
   for (const row of orphaned.rows) {
-    try {
-      await cancelSubscriptionsForSource(db, { sourceType: 'scheduling_signup', sourceId: row.id })
-    } catch (err) {
-      console.warn('[scheduling] orphan cancel subscription:', err.message)
-    }
-    try {
-      await restorePassCreditsForSignup(db, { signupId: row.id, reason: 'Class removed' })
-    } catch (err) {
-      console.warn('[scheduling] orphan restore pass credits:', err.message)
-    }
+    await safeCancelSubscriptionsForSource(db, { sourceType: 'scheduling_signup', sourceId: row.id })
+    await safeRestorePassCreditsForSignup(db, { signupId: row.id, reason: 'Class removed' })
   }
 }
 
@@ -1776,6 +1769,7 @@ export function createSchedulingHandlers(pool) {
       const source = req.query?.source === 'member_program' ? 'member_program' : 'scheduling'
       const client = await pool.connect()
       try {
+        await ensureEnrollmentLifecycleColumns(pool)
         await client.query('BEGIN')
         if (source === 'member_program') {
           const del = await client.query('DELETE FROM member_program WHERE id = $1 RETURNING id', [id])
@@ -1795,16 +1789,15 @@ export function createSchedulingHandlers(pool) {
           return res.status(404).json({ success: false, message: 'Enrollment not found' })
         }
         const signup = existing.rows[0]
-        // Stop billing and restore any consumed pass credits before hard delete.
-        await cancelSubscriptionsForSource(client, { sourceType: 'scheduling_signup', sourceId: id })
-        try {
-          await restorePassCreditsForSignup(client, { signupId: id, reason: 'Enrollment deleted' })
-        } catch (creditErr) {
-          console.warn('[scheduling] delete restore credits:', creditErr.message)
-        }
+        await safeCancelSubscriptionsForSource(client, { sourceType: 'scheduling_signup', sourceId: id })
+        await safeRestorePassCreditsForSignup(client, { signupId: id, reason: 'Enrollment deleted' })
         let promotedRows = []
         if (signup.status === 'confirmed' && signup.slot_group_id) {
-          promotedRows = await promoteFromWaitlist(client, signup.slot_group_id, 1)
+          try {
+            promotedRows = await promoteFromWaitlist(client, signup.slot_group_id, 1)
+          } catch (promoteErr) {
+            console.warn('[scheduling] delete promote waitlist:', promoteErr.message)
+          }
         }
         await client.query('DELETE FROM scheduling_signup WHERE id = $1', [id])
         await client.query('COMMIT')
@@ -3871,6 +3864,7 @@ export function createSchedulingHandlers(pool) {
 
     async updateSignupStatus(req, res) {
       try {
+        await ensureEnrollmentLifecycleColumns(pool)
         if (req.body.archived !== undefined) {
           const archived = Boolean(req.body.archived)
           const existing = await pool.query(
@@ -3982,31 +3976,34 @@ export function createSchedulingHandlers(pool) {
             (targetStatus === 'cancelled' || targetStatus === 'completed') &&
             signup.slot_group_id
           ) {
-            await client.query(
-              'SELECT id FROM scheduling_slot_group WHERE id = $1 FOR UPDATE',
-              [signup.slot_group_id],
-            )
-            promotedRows = await promoteFromWaitlist(client, signup.slot_group_id, 1)
+            try {
+              await client.query(
+                'SELECT id FROM scheduling_slot_group WHERE id = $1 FOR UPDATE',
+                [signup.slot_group_id],
+              )
+              promotedRows = await promoteFromWaitlist(client, signup.slot_group_id, 1)
+            } catch (promoteErr) {
+              console.warn('[scheduling] status promote waitlist:', promoteErr.message)
+            }
           }
 
           // Keep recurring subscriptions in sync with signup status.
           const source = { sourceType: 'scheduling_signup', sourceId: req.params.id }
           if (targetStatus === 'cancelled' && previousStatus !== 'cancelled') {
-            await cancelSubscriptionsForSource(client, source)
-            await restorePassCreditsForSignup(client, {
+            await safeCancelSubscriptionsForSource(client, source)
+            await safeRestorePassCreditsForSignup(client, {
               signupId: req.params.id,
               reason: 'Enrollment cancelled',
             })
           } else if (targetStatus === 'completed' && previousStatus !== 'completed') {
-            // Completed enrollments stop future billing but keep consumed pass credits.
-            await cancelSubscriptionsForSource(client, source)
+            await safeCancelSubscriptionsForSource(client, source)
           } else if (targetStatus === 'paused' && previousStatus !== 'paused') {
-            await setSubscriptionPausedForSource(client, { ...source, paused: true })
+            await safeSetSubscriptionPausedForSource(client, { ...source, paused: true })
           } else if (targetStatus === 'confirmed' || targetStatus === 'waitlisted') {
             if (previousStatus === 'cancelled' || previousStatus === 'completed') {
-              await reactivateSubscriptionForSource(client, source)
+              await safeReactivateSubscriptionForSource(client, source)
             } else if (previousStatus === 'paused') {
-              await setSubscriptionPausedForSource(client, { ...source, paused: false })
+              await safeSetSubscriptionPausedForSource(client, { ...source, paused: false })
             }
           }
 

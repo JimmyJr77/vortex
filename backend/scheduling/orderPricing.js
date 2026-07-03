@@ -1215,6 +1215,7 @@ export async function computeDiscountLayer(
   const empty = {
     enabled: false,
     lines: [],
+    accountLines: [],
     orderDiscounts: [],
     freeGrants: [],
     subtotalCents: 0,
@@ -1222,7 +1223,7 @@ export async function computeDiscountLayer(
     totalCents: 0,
     redemptions: [],
   }
-  if (!newSignupItems.length) return empty
+  if (!newSignupItems.length && !previewExistingLines?.length) return empty
 
   let rules = []
   let caps = {}
@@ -1351,6 +1352,19 @@ export async function computeDiscountLayer(
   const { computeOrderDiscounts } = await import('./discountEngine.js')
   const result = computeOrderDiscounts({ lines, rules, promoCodes, caps })
   return { enabled: true, ...result }
+}
+
+/**
+ * Run the discount engine for a member's current enrollments only (no new checkout lines).
+ * Uses previewExistingLines to override stale per-signup list prices with live marginal costs,
+ * then returns per-signup gross/net via accountLines.
+ */
+export async function computeExistingEnrollmentDiscounts(pool, params) {
+  return computeDiscountLayer(pool, {
+    ...params,
+    newSignupItems: [],
+    existingCount: params.previewExistingLines?.length ?? 0,
+  })
 }
 
 /**

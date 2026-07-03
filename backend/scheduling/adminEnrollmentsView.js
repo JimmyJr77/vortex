@@ -21,7 +21,7 @@ import {
   applyEnrollmentTaxonomy,
   buildEnrollmentContextLine,
 } from './slotDisplayLabel.js'
-import { buildSignupOrderPreview } from './orderPricing.js'
+import { buildSignupOrderPreview, computeExistingEnrollmentDiscounts } from './orderPricing.js'
 import { cancelSubscriptionsForSource } from './billingSubscriptions.js'
 
 function parseSelectedDays(raw) {
@@ -132,6 +132,8 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
   }
 
   let priceById = new Map()
+  let adjustedBySignupId = new Map()
+  let discountLabelBySignupId = new Map()
   try {
     const preview = await buildSignupOrderPreview(pool, {
       memberId,
@@ -146,6 +148,48 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
     })
     for (const cls of preview?.existingClasses ?? []) {
       if (cls.id != null) priceById.set(Number(cls.id), Math.round((cls.monthlyPrice || 0) * 100))
+    }
+
+    const previewExistingLines = (preview?.existingClasses ?? [])
+      .filter((cls) => cls.id != null && (cls.monthlyPrice || 0) > 0)
+      .map((cls) => ({
+        key: `preview-existing-${cls.id}`,
+        signupId: Number(cls.id),
+        formId: cls.formId,
+        programId: cls.programsId ?? null,
+        sportId: null,
+        memberId,
+        familyId: memberRow.family_id ?? null,
+        baseCents: Math.round((cls.monthlyPrice || 0) * 100),
+        listCents: Math.round((cls.monthlyPrice || 0) * 100),
+        finalCents: Math.round((cls.monthlyPrice || 0) * 100),
+        includeInSubtotal: false,
+        shadowOnly: true,
+      }))
+
+    if (previewExistingLines.length > 0) {
+      const discounts = await computeExistingEnrollmentDiscounts(pool, {
+        memberId,
+        promoCodes: [],
+        memberContext: {
+          city: memberRow.billing_city ?? null,
+          school,
+          graduationYear: Number.isFinite(graduationYear) ? graduationYear : null,
+          familyId: memberRow.family_id ?? null,
+        },
+        previewExistingLines,
+        formRows: new Map(),
+        scopeMeta: new Map(),
+      })
+      for (const line of discounts?.accountLines ?? []) {
+        adjustedBySignupId.set(line.signupId, line.finalCents)
+        if (line.baseCents > line.finalCents && line.applied?.length) {
+          discountLabelBySignupId.set(
+            line.signupId,
+            line.applied.map((a) => a.name).filter(Boolean).join(', '),
+          )
+        }
+      }
     }
   } catch (err) {
     console.warn('[adminEnrollmentsView] preview failed:', err.message)
@@ -224,18 +268,19 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
 
     const sub = subBySignupId.get(Number(row.id))
     const breakdownGross = row.pricing_breakdown?.totals?.subtotalCents
-    const breakdownNet = row.pricing_breakdown?.totals?.totalCents
     const classCostCents =
       priceById.get(Number(row.id)) ??
       (sub ? Number(sub.monthly_amount_cents) : null) ??
       (breakdownGross != null ? Number(breakdownGross) : null) ??
       0
-    const manualCents = manualDiscountCents(classCostCents, row)
+    const groupAdjustedCents = adjustedBySignupId.get(Number(row.id))
+    const manualCents = manualDiscountCents(groupAdjustedCents ?? classCostCents, row)
     const baseNet =
-      sub != null
-        ? Number(sub.net_monthly_cents)
-        : priceById.get(Number(row.id)) ?? (breakdownNet != null ? Number(breakdownNet) : classCostCents)
+      groupAdjustedCents ??
+      (sub != null ? Number(sub.net_monthly_cents) : null) ??
+      classCostCents
     const adjustedCostCents = Math.max(0, baseNet - manualCents)
+    const groupDiscountLabel = discountLabelBySignupId.get(Number(row.id)) ?? null
 
     const enriched = applyEnrollmentTaxonomy(
       {
@@ -258,7 +303,8 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
         adjusted_cost_cents: adjustedCostCents,
         manual_discount_cents: manualCents > 0 ? manualCents : null,
         manual_discount_pct: row.manual_discount_pct != null ? Number(row.manual_discount_pct) : null,
-        manual_discount_reason: row.manual_discount_reason ?? null,
+        manual_discount_reason:
+          row.manual_discount_reason ?? groupDiscountLabel ?? null,
         manual_discount_rule_id: row.manual_discount_rule_id != null ? Number(row.manual_discount_rule_id) : null,
         completed_at: row.completed_at,
         created_at: row.created_at,

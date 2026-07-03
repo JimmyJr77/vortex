@@ -424,10 +424,10 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       const cartLines = groupLines.filter(
         (ls) => ls.includeInSubtotal !== false && ls.line.shadowOnly !== true,
       )
-      if (cartLines.length === 0) continue
-
       const classLines = groupLines.filter((ls) => ls.baseCents > 0)
       if (classLines.length === 0) continue
+      // Existing enrollments are shadow-only (no checkout cart) — still apply household discounts.
+      if (cartLines.length === 0 && !classLines.some((ls) => ls.line.shadowOnly === true)) continue
 
       if (target === 'total') {
         const accountSubtotal = classLines.reduce((sum, ls) => sum + ls.baseCents, 0)
@@ -442,6 +442,55 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         if (!capTracker.canApply(rule, repLine.line, 'discount')) continue
 
         amount = Math.min(amount, accountSubtotal)
+
+        if (hasShadowLines && cartSubtotal <= 0) {
+          // Existing-account pricing (no checkout cart): spread the household discount
+          // across enrolled classes so each row shows its share of the group rate.
+          const eligible = classLines.filter((ls) => ls.runningCents > 0)
+          let remaining = amount
+          for (let i = 0; i < eligible.length; i += 1) {
+            const ls = eligible[i]
+            const share =
+              i === eligible.length - 1
+                ? remaining
+                : Math.min(remaining, Math.round(amount * (ls.baseCents / accountSubtotal)))
+            if (share <= 0) continue
+            const applied = Math.min(share, ls.runningCents)
+            ls.runningCents -= applied
+            remaining -= applied
+            ls.applied.push({
+              ruleId: rule.id,
+              name: rule.name,
+              type: rule.type,
+              amountCents: applied,
+              kind: 'discount',
+              qualifiedLabel,
+              nextTierHint: unlockHint,
+            })
+            if (rule.exclusivityGroup) ls.exclusivityGroups.add(rule.exclusivityGroup)
+            redemptions.push({
+              ruleId: rule.id,
+              memberId: ls.line.memberId,
+              lineKey: ls.key,
+              programId: ls.line.programId,
+              formId: ls.line.formId,
+              kind: 'discount',
+              units: 0,
+              amountCents: applied,
+            })
+          }
+          orderRunning -= amount
+          orderDiscounts.push({
+            ruleId: rule.id,
+            name: rule.name,
+            type: rule.type,
+            amountCents: amount,
+            qualifiedLabel,
+            nextTierHint: unlockHint,
+          })
+          capTracker.record(rule, repLine.line, 'discount')
+          continue
+        }
 
         if (hasShadowLines) {
           orderRunning -= amount
@@ -511,11 +560,13 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
 
       if (pick.line.shadowOnly) {
         const cartOnly = cartLines.filter((ls) => ls.runningCents > 0)
-        if (cartOnly.length === 0) continue
-        pick =
-          target === 'highest'
-            ? cartOnly.reduce((best, ls) => (ls.baseCents > best.baseCents ? ls : best))
-            : cartOnly.reduce((best, ls) => (ls.baseCents < best.baseCents ? ls : best))
+        if (cartOnly.length > 0) {
+          pick =
+            target === 'highest'
+              ? cartOnly.reduce((best, ls) => (ls.baseCents > best.baseCents ? ls : best))
+              : cartOnly.reduce((best, ls) => (ls.baseCents < best.baseCents ? ls : best))
+        }
+        // When cartOnly is empty, keep the shadow pick (existing enrollments only).
       } else if (!cartLines.some((ls) => ls.key === pick.key)) {
         const cartOnly = cartLines.filter((ls) => ls.runningCents > 0)
         if (cartOnly.length === 0) continue
@@ -706,6 +757,18 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       applied: ls.applied,
     }))
 
+  // Per-enrollment lines for existing-account views (shadow DB lines keyed by signupId).
+  const accountLines = lineState
+    .filter((ls) => ls.line.shadowOnly === true && ls.line.signupId != null)
+    .map((ls) => ({
+      signupId: Number(ls.line.signupId),
+      key: ls.key,
+      baseCents: ls.baseCents,
+      discountCents: ls.baseCents - ls.runningCents,
+      finalCents: ls.runningCents,
+      applied: ls.applied,
+    }))
+
   const lineDiscountTotal = lineResults.reduce((sum, l) => sum + l.discountCents, 0)
   const orderDiscountTotal = orderDiscounts.reduce((sum, d) => sum + d.amountCents, 0)
   const totalDiscountCents = lineDiscountTotal + orderDiscountTotal
@@ -713,6 +776,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
 
   return {
     lines: lineResults,
+    accountLines,
     orderDiscounts,
     freeGrants,
     redemptions,

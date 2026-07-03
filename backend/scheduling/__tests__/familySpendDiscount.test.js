@@ -102,6 +102,37 @@ test('1 existing + 3 new classes at $150 each gets 25% of $600 = $150', () => {
   assert.equal(d.nextTierHint, '$150 more will unlock a 30% discount.')
 })
 
+test('existing-only shadow lines receive proportional spend discount per class', () => {
+  const lines = attachStats(
+    [101, 102, 103, 104].map((id) =>
+      makeLine({
+        key: `account-db-${id}`,
+        signupId: id,
+        formId: 10 + id,
+        baseCents: 15000,
+        listCents: 15000,
+        finalCents: 15000,
+        includeInSubtotal: false,
+        shadowOnly: true,
+      }),
+    ),
+  )
+
+  const result = computeOrderDiscounts({
+    lines,
+    rules: [familySpendRule],
+    promoCodes: [],
+    caps: {},
+  })
+
+  assert.equal(result.totalDiscountCents, 15000)
+  assert.equal(result.accountLines.length, 4)
+  for (const line of result.accountLines) {
+    assert.equal(line.finalCents, 11250)
+    assert.equal(line.discountCents, 3750)
+  }
+})
+
 test('2 classes at $300 total gets 15% and hint requires 1 more class at $150', () => {
   const shadow = makeLine({
     key: 'account-db-101',
