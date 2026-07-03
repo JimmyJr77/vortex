@@ -556,34 +556,35 @@ export default function MemberClassesOfferedEnroll({
           <p className="text-base font-semibold text-gray-900">{selectedMember?.label}</p>
         </div>
 
-        <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-2">Selected items ({cart.length})</h3>
-          <ul className="space-y-2">
-            {cart.map((item) => (
-              <li
-                key={item.cartKey}
-                className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm"
-              >
-                <div className="min-w-0">
-                  {item.lineType === 'multi_class_pass' ? (
-                    <>
-                      <p className="font-semibold text-gray-900">{item.packageLabel}</p>
-                      <p className="text-gray-600">{item.programName} · Multi-class package</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="font-semibold text-gray-900">{item.classLabel}</p>
-                      <p className="text-gray-600">{item.scheduleLabel}</p>
-                    </>
+        {!preview || previewLoading ? (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">Selected items ({cart.length})</h3>
+            <ul className="space-y-2">
+              {cart.map((item) => (
+                <li
+                  key={item.cartKey}
+                  className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm"
+                >
+                  <div className="min-w-0">
+                    {item.lineType === 'multi_class_pass' ? (
+                      <>
+                        <p className="font-semibold text-gray-900">{item.packageLabel}</p>
+                        <p className="text-gray-600">{item.programName} · Multi-class package</p>
+                      </>
+                    ) : (
+                      <p className="font-semibold text-gray-900 leading-snug">
+                        {[item.classLabel, item.scheduleLabel].filter(Boolean).join(' · ')}
+                      </p>
+                    )}
+                  </div>
+                  {item.priceLabel && (
+                    <span className="shrink-0 text-xs font-semibold text-vortex-red">{item.priceLabel}</span>
                   )}
-                </div>
-                {item.priceLabel && (
-                  <span className="shrink-0 text-xs font-semibold text-vortex-red">{item.priceLabel}</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
         {previewLoading && (
           <div className="flex items-center gap-2 text-gray-600 text-sm">

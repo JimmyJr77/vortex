@@ -133,3 +133,183 @@ export function resolveEnrollmentOfferingDisplay(row) {
     offering_dates: offeringDates,
   }
 }
+
+/** "Jan 9, 2026 to Jun 15, 2026" for checkout and enrollment summaries. */
+export function formatOfferingDateRangeLong(start, end) {
+  const startLabel = start ? formatUSDateShort(start) : null
+  const endLabel = end ? formatUSDateShort(end) : null
+  if (startLabel && endLabel) return `${startLabel} to ${endLabel}`
+  if (startLabel) return `From ${startLabel} · Ongoing`
+  if (endLabel) return `Until ${endLabel}`
+  return null
+}
+
+function pluralDayName(dayOfWeek) {
+  const index = Number(dayOfWeek)
+  if (!Number.isFinite(index) || index < 0 || index > 6) return null
+  const name = DAY_NAMES[index]
+  return name.endsWith('s') ? name : `${name}s`
+}
+
+/** Day-of-week or specific-date portion of a schedule (e.g. "Mondays" or "Mon, Wed"). */
+export function buildScheduleDaysPart(rows) {
+  const sorted = sortOccurrenceRows(rows || [])
+  if (!sorted.length) return null
+
+  if (sorted.every((row) => row.schedule_mode === 'date' && row.specific_date)) {
+    const dates = sorted
+      .map((row) => formatUSDateShort(row.specific_date))
+      .filter(Boolean)
+    return dates.length ? dates.join(', ') : null
+  }
+
+  const dayLabels = sorted
+    .map((row) => {
+      if (row.schedule_mode === 'date' && row.specific_date) {
+        return formatUSDateShort(row.specific_date)
+      }
+      if (row.day_of_week != null) return pluralDayName(row.day_of_week)
+      return null
+    })
+    .filter(Boolean)
+  const unique = [...new Set(dayLabels)]
+  return unique.length ? unique.join(', ') : null
+}
+
+/** Time range portion of a schedule (e.g. "19:00-20:30"). */
+export function buildScheduleTimesPart(rows) {
+  const sorted = sortOccurrenceRows(rows || [])
+  if (!sorted.length) return null
+
+  const startTime = formatTime(sorted[0].start_time)
+  const endTime = formatTime(sorted[0].end_time)
+  const sameTime =
+    startTime &&
+    endTime &&
+    sorted.every(
+      (row) => formatTime(row.start_time) === startTime && formatTime(row.end_time) === endTime,
+    )
+
+  if (sameTime) return `${startTime}-${endTime}`
+
+  const ranges = sorted
+    .map((row) => {
+      const st = formatTime(row.start_time)
+      const et = formatTime(row.end_time)
+      return st && et ? `${st}-${et}` : null
+    })
+    .filter(Boolean)
+  return ranges.length ? ranges.join(', ') : null
+}
+
+export function buildEnrollmentContextLine({
+  sportName,
+  programName,
+  className,
+  offeringDates,
+  scheduleDays,
+  scheduleTimes,
+}) {
+  return [
+    sportName,
+    programName,
+    className,
+    offeringDates,
+    scheduleDays,
+    scheduleTimes,
+  ]
+    .filter((part) => part != null && String(part).trim() !== '')
+    .join(' · ')
+}
+
+export function resolveSignupScheduleRows(entry, timeSlotsByGroup = new Map()) {
+  const groupId = entry.slotGroupId != null ? Number(entry.slotGroupId) : null
+  const timeSlotId = entry.timeSlotId != null ? Number(entry.timeSlotId) : null
+
+  if (
+    timeSlotId != null &&
+    (entry.start_time != null ||
+      entry.day_of_week != null ||
+      entry.schedule_mode != null ||
+      entry.specific_date != null)
+  ) {
+    return [entry]
+  }
+
+  const groupSlots = groupId != null ? timeSlotsByGroup.get(groupId) || [] : []
+  if (timeSlotId != null) {
+    const match = groupSlots.find((slot) => Number(slot.id) === timeSlotId)
+    if (match) return [match]
+  }
+  return groupSlots
+}
+
+export function buildEnrollmentDisplayContext({
+  sportName,
+  programName,
+  className,
+  formRow,
+  entry,
+  offeringMeta,
+  timeSlotsByGroup,
+  groupLabels,
+}) {
+  const offering = resolveEnrollmentOfferingDisplay({
+    offering_start_date: offeringMeta?.offering_start_date,
+    offering_end_date: offeringMeta?.offering_end_date,
+    group_active_start: offeringMeta?.group_active_start,
+    group_active_end: offeringMeta?.group_active_end,
+    form_start_date: formRow?.start_date,
+    form_end_date: formRow?.end_date,
+    group_dates_tbd: offeringMeta?.dates_tbd,
+    offering_label: offeringMeta?.offering_label,
+  })
+
+  let offeringDates = null
+  if (offering.offering_dates === 'Dates TBD') {
+    offeringDates = 'Dates TBD'
+  } else if (offering.offering_start_date || offering.offering_end_date) {
+    offeringDates = formatOfferingDateRangeLong(
+      offering.offering_start_date,
+      offering.offering_end_date,
+    )
+  } else if (offering.offering_dates && offering.offering_dates !== '—') {
+    offeringDates = offering.offering_dates
+  }
+
+  const scheduleRows = resolveSignupScheduleRows(entry, timeSlotsByGroup)
+  const scheduleDays = buildScheduleDaysPart(scheduleRows)
+  const scheduleTimes = buildScheduleTimesPart(scheduleRows)
+  const slotLabel =
+    entry.slotLabel ||
+    slotLabelForSignupRow(
+      {
+        ...entry,
+        slot_group_id: entry.slotGroupId,
+        time_slot_id: entry.timeSlotId,
+      },
+      groupLabels,
+    )
+
+  const resolvedClassName = className || formRow?.title || 'Class'
+  const displayLine =
+    buildEnrollmentContextLine({
+      sportName,
+      programName,
+      className: resolvedClassName,
+      offeringDates,
+      scheduleDays,
+      scheduleTimes,
+    }) || resolvedClassName
+
+  return {
+    sportName: sportName ?? null,
+    programName: programName ?? null,
+    className: resolvedClassName,
+    offeringDates,
+    scheduleDays,
+    scheduleTimes,
+    displayLine,
+    slotLabel,
+  }
+}

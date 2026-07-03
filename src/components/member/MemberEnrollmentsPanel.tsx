@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Calendar } from 'lucide-react'
+import { enrollmentClassHeading } from '../../utils/enrollmentDisplayLine'
 
 export interface MemberEnrollmentRow {
   id: number
@@ -8,6 +9,9 @@ export interface MemberEnrollmentRow {
   member_first_name: string
   member_last_name: string
   class_name: string
+  sport_name?: string | null
+  program_name?: string | null
+  class_context_line?: string | null
   program_id?: number | null
   form_id?: number | null
   slot_group_id?: number | null
@@ -19,7 +23,6 @@ export interface MemberEnrollmentRow {
   offering_dates?: string | null
   slot_label: string
   status: string
-  total_slots_for_member?: number | null
   created_at?: string | null
   source?: 'scheduling' | 'legacy'
 }
@@ -142,7 +145,7 @@ export default function MemberEnrollmentsPanel({
   const byClass = useMemo(() => {
     const groups = new Map<string, MemberEnrollmentRow[]>()
     for (const row of enrollments) {
-      const key = row.class_name || 'Class'
+      const key = enrollmentClassHeading(row)
       if (!groups.has(key)) groups.set(key, [])
       groups.get(key)!.push(row)
     }
@@ -235,9 +238,9 @@ export default function MemberEnrollmentsPanel({
           </p>
         ) : view === 'class' ? (
           <div className="space-y-6">
-            {byClass.map(([className, rows]) => (
-              <section key={className}>
-                <h3 className="text-lg font-bold text-black mb-3">{className}</h3>
+            {byClass.map(([heading, rows]) => (
+              <section key={heading}>
+                <h3 className="text-lg font-bold text-black mb-3">{heading}</h3>
                 <EnrollmentTable
                   rows={rows}
                   columns={[
@@ -255,12 +258,6 @@ export default function MemberEnrollmentsPanel({
                       key: 'slot',
                       header: 'Time',
                       cell: (row) => timeCell(row),
-                    },
-                    {
-                      key: 'total',
-                      header: 'Total slots',
-                      cell: (row) =>
-                        row.total_slots_for_member != null ? row.total_slots_for_member : '—',
                     },
                     {
                       key: 'status',
@@ -285,7 +282,7 @@ export default function MemberEnrollmentsPanel({
                       {
                         key: 'class',
                         header: 'Class',
-                        cell: (row) => row.class_name,
+                        cell: (row) => enrollmentClassHeading(row),
                       },
                       {
                         key: 'offerings',
@@ -296,12 +293,6 @@ export default function MemberEnrollmentsPanel({
                         key: 'slot',
                         header: 'Time',
                         cell: (row) => timeCell(row),
-                      },
-                      {
-                        key: 'total',
-                        header: 'Total slots',
-                        cell: (row) =>
-                          row.total_slots_for_member != null ? row.total_slots_for_member : '—',
                       },
                       {
                         key: 'status',

@@ -25,6 +25,7 @@ import {
   monthlySlotCostDollars,
 } from './slotHours.js'
 import {
+  buildEnrollmentDisplayContext,
   loadGroupDisplayLabels,
   slotLabelForSignupRow,
 } from './slotDisplayLabel.js'
@@ -397,8 +398,52 @@ async function loadExistingEnrollments(pool, memberId) {
       slotGroupId,
       timeSlotId,
       slotKey: programSlotSignupKey(formId, slotGroupId, timeSlotId),
+      schedule_mode: row.schedule_mode,
+      specific_date: row.specific_date,
+      day_of_week: row.day_of_week,
+      start_time: row.start_time,
+      end_time: row.end_time,
+      week_letter: row.week_letter,
     }
   })
+}
+
+function attachClassDisplayFields(
+  item,
+  { formRows, programMeta, offeringMetaByGroup, timeSlotsByGroup, groupLabels },
+) {
+  const formRow = formRows.get(item.formId)
+  const programsId =
+    item.programsId != null
+      ? Number(item.programsId)
+      : formRow?.programs_id != null
+        ? Number(formRow.programs_id)
+        : null
+  const meta = programsId != null ? programMeta.get(programsId) : null
+  const offeringMeta =
+    item.slotGroupId != null ? offeringMetaByGroup.get(Number(item.slotGroupId)) : null
+  const ctx = buildEnrollmentDisplayContext({
+    sportName: meta?.sportName ?? null,
+    programName: meta?.programName ?? null,
+    className: item.formTitle || formRow?.title || 'Class',
+    formRow,
+    entry: item,
+    offeringMeta,
+    timeSlotsByGroup,
+    groupLabels,
+  })
+  return {
+    ...item,
+    sportName: ctx.sportName,
+    programName: ctx.programName,
+    className: ctx.className,
+    offeringDates: ctx.offeringDates,
+    scheduleDays: ctx.scheduleDays,
+    scheduleTimes: ctx.scheduleTimes,
+    displayLine: ctx.displayLine,
+    formTitle: ctx.className,
+    slotLabel: ctx.slotLabel,
+  }
 }
 
 function signupSortKey(entry, formRows) {
@@ -460,35 +505,61 @@ export async function buildSignupOrderPreview(
   const timeSlotsByGroup = await loadTimeSlotsBySlotGroupIds(pool, [...slotGroupIds])
 
   const offeringBySlotGroup = new Map()
+  const offeringMetaByGroup = new Map()
   if (slotGroupIds.size > 0) {
     const groupsRes = await pool.query(
-      `SELECT id, offering_id FROM scheduling_slot_group WHERE id = ANY($1::int[])`,
+      `SELECT sg.id, sg.offering_id, sg.active_start AS group_active_start,
+              sg.active_end AS group_active_end, sg.dates_tbd,
+              o.label AS offering_label, o.start_date AS offering_start_date,
+              o.end_date AS offering_end_date
+       FROM scheduling_slot_group sg
+       LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
+       WHERE sg.id = ANY($1::int[])`,
       [[...slotGroupIds]],
     )
     for (const row of groupsRes.rows) {
-      offeringBySlotGroup.set(
-        Number(row.id),
-        row.offering_id != null ? Number(row.offering_id) : null,
-      )
+      const groupId = Number(row.id)
+      offeringBySlotGroup.set(groupId, row.offering_id != null ? Number(row.offering_id) : null)
+      offeringMetaByGroup.set(groupId, row)
     }
   }
 
+  const groupLabels = await loadGroupDisplayLabels(pool, [...slotGroupIds])
+
   const programTitles = new Map()
+  const programMeta = new Map()
   const programIds = new Set(
     [...formRows.values()]
       .map((row) => (row.programs_id != null ? Number(row.programs_id) : null))
       .filter((id) => id != null),
   )
   if (programIds.size > 0) {
-    const { resolveProgramsSchema } = await import('../programs/schema.js')
+    const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
+    await ensurePrimaryDisciplineTagColumn(pool)
     const schema = await resolveProgramsSchema(pool)
     const programsRes = await pool.query(
-      `SELECT id, name, display_name FROM ${schema.programsTable} WHERE id = ANY($1::int[])`,
+      `SELECT p.id, p.name, p.display_name, dt.name AS sport_name
+       FROM ${schema.programsTable} p
+       LEFT JOIN discipline_tag dt ON dt.id = p.primary_discipline_tag_id
+       WHERE p.id = ANY($1::int[])`,
       [[...programIds]],
     )
     for (const row of programsRes.rows) {
-      programTitles.set(Number(row.id), row.display_name || row.name)
+      const id = Number(row.id)
+      programTitles.set(id, row.display_name || row.name)
+      programMeta.set(id, {
+        programName: row.display_name || row.name,
+        sportName: row.sport_name || null,
+      })
     }
+  }
+
+  const displayContext = {
+    formRows,
+    programMeta,
+    offeringMetaByGroup,
+    timeSlotsByGroup,
+    groupLabels,
   }
 
   const scopeMeta = new Map()
@@ -763,15 +834,32 @@ export async function buildSignupOrderPreview(
     memberContext,
   })
 
-  const existingClasses = existing.map((entry) => ({
-    id: entry.id,
-    formId: entry.formId,
-    formTitle: entry.formTitle,
-    slotLabel: entry.slotLabel,
-    status: entry.status,
-    monthlyPrice: existingPriceById.get(entry.id) ?? 0,
-    isNew: false,
-  }))
+  const existingClasses = existing.map((entry) =>
+    attachClassDisplayFields(
+      {
+        id: entry.id,
+        formId: entry.formId,
+        formTitle: entry.formTitle,
+        slotLabel: entry.slotLabel,
+        status: entry.status,
+        slotGroupId: entry.slotGroupId,
+        timeSlotId: entry.timeSlotId,
+        monthlyPrice: existingPriceById.get(entry.id) ?? 0,
+        isNew: false,
+        schedule_mode: entry.schedule_mode,
+        specific_date: entry.specific_date,
+        day_of_week: entry.day_of_week,
+        start_time: entry.start_time,
+        end_time: entry.end_time,
+        week_letter: entry.week_letter,
+      },
+      displayContext,
+    ),
+  )
+
+  const newSignupsWithDisplay = freePasses.adjustedSignupItems.map((item) =>
+    attachClassDisplayFields(item, displayContext),
+  )
 
   const additionalFees = await computeAdditionalFeesLayer(pool, {
     memberId,
@@ -790,7 +878,7 @@ export async function buildSignupOrderPreview(
   return {
     memberId: memberId ?? null,
     existingClasses,
-    newSignups: freePasses.adjustedSignupItems,
+    newSignups: newSignupsWithDisplay,
     passPurchases: passPurchaseItems,
     passPurchaseTotalCents,
     passBalancesByProgram: Object.fromEntries(passBalancesByProgram),

@@ -4,6 +4,7 @@
  */
 
 import {
+  buildEnrollmentContextLine,
   loadGroupDisplayLabels,
   resolveEnrollmentOfferingDisplay,
   slotLabelForSignupRow,
@@ -32,6 +33,11 @@ function formatLegacySlotLabel(selectedDays, daysPerWeek) {
 export async function queryFamilyMemberEnrollments(pool, memberIds) {
   if (!memberIds?.length) return []
 
+  const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
+  await ensurePrimaryDisciplineTagColumn(pool)
+  const schema = await resolveProgramsSchema(pool)
+  const programsTable = schema.programsTable
+
   const schedulingResult = await pool.query(
     `
       SELECT
@@ -44,6 +50,9 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
         m.last_name AS member_last_name,
         sf.title AS class_name,
         COALESCE(sf.program_id, sf.programs_id) AS program_id,
+        prog.display_name AS program_name,
+        prog.name AS program_name_fallback,
+        sport_dt.name AS sport_name,
         s.slot_group_id,
         s.time_slot_id,
         sg.offering_id,
@@ -60,14 +69,15 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
         sg.active_end AS group_active_end,
         sg.dates_tbd AS group_dates_tbd,
         sf.start_date AS form_start_date,
-        sf.end_date AS form_end_date,
-        COUNT(*) OVER (PARTITION BY s.member_id, s.form_id) AS total_slots_for_member
+        sf.end_date AS form_end_date
       FROM scheduling_signup s
       JOIN member m ON m.id = s.member_id
       JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
       JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
       LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
       LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
+      LEFT JOIN ${programsTable} prog ON prog.id = COALESCE(sf.program_id, sf.programs_id)
+      LEFT JOIN discipline_tag sport_dt ON sport_dt.id = prog.primary_discipline_tag_id
       WHERE s.member_id = ANY($1::bigint[])
         AND s.orphaned_at IS NULL
         AND s.status IN ('confirmed', 'waitlisted')
@@ -83,12 +93,24 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
 
   const schedulingRows = schedulingResult.rows.map((row) => {
     const offering = resolveEnrollmentOfferingDisplay(row)
+    const programName = row.program_name || row.program_name_fallback || null
+    const sportName = row.sport_name || null
+    const className = row.class_name || 'Class'
+    const classContextLine =
+      buildEnrollmentContextLine({
+        sportName,
+        programName,
+        className,
+      }) || className
     return {
       id: Number(row.id),
       member_id: Number(row.member_id),
       member_first_name: row.member_first_name || '',
       member_last_name: row.member_last_name || '',
-      class_name: row.class_name || 'Class',
+      class_name: className,
+      sport_name: sportName,
+      program_name: programName,
+      class_context_line: classContextLine,
       program_id: row.program_id != null ? Number(row.program_id) : null,
       form_id: Number(row.form_id),
       slot_group_id: row.slot_group_id != null ? Number(row.slot_group_id) : null,
@@ -100,8 +122,6 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
       offering_end_date: offering.offering_end_date,
       offering_dates: offering.offering_dates,
       status: row.status,
-      total_slots_for_member:
-        row.total_slots_for_member != null ? Number(row.total_slots_for_member) : null,
       created_at: row.created_at,
       source: 'scheduling',
     }
@@ -120,10 +140,13 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
           mp.created_at,
           m.first_name AS member_first_name,
           m.last_name AS member_last_name,
-          COALESCE(p.display_name, p.name, 'Class') AS class_name
+          COALESCE(p.display_name, p.name, 'Class') AS class_name,
+          COALESCE(p.display_name, p.name) AS program_name,
+          sport_dt.name AS sport_name
         FROM member_program mp
         JOIN member m ON m.id = mp.member_id
         LEFT JOIN program p ON p.id = mp.program_id
+        LEFT JOIN discipline_tag sport_dt ON sport_dt.id = p.primary_discipline_tag_id
         WHERE mp.member_id = ANY($1::bigint[])
           AND NOT EXISTS (
             SELECT 1
@@ -144,12 +167,24 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
 
     legacyRows = legacyResult.rows.map((row) => {
       const selectedDays = parseSelectedDays(row.selected_days)
+      const programName = row.program_name || null
+      const sportName = row.sport_name || null
+      const className = row.class_name || 'Class'
+      const classContextLine =
+        buildEnrollmentContextLine({
+          sportName,
+          programName,
+          className: programName && className === programName ? null : className,
+        }) || className
       return {
         id: Number(row.id),
         member_id: Number(row.member_id),
         member_first_name: row.member_first_name || '',
         member_last_name: row.member_last_name || '',
-        class_name: row.class_name || 'Class',
+        class_name: className,
+        sport_name: sportName,
+        program_name: programName,
+        class_context_line: classContextLine,
         program_id: row.program_id != null ? Number(row.program_id) : null,
         form_id: null,
         slot_group_id: null,
@@ -161,7 +196,6 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
         offering_end_date: null,
         offering_dates: '—',
         status: 'enrolled',
-        total_slots_for_member: null,
         created_at: row.created_at,
         source: 'legacy',
         days_per_week: row.days_per_week,

@@ -94,6 +94,13 @@ export interface SignupOrderPreviewClass {
   timeSlotId?: number | null
   offeringId?: number | null
   status?: string
+  sportName?: string | null
+  programName?: string | null
+  className?: string
+  offeringDates?: string | null
+  scheduleDays?: string | null
+  scheduleTimes?: string | null
+  displayLine?: string
   incrementalMonthly?: number
   monthlyPrice?: number
   passCreditCents?: number

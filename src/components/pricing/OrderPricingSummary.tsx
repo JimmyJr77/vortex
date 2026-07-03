@@ -1,4 +1,5 @@
 import type { SignupOrderPreview } from '../../utils/schedulingApi'
+import { enrollmentDisplayLine } from '../../utils/enrollmentDisplayLine'
 
 function formatMoney(amount: number) {
   return `$${amount.toFixed(2)}`
@@ -80,10 +81,9 @@ export default function OrderPricingSummary({
                 className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm text-gray-700"
               >
                 <div className="min-w-0">
-                  {item.formTitle && (
-                    <p className="font-semibold text-black">{item.formTitle}</p>
-                  )}
-                  {item.slotLabel && <p>{item.slotLabel}</p>}
+                  <p className="font-semibold text-black leading-snug">
+                    {enrollmentDisplayLine(item)}
+                  </p>
                   {item.status === 'waitlisted' && (
                     <p className="text-xs text-amber-700 mt-1">On waitlist</p>
                   )}
@@ -117,10 +117,9 @@ export default function OrderPricingSummary({
                   className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2"
                 >
                   <div className="min-w-0">
-                    {item.formTitle && (
-                      <p className="font-semibold text-black">{item.formTitle}</p>
-                    )}
-                    {item.slotLabel && <p>{item.slotLabel}</p>}
+                    <p className="font-semibold text-black leading-snug">
+                      {enrollmentDisplayLine(item)}
+                    </p>
                     {item.multiClassPassApplied && item.classesRemainingAfterEnrollment != null && (
                       <p className="text-xs text-emerald-700 mt-1">
                         Covered by class pass · {item.classesRemainingAfterEnrollment} classes
