@@ -7,6 +7,7 @@ import {
   isHouseholdSpendVolumeRule,
   nextSpendTierHint,
   spendTierQualificationLabel,
+  classCostCentsFromPricingBreakdown,
 } from '../systemDiscounts.js'
 
 // Mirrors the production rule: created via admin UI, so config has NO system_key
@@ -58,6 +59,16 @@ function attachStats(lines) {
 
 test('admin-created spend rule without system_key is treated as household rule', () => {
   assert.equal(isHouseholdSpendVolumeRule(familySpendRule), true)
+})
+
+test('classCostCentsFromPricingBreakdown uses per-line price not order totals', () => {
+  assert.equal(
+    classCostCentsFromPricingBreakdown({
+      line: { listCents: 15000, baseCents: 15000 },
+      totals: { subtotalCents: 45000 },
+    }),
+    15000,
+  )
 })
 
 test('pickMonthlySpendTier selects 25% at $600 with 4 paid classes', () => {

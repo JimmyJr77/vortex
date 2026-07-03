@@ -224,9 +224,15 @@ function monthlyCentsFromBreakdown(breakdown) {
   if (!breakdown) return null
   const b = typeof breakdown === 'string' ? JSON.parse(breakdown) : breakdown
   const line = b?.line
+  if (line?.listCents != null) return Math.max(0, Number(line.listCents))
   if (line?.baseCents != null) return Math.max(0, Number(line.baseCents))
   if (line?.finalCents != null) return Math.max(0, Number(line.finalCents))
   return null
+}
+
+/** Per-class list price from a signup pricing_breakdown snapshot (not order totals). */
+export function classCostCentsFromPricingBreakdown(breakdown) {
+  return monthlyCentsFromBreakdown(breakdown)
 }
 
 function mapSignupRowToLine(row, { familyId = null } = {}) {

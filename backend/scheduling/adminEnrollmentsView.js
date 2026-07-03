@@ -24,6 +24,7 @@ import {
 import { buildSignupOrderPreview, computeExistingEnrollmentDiscounts } from './orderPricing.js'
 import { cancelSubscriptionsForSource } from './billingSubscriptions.js'
 import { ensureEnrollmentLifecycleColumns } from './enrollmentLifecycle.js'
+import { classCostCentsFromPricingBreakdown } from './systemDiscounts.js'
 
 function parseSelectedDays(raw) {
   if (!raw) return []
@@ -273,11 +274,11 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
     const className = taxonomy?.className ?? (row.class_name || 'Class')
 
     const sub = subBySignupId.get(Number(row.id))
-    const breakdownGross = row.pricing_breakdown?.totals?.subtotalCents
+    const snapshotClassCost = classCostCentsFromPricingBreakdown(row.pricing_breakdown)
     const classCostCents =
       priceById.get(Number(row.id)) ??
+      snapshotClassCost ??
       (sub ? Number(sub.monthly_amount_cents) : null) ??
-      (breakdownGross != null ? Number(breakdownGross) : null) ??
       0
     const isPaused = row.status === 'paused'
     const groupAdjustedCents = isPaused ? 0 : adjustedBySignupId.get(Number(row.id))
