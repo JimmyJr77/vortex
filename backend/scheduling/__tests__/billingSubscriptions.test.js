@@ -46,18 +46,37 @@ test('addMonthsClamped rolls the year over in December', () => {
   assert.equal(toDateString(addMonthsClamped(utc(2026, 12, 10), 1, 10)), '2027-01-10')
 })
 
-test('computeBillingCycle derives anchor, period end, and next bill date', () => {
+test('computeBillingCycle anchors to the 1st: first period runs signup → month end', () => {
   const cycle = computeBillingCycle(utc(2026, 1, 15))
-  assert.equal(cycle.anchorDay, 15)
+  assert.equal(cycle.anchorDay, 1)
   assert.equal(cycle.startDate, '2026-01-15')
-  assert.equal(cycle.nextBillDate, '2026-02-15')
-  assert.equal(cycle.endDate, '2026-02-14')
+  assert.equal(cycle.nextBillDate, '2026-02-01')
+  assert.equal(cycle.endDate, '2026-01-31')
 })
 
-test('computeBillingCycle handles month-end anchors with clamping', () => {
-  const cycle = computeBillingCycle(utc(2026, 1, 31))
-  assert.equal(cycle.anchorDay, 31)
-  assert.equal(cycle.startDate, '2026-01-31')
-  assert.equal(cycle.nextBillDate, '2026-02-28')
-  assert.equal(cycle.endDate, '2026-02-27')
+test('computeBillingCycle on the 1st yields a full-month first period', () => {
+  const cycle = computeBillingCycle(utc(2026, 3, 1))
+  assert.equal(cycle.anchorDay, 1)
+  assert.equal(cycle.startDate, '2026-03-01')
+  assert.equal(cycle.nextBillDate, '2026-04-01')
+  assert.equal(cycle.endDate, '2026-03-31')
+})
+
+test('computeBillingCycle rolls the year over in December', () => {
+  const cycle = computeBillingCycle(utc(2026, 12, 20))
+  assert.equal(cycle.nextBillDate, '2027-01-01')
+  assert.equal(cycle.endDate, '2026-12-31')
+})
+
+test('computeBillingCycle honors a future firstBillDate for future-start classes', () => {
+  const cycle = computeBillingCycle(utc(2026, 7, 20), { firstBillDate: '2026-09-01' })
+  assert.equal(cycle.anchorDay, 1)
+  assert.equal(cycle.startDate, '2026-07-20')
+  assert.equal(cycle.nextBillDate, '2026-09-01')
+  assert.equal(cycle.endDate, '2026-08-31')
+})
+
+test('computeBillingCycle never lets firstBillDate move earlier than the next 1st', () => {
+  const cycle = computeBillingCycle(utc(2026, 7, 20), { firstBillDate: '2026-07-01' })
+  assert.equal(cycle.nextBillDate, '2026-08-01')
 })

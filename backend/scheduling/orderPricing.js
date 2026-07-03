@@ -897,6 +897,11 @@ export async function buildSignupOrderPreview(
     attachClassDisplayFields(item, displayContext),
   )
 
+  const firstMonth = await computeFirstMonthLayer(pool, {
+    newSignupItems: newSignupsWithDisplay,
+    discounts,
+  })
+
   const additionalFees = await computeAdditionalFeesLayer(pool, {
     memberId,
     newSignupItems,
@@ -930,6 +935,7 @@ export async function buildSignupOrderPreview(
     totalDiscountMonthly: totalDiscountMonthly + engineDiscountMonthly,
     freePasses,
     discounts,
+    firstMonth,
     additionalFees,
     additionalFeesMonthly,
     additionalFeesOneTime,
@@ -1073,6 +1079,118 @@ export async function computeFreePassLayer(
       adjustedSignupItems,
     }
   } catch {
+    return empty
+  }
+}
+
+/**
+ * First-month proration layer. Billing renews on the 1st, so the first month is
+ * charged at netMonthly * min(remainingSessions, CLASSES_PER_MONTH) / CLASSES_PER_MONTH
+ * based on the class's real remaining occurrences in the signup month. Classes with
+ * no sessions left this month owe $0 now and start billing on the 1st of their
+ * start month.
+ */
+export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, asOfDate = null }) {
+  const empty = {
+    enabled: false,
+    periodStart: null,
+    periodEnd: null,
+    classesPerMonth: 4,
+    items: [],
+    totalCents: 0,
+  }
+  const recurringItems = newSignupItems.filter(
+    (item) => item.lineType === 'slot' && item.billingType === 'recurring',
+  )
+  if (!recurringItems.length) return empty
+
+  try {
+    const { loadCalendarRowsForSlotGroups } = await import('./freePassEngine.js')
+    const {
+      CLASSES_PER_MONTH,
+      monthBounds,
+      prorationForLine,
+      todayDateOnly,
+    } = await import('./firstMonthProration.js')
+
+    const fromDate = asOfDate ?? todayDateOnly()
+    const { monthEnd } = monthBounds(fromDate)
+
+    const slotGroupIds = [...new Set(recurringItems.map((i) => i.slotGroupId).filter((id) => id != null))]
+    const rowsByGroup = await loadCalendarRowsForSlotGroups(pool, slotGroupIds)
+    const calendarRows = [...rowsByGroup.values()].flat()
+
+    // Per-line net after per-line discounts, from the discount layer when available.
+    const discountLineByKey = new Map(
+      discounts?.enabled ? discounts.lines.map((l) => [l.key, l]) : [],
+    )
+    const lineFacts = recurringItems.map((item) => {
+      const dl = discountLineByKey.get(item.slotKey)
+      const baseCents = dl?.baseCents ?? Math.round((item.incrementalMonthly || 0) * 100)
+      const netCents = dl?.finalCents ?? baseCents
+      return { item, baseCents, netCents }
+    })
+
+    // Order-level discounts (e.g. household spend discount) reduce this checkout's
+    // monthly total in full; allocate them across the new lines by base price.
+    const orderDiscountCents = discounts?.enabled
+      ? discounts.orderDiscounts.reduce((sum, d) => sum + (d.amountCents || 0), 0)
+      : 0
+    const allocBase = lineFacts.reduce((sum, f) => sum + f.baseCents, 0)
+    let remainingOrderDiscount = orderDiscountCents
+    lineFacts.forEach((fact, i) => {
+      let share = 0
+      if (orderDiscountCents > 0 && allocBase > 0) {
+        share =
+          i === lineFacts.length - 1
+            ? remainingOrderDiscount
+            : Math.min(
+                remainingOrderDiscount,
+                Math.round(orderDiscountCents * (fact.baseCents / allocBase)),
+              )
+      }
+      remainingOrderDiscount -= share
+      fact.effectiveNetCents = Math.max(0, fact.netCents - share)
+    })
+
+    const items = []
+    let totalCents = 0
+    for (const fact of lineFacts) {
+      // Pass-covered / free lines carry no first-month charge.
+      if (fact.baseCents <= 0) continue
+      const proration = prorationForLine(calendarRows, {
+        slotGroupId: fact.item.slotGroupId,
+        timeSlotId: fact.item.timeSlotId ?? null,
+        fromDate,
+      })
+      const proratedCents = Math.round(fact.effectiveNetCents * proration.ratio)
+      totalCents += proratedCents
+      items.push({
+        slotKey: fact.item.slotKey,
+        formId: fact.item.formId,
+        formTitle: fact.item.formTitle,
+        displayLine: fact.item.displayLine ?? null,
+        remainingClasses: proration.remainingClasses,
+        classesPerMonth: CLASSES_PER_MONTH,
+        ratio: proration.ratio,
+        monthlyNetCents: fact.effectiveNetCents,
+        proratedCents,
+        classStartsFutureMonth: proration.classStartsFutureMonth,
+        firstBillDate: proration.firstBillDate,
+      })
+    }
+
+    if (!items.length) return empty
+    return {
+      enabled: true,
+      periodStart: fromDate,
+      periodEnd: monthEnd,
+      classesPerMonth: CLASSES_PER_MONTH,
+      items,
+      totalCents,
+    }
+  } catch (err) {
+    console.warn('[scheduling] first-month proration unavailable:', err?.message ?? err)
     return empty
   }
 }

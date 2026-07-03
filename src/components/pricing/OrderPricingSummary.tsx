@@ -5,6 +5,14 @@ function formatMoney(amount: number) {
   return `$${amount.toFixed(2)}`
 }
 
+function formatMonthDay(dateStr: string) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+  })
+}
+
 /**
  * Renders a prices/discounts/fees breakdown for a scheduling order preview.
  * Layout: existing classes → new classes → monthly subtotal → discounts →
@@ -93,6 +101,8 @@ export default function OrderPricingSummary({
   const weeklyTierNotes = preview.formSummaries.filter(
     (summary) => summary.usesWeeklyTierPricing && summary.weeklyTierLabel,
   )
+
+  const firstMonth = preview.firstMonth?.enabled ? preview.firstMonth : null
 
   return (
     <div className="mt-6 space-y-4">
@@ -283,6 +293,46 @@ export default function OrderPricingSummary({
               One-time fees at checkout: {formatMoney(preview.additionalFeesOneTime ?? 0)}
             </p>
           )}
+        </div>
+      )}
+
+      {firstMonth && variant === 'review' && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-4 text-sm">
+          <h5 className={`font-semibold text-blue-900 ${compact ? 'text-sm' : 'text-base'}`}>
+            First month (prorated)
+          </h5>
+          <p className="mt-0.5 mb-2 text-xs text-blue-700">
+            Billing renews on the 1st of each month. Your first month is prorated to the classes
+            remaining this month.
+          </p>
+          <ul className="space-y-2">
+            {firstMonth.items.map((item) => (
+              <li
+                key={item.slotKey}
+                className="rounded-lg border border-blue-100 bg-white px-3 py-2 text-blue-900"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <p className="min-w-0 font-semibold leading-snug">
+                    {item.displayLine ?? item.formTitle ?? 'Class'}
+                  </p>
+                  <p className="shrink-0 text-right font-semibold">
+                    {formatMoney(item.proratedCents / 100)}
+                  </p>
+                </div>
+                <p className="mt-0.5 text-xs text-blue-700">
+                  {item.classStartsFutureMonth
+                    ? `$0 due now — billing starts ${formatMonthDay(item.firstBillDate)}`
+                    : item.remainingClasses != null
+                      ? `${Math.min(item.remainingClasses, item.classesPerMonth)} of ${item.classesPerMonth} classes remaining this month`
+                      : 'Schedule dates TBD — full month billed'}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-2 pt-2 border-t border-blue-200 flex justify-between font-semibold text-blue-900">
+            <span>Due for first month</span>
+            <span>{formatMoney(firstMonth.totalCents / 100)}</span>
+          </div>
         </div>
       )}
 

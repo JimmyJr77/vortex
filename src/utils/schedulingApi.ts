@@ -229,6 +229,29 @@ export interface AdditionalFeesBreakdown {
   totalCents: number
 }
 
+export interface FirstMonthProrationItem {
+  slotKey: string
+  formId: number
+  formTitle?: string
+  displayLine?: string | null
+  remainingClasses: number | null
+  classesPerMonth: number
+  ratio: number
+  monthlyNetCents: number
+  proratedCents: number
+  classStartsFutureMonth: boolean
+  firstBillDate: string
+}
+
+export interface FirstMonthProrationBreakdown {
+  enabled: boolean
+  periodStart: string | null
+  periodEnd: string | null
+  classesPerMonth: number
+  items: FirstMonthProrationItem[]
+  totalCents: number
+}
+
 export interface SignupOrderPreview {
   memberId: number | null
   existingClasses: SignupOrderPreviewClass[]
@@ -248,6 +271,7 @@ export interface SignupOrderPreview {
   totalDiscountMonthly: number
   freePasses?: FreePassBreakdown
   discounts?: OrderDiscountBreakdown
+  firstMonth?: FirstMonthProrationBreakdown
   additionalFees?: AdditionalFeesBreakdown
   additionalFeesMonthly?: number
   additionalFeesOneTime?: number

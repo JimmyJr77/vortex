@@ -53,7 +53,7 @@ test('recurring generator is idempotent and catches up missed months', { skip: !
     const { familyId, accountId } = await makeAccount(client)
     ids = { familyId, accountId }
 
-    // Subscription anchored at Jan 15, 2026, $150/mo net.
+    // Subscription created Jan 15, 2026, $150/mo net; anchored to the 1st (next bill Feb 1).
     const sub = await upsertSubscriptionForSource(client, {
       familyBillingAccountId: accountId,
       memberId: null,
@@ -66,11 +66,11 @@ test('recurring generator is idempotent and catches up missed months', { skip: !
     })
     assert.ok(sub?.id)
 
-    // As of Jan 20: the first period (next_bill_date = Feb 15) is NOT yet due.
+    // As of Jan 20: the first period (next_bill_date = Feb 1) is NOT yet due.
     const r0 = await generateRecurringCharges(client, { asOf: new Date(Date.UTC(2026, 0, 20)) })
     assert.equal(r0.chargesPosted, 0, 'nothing due before the first anchor')
 
-    // As of Mar 20: Feb 15 and Mar 15 periods are both due -> 2 charges.
+    // As of Mar 20: Feb 1 and Mar 1 periods are both due -> 2 charges.
     const r1 = await generateRecurringCharges(client, { asOf: new Date(Date.UTC(2026, 2, 20)) })
     assert.equal(r1.chargesPosted, 2, 'two periods caught up')
 

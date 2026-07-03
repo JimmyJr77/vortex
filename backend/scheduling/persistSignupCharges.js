@@ -5,9 +5,12 @@
  * source_type/source_id) using the per-line pricing from the order preview.
  * Recurring enrollments (per_month / weekly-tier / unlimited / per_hour) also
  * create a `billing_subscription` (the source of truth for the monthly total);
- * the first period is charged immediately and the monthly job posts subsequent
- * cycles. One-time enrollments (per_class / per_offering) post a single one-time
- * charge and never create a subscription.
+ * the first period (signup → end of the current month) is charged immediately,
+ * prorated by the class's remaining sessions this month (preview.firstMonth), and
+ * the monthly job posts subsequent full cycles on each 1st. Classes with no
+ * sessions left this month post no charge now; their subscription's next_bill_date
+ * is the 1st of the class's start month. One-time enrollments (per_class /
+ * per_offering) post a single one-time charge and never create a subscription.
  *
  * Charges carry gross/discount split so statements can show list price, discount,
  * and net. Order-level discounts are recorded once as a credit ledger entry.
@@ -113,6 +116,13 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
   const account = await ensureBillingAccount(pool, familyId)
   if (!account) return { charges: 0, subscriptions: 0 }
 
+  const firstMonth = preview?.firstMonth?.enabled ? preview.firstMonth : null
+  const firstMonthBySlotKey = new Map((firstMonth?.items || []).map((item) => [item.slotKey, item]))
+  // Track prorated amounts so the order-level discount credit can be prorated too.
+  let proratedNetSum = 0
+  let proratedEffectiveSum = 0
+  let usedProration = false
+
   let charges = 0
   let subscriptions = 0
   for (const signup of signups) {
@@ -127,6 +137,21 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
     let chargeType = 'one_time'
     let billingInterval = 'one_time'
 
+    const fm = line.billingType === 'recurring' ? firstMonthBySlotKey.get(slotKey) ?? null : null
+    let chargeGross = line.grossCents
+    let chargeDiscount = line.discountCents
+    let chargeNet = line.netCents
+    if (fm) {
+      usedProration = true
+      // First month prorated: scale gross/net by remaining-classes ratio; the
+      // subscription itself keeps the full monthly rate for subsequent cycles.
+      chargeNet = Math.round(line.netCents * fm.ratio)
+      chargeGross = Math.round(line.grossCents * fm.ratio)
+      chargeDiscount = Math.max(0, chargeGross - chargeNet)
+      proratedNetSum += chargeNet
+      proratedEffectiveSum += Math.round(Number(fm.proratedCents) || 0)
+    }
+
     if (line.billingType === 'recurring') {
       chargeType = 'recurring'
       billingInterval = 'month'
@@ -140,6 +165,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           monthlyAmountCents: line.grossCents,
           discountAmountCents: line.discountCents,
           pricingOptionKey: line.selectedPricingOptionKey,
+          firstBillDate: fm?.classStartsFutureMonth ? fm.firstBillDate : null,
         })
         if (sub) {
           subscriptionId = sub.id
@@ -151,6 +177,10 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
         console.warn('[scheduling] persistSignupCharges subscription:', err.message)
       }
     }
+
+    // Future-start classes owe nothing now; the monthly job bills their first full
+    // month on the 1st of the start month (next_bill_date on the subscription).
+    if (fm && fm.classStartsFutureMonth) continue
 
     const result = await pool.query(
       `
@@ -169,9 +199,9 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
         memberId,
         String(signup.signupId),
         description,
-        line.netCents,
-        line.grossCents,
-        line.discountCents,
+        chargeNet,
+        chargeGross,
+        chargeDiscount,
         chargeType,
         billingInterval,
         subscriptionId,
@@ -183,11 +213,17 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
   }
 
   // Record an order-level discount (apply_to = order_total) as a one-time credit entry.
+  // With first-month proration, the credit is scaled the same way as the charges so the
+  // first invoice nets out to the preview's prorated total; the recurring rate keeps the
+  // full discount via the subscription rows.
   const orderDiscounts = preview?.discounts?.enabled ? preview.discounts.orderDiscounts || [] : []
-  const orderDiscountCents = orderDiscounts.reduce(
+  const fullOrderDiscountCents = orderDiscounts.reduce(
     (sum, d) => sum + Math.round(Number(d.amountCents) || 0),
     0,
   )
+  const orderDiscountCents = usedProration
+    ? Math.max(0, Math.min(fullOrderDiscountCents, proratedNetSum - proratedEffectiveSum))
+    : fullOrderDiscountCents
   const sortedSignupIds = signups
     .map((s) => Number(s.signupId))
     .filter((n) => Number.isFinite(n))

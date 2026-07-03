@@ -6,8 +6,9 @@
  * job (generateRecurringCharges) posts one `billing_charge` per subscription per
  * period, idempotent on source_type='billing_subscription', source_id='<id>:<YYYY-MM>'.
  *
- * Assumptions (see plan §14): billing anchor = enrollment day-of-month; first cycle
- * billed in full (no proration); next_bill_date = same day next month.
+ * Assumptions: billing anchor = 1st of the month for everyone; the first (partial)
+ * month is charged prorated at signup (see firstMonthProration.js); next_bill_date
+ * is always a 1st of month.
  */
 
 /** Days in a given UTC year/month (month is 0-based). */
@@ -63,13 +64,20 @@ export function addMonthsClamped(date, months, anchorDay) {
 
 /**
  * Compute the current billing cycle for a subscription starting on `fromDate`.
+ * All subscriptions anchor to the 1st of the month: the first service period runs
+ * signup date → end of the current month (prorated charge), then full months bill
+ * on each 1st. A `firstBillDate` override (YYYY-MM-DD, always a 1st) is used for
+ * classes with no sessions left this month, deferring billing to their start month.
  * @param {Date} [fromDate]
+ * @param {{ firstBillDate?: string|null }} [opts]
  * @returns {{ anchorDay:number, startDate:string, endDate:string, nextBillDate:string }}
  */
-export function computeBillingCycle(fromDate = new Date()) {
+export function computeBillingCycle(fromDate = new Date(), { firstBillDate = null } = {}) {
   const start = new Date(Date.UTC(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()))
-  const anchorDay = start.getUTCDate()
-  const nextBill = addMonthsClamped(start, 1, anchorDay)
+  const anchorDay = 1
+  const firstOfNext = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1))
+  let nextBill = firstBillDate ? parseDbDate(firstBillDate) : firstOfNext
+  if (!nextBill || nextBill.getTime() < firstOfNext.getTime()) nextBill = firstOfNext
   const endExclusiveMinusOne = new Date(nextBill.getTime() - 24 * 60 * 60 * 1000)
   return {
     anchorDay,
@@ -95,10 +103,11 @@ export async function upsertSubscriptionForSource(db, {
   discountAmountCents = 0,
   pricingOptionKey = null,
   fromDate = new Date(),
+  firstBillDate = null,
 }) {
   if (!familyBillingAccountId || sourceId == null) return null
   const netMonthly = Math.max(0, Math.round(Number(monthlyAmountCents) || 0) - Math.round(Number(discountAmountCents) || 0))
-  const cycle = computeBillingCycle(fromDate)
+  const cycle = computeBillingCycle(fromDate, { firstBillDate })
 
   const res = await db.query(
     `
