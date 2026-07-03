@@ -1804,16 +1804,6 @@ export default function MemberDashboard({
 
                 {/* Classes Offered */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                      <LayoutGrid className="w-7 h-7 text-vortex-red" />
-                      Classes Offered
-                    </h2>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Browse the classes offered at your facility and sign up. Availability is managed through your facility's classes and schedule.
-                    </p>
-                  </div>
-
                   {classesOfferedLoading && (
                     <div className="text-center py-12 text-gray-600">Loading classes…</div>
                   )}

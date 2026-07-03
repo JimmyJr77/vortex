@@ -7,9 +7,10 @@ export async function listPublicClassesOffered(pool, site = 'athletics') {
     site = 'athletics'
   }
 
-  const { resolveProgramsSchema, hasProgramSchedulingColumns, ensureProgramPricingColumns } =
+  const { resolveProgramsSchema, hasProgramSchedulingColumns, ensureProgramPricingColumns, ensurePrimaryDisciplineTagColumn } =
     await import('./schema.js')
   await ensureProgramPricingColumns(pool)
+  await ensurePrimaryDisciplineTagColumn(pool)
   const schema = await resolveProgramsSchema(pool)
   const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
 
@@ -33,17 +34,19 @@ export async function listPublicClassesOffered(pool, site = 'athletics') {
   const programsResult = await pool.query(
     `
     SELECT
-      id,
-      display_name AS "displayName",
-      ${hasDescription ? 'description' : 'NULL AS description'},
-      COALESCE(pricing_cost_options, '[]'::jsonb) AS "pricingCostOptions",
-      COALESCE(pricing_cost_amount_cents, pricing_slot_cost_monthly_cents, 0) AS "pricingCostAmountCents",
-      COALESCE(pricing_slot_cost_monthly_cents, 0) AS "pricingSlotCostMonthlyCents",
-      COALESCE(pricing_cost_unit, 'per_month') AS "pricingCostUnit",
-      COALESCE(multi_class_pass_packages, '[]'::jsonb) AS "multiClassPassPackages"
-    FROM ${schema.programsTable}
-    WHERE archived = FALSE
-    ORDER BY display_name ASC
+      p.id,
+      p.display_name AS "displayName",
+      ${hasDescription ? 'p.description' : 'NULL AS description'},
+      COALESCE(p.pricing_cost_options, '[]'::jsonb) AS "pricingCostOptions",
+      COALESCE(p.pricing_cost_amount_cents, p.pricing_slot_cost_monthly_cents, 0) AS "pricingCostAmountCents",
+      COALESCE(p.pricing_slot_cost_monthly_cents, 0) AS "pricingSlotCostMonthlyCents",
+      COALESCE(p.pricing_cost_unit, 'per_month') AS "pricingCostUnit",
+      COALESCE(p.multi_class_pass_packages, '[]'::jsonb) AS "multiClassPassPackages",
+      primary_dt.name AS "primarySportName"
+    FROM ${schema.programsTable} p
+    LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
+    WHERE p.archived = FALSE
+    ORDER BY p.display_name ASC
     `,
   )
 
@@ -135,6 +138,7 @@ export async function listPublicClassesOffered(pool, site = 'athletics') {
         id: Number(prog.id),
         displayName: prog.displayName,
         description: prog.description ?? null,
+        primarySportName: prog.primarySportName ?? null,
         pricingCostOptions: pricing.pricingCostOptions,
         multiClassPassPackages: pricing.multiClassPassPackages,
         classes,

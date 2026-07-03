@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, CheckCircle, Loader2, ShoppingCart } from 'lucide-react'
+import { ArrowLeft, CheckCircle, LayoutGrid, Loader2, Search, ShoppingCart } from 'lucide-react'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
 import {
   enabledBasePricingOptions,
@@ -65,6 +65,33 @@ interface CartItem {
 
 type CatalogState = SignupClassCatalog | 'loading' | 'error'
 
+const UNSPECIFIED_SPORT = '__unspecified_sport__'
+const ALL_LEVELS = '__all_levels__'
+const NO_LEVEL = '__no_level__'
+
+function classMatchesLevelFilter(skillLevel: string | null, levelFilter: string): boolean {
+  if (levelFilter === ALL_LEVELS) return true
+  if (levelFilter === NO_LEVEL) return skillLevel == null
+  return skillLevel == null || skillLevel === levelFilter
+}
+
+function getEachClassPriceLabel(
+  program: PublicProgramOffered,
+  catalog: CatalogState | undefined,
+): string | null {
+  if (catalog && catalog !== 'loading' && catalog !== 'error' && catalog.priceLabel) {
+    return catalog.priceLabel
+  }
+  const usesWeeklyTiers = programUsesWeeklyTierPricing(program)
+  const flatOneXOnly =
+    usesWeeklyTiers && onlyFlatOneXWeeklyTier(program.pricingCostOptions ?? [])
+  const oneXMonthly = flatOneXOnly
+    ? weeklyTierTotalDollars(1, program.pricingCostOptions ?? [])
+    : null
+  if (oneXMonthly != null) return `$${oneXMonthly.toFixed(2)}/mo`
+  return null
+}
+
 export default function MemberClassesOfferedEnroll({
   apiUrl,
   memberToken,
@@ -94,6 +121,11 @@ export default function MemberClassesOfferedEnroll({
     Record<number, ProgramPricingOptionKey>
   >({})
 
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sportFilter, setSportFilter] = useState<string>('all')
+  const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
+  const [levelFilter, setLevelFilter] = useState<string>(ALL_LEVELS)
+
   const classesWithForm = useMemo(() => {
     const out: Array<{
       classEventId: number
@@ -101,6 +133,7 @@ export default function MemberClassesOfferedEnroll({
       programsId: number
       label: string
       description: string | null
+      skillLevel: string | null
       programName: string
     }> = []
     for (const program of programs) {
@@ -112,6 +145,7 @@ export default function MemberClassesOfferedEnroll({
             programsId: program.id,
             label: cls.displayName,
             description: cls.description,
+            skillLevel: cls.skillLevel,
             programName: program.displayName,
           })
         }
@@ -119,6 +153,73 @@ export default function MemberClassesOfferedEnroll({
     }
     return out
   }, [programs])
+
+  const sportOptions = useMemo(() => {
+    const names = new Set<string>()
+    let hasUnspecified = false
+    for (const program of programs) {
+      if (program.primarySportName) names.add(program.primarySportName)
+      else hasUnspecified = true
+    }
+    return {
+      named: [...names].sort((a, b) => a.localeCompare(b)),
+      hasUnspecified,
+    }
+  }, [programs])
+
+  const levelOptions = useMemo(() => {
+    const levels = new Set<string>()
+    let hasNoLevel = false
+    for (const cls of classesWithForm) {
+      if (cls.skillLevel) levels.add(cls.skillLevel)
+      else hasNoLevel = true
+    }
+    return {
+      named: [...levels].sort((a, b) => a.localeCompare(b)),
+      hasNoLevel,
+    }
+  }, [classesWithForm])
+
+  const filteredProgramSections = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    const sections: Array<{
+      program: PublicProgramOffered
+      programClasses: typeof classesWithForm
+    }> = []
+
+    for (const program of programs) {
+      if (programFilter !== 'all' && program.id !== programFilter) continue
+
+      const sportKey = program.primarySportName ?? UNSPECIFIED_SPORT
+      if (sportFilter !== 'all') {
+        if (sportFilter === UNSPECIFIED_SPORT && program.primarySportName) continue
+        if (sportFilter !== UNSPECIFIED_SPORT && sportKey !== sportFilter) continue
+      }
+
+      const programClasses = classesWithForm
+        .filter((c) => c.programsId === program.id)
+        .filter((c) => classMatchesLevelFilter(c.skillLevel, levelFilter))
+        .filter((c) => {
+          if (!q) return true
+          const haystack = [
+            c.label,
+            c.description ?? '',
+            c.programName,
+            c.skillLevel ?? '',
+            program.primarySportName ?? '',
+          ]
+            .join(' ')
+            .toLowerCase()
+          return haystack.includes(q)
+        })
+        .sort((a, b) => a.label.localeCompare(b.label))
+
+      if (programClasses.length === 0) continue
+      sections.push({ program, programClasses })
+    }
+
+    return sections
+  }, [programs, classesWithForm, searchQuery, sportFilter, programFilter, levelFilter])
 
   const loadCatalog = useCallback(
     async (classEventId: number) => {
@@ -570,44 +671,121 @@ export default function MemberClassesOfferedEnroll({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-        <label className="block text-xs font-semibold text-gray-600 mb-1">Enroll athlete</label>
-        <select
-          value={selectedMemberId}
-          onChange={(e) => setSelectedMemberId(Number(e.target.value))}
-          className="w-full sm:w-72 h-10 rounded-lg border border-gray-300 px-3 text-sm"
-        >
-          {members.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.label}
-            </option>
-          ))}
-        </select>
+      <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 md:px-5 md:py-5 space-y-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <LayoutGrid className="w-7 h-7 text-vortex-red" />
+            Classes Offered
+          </h2>
+          <p className="text-gray-600 text-sm mt-1">
+            Browse the classes offered at your facility and sign up. Availability is managed through
+            your facility&apos;s classes and schedule.
+          </p>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Enroll athlete</label>
+          <select
+            value={selectedMemberId}
+            onChange={(e) => setSelectedMemberId(Number(e.target.value))}
+            className="w-full sm:w-72 h-10 rounded-lg border border-gray-300 px-3 text-sm bg-white"
+          >
+            {members.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+
+      {classesWithForm.length > 0 && (
+        <div className="space-y-3">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search classes…"
+              className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm"
+            />
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">
+              <span className="text-xs font-semibold text-gray-600">Sport</span>
+              <select
+                value={sportFilter}
+                onChange={(e) => setSportFilter(e.target.value)}
+                className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"
+              >
+                <option value="all">All sports</option>
+                {sportOptions.named.map((sport) => (
+                  <option key={sport} value={sport}>
+                    {sport}
+                  </option>
+                ))}
+                {sportOptions.hasUnspecified && (
+                  <option value={UNSPECIFIED_SPORT}>Unspecified sport</option>
+                )}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">
+              <span className="text-xs font-semibold text-gray-600">Program</span>
+              <select
+                value={programFilter === 'all' ? 'all' : String(programFilter)}
+                onChange={(e) =>
+                  setProgramFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))
+                }
+                className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"
+              >
+                <option value="all">All programs</option>
+                {programs.map((program) => (
+                  <option key={program.id} value={program.id}>
+                    {program.displayName}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">
+              <span className="text-xs font-semibold text-gray-600">Experience level</span>
+              <select
+                value={levelFilter}
+                onChange={(e) => setLevelFilter(e.target.value)}
+                className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"
+              >
+                <option value={ALL_LEVELS}>All levels</option>
+                {levelOptions.hasNoLevel && <option value={NO_LEVEL}>No level</option>}
+                {levelOptions.named.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </div>
+      )}
 
       {classesWithForm.length === 0 && (
         <p className="text-sm text-gray-500">No classes are available to enroll in right now.</p>
       )}
 
-      {programs.map((program) => {
+      {classesWithForm.length > 0 && filteredProgramSections.length === 0 && (
+        <p className="text-sm text-gray-500">No classes match your search or filters.</p>
+      )}
+
+      {filteredProgramSections.map(({ program, programClasses }) => {
         const usesWeeklyTiers = programUsesWeeklyTierPricing(program)
         const nonWeeklyPricingOptions = enabledBasePricingOptions(
           program.pricingCostOptions ?? [],
         ).filter((o) => !o.key.startsWith('monthly_'))
         const passPackages = (program.multiClassPassPackages ?? []).filter((p) => p.enabled)
-        const programClasses = classesWithForm
-          .filter((c) => c.programsId === program.id)
-          .sort((a, b) => a.label.localeCompare(b.label))
-        if (programClasses.length === 0) return null
 
         const maxWeeklySlots = usesWeeklyTiers
           ? maxEnabledWeeklySlots(program.pricingCostOptions ?? [])
           : 0
         const flatOneXOnly =
           usesWeeklyTiers && onlyFlatOneXWeeklyTier(program.pricingCostOptions ?? [])
-        const oneXMonthly = flatOneXOnly
-          ? weeklyTierTotalDollars(1, program.pricingCostOptions ?? [])
-          : null
         const programSlotTotal =
           (existingSlotsByProgram.get(program.id) ?? 0) + countProgramSlotsInCart(program.id)
         const weeklyTier =
@@ -621,13 +799,16 @@ export default function MemberClassesOfferedEnroll({
         const limitMsg = programSlotLimitMessage(program)
 
         return (
-          <div key={program.id} className="space-y-4">
+          <div
+            key={program.id}
+            className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm"
+          >
             <div>
-              <h2 className="text-lg font-bold text-gray-900">{program.displayName}</h2>
+              <h2 className="text-lg font-bold text-vortex-red">{program.displayName}</h2>
               {program.description && (
                 <p className="text-sm text-gray-600 mt-1">{program.description}</p>
               )}
-              {usesWeeklyTiers && (
+              {usesWeeklyTiers && !flatOneXOnly && (
                 <p className="text-sm text-gray-600 mt-2">
                   {weeklyTotalMonthly != null && weeklyTier ? (
                     <>
@@ -637,18 +818,7 @@ export default function MemberClassesOfferedEnroll({
                       </span>{' '}
                       <span className="text-gray-500">
                         ({weeklyTier.slotCount}{' '}
-                        {weeklyTier.slotCount === 1 ? 'class' : 'classes'}
-                        {flatOneXOnly && oneXMonthly != null
-                          ? ` @ $${oneXMonthly.toFixed(2)}/mo each`
-                          : ''}
-                        )
-                      </span>
-                    </>
-                  ) : flatOneXOnly && oneXMonthly != null ? (
-                    <>
-                      Each class:{' '}
-                      <span className="font-semibold text-gray-900">
-                        ${oneXMonthly.toFixed(2)}/mo
+                        {weeklyTier.slotCount === 1 ? 'class' : 'classes'})
                       </span>
                     </>
                   ) : (
@@ -662,7 +832,7 @@ export default function MemberClassesOfferedEnroll({
             </div>
 
             {passPackages.length > 0 && (
-              <div className="rounded-xl border border-gray-200 p-4 space-y-3 bg-white">
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 space-y-3">
                 <h3 className="text-sm font-bold text-gray-900">Multi-class packages</h3>
                 <p className="text-xs text-gray-500">
                   Prepaid class credits for {program.displayName}. Select one package to add to your
@@ -675,7 +845,7 @@ export default function MemberClassesOfferedEnroll({
                     return (
                       <li
                         key={pkg.id}
-                        className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-100 px-3 py-2"
+                        className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2"
                       >
                         <label className="inline-flex items-center gap-2 flex-1 min-w-[12rem] cursor-pointer">
                           <input
@@ -700,7 +870,7 @@ export default function MemberClassesOfferedEnroll({
             )}
 
             {nonWeeklyPricingOptions.length > 1 && (
-              <div className="rounded-xl border border-gray-200 p-4 bg-white">
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
                 <label className="block text-xs font-semibold text-gray-600 mb-1">
                   Pricing option for {program.displayName}
                 </label>
@@ -712,7 +882,7 @@ export default function MemberClassesOfferedEnroll({
                       [program.id]: e.target.value as ProgramPricingOptionKey,
                     }))
                   }
-                  className="w-full sm:w-96 h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                  className="w-full sm:w-96 h-10 rounded-lg border border-gray-300 px-3 text-sm bg-white"
                 >
                   {nonWeeklyPricingOptions.map((opt) => (
                     <option key={opt.key} value={opt.key}>
@@ -725,18 +895,28 @@ export default function MemberClassesOfferedEnroll({
 
             {programClasses.map((cls) => {
               const catalog = catalogs[cls.classEventId]
+              const eachClassPrice = getEachClassPriceLabel(program, catalog)
               const selectedKeysForClass = cart
                 .filter((c) => c.classEventId === cls.classEventId && c.lineType === 'slot')
                 .map((c) => slotOptionKey(c.slotGroupId!, c.timeSlotId!))
               return (
                 <div
                   key={cls.classEventId}
-                  className="rounded-xl border border-gray-200 p-4 space-y-3"
+                  className="rounded-xl border border-gray-100 bg-gray-50 p-4 space-y-3"
                 >
                   <div>
                     <h3 className="text-base font-bold text-gray-900">{cls.label}</h3>
+                    {cls.skillLevel && (
+                      <p className="text-xs text-gray-500 mt-0.5">Level: {cls.skillLevel}</p>
+                    )}
                     {cls.description && (
                       <p className="text-sm text-gray-600 mt-1">{cls.description}</p>
+                    )}
+                    {eachClassPrice && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        Each class:{' '}
+                        <span className="font-semibold text-gray-900">{eachClassPrice}</span>
+                      </p>
                     )}
                   </div>
 
@@ -744,7 +924,7 @@ export default function MemberClassesOfferedEnroll({
                     <p className="text-sm text-gray-500">Loading schedule…</p>
                   )}
                   {catalog === 'error' && (
-                    <p className="text-sm text-red-600">Could not load this class's schedule.</p>
+                    <p className="text-sm text-red-600">Could not load this class&apos;s schedule.</p>
                   )}
                   {catalog && catalog !== 'loading' && catalog !== 'error' && (
                     <>
@@ -752,12 +932,6 @@ export default function MemberClassesOfferedEnroll({
                         <p className="text-sm text-gray-700">
                           Class active dates:{' '}
                           <span className="font-medium">{catalog.classActiveDates}</span>
-                        </p>
-                      )}
-                      {catalog.priceLabel && (
-                        <p className="text-sm text-gray-700">
-                          Typical price:{' '}
-                          <span className="font-semibold text-vortex-red">{catalog.priceLabel}</span>
                         </p>
                       )}
                       {catalog.scheduleOptions.length > 0 ? (
