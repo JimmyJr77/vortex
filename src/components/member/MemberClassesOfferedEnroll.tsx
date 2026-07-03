@@ -504,9 +504,17 @@ export default function MemberClassesOfferedEnroll({
         {preview && !previewLoading && (
           <>
             <OrderPricingSummary preview={preview} />
-            <p className="text-xs text-gray-500">
-              These are your real monthly prices. Final billing posts to your family account.
-            </p>
+            {(preview.hasPricing || (preview.passPurchases?.length ?? 0) > 0) && (
+              <p className="text-xs text-gray-500">
+                These are your real monthly prices. Final billing posts to your family account.
+              </p>
+            )}
+            {!preview.hasPricing && (preview.passPurchases?.length ?? 0) === 0 && (
+              <p className="text-sm text-amber-800">
+                Pricing is not configured for the selected class yet. Contact the front desk to confirm
+                your rate before completing enrollment.
+              </p>
+            )}
           </>
         )}
 
@@ -744,6 +752,12 @@ export default function MemberClassesOfferedEnroll({
                         <p className="text-sm text-gray-700">
                           Class active dates:{' '}
                           <span className="font-medium">{catalog.classActiveDates}</span>
+                        </p>
+                      )}
+                      {catalog.priceLabel && (
+                        <p className="text-sm text-gray-700">
+                          Typical price:{' '}
+                          <span className="font-semibold text-vortex-red">{catalog.priceLabel}</span>
                         </p>
                       )}
                       {catalog.scheduleOptions.length > 0 ? (

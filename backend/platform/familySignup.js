@@ -18,6 +18,7 @@ import { verifyEnrollmentReceiptToken } from '../email/enrollmentReceiptService.
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { ensureSignupSchema } from './ensureSignupSchema.js'
 import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
+import { loadEffectivePricingForForm } from '../programs/pricingDefaults.js'
 import { resolveProgramsSchema } from '../programs/schema.js'
 import {
   daySortIndex,
@@ -346,7 +347,7 @@ function sqlClassHasSignupSlots(programAlias) {
 async function loadClassEnrollmentCatalog(pool, classEventId) {
   const formRes = await pool.query(
     `
-      SELECT id, slot_cost_monthly_cents, cost_unit, start_date, end_date
+      SELECT *
       FROM scheduling_form
       WHERE program_id = $1 AND deleted_at IS NULL AND is_active = TRUE
       ORDER BY id
@@ -359,8 +360,9 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
   }
   const form = formRes.rows[0]
   const formId = Number(form.id)
-  const priceCents = Number(form.slot_cost_monthly_cents ?? 0)
-  const costUnit = form.cost_unit || 'per_month'
+  const { effective } = await loadEffectivePricingForForm(pool, form)
+  const priceCents = Number(effective.costAmountCents ?? 0)
+  const costUnit = effective.costUnit || 'per_month'
   const priceLabel = formatSignupPriceLabel(priceCents, costUnit)
 
   const offeringsRes = await pool.query(

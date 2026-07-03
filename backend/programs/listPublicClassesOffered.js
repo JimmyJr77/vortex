@@ -13,8 +13,11 @@ export async function listPublicClassesOffered(pool, site = 'athletics') {
   const schema = await resolveProgramsSchema(pool)
   const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
 
-  const { normalizeProgramPricingOptions, enabledBasePricingOptions } =
-    await import('./programPricingOptions.js')
+  const {
+    normalizeProgramPricingOptions,
+    enabledBasePricingOptions,
+    hydrateProgramPricingOptionsFromLegacy,
+  } = await import('./programPricingOptions.js')
   const { normalizeMultiClassPassPackages, enabledMultiClassPassPackages } =
     await import('./multiClassPass.js')
 
@@ -34,6 +37,9 @@ export async function listPublicClassesOffered(pool, site = 'athletics') {
       display_name AS "displayName",
       ${hasDescription ? 'description' : 'NULL AS description'},
       COALESCE(pricing_cost_options, '[]'::jsonb) AS "pricingCostOptions",
+      COALESCE(pricing_cost_amount_cents, pricing_slot_cost_monthly_cents, 0) AS "pricingCostAmountCents",
+      COALESCE(pricing_slot_cost_monthly_cents, 0) AS "pricingSlotCostMonthlyCents",
+      COALESCE(pricing_cost_unit, 'per_month') AS "pricingCostUnit",
       COALESCE(multi_class_pass_packages, '[]'::jsonb) AS "multiClassPassPackages"
     FROM ${schema.programsTable}
     WHERE archived = FALSE
@@ -43,7 +49,14 @@ export async function listPublicClassesOffered(pool, site = 'athletics') {
 
   const programPricingById = new Map()
   for (const row of programsResult.rows) {
-    const options = enabledBasePricingOptions(normalizeProgramPricingOptions(row.pricingCostOptions))
+    const options = enabledBasePricingOptions(
+      hydrateProgramPricingOptionsFromLegacy({
+        pricingCostOptions: row.pricingCostOptions,
+        pricingSlotCostMonthlyCents: row.pricingSlotCostMonthlyCents,
+        pricingCostAmountCents: row.pricingCostAmountCents,
+        pricingCostUnit: row.pricingCostUnit,
+      }),
+    )
     const packages = enabledMultiClassPassPackages(normalizeMultiClassPassPackages(row.multiClassPassPackages))
     programPricingById.set(Number(row.id), { pricingCostOptions: options, multiClassPassPackages: packages })
   }

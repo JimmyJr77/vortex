@@ -80,6 +80,43 @@ export function effectiveDbRowFromPricingOption(baseRow, programRow, optionKey) 
   }
 }
 
+/**
+ * When pricing_cost_options has no enabled rows, mirror admin UI by surfacing legacy
+ * program columns (pricing_slot_cost_monthly_cents + pricing_cost_unit) as monthly_1x.
+ */
+export function hydrateProgramPricingOptionsFromLegacy(row = {}) {
+  const normalized = normalizeProgramPricingOptions(
+    row.pricing_cost_options ?? row.pricingCostOptions,
+  )
+  if (normalized.some((o) => o.enabled && o.amountCents > 0)) return normalized
+
+  const cents = Number(
+    row.pricing_slot_cost_monthly_cents ??
+      row.pricingSlotCostMonthlyCents ??
+      row.pricing_cost_amount_cents ??
+      row.pricingCostAmountCents ??
+      0,
+  )
+  const unit = row.pricing_cost_unit ?? row.pricingCostUnit ?? 'per_month'
+  if (cents <= 0) return normalized
+
+  const legacyKey =
+    unit === 'per_class'
+      ? 'per_class'
+      : unit === 'per_hour'
+        ? 'per_hour'
+        : unit === 'per_offering'
+          ? 'per_offering'
+          : unit === 'per_month'
+            ? 'monthly_1x'
+            : null
+
+  if (!legacyKey) return normalized
+  return normalized.map((o) =>
+    o.key === legacyKey ? { ...o, enabled: true, amountCents: cents } : o,
+  )
+}
+
 /** Map enabled options to legacy single cost columns for enrollment fallbacks. */
 export function deriveLegacyPricingFromOptions(options = []) {
   const enabled = options.filter((o) => o.enabled && o.amountCents > 0)
