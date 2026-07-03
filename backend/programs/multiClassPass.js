@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto'
 import { resolveProgramsSchema } from './schema.js'
+import { runIsolated } from '../scheduling/transactionSavepoint.js'
 
 export function normalizeMultiClassPassPackages(raw) {
   if (!Array.isArray(raw)) return []
@@ -164,7 +165,7 @@ export async function restorePassCreditsForSignup(client, { signupId, reason = '
 /** Best-effort — enrollment cancel/delete must succeed even when pass ledger columns are absent. */
 export async function safeRestorePassCreditsForSignup(client, opts) {
   try {
-    return await restorePassCreditsForSignup(client, opts)
+    return await runIsolated(client, () => restorePassCreditsForSignup(client, opts))
   } catch (err) {
     console.warn('[multiClassPass] restorePassCreditsForSignup skipped:', err?.message ?? err)
     return { restored: 0 }

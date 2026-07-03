@@ -11,6 +11,8 @@
  * is always a 1st of month.
  */
 
+import { runIsolated } from './transactionSavepoint.js'
+
 /** Days in a given UTC year/month (month is 0-based). */
 function daysInMonth(year, month) {
   return new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
@@ -220,7 +222,7 @@ export async function setSubscriptionPausedForSource(db, { sourceType = 'schedul
 /** Best-effort wrappers — enrollment actions must succeed even when billing tables are absent. */
 export async function safeCancelSubscriptionsForSource(db, opts) {
   try {
-    return await cancelSubscriptionsForSource(db, opts)
+    return await runIsolated(db, () => cancelSubscriptionsForSource(db, opts))
   } catch (err) {
     console.warn('[billing] cancelSubscriptionsForSource skipped:', err?.message ?? err)
     return []
@@ -229,7 +231,7 @@ export async function safeCancelSubscriptionsForSource(db, opts) {
 
 export async function safeReactivateSubscriptionForSource(db, opts) {
   try {
-    return await reactivateSubscriptionForSource(db, opts)
+    return await runIsolated(db, () => reactivateSubscriptionForSource(db, opts))
   } catch (err) {
     console.warn('[billing] reactivateSubscriptionForSource skipped:', err?.message ?? err)
     return []
@@ -238,7 +240,7 @@ export async function safeReactivateSubscriptionForSource(db, opts) {
 
 export async function safeSetSubscriptionPausedForSource(db, opts) {
   try {
-    return await setSubscriptionPausedForSource(db, opts)
+    return await runIsolated(db, () => setSubscriptionPausedForSource(db, opts))
   } catch (err) {
     console.warn('[billing] setSubscriptionPausedForSource skipped:', err?.message ?? err)
     return []

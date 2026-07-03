@@ -29,6 +29,7 @@ import {
   safeSetSubscriptionPausedForSource,
 } from './billingSubscriptions.js'
 import { ensureEnrollmentLifecycleColumns, updateSignupLifecycleStatus } from './enrollmentLifecycle.js'
+import { trySavepoint } from './transactionSavepoint.js'
 import { buildAdminMemberEnrollments, autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
 import {
   persistMultiClassPassPurchaseCharge,
@@ -1731,29 +1732,31 @@ export function createSchedulingHandlers(pool) {
         )
 
         // Reflect the discount on the recurring subscription so monthly totals + the ledger update.
-        try {
-          const subRes = await client.query(
-            `SELECT id, monthly_amount_cents FROM billing_subscription
-             WHERE source_type = 'scheduling_signup' AND source_id = $1 AND status <> 'cancelled'
-             ORDER BY id DESC LIMIT 1`,
-            [String(signupId)],
-          )
-          if (subRes.rows.length > 0) {
-            const sub = subRes.rows[0]
-            const gross = Number(sub.monthly_amount_cents) || 0
-            const discountCents =
-              cents != null ? cents : pct != null ? Math.round((gross * pct) / 100) : 0
-            const net = Math.max(0, gross - discountCents)
-            await client.query(
-              `UPDATE billing_subscription
-               SET discount_amount_cents = $2, net_monthly_cents = $3, updated_at = now()
-               WHERE id = $1`,
-              [sub.id, discountCents, net],
+        await trySavepoint(
+          client,
+          async () => {
+            const subRes = await client.query(
+              `SELECT id, monthly_amount_cents FROM billing_subscription
+               WHERE source_type = 'scheduling_signup' AND source_id = $1 AND status <> 'cancelled'
+               ORDER BY id DESC LIMIT 1`,
+              [String(signupId)],
             )
-          }
-        } catch (subErr) {
-          console.warn('[scheduling] discount subscription sync:', subErr.message)
-        }
+            if (subRes.rows.length > 0) {
+              const sub = subRes.rows[0]
+              const gross = Number(sub.monthly_amount_cents) || 0
+              const discountCents =
+                cents != null ? cents : pct != null ? Math.round((gross * pct) / 100) : 0
+              const net = Math.max(0, gross - discountCents)
+              await client.query(
+                `UPDATE billing_subscription
+                 SET discount_amount_cents = $2, net_monthly_cents = $3, updated_at = now()
+                 WHERE id = $1`,
+                [sub.id, discountCents, net],
+              )
+            }
+          },
+          { logPrefix: '[scheduling] discount subscription sync' },
+        )
 
         await client.query('COMMIT')
         res.json({ success: true })
@@ -1805,11 +1808,12 @@ export function createSchedulingHandlers(pool) {
         await safeRestorePassCreditsForSignup(client, { signupId: id, reason: 'Enrollment deleted' })
         let promotedRows = []
         if (signup.status === 'confirmed' && signup.slot_group_id) {
-          try {
-            promotedRows = await promoteFromWaitlist(client, signup.slot_group_id, 1)
-          } catch (promoteErr) {
-            console.warn('[scheduling] delete promote waitlist:', promoteErr.message)
-          }
+          promotedRows =
+            (await trySavepoint(
+              client,
+              () => promoteFromWaitlist(client, signup.slot_group_id, 1),
+              { logPrefix: '[scheduling] delete promote waitlist' },
+            )) ?? []
         }
         await client.query('DELETE FROM scheduling_signup WHERE id = $1', [id])
         await client.query('COMMIT')
@@ -3981,15 +3985,18 @@ export function createSchedulingHandlers(pool) {
             (targetStatus === 'cancelled' || targetStatus === 'completed') &&
             signup.slot_group_id
           ) {
-            try {
-              await client.query(
-                'SELECT id FROM scheduling_slot_group WHERE id = $1 FOR UPDATE',
-                [signup.slot_group_id],
-              )
-              promotedRows = await promoteFromWaitlist(client, signup.slot_group_id, 1)
-            } catch (promoteErr) {
-              console.warn('[scheduling] status promote waitlist:', promoteErr.message)
-            }
+            promotedRows =
+              (await trySavepoint(
+                client,
+                async () => {
+                  await client.query(
+                    'SELECT id FROM scheduling_slot_group WHERE id = $1 FOR UPDATE',
+                    [signup.slot_group_id],
+                  )
+                  return promoteFromWaitlist(client, signup.slot_group_id, 1)
+                },
+                { logPrefix: '[scheduling] status promote waitlist' },
+              )) ?? []
           }
 
           // Keep recurring subscriptions in sync with signup status.
