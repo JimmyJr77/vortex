@@ -494,8 +494,6 @@ export default function OrderPricingSummary({
           </div>
         </>
       )}
-
-      <p className="text-xs text-gray-500 italic">{preview.disclaimer}</p>
     </div>
   )
 }

@@ -633,11 +633,6 @@ export default function MemberClassesOfferedEnroll({
         {preview && !previewLoading ? (
           <>
             <OrderPricingSummary preview={preview} promoCodeSection={promoCodeSection} />
-            {(preview.hasPricing || (preview.passPurchases?.length ?? 0) > 0) && (
-              <p className="text-xs text-gray-500">
-                These are your real monthly prices. Final billing posts to your family account.
-              </p>
-            )}
             {!preview.hasPricing && (preview.passPurchases?.length ?? 0) === 0 && (
               <p className="text-sm text-amber-800">
                 Pricing is not configured for the selected class yet. Contact the front desk to confirm
