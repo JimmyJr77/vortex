@@ -5,6 +5,13 @@ function formatMoney(amount: number) {
   return `$${amount.toFixed(2)}`
 }
 
+function formatSignedMoney(cents: number) {
+  const amount = Math.abs(cents) / 100
+  if (cents < 0) return `-${formatMoney(amount)}`
+  if (cents > 0) return `+${formatMoney(amount)}`
+  return formatMoney(0)
+}
+
 function formatMonthDay(dateStr: string) {
   const [y, m, d] = dateStr.split('-').map(Number)
   return new Date(y, m - 1, d).toLocaleDateString('en-US', {
@@ -38,7 +45,8 @@ function firstMonthProrationDetail(item: NonNullable<SignupOrderPreview['firstMo
 /**
  * Renders a prices/discounts/fees breakdown for a scheduling order preview.
  * Layout: existing classes → new classes → monthly subtotal → discounts →
- * additional fees → final monthly total. Each dollar amount appears once.
+ * current billing cycle (fees + prorated accounts) → carried forward debits/credits →
+ * final monthly total.
  */
 export default function OrderPricingSummary({
   preview,
@@ -125,6 +133,15 @@ export default function OrderPricingSummary({
   )
 
   const firstMonth = preview.firstMonth?.enabled ? preview.firstMonth : null
+  const carriedForward = preview.carriedForward?.enabled ? preview.carriedForward : null
+
+  const hasAdditionalFees =
+    preview.additionalFees?.enabled && (preview.additionalFees.items.length ?? 0) > 0
+  const hasProratedAccounts = Boolean(firstMonth?.items.length)
+  const currentCycleDueCents =
+    Math.round((preview.additionalFeesOneTime ?? 0) * 100) + (firstMonth?.totalCents ?? 0)
+  const showCurrentBillingCycle =
+    variant === 'review' && (hasAdditionalFees || hasProratedAccounts)
 
   return (
     <div className="mt-6 space-y-4">
@@ -293,63 +310,104 @@ export default function OrderPricingSummary({
         </div>
       )}
 
-      {preview.additionalFees?.enabled && preview.additionalFees.items.length > 0 && (
+      {showCurrentBillingCycle && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm">
-          <h5 className={`font-semibold text-amber-900 mb-2 ${compact ? 'text-sm' : 'text-base'}`}>
-            Additional fees
+          <h5 className={`font-semibold text-amber-950 ${compact ? 'text-sm' : 'text-base'}`}>
+            Current billing cycle
           </h5>
-          <ul className="space-y-1">
-            {preview.additionalFees.items.map((item, i) => (
-              <li key={`fee-${i}`} className="flex justify-between text-amber-900">
-                <span>
-                  {item.name}
-                  {item.quantity > 1 ? ` × ${item.quantity}` : ''}
-                  {item.recurring ? '/mo' : ''}
-                </span>
-                <span>+{formatMoney(item.amountCents / 100)}</span>
-              </li>
-            ))}
-          </ul>
-          {(preview.additionalFeesOneTime ?? 0) > 0 && (
-            <p className="mt-2 text-amber-800">
-              One-time fees at checkout: {formatMoney(preview.additionalFeesOneTime ?? 0)}
-            </p>
-          )}
+          <p className="mt-0.5 mb-3 text-xs text-amber-800">
+            Amounts due for this signup. Billing renews on the 1st of each month.
+          </p>
+
+          <div className="space-y-4">
+            {hasAdditionalFees && (
+              <section>
+                <h6 className="text-xs font-semibold uppercase tracking-wide text-amber-900 mb-2">
+                  Additional fees
+                </h6>
+                <ul className="space-y-1">
+                  {preview.additionalFees!.items.map((item, i) => (
+                    <li key={`fee-${i}`} className="flex justify-between text-amber-950">
+                      <span>
+                        {item.name}
+                        {item.quantity > 1 ? ` × ${item.quantity}` : ''}
+                        {item.recurring ? '/mo' : ''}
+                      </span>
+                      <span>+{formatMoney(item.amountCents / 100)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {hasProratedAccounts && (
+              <section>
+                <h6 className="text-xs font-semibold uppercase tracking-wide text-amber-900 mb-2">
+                  Prorated accounts
+                </h6>
+                <ul className="space-y-2">
+                  {firstMonth!.items.map((item) => (
+                    <li
+                      key={item.slotKey}
+                      className="rounded-lg border border-amber-100 bg-white px-3 py-2 text-amber-950"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="min-w-0 font-semibold leading-snug">
+                          {item.displayLine ?? item.formTitle ?? 'Class'}
+                        </p>
+                        <p className="shrink-0 text-right font-semibold">
+                          {formatMoney(item.proratedCents / 100)}
+                        </p>
+                      </div>
+                      <p className="mt-0.5 text-xs text-amber-800">
+                        {firstMonthProrationDetail(item)}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-amber-200 flex justify-between font-semibold text-amber-950">
+            <span>Due this billing cycle</span>
+            <span>{formatMoney(currentCycleDueCents / 100)}</span>
+          </div>
         </div>
       )}
 
-      {firstMonth && variant === 'review' && (
-        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-4 text-sm">
-          <h5 className={`font-semibold text-blue-900 ${compact ? 'text-sm' : 'text-base'}`}>
-            First month (prorated)
+      {carriedForward && variant === 'review' && (
+        <div className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-4 text-sm">
+          <h5 className={`font-semibold text-violet-950 ${compact ? 'text-sm' : 'text-base'}`}>
+            Carried forward debits/credits
           </h5>
-          <p className="mt-0.5 mb-2 text-xs text-blue-700">
-            Billing renews on the 1st of each month. Your first charge is prorated to the
-            scheduled classes in your first service month.
+          <p className="mt-0.5 mb-3 text-xs text-violet-800">
+            Adjustments from pauses and other account activity that apply to upcoming billing
+            periods.
           </p>
           <ul className="space-y-2">
-            {firstMonth.items.map((item) => (
+            {carriedForward.items.map((item) => (
               <li
-                key={item.slotKey}
-                className="rounded-lg border border-blue-100 bg-white px-3 py-2 text-blue-900"
+                key={item.key}
+                className="rounded-lg border border-violet-100 bg-white px-3 py-2 text-violet-950"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <p className="min-w-0 font-semibold leading-snug">
-                    {item.displayLine ?? item.formTitle ?? 'Class'}
-                  </p>
+                  <div className="min-w-0">
+                    <p className="font-semibold leading-snug">{item.label}</p>
+                    {item.detail && (
+                      <p className="mt-0.5 text-xs text-violet-800">{item.detail}</p>
+                    )}
+                  </div>
                   <p className="shrink-0 text-right font-semibold">
-                    {formatMoney(item.proratedCents / 100)}
+                    {formatSignedMoney(item.amountCents)}
                   </p>
                 </div>
-                <p className="mt-0.5 text-xs text-blue-700">
-                  {firstMonthProrationDetail(item)}
-                </p>
               </li>
             ))}
           </ul>
-          <div className="mt-2 pt-2 border-t border-blue-200 flex justify-between font-semibold text-blue-900">
-            <span>Due for first month</span>
-            <span>{formatMoney(firstMonth.totalCents / 100)}</span>
+          <div className="mt-3 pt-3 border-t border-violet-200 flex justify-between font-semibold text-violet-950">
+            <span>Net carried forward</span>
+            <span>{formatSignedMoney(carriedForward.totalCents)}</span>
           </div>
         </div>
       )}

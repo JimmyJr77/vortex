@@ -916,6 +916,16 @@ export async function buildSignupOrderPreview(
   const additionalFeesOneTime = (additionalFees.totalOneTimeCents ?? 0) / 100
   const engineDiscountMonthly = discounts.enabled ? (discounts.totalDiscountCents ?? 0) / 100 : 0
 
+  let carriedForward = { enabled: false, items: [], totalCents: 0 }
+  if (memberId != null) {
+    try {
+      const { computeCarriedForwardLayer } = await import('./pauseEnrollmentBilling.js')
+      carriedForward = await computeCarriedForwardLayer(pool, { memberId })
+    } catch (err) {
+      console.warn('[scheduling] carried forward preview:', err?.message ?? err)
+    }
+  }
+
   return {
     memberId: memberId ?? null,
     existingClasses,
@@ -939,6 +949,7 @@ export async function buildSignupOrderPreview(
     additionalFees,
     additionalFeesMonthly,
     additionalFeesOneTime,
+    carriedForward,
     hasPricing: formSummaries.some((summary) => summary.pricingAfter != null) || passPurchaseItems.length > 0,
     disclaimer: SIGNUP_ORDER_PRICING_DISCLAIMER,
   }

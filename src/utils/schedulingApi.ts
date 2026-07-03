@@ -254,6 +254,21 @@ export interface FirstMonthProrationBreakdown {
   totalCents: number
 }
 
+export interface CarriedForwardLineItem {
+  key: string
+  kind: string
+  label: string
+  detail?: string | null
+  amountCents: number
+  applyOnMonth?: string | null
+}
+
+export interface CarriedForwardBreakdown {
+  enabled: boolean
+  items: CarriedForwardLineItem[]
+  totalCents: number
+}
+
 export interface SignupOrderPreview {
   memberId: number | null
   existingClasses: SignupOrderPreviewClass[]
@@ -277,6 +292,7 @@ export interface SignupOrderPreview {
   additionalFees?: AdditionalFeesBreakdown
   additionalFeesMonthly?: number
   additionalFeesOneTime?: number
+  carriedForward?: CarriedForwardBreakdown
   hasPricing: boolean
   disclaimer: string
 }

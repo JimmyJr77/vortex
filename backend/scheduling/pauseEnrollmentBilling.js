@@ -397,6 +397,77 @@ export async function applyPendingPauseCredits(pool, { periodStart }) {
 }
 
 /**
+ * Pending debits/credits that carry forward to a future billing period (e.g. mid-month
+ * pause proration credits). Shown at checkout so families see what will hit next month.
+ */
+export async function computeCarriedForwardLayer(pool, { memberId, asOfDate = null }) {
+  const empty = { enabled: false, items: [], totalCents: 0 }
+  if (memberId == null) return empty
+
+  const famRes = await pool.query(`SELECT family_id FROM member WHERE id = $1`, [memberId])
+  const familyId = famRes.rows[0]?.family_id
+  if (familyId == null) return empty
+
+  const fromMonth = (asOfDate ?? todayDateOnly()).slice(0, 7)
+  const items = []
+
+  try {
+    await ensurePauseCreditTable(pool)
+    const credits = await pool.query(
+      `
+      SELECT pc.scheduling_signup_id, pc.credit_cents, pc.pause_date, pc.apply_on_month, pc.remaining_classes,
+             sf.title AS class_name,
+             m.first_name, m.last_name
+      FROM billing_pause_credit pc
+      JOIN scheduling_signup s ON s.id = pc.scheduling_signup_id
+      JOIN scheduling_form sf ON sf.id = s.form_id
+      LEFT JOIN member m ON m.id = pc.member_id
+      WHERE pc.applied_at IS NULL
+        AND pc.apply_on_month >= $2
+        AND pc.family_billing_account_id IN (
+          SELECT id FROM family_billing_account WHERE family_id = $1
+        )
+      ORDER BY pc.apply_on_month, pc.id
+      `,
+      [familyId, fromMonth],
+    )
+    for (const row of credits.rows) {
+      const memberName = `${row.first_name || ''} ${row.last_name || ''}`.trim()
+      const creditCents = Math.abs(Number(row.credit_cents) || 0)
+      if (creditCents <= 0) continue
+      const applyLabel = row.apply_on_month
+        ? new Date(`${row.apply_on_month}-01T12:00:00`).toLocaleDateString('en-US', {
+            month: 'long',
+            year: 'numeric',
+          })
+        : 'next billing cycle'
+      items.push({
+        key: `pause-${row.scheduling_signup_id}-${row.pause_date}`,
+        kind: 'pause_credit',
+        label: `Pause credit — ${row.class_name || 'Class'}`,
+        detail: [
+          memberName || null,
+          row.remaining_classes != null
+            ? `${row.remaining_classes} unused session${row.remaining_classes === 1 ? '' : 's'}`
+            : null,
+          `Applies ${applyLabel}`,
+        ]
+          .filter(Boolean)
+          .join(' · '),
+        amountCents: -creditCents,
+        applyOnMonth: row.apply_on_month,
+      })
+    }
+  } catch (err) {
+    console.warn('[pauseBilling] carried forward preview:', err?.message ?? err)
+  }
+
+  if (!items.length) return empty
+  const totalCents = items.reduce((sum, item) => sum + item.amountCents, 0)
+  return { enabled: true, items, totalCents }
+}
+
+/**
  * Run after signup status commit when entering or leaving paused.
  * @param {'prorated'|'next_month'} [pauseMode] — prorated pauses now with mid-month credit; next_month skips credit.
  */
