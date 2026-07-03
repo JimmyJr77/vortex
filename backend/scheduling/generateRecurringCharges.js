@@ -17,6 +17,7 @@ import {
   periodKey,
   toDateString,
 } from './billingSubscriptions.js'
+import { applyPendingPauseCredits } from './pauseEnrollmentBilling.js'
 
 /**
  * @param {import('pg').Pool} pool
@@ -26,6 +27,13 @@ import {
 export async function generateRecurringCharges(pool, { asOf = new Date(), maxCatchUpPerSub = 12 } = {}) {
   const asOfMidnight = new Date(Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth(), asOf.getUTCDate()))
   const asOfStr = toDateString(asOfMidnight)
+
+  let pauseCreditsPosted = 0
+  try {
+    pauseCreditsPosted = await applyPendingPauseCredits(pool, { periodStart: asOfStr })
+  } catch (err) {
+    console.warn('[billing] applyPendingPauseCredits:', err?.message ?? err)
+  }
 
   const due = await pool.query(
     `
@@ -98,5 +106,6 @@ export async function generateRecurringCharges(pool, { asOf = new Date(), maxCat
     subscriptionsProcessed: due.rows.length,
     chargesPosted,
     periodsAdvanced,
+    pauseCreditsPosted,
   }
 }

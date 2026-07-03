@@ -137,6 +137,13 @@ export async function initSchedulingTables(pool) {
 
   await ensureEnrollmentLifecycleColumns(pool)
 
+  try {
+    const { ensurePauseCreditTable } = await import('./pauseEnrollmentBilling.js')
+    await ensurePauseCreditTable(pool)
+  } catch (err) {
+    console.warn('[scheduling] pause credit table ensure:', err?.message ?? err)
+  }
+
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_slot_form ON scheduling_time_slot(form_id)`)
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_signup_slot ON scheduling_signup(time_slot_id)`)
 

@@ -10,6 +10,7 @@ import {
 } from '../firstMonthProration.js'
 import { computeFirstMonthLayer } from '../orderPricing.js'
 import { persistSignupCharges } from '../persistSignupCharges.js'
+import { pauseCreditForLine } from '../pauseEnrollmentBilling.js'
 
 /** A weekly time-slot row in the shape loadCalendarRowsForSlotGroups returns. */
 function slotRow(overrides = {}) {
@@ -310,4 +311,29 @@ test('persistSignupCharges skips the charge row for future-start classes but cre
   assert.equal(result.charges, 0)
   assert.equal(pool.calls.charges.length, 0)
   assert.equal(pool.calls.orderCredits.length, 0)
+})
+
+test('pauseCreditForLine awards prorated credit for remaining sessions after pause', () => {
+  const rows = [slotRow()]
+  const result = pauseCreditForLine(rows, {
+    slotGroupId: 2,
+    timeSlotId: 3,
+    pauseDate: '2026-07-15',
+    netMonthlyCents: 15000,
+  })
+  assert.ok(result.remainingClasses > 0)
+  assert.equal(result.ratio, Math.min(result.remainingClasses, CLASSES_PER_MONTH) / CLASSES_PER_MONTH)
+  assert.equal(result.creditCents, Math.round(15000 * result.ratio))
+})
+
+test('pauseCreditForLine returns zero credit when no sessions remain after pause', () => {
+  const rows = [slotRow({ day_of_week: 2 })]
+  const result = pauseCreditForLine(rows, {
+    slotGroupId: 2,
+    timeSlotId: 3,
+    pauseDate: '2026-07-31',
+    netMonthlyCents: 12000,
+  })
+  assert.equal(result.remainingClasses, 0)
+  assert.equal(result.creditCents, 0)
 })

@@ -1,5 +1,5 @@
 /** Bumped when backend behavior changes — visible on GET /api/health and admin email status. */
-export const API_BUILD_ID = 'enrollment-txn-savepoints-2026-07-03'
+export const API_BUILD_ID = 'enrollment-pause-billing-2026-07-03'
 
 /** Advertised on GET /api/health → apiFeatures for frontend capability checks. */
 export const API_FEATURES = {

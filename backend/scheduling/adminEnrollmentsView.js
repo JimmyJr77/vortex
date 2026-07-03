@@ -279,13 +279,15 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
       (sub ? Number(sub.monthly_amount_cents) : null) ??
       (breakdownGross != null ? Number(breakdownGross) : null) ??
       0
-    const groupAdjustedCents = adjustedBySignupId.get(Number(row.id))
-    const manualCents = manualDiscountCents(groupAdjustedCents ?? classCostCents, row)
-    const baseNet =
-      groupAdjustedCents ??
-      (sub != null ? Number(sub.net_monthly_cents) : null) ??
-      classCostCents
-    const adjustedCostCents = Math.max(0, baseNet - manualCents)
+    const isPaused = row.status === 'paused'
+    const groupAdjustedCents = isPaused ? 0 : adjustedBySignupId.get(Number(row.id))
+    const manualCents = isPaused ? 0 : manualDiscountCents(groupAdjustedCents ?? classCostCents, row)
+    const baseNet = isPaused
+      ? 0
+      : groupAdjustedCents ??
+        (sub != null ? Number(sub.net_monthly_cents) : null) ??
+        classCostCents
+    const adjustedCostCents = isPaused ? 0 : Math.max(0, baseNet - manualCents)
     const groupDiscountLabel = discountLabelBySignupId.get(Number(row.id)) ?? null
 
     const enriched = applyEnrollmentTaxonomy(

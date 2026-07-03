@@ -30,6 +30,7 @@ import {
 } from './billingSubscriptions.js'
 import { ensureEnrollmentLifecycleColumns, updateSignupLifecycleStatus } from './enrollmentLifecycle.js'
 import { trySavepoint } from './transactionSavepoint.js'
+import { handleEnrollmentPauseBilling, syncFamilyEnrollmentDiscounts } from './pauseEnrollmentBilling.js'
 import { buildAdminMemberEnrollments, autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
 import {
   persistMultiClassPassPurchaseCharge,
@@ -4029,6 +4030,41 @@ export function createSchedulingHandlers(pool) {
 
         if (promotedRows.length > 0) {
           await sendPromotionEmails(pool, promotedRows)
+        }
+
+        if (updatedRow) {
+          const enteringPaused = targetStatus === 'paused' && previousStatus !== 'paused'
+          const leavingPaused =
+            (targetStatus === 'confirmed' || targetStatus === 'waitlisted') && previousStatus === 'paused'
+          if (enteringPaused || leavingPaused) {
+            try {
+              await handleEnrollmentPauseBilling(pool, {
+                signupId: Number(updatedRow.id),
+                enteringPaused,
+                leavingPaused,
+              })
+            } catch (pauseBillErr) {
+              console.warn('[scheduling] pause billing follow-up:', pauseBillErr?.message ?? pauseBillErr)
+            }
+          } else if (
+            (targetStatus === 'cancelled' && previousStatus !== 'cancelled') ||
+            (targetStatus === 'completed' && previousStatus !== 'completed') ||
+            ((targetStatus === 'confirmed' || targetStatus === 'waitlisted') &&
+              (previousStatus === 'cancelled' || previousStatus === 'completed'))
+          ) {
+            try {
+              const famRes = await pool.query(
+                `SELECT m.family_id FROM scheduling_signup s JOIN member m ON m.id = s.member_id WHERE s.id = $1`,
+                [updatedRow.id],
+              )
+              const familyId = famRes.rows[0]?.family_id
+              if (familyId) {
+                await syncFamilyEnrollmentDiscounts(pool, Number(familyId))
+              }
+            } catch (syncErr) {
+              console.warn('[scheduling] discount resync:', syncErr?.message ?? syncErr)
+            }
+          }
         }
 
         if (updatedRow && targetStatus === 'confirmed' && previousStatus === 'cancelled') {
