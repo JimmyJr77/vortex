@@ -1,4 +1,5 @@
 import { resolveProgramsSchema } from './schema.js'
+import { hydrateProgramPricingRow } from './programPricingOptions.js'
 
 export const COST_UNITS = [
   'per_slot',
@@ -18,8 +19,8 @@ function readCost(row, { amountKey, unitKey, legacyKey }) {
   if (!row) return null
   const amount = row[amountKey]
   const unit = row[unitKey]
-  if (amount != null && unit != null) {
-    return { amountCents: Number(amount) || 0, unit: normalizeCostUnit(unit) }
+  if (amount != null && unit != null && Number(amount) > 0) {
+    return { amountCents: Number(amount), unit: normalizeCostUnit(unit) }
   }
   const legacy = row[legacyKey]
   if (legacy != null && Number(legacy) > 0) {
@@ -168,7 +169,9 @@ export async function loadProgramPricingRow(pool, programsId) {
 
 export async function loadEffectivePricingForForm(pool, formRow) {
   const programsId = formRow?.programs_id != null ? Number(formRow.programs_id) : null
-  const programRow = programsId != null ? await loadProgramPricingRow(pool, programsId) : null
+  const programRow = hydrateProgramPricingRow(
+    programsId != null ? await loadProgramPricingRow(pool, programsId) : null,
+  )
   const effective = resolveEffectiveFormPricing(programRow, formRow)
   return {
     programRow,

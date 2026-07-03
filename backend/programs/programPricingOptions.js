@@ -117,6 +117,33 @@ export function hydrateProgramPricingOptionsFromLegacy(row = {}) {
   )
 }
 
+/**
+ * Normalize a program pricing row for enrollment/order preview: hydrate disabled options
+ * from legacy columns and back-fill legacy columns from enabled options when needed.
+ */
+export function hydrateProgramPricingRow(row) {
+  if (!row) return null
+  const hydratedOptions = hydrateProgramPricingOptionsFromLegacy(row)
+  const derived = deriveLegacyPricingFromOptions(hydratedOptions)
+  const costAmount =
+    Number(row.pricing_cost_amount_cents ?? 0) > 0
+      ? Number(row.pricing_cost_amount_cents)
+      : Number(row.pricing_slot_cost_monthly_cents ?? 0) > 0
+        ? Number(row.pricing_slot_cost_monthly_cents)
+        : derived.pricingCostAmountCents
+  const slotMonthly =
+    Number(row.pricing_slot_cost_monthly_cents ?? 0) > 0
+      ? Number(row.pricing_slot_cost_monthly_cents)
+      : derived.pricingSlotCostMonthlyCents
+  return {
+    ...row,
+    pricing_cost_options: hydratedOptions,
+    pricing_cost_amount_cents: costAmount,
+    pricing_slot_cost_monthly_cents: slotMonthly,
+    pricing_cost_unit: row.pricing_cost_unit || derived.pricingCostUnit || 'per_month',
+  }
+}
+
 /** Map enabled options to legacy single cost columns for enrollment fallbacks. */
 export function deriveLegacyPricingFromOptions(options = []) {
   const enabled = options.filter((o) => o.enabled && o.amountCents > 0)
