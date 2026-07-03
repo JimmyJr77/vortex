@@ -474,6 +474,43 @@ export default function MemberClassesOfferedEnroll({
     await runPreview(next)
   }
 
+  const promoCodeSection = (
+    <div className="rounded-xl border border-gray-200 px-4 py-3 space-y-2">
+      <label className="block text-xs font-semibold text-gray-600">Promo code</label>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={promoInput}
+          onChange={(e) => setPromoInput(e.target.value)}
+          placeholder="Enter code"
+          className="h-9 flex-1 rounded-lg border border-gray-300 px-3 text-sm"
+        />
+        <button
+          type="button"
+          onClick={applyPromo}
+          className="h-9 rounded-lg border border-gray-300 px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+        >
+          Apply
+        </button>
+      </div>
+      {promoCodes.length > 0 && (
+        <div className="flex flex-wrap gap-2 pt-1">
+          {promoCodes.map((code) => (
+            <span
+              key={code}
+              className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-800"
+            >
+              {code}
+              <button type="button" onClick={() => removePromo(code)} className="text-green-700">
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+
   const confirmEnrollment = async () => {
     if (cart.length === 0) return
     setSubmitting(true)
@@ -593,9 +630,9 @@ export default function MemberClassesOfferedEnroll({
           </div>
         )}
         {previewError && <div className="text-sm text-red-600">{previewError}</div>}
-        {preview && !previewLoading && (
+        {preview && !previewLoading ? (
           <>
-            <OrderPricingSummary preview={preview} />
+            <OrderPricingSummary preview={preview} promoCodeSection={promoCodeSection} />
             {(preview.hasPricing || (preview.passPurchases?.length ?? 0) > 0) && (
               <p className="text-xs text-gray-500">
                 These are your real monthly prices. Final billing posts to your family account.
@@ -608,42 +645,9 @@ export default function MemberClassesOfferedEnroll({
               </p>
             )}
           </>
+        ) : (
+          promoCodeSection
         )}
-
-        <div className="rounded-xl border border-gray-200 px-4 py-3 space-y-2">
-          <label className="block text-xs font-semibold text-gray-600">Promo code</label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={promoInput}
-              onChange={(e) => setPromoInput(e.target.value)}
-              placeholder="Enter code"
-              className="h-9 flex-1 rounded-lg border border-gray-300 px-3 text-sm"
-            />
-            <button
-              type="button"
-              onClick={applyPromo}
-              className="h-9 rounded-lg border border-gray-300 px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-            >
-              Apply
-            </button>
-          </div>
-          {promoCodes.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-1">
-              {promoCodes.map((code) => (
-                <span
-                  key={code}
-                  className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-800"
-                >
-                  {code}
-                  <button type="button" onClick={() => removePromo(code)} className="text-green-700">
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
 
         {submitError && <div className="text-sm text-red-600">{submitError}</div>}
 

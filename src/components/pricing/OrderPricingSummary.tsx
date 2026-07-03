@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { SignupOrderPreview } from '../../utils/schedulingApi'
 import { enrollmentDisplayLine } from '../../utils/enrollmentDisplayLine'
 
@@ -50,8 +51,8 @@ function firstMonthProrationDetail(item: NonNullable<SignupOrderPreview['firstMo
 
 /**
  * Renders a prices/discounts/fees breakdown for a scheduling order preview.
- * Layout: existing classes → new classes → monthly subtotal → discounts →
- * current billing cycle (fees + prorated accounts) → carried forward debits/credits →
+ * Layout: existing classes → new classes → monthly subtotal → promo code → discounts →
+ * current billing cycle (fees, prorated accounts, carried forward) →
  * final monthly total → due now.
  */
 export default function OrderPricingSummary({
@@ -59,11 +60,13 @@ export default function OrderPricingSummary({
   compact,
   variant = 'review',
   emphasizeCombinedTotal = false,
+  promoCodeSection,
 }: {
   preview: SignupOrderPreview
   compact?: boolean
   variant?: 'review' | 'success'
   emphasizeCombinedTotal?: boolean
+  promoCodeSection?: ReactNode
 }) {
   if (!preview.hasPricing && !(preview.passPurchases?.length ?? 0)) return null
 
@@ -160,8 +163,7 @@ export default function OrderPricingSummary({
     if (proratedDueNow > 0) parts.push(`${formatMoney(proratedDueNow)} prorated accounts`)
     return parts.join(' + ')
   })()
-  const showCurrentBillingCycle =
-    variant === 'review' && (hasAdditionalFees || hasProratedAccounts)
+  const showCurrentBillingCycle = variant === 'review'
 
   return (
     <div className="mt-6 space-y-4">
@@ -179,21 +181,21 @@ export default function OrderPricingSummary({
           <h5 className={`font-semibold text-black mb-3 ${compact ? 'text-sm' : 'text-base'}`}>
             Existing classes
           </h5>
-          <ul className="space-y-2">
+          <ul className="space-y-0">
             {preview.existingClasses.map((item) => (
               <li
                 key={item.id ?? `${item.formId}-${item.slotLabel}`}
-                className="flex items-start justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700"
+                className="flex items-start justify-between gap-3 px-3 py-1 text-sm text-gray-700"
               >
                 <div className="min-w-0">
-                  <p className="font-semibold text-black leading-snug">
+                  <p className="text-black leading-snug">
                     {enrollmentDisplayLine(item)}
                   </p>
                   {item.status === 'waitlisted' && (
                     <p className="text-xs text-amber-700 mt-1">On waitlist</p>
                   )}
                 </div>
-                <p className="shrink-0 text-right font-semibold text-black">
+                <p className="shrink-0 text-right text-black">
                   {item.monthlyPrice != null && item.monthlyPrice > 0
                     ? `${formatMoney(item.monthlyPrice)}/mo`
                     : 'Free'}
@@ -215,14 +217,14 @@ export default function OrderPricingSummary({
           </h5>
 
           {preview.newSignups.length > 0 && (
-            <ul className="space-y-2">
+            <ul className="space-y-0">
               {preview.newSignups.map((item) => (
                 <li
                   key={item.slotKey ?? `${item.formId}-${item.slotLabel}`}
-                  className="flex items-start justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2"
+                  className="flex items-start justify-between gap-3 px-3 py-1"
                 >
                   <div className="min-w-0">
-                    <p className="font-semibold text-black leading-snug">
+                    <p className="text-black leading-snug">
                       {enrollmentDisplayLine(item)}
                     </p>
                     {item.multiClassPassApplied && item.classesRemainingAfterEnrollment != null && (
@@ -232,7 +234,7 @@ export default function OrderPricingSummary({
                       </p>
                     )}
                   </div>
-                  <p className="shrink-0 text-right font-semibold text-black">
+                  <p className="shrink-0 text-right text-black">
                     {item.incrementalMonthly != null && item.incrementalMonthly > 0
                       ? `+${formatMoney(item.incrementalMonthly)}/mo`
                       : 'Free'}
@@ -258,19 +260,19 @@ export default function OrderPricingSummary({
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
                 Multi-class packages (one-time purchase)
               </p>
-              <ul className="space-y-2">
+              <ul className="space-y-0">
                 {preview.passPurchases.map((item) => (
                   <li
                     key={`${item.programsId}-${item.packageId}`}
-                    className="flex items-start justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2"
+                    className="flex items-start justify-between gap-3 px-3 py-1"
                   >
                     <div>
-                      <p className="font-semibold text-black">{item.label}</p>
+                      <p className="text-black">{item.label}</p>
                       <p className="text-xs text-gray-600">
                         {item.classCount} {item.classCount === 1 ? 'class' : 'classes'} credit
                       </p>
                     </div>
-                    <p className="font-semibold text-black">{formatMoney(item.priceDollars)}</p>
+                    <p className="text-black">{formatMoney(item.priceDollars)}</p>
                   </li>
                 ))}
               </ul>
@@ -291,6 +293,8 @@ export default function OrderPricingSummary({
           </div>
         </div>
       )}
+
+      {promoCodeSection}
 
       {totalDiscounts > 0 && (
         <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-4 text-sm">
@@ -367,17 +371,17 @@ export default function OrderPricingSummary({
                     ? 'Prorated accounts'
                     : 'Upcoming class billing'}
                 </h6>
-                <ul className="space-y-2">
+                <ul className="space-y-0">
                   {firstMonth!.items.map((item) => (
                     <li
                       key={item.slotKey}
-                      className="rounded-lg border border-amber-200 px-3 py-2 text-amber-950"
+                      className="px-3 py-1 text-amber-950"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <p className="min-w-0 font-semibold leading-snug">
+                        <p className="min-w-0 leading-snug">
                           {item.displayLine ?? item.formTitle ?? 'Class'}
                         </p>
-                        <p className="shrink-0 text-right font-semibold">
+                        <p className="shrink-0 text-right">
                           {formatMoney(item.proratedCents / 100)}
                         </p>
                       </div>
@@ -389,66 +393,57 @@ export default function OrderPricingSummary({
                 </ul>
               </section>
             )}
+
+            <section>
+              <h6 className="text-xs font-semibold uppercase tracking-wide text-amber-900 mb-2">
+                Debits/Credits carried forward
+              </h6>
+              <p className="mb-2 text-xs text-amber-800">
+                Adjustments from pauses and other account activity that apply to upcoming billing
+                periods.
+              </p>
+              <div className="space-y-0 px-3 py-1 text-amber-950">
+                <div className="flex justify-between">
+                  <span>Credits</span>
+                  <span>{formatMoney((carriedForward.creditsCents ?? 0) / 100)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Debits</span>
+                  <span>{formatMoney((carriedForward.debitsCents ?? 0) / 100)}</span>
+                </div>
+              </div>
+              {carriedForward.items.length > 0 && (
+                <ul className="mt-2 space-y-0">
+                  {carriedForward.items.map((item) => (
+                    <li key={item.key} className="px-3 py-1 text-amber-950">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="leading-snug">{item.label}</p>
+                          {item.detail && (
+                            <p className="mt-0.5 text-xs text-amber-800">{item.detail}</p>
+                          )}
+                        </div>
+                        <p className="shrink-0 text-right">
+                          {formatSignedMoney(item.amountCents)}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {carriedForward.items.length > 0 && (
+                <div className="mt-2 pt-2 border-t border-amber-200 flex justify-between font-semibold text-amber-950">
+                  <span>Net carried forward</span>
+                  <span>{formatSignedMoney(carriedForward.totalCents)}</span>
+                </div>
+              )}
+            </section>
           </div>
 
           <div className="mt-3 pt-3 border-t border-amber-200 flex justify-between font-semibold text-amber-950">
             <span>Due this billing cycle</span>
             <span>{formatMoney(currentCycleDueCents / 100)}</span>
           </div>
-        </div>
-      )}
-
-      {variant === 'review' && (
-        <div className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-4 text-sm">
-          <h5 className={`font-semibold text-violet-950 ${compact ? 'text-sm' : 'text-base'}`}>
-            Debits/Credits carried forward
-          </h5>
-          <p className="mt-0.5 mb-3 text-xs text-violet-800">
-            Adjustments from pauses and other account activity that apply to upcoming billing
-            periods.
-          </p>
-          <div className="space-y-1 rounded-lg border border-violet-200 px-3 py-2 text-violet-950">
-            <div className="flex justify-between">
-              <span>Credits</span>
-              <span className="font-semibold">
-                {formatMoney((carriedForward.creditsCents ?? 0) / 100)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Debits</span>
-              <span className="font-semibold">
-                {formatMoney((carriedForward.debitsCents ?? 0) / 100)}
-              </span>
-            </div>
-          </div>
-          {carriedForward.items.length > 0 && (
-            <ul className="mt-3 space-y-2">
-              {carriedForward.items.map((item) => (
-                <li
-                  key={item.key}
-                  className="rounded-lg border border-violet-200 px-3 py-2 text-violet-950"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-semibold leading-snug">{item.label}</p>
-                      {item.detail && (
-                        <p className="mt-0.5 text-xs text-violet-800">{item.detail}</p>
-                      )}
-                    </div>
-                    <p className="shrink-0 text-right font-semibold">
-                      {formatSignedMoney(item.amountCents)}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          {carriedForward.items.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-violet-200 flex justify-between font-semibold text-violet-950">
-              <span>Net carried forward</span>
-              <span>{formatSignedMoney(carriedForward.totalCents)}</span>
-            </div>
-          )}
         </div>
       )}
 
