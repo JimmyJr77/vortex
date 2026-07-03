@@ -101,17 +101,17 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
   const schedulingRows = schedulingResult.rows.map((row) => {
     const offering = resolveEnrollmentOfferingDisplay(row)
     const taxonomy = taxonomyByFormId.get(Number(row.form_id))
-    const programName = taxonomy?.programName ?? row.program_name || null
-    const sportName = taxonomy?.sportName ?? row.sport_name || null
-    const className = taxonomy?.className ?? row.class_name || 'Class'
+    const programName = taxonomy?.programName ?? (row.program_name || null)
+    const sportName = taxonomy?.sportName ?? (row.sport_name || null)
+    const className = taxonomy?.className ?? (row.class_name || 'Class')
     const classContextLine =
       taxonomy?.classContextLine ??
-      buildEnrollmentContextLine({
+      (buildEnrollmentContextLine({
         sportName,
         programName,
         className,
       }) ||
-      className
+        className)
     return applyEnrollmentTaxonomy(
       {
         id: Number(row.id),
@@ -187,17 +187,17 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
     legacyRows = legacyResult.rows.map((row) => {
       const selectedDays = parseSelectedDays(row.selected_days)
       const taxonomy = taxonomyByClassId.get(Number(row.program_id))
-      const programName = taxonomy?.programName ?? row.program_name || null
-      const sportName = taxonomy?.sportName ?? row.sport_name || null
-      const className = taxonomy?.className ?? row.class_name || 'Class'
+      const programName = taxonomy?.programName ?? (row.program_name || null)
+      const sportName = taxonomy?.sportName ?? (row.sport_name || null)
+      const className = taxonomy?.className ?? (row.class_name || 'Class')
       const classContextLine =
         taxonomy?.classContextLine ??
-        buildEnrollmentContextLine({
+        (buildEnrollmentContextLine({
           sportName,
           programName,
           className,
         }) ||
-        className
+          className)
       return applyEnrollmentTaxonomy(
         {
           id: Number(row.id),
