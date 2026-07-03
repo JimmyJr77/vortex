@@ -23,6 +23,7 @@ import {
 } from './slotDisplayLabel.js'
 import { buildSignupOrderPreview, computeExistingEnrollmentDiscounts } from './orderPricing.js'
 import { cancelSubscriptionsForSource } from './billingSubscriptions.js'
+import { ensureEnrollmentLifecycleColumns } from './enrollmentLifecycle.js'
 
 function parseSelectedDays(raw) {
   if (!raw) return []
@@ -51,6 +52,11 @@ function formatLegacySlotLabel(selectedDays, daysPerWeek) {
  * @param {{ memberId?: number|null }} [opts]
  */
 export async function autoCompleteEndedEnrollments(pool, { memberId = null } = {}) {
+  try {
+    await ensureEnrollmentLifecycleColumns(pool)
+  } catch (schemaErr) {
+    console.warn('[adminEnrollmentsView] auto-complete schema ensure:', schemaErr?.message ?? schemaErr)
+  }
   const params = []
   let memberFilter = ''
   if (memberId != null) {

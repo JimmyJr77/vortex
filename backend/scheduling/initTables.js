@@ -1,25 +1,7 @@
-let enrollmentLifecycleReady = false
-
-/** Idempotent lifecycle columns + status check (safe to call from admin enrollment actions). */
+/** Boot-time delegate to enrollmentLifecycle (drops legacy inline status CHECK constraints). */
 export async function ensureEnrollmentLifecycleColumns(pool) {
-  if (enrollmentLifecycleReady) return
-  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ`)
-  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS paused_at TIMESTAMPTZ`)
-  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_cents INTEGER`)
-  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_pct NUMERIC(5,2)`)
-  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_reason TEXT`)
-  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_rule_id BIGINT`)
-  await pool.query(`ALTER TABLE scheduling_signup DROP CONSTRAINT IF EXISTS scheduling_signup_status_check`)
-  try {
-    await pool.query(`
-      ALTER TABLE scheduling_signup
-      ADD CONSTRAINT scheduling_signup_status_check
-      CHECK (status IN ('confirmed', 'waitlisted', 'cancelled', 'paused', 'completed'))
-    `)
-  } catch (err) {
-    if (!/already exists/i.test(String(err.message))) throw err
-  }
-  enrollmentLifecycleReady = true
+  const { ensureEnrollmentLifecycleColumns: ensure } = await import('./enrollmentLifecycle.js')
+  await ensure(pool)
 }
 
 export async function initSchedulingTables(pool) {

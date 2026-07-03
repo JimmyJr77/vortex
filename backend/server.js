@@ -2424,6 +2424,13 @@ const hasAdminPermission = async (userId, permission) => {
   return row?.base_allowed === true
 }
 
+const hasAnyAdminPermission = async (userId, permissions = []) => {
+  for (const permission of permissions) {
+    if (await hasAdminPermission(userId, permission)) return true
+  }
+  return false
+}
+
 const requireAdminPermission = (permission) => async (req, res, next) => {
   try {
     if (req.isMasterAdmin === true || await hasAdminPermission(req.adminId, permission)) return next()
@@ -2742,6 +2749,15 @@ app.options('*', (req, res) => {
 function legacyAdminPermissionFor(req) {
   const path = req.path
   const method = req.method
+  // Member-account enrollment mutations (accounts → enrollments tab).
+  if (
+    method !== 'GET' &&
+    (/\/scheduling\/enrollments\//.test(path) ||
+      /\/scheduling\/signups\/\d+\/discount/.test(path) ||
+      (method === 'PATCH' && /\/scheduling\/signups\/\d+$/.test(path)))
+  ) {
+    return ['members.edit', 'scheduling.manage']
+  }
   if (path.startsWith('/access')) return null
   if (path.startsWith('/admins')) return method === 'GET' && path === '/admins/me' ? null : 'admins.manage'
   if (path.startsWith('/members') || path.startsWith('/families') || path.startsWith('/users')) {
@@ -2784,8 +2800,18 @@ app.use('/api/admin', async (req, res, next) => {
   // Apply admin authentication to all other admin routes
   return authenticateAdmin(req, res, async () => {
     const permission = legacyAdminPermissionFor(req)
-    if (!permission || req.isMasterAdmin === true || await hasAdminPermission(req.adminId, permission)) return next()
-    return res.status(403).json({ success: false, message: `Missing permission: ${permission}` })
+    if (!permission) return next()
+    try {
+      const allowed = Array.isArray(permission)
+        ? await hasAnyAdminPermission(req.adminId, permission)
+        : await hasAdminPermission(req.adminId, permission)
+      if (req.isMasterAdmin === true || allowed) return next()
+      const label = Array.isArray(permission) ? permission.join(' or ') : permission
+      return res.status(403).json({ success: false, message: `Missing permission: ${label}` })
+    } catch (permErr) {
+      console.error('Admin permission check error:', permErr)
+      return res.status(500).json({ success: false, message: 'Permission check failed' })
+    }
   })
 })
 
@@ -2935,6 +2961,7 @@ app.get('/api/health', async (req, res) => {
       schedulingFreePasses: hasRegisteredRoute('/api/admin/scheduling/free-passes'),
       schedulingBenefitSelections: hasRegisteredRoute('/api/admin/scheduling/pricing-benefit-selections'),
       memberPricingSummary: hasRegisteredRoute('/api/admin/scheduling/members/:memberId/pricing-summary'),
+      memberEnrollments: hasRegisteredRoute('/api/admin/scheduling/members/:memberId/enrollments'),
       publicScheduling: hasRegisteredRoute('/api/scheduling/forms'),
       dbQueries: hasRegisteredRoute('/api/admin/db-queries/entities'),
       schools: hasRegisteredRoute('/api/admin/schools'),

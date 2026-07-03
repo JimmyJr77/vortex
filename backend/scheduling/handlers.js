@@ -28,7 +28,7 @@ import {
   safeReactivateSubscriptionForSource,
   safeSetSubscriptionPausedForSource,
 } from './billingSubscriptions.js'
-import { ensureEnrollmentLifecycleColumns } from './initTables.js'
+import { ensureEnrollmentLifecycleColumns, updateSignupLifecycleStatus } from './enrollmentLifecycle.js'
 import { buildAdminMemberEnrollments, autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
 import {
   persistMultiClassPassPurchaseCharge,
@@ -1664,6 +1664,11 @@ export function createSchedulingHandlers(pool) {
       const mode = req.body?.mode // 'manual' | 'rule' | 'clear'
       const client = await pool.connect()
       try {
+        try {
+          await ensureEnrollmentLifecycleColumns(pool)
+        } catch (schemaErr) {
+          console.warn('[scheduling] discount schema ensure:', schemaErr?.message ?? schemaErr)
+        }
         await client.query('BEGIN')
         const existing = await client.query(
           'SELECT * FROM scheduling_signup WHERE id = $1 FOR UPDATE',
@@ -1755,7 +1760,10 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         await client.query('ROLLBACK').catch(() => {})
         console.error('[scheduling] adminSetSignupDiscount:', err)
-        res.status(500).json({ success: false, message: 'Failed to apply discount' })
+        res.status(500).json({
+          success: false,
+          message: err?.message || 'Failed to apply discount',
+        })
       } finally {
         client.release()
       }
@@ -1769,7 +1777,11 @@ export function createSchedulingHandlers(pool) {
       const source = req.query?.source === 'member_program' ? 'member_program' : 'scheduling'
       const client = await pool.connect()
       try {
-        await ensureEnrollmentLifecycleColumns(pool)
+        try {
+          await ensureEnrollmentLifecycleColumns(pool)
+        } catch (schemaErr) {
+          console.warn('[scheduling] delete schema ensure:', schemaErr?.message ?? schemaErr)
+        }
         await client.query('BEGIN')
         if (source === 'member_program') {
           const del = await client.query('DELETE FROM member_program WHERE id = $1 RETURNING id', [id])
@@ -1808,7 +1820,10 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         await client.query('ROLLBACK').catch(() => {})
         console.error('[scheduling] adminDeleteEnrollment:', err)
-        res.status(500).json({ success: false, message: 'Failed to delete enrollment' })
+        res.status(500).json({
+          success: false,
+          message: err?.message || 'Failed to delete enrollment',
+        })
       } finally {
         client.release()
       }
@@ -3864,7 +3879,6 @@ export function createSchedulingHandlers(pool) {
 
     async updateSignupStatus(req, res) {
       try {
-        await ensureEnrollmentLifecycleColumns(pool)
         if (req.body.archived !== undefined) {
           const archived = Boolean(req.body.archived)
           const existing = await pool.query(
@@ -3900,6 +3914,12 @@ export function createSchedulingHandlers(pool) {
         const status = req.body.status
         if (!['confirmed', 'waitlisted', 'cancelled', 'paused', 'completed'].includes(status)) {
           return res.status(400).json({ success: false, message: 'Invalid status' })
+        }
+
+        try {
+          await ensureEnrollmentLifecycleColumns(pool)
+        } catch (schemaErr) {
+          console.warn('[scheduling] status schema ensure:', schemaErr?.message ?? schemaErr)
         }
 
         const client = await pool.connect()
@@ -3952,22 +3972,7 @@ export function createSchedulingHandlers(pool) {
               Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
           }
 
-          const result = await client.query(
-            `
-            UPDATE scheduling_signup
-            SET status = $1,
-                paused_at = CASE
-                  WHEN $1 = 'paused' THEN now()
-                  WHEN $1 IN ('confirmed', 'waitlisted') THEN NULL
-                  ELSE paused_at END,
-                completed_at = CASE
-                  WHEN $1 = 'completed' THEN now()
-                  WHEN $1 IN ('confirmed', 'waitlisted') THEN NULL
-                  ELSE completed_at END
-            WHERE id = $2 RETURNING *
-            `,
-            [targetStatus, req.params.id],
-          )
+          const result = await updateSignupLifecycleStatus(client, req.params.id, targetStatus)
           updatedRow = result.rows[0]
 
           // Freeing a confirmed spot (cancel/complete) can promote from the waitlist.
@@ -4051,7 +4056,10 @@ export function createSchedulingHandlers(pool) {
         res.json({ success: true, data: mapSignupRow(updatedRow, positions) })
       } catch (err) {
         console.error('[scheduling] updateSignupStatus:', err)
-        res.status(500).json({ success: false, message: 'Failed to update signup' })
+        res.status(500).json({
+          success: false,
+          message: err?.message || 'Failed to update signup',
+        })
       }
     },
 
