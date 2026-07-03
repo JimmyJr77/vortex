@@ -265,32 +265,45 @@ function mapSignupRowToLine(row, { familyId = null } = {}) {
   }
 }
 
+const FAMILY_PAID_LINES_SELECT = `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id,
+        bs.monthly_amount_cents,
+        bc.gross_amount_cents
+ FROM scheduling_signup s
+ JOIN member m ON m.id = s.member_id
+ JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+ LEFT JOIN billing_subscription bs
+   ON bs.source_type = 'scheduling_signup'
+  AND bs.source_id = s.id::text
+  AND bs.status IN ('active', 'paused')
+ LEFT JOIN LATERAL (
+   SELECT gross_amount_cents
+   FROM billing_charge
+   WHERE source_type = 'scheduling_signup'
+     AND source_id = s.id::text
+   ORDER BY id DESC
+   LIMIT 1
+ ) bc ON TRUE
+ WHERE m.family_id = $1
+   AND s.status = 'confirmed'
+   AND s.orphaned_at IS NULL`
+
+// Environments without migration 053 lack billing_subscription / gross_amount_cents.
+const FAMILY_PAID_LINES_SELECT_BASIC = `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id
+ FROM scheduling_signup s
+ JOIN member m ON m.id = s.member_id
+ JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+ WHERE m.family_id = $1
+   AND s.status = 'confirmed'
+   AND s.orphaned_at IS NULL`
+
 export async function loadFamilyDbPaidLines(pool, familyId) {
   if (!familyId) return []
-  const res = await pool.query(
-    `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id,
-            bs.monthly_amount_cents,
-            bc.gross_amount_cents
-     FROM scheduling_signup s
-     JOIN member m ON m.id = s.member_id
-     JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
-     LEFT JOIN billing_subscription bs
-       ON bs.source_type = 'scheduling_signup'
-      AND bs.source_id = s.id::text
-      AND bs.status IN ('active', 'paused')
-     LEFT JOIN LATERAL (
-       SELECT gross_amount_cents
-       FROM billing_charge
-       WHERE source_type = 'scheduling_signup'
-         AND source_id = s.id::text
-       ORDER BY id DESC
-       LIMIT 1
-     ) bc ON TRUE
-     WHERE m.family_id = $1
-       AND s.status = 'confirmed'
-       AND s.orphaned_at IS NULL`,
-    [familyId],
-  )
+  let res
+  try {
+    res = await pool.query(FAMILY_PAID_LINES_SELECT, [familyId])
+  } catch {
+    res = await pool.query(FAMILY_PAID_LINES_SELECT_BASIC, [familyId])
+  }
   const lines = []
   for (const row of res.rows) {
     const line = mapSignupRowToLine(row, { familyId })
@@ -299,32 +312,44 @@ export async function loadFamilyDbPaidLines(pool, familyId) {
   return lines
 }
 
+const MEMBER_PAID_LINES_SELECT = `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id,
+        bs.monthly_amount_cents,
+        bc.gross_amount_cents
+ FROM scheduling_signup s
+ JOIN member m ON m.id = s.member_id
+ JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+ LEFT JOIN billing_subscription bs
+   ON bs.source_type = 'scheduling_signup'
+  AND bs.source_id = s.id::text
+  AND bs.status IN ('active', 'paused')
+ LEFT JOIN LATERAL (
+   SELECT gross_amount_cents
+   FROM billing_charge
+   WHERE source_type = 'scheduling_signup'
+     AND source_id = s.id::text
+   ORDER BY id DESC
+   LIMIT 1
+ ) bc ON TRUE
+ WHERE s.member_id = $1
+   AND s.status = 'confirmed'
+   AND s.orphaned_at IS NULL`
+
+const MEMBER_PAID_LINES_SELECT_BASIC = `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id
+ FROM scheduling_signup s
+ JOIN member m ON m.id = s.member_id
+ JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+ WHERE s.member_id = $1
+   AND s.status = 'confirmed'
+   AND s.orphaned_at IS NULL`
+
 export async function loadMemberDbPaidLines(pool, memberId) {
   if (!memberId) return []
-  const res = await pool.query(
-    `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id,
-            bs.monthly_amount_cents,
-            bc.gross_amount_cents
-     FROM scheduling_signup s
-     JOIN member m ON m.id = s.member_id
-     JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
-     LEFT JOIN billing_subscription bs
-       ON bs.source_type = 'scheduling_signup'
-      AND bs.source_id = s.id::text
-      AND bs.status IN ('active', 'paused')
-     LEFT JOIN LATERAL (
-       SELECT gross_amount_cents
-       FROM billing_charge
-       WHERE source_type = 'scheduling_signup'
-         AND source_id = s.id::text
-       ORDER BY id DESC
-       LIMIT 1
-     ) bc ON TRUE
-     WHERE s.member_id = $1
-       AND s.status = 'confirmed'
-       AND s.orphaned_at IS NULL`,
-    [memberId],
-  )
+  let res
+  try {
+    res = await pool.query(MEMBER_PAID_LINES_SELECT, [memberId])
+  } catch {
+    res = await pool.query(MEMBER_PAID_LINES_SELECT_BASIC, [memberId])
+  }
   const lines = []
   for (const row of res.rows) {
     const line = mapSignupRowToLine(row)
@@ -684,22 +709,32 @@ function tierRewardLabel(tier) {
   return `${formatCentsShort(tier.amountValue)} discount`
 }
 
+function tierRewardShort(tier) {
+  if (tier.amountType === 'percent') {
+    const pct = Number((Number(tier.amountValue) / 100).toFixed(2))
+    return `${pct}%`
+  }
+  return formatCentsShort(tier.amountValue)
+}
+
 function classesPhrase(count) {
   return `${count} ${count === 1 ? 'Class' : 'Classes'}`
 }
 
-/** e.g. "3 Classes and $600" for the spend tier the account qualified for. */
+/** e.g. "25% off for a minimum of 3 Classes and $600" for the spend tier that applied. */
 export function spendTierQualificationLabel(tier) {
   const spend = formatCentsShort(tier.threshold)
   const minClasses = tier.minPaidEnrollments != null ? Number(tier.minPaidEnrollments) : 0
-  return minClasses > 0 ? `${classesPhrase(minClasses)} and ${spend}` : spend
+  const requirement = minClasses > 0 ? `${classesPhrase(minClasses)} and ${spend}` : spend
+  return `${tierRewardShort(tier)} off for a minimum of ${requirement}`
 }
 
-/** e.g. "3 Classes and $299" for the multi-class tier the account qualified for. */
+/** e.g. "15% off for a minimum of 3 Classes and $299" for the multi-class tier that applied. */
 export function multiClassTierQualificationLabel(tier) {
   const label = classesPhrase(Number(tier.threshold))
   const minMonthly = tier.minMonthlyCents != null ? Number(tier.minMonthlyCents) : 0
-  return minMonthly > 0 ? `${label} and ${formatCentsShort(minMonthly)}` : label
+  const requirement = minMonthly > 0 ? `${label} and ${formatCentsShort(minMonthly)}` : label
+  return `${tierRewardShort(tier)} off for a minimum of ${requirement}`
 }
 
 /**

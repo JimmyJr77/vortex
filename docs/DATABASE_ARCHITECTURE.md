@@ -396,6 +396,7 @@ The "class category" (scheduling-category) concept was fully removed: classes no
 
 | Item | Issue | Action |
 |------|--------|--------|
+| `053_billing_recurring_model.sql` not applied in production | Prod (Render) lacks `billing_subscription` and `billing_charge.gross_amount_cents`/`charge_type` as of 2026-07-03 (verified via information_schema), despite §"Recurring billing model" saying it applies on boot. Any SQL joining these objects **throws** on prod — this silently broke family-spend discount stats (swallowed by a best-effort catch, producing cart-only tiers). [systemDiscounts.js](../backend/scheduling/systemDiscounts.js) now falls back to a billing-free query. | Run `migrate:all` on prod or confirm `initPlatformTables` applies `053`; then the fallback SELECTs in `loadFamilyDbPaidLines`/`loadMemberDbPaidLines` become dead code (candidate for removal). Verify: `SELECT to_regclass('billing_subscription');` |
 | `030_coach_class_scheduling_form.sql` | Not in [initPlatformTables](../backend/platform/initTables.js) list until recently | Also applied via `ensureCoachClassAssignmentSchema()` at boot — add to init list or keep single ensure path. |
 | Duplicate DDL for `001`–`005` | Inline in `initDatabase()` **and** numbered migrations | When editing core tables, update **both** or consolidate long-term. |
 | `006` / `007` not boot-applied | Athlete-status triggers, legacy drops | Run `npm run migrate:all` on each environment so ledger matches reality. |

@@ -33,29 +33,61 @@ export default function OrderPricingSummary({
     preview.freePasses?.enabled && preview.freePasses.totalCreditCents > 0
       ? preview.freePasses.totalCreditCents / 100
       : 0
-  const engineDiscountLines = preview.discounts?.enabled
-    ? preview.discounts.lines.flatMap((line) =>
-        line.applied.map((applied, i) => ({
-          key: `${line.key}-${i}`,
-          name: applied.name,
-          amount: applied.amountCents / 100,
-          qualifiedLabel: applied.qualifiedLabel ?? null,
-          nextTierHint: applied.nextTierHint ?? null,
-        })),
+  const engineDiscountRows = (() => {
+    if (!preview.discounts?.enabled) return []
+    type Row = {
+      key: string
+      name: string
+      amount: number
+      qualifiedLabel: string | null
+      nextTierHint: string | null
+    }
+    const grouped = new Map<string, Row>()
+    const add = (
+      groupKey: string,
+      name: string,
+      amountCents: number,
+      qualifiedLabel?: string | null,
+      nextTierHint?: string | null,
+    ) => {
+      const existing = grouped.get(groupKey)
+      if (existing) {
+        existing.amount += amountCents / 100
+        if (!existing.qualifiedLabel && qualifiedLabel) existing.qualifiedLabel = qualifiedLabel
+        if (!existing.nextTierHint && nextTierHint) existing.nextTierHint = nextTierHint
+      } else {
+        grouped.set(groupKey, {
+          key: groupKey,
+          name,
+          amount: amountCents / 100,
+          qualifiedLabel: qualifiedLabel ?? null,
+          nextTierHint: nextTierHint ?? null,
+        })
+      }
+    }
+    for (const line of preview.discounts.lines) {
+      for (const applied of line.applied) {
+        add(
+          `rule-${applied.ruleId}`,
+          applied.name,
+          applied.amountCents,
+          applied.qualifiedLabel,
+          applied.nextTierHint,
+        )
+      }
+    }
+    preview.discounts.orderDiscounts.forEach((d, i) => {
+      add(
+        d.ruleId != null ? `rule-${d.ruleId}` : `order-${i}`,
+        d.name,
+        d.amountCents,
+        d.qualifiedLabel,
+        d.nextTierHint,
       )
-    : []
-  const orderDiscountLines = preview.discounts?.enabled
-    ? preview.discounts.orderDiscounts.map((d, i) => ({
-        key: `order-${i}`,
-        name: d.name,
-        amount: d.amountCents / 100,
-        qualifiedLabel: d.qualifiedLabel ?? null,
-        nextTierHint: d.nextTierHint ?? null,
-      }))
-    : []
-  const engineDiscountMonthly =
-    engineDiscountLines.reduce((sum, d) => sum + d.amount, 0) +
-    orderDiscountLines.reduce((sum, d) => sum + d.amount, 0)
+    })
+    return [...grouped.values()]
+  })()
+  const engineDiscountMonthly = engineDiscountRows.reduce((sum, d) => sum + d.amount, 0)
   const totalDiscounts = passCreditMonthly + engineDiscountMonthly
 
   const weeklyTierNotes = preview.formSummaries.filter(
@@ -207,21 +239,7 @@ export default function OrderPricingSummary({
                   <span>-{formatMoney(item.creditCents / 100)}/mo</span>
                 </li>
               ))}
-            {engineDiscountLines.map((d) => (
-              <li key={d.key} className="text-green-800">
-                <div className="flex justify-between">
-                  <span>
-                    {d.name}
-                    {d.qualifiedLabel ? ` (${d.qualifiedLabel})` : ''}
-                  </span>
-                  <span>-{formatMoney(d.amount)}</span>
-                </div>
-                {d.nextTierHint && (
-                  <p className="mt-0.5 text-xs text-green-700">{d.nextTierHint}</p>
-                )}
-              </li>
-            ))}
-            {orderDiscountLines.map((d) => (
+            {engineDiscountRows.map((d) => (
               <li key={d.key} className="text-green-800">
                 <div className="flex justify-between">
                   <span>

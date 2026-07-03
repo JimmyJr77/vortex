@@ -98,7 +98,7 @@ test('1 existing + 3 new classes at $150 each gets 25% of $600 = $150', () => {
   const d = result.orderDiscounts[0]
   assert.equal(d.amountCents, 15000)
   assert.equal(d.name, 'Family multi-class spend discount')
-  assert.equal(d.qualifiedLabel, '3 Classes and $600')
+  assert.equal(d.qualifiedLabel, '25% off for a minimum of 3 Classes and $600')
   assert.equal(d.nextTierHint, '$150 more will unlock a 30% discount.')
 })
 
@@ -131,16 +131,24 @@ test('2 classes at $300 total gets 15% and hint requires 1 more class at $150', 
 
   assert.equal(result.totalDiscountCents, 4500)
   const d = result.orderDiscounts[0]
-  assert.equal(d.qualifiedLabel, '2 Classes and $300')
+  assert.equal(d.qualifiedLabel, '15% off for a minimum of 2 Classes and $300')
   assert.equal(d.nextTierHint, '1 more class at $150 or more will unlock a 20% discount.')
 })
 
-test('spendTierQualificationLabel formats classes and spend', () => {
+test('spendTierQualificationLabel includes reward and minimums', () => {
   assert.equal(
-    spendTierQualificationLabel({ threshold: 60000, minPaidEnrollments: 3 }),
-    '3 Classes and $600',
+    spendTierQualificationLabel({
+      threshold: 60000,
+      minPaidEnrollments: 3,
+      amountType: 'percent',
+      amountValue: 2500,
+    }),
+    '25% off for a minimum of 3 Classes and $600',
   )
-  assert.equal(spendTierQualificationLabel({ threshold: 15000 }), '$150')
+  assert.equal(
+    spendTierQualificationLabel({ threshold: 15000, amountType: 'percent', amountValue: 500 }),
+    '5% off for a minimum of $150',
+  )
 })
 
 test('nextSpendTierHint omits class requirement when count already met', () => {

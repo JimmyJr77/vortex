@@ -1223,8 +1223,10 @@ export async function computeDiscountLayer(
           lines.push(shadow)
         }
       }
-    } catch {
-      // Account discount context is best-effort.
+    } catch (err) {
+      // Account discount context is best-effort, but silent failures previously hid
+      // real bugs (missing billing columns) and produced cart-only tier stats.
+      console.warn('[scheduling] account discount stats unavailable:', err?.message ?? err)
     }
   }
 
