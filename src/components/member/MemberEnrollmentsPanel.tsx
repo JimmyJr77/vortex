@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Calendar, Loader2, UserMinus, X, Zap } from 'lucide-react'
-import { enrollmentClassHeading, enrichEnrollmentsFromClassesOffered } from '../../utils/enrollmentDisplayLine'
+import { enrollmentClassHeading, enrichEnrollmentsFromClassesOffered, memberEnrollmentCancelHeading } from '../../utils/enrollmentDisplayLine'
 import { memberCancelEnrollment } from '../../utils/schedulingApi'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
 
@@ -225,18 +225,17 @@ function MemberEnrollmentActionModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div
-        className="w-full max-w-md rounded-xl bg-white shadow-xl"
+        className="w-full max-w-lg rounded-xl bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4">
-          <div>
-            <div className="text-sm font-semibold text-gray-900">{row.class_name || 'Enrollment'}</div>
-            <div className="text-xs text-gray-500">
-              {[row.program_name, row.slot_label].filter(Boolean).join(' · ') || '—'}
-            </div>
-            <div className="text-xs text-gray-500 mt-0.5">
+        <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4 gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-900 leading-snug">
+              {memberEnrollmentCancelHeading(row)}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
               {memberDisplayName(row)}
-            </div>
+            </p>
           </div>
           <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700">
             <X className="w-5 h-5" />

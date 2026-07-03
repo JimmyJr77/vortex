@@ -111,3 +111,26 @@ export function enrollmentDisplayLine(item: Pick<
   if (className && item.slotLabel) return `${className} · ${item.slotLabel}`
   return className || item.slotLabel || 'Class'
 }
+
+/** Modal heading for member enrollment cancellation: sport through schedule. */
+export function memberEnrollmentCancelHeading(row: {
+  sport_name?: string | null
+  program_name?: string | null
+  class_name?: string | null
+  offering_label?: string | null
+  offering_dates?: string | null
+  slot_label?: string | null
+  class_context_line?: string | null
+}): string {
+  const offering = row.offering_label?.trim() || row.offering_dates?.trim() || null
+  const parts = [
+    row.sport_name,
+    row.program_name,
+    row.class_name,
+    offering,
+    row.slot_label,
+  ].filter((part) => part != null && String(part).trim() !== '')
+  if (parts.length > 0) return parts.join(' · ')
+  if (row.class_context_line?.trim()) return row.class_context_line.trim()
+  return row.class_name?.trim() || 'Enrollment'
+}
