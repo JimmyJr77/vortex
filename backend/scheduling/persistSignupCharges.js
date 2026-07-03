@@ -182,7 +182,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
     }
 
     // Skip only when there is nothing to charge (e.g. waitlisted/free). Future-start
-    // classes still owe their prorated first service month at checkout.
+    // classes bill the full month on the 1st of their service month — no tuition now.
     if (chargeNet <= 0) continue
 
     const result = await pool.query(

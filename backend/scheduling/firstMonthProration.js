@@ -158,11 +158,14 @@ export function prorationForLine(calendarRows, { slotGroupId, timeSlotId = null,
   }
 
   const firstServiceMonthStart = firstOfMonth(firstDate)
+  const classStartsFutureMonth = firstServiceMonthStart > signupMonthStart
   return {
     remainingClasses: firstMonthRemaining,
     ratio: Math.min(firstMonthRemaining, CLASSES_PER_MONTH) / CLASSES_PER_MONTH,
-    classStartsFutureMonth: firstServiceMonthStart > signupMonthStart,
-    firstBillDate: firstOfNextMonth(firstDate),
+    classStartsFutureMonth,
+    // Future-start enrollments bill the full month on the 1st of the service month;
+    // ongoing mid-month signups bill the prorated remainder now and renew on the next 1st.
+    firstBillDate: classStartsFutureMonth ? firstServiceMonthStart : firstOfNextMonth(fromDate),
     firstServicePeriodStart: firstDate,
     firstServicePeriodEnd: firstMonthEnd,
   }

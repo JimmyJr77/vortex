@@ -266,6 +266,8 @@ export interface CarriedForwardLineItem {
 export interface CarriedForwardBreakdown {
   enabled: boolean
   items: CarriedForwardLineItem[]
+  creditsCents: number
+  debitsCents: number
   totalCents: number
 }
 

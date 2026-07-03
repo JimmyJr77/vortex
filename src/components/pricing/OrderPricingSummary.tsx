@@ -34,10 +34,16 @@ function firstMonthProrationDetail(item: NonNullable<SignupOrderPreview['firstMo
   }
   const classCount = Math.min(item.remainingClasses, item.classesPerMonth)
   const classPhrase = `${classCount} of ${item.classesPerMonth} classes`
-  if (item.classStartsFutureMonth && item.firstServicePeriodStart) {
-    const monthLabel = formatMonthYear(item.firstServicePeriodStart)
-    const recurringStart = formatMonthDay(item.firstBillDate)
-    return `${classPhrase} in ${monthLabel} · recurring billing starts ${recurringStart}`
+  if (item.classStartsFutureMonth && item.firstBillDate) {
+    const monthLabel = item.firstServicePeriodStart
+      ? formatMonthYear(item.firstServicePeriodStart)
+      : formatMonthYear(item.firstBillDate)
+    const billStart = formatMonthDay(item.firstBillDate)
+    const monthlyRate = formatMoney(item.monthlyNetCents / 100)
+    if (item.proratedCents <= 0) {
+      return `${classPhrase} in ${monthLabel} · full month (${monthlyRate}) billed ${billStart}`
+    }
+    return `${classPhrase} in ${monthLabel} · recurring billing starts ${billStart}`
   }
   return `${classPhrase} remaining this month`
 }
@@ -46,7 +52,7 @@ function firstMonthProrationDetail(item: NonNullable<SignupOrderPreview['firstMo
  * Renders a prices/discounts/fees breakdown for a scheduling order preview.
  * Layout: existing classes → new classes → monthly subtotal → discounts →
  * current billing cycle (fees + prorated accounts) → carried forward debits/credits →
- * final monthly total.
+ * final monthly total → due now.
  */
 export default function OrderPricingSummary({
   preview,
@@ -133,13 +139,27 @@ export default function OrderPricingSummary({
   )
 
   const firstMonth = preview.firstMonth?.enabled ? preview.firstMonth : null
-  const carriedForward = preview.carriedForward?.enabled ? preview.carriedForward : null
+  const carriedForward = preview.carriedForward ?? {
+    enabled: true,
+    items: [],
+    creditsCents: 0,
+    debitsCents: 0,
+    totalCents: 0,
+  }
 
   const hasAdditionalFees =
     preview.additionalFees?.enabled && (preview.additionalFees.items.length ?? 0) > 0
   const hasProratedAccounts = Boolean(firstMonth?.items.length)
   const currentCycleDueCents =
     Math.round((preview.additionalFeesOneTime ?? 0) * 100) + (firstMonth?.totalCents ?? 0)
+  const additionalFeesOneTime = preview.additionalFeesOneTime ?? 0
+  const proratedDueNow = (firstMonth?.totalCents ?? 0) / 100
+  const dueNowBreakdown = (() => {
+    const parts: string[] = []
+    if (additionalFeesOneTime > 0) parts.push(`${formatMoney(additionalFeesOneTime)} fees`)
+    if (proratedDueNow > 0) parts.push(`${formatMoney(proratedDueNow)} prorated accounts`)
+    return parts.join(' + ')
+  })()
   const showCurrentBillingCycle =
     variant === 'review' && (hasAdditionalFees || hasProratedAccounts)
 
@@ -163,7 +183,7 @@ export default function OrderPricingSummary({
             {preview.existingClasses.map((item) => (
               <li
                 key={item.id ?? `${item.formId}-${item.slotLabel}`}
-                className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm text-gray-700"
+                className="flex items-start justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700"
               >
                 <div className="min-w-0">
                   <p className="font-semibold text-black leading-snug">
@@ -199,7 +219,7 @@ export default function OrderPricingSummary({
               {preview.newSignups.map((item) => (
                 <li
                   key={item.slotKey ?? `${item.formId}-${item.slotLabel}`}
-                  className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2"
+                  className="flex items-start justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2"
                 >
                   <div className="min-w-0">
                     <p className="font-semibold text-black leading-snug">
@@ -242,7 +262,7 @@ export default function OrderPricingSummary({
                 {preview.passPurchases.map((item) => (
                   <li
                     key={`${item.programsId}-${item.packageId}`}
-                    className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-white px-3 py-2"
+                    className="flex items-start justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2"
                   >
                     <div>
                       <p className="font-semibold text-black">{item.label}</p>
@@ -343,13 +363,15 @@ export default function OrderPricingSummary({
             {hasProratedAccounts && (
               <section>
                 <h6 className="text-xs font-semibold uppercase tracking-wide text-amber-900 mb-2">
-                  Prorated accounts
+                  {firstMonth!.items.some((item) => item.proratedCents > 0)
+                    ? 'Prorated accounts'
+                    : 'Upcoming class billing'}
                 </h6>
                 <ul className="space-y-2">
                   {firstMonth!.items.map((item) => (
                     <li
                       key={item.slotKey}
-                      className="rounded-lg border border-amber-100 bg-white px-3 py-2 text-amber-950"
+                      className="rounded-lg border border-amber-200 px-3 py-2 text-amber-950"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <p className="min-w-0 font-semibold leading-snug">
@@ -376,60 +398,100 @@ export default function OrderPricingSummary({
         </div>
       )}
 
-      {carriedForward && variant === 'review' && (
+      {variant === 'review' && (
         <div className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-4 text-sm">
           <h5 className={`font-semibold text-violet-950 ${compact ? 'text-sm' : 'text-base'}`}>
-            Carried forward debits/credits
+            Debits/Credits carried forward
           </h5>
           <p className="mt-0.5 mb-3 text-xs text-violet-800">
             Adjustments from pauses and other account activity that apply to upcoming billing
             periods.
           </p>
-          <ul className="space-y-2">
-            {carriedForward.items.map((item) => (
-              <li
-                key={item.key}
-                className="rounded-lg border border-violet-100 bg-white px-3 py-2 text-violet-950"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-semibold leading-snug">{item.label}</p>
-                    {item.detail && (
-                      <p className="mt-0.5 text-xs text-violet-800">{item.detail}</p>
-                    )}
-                  </div>
-                  <p className="shrink-0 text-right font-semibold">
-                    {formatSignedMoney(item.amountCents)}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-3 pt-3 border-t border-violet-200 flex justify-between font-semibold text-violet-950">
-            <span>Net carried forward</span>
-            <span>{formatSignedMoney(carriedForward.totalCents)}</span>
+          <div className="space-y-1 rounded-lg border border-violet-200 px-3 py-2 text-violet-950">
+            <div className="flex justify-between">
+              <span>Credits</span>
+              <span className="font-semibold">
+                {formatMoney((carriedForward.creditsCents ?? 0) / 100)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Debits</span>
+              <span className="font-semibold">
+                {formatMoney((carriedForward.debitsCents ?? 0) / 100)}
+              </span>
+            </div>
           </div>
+          {carriedForward.items.length > 0 && (
+            <ul className="mt-3 space-y-2">
+              {carriedForward.items.map((item) => (
+                <li
+                  key={item.key}
+                  className="rounded-lg border border-violet-200 px-3 py-2 text-violet-950"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold leading-snug">{item.label}</p>
+                      {item.detail && (
+                        <p className="mt-0.5 text-xs text-violet-800">{item.detail}</p>
+                      )}
+                    </div>
+                    <p className="shrink-0 text-right font-semibold">
+                      {formatSignedMoney(item.amountCents)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          {carriedForward.items.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-violet-200 flex justify-between font-semibold text-violet-950">
+              <span>Net carried forward</span>
+              <span>{formatSignedMoney(carriedForward.totalCents)}</span>
+            </div>
+          )}
         </div>
       )}
 
       {!emphasizeCombinedTotal && (
-        <div className="rounded-xl border-2 border-black bg-white px-4 py-3 flex items-center justify-between">
-          <div>
-            <p className={`font-display font-bold text-black ${compact ? 'text-base' : 'text-lg'}`}>
-              New monthly total
-            </p>
-            <p className="text-xs text-gray-600">
-              {formatMoney(monthlySubtotal)} subtotal
-              {totalDiscounts > 0 ? ` − ${formatMoney(totalDiscounts)} discounts` : ''}
-              {(preview.additionalFeesMonthly ?? 0) > 0
-                ? ` + ${formatMoney(preview.additionalFeesMonthly ?? 0)} fees`
-                : ''}
+        <>
+          <div className="rounded-xl border-2 border-black bg-white px-4 py-3 flex items-center justify-between">
+            <div>
+              <p className={`font-display font-bold text-black ${compact ? 'text-base' : 'text-lg'}`}>
+                New monthly total
+              </p>
+              <p className="text-xs text-gray-600">
+                {formatMoney(monthlySubtotal)} subtotal
+                {totalDiscounts > 0 ? ` − ${formatMoney(totalDiscounts)} discounts` : ''}
+                {(preview.additionalFeesMonthly ?? 0) > 0
+                  ? ` + ${formatMoney(preview.additionalFeesMonthly ?? 0)} fees`
+                  : ''}
+              </p>
+            </div>
+            <p className={`font-display font-bold text-black ${compact ? 'text-xl' : 'text-2xl'}`}>
+              {formatMoney(preview.estimatedMonthlyTotal)}/mo
             </p>
           </div>
-          <p className={`font-display font-bold text-black ${compact ? 'text-xl' : 'text-2xl'}`}>
-            {formatMoney(preview.estimatedMonthlyTotal)}/mo
-          </p>
-        </div>
+
+          <div>
+            <div className="rounded-xl border-2 border-black bg-white px-4 py-3 flex items-center justify-between">
+              <div>
+                <p className={`font-display font-bold text-black ${compact ? 'text-base' : 'text-lg'}`}>
+                  Due Now
+                </p>
+                {dueNowBreakdown && (
+                  <p className="text-xs text-gray-600">{dueNowBreakdown}</p>
+                )}
+              </div>
+              <p className={`font-display font-bold text-black ${compact ? 'text-xl' : 'text-2xl'}`}>
+                {formatMoney(currentCycleDueCents / 100)}
+              </p>
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Enrollment fees paid to hold registration will be applied to the first month of
+              enrollment.
+            </p>
+          </div>
+        </>
       )}
 
       <p className="text-xs text-gray-500 italic">{preview.disclaimer}</p>

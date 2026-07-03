@@ -400,8 +400,23 @@ export async function applyPendingPauseCredits(pool, { periodStart }) {
  * Pending debits/credits that carry forward to a future billing period (e.g. mid-month
  * pause proration credits). Shown at checkout so families see what will hit next month.
  */
+function carriedForwardTotals(items) {
+  let creditsCents = 0
+  let debitsCents = 0
+  for (const item of items) {
+    const cents = Math.round(Number(item.amountCents) || 0)
+    if (cents < 0) creditsCents += Math.abs(cents)
+    else if (cents > 0) debitsCents += cents
+  }
+  return {
+    creditsCents,
+    debitsCents,
+    totalCents: debitsCents - creditsCents,
+  }
+}
+
 export async function computeCarriedForwardLayer(pool, { memberId, asOfDate = null }) {
-  const empty = { enabled: false, items: [], totalCents: 0 }
+  const empty = { enabled: true, items: [], creditsCents: 0, debitsCents: 0, totalCents: 0 }
   if (memberId == null) return empty
 
   const famRes = await pool.query(`SELECT family_id FROM member WHERE id = $1`, [memberId])
@@ -462,9 +477,7 @@ export async function computeCarriedForwardLayer(pool, { memberId, asOfDate = nu
     console.warn('[pauseBilling] carried forward preview:', err?.message ?? err)
   }
 
-  if (!items.length) return empty
-  const totalCents = items.reduce((sum, item) => sum + item.amountCents, 0)
-  return { enabled: true, items, totalCents }
+  return { enabled: true, items, ...carriedForwardTotals(items) }
 }
 
 /**

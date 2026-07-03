@@ -95,17 +95,16 @@ test('prorationForLine caps 5-session months at full price', () => {
   assert.equal(result.ratio, 1)
 })
 
-test('prorationForLine: class starting next month → prorates first service month, due at signup', () => {
+test('prorationForLine: class starting next month → full month billed on service-month 1st', () => {
   const rows = [slotRow({ offering_start_date: '2026-09-01', offering_end_date: '2026-12-31' })]
   const result = prorationForLine(rows, { slotGroupId: 2, timeSlotId: 3, fromDate: '2026-07-08' })
   // September 2026 Mondays on/after offering start: 7, 14, 21, 28
   assert.equal(result.remainingClasses, 4)
   assert.equal(result.ratio, 1)
   assert.equal(result.classStartsFutureMonth, true)
-  assert.equal(result.firstBillDate, '2026-10-01')
+  assert.equal(result.firstBillDate, '2026-09-01')
   assert.equal(result.firstServicePeriodStart, '2026-09-07')
   assert.equal(result.firstServicePeriodEnd, '2026-09-30')
-  assert.equal(Math.round(15000 * result.ratio), 15000)
 })
 
 test('prorationForLine: mid-month start in signup month uses remaining sessions', () => {
@@ -140,6 +139,85 @@ function fakeCalendarPool(rows) {
     },
   }
 }
+
+test('computeFirstMonthLayer allocates household discount across full account', async () => {
+  const pool = fakeCalendarPool([slotRow()])
+  const shadows = [1, 2, 3, 4, 5].map((id) => ({
+    signupId: id,
+    baseCents: 15000,
+    finalCents: 15000,
+    discountCents: 0,
+    applied: [],
+  }))
+  const slotKeys = ['1:2:3', '1:2:4', '1:2:5']
+  const cartLines = slotKeys.map((key) => ({
+    key,
+    baseCents: 15000,
+    finalCents: 15000,
+    discountCents: 0,
+    applied: [],
+  }))
+  const layer = await computeFirstMonthLayer(pool, {
+    newSignupItems: slotKeys.map((slotKey) => ({
+      slotKey,
+      formId: 1,
+      formTitle: 'Cyclones',
+      slotGroupId: 2,
+      timeSlotId: 3,
+      lineType: 'slot',
+      billingType: 'recurring',
+      incrementalMonthly: 150,
+    })),
+    discounts: {
+      enabled: true,
+      lines: cartLines,
+      accountLines: shadows,
+      orderDiscounts: [{ amountCents: 42000 }], // 35% of $1,200 household
+    },
+    asOfDate: '2026-07-08',
+  })
+
+  assert.equal(layer.items.length, 3)
+  for (const item of layer.items) {
+    // $150 − ($420 × $150/$1,200) = $97.50; prorated 3/4 of July → $73.13
+    assert.equal(item.monthlyNetCents, 9750)
+    assert.equal(item.proratedCents, Math.round(9750 * 0.75))
+  }
+})
+
+test('computeFirstMonthLayer defers future-start classes to the service-month 1st', async () => {
+  const pool = fakeCalendarPool([
+    slotRow({ offering_start_date: '2026-09-01', offering_end_date: '2027-06-15' }),
+  ])
+  const slotKey = '1:2:3'
+  const layer = await computeFirstMonthLayer(pool, {
+    newSignupItems: [
+      {
+        slotKey,
+        formId: 1,
+        formTitle: 'Cyclones',
+        slotGroupId: 2,
+        timeSlotId: 3,
+        lineType: 'slot',
+        billingType: 'recurring',
+        incrementalMonthly: 150,
+      },
+    ],
+    discounts: {
+      enabled: true,
+      lines: [{ key: slotKey, baseCents: 15000, finalCents: 15000, applied: [] }],
+      orderDiscounts: [{ amountCents: 3750 }],
+    },
+    asOfDate: '2026-07-08',
+  })
+
+  const item = layer.items[0]
+  assert.equal(item.classStartsFutureMonth, true)
+  assert.equal(item.firstBillDate, '2026-09-01')
+  assert.equal(item.monthlyNetCents, 11250)
+  assert.equal(item.proratedCents, 0)
+  assert.equal(layer.totalCents, 0)
+})
 
 test('computeFirstMonthLayer prorates the discounted net (household 25% off)', async () => {
   const pool = fakeCalendarPool([slotRow()])
@@ -288,7 +366,7 @@ test('persistSignupCharges posts the prorated first charge and prorated order cr
   assert.equal(creditParams[3], -(11250 - 8438))
 })
 
-test('persistSignupCharges posts prorated charge for future-start classes at checkout', async () => {
+test('persistSignupCharges defers future-start tuition to the service-month 1st', async () => {
   const pool = fakeBillingPool()
   const slotKey = '1:4:5'
   const preview = {
@@ -306,14 +384,14 @@ test('persistSignupCharges posts prorated charge for future-start classes at che
           ratio: 1,
           remainingClasses: 4,
           monthlyNetCents: 10000,
-          proratedCents: 10000,
+          proratedCents: 0,
           classStartsFutureMonth: true,
-          firstBillDate: '2026-10-01',
+          firstBillDate: '2026-09-01',
           firstServicePeriodStart: '2026-09-07',
           firstServicePeriodEnd: '2026-09-30',
         },
       ],
-      totalCents: 10000,
+      totalCents: 0,
     },
   }
 
@@ -324,10 +402,8 @@ test('persistSignupCharges posts prorated charge for future-start classes at che
   })
 
   assert.equal(result.subscriptions, 1)
-  assert.equal(result.charges, 1)
-  assert.equal(pool.calls.charges[0][4], 10000)
-  assert.equal(pool.calls.charges[0][10], '2026-09-07')
-  assert.equal(pool.calls.charges[0][11], '2026-09-30')
+  assert.equal(result.charges, 0)
+  assert.equal(pool.calls.subscriptions[0][10], '2026-09-01') // next_bill_date
 })
 
 test('pauseCreditForLine awards prorated credit for remaining sessions after pause', () => {

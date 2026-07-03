@@ -916,7 +916,13 @@ export async function buildSignupOrderPreview(
   const additionalFeesOneTime = (additionalFees.totalOneTimeCents ?? 0) / 100
   const engineDiscountMonthly = discounts.enabled ? (discounts.totalDiscountCents ?? 0) / 100 : 0
 
-  let carriedForward = { enabled: false, items: [], totalCents: 0 }
+  let carriedForward = {
+    enabled: true,
+    items: [],
+    creditsCents: 0,
+    debitsCents: 0,
+    totalCents: 0,
+  }
   if (memberId != null) {
     try {
       const { computeCarriedForwardLayer } = await import('./pauseEnrollmentBilling.js')
@@ -1095,11 +1101,10 @@ export async function computeFreePassLayer(
 }
 
 /**
- * First-month proration layer. Billing renews on the 1st, so the first month is
- * charged at netMonthly * min(remainingSessions, CLASSES_PER_MONTH) / CLASSES_PER_MONTH
- * based on the class's real remaining occurrences in the signup month. Classes with
- * no sessions left this month owe $0 now and start billing on the 1st of their
- * start month.
+ * First-month proration layer. Billing renews on the 1st. Ongoing classes (sessions
+ * remain in the signup month) owe a prorated amount now. Classes that have not started
+ * yet owe $0 at checkout; their subscription's next bill date is the 1st of the service
+ * month at the full discounted monthly rate.
  */
 export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, asOfDate = null }) {
   const empty = {
@@ -1142,22 +1147,40 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
       return { item, baseCents, netCents }
     })
 
-    // Order-level discounts (e.g. household spend discount) reduce this checkout's
-    // monthly total in full; allocate them across the new lines by base price.
+    // Order-level discounts (e.g. household spend discount) are computed on the full
+    // account (existing + new). Allocate each new line's share by its base price
+    // relative to that account total — not only across the cart lines.
     const orderDiscountCents = discounts?.enabled
       ? discounts.orderDiscounts.reduce((sum, d) => sum + (d.amountCents || 0), 0)
       : 0
-    const allocBase = lineFacts.reduce((sum, f) => sum + f.baseCents, 0)
-    let remainingOrderDiscount = orderDiscountCents
+    const cartAllocBase = lineFacts.reduce((sum, f) => sum + f.baseCents, 0)
+    const shadowAllocBase =
+      discounts?.enabled && Array.isArray(discounts.accountLines)
+        ? discounts.accountLines.reduce(
+            (sum, l) => sum + Math.max(0, Math.round(Number(l.baseCents) || 0)),
+            0,
+          )
+        : 0
+    const accountAllocBase = shadowAllocBase + cartAllocBase
+    const discountAllocBase = accountAllocBase > 0 ? accountAllocBase : cartAllocBase
+    // Only the cart's share of the order discount is due at this checkout.
+    const cartOrderDiscountCents =
+      orderDiscountCents > 0 && discountAllocBase > 0
+        ? Math.min(
+            orderDiscountCents,
+            Math.round(orderDiscountCents * (cartAllocBase / discountAllocBase)),
+          )
+        : 0
+    let remainingOrderDiscount = cartOrderDiscountCents
     lineFacts.forEach((fact, i) => {
       let share = 0
-      if (orderDiscountCents > 0 && allocBase > 0) {
+      if (cartOrderDiscountCents > 0 && cartAllocBase > 0) {
         share =
           i === lineFacts.length - 1
             ? remainingOrderDiscount
             : Math.min(
                 remainingOrderDiscount,
-                Math.round(orderDiscountCents * (fact.baseCents / allocBase)),
+                Math.round(cartOrderDiscountCents * (fact.baseCents / cartAllocBase)),
               )
       }
       remainingOrderDiscount -= share
@@ -1174,7 +1197,11 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
         timeSlotId: fact.item.timeSlotId ?? null,
         fromDate,
       })
-      const proratedCents = Math.round(fact.effectiveNetCents * proration.ratio)
+      // Classes that have not started yet bill the full month on the 1st of their
+      // service month — nothing is due in the current billing cycle at checkout.
+      const proratedCents = proration.classStartsFutureMonth
+        ? 0
+        : Math.round(fact.effectiveNetCents * proration.ratio)
       totalCents += proratedCents
       items.push({
         slotKey: fact.item.slotKey,
