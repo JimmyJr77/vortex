@@ -396,7 +396,7 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
 
   const groupsRes = await pool.query(
     `
-      SELECT id, offering_id, active_start, active_end, dates_tbd, start_date, end_date
+      SELECT id, offering_id, active_start, active_end, dates_tbd
       FROM scheduling_slot_group
       WHERE form_id = $1 AND is_active = TRUE
     `,
