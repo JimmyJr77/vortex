@@ -6,11 +6,13 @@
  * scheduling_signup_status_check — both must be removed before paused/completed work.
  */
 
+import { runIsolated } from './transactionSavepoint.js'
+
 const CANONICAL_STATUSES = ['confirmed', 'waitlisted', 'cancelled', 'paused', 'completed']
 
 let schemaReady = false
 
-async function statusCheckAllowsLifecycleStatuses(pool) {
+async function allStatusChecksAllowLifecycleStatuses(pool) {
   const res = await pool.query(`
     SELECT pg_get_constraintdef(c.oid) AS def
     FROM pg_constraint c
@@ -18,10 +20,18 @@ async function statusCheckAllowsLifecycleStatuses(pool) {
     JOIN pg_namespace n ON t.relnamespace = n.oid
     WHERE n.nspname = 'public'
       AND t.relname = 'scheduling_signup'
-      AND c.conname = 'scheduling_signup_status_check'
+      AND c.contype = 'c'
+      AND pg_get_constraintdef(c.oid) ILIKE '%status%'
   `)
-  const def = res.rows[0]?.def ?? ''
-  return def.includes("'paused'") && def.includes("'completed'")
+  if (res.rows.length === 0) return true
+  return res.rows.every(
+    (row) => String(row.def).includes("'paused'") && String(row.def).includes("'completed'"),
+  )
+}
+
+/** @deprecated use allStatusChecksAllowLifecycleStatuses */
+async function statusCheckAllowsLifecycleStatuses(pool) {
+  return allStatusChecksAllowLifecycleStatuses(pool)
 }
 
 /** Drop every CHECK constraint on scheduling_signup that references status. */
@@ -55,7 +65,8 @@ export async function ensureEnrollmentLifecycleColumns(pool) {
   await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_reason TEXT`)
   await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_rule_id BIGINT`)
 
-  if (schemaReady && (await statusCheckAllowsLifecycleStatuses(pool))) return
+  const checksOk = await allStatusChecksAllowLifecycleStatuses(pool)
+  if (schemaReady && checksOk) return
 
   await dropLegacySignupStatusChecks(pool)
 
@@ -82,7 +93,12 @@ export async function ensureEnrollmentLifecycleColumns(pool) {
     }
   }
 
-  schemaReady = await statusCheckAllowsLifecycleStatuses(pool)
+  schemaReady = await allStatusChecksAllowLifecycleStatuses(pool)
+  if (!schemaReady) {
+    console.warn(
+      '[enrollmentLifecycle] scheduling_signup status CHECK still missing paused/completed after ensure',
+    )
+  }
 }
 
 async function hasLifecycleTimestampColumns(pool) {
@@ -105,21 +121,23 @@ export async function updateSignupLifecycleStatus(client, signupId, targetStatus
   const withTimestamps = await hasLifecycleTimestampColumns(client)
   if (withTimestamps) {
     try {
-      return await client.query(
-        `
-        UPDATE scheduling_signup
-        SET status = $1,
-            paused_at = CASE
-              WHEN $1 = 'paused' THEN now()
-              WHEN $1 IN ('confirmed', 'waitlisted') THEN NULL
-              ELSE paused_at END,
-            completed_at = CASE
-              WHEN $1 = 'completed' THEN now()
-              WHEN $1 IN ('confirmed', 'waitlisted') THEN NULL
-              ELSE completed_at END
-        WHERE id = $2 RETURNING *
-        `,
-        [targetStatus, signupId],
+      return await runIsolated(client, () =>
+        client.query(
+          `
+          UPDATE scheduling_signup
+          SET status = $1,
+              paused_at = CASE
+                WHEN $1 = 'paused' THEN now()
+                WHEN $1 IN ('confirmed', 'waitlisted') THEN NULL
+                ELSE paused_at END,
+              completed_at = CASE
+                WHEN $1 = 'completed' THEN now()
+                WHEN $1 IN ('confirmed', 'waitlisted') THEN NULL
+                ELSE completed_at END
+          WHERE id = $2 RETURNING *
+          `,
+          [targetStatus, signupId],
+        ),
       )
     } catch (err) {
       console.warn('[enrollmentLifecycle] timestamp update failed, retrying status-only:', err?.message ?? err)

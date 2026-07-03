@@ -26,7 +26,6 @@ import { persistSignupCharges } from './persistSignupCharges.js'
 import {
   safeCancelSubscriptionsForSource,
   safeReactivateSubscriptionForSource,
-  safeSetSubscriptionPausedForSource,
 } from './billingSubscriptions.js'
 import { ensureEnrollmentLifecycleColumns, updateSignupLifecycleStatus } from './enrollmentLifecycle.js'
 import { trySavepoint } from './transactionSavepoint.js'
@@ -4010,13 +4009,9 @@ export function createSchedulingHandlers(pool) {
             })
           } else if (targetStatus === 'completed' && previousStatus !== 'completed') {
             await safeCancelSubscriptionsForSource(client, source)
-          } else if (targetStatus === 'paused' && previousStatus !== 'paused') {
-            await safeSetSubscriptionPausedForSource(client, { ...source, paused: true })
           } else if (targetStatus === 'confirmed' || targetStatus === 'waitlisted') {
             if (previousStatus === 'cancelled' || previousStatus === 'completed') {
               await safeReactivateSubscriptionForSource(client, source)
-            } else if (previousStatus === 'paused') {
-              await safeSetSubscriptionPausedForSource(client, { ...source, paused: false })
             }
           }
 
