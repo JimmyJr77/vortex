@@ -72,26 +72,13 @@ type CatalogState = SignupClassCatalog | 'loading' | 'error'
 
 const UNSPECIFIED_SPORT = '__unspecified_sport__'
 
+function formatMoney(amount: number) {
+  return `$${amount.toFixed(2)}`
+}
+
 function classMatchesLevelFilter(skillLevel: string | null, levelFilter: ClassSkillLevelFilter): boolean {
   if (levelFilter === 'all') return true
   return skillLevel == null || skillLevel === levelFilter
-}
-
-function getEachClassPriceLabel(
-  program: PublicProgramOffered,
-  catalog: CatalogState | undefined,
-): string | null {
-  if (catalog && catalog !== 'loading' && catalog !== 'error' && catalog.priceLabel) {
-    return catalog.priceLabel
-  }
-  const usesWeeklyTiers = programUsesWeeklyTierPricing(program)
-  const flatOneXOnly =
-    usesWeeklyTiers && onlyFlatOneXWeeklyTier(program.pricingCostOptions ?? [])
-  const oneXMonthly = flatOneXOnly
-    ? weeklyTierTotalDollars(1, program.pricingCostOptions ?? [])
-    : null
-  if (oneXMonthly != null) return `$${oneXMonthly.toFixed(2)}/mo`
-  return null
 }
 
 export default function MemberClassesOfferedEnroll({
@@ -454,6 +441,20 @@ export default function MemberClassesOfferedEnroll({
     },
     [cart, memberToken, selectedMemberId, buildPreviewSignups, classesWithForm],
   )
+
+  useEffect(() => {
+    if (view !== 'browse') return
+    if (cart.length === 0) {
+      setPreview(null)
+      setPreviewError(null)
+      setPreviewLoading(false)
+      return
+    }
+    const timer = window.setTimeout(() => {
+      void runPreview(promoCodes)
+    }, 350)
+    return () => window.clearTimeout(timer)
+  }, [view, cart, selectedMemberId, selectedPricingByProgram, promoCodes, runPreview])
 
   const applyPromo = async () => {
     const code = promoInput.trim()
@@ -883,7 +884,6 @@ export default function MemberClassesOfferedEnroll({
 
             {programClasses.map((cls) => {
               const catalog = catalogs[cls.classEventId]
-              const eachClassPrice = getEachClassPriceLabel(program, catalog)
               const selectedKeysForClass = cart
                 .filter((c) => c.classEventId === cls.classEventId && c.lineType === 'slot')
                 .map((c) => slotOptionKey(c.slotGroupId!, c.timeSlotId!))
@@ -901,12 +901,6 @@ export default function MemberClassesOfferedEnroll({
                     )}
                     {cls.description && (
                       <p className="text-sm text-gray-600 mt-1">{cls.description}</p>
-                    )}
-                    {eachClassPrice && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        Each class:{' '}
-                        <span className="font-semibold text-gray-900">{eachClassPrice}</span>
-                      </p>
                     )}
                   </div>
 
@@ -949,9 +943,33 @@ export default function MemberClassesOfferedEnroll({
       })}
 
       <div className="sticky bottom-0 -mx-4 md:-mx-6 border-t border-gray-200 bg-white px-4 md:px-6 py-3 flex items-center justify-between gap-3">
-        <span className="text-sm text-gray-600">
-          {cart.length} {cart.length === 1 ? 'item' : 'items'} selected
-        </span>
+        <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 min-w-0">
+          <span className="text-sm text-gray-600">
+            {cart.length} {cart.length === 1 ? 'item' : 'items'} selected
+          </span>
+          {cart.length > 0 && (
+            <div className="text-sm">
+              {previewLoading ? (
+                <span className="inline-flex items-center gap-1.5 text-gray-500">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Calculating total…
+                </span>
+              ) : previewError ? (
+                <span className="text-amber-700">Pricing unavailable</span>
+              ) : preview &&
+                (preview.hasPricing || (preview.passPurchases?.length ?? 0) > 0) ? (
+                <span>
+                  <span className="text-gray-600">New monthly total: </span>
+                  <span className="font-bold text-gray-900">
+                    {formatMoney(preview.estimatedMonthlyTotal)}/mo
+                  </span>
+                </span>
+              ) : preview ? (
+                <span className="text-gray-500">Pricing not configured</span>
+              ) : null}
+            </div>
+          )}
+        </div>
         <button
           type="button"
           onClick={goToCheckout}
