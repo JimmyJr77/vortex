@@ -10,7 +10,7 @@ import {
 } from '../firstMonthProration.js'
 import { computeFirstMonthLayer } from '../orderPricing.js'
 import { persistSignupCharges } from '../persistSignupCharges.js'
-import { pauseCreditForLine } from '../pauseEnrollmentBilling.js'
+import { pauseCreditForLine, mergeFirstMonthPrepaidIntoCarriedForward } from '../pauseEnrollmentBilling.js'
 
 /** A weekly time-slot row in the shape loadCalendarRowsForSlotGroups returns. */
 function slotRow(overrides = {}) {
@@ -185,7 +185,7 @@ test('computeFirstMonthLayer allocates household discount across full account', 
   }
 })
 
-test('computeFirstMonthLayer defers future-start classes to the service-month 1st', async () => {
+test('computeFirstMonthLayer prepays future-start classes and shows $0 prorated', async () => {
   const pool = fakeCalendarPool([
     slotRow({ offering_start_date: '2026-09-01', offering_end_date: '2027-06-15' }),
   ])
@@ -216,7 +216,31 @@ test('computeFirstMonthLayer defers future-start classes to the service-month 1s
   assert.equal(item.firstBillDate, '2026-09-01')
   assert.equal(item.monthlyNetCents, 11250)
   assert.equal(item.proratedCents, 0)
-  assert.equal(layer.totalCents, 0)
+  assert.equal(item.prepaidFirstMonthCents, 11250)
+  assert.equal(layer.totalPrepaidCents, 11250)
+  assert.equal(layer.totalProratedCents, 0)
+  assert.equal(layer.totalCents, 11250)
+})
+
+test('mergeFirstMonthPrepaidIntoCarriedForward adds checkout credits for future-start lines', () => {
+  const merged = mergeFirstMonthPrepaidIntoCarriedForward(
+    { enabled: true, items: [], creditsCents: 0, debitsCents: 0, totalCents: 0 },
+    {
+      enabled: true,
+      items: [
+        {
+          slotKey: '1:2:3',
+          prepaidFirstMonthCents: 9750,
+          displayLine: 'Cyclones · Mondays',
+          firstBillDate: '2026-09-01',
+        },
+      ],
+    },
+  )
+  assert.equal(merged.items.length, 1)
+  assert.equal(merged.creditsCents, 9750)
+  assert.equal(merged.items[0].amountCents, -9750)
+  assert.equal(merged.items[0].kind, 'prepaid_first_month')
 })
 
 test('computeFirstMonthLayer prorates the discounted net (household 25% off)', async () => {
@@ -361,12 +385,11 @@ test('persistSignupCharges posts the prorated first charge and prorated order cr
   assert.equal(chargeParams[4], 8438) // amount_cents
   assert.equal(chargeParams[5], 11250) // gross_amount_cents (75% of $150)
 
-  // Order credit is prorated too: full prorated net − preview total = 11250 − 8438.
-  const creditParams = pool.calls.orderCredits[0]
-  assert.equal(creditParams[3], -(11250 - 8438))
+  // Order discount is already reflected in monthlyNetCents for the prorated charge.
+  assert.equal(pool.calls.orderCredits.length, 0)
 })
 
-test('persistSignupCharges defers future-start tuition to the service-month 1st', async () => {
+test('persistSignupCharges posts prepaid first-month charge and credit for future-start classes', async () => {
   const pool = fakeBillingPool()
   const slotKey = '1:4:5'
   const preview = {
@@ -385,13 +408,16 @@ test('persistSignupCharges defers future-start tuition to the service-month 1st'
           remainingClasses: 4,
           monthlyNetCents: 10000,
           proratedCents: 0,
+          prepaidFirstMonthCents: 10000,
           classStartsFutureMonth: true,
           firstBillDate: '2026-09-01',
           firstServicePeriodStart: '2026-09-07',
           firstServicePeriodEnd: '2026-09-30',
         },
       ],
-      totalCents: 0,
+      totalCents: 10000,
+      totalProratedCents: 0,
+      totalPrepaidCents: 10000,
     },
   }
 
@@ -402,7 +428,8 @@ test('persistSignupCharges defers future-start tuition to the service-month 1st'
   })
 
   assert.equal(result.subscriptions, 1)
-  assert.equal(result.charges, 0)
+  assert.equal(result.charges, 1)
+  assert.equal(pool.calls.charges[0][4], 10000)
   assert.equal(pool.calls.subscriptions[0][10], '2026-09-01') // next_bill_date
 })
 

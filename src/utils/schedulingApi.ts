@@ -239,6 +239,7 @@ export interface FirstMonthProrationItem {
   ratio: number
   monthlyNetCents: number
   proratedCents: number
+  prepaidFirstMonthCents?: number
   classStartsFutureMonth: boolean
   firstBillDate: string
   firstServicePeriodStart?: string
@@ -252,6 +253,8 @@ export interface FirstMonthProrationBreakdown {
   classesPerMonth: number
   items: FirstMonthProrationItem[]
   totalCents: number
+  totalProratedCents?: number
+  totalPrepaidCents?: number
 }
 
 export interface CarriedForwardLineItem {

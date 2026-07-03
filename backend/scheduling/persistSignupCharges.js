@@ -7,9 +7,9 @@
  * create a `billing_subscription` (the source of truth for the monthly total);
  * the first period (signup → end of the current month) is charged immediately,
  * prorated by the class's remaining sessions this month (preview.firstMonth), and
- * the monthly job posts subsequent full cycles on each 1st. Classes with no
- * sessions left this month post no charge now; their subscription's next_bill_date
- * is the 1st of the class's start month. One-time enrollments (per_class /
+ * the monthly job posts subsequent full cycles on each 1st. Future-start classes
+ * charge the full first service month at signup and record a credit against the
+ * first monthly bill. One-time enrollments (per_class / per_offering) post a single
  * per_offering) post a single one-time charge and never create a subscription.
  *
  * Charges carry gross/discount split so statements can show list price, discount,
@@ -21,6 +21,8 @@ import {
   upsertSubscriptionForSource,
   cancelSubscriptionsForSource,
 } from './billingSubscriptions.js'
+import { recordPrepaidFirstMonthCredit } from './pauseEnrollmentBilling.js'
+import { calendarYearKey } from './additionalFeesEngine.js'
 
 async function ensureBillingAccount(pool, familyId) {
   const existing = await pool.query(
@@ -143,10 +145,13 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
     let chargeNet = line.netCents
     if (fm) {
       usedProration = true
-      chargeNet = Math.round(Number(fm.proratedCents) || 0)
+      const tuitionCents = fm.classStartsFutureMonth
+        ? Math.round(Number(fm.prepaidFirstMonthCents) || 0)
+        : Math.round(Number(fm.proratedCents) || 0)
+      chargeNet = tuitionCents
       chargeGross = Math.round(line.grossCents * fm.ratio)
       chargeDiscount = Math.max(0, chargeGross - chargeNet)
-      proratedNetSum += Math.round(line.netCents * fm.ratio)
+      proratedNetSum += Math.round(fm.monthlyNetCents * fm.ratio)
       proratedEffectiveSum += chargeNet
     }
 
@@ -181,8 +186,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
       }
     }
 
-    // Skip only when there is nothing to charge (e.g. waitlisted/free). Future-start
-    // classes bill the full month on the 1st of their service month — no tuition now.
+    // Skip only when there is nothing to charge (e.g. waitlisted/free).
     if (chargeNet <= 0) continue
 
     const result = await pool.query(
@@ -212,7 +216,25 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
         servicePeriodEnd,
       ],
     )
-    if (result.rows.length > 0) charges += 1
+    if (result.rows.length > 0) {
+      charges += 1
+      if (
+        fm?.classStartsFutureMonth &&
+        Math.round(Number(fm.prepaidFirstMonthCents) || 0) > 0 &&
+        line.billingType === 'recurring'
+      ) {
+        try {
+          await recordPrepaidFirstMonthCredit(pool, {
+            signupId: signup.signupId,
+            memberId,
+            familyBillingAccountId: account.id,
+            firstMonthItem: fm,
+          })
+        } catch (err) {
+          console.warn('[scheduling] persistSignupCharges prepaid credit:', err.message)
+        }
+      }
+    }
   }
 
   // Record an order-level discount (apply_to = order_total) as a one-time credit entry.
@@ -253,7 +275,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
 
   // Record once-per-year additional fees so they are not charged again.
   const feeItems = preview?.additionalFees?.enabled ? preview.additionalFees.items || [] : []
-  const year = new Date().getUTCFullYear()
+  const year = calendarYearKey()
   for (const fee of feeItems) {
     if (fee.triggerType !== 'once_per_year') continue
     if (fee.feeId == null) continue
@@ -265,7 +287,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           VALUES ($1, $2, $3, $4, $5)
           ON CONFLICT (fee_id, member_id, period_key) DO NOTHING
         `,
-        [fee.feeId, memberId, firstSignupId, `${fee.feeId}:${year}`, Math.round(Number(fee.amountCents) || 0)],
+        [fee.feeId, memberId, firstSignupId, year, Math.round(Number(fee.amountCents) || 0)],
       )
     } catch (err) {
       console.warn('[scheduling] persistSignupCharges fee redemption:', err.message)

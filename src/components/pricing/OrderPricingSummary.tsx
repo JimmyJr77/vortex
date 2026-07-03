@@ -41,6 +41,10 @@ function firstMonthProrationDetail(item: NonNullable<SignupOrderPreview['firstMo
       : formatMonthYear(item.firstBillDate)
     const billStart = formatMonthDay(item.firstBillDate)
     const monthlyRate = formatMoney(item.monthlyNetCents / 100)
+    if (item.proratedCents <= 0 && (item.prepaidFirstMonthCents ?? 0) > 0) {
+      const prepaid = formatMoney((item.prepaidFirstMonthCents ?? 0) / 100)
+      return `${classPhrase} in ${monthLabel} · ${prepaid} due now, credited ${billStart}`
+    }
     if (item.proratedCents <= 0) {
       return `${classPhrase} in ${monthLabel} · full month (${monthlyRate}) billed ${billStart}`
     }
@@ -156,10 +160,12 @@ export default function OrderPricingSummary({
   const currentCycleDueCents =
     Math.round((preview.additionalFeesOneTime ?? 0) * 100) + (firstMonth?.totalCents ?? 0)
   const additionalFeesOneTime = preview.additionalFeesOneTime ?? 0
-  const proratedDueNow = (firstMonth?.totalCents ?? 0) / 100
+  const proratedDueNow = (firstMonth?.totalProratedCents ?? 0) / 100
+  const prepaidDueNow = (firstMonth?.totalPrepaidCents ?? 0) / 100
   const dueNowBreakdown = (() => {
     const parts: string[] = []
     if (additionalFeesOneTime > 0) parts.push(`${formatMoney(additionalFeesOneTime)} fees`)
+    if (prepaidDueNow > 0) parts.push(`${formatMoney(prepaidDueNow)} first month tuition`)
     if (proratedDueNow > 0) parts.push(`${formatMoney(proratedDueNow)} prorated accounts`)
     return parts.join(' + ')
   })()

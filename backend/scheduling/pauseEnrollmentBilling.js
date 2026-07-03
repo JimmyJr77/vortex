@@ -37,10 +37,15 @@ export async function ensurePauseCreditTable(pool) {
       service_month             TEXT NOT NULL,
       apply_on_month            TEXT NOT NULL,
       remaining_classes         INTEGER,
+      credit_kind               TEXT NOT NULL DEFAULT 'pause',
       applied_at                TIMESTAMPTZ,
       created_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
       UNIQUE (scheduling_signup_id, pause_date)
     )
+  `)
+  await pool.query(`
+    ALTER TABLE billing_pause_credit
+    ADD COLUMN IF NOT EXISTS credit_kind TEXT NOT NULL DEFAULT 'pause'
   `)
   await pool.query(`
     CREATE INDEX IF NOT EXISTS idx_billing_pause_credit_apply
@@ -364,7 +369,10 @@ export async function applyPendingPauseCredits(pool, { periodStart }) {
   let posted = 0
   for (const row of pending.rows) {
     const sourceId = `pause:${row.scheduling_signup_id}:${row.pause_date}`
-    const description = `Pause credit — ${row.form_title || 'Class'} (${row.service_month}, ${row.remaining_classes ?? '?'} unused sessions)`
+    const description =
+      row.credit_kind === 'prepaid_first_month'
+        ? `First month prepayment credit — ${row.form_title || 'Class'}`
+        : `Pause credit — ${row.form_title || 'Class'} (${row.service_month}, ${row.remaining_classes ?? '?'} unused sessions)`
     try {
       const ins = await pool.query(
         `
@@ -415,6 +423,85 @@ function carriedForwardTotals(items) {
   }
 }
 
+function formatApplyMonthLabel(applyOnMonth) {
+  if (!applyOnMonth) return 'next billing cycle'
+  return new Date(`${applyOnMonth}-01T12:00:00`).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
+/** Checkout preview: show prepaid first-month tuition as a credit on the first bill. */
+export function mergeFirstMonthPrepaidIntoCarriedForward(carriedForward, firstMonth) {
+  const base = carriedForward ?? {
+    enabled: true,
+    items: [],
+    creditsCents: 0,
+    debitsCents: 0,
+    totalCents: 0,
+  }
+  if (!firstMonth?.enabled || !firstMonth.items?.length) return base
+
+  const prepaidItems = []
+  for (const fm of firstMonth.items) {
+    const prepaid = Math.round(Number(fm.prepaidFirstMonthCents) || 0)
+    if (prepaid <= 0) continue
+    const applyOnMonth = fm.firstBillDate?.slice(0, 7) ?? null
+    prepaidItems.push({
+      key: `prepaid-preview-${fm.slotKey}`,
+      kind: 'prepaid_first_month',
+      label: `First month credit — ${fm.displayLine ?? fm.formTitle ?? 'Class'}`,
+      detail: `Applies ${formatApplyMonthLabel(applyOnMonth)}`,
+      amountCents: -prepaid,
+      applyOnMonth,
+    })
+  }
+  if (!prepaidItems.length) return base
+  const items = [...base.items, ...prepaidItems]
+  return { enabled: true, items, ...carriedForwardTotals(items) }
+}
+
+export async function recordPrepaidFirstMonthCredit(
+  pool,
+  { signupId, memberId, familyBillingAccountId, firstMonthItem, signupDate = null },
+) {
+  const prepaid = Math.round(Number(firstMonthItem?.prepaidFirstMonthCents) || 0)
+  if (!signupId || !familyBillingAccountId || prepaid <= 0) return null
+
+  const bookedDate = signupDate ?? todayDateOnly()
+  const serviceMonth =
+    firstMonthItem.firstServicePeriodStart?.slice(0, 7) ??
+    firstMonthItem.firstBillDate?.slice(0, 7) ??
+    bookedDate.slice(0, 7)
+  const applyOnMonth = firstMonthItem.firstBillDate?.slice(0, 7) ?? firstOfNextMonth(bookedDate).slice(0, 7)
+
+  try {
+    await ensurePauseCreditTable(pool)
+  } catch (err) {
+    console.warn('[pauseBilling] ensurePauseCreditTable:', err?.message ?? err)
+    return null
+  }
+
+  const ins = await pool.query(
+    `
+    INSERT INTO billing_pause_credit (
+      scheduling_signup_id, family_billing_account_id, member_id,
+      credit_cents, pause_date, service_month, apply_on_month, remaining_classes, credit_kind
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, 'prepaid_first_month')
+    ON CONFLICT (scheduling_signup_id, pause_date) DO UPDATE
+      SET credit_cents = EXCLUDED.credit_cents,
+          service_month = EXCLUDED.service_month,
+          apply_on_month = EXCLUDED.apply_on_month,
+          credit_kind = EXCLUDED.credit_kind
+    WHERE billing_pause_credit.applied_at IS NULL
+    RETURNING id, credit_cents
+    `,
+    [signupId, familyBillingAccountId, memberId ?? null, prepaid, bookedDate, serviceMonth, applyOnMonth],
+  )
+  return ins.rows[0] ?? null
+}
+
 export async function computeCarriedForwardLayer(pool, { memberId, asOfDate = null }) {
   const empty = { enabled: true, items: [], creditsCents: 0, debitsCents: 0, totalCents: 0 }
   if (memberId == null) return empty
@@ -430,7 +517,8 @@ export async function computeCarriedForwardLayer(pool, { memberId, asOfDate = nu
     await ensurePauseCreditTable(pool)
     const credits = await pool.query(
       `
-      SELECT pc.scheduling_signup_id, pc.credit_cents, pc.pause_date, pc.apply_on_month, pc.remaining_classes,
+      SELECT pc.scheduling_signup_id, pc.credit_cents, pc.pause_date, pc.apply_on_month,
+             pc.remaining_classes, pc.credit_kind,
              sf.title AS class_name,
              m.first_name, m.last_name
       FROM billing_pause_credit pc
@@ -450,19 +538,19 @@ export async function computeCarriedForwardLayer(pool, { memberId, asOfDate = nu
       const memberName = `${row.first_name || ''} ${row.last_name || ''}`.trim()
       const creditCents = Math.abs(Number(row.credit_cents) || 0)
       if (creditCents <= 0) continue
-      const applyLabel = row.apply_on_month
-        ? new Date(`${row.apply_on_month}-01T12:00:00`).toLocaleDateString('en-US', {
-            month: 'long',
-            year: 'numeric',
-          })
-        : 'next billing cycle'
+      const applyLabel = formatApplyMonthLabel(row.apply_on_month)
+      const isPrepaid = row.credit_kind === 'prepaid_first_month'
       items.push({
-        key: `pause-${row.scheduling_signup_id}-${row.pause_date}`,
-        kind: 'pause_credit',
-        label: `Pause credit — ${row.class_name || 'Class'}`,
+        key: isPrepaid
+          ? `prepaid-${row.scheduling_signup_id}-${row.pause_date}`
+          : `pause-${row.scheduling_signup_id}-${row.pause_date}`,
+        kind: isPrepaid ? 'prepaid_first_month' : 'pause_credit',
+        label: isPrepaid
+          ? `First month credit — ${row.class_name || 'Class'}`
+          : `Pause credit — ${row.class_name || 'Class'}`,
         detail: [
           memberName || null,
-          row.remaining_classes != null
+          !isPrepaid && row.remaining_classes != null
             ? `${row.remaining_classes} unused session${row.remaining_classes === 1 ? '' : 's'}`
             : null,
           `Applies ${applyLabel}`,

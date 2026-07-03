@@ -925,10 +925,19 @@ export async function buildSignupOrderPreview(
   }
   if (memberId != null) {
     try {
-      const { computeCarriedForwardLayer } = await import('./pauseEnrollmentBilling.js')
+      const { computeCarriedForwardLayer, mergeFirstMonthPrepaidIntoCarriedForward } =
+        await import('./pauseEnrollmentBilling.js')
       carriedForward = await computeCarriedForwardLayer(pool, { memberId })
+      carriedForward = mergeFirstMonthPrepaidIntoCarriedForward(carriedForward, firstMonth)
     } catch (err) {
       console.warn('[scheduling] carried forward preview:', err?.message ?? err)
+    }
+  } else if (firstMonth?.enabled) {
+    try {
+      const { mergeFirstMonthPrepaidIntoCarriedForward } = await import('./pauseEnrollmentBilling.js')
+      carriedForward = mergeFirstMonthPrepaidIntoCarriedForward(carriedForward, firstMonth)
+    } catch {
+      // preview-only prepaid credits
     }
   }
 
@@ -1102,9 +1111,9 @@ export async function computeFreePassLayer(
 
 /**
  * First-month proration layer. Billing renews on the 1st. Ongoing classes (sessions
- * remain in the signup month) owe a prorated amount now. Classes that have not started
- * yet owe $0 at checkout; their subscription's next bill date is the 1st of the service
- * month at the full discounted monthly rate.
+ * remain in the signup month) owe a prorated amount now. Future-start classes show $0
+ * under prorated accounts but charge the full first service month at checkout; that
+ * amount is carried forward as a credit against the first monthly bill.
  */
 export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, asOfDate = null }) {
   const empty = {
@@ -1189,6 +1198,8 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
 
     const items = []
     let totalCents = 0
+    let totalProratedCents = 0
+    let totalPrepaidCents = 0
     for (const fact of lineFacts) {
       // Pass-covered / free lines carry no first-month charge.
       if (fact.baseCents <= 0) continue
@@ -1197,12 +1208,12 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
         timeSlotId: fact.item.timeSlotId ?? null,
         fromDate,
       })
-      // Classes that have not started yet bill the full month on the 1st of their
-      // service month — nothing is due in the current billing cycle at checkout.
-      const proratedCents = proration.classStartsFutureMonth
-        ? 0
-        : Math.round(fact.effectiveNetCents * proration.ratio)
-      totalCents += proratedCents
+      const firstMonthTuitionCents = Math.round(fact.effectiveNetCents * proration.ratio)
+      const proratedCents = proration.classStartsFutureMonth ? 0 : firstMonthTuitionCents
+      const prepaidFirstMonthCents = proration.classStartsFutureMonth ? firstMonthTuitionCents : 0
+      totalProratedCents += proratedCents
+      totalPrepaidCents += prepaidFirstMonthCents
+      totalCents += proratedCents + prepaidFirstMonthCents
       items.push({
         slotKey: fact.item.slotKey,
         formId: fact.item.formId,
@@ -1213,6 +1224,7 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
         ratio: proration.ratio,
         monthlyNetCents: fact.effectiveNetCents,
         proratedCents,
+        prepaidFirstMonthCents,
         classStartsFutureMonth: proration.classStartsFutureMonth,
         firstBillDate: proration.firstBillDate,
         firstServicePeriodStart: proration.firstServicePeriodStart ?? fromDate,
@@ -1228,6 +1240,8 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
       classesPerMonth: CLASSES_PER_MONTH,
       items,
       totalCents,
+      totalProratedCents,
+      totalPrepaidCents,
     }
   } catch (err) {
     console.warn('[scheduling] first-month proration unavailable:', err?.message ?? err)

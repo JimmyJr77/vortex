@@ -36,6 +36,8 @@ function calendarYearKey(now = new Date()) {
   return String(now.getFullYear())
 }
 
+export { calendarYearKey }
+
 /**
  * @param {{
  *   fees: object[],
