@@ -9,6 +9,7 @@ import MemberClassesOfferedEnroll, { type EnrollableMember } from './member/Memb
 import EventAttachedSignup from './EventAttachedSignup'
 import { MemberTrainingTab, MemberProgressTab, MemberMessagesTab } from './MemberTraining'
 import MemberEnrollmentsPanel, { type MemberEnrollmentRow } from './member/MemberEnrollmentsPanel'
+import { enrollmentClassHeading } from '../utils/enrollmentDisplayLine'
 import MemberHomePanel from './member/MemberHomePanel'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
@@ -2612,7 +2613,7 @@ export default function MemberDashboard({
                         <div className="space-y-2">
                           {memberEnrollmentRows.map((enrollment) => (
                             <div key={`${enrollment.source || 'row'}-${enrollment.id}`} className="bg-white border border-gray-200 rounded-lg p-3">
-                              <div className="text-gray-900 font-medium">{enrollment.class_name}</div>
+                              <div className="text-gray-900 font-medium">{enrollmentClassHeading(enrollment)}</div>
                               <div className="text-gray-500 text-sm mt-1">{enrollment.slot_label}</div>
                               {enrollment.created_at && (
                                 <div className="text-gray-500 text-xs mt-1">

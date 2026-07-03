@@ -37,6 +37,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
   await ensurePrimaryDisciplineTagColumn(pool)
   const schema = await resolveProgramsSchema(pool)
   const programsTable = schema.programsTable
+  const programFkColumn = schema.programFkColumn
 
   const schedulingResult = await pool.query(
     `
@@ -48,10 +49,9 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
         s.created_at,
         m.first_name AS member_first_name,
         m.last_name AS member_last_name,
-        sf.title AS class_name,
-        COALESCE(sf.program_id, sf.programs_id) AS program_id,
-        prog.display_name AS program_name,
-        prog.name AS program_name_fallback,
+        COALESCE(class_p.display_name, class_p.name, sf.title) AS class_name,
+        COALESCE(sf.programs_id, class_p.${programFkColumn}) AS program_id,
+        COALESCE(pr.display_name, pr.name) AS program_name,
         sport_dt.name AS sport_name,
         s.slot_group_id,
         s.time_slot_id,
@@ -76,12 +76,13 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
       JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
       LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
       LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
-      LEFT JOIN ${programsTable} prog ON prog.id = COALESCE(sf.program_id, sf.programs_id)
-      LEFT JOIN discipline_tag sport_dt ON sport_dt.id = prog.primary_discipline_tag_id
+      LEFT JOIN program class_p ON class_p.id = sf.program_id
+      LEFT JOIN ${programsTable} pr ON pr.id = COALESCE(sf.programs_id, class_p.${programFkColumn})
+      LEFT JOIN discipline_tag sport_dt ON sport_dt.id = pr.primary_discipline_tag_id
       WHERE s.member_id = ANY($1::bigint[])
         AND s.orphaned_at IS NULL
         AND s.status IN ('confirmed', 'waitlisted')
-      ORDER BY sf.title, m.last_name, m.first_name, s.id
+      ORDER BY class_name, m.last_name, m.first_name, s.id
     `,
     [memberIds],
   )
@@ -93,7 +94,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
 
   const schedulingRows = schedulingResult.rows.map((row) => {
     const offering = resolveEnrollmentOfferingDisplay(row)
-    const programName = row.program_name || row.program_name_fallback || null
+    const programName = row.program_name || null
     const sportName = row.sport_name || null
     const className = row.class_name || 'Class'
     const classContextLine =
@@ -140,13 +141,14 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
           mp.created_at,
           m.first_name AS member_first_name,
           m.last_name AS member_last_name,
-          COALESCE(p.display_name, p.name, 'Class') AS class_name,
-          COALESCE(p.display_name, p.name) AS program_name,
+          COALESCE(class_p.display_name, class_p.name, 'Class') AS class_name,
+          COALESCE(pr.display_name, pr.name) AS program_name,
           sport_dt.name AS sport_name
         FROM member_program mp
         JOIN member m ON m.id = mp.member_id
-        LEFT JOIN program p ON p.id = mp.program_id
-        LEFT JOIN discipline_tag sport_dt ON sport_dt.id = p.primary_discipline_tag_id
+        LEFT JOIN program class_p ON class_p.id = mp.program_id
+        LEFT JOIN ${programsTable} pr ON pr.id = class_p.${programFkColumn}
+        LEFT JOIN discipline_tag sport_dt ON sport_dt.id = pr.primary_discipline_tag_id
         WHERE mp.member_id = ANY($1::bigint[])
           AND NOT EXISTS (
             SELECT 1
@@ -174,7 +176,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
         buildEnrollmentContextLine({
           sportName,
           programName,
-          className: programName && className === programName ? null : className,
+          className,
         }) || className
       return {
         id: Number(row.id),

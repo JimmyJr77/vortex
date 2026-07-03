@@ -74,6 +74,11 @@ function timeCell(row: MemberEnrollmentRow) {
   )
 }
 
+function textOrDash(value?: string | null) {
+  const trimmed = value?.trim()
+  return trimmed || '—'
+}
+
 function statusBadge(status: string) {
   const normalized = status.toLowerCase()
   if (normalized === 'confirmed' || normalized === 'enrolled') {
@@ -280,9 +285,19 @@ export default function MemberEnrollmentsPanel({
                     rows={rows}
                     columns={[
                       {
+                        key: 'sport',
+                        header: 'Sport',
+                        cell: (row) => textOrDash(row.sport_name),
+                      },
+                      {
+                        key: 'program',
+                        header: 'Program',
+                        cell: (row) => textOrDash(row.program_name),
+                      },
+                      {
                         key: 'class',
                         header: 'Class',
-                        cell: (row) => enrollmentClassHeading(row),
+                        cell: (row) => textOrDash(row.class_name),
                       },
                       {
                         key: 'offerings',
