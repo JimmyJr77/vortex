@@ -1177,6 +1177,8 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
         proratedCents,
         classStartsFutureMonth: proration.classStartsFutureMonth,
         firstBillDate: proration.firstBillDate,
+        firstServicePeriodStart: proration.firstServicePeriodStart ?? fromDate,
+        firstServicePeriodEnd: proration.firstServicePeriodEnd ?? monthEnd,
       })
     }
 

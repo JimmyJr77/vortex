@@ -241,6 +241,8 @@ export interface FirstMonthProrationItem {
   proratedCents: number
   classStartsFutureMonth: boolean
   firstBillDate: string
+  firstServicePeriodStart?: string
+  firstServicePeriodEnd?: string
 }
 
 export interface FirstMonthProrationBreakdown {

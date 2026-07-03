@@ -13,6 +13,28 @@ function formatMonthDay(dateStr: string) {
   })
 }
 
+function formatMonthYear(dateStr: string) {
+  const [y, m] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, 1).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
+function firstMonthProrationDetail(item: NonNullable<SignupOrderPreview['firstMonth']>['items'][number]) {
+  if (item.remainingClasses == null) {
+    return 'Schedule dates TBD — full month billed'
+  }
+  const classCount = Math.min(item.remainingClasses, item.classesPerMonth)
+  const classPhrase = `${classCount} of ${item.classesPerMonth} classes`
+  if (item.classStartsFutureMonth && item.firstServicePeriodStart) {
+    const monthLabel = formatMonthYear(item.firstServicePeriodStart)
+    const recurringStart = formatMonthDay(item.firstBillDate)
+    return `${classPhrase} in ${monthLabel} · recurring billing starts ${recurringStart}`
+  }
+  return `${classPhrase} remaining this month`
+}
+
 /**
  * Renders a prices/discounts/fees breakdown for a scheduling order preview.
  * Layout: existing classes → new classes → monthly subtotal → discounts →
@@ -302,8 +324,8 @@ export default function OrderPricingSummary({
             First month (prorated)
           </h5>
           <p className="mt-0.5 mb-2 text-xs text-blue-700">
-            Billing renews on the 1st of each month. Your first month is prorated to the classes
-            remaining this month.
+            Billing renews on the 1st of each month. Your first charge is prorated to the
+            scheduled classes in your first service month.
           </p>
           <ul className="space-y-2">
             {firstMonth.items.map((item) => (
@@ -320,11 +342,7 @@ export default function OrderPricingSummary({
                   </p>
                 </div>
                 <p className="mt-0.5 text-xs text-blue-700">
-                  {item.classStartsFutureMonth
-                    ? `$0 due now — billing starts ${formatMonthDay(item.firstBillDate)}`
-                    : item.remainingClasses != null
-                      ? `${Math.min(item.remainingClasses, item.classesPerMonth)} of ${item.classesPerMonth} classes remaining this month`
-                      : 'Schedule dates TBD — full month billed'}
+                  {firstMonthProrationDetail(item)}
                 </p>
               </li>
             ))}

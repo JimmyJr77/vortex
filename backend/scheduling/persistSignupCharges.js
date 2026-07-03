@@ -143,13 +143,11 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
     let chargeNet = line.netCents
     if (fm) {
       usedProration = true
-      // First month prorated: scale gross/net by remaining-classes ratio; the
-      // subscription itself keeps the full monthly rate for subsequent cycles.
-      chargeNet = Math.round(line.netCents * fm.ratio)
+      chargeNet = Math.round(Number(fm.proratedCents) || 0)
       chargeGross = Math.round(line.grossCents * fm.ratio)
       chargeDiscount = Math.max(0, chargeGross - chargeNet)
-      proratedNetSum += chargeNet
-      proratedEffectiveSum += Math.round(Number(fm.proratedCents) || 0)
+      proratedNetSum += Math.round(line.netCents * fm.ratio)
+      proratedEffectiveSum += chargeNet
     }
 
     if (line.billingType === 'recurring') {
@@ -169,8 +167,13 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
         })
         if (sub) {
           subscriptionId = sub.id
-          servicePeriodStart = sub.cycle.startDate
-          servicePeriodEnd = sub.cycle.endDate
+          if (fm?.firstServicePeriodStart && fm?.firstServicePeriodEnd) {
+            servicePeriodStart = fm.firstServicePeriodStart
+            servicePeriodEnd = fm.firstServicePeriodEnd
+          } else {
+            servicePeriodStart = sub.cycle.startDate
+            servicePeriodEnd = sub.cycle.endDate
+          }
           if (sub.created) subscriptions += 1
         }
       } catch (err) {
@@ -178,9 +181,9 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
       }
     }
 
-    // Future-start classes owe nothing now; the monthly job bills their first full
-    // month on the 1st of the start month (next_bill_date on the subscription).
-    if (fm && fm.classStartsFutureMonth) continue
+    // Skip only when there is nothing to charge (e.g. waitlisted/free). Future-start
+    // classes still owe their prorated first service month at checkout.
+    if (chargeNet <= 0) continue
 
     const result = await pool.query(
       `

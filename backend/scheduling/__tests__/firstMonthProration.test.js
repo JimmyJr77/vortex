@@ -95,13 +95,27 @@ test('prorationForLine caps 5-session months at full price', () => {
   assert.equal(result.ratio, 1)
 })
 
-test('prorationForLine: class starting next month → $0 now, firstBillDate = 1st of start month', () => {
+test('prorationForLine: class starting next month → prorates first service month, due at signup', () => {
   const rows = [slotRow({ offering_start_date: '2026-09-01', offering_end_date: '2026-12-31' })]
   const result = prorationForLine(rows, { slotGroupId: 2, timeSlotId: 3, fromDate: '2026-07-08' })
-  assert.equal(result.remainingClasses, 0)
-  assert.equal(result.ratio, 0)
+  // September 2026 Mondays on/after offering start: 7, 14, 21, 28
+  assert.equal(result.remainingClasses, 4)
+  assert.equal(result.ratio, 1)
   assert.equal(result.classStartsFutureMonth, true)
-  assert.equal(result.firstBillDate, '2026-09-01')
+  assert.equal(result.firstBillDate, '2026-10-01')
+  assert.equal(result.firstServicePeriodStart, '2026-09-07')
+  assert.equal(result.firstServicePeriodEnd, '2026-09-30')
+  assert.equal(Math.round(15000 * result.ratio), 15000)
+})
+
+test('prorationForLine: mid-month start in signup month uses remaining sessions', () => {
+  const rows = [slotRow({ offering_start_date: '2026-09-01', offering_end_date: '2026-12-31' })]
+  const result = prorationForLine(rows, { slotGroupId: 2, timeSlotId: 3, fromDate: '2026-09-15' })
+  // Mondays left in September from Sep 15: 21, 28
+  assert.equal(result.remainingClasses, 2)
+  assert.equal(result.ratio, 0.5)
+  assert.equal(result.classStartsFutureMonth, false)
+  assert.equal(result.firstBillDate, '2026-10-01')
 })
 
 test('prorationForLine: dates TBD → full price, no proration', () => {
@@ -264,17 +278,17 @@ test('persistSignupCharges posts the prorated first charge and prorated order cr
   const subParams = pool.calls.subscriptions[0]
   assert.equal(subParams[5], 15000) // monthly_amount_cents
 
-  // First charge is the prorated per-line net (75% of $150 = $112.50).
+  // First charge uses preview proratedCents (after order-level discount allocation).
   const chargeParams = pool.calls.charges[0]
-  assert.equal(chargeParams[4], 11250) // amount_cents
-  assert.equal(chargeParams[5], 11250) // gross_amount_cents
+  assert.equal(chargeParams[4], 8438) // amount_cents
+  assert.equal(chargeParams[5], 11250) // gross_amount_cents (75% of $150)
 
   // Order credit is prorated too: full prorated net − preview total = 11250 − 8438.
   const creditParams = pool.calls.orderCredits[0]
   assert.equal(creditParams[3], -(11250 - 8438))
 })
 
-test('persistSignupCharges skips the charge row for future-start classes but creates the subscription', async () => {
+test('persistSignupCharges posts prorated charge for future-start classes at checkout', async () => {
   const pool = fakeBillingPool()
   const slotKey = '1:4:5'
   const preview = {
@@ -289,15 +303,17 @@ test('persistSignupCharges skips the charge row for future-start classes but cre
       items: [
         {
           slotKey,
-          ratio: 0,
-          remainingClasses: 0,
+          ratio: 1,
+          remainingClasses: 4,
           monthlyNetCents: 10000,
-          proratedCents: 0,
+          proratedCents: 10000,
           classStartsFutureMonth: true,
-          firstBillDate: '2026-09-01',
+          firstBillDate: '2026-10-01',
+          firstServicePeriodStart: '2026-09-07',
+          firstServicePeriodEnd: '2026-09-30',
         },
       ],
-      totalCents: 0,
+      totalCents: 10000,
     },
   }
 
@@ -308,9 +324,10 @@ test('persistSignupCharges skips the charge row for future-start classes but cre
   })
 
   assert.equal(result.subscriptions, 1)
-  assert.equal(result.charges, 0)
-  assert.equal(pool.calls.charges.length, 0)
-  assert.equal(pool.calls.orderCredits.length, 0)
+  assert.equal(result.charges, 1)
+  assert.equal(pool.calls.charges[0][4], 10000)
+  assert.equal(pool.calls.charges[0][10], '2026-09-07')
+  assert.equal(pool.calls.charges[0][11], '2026-09-30')
 })
 
 test('pauseCreditForLine awards prorated credit for remaining sessions after pause', () => {

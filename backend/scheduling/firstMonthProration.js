@@ -68,14 +68,22 @@ export function remainingOccurrencesInMonth(calendarRows, { slotGroupId, timeSlo
   return occurrenceDatesInRange(rows, { startDate: fromDate, endDate: monthEnd, timeSlotId }).length
 }
 
-/** Earliest occurrence date strictly after the current month, or null within the horizon. */
-export function nextOccurrenceAfterMonth(calendarRows, { slotGroupId, timeSlotId = null, fromDate }) {
+/** Earliest scheduled occurrence on or after `fromDate`, within the search horizon. */
+export function firstOccurrenceOnOrAfter(calendarRows, { slotGroupId, timeSlotId = null, fromDate }) {
   const rows = rowsForGroup(calendarRows, slotGroupId)
   if (rows.length === 0) return null
-  const searchStart = firstOfNextMonth(fromDate)
   const searchEnd = addMonths(fromDate, FUTURE_START_HORIZON_MONTHS)
-  const dates = occurrenceDatesInRange(rows, { startDate: searchStart, endDate: searchEnd, timeSlotId })
+  const dates = occurrenceDatesInRange(rows, { startDate: fromDate, endDate: searchEnd, timeSlotId })
   return dates[0] ?? null
+}
+
+/** @deprecated use firstOccurrenceOnOrAfter */
+export function nextOccurrenceAfterMonth(calendarRows, { slotGroupId, timeSlotId = null, fromDate }) {
+  return firstOccurrenceOnOrAfter(calendarRows, {
+    slotGroupId,
+    timeSlotId,
+    fromDate: firstOfNextMonth(fromDate),
+  })
 }
 
 function isTbd(rows) {
@@ -86,10 +94,12 @@ function isTbd(rows) {
  * Proration decision for one signup line.
  *
  * Returns:
- * - remainingClasses: occurrences left in the signup month (null when unknowable)
- * - ratio: fraction of the monthly rate due for the first month (0..1)
- * - classStartsFutureMonth: true when the first bill moves to a later month
- * - firstBillDate: when the *next* regular bill posts (always a 1st of month)
+ * - remainingClasses: billable class count for the first service month (current month
+ *   when classes remain now, otherwise the month the schedule begins)
+ * - ratio: fraction of the monthly rate due for that first month (0..1)
+ * - classStartsFutureMonth: true when the first service month is after the signup month
+ * - firstBillDate: when the next full monthly bill posts (always a 1st of month)
+ * - firstServicePeriodStart/End: service window covered by the first prorated charge
  */
 export function prorationForLine(calendarRows, { slotGroupId, timeSlotId = null, fromDate }) {
   const rows = rowsForGroup(calendarRows, slotGroupId)
@@ -98,29 +108,62 @@ export function prorationForLine(calendarRows, { slotGroupId, timeSlotId = null,
     ratio: 1,
     classStartsFutureMonth: false,
     firstBillDate: firstOfNextMonth(fromDate),
+    firstServicePeriodStart: fromDate,
+    firstServicePeriodEnd: monthBounds(fromDate).monthEnd,
   }
   // No schedule data or dates TBD: proration is unknowable, charge the full month.
   if (rows.length === 0 || isTbd(rows)) return fallback
 
-  const remaining = remainingOccurrencesInMonth(calendarRows, { slotGroupId, timeSlotId, fromDate })
-  if (remaining > 0) {
+  const signupMonthStart = firstOfMonth(fromDate)
+  const remainingThisMonth = remainingOccurrencesInMonth(calendarRows, { slotGroupId, timeSlotId, fromDate })
+  if (remainingThisMonth > 0) {
+    const { monthEnd } = monthBounds(fromDate)
     return {
-      remainingClasses: remaining,
-      ratio: Math.min(remaining, CLASSES_PER_MONTH) / CLASSES_PER_MONTH,
+      remainingClasses: remainingThisMonth,
+      ratio: Math.min(remainingThisMonth, CLASSES_PER_MONTH) / CLASSES_PER_MONTH,
       classStartsFutureMonth: false,
       firstBillDate: firstOfNextMonth(fromDate),
+      firstServicePeriodStart: fromDate,
+      firstServicePeriodEnd: monthEnd,
     }
   }
 
-  const nextDate = nextOccurrenceAfterMonth(calendarRows, { slotGroupId, timeSlotId, fromDate })
-  if (!nextDate) {
-    // No future occurrences either (schedule exhausted/misconfigured): don't prorate.
-    return fallback
+  const firstDate = firstOccurrenceOnOrAfter(calendarRows, { slotGroupId, timeSlotId, fromDate })
+  if (!firstDate) {
+    return {
+      remainingClasses: 0,
+      ratio: 0,
+      classStartsFutureMonth: false,
+      firstBillDate: firstOfNextMonth(fromDate),
+      firstServicePeriodStart: fromDate,
+      firstServicePeriodEnd: monthBounds(fromDate).monthEnd,
+    }
   }
+
+  const { monthEnd: firstMonthEnd } = monthBounds(firstDate)
+  const firstMonthRemaining = occurrenceDatesInRange(rows, {
+    startDate: firstDate,
+    endDate: firstMonthEnd,
+    timeSlotId,
+  }).length
+  if (firstMonthRemaining <= 0) {
+    return {
+      remainingClasses: 0,
+      ratio: 0,
+      classStartsFutureMonth: firstOfMonth(firstDate) > signupMonthStart,
+      firstBillDate: firstOfMonth(firstDate),
+      firstServicePeriodStart: firstDate,
+      firstServicePeriodEnd: firstMonthEnd,
+    }
+  }
+
+  const firstServiceMonthStart = firstOfMonth(firstDate)
   return {
-    remainingClasses: 0,
-    ratio: 0,
-    classStartsFutureMonth: true,
-    firstBillDate: firstOfMonth(nextDate),
+    remainingClasses: firstMonthRemaining,
+    ratio: Math.min(firstMonthRemaining, CLASSES_PER_MONTH) / CLASSES_PER_MONTH,
+    classStartsFutureMonth: firstServiceMonthStart > signupMonthStart,
+    firstBillDate: firstOfNextMonth(firstDate),
+    firstServicePeriodStart: firstDate,
+    firstServicePeriodEnd: firstMonthEnd,
   }
 }
