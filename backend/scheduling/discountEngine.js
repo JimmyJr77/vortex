@@ -428,9 +428,34 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         if (amount <= 0) continue
 
         const cartSubtotal = cartLines.reduce((sum, ls) => sum + ls.baseCents, 0)
-        if (cartSubtotal <= 0) continue
-        const repLine = cartLines[0]
+        const hasShadowLines = classLines.some((ls) => ls.line.shadowOnly === true)
+        const repLine = cartLines[0] ?? classLines[0]
+        if (cartSubtotal <= 0 && !hasShadowLines) continue
         if (!capTracker.canApply(rule, repLine.line, 'discount')) continue
+
+        amount = Math.min(amount, accountSubtotal)
+
+        if (hasShadowLines) {
+          orderRunning -= amount
+          orderDiscounts.push({
+            ruleId: rule.id,
+            name: rule.name,
+            type: rule.type,
+            amountCents: amount,
+          })
+          capTracker.record(rule, repLine.line, 'discount')
+          redemptions.push({
+            ruleId: rule.id,
+            memberId: repLine.line.memberId,
+            lineKey: null,
+            programId: repLine.line.programId,
+            formId: repLine.line.formId,
+            kind: 'discount',
+            units: 0,
+            amountCents: amount,
+          })
+          continue
+        }
 
         const eligible = cartLines.filter((ls) => ls.runningCents > 0)
         let remaining = amount

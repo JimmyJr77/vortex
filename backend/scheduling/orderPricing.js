@@ -826,6 +826,39 @@ export async function buildSignupOrderPreview(
     existingEnrollments: existing,
   })
 
+  let familyId = memberContext?.familyId != null ? Number(memberContext.familyId) : null
+  if (familyId == null && memberId != null) {
+    try {
+      const famRes = await pool.query('SELECT family_id FROM member WHERE id = $1', [memberId])
+      familyId = famRes.rows[0]?.family_id != null ? Number(famRes.rows[0].family_id) : null
+    } catch {
+      familyId = null
+    }
+  }
+
+  const previewExistingLines = existing
+    .map((entry) => {
+      const monthly = existingPriceById.get(entry.id) ?? 0
+      if (monthly <= 0) return null
+      const formRow = formRows.get(entry.formId)
+      const scope = formRow ? scopeMeta.get(pricingScopeKey(formRow)) : null
+      return {
+        key: `preview-existing-${entry.id}`,
+        signupId: entry.id,
+        formId: entry.formId,
+        programId: scope?.programsId ?? null,
+        sportId: scope?.sportId ?? null,
+        memberId: memberId ?? null,
+        familyId,
+        baseCents: Math.round(monthly * 100),
+        listCents: Math.round(monthly * 100),
+        finalCents: Math.round(monthly * 100),
+        includeInSubtotal: false,
+        shadowOnly: true,
+      }
+    })
+    .filter(Boolean)
+
   const discounts = await computeDiscountLayer(pool, {
     memberId,
     newSignupItems: freePasses.adjustedSignupItems,
@@ -834,6 +867,7 @@ export async function buildSignupOrderPreview(
     existingCount: existing.length,
     promoCodes,
     memberContext,
+    previewExistingLines,
   })
 
   const existingClasses = existing.map((entry) =>
@@ -1049,7 +1083,16 @@ export async function computeFreePassLayer(
  */
 export async function computeDiscountLayer(
   pool,
-  { memberId, newSignupItems, formRows, scopeMeta, existingCount = 0, promoCodes = [], memberContext = null },
+  {
+    memberId,
+    newSignupItems,
+    formRows,
+    scopeMeta,
+    existingCount = 0,
+    promoCodes = [],
+    memberContext = null,
+    previewExistingLines = [],
+  },
 ) {
   const empty = {
     enabled: false,
@@ -1155,7 +1198,7 @@ export async function computeDiscountLayer(
           pool,
           { familyId, memberId },
           lines,
-          { minPerClassCents },
+          { minPerClassCents, previewExistingLines },
         )
         const attachStats = (line) => {
           line.accountPaidClassCount = accountStats.paidClassCount

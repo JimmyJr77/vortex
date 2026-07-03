@@ -234,7 +234,14 @@ function mapSignupRowToLine(row, { familyId = null } = {}) {
     typeof row.pricing_breakdown === 'string'
       ? JSON.parse(row.pricing_breakdown)
       : row.pricing_breakdown
-  const listCents = monthlyCentsFromBreakdown(breakdown)
+  let listCents = monthlyCentsFromBreakdown(breakdown)
+  if (listCents == null || listCents <= 0) {
+    if (row.monthly_amount_cents != null) {
+      listCents = Math.max(0, Number(row.monthly_amount_cents))
+    } else if (row.gross_amount_cents != null) {
+      listCents = Math.max(0, Number(row.gross_amount_cents))
+    }
+  }
   if (listCents == null || listCents <= 0) return null
   const finalCents =
     breakdown?.line?.finalCents != null
@@ -261,10 +268,24 @@ function mapSignupRowToLine(row, { familyId = null } = {}) {
 export async function loadFamilyDbPaidLines(pool, familyId) {
   if (!familyId) return []
   const res = await pool.query(
-    `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id
+    `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id,
+            bs.monthly_amount_cents,
+            bc.gross_amount_cents
      FROM scheduling_signup s
      JOIN member m ON m.id = s.member_id
      JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+     LEFT JOIN billing_subscription bs
+       ON bs.source_type = 'scheduling_signup'
+      AND bs.source_id = s.id::text
+      AND bs.status IN ('active', 'paused')
+     LEFT JOIN LATERAL (
+       SELECT gross_amount_cents
+       FROM billing_charge
+       WHERE source_type = 'scheduling_signup'
+         AND source_id = s.id::text
+       ORDER BY id DESC
+       LIMIT 1
+     ) bc ON TRUE
      WHERE m.family_id = $1
        AND s.status = 'confirmed'
        AND s.orphaned_at IS NULL`,
@@ -281,10 +302,24 @@ export async function loadFamilyDbPaidLines(pool, familyId) {
 export async function loadMemberDbPaidLines(pool, memberId) {
   if (!memberId) return []
   const res = await pool.query(
-    `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id
+    `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id,
+            bs.monthly_amount_cents,
+            bc.gross_amount_cents
      FROM scheduling_signup s
      JOIN member m ON m.id = s.member_id
      JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+     LEFT JOIN billing_subscription bs
+       ON bs.source_type = 'scheduling_signup'
+      AND bs.source_id = s.id::text
+      AND bs.status IN ('active', 'paused')
+     LEFT JOIN LATERAL (
+       SELECT gross_amount_cents
+       FROM billing_charge
+       WHERE source_type = 'scheduling_signup'
+         AND source_id = s.id::text
+       ORDER BY id DESC
+       LIMIT 1
+     ) bc ON TRUE
      WHERE s.member_id = $1
        AND s.status = 'confirmed'
        AND s.orphaned_at IS NULL`,
@@ -329,6 +364,23 @@ export function computeAccountStats(allLines, { minPerClassCents = 0 } = {}) {
   }
 }
 
+function mergePreviewExistingLines(dbLines, previewExistingLines = []) {
+  if (!previewExistingLines?.length) return dbLines
+  const bySignupId = new Map()
+  for (const line of dbLines) {
+    if (line.signupId != null) bySignupId.set(Number(line.signupId), line)
+  }
+  for (const line of previewExistingLines) {
+    if (line.signupId == null) continue
+    bySignupId.set(Number(line.signupId), {
+      ...line,
+      includeInSubtotal: false,
+      shadowOnly: true,
+    })
+  }
+  return [...bySignupId.values()]
+}
+
 export async function computeAccountDiscountStats(
   pool,
   { familyId = null, memberId = null },
@@ -352,6 +404,7 @@ export async function computeAccountDiscountStats(
   } else {
     dbLines = await loadMemberDbPaidLines(pool, memberId)
   }
+  dbLines = mergePreviewExistingLines(dbLines, options.previewExistingLines)
 
   const cartFiltered = cartLines.filter((line) => {
     if ((line.baseCents || 0) <= 0) return false
