@@ -237,6 +237,125 @@ export function buildEnrollmentContextLine({
     .join(' · ')
 }
 
+function mapTaxonomyRow(row) {
+  const className = row.class_name?.trim() || row.form_title?.trim() || 'Class'
+  const programName = row.program_name?.trim() || null
+  const sportName = row.sport_name?.trim() || null
+  const programId = row.program_id != null ? Number(row.program_id) : null
+  const classContextLine =
+    buildEnrollmentContextLine({ sportName, programName, className }) || className
+  return { className, programName, sportName, programId, classContextLine }
+}
+
+/**
+ * Resolve sport · program · class labels for scheduling forms (canonical enrollment taxonomy).
+ */
+export async function loadEnrollmentTaxonomyByFormIds(pool, formIds) {
+  const ids = [...new Set((formIds || []).filter((id) => id != null).map(Number))]
+  const byFormId = new Map()
+  if (!ids.length) return byFormId
+
+  const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
+  await ensurePrimaryDisciplineTagColumn(pool)
+  const schema = await resolveProgramsSchema(pool)
+  const programsTable = schema.programsTable
+  const programFkColumn = schema.programFkColumn
+
+  const result = await pool.query(
+    `
+    SELECT DISTINCT ON (sf.id)
+      sf.id AS form_id,
+      sf.title AS form_title,
+      COALESCE(linked_class.display_name, linked_class.name, title_class.display_name, title_class.name, sf.title) AS class_name,
+      COALESCE(sf.programs_id, linked_class.${programFkColumn}, title_class.${programFkColumn}) AS program_id,
+      COALESCE(pr.display_name, pr.name) AS program_name,
+      COALESCE(
+        primary_dt.name,
+        (
+          SELECT dt.name
+          FROM program_discipline_tag pdt
+          JOIN discipline_tag dt ON dt.id = pdt.tag_id
+          WHERE pdt.programs_id = pr.id
+          ORDER BY dt.sort_order NULLS LAST, dt.name
+          LIMIT 1
+        )
+      ) AS sport_name
+    FROM scheduling_form sf
+    LEFT JOIN program linked_class ON linked_class.id = sf.program_id
+    LEFT JOIN program title_class
+      ON sf.program_id IS NULL
+      AND TRIM(LOWER(title_class.display_name)) = TRIM(LOWER(sf.title))
+    LEFT JOIN ${programsTable} pr
+      ON pr.id = COALESCE(sf.programs_id, linked_class.${programFkColumn}, title_class.${programFkColumn})
+    LEFT JOIN discipline_tag primary_dt ON primary_dt.id = pr.primary_discipline_tag_id
+    WHERE sf.id = ANY($1::int[])
+    ORDER BY sf.id, title_class.id NULLS LAST
+    `,
+    [ids],
+  )
+
+  for (const row of result.rows) {
+    byFormId.set(Number(row.form_id), mapTaxonomyRow(row))
+  }
+  return byFormId
+}
+
+/** Resolve taxonomy for legacy member_program rows (program_id = class row). */
+export async function loadEnrollmentTaxonomyByClassIds(pool, classIds) {
+  const ids = [...new Set((classIds || []).filter((id) => id != null).map(Number))]
+  const byClassId = new Map()
+  if (!ids.length) return byClassId
+
+  const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
+  await ensurePrimaryDisciplineTagColumn(pool)
+  const schema = await resolveProgramsSchema(pool)
+  const programsTable = schema.programsTable
+  const programFkColumn = schema.programFkColumn
+
+  const result = await pool.query(
+    `
+    SELECT
+      class_p.id AS class_id,
+      COALESCE(class_p.display_name, class_p.name, 'Class') AS class_name,
+      class_p.${programFkColumn} AS program_id,
+      COALESCE(pr.display_name, pr.name) AS program_name,
+      COALESCE(
+        primary_dt.name,
+        (
+          SELECT dt.name
+          FROM program_discipline_tag pdt
+          JOIN discipline_tag dt ON dt.id = pdt.tag_id
+          WHERE pdt.programs_id = pr.id
+          ORDER BY dt.sort_order NULLS LAST, dt.name
+          LIMIT 1
+        )
+      ) AS sport_name
+    FROM program class_p
+    LEFT JOIN ${programsTable} pr ON pr.id = class_p.${programFkColumn}
+    LEFT JOIN discipline_tag primary_dt ON primary_dt.id = pr.primary_discipline_tag_id
+    WHERE class_p.id = ANY($1::bigint[])
+    `,
+    [ids],
+  )
+
+  for (const row of result.rows) {
+    byClassId.set(Number(row.class_id), mapTaxonomyRow(row))
+  }
+  return byClassId
+}
+
+export function applyEnrollmentTaxonomy(row, taxonomy) {
+  if (!taxonomy) return row
+  return {
+    ...row,
+    class_name: taxonomy.className,
+    program_name: taxonomy.programName,
+    sport_name: taxonomy.sportName,
+    program_id: taxonomy.programId ?? row.program_id ?? null,
+    class_context_line: taxonomy.classContextLine,
+  }
+}
+
 export function resolveSignupScheduleRows(entry, timeSlotsByGroup = new Map()) {
   const groupId = entry.slotGroupId != null ? Number(entry.slotGroupId) : null
   const timeSlotId = entry.timeSlotId != null ? Number(entry.timeSlotId) : null

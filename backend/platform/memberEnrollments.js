@@ -4,7 +4,10 @@
  */
 
 import {
+  applyEnrollmentTaxonomy,
   buildEnrollmentContextLine,
+  loadEnrollmentTaxonomyByClassIds,
+  loadEnrollmentTaxonomyByFormIds,
   loadGroupDisplayLabels,
   resolveEnrollmentOfferingDisplay,
   slotLabelForSignupRow,
@@ -92,40 +95,51 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
     .map((row) => Number(row.slot_group_id))
   const { labels: groupLabels, rowsByGroupId } = await loadGroupDisplayLabels(pool, groupIds)
 
+  const formIds = schedulingResult.rows.map((row) => Number(row.form_id))
+  const taxonomyByFormId = await loadEnrollmentTaxonomyByFormIds(pool, formIds)
+
   const schedulingRows = schedulingResult.rows.map((row) => {
     const offering = resolveEnrollmentOfferingDisplay(row)
-    const programName = row.program_name || null
-    const sportName = row.sport_name || null
-    const className = row.class_name || 'Class'
+    const taxonomy = taxonomyByFormId.get(Number(row.form_id))
+    const programName = taxonomy?.programName ?? row.program_name || null
+    const sportName = taxonomy?.sportName ?? row.sport_name || null
+    const className = taxonomy?.className ?? row.class_name || 'Class'
     const classContextLine =
+      taxonomy?.classContextLine ??
       buildEnrollmentContextLine({
         sportName,
         programName,
         className,
-      }) || className
-    return {
-      id: Number(row.id),
-      member_id: Number(row.member_id),
-      member_first_name: row.member_first_name || '',
-      member_last_name: row.member_last_name || '',
-      class_name: className,
-      sport_name: sportName,
-      program_name: programName,
-      class_context_line: classContextLine,
-      program_id: row.program_id != null ? Number(row.program_id) : null,
-      form_id: Number(row.form_id),
-      slot_group_id: row.slot_group_id != null ? Number(row.slot_group_id) : null,
-      time_slot_id: row.time_slot_id != null ? Number(row.time_slot_id) : null,
-      offering_id: row.offering_id != null ? Number(row.offering_id) : null,
-      slot_label: slotLabelForSignupRow(row, groupLabels, rowsByGroupId),
-      offering_label: offering.offering_label,
-      offering_start_date: offering.offering_start_date,
-      offering_end_date: offering.offering_end_date,
-      offering_dates: offering.offering_dates,
-      status: row.status,
-      created_at: row.created_at,
-      source: 'scheduling',
-    }
+      }) ||
+      className
+    return applyEnrollmentTaxonomy(
+      {
+        id: Number(row.id),
+        member_id: Number(row.member_id),
+        member_first_name: row.member_first_name || '',
+        member_last_name: row.member_last_name || '',
+        class_name: className,
+        sport_name: sportName,
+        program_name: programName,
+        class_context_line: classContextLine,
+        program_id:
+          taxonomy?.programId ??
+          (row.program_id != null ? Number(row.program_id) : null),
+        form_id: Number(row.form_id),
+        slot_group_id: row.slot_group_id != null ? Number(row.slot_group_id) : null,
+        time_slot_id: row.time_slot_id != null ? Number(row.time_slot_id) : null,
+        offering_id: row.offering_id != null ? Number(row.offering_id) : null,
+        slot_label: slotLabelForSignupRow(row, groupLabels, rowsByGroupId),
+        offering_label: offering.offering_label,
+        offering_start_date: offering.offering_start_date,
+        offering_end_date: offering.offering_end_date,
+        offering_dates: offering.offering_dates,
+        status: row.status,
+        created_at: row.created_at,
+        source: 'scheduling',
+      },
+      taxonomy,
+    )
   })
 
   let legacyRows = []
@@ -167,42 +181,53 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
       [memberIds],
     )
 
+    const classIds = legacyResult.rows.map((row) => Number(row.program_id))
+    const taxonomyByClassId = await loadEnrollmentTaxonomyByClassIds(pool, classIds)
+
     legacyRows = legacyResult.rows.map((row) => {
       const selectedDays = parseSelectedDays(row.selected_days)
-      const programName = row.program_name || null
-      const sportName = row.sport_name || null
-      const className = row.class_name || 'Class'
+      const taxonomy = taxonomyByClassId.get(Number(row.program_id))
+      const programName = taxonomy?.programName ?? row.program_name || null
+      const sportName = taxonomy?.sportName ?? row.sport_name || null
+      const className = taxonomy?.className ?? row.class_name || 'Class'
       const classContextLine =
+        taxonomy?.classContextLine ??
         buildEnrollmentContextLine({
           sportName,
           programName,
           className,
-        }) || className
-      return {
-        id: Number(row.id),
-        member_id: Number(row.member_id),
-        member_first_name: row.member_first_name || '',
-        member_last_name: row.member_last_name || '',
-        class_name: className,
-        sport_name: sportName,
-        program_name: programName,
-        class_context_line: classContextLine,
-        program_id: row.program_id != null ? Number(row.program_id) : null,
-        form_id: null,
-        slot_group_id: null,
-        time_slot_id: null,
-        offering_id: null,
-        slot_label: formatLegacySlotLabel(selectedDays, row.days_per_week),
-        offering_label: null,
-        offering_start_date: null,
-        offering_end_date: null,
-        offering_dates: '—',
-        status: 'enrolled',
-        created_at: row.created_at,
-        source: 'legacy',
-        days_per_week: row.days_per_week,
-        selected_days: selectedDays,
-      }
+        }) ||
+        className
+      return applyEnrollmentTaxonomy(
+        {
+          id: Number(row.id),
+          member_id: Number(row.member_id),
+          member_first_name: row.member_first_name || '',
+          member_last_name: row.member_last_name || '',
+          class_name: className,
+          sport_name: sportName,
+          program_name: programName,
+          class_context_line: classContextLine,
+          program_id:
+            taxonomy?.programId ??
+            (row.program_id != null ? Number(row.program_id) : null),
+          form_id: null,
+          slot_group_id: null,
+          time_slot_id: null,
+          offering_id: null,
+          slot_label: formatLegacySlotLabel(selectedDays, row.days_per_week),
+          offering_label: null,
+          offering_start_date: null,
+          offering_end_date: null,
+          offering_dates: '—',
+          status: 'enrolled',
+          created_at: row.created_at,
+          source: 'legacy',
+          days_per_week: row.days_per_week,
+          selected_days: selectedDays,
+        },
+        taxonomy,
+      )
     })
   } catch {
     legacyRows = []

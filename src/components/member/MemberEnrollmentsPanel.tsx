@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Calendar } from 'lucide-react'
-import { enrollmentClassHeading } from '../../utils/enrollmentDisplayLine'
+import { enrollmentClassHeading, enrichEnrollmentsFromClassesOffered } from '../../utils/enrollmentDisplayLine'
+import type { PublicProgramOffered } from '../../utils/publicClassesApi'
 
 export interface MemberEnrollmentRow {
   id: number
@@ -31,6 +32,7 @@ interface Props {
   enrollments: MemberEnrollmentRow[]
   loading: boolean
   currentMemberId?: number | null
+  classesOffered?: PublicProgramOffered[]
   multiClassPasses?: Array<{
     id: number
     programsId: number
@@ -143,23 +145,29 @@ export default function MemberEnrollmentsPanel({
   enrollments,
   loading,
   currentMemberId,
+  classesOffered = [],
   multiClassPasses = [],
 }: Props) {
   const [view, setView] = useState<ViewMode>('class')
 
+  const displayEnrollments = useMemo(
+    () => enrichEnrollmentsFromClassesOffered(enrollments, classesOffered),
+    [enrollments, classesOffered],
+  )
+
   const byClass = useMemo(() => {
     const groups = new Map<string, MemberEnrollmentRow[]>()
-    for (const row of enrollments) {
+    for (const row of displayEnrollments) {
       const key = enrollmentClassHeading(row)
       if (!groups.has(key)) groups.set(key, [])
       groups.get(key)!.push(row)
     }
     return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))
-  }, [enrollments])
+  }, [displayEnrollments])
 
   const byMember = useMemo(() => {
     const groups = new Map<number, MemberEnrollmentRow[]>()
-    for (const row of enrollments) {
+    for (const row of displayEnrollments) {
       if (!groups.has(row.member_id)) groups.set(row.member_id, [])
       groups.get(row.member_id)!.push(row)
     }
@@ -174,7 +182,7 @@ export default function MemberEnrollmentsPanel({
       const bLabel = `${bName?.member_first_name || ''} ${bName?.member_last_name || ''}`.trim()
       return aLabel.localeCompare(bLabel)
     })
-  }, [enrollments, currentMemberId])
+  }, [displayEnrollments, currentMemberId])
 
   return (
     <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">

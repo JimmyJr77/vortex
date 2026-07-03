@@ -1794,6 +1794,7 @@ export default function MemberDashboard({
                   enrollments={enrollments}
                   loading={enrollmentsLoading}
                   currentMemberId={profileData?.id != null ? Number(profileData.id) : undefined}
+                  classesOffered={classesOffered}
                   multiClassPasses={multiClassPasses.map((p) => ({
                     id: p.id,
                     programsId: p.programsId,

@@ -1,4 +1,5 @@
 import type { SignupOrderPreviewClass } from './schedulingApi'
+import type { PublicProgramOffered } from './publicClassesApi'
 
 type EnrollmentHeadingFields = {
   class_context_line?: string | null
@@ -13,8 +14,6 @@ type EnrollmentHeadingFields = {
 
 /** Sport · program · class heading for enrollment tables (no dates/times). */
 export function enrollmentClassHeading(item: EnrollmentHeadingFields): string {
-  if (item.class_context_line?.trim()) return item.class_context_line.trim()
-
   const sportName = item.sport_name ?? item.sportName
   const programName = item.program_name ?? item.programName
   const className = item.class_name ?? item.className ?? item.formTitle
@@ -25,7 +24,62 @@ export function enrollmentClassHeading(item: EnrollmentHeadingFields): string {
   if (parts.length >= 2 && parts[parts.length - 1] === parts[parts.length - 2]) {
     parts.pop()
   }
-  return parts.length > 0 ? parts.join(' · ') : className || 'Class'
+  if (parts.length > 0) return parts.join(' · ')
+
+  if (item.class_context_line?.trim()) return item.class_context_line.trim()
+  return className || 'Class'
+}
+
+/** Fill missing sport/program/class from public classes-offered catalog (by form_id). */
+export function enrichEnrollmentsFromClassesOffered<
+  T extends {
+    form_id?: number | null
+    sport_name?: string | null
+    program_name?: string | null
+    class_name?: string | null
+    class_context_line?: string | null
+    program_id?: number | null
+  },
+>(rows: T[], programs: PublicProgramOffered[]): T[] {
+  if (!programs.length) return rows
+
+  const byFormId = new Map<
+    number,
+    { sportName: string | null; programName: string; className: string; programId: number }
+  >()
+  for (const program of programs) {
+    for (const cls of program.classes) {
+      if (cls.formId == null) continue
+      byFormId.set(cls.formId, {
+        sportName: program.primarySportName?.trim() || null,
+        programName: program.displayName,
+        className: cls.displayName,
+        programId: program.id,
+      })
+    }
+  }
+
+  return rows.map((row) => {
+    if (row.form_id == null) return row
+    const meta = byFormId.get(row.form_id)
+    if (!meta) return row
+
+    const sportName = row.sport_name?.trim() || meta.sportName
+    const programName = row.program_name?.trim() || meta.programName
+    const className = row.class_name?.trim() || meta.className
+    const classContextLine = [sportName, programName, className]
+      .filter((part) => part != null && String(part).trim() !== '')
+      .join(' · ')
+
+    return {
+      ...row,
+      sport_name: sportName,
+      program_name: programName,
+      class_name: className,
+      program_id: row.program_id ?? meta.programId,
+      class_context_line: classContextLine || row.class_context_line,
+    }
+  })
 }
 
 /** Full enrollment context line for checkout and billing summaries. */
