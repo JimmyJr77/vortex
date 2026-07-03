@@ -89,7 +89,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
   const groupIds = schedulingResult.rows
     .filter((row) => row.time_slot_id == null && row.slot_group_id != null)
     .map((row) => Number(row.slot_group_id))
-  const groupLabels = await loadGroupDisplayLabels(pool, groupIds)
+  const { labels: groupLabels, rowsByGroupId } = await loadGroupDisplayLabels(pool, groupIds)
 
   const schedulingRows = schedulingResult.rows.map((row) => {
     const offering = resolveEnrollmentOfferingDisplay(row)
@@ -116,7 +116,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
       slot_group_id: row.slot_group_id != null ? Number(row.slot_group_id) : null,
       time_slot_id: row.time_slot_id != null ? Number(row.time_slot_id) : null,
       offering_id: row.offering_id != null ? Number(row.offering_id) : null,
-      slot_label: slotLabelForSignupRow(row, groupLabels),
+      slot_label: slotLabelForSignupRow(row, groupLabels, rowsByGroupId),
       offering_label: offering.offering_label,
       offering_start_date: offering.offering_start_date,
       offering_end_date: offering.offering_end_date,

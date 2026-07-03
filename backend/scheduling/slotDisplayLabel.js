@@ -1,4 +1,4 @@
-import { sortOccurrenceRows } from './slotSort.js'
+import { rowsHaveMultipleWeekLetters, sortOccurrenceRows } from './slotSort.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -23,10 +23,17 @@ export function formatDateOnly(value) {
   return null
 }
 
-export function buildSlotDisplayLabel(row) {
+export function buildSlotDisplayLabel(row, options = {}) {
   if (!row) return ''
+  const siblingRows = options.siblingRows ?? options.occurrenceRows ?? null
+  const includeWeek =
+    options.includeWeek ??
+    (siblingRows != null ? rowsHaveMultipleWeekLetters(siblingRows) : false)
   const parts = []
-  if (row.week_letter) parts.push(`${row.week_letter}-Week`)
+  if (includeWeek) {
+    const letter = String(row.week_letter ?? 'A').trim() || 'A'
+    parts.push(`${letter}-Week`)
+  }
   if (row.schedule_mode === 'date' && row.specific_date) {
     parts.push(formatDateOnly(row.specific_date))
   } else if (row.day_of_week != null) {
@@ -40,14 +47,18 @@ export function buildSlotDisplayLabel(row) {
 
 export function buildGroupDisplayLabel(occurrenceRows) {
   if (!occurrenceRows?.length) return ''
-  return sortOccurrenceRows(occurrenceRows).map((row) => buildSlotDisplayLabel(row)).join('; ')
+  const includeWeek = rowsHaveMultipleWeekLetters(occurrenceRows)
+  return sortOccurrenceRows(occurrenceRows)
+    .map((row) => buildSlotDisplayLabel(row, { includeWeek }))
+    .join('; ')
 }
 
-/** Load display labels for slot groups that have no single time_slot_id on the signup. */
+/** Load group display labels and occurrence rows for signup slot labels. */
 export async function loadGroupDisplayLabels(pool, groupIds) {
   const labels = new Map()
+  const rowsByGroupId = new Map()
   const ids = [...new Set(groupIds.filter((id) => id != null).map(Number))]
-  if (!ids.length) return labels
+  if (!ids.length) return { labels, rowsByGroupId }
 
   const slotsRes = await pool.query(
     `
@@ -67,17 +78,21 @@ export async function loadGroupDisplayLabels(pool, groupIds) {
     byGroup.get(gid).push(row)
   }
   for (const [gid, rows] of byGroup) {
+    rowsByGroupId.set(gid, rows)
     labels.set(gid, buildGroupDisplayLabel(rows))
   }
-  return labels
+  return { labels, rowsByGroupId }
 }
 
-export function slotLabelForSignupRow(row, groupLabels = new Map()) {
+export function slotLabelForSignupRow(row, groupLabels = new Map(), rowsByGroupId = new Map()) {
+  const groupId = row.slot_group_id != null ? Number(row.slot_group_id) : null
+  const siblingRows = groupId != null ? rowsByGroupId.get(groupId) : null
+  const includeWeek = siblingRows ? rowsHaveMultipleWeekLetters(siblingRows) : false
+
   if (row.time_slot_id != null || row.start_time != null) {
-    const label = buildSlotDisplayLabel(row)
+    const label = buildSlotDisplayLabel(row, { includeWeek, siblingRows })
     if (label) return label
   }
-  const groupId = row.slot_group_id != null ? Number(row.slot_group_id) : null
   if (groupId != null) {
     const groupLabel = groupLabels.get(groupId)
     if (groupLabel) return groupLabel
@@ -253,6 +268,7 @@ export function buildEnrollmentDisplayContext({
   offeringMeta,
   timeSlotsByGroup,
   groupLabels,
+  rowsByGroupId = new Map(),
 }) {
   const offering = resolveEnrollmentOfferingDisplay({
     offering_start_date: offeringMeta?.offering_start_date,
@@ -289,6 +305,7 @@ export function buildEnrollmentDisplayContext({
         time_slot_id: entry.timeSlotId,
       },
       groupLabels,
+      rowsByGroupId,
     )
 
   const resolvedClassName = className || formRow?.title || 'Class'

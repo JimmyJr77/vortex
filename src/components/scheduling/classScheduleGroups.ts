@@ -3,6 +3,8 @@ import {
   type SchedulingCalendarEvent,
   type SchedulingCalendarTbd,
   type SchedulingTimeSlot,
+  weekLettersBySlotGroup,
+  includeWeekForSlotGroup,
 } from '../../utils/schedulingApi'
 import { formatTime12, parseDateString } from './calendarDateUtils'
 import { compareScheduleOptions, daySortIndex } from '../../utils/slotSort'
@@ -92,7 +94,7 @@ function occurrenceFromParts(options: {
         : 99
   return {
     label: formatSchedulingOccurrenceLabel(occ, {
-      includeWeek: Boolean(options.includeWeek && options.weekLetter),
+      includeWeek: Boolean(options.includeWeek),
       formatTime: formatTime12,
     }),
     daySort,
@@ -231,6 +233,19 @@ export function buildClassScheduleGroups(options: {
       ? null
       : options.classOptions.find((c) => c.id === options.classFilterId) ?? null
 
+  const weekMap = weekLettersBySlotGroup([
+    ...options.events.map((event) => ({
+      slotGroupId: event.slotGroupId,
+      weekLetter: event.weekLetter,
+      scheduleMode: 'day' as const,
+    })),
+    ...options.tbdPatterns.map((tbd) => ({
+      slotGroupId: tbd.slotGroupId,
+      weekLetter: tbd.weekLetter,
+      scheduleMode: tbd.scheduleMode,
+    })),
+  ])
+
   const seenEventSlots = new Set<string>()
 
   for (const event of options.events) {
@@ -250,7 +265,7 @@ export function buildClassScheduleGroups(options: {
       dayOfWeek: weekdayFromDate(event.date),
       startTime: event.startTime,
       endTime: event.endTime,
-      includeWeek: Boolean(event.weekLetter),
+      includeWeek: includeWeekForSlotGroup(weekMap, event.slotGroupId),
     })
 
     addOffering(
@@ -291,7 +306,7 @@ export function buildClassScheduleGroups(options: {
       specificDate: tbd.specificDate,
       startTime: tbd.startTime,
       endTime: tbd.endTime,
-      includeWeek: Boolean(tbd.weekLetter),
+      includeWeek: includeWeekForSlotGroup(weekMap, tbd.slotGroupId),
     })
 
     addOffering(

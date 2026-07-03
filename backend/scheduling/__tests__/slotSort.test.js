@@ -77,7 +77,8 @@ test('groupSlotGroupsByWeek keeps sorted groups within week buckets', () => {
       occurrences: [{ id: 10, dayOfWeek: 1, startTime: '18:00', scheduleMode: 'day', weekLetter: 'A' }],
     },
   ])
-  assert.equal(weekBucketLabel(grouped[0][0]), 'A-Week')
+  assert.equal(weekBucketLabel(grouped[0][0]), 'Schedule')
+  assert.equal(weekBucketLabel(grouped[0][0], { multipleWeeks: true }), 'A-Week')
   assert.deepEqual(
     grouped[0][1].map((g) => g.id),
     [1, 2],

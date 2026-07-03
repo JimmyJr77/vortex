@@ -1752,6 +1752,42 @@ export function schedulingHasMultipleWeeks(groups: SchedulingSlotGroup[]): boole
   return letters.size > 1
 }
 
+/** True when a single slot group's day-mode occurrences span multiple week letters. */
+export function slotGroupHasMultipleWeekLetters(
+  items: Array<{ weekLetter?: string | null; scheduleMode?: string | null }>,
+): boolean {
+  const letters = new Set<string>()
+  for (const item of items) {
+    if (item.scheduleMode === 'date') continue
+    letters.add(item.weekLetter?.trim() || 'A')
+  }
+  return letters.size > 1
+}
+
+/** Build slotGroupId → week letters for calendar / class schedule views. */
+export function weekLettersBySlotGroup(
+  items: Array<{
+    slotGroupId: number
+    weekLetter?: string | null
+    scheduleMode?: string | null
+  }>,
+): Map<number, Set<string>> {
+  const map = new Map<number, Set<string>>()
+  for (const item of items) {
+    if (item.scheduleMode === 'date') continue
+    if (!map.has(item.slotGroupId)) map.set(item.slotGroupId, new Set())
+    map.get(item.slotGroupId)!.add(item.weekLetter?.trim() || 'A')
+  }
+  return map
+}
+
+export function includeWeekForSlotGroup(
+  weekMap: Map<number, Set<string>>,
+  slotGroupId: number,
+): boolean {
+  return (weekMap.get(slotGroupId)?.size ?? 0) > 1
+}
+
 /** User-facing occurrence label; week letter only when multiple weeks exist. */
 export function formatSchedulingOccurrenceLabel(
   occ: SchedulingTimeSlot,
@@ -1767,8 +1803,8 @@ export function formatSchedulingOccurrenceLabel(
     })
 
   const parts: string[] = []
-  if (options.includeWeek && occ.weekLetter) {
-    parts.push(`${occ.weekLetter}-Week`)
+  if (options.includeWeek) {
+    parts.push(`${occ.weekLetter?.trim() || 'A'}-Week`)
   }
   if (occ.scheduleMode === 'date' && occ.specificDate) {
     parts.push(occ.specificDate)

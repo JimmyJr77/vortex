@@ -23,6 +23,7 @@ import { resolveProgramsSchema } from '../programs/schema.js'
 import {
   daySortIndex,
   resolveActiveDatesForSort,
+  rowsHaveMultipleWeekLetters,
   sortOccurrenceRows,
   sortScheduleCatalogOptions,
 } from '../scheduling/slotSort.js'
@@ -263,9 +264,12 @@ function formatSignupDateRange(start, end) {
   return startLabel || endLabel || null
 }
 
-function buildSlotScheduleLabel(row) {
+function buildSlotScheduleLabel(row, includeWeek = false) {
   const parts = []
-  if (row.week_letter) parts.push(`${row.week_letter}-Week`)
+  if (includeWeek) {
+    const letter = String(row.week_letter ?? 'A').trim() || 'A'
+    parts.push(`${letter}-Week`)
+  }
   if (row.schedule_mode === 'date' && row.specific_date) {
     parts.push(formatDateOnly(row.specific_date))
   } else if (row.day_of_week != null) {
@@ -280,7 +284,8 @@ function buildSlotScheduleLabel(row) {
 function buildCompactScheduleLabel(occurrenceRows) {
   const rows = sortOccurrenceRows(occurrenceRows || [])
   if (!rows.length) return ''
-  if (rows.length === 1) return buildSlotScheduleLabel(rows[0])
+  const includeWeek = rowsHaveMultipleWeekLetters(rows)
+  if (rows.length === 1) return buildSlotScheduleLabel(rows[0], includeWeek)
 
   const dayLabels = rows.map((row) => {
     if (row.schedule_mode === 'date' && row.specific_date) {
@@ -305,7 +310,10 @@ function buildCompactScheduleLabel(occurrenceRows) {
 
 function buildGroupScheduleLabel(occurrenceRows) {
   if (!occurrenceRows?.length) return ''
-  return sortOccurrenceRows(occurrenceRows).map((row) => buildSlotScheduleLabel(row)).join('; ')
+  const includeWeek = rowsHaveMultipleWeekLetters(occurrenceRows)
+  return sortOccurrenceRows(occurrenceRows)
+    .map((row) => buildSlotScheduleLabel(row, includeWeek))
+    .join('; ')
 }
 
 function formatSignupPriceLabel(cents, costUnit) {

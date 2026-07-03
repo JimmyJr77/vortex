@@ -7,6 +7,7 @@ import {
   adminDeleteSlotGroup,
   adminUpdateSlotGroupMax,
   dayAbbrev,
+  schedulingHasMultipleWeeks,
   type SchedulingFormDetail,
   type SchedulingSlotGroup,
   type SlotBatchPayload,
@@ -51,8 +52,9 @@ const defaultTime = (): TimeRow => ({ startTime: '09:00', endTime: '10:00' })
 
 const normalizeTime = (time: string) => (time.length >= 5 ? time.slice(0, 5) : time)
 
-function formatWeekSetupLabel(weekKey: string): string {
+function formatWeekSetupLabel(weekKey: string, options?: { multipleWeeks?: boolean }): string {
   if (weekKey === '__dates__') return 'Dates'
+  if (options?.multipleWeeks !== true) return 'Schedule'
   return `${weekKey} Week`
 }
 
@@ -277,10 +279,12 @@ const AdminSchedulingSlots = ({
 
   const weekSections = useMemo(() => {
     if (offeringId == null) return []
+    const multipleWeeks = schedulingHasMultipleWeeks(offeringScopedSlotGroups)
+    const labelOpts = { multipleWeeks }
     return groupSlotGroupsByWeek(offeringScopedSlotGroups).map(([weekKey, groups]) => ({
       key: weekKey,
-      label: weekBucketLabel(weekKey),
-      setupLabel: formatWeekSetupLabel(weekKey),
+      label: weekBucketLabel(weekKey, labelOpts),
+      setupLabel: formatWeekSetupLabel(weekKey, labelOpts),
       groups,
     }))
   }, [offeringId, offeringScopedSlotGroups])
@@ -621,7 +625,7 @@ const AdminSchedulingSlots = ({
                     activeWeekIdx === idx ? 'bg-vortex-red text-white' : 'bg-white border border-gray-300'
                   }`}
                 >
-                  {w.weekLetter}-Week
+                  {weeks.length > 1 ? `${w.weekLetter}-Week` : 'Schedule'}
                 </button>
               ))}
               {weeks.length < WEEK_LETTERS.length && (

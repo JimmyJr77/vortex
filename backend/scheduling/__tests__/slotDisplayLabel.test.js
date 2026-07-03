@@ -16,6 +16,35 @@ test('buildSlotDisplayLabel formats day and time', () => {
   assert.equal(label, 'Monday · 18:00–19:30')
 })
 
+test('buildSlotDisplayLabel omits week letter when only A-week exists', () => {
+  const label = buildSlotDisplayLabel({
+    week_letter: 'A',
+    day_of_week: 1,
+    start_time: '18:00:00',
+    end_time: '19:30:00',
+    schedule_mode: 'day',
+  })
+  assert.equal(label, 'Monday · 18:00–19:30')
+})
+
+test('buildSlotDisplayLabel includes week letter when A and B exist', () => {
+  const siblings = [
+    { week_letter: 'A', day_of_week: 1, schedule_mode: 'day' },
+    { week_letter: 'B', day_of_week: 3, schedule_mode: 'day' },
+  ]
+  const label = buildSlotDisplayLabel(
+    {
+      week_letter: 'A',
+      day_of_week: 1,
+      start_time: '18:00',
+      end_time: '19:00',
+      schedule_mode: 'day',
+    },
+    { siblingRows: siblings },
+  )
+  assert.equal(label, 'A-Week · Monday · 18:00–19:00')
+})
+
 test('buildGroupDisplayLabel joins occurrences', () => {
   const label = buildGroupDisplayLabel([
     { day_of_week: 1, start_time: '18:00', end_time: '19:00', schedule_mode: 'day' },

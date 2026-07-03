@@ -383,7 +383,7 @@ async function loadExistingEnrollments(pool, memberId) {
   const groupIds = result.rows
     .filter((row) => row.time_slot_id == null && row.slot_group_id != null)
     .map((row) => Number(row.slot_group_id))
-  const groupLabels = await loadGroupDisplayLabels(pool, groupIds)
+  const { labels: groupLabels, rowsByGroupId } = await loadGroupDisplayLabels(pool, groupIds)
 
   return result.rows.map((row) => {
     const formId = Number(row.form_id)
@@ -393,7 +393,7 @@ async function loadExistingEnrollments(pool, memberId) {
       id: Number(row.id),
       formId,
       formTitle: row.form_title,
-      slotLabel: slotLabelForSignupRow(row, groupLabels),
+      slotLabel: slotLabelForSignupRow(row, groupLabels, rowsByGroupId),
       status: row.status,
       slotGroupId,
       timeSlotId,
@@ -410,7 +410,7 @@ async function loadExistingEnrollments(pool, memberId) {
 
 function attachClassDisplayFields(
   item,
-  { formRows, programMeta, offeringMetaByGroup, timeSlotsByGroup, groupLabels },
+  { formRows, programMeta, offeringMetaByGroup, timeSlotsByGroup, groupLabels, rowsByGroupId },
 ) {
   const formRow = formRows.get(item.formId)
   const programsId =
@@ -431,6 +431,7 @@ function attachClassDisplayFields(
     offeringMeta,
     timeSlotsByGroup,
     groupLabels,
+    rowsByGroupId,
   })
   return {
     ...item,
@@ -524,7 +525,7 @@ export async function buildSignupOrderPreview(
     }
   }
 
-  const groupLabels = await loadGroupDisplayLabels(pool, [...slotGroupIds])
+  const { labels: groupLabels, rowsByGroupId } = await loadGroupDisplayLabels(pool, [...slotGroupIds])
 
   const programTitles = new Map()
   const programMeta = new Map()
@@ -560,6 +561,7 @@ export async function buildSignupOrderPreview(
     offeringMetaByGroup,
     timeSlotsByGroup,
     groupLabels,
+    rowsByGroupId,
   }
 
   const scopeMeta = new Map()

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 import {
   formatOfferingDates,
@@ -8,7 +8,7 @@ import {
   type ClassSchedulingDetail,
 } from '../../utils/classSchedulingSummary'
 import { formatDateForDisplay } from '../../utils/dateUtils'
-import type { SchedulingCalendarEvent } from '../../utils/schedulingApi'
+import { slotGroupHasMultipleWeekLetters, type SchedulingCalendarEvent } from '../../utils/schedulingApi'
 
 interface Props {
   event: SchedulingCalendarEvent
@@ -46,6 +46,13 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
   const [detail, setDetail] = useState<ClassSchedulingDetail | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const showWeekLetter = useMemo(() => {
+    if (!event.weekLetter || !detail?.slotGroups?.length) return false
+    const group = detail.slotGroups.find((g) => g.id === event.slotGroupId)
+    if (!group) return false
+    return slotGroupHasMultipleWeekLetters(group.occurrences)
+  }, [event.slotGroupId, event.weekLetter, detail?.slotGroups])
 
   const loadDetail = useCallback(async () => {
     if (!event.classEventId) {
@@ -126,7 +133,7 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
             />
             <DetailRow label="Skill level" value={formatSkillLevel(event.skillLevel)} />
             <DetailRow label="Age range" value={formatAgeRange(event.ageMin, event.ageMax)} />
-            {event.weekLetter && (
+            {showWeekLetter && (
               <DetailRow label="Week" value={`${event.weekLetter}-Week`} />
             )}
             {offeringSummary && <DetailRow label="Offering" value={offeringSummary} />}

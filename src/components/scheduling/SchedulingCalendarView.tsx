@@ -10,6 +10,8 @@ import {
   type SchedulingCalendarMonth,
   type SchedulingCalendarTbd,
   type SchedulingTimeSlot,
+  weekLettersBySlotGroup,
+  includeWeekForSlotGroup,
 } from '../../utils/schedulingApi'
 import {
   addDays,
@@ -130,6 +132,23 @@ const SchedulingCalendarView = ({
     if (!match) return patterns
     return patterns.filter((tbd) => tbd.className === match.displayName)
   }, [calendar?.tbdPatterns, view, classFilterId, classOptions])
+
+  const tbdWeekMap = useMemo(
+    () =>
+      weekLettersBySlotGroup([
+        ...(calendar?.events ?? []).map((event) => ({
+          slotGroupId: event.slotGroupId,
+          weekLetter: event.weekLetter,
+          scheduleMode: 'day' as const,
+        })),
+        ...(calendar?.tbdPatterns ?? []).map((tbd) => ({
+          slotGroupId: tbd.slotGroupId,
+          weekLetter: tbd.weekLetter,
+          scheduleMode: tbd.scheduleMode,
+        })),
+      ]),
+    [calendar?.events, calendar?.tbdPatterns],
+  )
 
   const classScheduleGroups = useMemo(
     () =>
@@ -625,7 +644,7 @@ const SchedulingCalendarView = ({
           <ul className="space-y-2">
             {filteredTbdPatterns.map((tbd) => {
               const label = formatSchedulingOccurrenceLabel(tbdToOccurrence(tbd), {
-                includeWeek: Boolean(tbd.weekLetter),
+                includeWeek: includeWeekForSlotGroup(tbdWeekMap, tbd.slotGroupId),
                 formatTime: formatTime12,
               })
               const inactive = isTbdInactive(tbd)

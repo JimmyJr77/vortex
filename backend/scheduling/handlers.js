@@ -79,7 +79,7 @@ import {
   parseCalendarDateRange,
 } from './calendarQuery.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
-import { loadGroupDisplayLabels, slotLabelForSignupRow } from './slotDisplayLabel.js'
+import { loadGroupDisplayLabels, slotLabelForSignupRow, buildSlotDisplayLabel, buildGroupDisplayLabel } from './slotDisplayLabel.js'
 import { resolveSlotActiveDates } from './slotActiveDates.js'
 import { sortOccurrenceRows, sortSlotGroups } from './slotSort.js'
 
@@ -647,7 +647,14 @@ async function syncOfferingDatesToSlotGroups(client, offeringId, { newStart, new
   return groupIds.length
 }
 
-function mapSlotRow(row, signupCount = 0, form = null, offeringById = null, groupRow = null) {
+function mapSlotRow(
+  row,
+  signupCount = 0,
+  form = null,
+  offeringById = null,
+  groupRow = null,
+  siblingRows = null,
+) {
   const max = Number(row.max_participants)
   const count = Number(signupCount)
   let dates = resolveSlotActiveDates(row, form, offeringById)
@@ -681,27 +688,8 @@ function mapSlotRow(row, signupCount = 0, form = null, offeringById = null, grou
     inheritsFormDates: dates.inheritsFormDates,
     inheritsOfferingDates: dates.inheritsOfferingDates,
     isActive: row.is_active,
-    displayLabel: buildSlotDisplayLabel(row),
+    displayLabel: buildSlotDisplayLabel(row, { siblingRows: siblingRows ?? undefined }),
   }
-}
-
-function buildSlotDisplayLabel(row) {
-  const parts = []
-  if (row.week_letter) parts.push(`${row.week_letter}-Week`)
-  if (row.schedule_mode === 'date' && row.specific_date) {
-    parts.push(formatDateOnly(row.specific_date))
-  } else if (row.day_of_week != null) {
-    parts.push(DAY_NAMES[row.day_of_week])
-  }
-  const st = formatTime(row.start_time)
-  const et = formatTime(row.end_time)
-  if (st && et) parts.push(`${st}–${et}`)
-  return parts.join(' · ')
-}
-
-function buildGroupDisplayLabel(occurrenceRows) {
-  if (!occurrenceRows?.length) return ''
-  return sortOccurrenceRows(occurrenceRows).map((row) => buildSlotDisplayLabel(row)).join('; ')
 }
 
 function mapSlotGroupRow(
@@ -718,7 +706,7 @@ function mapSlotGroupRow(
   const dates = resolveSlotActiveDates(groupRow, form, offeringById)
   const sortedOccurrenceRows = sortOccurrenceRows(occurrenceRows || [])
   const occurrences = sortedOccurrenceRows.map((row) =>
-    mapSlotRow(row, 0, form, offeringById, groupRow),
+    mapSlotRow(row, 0, form, offeringById, groupRow, sortedOccurrenceRows),
   )
   return {
     id: Number(groupRow.id),
@@ -1626,7 +1614,7 @@ export function createSchedulingHandlers(pool) {
         const groupIds = signupRes.rows
           .filter((row) => row.time_slot_id == null && row.slot_group_id != null)
           .map((row) => Number(row.slot_group_id))
-        const groupLabels = await loadGroupDisplayLabels(pool, groupIds)
+        const { labels: groupLabels, rowsByGroupId } = await loadGroupDisplayLabels(pool, groupIds)
 
         res.json({
           success: true,
@@ -1640,7 +1628,7 @@ export function createSchedulingHandlers(pool) {
             signupRows: signupRes.rows.map((row) => ({
               id: Number(row.id),
               formTitle: row.form_title,
-              slotLabel: slotLabelForSignupRow(row, groupLabels),
+              slotLabel: slotLabelForSignupRow(row, groupLabels, rowsByGroupId),
               pricingBreakdown: row.pricing_breakdown ?? null,
             })),
           },

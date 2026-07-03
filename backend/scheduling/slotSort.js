@@ -60,6 +60,23 @@ export function sortOccurrenceRows(rows) {
   return [...(rows || [])].sort(compareOccurrenceRows)
 }
 
+/** Distinct week letters on day-mode slots (defaults missing letter to A). */
+export function uniqueWeekLettersFromRows(rows) {
+  const letters = new Set()
+  for (const row of rows || []) {
+    const mode = row.scheduleMode ?? row.schedule_mode ?? 'day'
+    if (mode === 'date') continue
+    const letter = String(row.weekLetter ?? row.week_letter ?? 'A').trim() || 'A'
+    letters.add(letter)
+  }
+  return [...letters].sort()
+}
+
+/** True when day-mode slots use more than one week letter (e.g. A and B). */
+export function rowsHaveMultipleWeekLetters(rows) {
+  return uniqueWeekLettersFromRows(rows).length > 1
+}
+
 function primaryOccurrence(group) {
   const occs = group.occurrences ?? group._occurrenceRows ?? []
   if (!occs.length) return null
@@ -119,8 +136,9 @@ export function groupSlotGroupsByWeek(groups) {
   return [...map.entries()].sort(([a], [b]) => compareWeekBucketKeys(a, b))
 }
 
-export function weekBucketLabel(key) {
+export function weekBucketLabel(key, { multipleWeeks = false } = {}) {
   if (key === '__dates__') return 'Dates'
+  if (!multipleWeeks) return 'Schedule'
   return `${key}-Week`
 }
 

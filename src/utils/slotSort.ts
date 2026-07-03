@@ -118,8 +118,9 @@ export function groupSlotGroupsByWeek(
   return [...map.entries()].sort(([a], [b]) => compareWeekBucketKeys(a, b))
 }
 
-export function weekBucketLabel(key: string): string {
+export function weekBucketLabel(key: string, options?: { multipleWeeks?: boolean }): string {
   if (key === '__dates__') return 'Dates'
+  if (options?.multipleWeeks !== true) return 'Schedule'
   return `${key}-Week`
 }
 

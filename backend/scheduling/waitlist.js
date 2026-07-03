@@ -1,3 +1,5 @@
+import { buildGroupDisplayLabel } from './slotDisplayLabel.js'
+
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 function formatTime(t) {
@@ -19,20 +21,6 @@ function formatDateOnly(value) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
   if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
   return null
-}
-
-function buildSlotDisplayLabel(row) {
-  const parts = []
-  if (row.week_letter) parts.push(`${row.week_letter}-Week`)
-  if (row.schedule_mode === 'date' && row.specific_date) {
-    parts.push(formatDateOnly(row.specific_date))
-  } else if (row.day_of_week != null) {
-    parts.push(DAY_NAMES[row.day_of_week])
-  }
-  const st = formatTime(row.start_time)
-  const et = formatTime(row.end_time)
-  if (st && et) parts.push(`${st}–${et}`)
-  return parts.join(' · ')
 }
 
 /**
@@ -208,7 +196,7 @@ export async function loadSignupContext(db, signupId) {
     ? row.responses
     : row.field_responses || {}
   const occurrences = Array.isArray(row.group_occurrences) ? row.group_occurrences : []
-  const slotLabel = occurrences.map((o) => buildSlotDisplayLabel(o)).join('; ')
+  const slotLabel = buildGroupDisplayLabel(occurrences)
 
   return {
     signup: row,
