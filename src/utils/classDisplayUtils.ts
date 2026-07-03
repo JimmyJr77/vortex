@@ -3,6 +3,24 @@ export function formatAgeRange(ageMin: number | null, ageMax: number | null): st
   return `${ageMin ?? 'Any'} – ${ageMax ?? 'Any'}`
 }
 
+/** Skill level enum values — order matches admin ClassEventModal skill level dropdown. */
+export const CLASS_SKILL_LEVEL_CHOICES = [
+  { value: 'EARLY_STAGE' as const, label: 'Early stage' },
+  { value: 'BEGINNER' as const, label: 'Beginner' },
+  { value: 'INTERMEDIATE' as const, label: 'Intermediate' },
+  { value: 'ADVANCED' as const, label: 'Advanced' },
+]
+
+export type ClassSkillLevel = (typeof CLASS_SKILL_LEVEL_CHOICES)[number]['value']
+
+/** Filter dropdown: first option clears filter; rest match admin edit-class labels. */
+export const CLASS_SKILL_LEVEL_FILTER_OPTIONS = [
+  { value: 'all' as const, label: 'None (all levels)' },
+  ...CLASS_SKILL_LEVEL_CHOICES,
+]
+
+export type ClassSkillLevelFilter = (typeof CLASS_SKILL_LEVEL_FILTER_OPTIONS)[number]['value']
+
 export function formatSkillLevel(skillLevel: string | null): string {
   if (!skillLevel) return 'All levels'
   const words = skillLevel.replace(/_/g, ' ').trim().toLowerCase()

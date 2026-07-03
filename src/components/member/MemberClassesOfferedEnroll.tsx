@@ -2,6 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, CheckCircle, LayoutGrid, Loader2, Search, ShoppingCart } from 'lucide-react'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
 import {
+  CLASS_SKILL_LEVEL_FILTER_OPTIONS,
+  formatSkillLevel,
+  type ClassSkillLevelFilter,
+} from '../../utils/classDisplayUtils'
+import {
   enabledBasePricingOptions,
   formatProgramPricingOptionLabel,
   type ProgramPricingOptionKey,
@@ -66,12 +71,9 @@ interface CartItem {
 type CatalogState = SignupClassCatalog | 'loading' | 'error'
 
 const UNSPECIFIED_SPORT = '__unspecified_sport__'
-const ALL_LEVELS = '__all_levels__'
-const NO_LEVEL = '__no_level__'
 
-function classMatchesLevelFilter(skillLevel: string | null, levelFilter: string): boolean {
-  if (levelFilter === ALL_LEVELS) return true
-  if (levelFilter === NO_LEVEL) return skillLevel == null
+function classMatchesLevelFilter(skillLevel: string | null, levelFilter: ClassSkillLevelFilter): boolean {
+  if (levelFilter === 'all') return true
   return skillLevel == null || skillLevel === levelFilter
 }
 
@@ -124,7 +126,7 @@ export default function MemberClassesOfferedEnroll({
   const [searchQuery, setSearchQuery] = useState('')
   const [sportFilter, setSportFilter] = useState<string>('all')
   const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
-  const [levelFilter, setLevelFilter] = useState<string>(ALL_LEVELS)
+  const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
 
   const classesWithForm = useMemo(() => {
     const out: Array<{
@@ -166,19 +168,6 @@ export default function MemberClassesOfferedEnroll({
       hasUnspecified,
     }
   }, [programs])
-
-  const levelOptions = useMemo(() => {
-    const levels = new Set<string>()
-    let hasNoLevel = false
-    for (const cls of classesWithForm) {
-      if (cls.skillLevel) levels.add(cls.skillLevel)
-      else hasNoLevel = true
-    }
-    return {
-      named: [...levels].sort((a, b) => a.localeCompare(b)),
-      hasNoLevel,
-    }
-  }, [classesWithForm])
 
   const filteredProgramSections = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -750,14 +739,12 @@ export default function MemberClassesOfferedEnroll({
               <span className="text-xs font-semibold text-gray-600">Experience level</span>
               <select
                 value={levelFilter}
-                onChange={(e) => setLevelFilter(e.target.value)}
+                onChange={(e) => setLevelFilter(e.target.value as ClassSkillLevelFilter)}
                 className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"
               >
-                <option value={ALL_LEVELS}>All levels</option>
-                {levelOptions.hasNoLevel && <option value={NO_LEVEL}>No level</option>}
-                {levelOptions.named.map((level) => (
-                  <option key={level} value={level}>
-                    {level}
+                {CLASS_SKILL_LEVEL_FILTER_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>
@@ -801,7 +788,7 @@ export default function MemberClassesOfferedEnroll({
         return (
           <div
             key={program.id}
-            className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm"
+            className="rounded-xl border border-vortex-red bg-white p-4 md:p-5 space-y-4 shadow-sm"
           >
             <div>
               <h2 className="text-lg font-bold text-vortex-red">{program.displayName}</h2>
@@ -907,7 +894,9 @@ export default function MemberClassesOfferedEnroll({
                   <div>
                     <h3 className="text-base font-bold text-gray-900">{cls.label}</h3>
                     {cls.skillLevel && (
-                      <p className="text-xs text-gray-500 mt-0.5">Level: {cls.skillLevel}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Level: {formatSkillLevel(cls.skillLevel)}
+                      </p>
                     )}
                     {cls.description && (
                       <p className="text-sm text-gray-600 mt-1">{cls.description}</p>
