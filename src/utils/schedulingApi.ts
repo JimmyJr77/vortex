@@ -146,6 +146,10 @@ export interface OrderDiscountAppliedLine {
   type: string
   amountCents: number
   kind: 'discount' | 'free'
+  /** Tier requirements the account satisfied, e.g. "3 Classes and $600". */
+  qualifiedLabel?: string | null
+  /** What unlocks the next tier, e.g. "$150 more will unlock a 30% discount." */
+  nextTierHint?: string | null
 }
 
 export interface OrderDiscountLine {
@@ -161,6 +165,8 @@ export interface OrderDiscountSummary {
   name: string
   type: string
   amountCents: number
+  qualifiedLabel?: string | null
+  nextTierHint?: string | null
 }
 
 export interface OrderDiscountBreakdown {

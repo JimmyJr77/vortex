@@ -504,6 +504,17 @@ export function isMonthlySpendSystemRule(rule) {
   return rule?.exclusivity_group === 'monthly_spend' || rule?.exclusivityGroup === 'monthly_spend'
 }
 
+/**
+ * Any tiered spend_volume rule is a household spend rule: its tier thresholds are
+ * monthly-spend cents, which only make sense evaluated against the whole account.
+ * Admin-created rules lack the system_key, so type + tiers is the real signal.
+ */
+export function isHouseholdSpendVolumeRule(rule) {
+  if (rule?.type !== 'spend_volume') return false
+  if (isMonthlySpendSystemRule(rule)) return true
+  return Array.isArray(rule?.tiers) && rule.tiers.length > 0
+}
+
 export function isAccountSystemRule(rule) {
   return isMultiClassSystemRule(rule) || isMonthlySpendSystemRule(rule)
 }
@@ -658,6 +669,94 @@ export function pickMonthlySpendTier(rule, stats) {
   return null
 }
 
+// ---------- Tier qualification labels + next-tier unlock hints ----------
+
+function formatCentsShort(cents) {
+  const dollars = Math.round(Number(cents) || 0) / 100
+  return Number.isInteger(dollars) ? `$${dollars}` : `$${dollars.toFixed(2)}`
+}
+
+function tierRewardLabel(tier) {
+  if (tier.amountType === 'percent') {
+    const pct = Number((Number(tier.amountValue) / 100).toFixed(2))
+    return `${pct}% discount`
+  }
+  return `${formatCentsShort(tier.amountValue)} discount`
+}
+
+function classesPhrase(count) {
+  return `${count} ${count === 1 ? 'Class' : 'Classes'}`
+}
+
+/** e.g. "3 Classes and $600" for the spend tier the account qualified for. */
+export function spendTierQualificationLabel(tier) {
+  const spend = formatCentsShort(tier.threshold)
+  const minClasses = tier.minPaidEnrollments != null ? Number(tier.minPaidEnrollments) : 0
+  return minClasses > 0 ? `${classesPhrase(minClasses)} and ${spend}` : spend
+}
+
+/** e.g. "3 Classes and $299" for the multi-class tier the account qualified for. */
+export function multiClassTierQualificationLabel(tier) {
+  const label = classesPhrase(Number(tier.threshold))
+  const minMonthly = tier.minMonthlyCents != null ? Number(tier.minMonthlyCents) : 0
+  return minMonthly > 0 ? `${label} and ${formatCentsShort(minMonthly)}` : label
+}
+
+/**
+ * Build the "what unlocks the next tier" sentence from what the account still needs.
+ * Omits the class requirement when the class count is already met, and the spend
+ * requirement when the spend minimum is already met.
+ */
+function buildUnlockHint({ needClasses, needSpendCents, nextTier }) {
+  const reward = tierRewardLabel(nextTier)
+  if (needClasses > 0 && needSpendCents > 0) {
+    const perClassCents = Math.ceil(needSpendCents / needClasses)
+    const classes = `${needClasses} more ${needClasses === 1 ? 'class' : 'classes'}`
+    return `${classes} at ${formatCentsShort(perClassCents)} or more will unlock a ${reward}.`
+  }
+  if (needClasses > 0) {
+    return `${needClasses} more ${needClasses === 1 ? 'class' : 'classes'} will unlock a ${reward}.`
+  }
+  if (needSpendCents > 0) {
+    return `${formatCentsShort(needSpendCents)} more will unlock a ${reward}.`
+  }
+  return null
+}
+
+/** Next spend tier above the applied one, and the sentence describing how to reach it. */
+export function nextSpendTierHint(rule, appliedTier, stats) {
+  const appliedThreshold = Number(appliedTier?.threshold ?? 0)
+  const next = [...(rule.tiers || [])]
+    .filter((t) => Number(t.threshold) > appliedThreshold)
+    .sort((a, b) => Number(a.threshold) - Number(b.threshold))[0]
+  if (!next) return null
+  const classCount = stats.paidClassCount ?? stats.familyPaidClassCount ?? 0
+  const spend = stats.accountMonthlyCents ?? stats.familyMonthlyCents ?? 0
+  const minClasses = next.minPaidEnrollments != null ? Number(next.minPaidEnrollments) : 0
+  return buildUnlockHint({
+    needClasses: Math.max(0, minClasses - classCount),
+    needSpendCents: Math.max(0, Number(next.threshold) - spend),
+    nextTier: next,
+  })
+}
+
+/** Next multi-class tier above the applied one (threshold = class count). */
+export function nextMultiClassTierHint(rule, appliedTier, stats) {
+  const appliedThreshold = Number(appliedTier?.threshold ?? 0)
+  const next = [...(rule.tiers || [])]
+    .filter((t) => Number(t.threshold) > appliedThreshold)
+    .sort((a, b) => Number(a.threshold) - Number(b.threshold))[0]
+  if (!next) return null
+  const classCount = stats.paidClassCount ?? stats.familyPaidClassCount ?? 0
+  const spend = stats.accountMonthlyCents ?? stats.familyMonthlyCents ?? 0
+  const minMonthly = next.minMonthlyCents != null ? Number(next.minMonthlyCents) : 0
+  return buildUnlockHint({
+    needClasses: Math.max(0, Number(next.threshold) - classCount),
+    needSpendCents: Math.max(0, minMonthly - spend),
+    nextTier: next,
+  })
+}
+
 export function accountStatsFromLine(line) {
   const paidClassCount = line.accountPaidClassCount ?? line.familyPaidClassCount ?? 0
   const accountMonthlyCents = line.accountMonthlyCents ?? line.familyMonthlyCents ?? 0
@@ -676,7 +775,7 @@ export function accountStatsFromLine(line) {
 /** Infer account stats from cart lines when DB enrichment was not run (e.g. order simulator). */
 export function attachCartAccountStats(lines, rules = []) {
   const multiClassRule = rules.find(isMultiClassSystemRule)
-  const spendRule = rules.find(isMonthlySpendSystemRule)
+  const spendRule = rules.find(isHouseholdSpendVolumeRule)
   if (!multiClassRule && !spendRule) return lines
 
   const minPerClassCents = Math.max(

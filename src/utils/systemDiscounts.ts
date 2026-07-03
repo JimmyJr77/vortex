@@ -103,6 +103,23 @@ export function isAccountSystemRule(
   return isMultiClassSystemRule(rule) || isMonthlySpendSystemRule(rule)
 }
 
+/**
+ * Any tiered spend_volume rule is the household "family spend" discount, even when
+ * created through the admin UI without the system key. Mirrors the backend check.
+ * These rules are protected: not deletable, name/promo code locked, pause instead.
+ */
+export function isHouseholdSpendVolumeRule(
+  rule:
+    | (Pick<DiscountRule, 'type' | 'config'> &
+        Partial<Pick<DiscountRule, 'exclusivityGroup' | 'tiers'>>)
+    | null
+    | undefined,
+): boolean {
+  if (rule?.type !== 'spend_volume') return false
+  if (isMonthlySpendSystemRule(rule)) return true
+  return (rule.tiers?.length ?? 0) > 0
+}
+
 export function monthlySpendDiscountTarget(rule: Pick<DiscountRule, 'config'>): MultiClassDiscountTarget {
   const target = String(rule?.config?.discount_target ?? 'total').toLowerCase()
   return MULTI_CLASS_DISCOUNT_TARGETS.includes(target as MultiClassDiscountTarget)

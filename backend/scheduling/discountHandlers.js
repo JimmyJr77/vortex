@@ -12,7 +12,7 @@ import {
 } from './promoCodeRegistry.js'
 import {
   isMultiClassSystemRule,
-  isMonthlySpendSystemRule,
+  isHouseholdSpendVolumeRule,
   systemRuleSortRank,
   MULTI_CLASS_SYSTEM_KEY,
   MONTHLY_SPEND_SYSTEM_KEY,
@@ -259,11 +259,10 @@ export function createDiscountHandlers(pool) {
       try {
         await ensureDiscountEngineSchema(pool)
         const id = Number(req.params.id)
-        const existingRes = await pool.query('SELECT * FROM discount_rule WHERE id = $1', [id])
-        if (existingRes.rows.length === 0) {
+        const existing = await loadRuleWithTiers(pool, id)
+        if (!existing) {
           return res.status(404).json({ success: false, message: 'Discount rule not found' })
         }
-        const existing = mapRuleRow(existingRes.rows[0])
         const { error, value } = ruleSchema.validate(req.body, { stripUnknown: true })
         if (error) return res.status(400).json({ success: false, message: error.details[0].message })
         const facilityId = await getFacilityId(pool)
@@ -289,9 +288,13 @@ export function createDiscountHandlers(pool) {
                 2,
             },
           }
-        } else if (isMonthlySpendSystemRule(existing)) {
+        } else if (isHouseholdSpendVolumeRule(existing)) {
+          // Household family-spend discount: editable, but name + promo code are locked
+          // and it is stamped with the system key so the engine always recognizes it.
+          const lockedPromoCode = existing.config?.promo_code ?? withPromo.config?.promo_code
           withPromo = {
             ...withPromo,
+            name: existing.name,
             type: 'spend_volume',
             applyTo: 'per_class',
             calcBase: 'pre',
@@ -303,6 +306,11 @@ export function createDiscountHandlers(pool) {
               system_key: MONTHLY_SPEND_SYSTEM_KEY,
               require_paying_enrollment: true,
               discount_target: withPromo.config?.discount_target ?? 'total',
+              promo_code: lockedPromoCode,
+              promo_code_auto_generated:
+                existing.config?.promo_code != null
+                  ? (existing.config?.promo_code_auto_generated ?? false)
+                  : (withPromo.config?.promo_code_auto_generated ?? false),
             },
           }
         }
@@ -361,6 +369,16 @@ export function createDiscountHandlers(pool) {
       try {
         await ensureDiscountEngineSchema(pool)
         const id = Number(req.params.id)
+        const existing = await loadRuleWithTiers(pool, id)
+        if (!existing) {
+          return res.status(404).json({ success: false, message: 'Discount rule not found' })
+        }
+        if (isHouseholdSpendVolumeRule(existing)) {
+          return res.status(400).json({
+            success: false,
+            message: 'The family spend discount cannot be deleted. Pause it to disable it temporarily.',
+          })
+        }
         const del = await pool.query('DELETE FROM discount_rule WHERE id = $1 RETURNING id', [id])
         if (del.rows.length === 0) {
           return res.status(404).json({ success: false, message: 'Discount rule not found' })

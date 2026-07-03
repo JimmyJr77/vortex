@@ -39,6 +39,8 @@ export default function OrderPricingSummary({
           key: `${line.key}-${i}`,
           name: applied.name,
           amount: applied.amountCents / 100,
+          qualifiedLabel: applied.qualifiedLabel ?? null,
+          nextTierHint: applied.nextTierHint ?? null,
         })),
       )
     : []
@@ -47,6 +49,8 @@ export default function OrderPricingSummary({
         key: `order-${i}`,
         name: d.name,
         amount: d.amountCents / 100,
+        qualifiedLabel: d.qualifiedLabel ?? null,
+        nextTierHint: d.nextTierHint ?? null,
       }))
     : []
   const engineDiscountMonthly =
@@ -204,15 +208,31 @@ export default function OrderPricingSummary({
                 </li>
               ))}
             {engineDiscountLines.map((d) => (
-              <li key={d.key} className="flex justify-between text-green-800">
-                <span>{d.name}</span>
-                <span>-{formatMoney(d.amount)}</span>
+              <li key={d.key} className="text-green-800">
+                <div className="flex justify-between">
+                  <span>
+                    {d.name}
+                    {d.qualifiedLabel ? ` (${d.qualifiedLabel})` : ''}
+                  </span>
+                  <span>-{formatMoney(d.amount)}</span>
+                </div>
+                {d.nextTierHint && (
+                  <p className="mt-0.5 text-xs text-green-700">{d.nextTierHint}</p>
+                )}
               </li>
             ))}
             {orderDiscountLines.map((d) => (
-              <li key={d.key} className="flex justify-between text-green-800">
-                <span>{d.name}</span>
-                <span>-{formatMoney(d.amount)}</span>
+              <li key={d.key} className="text-green-800">
+                <div className="flex justify-between">
+                  <span>
+                    {d.name}
+                    {d.qualifiedLabel ? ` (${d.qualifiedLabel})` : ''}
+                  </span>
+                  <span>-{formatMoney(d.amount)}</span>
+                </div>
+                {d.nextTierHint && (
+                  <p className="mt-0.5 text-xs text-green-700">{d.nextTierHint}</p>
+                )}
               </li>
             ))}
           </ul>

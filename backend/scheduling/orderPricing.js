@@ -1183,12 +1183,12 @@ export async function computeDiscountLayer(
       const {
         computeAccountDiscountStats,
         isMultiClassSystemRule,
-        isMonthlySpendSystemRule,
+        isHouseholdSpendVolumeRule,
         multiClassMinPerClassCents,
         monthlySpendMinPerClassCents,
       } = await import('./systemDiscounts.js')
       const multiClassRule = rules.find(isMultiClassSystemRule)
-      const spendRule = rules.find(isMonthlySpendSystemRule)
+      const spendRule = rules.find(isHouseholdSpendVolumeRule)
       if (multiClassRule || spendRule) {
         const minPerClassCents = Math.max(
           multiClassRule ? multiClassMinPerClassCents(multiClassRule) : 0,

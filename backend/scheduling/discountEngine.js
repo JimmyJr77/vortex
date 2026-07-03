@@ -1,6 +1,7 @@
 import {
   isMultiClassSystemRule,
   isMonthlySpendSystemRule,
+  isHouseholdSpendVolumeRule,
   multiClassDiscountTarget,
   monthlySpendDiscountTarget,
   multiClassMinPayingClasses,
@@ -10,6 +11,10 @@ import {
   accountStatsFromLine,
   attachCartAccountStats,
   mapTierRow,
+  spendTierQualificationLabel,
+  multiClassTierQualificationLabel,
+  nextSpendTierHint,
+  nextMultiClassTierHint,
 } from './systemDiscounts.js'
 
 // Discount + promo rules engine. Pure computation over already-resolved base (list) prices,
@@ -396,7 +401,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     return 'cart:default'
   }
 
-  function applyAccountSystemDiscount(rule, { pickTier, getTarget, passesGate }) {
+  function applyAccountSystemDiscount(rule, { pickTier, getTarget, passesGate, describeTier, nextTierHint }) {
     const target = getTarget(rule)
     const groups = new Map()
     for (const ls of lineState) {
@@ -412,6 +417,9 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       if (!passesGate(stats)) continue
       const tier = pickTier(rule, stats)
       if (!tier) continue
+
+      const qualifiedLabel = describeTier ? describeTier(tier) : null
+      const unlockHint = nextTierHint ? nextTierHint(tier, stats) : null
 
       const cartLines = groupLines.filter(
         (ls) => ls.includeInSubtotal !== false && ls.line.shadowOnly !== true,
@@ -442,6 +450,8 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
             name: rule.name,
             type: rule.type,
             amountCents: amount,
+            qualifiedLabel,
+            nextTierHint: unlockHint,
           })
           capTracker.record(rule, repLine.line, 'discount')
           redemptions.push({
@@ -475,6 +485,8 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
             type: rule.type,
             amountCents: applied,
             kind: 'discount',
+            qualifiedLabel,
+            nextTierHint: unlockHint,
           })
           if (rule.exclusivityGroup) ls.exclusivityGroups.add(rule.exclusivityGroup)
           redemptions.push({
@@ -534,6 +546,8 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         type: rule.type,
         amountCents: amount,
         kind: 'discount',
+        qualifiedLabel,
+        nextTierHint: unlockHint,
       })
       if (rule.exclusivityGroup) pick.exclusivityGroups.add(rule.exclusivityGroup)
       capTracker.record(rule, pick.line, 'discount')
@@ -555,6 +569,8 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       getTarget: multiClassDiscountTarget,
       pickTier: pickMultiClassTier,
       passesGate: (stats) => (stats.paidClassCount ?? 0) >= multiClassMinPayingClasses(rule),
+      describeTier: multiClassTierQualificationLabel,
+      nextTierHint: (tier, stats) => nextMultiClassTierHint(rule, tier, stats),
     })
   }
 
@@ -563,6 +579,8 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       getTarget: monthlySpendDiscountTarget,
       pickTier: pickMonthlySpendTier,
       passesGate: (stats) => (stats.paidClassCount ?? 0) >= monthlySpendMinPaidClasses(rule),
+      describeTier: spendTierQualificationLabel,
+      nextTierHint: (tier, stats) => nextSpendTierHint(rule, tier, stats),
     })
   }
 
@@ -571,7 +589,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       applyMultiClassSystemDiscount(rule)
       continue
     }
-    if (isMonthlySpendSystemRule(rule)) {
+    if (isHouseholdSpendVolumeRule(rule)) {
       applyMonthlySpendSystemDiscount(rule)
       continue
     }
@@ -656,7 +674,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         amountType = tier.amountType
         amountValue = tier.amountValue
       } else if (rule.type === 'spend_volume') {
-        if (isMonthlySpendSystemRule(rule)) continue
+        if (isHouseholdSpendVolumeRule(rule)) continue
         if (ls.line.costUsesSelections && !ls.line.costDiscountRuleIds?.has(Number(rule.id))) continue
         const ordinal = accountOrdinalForLine(ls.line)
         const minClasses = monthlySpendMinPaidClasses(rule) || 2

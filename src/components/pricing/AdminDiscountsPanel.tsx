@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react'
 import {
   adminCreateDiscountRule,
   adminDeleteDiscountRule,
@@ -17,6 +17,7 @@ import {
   isAccountSystemRule,
   isMultiClassSystemRule,
   isMonthlySpendSystemRule,
+  isHouseholdSpendVolumeRule,
   multiClassDiscountTarget,
   monthlySpendDiscountTarget,
   MULTI_CLASS_TARGET_LABELS,
@@ -110,6 +111,35 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
       await load()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to delete')
+    }
+  }
+
+  const handleToggleActive = async (rule: DiscountRule) => {
+    try {
+      await adminUpdateDiscountRule(rule.id, {
+        name: rule.name,
+        description: rule.description,
+        type: rule.type,
+        amountType: rule.amountType,
+        amountValue: rule.amountValue,
+        applyTo: rule.applyTo,
+        calcBase: rule.calcBase,
+        priority: rule.priority,
+        stackable: rule.stackable,
+        exclusivityGroup: rule.exclusivityGroup,
+        maxDiscountCents: rule.maxDiscountCents,
+        scopeLevel: rule.scopeLevel,
+        scopeRefId: rule.scopeRefId,
+        active: !rule.active,
+        startsAt: rule.startsAt,
+        endsAt: rule.endsAt,
+        maxRedemptions: rule.maxRedemptions,
+        config: rule.config ?? {},
+        tiers: rule.tiers ?? [],
+      })
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to update')
     }
   }
 
@@ -233,13 +263,29 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => void handleDelete(rule)}
-                        className="p-1.5 text-gray-400 hover:text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {isHouseholdSpendVolumeRule(rule) ? (
+                        <button
+                          type="button"
+                          onClick={() => void handleToggleActive(rule)}
+                          className="p-1.5 text-gray-400 hover:text-gray-900"
+                          title={rule.active ? 'Pause discount' : 'Resume discount'}
+                        >
+                          {rule.active ? (
+                            <Pause className="w-4 h-4" />
+                          ) : (
+                            <Play className="w-4 h-4" />
+                          )}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => void handleDelete(rule)}
+                          className="p-1.5 text-gray-400 hover:text-red-600"
+                          title="Delete discount"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

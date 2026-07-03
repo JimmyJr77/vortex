@@ -3,6 +3,7 @@ import { Plus, Trash2, X } from 'lucide-react'
 import {
   isMultiClassSystemRule,
   isMonthlySpendSystemRule,
+  isHouseholdSpendVolumeRule,
   MULTI_CLASS_TARGET_LABELS,
   MULTI_CLASS_TIER_MATCH_MODES,
   MULTI_CLASS_TIER_MATCH_LABELS,
@@ -206,6 +207,9 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
 
   const isSystemRule = isSystemMultiClass || isSystemMonthlySpend
 
+  // Household family-spend discount (existing rule): name + promo code are locked.
+  const isLockedHouseholdSpend = rule != null && isHouseholdSpendVolumeRule(rule)
+
   const addTier = () => {
     if (isSpendVolume) {
       const threshold = nextMonthlySpendThreshold(form.tiers)
@@ -305,10 +309,14 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
             <label className="block text-xs font-semibold mb-1 text-gray-600">Name</label>
             <input
               type="text"
-              className={inputClass}
+              className={`${inputClass} ${isLockedHouseholdSpend ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`}
               value={form.name}
+              disabled={isLockedHouseholdSpend}
               onChange={(e) => update({ name: e.target.value })}
             />
+            {isLockedHouseholdSpend && (
+              <p className="text-xs text-gray-500 mt-1">System discount — the name cannot be changed.</p>
+            )}
           </div>
           {!lockedType && !isSystemRule && (
             <div>
@@ -484,9 +492,10 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
             <label className="block text-xs font-semibold mb-1 text-gray-600">Promo code (optional)</label>
             <input
               type="text"
-              className={`${inputClass} uppercase`}
+              className={`${inputClass} uppercase ${isLockedHouseholdSpend ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`}
               placeholder="Auto-generated on save"
               value={String(form.config.promo_code ?? '')}
+              disabled={isLockedHouseholdSpend}
               onChange={(e) =>
                 updateConfig({
                   promo_code: e.target.value.trim().toUpperCase(),
@@ -495,7 +504,9 @@ const DiscountRuleEditor = ({ open, rule, lockedType, onSave, onClose }: Props) 
               }
             />
             <p className="text-xs text-gray-500 mt-1">
-              Tracking code for this discount. Auto-generated if left blank.
+              {isLockedHouseholdSpend
+                ? 'System discount — the promo code cannot be changed.'
+                : 'Tracking code for this discount. Auto-generated if left blank.'}
             </p>
           </div>
         )}
