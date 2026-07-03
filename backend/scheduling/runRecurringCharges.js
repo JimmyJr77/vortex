@@ -8,6 +8,7 @@ import 'dotenv/config'
 import pg from 'pg'
 import { generateRecurringCharges } from './generateRecurringCharges.js'
 import { expirePassCredits } from '../programs/multiClassPass.js'
+import { autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
 
 const { Pool } = pg
 
@@ -35,6 +36,14 @@ async function main() {
   })
 
   try {
+    try {
+      const completed = await autoCompleteEndedEnrollments(pool)
+      if (completed.length > 0) {
+        console.log(`[billing:recurring] auto-completed ${completed.length} ended enrollment(s).`)
+      }
+    } catch (acErr) {
+      console.warn('[billing:recurring] auto-complete sweep failed:', acErr?.message || acErr)
+    }
     const result = await generateRecurringCharges(pool)
     console.log(
       `[billing:recurring] processed ${result.subscriptionsProcessed} subscription(s), ` +

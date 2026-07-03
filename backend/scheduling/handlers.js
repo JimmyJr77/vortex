@@ -26,7 +26,9 @@ import { persistSignupCharges } from './persistSignupCharges.js'
 import {
   cancelSubscriptionsForSource,
   reactivateSubscriptionForSource,
+  setSubscriptionPausedForSource,
 } from './billingSubscriptions.js'
+import { buildAdminMemberEnrollments, autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
 import {
   persistMultiClassPassPurchaseCharge,
   persistPassRedemptionCharge,
@@ -1636,6 +1638,186 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         console.error('[scheduling] adminMemberPricingSummary:', err)
         res.status(500).json({ success: false, message: 'Failed to load member pricing' })
+      }
+    },
+
+    async adminMemberEnrollments(req, res) {
+      try {
+        const memberId = Number(req.params.memberId)
+        if (!Number.isFinite(memberId)) {
+          return res.status(400).json({ success: false, message: 'Invalid member id' })
+        }
+        try {
+          await autoCompleteEndedEnrollments(pool, { memberId })
+        } catch (sweepErr) {
+          console.warn('[scheduling] auto-complete sweep:', sweepErr.message)
+        }
+        const result = await buildAdminMemberEnrollments(pool, memberId)
+        if (!result.member) {
+          return res.status(404).json({ success: false, message: 'Member not found' })
+        }
+        res.json({ success: true, data: result })
+      } catch (err) {
+        console.error('[scheduling] adminMemberEnrollments:', err)
+        res.status(500).json({ success: false, message: 'Failed to load enrollments' })
+      }
+    },
+
+    async adminSetSignupDiscount(req, res) {
+      const signupId = Number(req.params.id)
+      if (!Number.isFinite(signupId)) {
+        return res.status(400).json({ success: false, message: 'Invalid signup id' })
+      }
+      const mode = req.body?.mode // 'manual' | 'rule' | 'clear'
+      const client = await pool.connect()
+      try {
+        await client.query('BEGIN')
+        const existing = await client.query(
+          'SELECT * FROM scheduling_signup WHERE id = $1 FOR UPDATE',
+          [signupId],
+        )
+        if (existing.rows.length === 0) {
+          await client.query('ROLLBACK')
+          return res.status(404).json({ success: false, message: 'Signup not found' })
+        }
+
+        let cents = null
+        let pct = null
+        let reason = req.body?.reason != null ? String(req.body.reason).slice(0, 500) : null
+        let ruleId = null
+
+        if (mode === 'clear') {
+          // leave all null
+        } else if (mode === 'rule') {
+          ruleId = req.body?.ruleId != null ? Number(req.body.ruleId) : null
+          if (!Number.isFinite(ruleId)) {
+            await client.query('ROLLBACK')
+            return res.status(400).json({ success: false, message: 'ruleId is required for rule mode' })
+          }
+          const ruleRes = await client.query(
+            `SELECT id, name, amount_type, amount_value FROM discount_rule WHERE id = $1`,
+            [ruleId],
+          )
+          if (ruleRes.rows.length === 0) {
+            await client.query('ROLLBACK')
+            return res.status(404).json({ success: false, message: 'Discount rule not found' })
+          }
+          const rule = ruleRes.rows[0]
+          // percent rules store amount_value in basis points (5000 = 50%); fixed in cents.
+          if (String(rule.amount_type) === 'percent') {
+            pct = Number(rule.amount_value) / 100
+          } else {
+            cents = Math.max(0, Math.round(Number(rule.amount_value)))
+          }
+          if (!reason) reason = rule.name
+        } else if (mode === 'manual') {
+          if (req.body?.amountCents != null) {
+            cents = Math.max(0, Math.round(Number(req.body.amountCents)))
+          } else if (req.body?.percent != null) {
+            pct = Math.max(0, Math.min(100, Number(req.body.percent)))
+          } else {
+            await client.query('ROLLBACK')
+            return res.status(400).json({ success: false, message: 'amountCents or percent is required' })
+          }
+        } else {
+          await client.query('ROLLBACK')
+          return res.status(400).json({ success: false, message: 'Invalid discount mode' })
+        }
+
+        await client.query(
+          `UPDATE scheduling_signup
+           SET manual_discount_cents = $2, manual_discount_pct = $3,
+               manual_discount_reason = $4, manual_discount_rule_id = $5
+           WHERE id = $1`,
+          [signupId, cents, pct, reason, ruleId],
+        )
+
+        // Reflect the discount on the recurring subscription so monthly totals + the ledger update.
+        try {
+          const subRes = await client.query(
+            `SELECT id, monthly_amount_cents FROM billing_subscription
+             WHERE source_type = 'scheduling_signup' AND source_id = $1 AND status <> 'cancelled'
+             ORDER BY id DESC LIMIT 1`,
+            [String(signupId)],
+          )
+          if (subRes.rows.length > 0) {
+            const sub = subRes.rows[0]
+            const gross = Number(sub.monthly_amount_cents) || 0
+            const discountCents =
+              cents != null ? cents : pct != null ? Math.round((gross * pct) / 100) : 0
+            const net = Math.max(0, gross - discountCents)
+            await client.query(
+              `UPDATE billing_subscription
+               SET discount_amount_cents = $2, net_monthly_cents = $3, updated_at = now()
+               WHERE id = $1`,
+              [sub.id, discountCents, net],
+            )
+          }
+        } catch (subErr) {
+          console.warn('[scheduling] discount subscription sync:', subErr.message)
+        }
+
+        await client.query('COMMIT')
+        res.json({ success: true })
+      } catch (err) {
+        await client.query('ROLLBACK').catch(() => {})
+        console.error('[scheduling] adminSetSignupDiscount:', err)
+        res.status(500).json({ success: false, message: 'Failed to apply discount' })
+      } finally {
+        client.release()
+      }
+    },
+
+    async adminDeleteEnrollment(req, res) {
+      const id = Number(req.params.id)
+      if (!Number.isFinite(id)) {
+        return res.status(400).json({ success: false, message: 'Invalid id' })
+      }
+      const source = req.query?.source === 'member_program' ? 'member_program' : 'scheduling'
+      const client = await pool.connect()
+      try {
+        await client.query('BEGIN')
+        if (source === 'member_program') {
+          const del = await client.query('DELETE FROM member_program WHERE id = $1 RETURNING id', [id])
+          await client.query('COMMIT')
+          if (del.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Enrollment not found' })
+          }
+          return res.json({ success: true })
+        }
+
+        const existing = await client.query(
+          'SELECT id, slot_group_id, status FROM scheduling_signup WHERE id = $1 FOR UPDATE',
+          [id],
+        )
+        if (existing.rows.length === 0) {
+          await client.query('ROLLBACK')
+          return res.status(404).json({ success: false, message: 'Enrollment not found' })
+        }
+        const signup = existing.rows[0]
+        // Stop billing and restore any consumed pass credits before hard delete.
+        await cancelSubscriptionsForSource(client, { sourceType: 'scheduling_signup', sourceId: id })
+        try {
+          await restorePassCreditsForSignup(client, { signupId: id, reason: 'Enrollment deleted' })
+        } catch (creditErr) {
+          console.warn('[scheduling] delete restore credits:', creditErr.message)
+        }
+        let promotedRows = []
+        if (signup.status === 'confirmed' && signup.slot_group_id) {
+          promotedRows = await promoteFromWaitlist(client, signup.slot_group_id, 1)
+        }
+        await client.query('DELETE FROM scheduling_signup WHERE id = $1', [id])
+        await client.query('COMMIT')
+        if (promotedRows.length > 0) {
+          await sendPromotionEmails(pool, promotedRows)
+        }
+        res.json({ success: true })
+      } catch (err) {
+        await client.query('ROLLBACK').catch(() => {})
+        console.error('[scheduling] adminDeleteEnrollment:', err)
+        res.status(500).json({ success: false, message: 'Failed to delete enrollment' })
+      } finally {
+        client.release()
       }
     },
 
@@ -3722,7 +3904,7 @@ export function createSchedulingHandlers(pool) {
         }
 
         const status = req.body.status
-        if (!['confirmed', 'waitlisted', 'cancelled'].includes(status)) {
+        if (!['confirmed', 'waitlisted', 'cancelled', 'paused', 'completed'].includes(status)) {
           return res.status(400).json({ success: false, message: 'Invalid status' })
         }
 
@@ -3748,7 +3930,11 @@ export function createSchedulingHandlers(pool) {
           previousStatus = signup.status
           targetStatus = status
 
-          if (status === 'confirmed' && previousStatus === 'cancelled' && signup.slot_group_id) {
+          if (
+            status === 'confirmed' &&
+            (previousStatus === 'cancelled' || previousStatus === 'completed') &&
+            signup.slot_group_id
+          ) {
             await client.query(
               'SELECT id FROM scheduling_slot_group WHERE id = $1 FOR UPDATE',
               [signup.slot_group_id],
@@ -3773,14 +3959,27 @@ export function createSchedulingHandlers(pool) {
           }
 
           const result = await client.query(
-            'UPDATE scheduling_signup SET status = $1 WHERE id = $2 RETURNING *',
+            `
+            UPDATE scheduling_signup
+            SET status = $1,
+                paused_at = CASE
+                  WHEN $1 = 'paused' THEN now()
+                  WHEN $1 IN ('confirmed', 'waitlisted') THEN NULL
+                  ELSE paused_at END,
+                completed_at = CASE
+                  WHEN $1 = 'completed' THEN now()
+                  WHEN $1 IN ('confirmed', 'waitlisted') THEN NULL
+                  ELSE completed_at END
+            WHERE id = $2 RETURNING *
+            `,
             [targetStatus, req.params.id],
           )
           updatedRow = result.rows[0]
 
+          // Freeing a confirmed spot (cancel/complete) can promote from the waitlist.
           if (
             previousStatus === 'confirmed' &&
-            targetStatus === 'cancelled' &&
+            (targetStatus === 'cancelled' || targetStatus === 'completed') &&
             signup.slot_group_id
           ) {
             await client.query(
@@ -3791,20 +3990,24 @@ export function createSchedulingHandlers(pool) {
           }
 
           // Keep recurring subscriptions in sync with signup status.
+          const source = { sourceType: 'scheduling_signup', sourceId: req.params.id }
           if (targetStatus === 'cancelled' && previousStatus !== 'cancelled') {
-            await cancelSubscriptionsForSource(client, {
-              sourceType: 'scheduling_signup',
-              sourceId: req.params.id,
-            })
+            await cancelSubscriptionsForSource(client, source)
             await restorePassCreditsForSignup(client, {
               signupId: req.params.id,
               reason: 'Enrollment cancelled',
             })
-          } else if (targetStatus !== 'cancelled' && previousStatus === 'cancelled') {
-            await reactivateSubscriptionForSource(client, {
-              sourceType: 'scheduling_signup',
-              sourceId: req.params.id,
-            })
+          } else if (targetStatus === 'completed' && previousStatus !== 'completed') {
+            // Completed enrollments stop future billing but keep consumed pass credits.
+            await cancelSubscriptionsForSource(client, source)
+          } else if (targetStatus === 'paused' && previousStatus !== 'paused') {
+            await setSubscriptionPausedForSource(client, { ...source, paused: true })
+          } else if (targetStatus === 'confirmed' || targetStatus === 'waitlisted') {
+            if (previousStatus === 'cancelled' || previousStatus === 'completed') {
+              await reactivateSubscriptionForSource(client, source)
+            } else if (previousStatus === 'paused') {
+              await setSubscriptionPausedForSource(client, { ...source, paused: false })
+            }
           }
 
           await client.query('COMMIT')

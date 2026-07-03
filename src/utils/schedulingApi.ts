@@ -1347,6 +1347,87 @@ export async function adminFetchMemberPricingSummary(memberId: number): Promise<
   return parseJson(res)
 }
 
+export type AdminEnrollmentStatus =
+  | 'confirmed'
+  | 'waitlisted'
+  | 'paused'
+  | 'completed'
+  | 'cancelled'
+  | 'active'
+
+export interface AdminEnrollmentRow {
+  id: number
+  source: 'scheduling' | 'member_program'
+  sport_name: string | null
+  program_name: string | null
+  class_name: string | null
+  class_context_line?: string | null
+  program_id: number | null
+  form_id: number | null
+  slot_group_id: number | null
+  time_slot_id: number | null
+  offering_id: number | null
+  offering_label: string | null
+  offering_dates: string | null
+  schedule: string | null
+  status: string
+  billing_status: string | null
+  class_cost_cents: number | null
+  adjusted_cost_cents: number | null
+  manual_discount_cents: number | null
+  manual_discount_pct: number | null
+  manual_discount_reason: string | null
+  manual_discount_rule_id: number | null
+  completed_at: string | null
+  created_at: string | null
+}
+
+export interface AdminMemberEnrollments {
+  member: { id: number; firstName: string; lastName: string } | null
+  rows: AdminEnrollmentRow[]
+}
+
+export async function adminFetchMemberEnrollments(memberId: number): Promise<AdminMemberEnrollments> {
+  const res = await adminApiRequest(`/api/admin/scheduling/members/${memberId}/enrollments`)
+  return parseJson(res)
+}
+
+/** Update a scheduling enrollment's lifecycle status (confirmed/paused/completed/cancelled). */
+export async function adminUpdateEnrollmentStatus(
+  id: number,
+  status: Exclude<AdminEnrollmentStatus, 'active'>,
+): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/scheduling/signups/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  })
+  await parseJson(res)
+}
+
+export type SignupDiscountPayload =
+  | { mode: 'manual'; amountCents?: number; percent?: number; reason?: string }
+  | { mode: 'rule'; ruleId: number; reason?: string }
+  | { mode: 'clear' }
+
+export async function adminSetSignupDiscount(id: number, payload: SignupDiscountPayload): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/scheduling/signups/${id}/discount`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+  await parseJson(res)
+}
+
+export async function adminDeleteEnrollment(
+  id: number,
+  source: 'scheduling' | 'member_program',
+): Promise<void> {
+  const res = await adminApiRequest(
+    `/api/admin/scheduling/enrollments/${id}?source=${encodeURIComponent(source)}`,
+    { method: 'DELETE' },
+  )
+  await parseJson(res)
+}
+
 export async function adminSimulateDiscountOrder(payload: {
   promoCodes?: string[]
   lines: Array<{

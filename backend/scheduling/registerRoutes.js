@@ -81,6 +81,9 @@ export function registerSchedulingRoutes(app, pool) {
   app.get('/api/admin/scheduling/promo-codes', pc.listPromoCodes)
 
   app.get('/api/admin/scheduling/members/:memberId/pricing-summary', h.adminMemberPricingSummary)
+  app.get('/api/admin/scheduling/members/:memberId/enrollments', h.adminMemberEnrollments)
+  app.post('/api/admin/scheduling/signups/:id/discount', h.adminSetSignupDiscount)
+  app.delete('/api/admin/scheduling/enrollments/:id', h.adminDeleteEnrollment)
   app.get('/api/admin/scheduling/additional-fees', f.listFees)
   app.post('/api/admin/scheduling/additional-fees', f.createFee)
   app.put('/api/admin/scheduling/additional-fees/:id', f.updateFee)

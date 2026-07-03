@@ -136,8 +136,16 @@ export async function initSchedulingTables(pool) {
   await pool.query(`
     ALTER TABLE scheduling_signup
     ADD CONSTRAINT scheduling_signup_status_check
-    CHECK (status IN ('confirmed', 'waitlisted', 'cancelled'))
+    CHECK (status IN ('confirmed', 'waitlisted', 'cancelled', 'paused', 'completed'))
   `)
+
+  // Enrollment lifecycle + admin adjustment columns (unified enrollments view).
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ`)
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS paused_at TIMESTAMPTZ`)
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_cents INTEGER`)
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_pct NUMERIC(5,2)`)
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_reason TEXT`)
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_rule_id BIGINT`)
 
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_slot_form ON scheduling_time_slot(form_id)`)
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_signup_slot ON scheduling_signup(time_slot_id)`)
