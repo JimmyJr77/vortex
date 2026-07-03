@@ -785,6 +785,7 @@ export async function buildSignupOrderPreview(
 
   const additionalFeesMonthly = (additionalFees.totalMonthlyCents ?? 0) / 100
   const additionalFeesOneTime = (additionalFees.totalOneTimeCents ?? 0) / 100
+  const engineDiscountMonthly = discounts.enabled ? (discounts.totalDiscountCents ?? 0) / 100 : 0
 
   return {
     memberId: memberId ?? null,
@@ -797,8 +798,12 @@ export async function buildSignupOrderPreview(
     formSummaries,
     existingMonthlyTotal,
     newSignupMonthlyTotal,
-    estimatedMonthlyTotal: estimatedMonthlyTotal + additionalFeesMonthly - (freePasses.totalCreditCents ?? 0) / 100,
-    totalDiscountMonthly,
+    estimatedMonthlyTotal:
+      estimatedMonthlyTotal +
+      additionalFeesMonthly -
+      (freePasses.totalCreditCents ?? 0) / 100 -
+      engineDiscountMonthly,
+    totalDiscountMonthly: totalDiscountMonthly + engineDiscountMonthly,
     freePasses,
     discounts,
     additionalFees,
@@ -1072,6 +1077,14 @@ export async function computeDiscountLayer(
           line.familyAllLines = accountStats.allLines
         }
         for (const line of lines) attachStats(line)
+        const cartLineCount = lines.filter((l) => l.shadowOnly !== true).length
+        const dbPaidClassCount = Math.max(0, accountStats.paidClassCount - cartLineCount)
+        let cartIndex = 0
+        for (const line of lines) {
+          if (line.shadowOnly === true) continue
+          line.classOrdinal = dbPaidClassCount + cartIndex + 1
+          cartIndex += 1
+        }
         for (const shadow of accountStats.dbLines) {
           attachStats(shadow)
           lines.push(shadow)

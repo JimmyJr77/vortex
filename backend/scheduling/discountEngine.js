@@ -4,6 +4,7 @@ import {
   multiClassDiscountTarget,
   monthlySpendDiscountTarget,
   multiClassMinPayingClasses,
+  monthlySpendMinPaidClasses,
   pickMultiClassTier,
   pickMonthlySpendTier,
   accountStatsFromLine,
@@ -126,6 +127,13 @@ function offeringMatchesRule(rule, line) {
       : []
   if (ids.length === 0) return true
   return line.offeringId != null && ids.includes(Number(line.offeringId))
+}
+
+/** Paid-class position on the account for tiered multi-class / spend rules. */
+function accountOrdinalForLine(line) {
+  const accountCount = line.accountPaidClassCount ?? line.familyPaidClassCount
+  if (accountCount != null && accountCount > 0) return accountCount
+  return line.classOrdinal || 0
 }
 
 /** Tier whose threshold is the greatest <= ordinal (e.g. 3rd class uses the "3" tier, else "2"). */
@@ -529,7 +537,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     applyAccountSystemDiscount(rule, {
       getTarget: monthlySpendDiscountTarget,
       pickTier: pickMonthlySpendTier,
-      passesGate: (stats) => (stats.paidClassCount ?? 0) > 0 || (stats.accountMonthlyCents ?? 0) > 0,
+      passesGate: (stats) => (stats.paidClassCount ?? 0) >= monthlySpendMinPaidClasses(rule),
     })
   }
 
@@ -550,13 +558,19 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       let amountType = rule.amountType
       let amountValue = rule.amountValue
       if (rule.type === 'multi_class' || rule.type === 'multi_child') {
-        const ordinal = rule.type === 'multi_class'
-          ? Math.max(0, ...lineState.map((ls) => ls.line.classOrdinal || 0))
-          : Math.max(0, ...lineState.map((ls) => ls.line.childOrdinal || 0))
+        const ordinal =
+          rule.type === 'multi_class'
+            ? Math.max(0, ...lineState.map((ls) => accountOrdinalForLine(ls.line)))
+            : Math.max(0, ...lineState.map((ls) => ls.line.childOrdinal || 0))
+        if (rule.type === 'multi_class' && ordinal < multiClassMinPayingClasses(rule)) continue
         const tier = tierForOrdinal(rule, ordinal)
         if (!tier) continue
         amountType = tier.amountType
         amountValue = tier.amountValue
+      } else if (rule.type === 'spend_volume') {
+        const ordinal = Math.max(0, ...lineState.map((ls) => accountOrdinalForLine(ls.line)))
+        const minClasses = monthlySpendMinPaidClasses(rule) || 2
+        if (ordinal < minClasses) continue
       }
       // School/city/promo order-level need at least one eligible line.
       if (['promo_code', 'school', 'city'].includes(rule.type)) {
@@ -610,14 +624,19 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       if (rule.type === 'multi_class') {
         if (isMultiClassSystemRule(rule)) continue
         if (ls.line.costUsesSelections && !ls.line.costDiscountRuleIds?.has(Number(rule.id))) continue
-        const tier = tierForOrdinal(rule, ls.line.classOrdinal || 0)
+        const ordinal = accountOrdinalForLine(ls.line)
+        if (ordinal < multiClassMinPayingClasses(rule)) continue
+        const tier = tierForOrdinal(rule, ordinal)
         if (!tier) continue
         amountType = tier.amountType
         amountValue = tier.amountValue
       } else if (rule.type === 'spend_volume') {
         if (isMonthlySpendSystemRule(rule)) continue
         if (ls.line.costUsesSelections && !ls.line.costDiscountRuleIds?.has(Number(rule.id))) continue
-        const tier = tierForOrdinal(rule, ls.line.classOrdinal || 0)
+        const ordinal = accountOrdinalForLine(ls.line)
+        const minClasses = monthlySpendMinPaidClasses(rule) || 2
+        if (ordinal < minClasses) continue
+        const tier = tierForOrdinal(rule, ordinal)
         if (!tier) continue
         amountType = tier.amountType
         amountValue = tier.amountValue

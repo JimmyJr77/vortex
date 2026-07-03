@@ -468,7 +468,10 @@ export function monthlySpendDiscountTarget(rule) {
 
 export function monthlySpendMinPaidClasses(rule) {
   const n = Number(rule?.config?.min_paying_classes)
-  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 0
+  if (Number.isFinite(n) && n >= 1) return Math.floor(n)
+  // Household monthly-spend discounts require multiple paid classes unless explicitly configured.
+  if (isMonthlySpendSystemRule(rule)) return 2
+  return 0
 }
 
 export function monthlySpendMinPerClassCents(rule) {
@@ -488,6 +491,7 @@ function defaultMonthlySpendConfig() {
     promo_code_auto_generated: false,
     discount_target: 'total',
     require_paying_enrollment: true,
+    min_paying_classes: 2,
     min_per_class_cents: null,
   }
 }
