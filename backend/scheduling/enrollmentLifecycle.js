@@ -64,6 +64,10 @@ export async function ensureEnrollmentLifecycleColumns(pool) {
   await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_pct NUMERIC(5,2)`)
   await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_reason TEXT`)
   await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS manual_discount_rule_id BIGINT`)
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS cancel_effective_date DATE`)
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS cancel_requested_at TIMESTAMPTZ`)
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS pause_effective_date DATE`)
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS pause_mode VARCHAR(20)`)
 
   const checksOk = await allStatusChecksAllowLifecycleStatuses(pool)
   if (schemaReady && checksOk) return

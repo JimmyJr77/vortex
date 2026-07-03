@@ -9,6 +9,7 @@ import pg from 'pg'
 import { generateRecurringCharges } from './generateRecurringCharges.js'
 import { expirePassCredits } from '../programs/multiClassPass.js'
 import { autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
+import { applyScheduledPauses } from './pauseEnrollmentBilling.js'
 
 const { Pool } = pg
 
@@ -43,6 +44,14 @@ async function main() {
       }
     } catch (acErr) {
       console.warn('[billing:recurring] auto-complete sweep failed:', acErr?.message || acErr)
+    }
+    try {
+      const paused = await applyScheduledPauses(pool)
+      if (paused > 0) {
+        console.log(`[billing:recurring] applied ${paused} scheduled pause(s).`)
+      }
+    } catch (spErr) {
+      console.warn('[billing:recurring] scheduled-pause sweep failed:', spErr?.message || spErr)
     }
     const result = await generateRecurringCharges(pool)
     console.log(

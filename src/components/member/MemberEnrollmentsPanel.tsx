@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
-import { Calendar } from 'lucide-react'
+import { Calendar, Loader2, UserMinus, X, Zap } from 'lucide-react'
 import { enrollmentClassHeading, enrichEnrollmentsFromClassesOffered } from '../../utils/enrollmentDisplayLine'
+import { memberCancelEnrollment } from '../../utils/schedulingApi'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
 
 export interface MemberEnrollmentRow {
@@ -24,6 +25,8 @@ export interface MemberEnrollmentRow {
   offering_dates?: string | null
   slot_label: string
   status: string
+  cancel_effective_date?: string | null
+  cancel_requested_at?: string | null
   created_at?: string | null
   source?: 'scheduling' | 'legacy'
 }
@@ -32,6 +35,7 @@ interface Props {
   enrollments: MemberEnrollmentRow[]
   loading: boolean
   currentMemberId?: number | null
+  memberToken?: string | null
   classesOffered?: PublicProgramOffered[]
   multiClassPasses?: Array<{
     id: number
@@ -40,6 +44,7 @@ interface Props {
     classesRemaining: number
     classCountPurchased: number
   }>
+  onEnrollmentsChanged?: () => void
 }
 
 type ViewMode = 'class' | 'member'
@@ -50,6 +55,15 @@ function memberDisplayName(row: MemberEnrollmentRow, currentMemberId?: number | 
     return `${name} (You)`
   }
   return name
+}
+
+function formatCancelEffectiveDate(dateStr: string) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
 }
 
 function offeringsCell(row: MemberEnrollmentRow) {
@@ -81,8 +95,23 @@ function textOrDash(value?: string | null) {
   return trimmed || '—'
 }
 
-function statusBadge(status: string) {
-  const normalized = status.toLowerCase()
+function canManageEnrollment(row: MemberEnrollmentRow) {
+  return row.source !== 'legacy'
+}
+
+function statusBadge(row: MemberEnrollmentRow) {
+  if (row.cancel_effective_date) {
+    return (
+      <span className="inline-flex flex-col gap-0.5">
+        <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-orange-50 text-orange-800">
+          Cancels {formatCancelEffectiveDate(row.cancel_effective_date)}
+        </span>
+        <span className="text-[10px] text-gray-500">Billing changes on the 1st</span>
+      </span>
+    )
+  }
+
+  const normalized = row.status.toLowerCase()
   if (normalized === 'confirmed' || normalized === 'enrolled') {
     return (
       <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 capitalize">
@@ -99,7 +128,7 @@ function statusBadge(status: string) {
   }
   return (
     <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 capitalize">
-      {status}
+      {row.status}
     </span>
   )
 }
@@ -107,11 +136,15 @@ function statusBadge(status: string) {
 function EnrollmentTable({
   rows,
   columns,
+  onManage,
 }: {
   rows: MemberEnrollmentRow[]
   columns: Array<{ key: string; header: string; cell: (row: MemberEnrollmentRow) => ReactNode }>
+  onManage?: (row: MemberEnrollmentRow) => void
 }) {
   if (rows.length === 0) return null
+
+  const showActions = Boolean(onManage)
 
   return (
     <div className="overflow-x-auto">
@@ -123,6 +156,9 @@ function EnrollmentTable({
                 {col.header}
               </th>
             ))}
+            {showActions && (
+              <th className="py-2 pr-4 font-semibold text-center">Actions</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -133,6 +169,22 @@ function EnrollmentTable({
                   {col.cell(row)}
                 </td>
               ))}
+              {showActions && (
+                <td className="py-3 pr-4 text-center">
+                  {canManageEnrollment(row) ? (
+                    <button
+                      type="button"
+                      onClick={() => onManage?.(row)}
+                      title="Manage enrollment"
+                      className="inline-flex items-center justify-center rounded-md border border-gray-200 p-1.5 text-amber-600 hover:bg-amber-50 hover:border-amber-300"
+                    >
+                      <Zap className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <span className="text-gray-300">—</span>
+                  )}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -141,14 +193,132 @@ function EnrollmentTable({
   )
 }
 
+function MemberEnrollmentActionModal({
+  row,
+  memberToken,
+  onClose,
+  onChanged,
+}: {
+  row: MemberEnrollmentRow
+  memberToken: string
+  onClose: () => void
+  onChanged: () => void
+}) {
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const [confirming, setConfirming] = useState(false)
+  const isWaitlisted = row.status.toLowerCase() === 'waitlisted'
+  const pendingCancel = Boolean(row.cancel_effective_date)
+
+  const runCancel = async () => {
+    setBusy(true)
+    setErr(null)
+    try {
+      await memberCancelEnrollment(row.id, memberToken)
+      onChanged()
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Failed to cancel enrollment')
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-xl bg-white shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4">
+          <div>
+            <div className="text-sm font-semibold text-gray-900">{row.class_name || 'Enrollment'}</div>
+            <div className="text-xs text-gray-500">
+              {[row.program_name, row.slot_label].filter(Boolean).join(' · ') || '—'}
+            </div>
+            <div className="text-xs text-gray-500 mt-0.5">
+              {memberDisplayName(row)}
+            </div>
+          </div>
+          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="px-5 py-4 space-y-4">
+          {err && (
+            <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>
+          )}
+
+          {pendingCancel ? (
+            <p className="text-sm text-gray-700">
+              Cancellation is already scheduled for{' '}
+              <span className="font-semibold">{formatCancelEffectiveDate(row.cancel_effective_date!)}</span>.
+              Billing changes take place on the 1st of each month, so you will not be charged again
+              after that date.
+            </p>
+          ) : (
+            <>
+              <p className="text-sm text-gray-600">
+                {isWaitlisted
+                  ? 'This waitlisted spot can be removed immediately. No billing applies while waitlisted.'
+                  : 'Cancel this enrollment. You may continue attending through the current billing period. Billing changes take place on the 1st of each month — you will not be charged on the next billing date.'}
+              </p>
+
+              {confirming ? (
+                <div className="rounded-md bg-red-50 px-3 py-3 space-y-3">
+                  <p className="text-sm text-red-800">
+                    {isWaitlisted
+                      ? 'Remove this waitlist spot?'
+                      : 'Schedule cancellation? You will keep access until the next billing date on the 1st.'}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void runCancel()}
+                      disabled={busy}
+                      className="inline-flex items-center gap-1 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
+                    >
+                      {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserMinus className="w-4 h-4" />}
+                      {isWaitlisted ? 'Remove from waitlist' : 'Confirm cancellation'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirming(false)}
+                      disabled={busy}
+                      className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+                    >
+                      Go back
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirming(true)}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-red-200 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
+                >
+                  <UserMinus className="w-4 h-4" />
+                  {isWaitlisted ? 'Leave waitlist' : 'Cancel enrollment'}
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function MemberEnrollmentsPanel({
   enrollments,
   loading,
   currentMemberId,
+  memberToken,
   classesOffered = [],
   multiClassPasses = [],
+  onEnrollmentsChanged,
 }: Props) {
   const [view, setView] = useState<ViewMode>('class')
+  const [activeRow, setActiveRow] = useState<MemberEnrollmentRow | null>(null)
 
   const displayEnrollments = useMemo(
     () => enrichEnrollmentsFromClassesOffered(enrollments, classesOffered),
@@ -184,6 +354,8 @@ export default function MemberEnrollmentsPanel({
     })
   }, [displayEnrollments, currentMemberId])
 
+  const handleManage = memberToken ? (row: MemberEnrollmentRow) => setActiveRow(row) : undefined
+
   return (
     <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6 border-b border-gray-200 bg-gray-50/80">
@@ -193,7 +365,8 @@ export default function MemberEnrollmentsPanel({
             Current Enrollments
           </h2>
           <p className="text-gray-600 text-sm mt-1">
-            Active class signups for your family, including offering dates and schedule for each slot.
+            Active class signups for your family. Billing renews on the 1st of each month; cancellations
+            take effect on the next billing date.
           </p>
         </div>
         {enrollments.length > 0 && (
@@ -256,6 +429,7 @@ export default function MemberEnrollmentsPanel({
                 <h3 className="text-lg font-bold text-black mb-3">{heading}</h3>
                 <EnrollmentTable
                   rows={rows}
+                  onManage={handleManage}
                   columns={[
                     {
                       key: 'member',
@@ -275,7 +449,7 @@ export default function MemberEnrollmentsPanel({
                     {
                       key: 'status',
                       header: 'Status',
-                      cell: (row) => statusBadge(row.status),
+                      cell: (row) => statusBadge(row),
                     },
                   ]}
                 />
@@ -291,6 +465,7 @@ export default function MemberEnrollmentsPanel({
                   <h3 className="text-lg font-bold text-black mb-3">{label}</h3>
                   <EnrollmentTable
                     rows={rows}
+                    onManage={handleManage}
                     columns={[
                       {
                         key: 'sport',
@@ -320,7 +495,7 @@ export default function MemberEnrollmentsPanel({
                       {
                         key: 'status',
                         header: 'Status',
-                        cell: (row) => statusBadge(row.status),
+                        cell: (row) => statusBadge(row),
                       },
                     ]}
                   />
@@ -330,6 +505,18 @@ export default function MemberEnrollmentsPanel({
           </div>
         )}
       </div>
+
+      {activeRow && memberToken && (
+        <MemberEnrollmentActionModal
+          row={activeRow}
+          memberToken={memberToken}
+          onClose={() => setActiveRow(null)}
+          onChanged={() => {
+            setActiveRow(null)
+            onEnrollmentsChanged?.()
+          }}
+        />
+      )}
     </div>
   )
 }

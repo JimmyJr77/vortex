@@ -25,6 +25,13 @@ import { applyPendingPauseCredits } from './pauseEnrollmentBilling.js'
  * @returns {Promise<{ subscriptionsProcessed:number, chargesPosted:number, periodsAdvanced:number }>}
  */
 export async function generateRecurringCharges(pool, { asOf = new Date(), maxCatchUpPerSub = 12 } = {}) {
+  try {
+    const { processDueEnrollmentCancellations } = await import('./memberEnrollmentCancel.js')
+    await processDueEnrollmentCancellations(pool)
+  } catch (err) {
+    console.warn('[billing] process due enrollment cancellations:', err?.message ?? err)
+  }
+
   const asOfMidnight = new Date(Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth(), asOf.getUTCDate()))
   const asOfStr = toDateString(asOfMidnight)
 

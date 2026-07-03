@@ -36,6 +36,13 @@ function formatLegacySlotLabel(selectedDays, daysPerWeek) {
 export async function queryFamilyMemberEnrollments(pool, memberIds) {
   if (!memberIds?.length) return []
 
+  try {
+    const { processDueEnrollmentCancellations } = await import('../scheduling/memberEnrollmentCancel.js')
+    await processDueEnrollmentCancellations(pool)
+  } catch (err) {
+    console.warn('[memberEnrollments] process due cancellations:', err?.message ?? err)
+  }
+
   const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
   await ensurePrimaryDisciplineTagColumn(pool)
   const schema = await resolveProgramsSchema(pool)
@@ -50,6 +57,8 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
         s.form_id,
         s.status,
         s.created_at,
+        s.cancel_effective_date,
+        s.cancel_requested_at,
         m.first_name AS member_first_name,
         m.last_name AS member_last_name,
         COALESCE(class_p.display_name, class_p.name, sf.title) AS class_name,
@@ -135,6 +144,10 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
         offering_end_date: offering.offering_end_date,
         offering_dates: offering.offering_dates,
         status: row.status,
+        cancel_effective_date: row.cancel_effective_date
+          ? String(row.cancel_effective_date).slice(0, 10)
+          : null,
+        cancel_requested_at: row.cancel_requested_at ?? null,
         created_at: row.created_at,
         source: 'scheduling',
       },

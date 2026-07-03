@@ -1044,6 +1044,27 @@ export async function loginSchedulingAuthFromMemberSession(
   return parseJson(res)
 }
 
+export interface MemberEnrollmentCancelResult {
+  signupId: number
+  effectiveDate: string | null
+  immediate: boolean
+}
+
+/** Cancel a family member's scheduling enrollment. Billing changes on the 1st unless waitlisted. */
+export async function memberCancelEnrollment(
+  signupId: number,
+  memberToken: string,
+): Promise<MemberEnrollmentCancelResult> {
+  const res = await fetch(`${getApiUrl()}/api/members/enrollments/${signupId}/cancel`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${memberToken}`,
+    },
+  })
+  return parseJson<MemberEnrollmentCancelResult>(res)
+}
+
 export async function changeSchedulingAuthPassword(
   formId: number,
   signupAuthToken: string,
@@ -1378,6 +1399,8 @@ export interface AdminEnrollmentRow {
   manual_discount_pct: number | null
   manual_discount_reason: string | null
   manual_discount_rule_id: number | null
+  pause_effective_date: string | null
+  pause_mode: 'next_month' | 'prorated' | null
   completed_at: string | null
   created_at: string | null
 }
@@ -1396,10 +1419,14 @@ export async function adminFetchMemberEnrollments(memberId: number): Promise<Adm
 export async function adminUpdateEnrollmentStatus(
   id: number,
   status: Exclude<AdminEnrollmentStatus, 'active'>,
+  options?: { pauseMode?: 'next_month' | 'prorated'; cancelScheduledPause?: boolean },
 ): Promise<void> {
+  const body: Record<string, unknown> = { status }
+  if (options?.pauseMode) body.pauseMode = options.pauseMode
+  if (options?.cancelScheduledPause) body.cancelScheduledPause = true
   const res = await adminApiRequest(`/api/admin/scheduling/signups/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify({ status }),
+    body: JSON.stringify(body),
   })
   await parseJson(res)
 }

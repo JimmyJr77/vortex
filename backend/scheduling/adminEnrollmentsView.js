@@ -231,6 +231,7 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
       SELECT
         s.id, s.member_id, s.form_id, s.status, s.created_at,
         s.completed_at, s.paused_at,
+        s.pause_effective_date, s.pause_mode,
         s.manual_discount_cents, s.manual_discount_pct, s.manual_discount_reason, s.manual_discount_rule_id,
         s.pricing_breakdown,
         COALESCE(class_p.display_name, class_p.name, sf.title) AS class_name,
@@ -315,6 +316,10 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
         manual_discount_reason:
           row.manual_discount_reason ?? groupDiscountLabel ?? null,
         manual_discount_rule_id: row.manual_discount_rule_id != null ? Number(row.manual_discount_rule_id) : null,
+        pause_effective_date: row.pause_effective_date
+          ? String(row.pause_effective_date).slice(0, 10)
+          : null,
+        pause_mode: row.pause_mode ?? null,
         completed_at: row.completed_at,
         created_at: row.created_at,
       },

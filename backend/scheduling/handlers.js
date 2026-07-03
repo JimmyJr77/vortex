@@ -29,7 +29,7 @@ import {
 } from './billingSubscriptions.js'
 import { ensureEnrollmentLifecycleColumns, updateSignupLifecycleStatus } from './enrollmentLifecycle.js'
 import { trySavepoint } from './transactionSavepoint.js'
-import { handleEnrollmentPauseBilling, syncFamilyEnrollmentDiscounts } from './pauseEnrollmentBilling.js'
+import { handleEnrollmentPauseBilling, syncFamilyEnrollmentDiscounts, applyScheduledPauses, schedulePauseNextMonth, applyImmediatePause, clearScheduledPause } from './pauseEnrollmentBilling.js'
 import { buildAdminMemberEnrollments, autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
 import {
   persistMultiClassPassPurchaseCharge,
@@ -1645,6 +1645,11 @@ export function createSchedulingHandlers(pool) {
           await autoCompleteEndedEnrollments(pool, { memberId })
         } catch (sweepErr) {
           console.warn('[scheduling] auto-complete sweep:', sweepErr.message)
+        }
+        try {
+          await applyScheduledPauses(pool)
+        } catch (pauseSweepErr) {
+          console.warn('[scheduling] scheduled-pause sweep:', pauseSweepErr.message)
         }
         const result = await buildAdminMemberEnrollments(pool, memberId)
         if (!result.member) {
@@ -3926,11 +3931,16 @@ export function createSchedulingHandlers(pool) {
           console.warn('[scheduling] status schema ensure:', schemaErr?.message ?? schemaErr)
         }
 
+        const cancelScheduledPause = Boolean(req.body.cancelScheduledPause)
+        const pauseModeRequest = req.body.pauseMode === 'prorated' ? 'prorated' : 'next_month'
+
         const client = await pool.connect()
         let updatedRow = null
         let promotedRows = []
         let previousStatus = null
         let targetStatus = status
+        let scheduledPauseOnly = false
+        let pauseBillingMode = null
 
         try {
           await client.query('BEGIN')
@@ -3948,36 +3958,69 @@ export function createSchedulingHandlers(pool) {
           previousStatus = signup.status
           targetStatus = status
 
-          if (
-            status === 'confirmed' &&
-            (previousStatus === 'cancelled' || previousStatus === 'completed') &&
-            signup.slot_group_id
-          ) {
-            await client.query(
-              'SELECT id FROM scheduling_slot_group WHERE id = $1 FOR UPDATE',
-              [signup.slot_group_id],
-            )
-            const capRes = await client.query(
-              `
-              SELECT sg.max_participants,
-                (SELECT COUNT(*)::int FROM scheduling_signup s
-                 WHERE s.slot_group_id = sg.id AND s.status = 'confirmed') AS signup_count
-              FROM scheduling_slot_group sg
-              WHERE sg.id = $1
-              `,
-              [signup.slot_group_id],
-            )
-            if (capRes.rows.length === 0) {
-              await client.query('ROLLBACK')
-              return res.status(400).json({ success: false, message: 'Time slot no longer exists' })
+          if (cancelScheduledPause) {
+            updatedRow = await clearScheduledPause(client, req.params.id)
+            targetStatus = updatedRow.status
+          } else if (status === 'paused' && previousStatus !== 'paused') {
+            if (pauseModeRequest === 'next_month') {
+              updatedRow = await schedulePauseNextMonth(client, req.params.id)
+              targetStatus = updatedRow.status
+              scheduledPauseOnly = true
+            } else {
+              updatedRow = await applyImmediatePause(client, req.params.id)
+              targetStatus = 'paused'
+              pauseBillingMode = 'prorated'
             }
-            const { max_participants, signup_count } = capRes.rows[0]
-            targetStatus =
-              Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
-          }
+          } else {
+            if (
+              status === 'confirmed' &&
+              (previousStatus === 'cancelled' || previousStatus === 'completed') &&
+              signup.slot_group_id
+            ) {
+              await client.query(
+                'SELECT id FROM scheduling_slot_group WHERE id = $1 FOR UPDATE',
+                [signup.slot_group_id],
+              )
+              const capRes = await client.query(
+                `
+                SELECT sg.max_participants,
+                  (SELECT COUNT(*)::int FROM scheduling_signup s
+                   WHERE s.slot_group_id = sg.id AND s.status = 'confirmed') AS signup_count
+                FROM scheduling_slot_group sg
+                WHERE sg.id = $1
+                `,
+                [signup.slot_group_id],
+              )
+              if (capRes.rows.length === 0) {
+                await client.query('ROLLBACK')
+                return res.status(400).json({ success: false, message: 'Time slot no longer exists' })
+              }
+              const { max_participants, signup_count } = capRes.rows[0]
+              targetStatus =
+                Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
+            }
 
-          const result = await updateSignupLifecycleStatus(client, req.params.id, targetStatus)
-          updatedRow = result.rows[0]
+            if (signup.pause_effective_date) {
+              await clearScheduledPause(client, req.params.id)
+            }
+
+            const result = await updateSignupLifecycleStatus(client, req.params.id, targetStatus)
+            updatedRow = result.rows[0]
+
+            if (
+              (targetStatus === 'confirmed' || targetStatus === 'waitlisted') &&
+              previousStatus === 'paused'
+            ) {
+              await client.query(
+                `UPDATE scheduling_signup SET pause_effective_date = NULL, pause_mode = NULL WHERE id = $1`,
+                [req.params.id],
+              )
+              const refresh = await client.query('SELECT * FROM scheduling_signup WHERE id = $1', [
+                req.params.id,
+              ])
+              updatedRow = refresh.rows[0]
+            }
+          }
 
           // Freeing a confirmed spot (cancel/complete) can promote from the waitlist.
           if (
@@ -4028,15 +4071,17 @@ export function createSchedulingHandlers(pool) {
         }
 
         if (updatedRow) {
-          const enteringPaused = targetStatus === 'paused' && previousStatus !== 'paused'
+          const enteringPaused =
+            !scheduledPauseOnly && targetStatus === 'paused' && previousStatus !== 'paused'
           const leavingPaused =
             (targetStatus === 'confirmed' || targetStatus === 'waitlisted') && previousStatus === 'paused'
-          if (enteringPaused || leavingPaused) {
+          if (enteringPaused || leavingPaused || pauseBillingMode === 'prorated') {
             try {
               await handleEnrollmentPauseBilling(pool, {
                 signupId: Number(updatedRow.id),
-                enteringPaused,
+                enteringPaused: enteringPaused || pauseBillingMode === 'prorated',
                 leavingPaused,
+                pauseMode: pauseBillingMode ?? 'prorated',
               })
             } catch (pauseBillErr) {
               console.warn('[scheduling] pause billing follow-up:', pauseBillErr?.message ?? pauseBillErr)

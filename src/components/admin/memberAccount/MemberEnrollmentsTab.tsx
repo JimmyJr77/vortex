@@ -54,8 +54,25 @@ const STATUS_META: Record<StatusKey, { label: string; className: string }> = {
   cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-700' },
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const meta = STATUS_META[normalizeStatus(status)]
+function formatPauseDate(iso: string) {
+  const d = new Date(`${iso.slice(0, 10)}T12:00:00`)
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function StatusBadge({ row }: { row: Pick<AdminEnrollmentRow, 'status' | 'pause_effective_date'> }) {
+  if (row.pause_effective_date && normalizeStatus(row.status) !== 'paused') {
+    return (
+      <span className="inline-flex flex-col gap-0.5">
+        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_META.active.className}`}>
+          {STATUS_META.active.label}
+        </span>
+        <span className="text-[10px] font-medium text-blue-700">
+          Pause {formatPauseDate(row.pause_effective_date)}
+        </span>
+      </span>
+    )
+  }
+  const meta = STATUS_META[normalizeStatus(row.status)]
   return (
     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${meta.className}`}>
       {meta.label}
@@ -166,7 +183,7 @@ export default function MemberEnrollmentsTab({ memberId }: { memberId: number; e
                       )}
                     </td>
                     <td className="px-3 py-2">
-                      <StatusBadge status={row.status} />
+                      <StatusBadge row={row} />
                     </td>
                     <td className="px-3 py-2 text-center">
                       <button
@@ -220,9 +237,12 @@ function EnrollmentActionModal({
 }) {
   const isLegacy = row.source === 'member_program'
   const status = normalizeStatus(row.status)
+  const hasScheduledPause = Boolean(row.pause_effective_date) && status !== 'paused'
   const [busy, setBusy] = useState<string | null>(null)
   const [err, setErr] = useState<string | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [showPauseOptions, setShowPauseOptions] = useState(false)
+  const [pauseMode, setPauseMode] = useState<'next_month' | 'prorated'>('next_month')
 
   const [discountMode, setDiscountMode] = useState<'percent' | 'amount' | 'rule'>('percent')
   const [percent, setPercent] = useState('')
@@ -317,13 +337,27 @@ function EnrollmentActionModal({
                     busy={busy === 'activate'}
                     onClick={() => run('activate', () => adminUpdateEnrollmentStatus(row.id, 'confirmed'))}
                   />
+                ) : hasScheduledPause ? (
+                  <ActionButton
+                    icon={<X className="w-4 h-4" />}
+                    label="Cancel scheduled pause"
+                    busy={busy === 'cancel-pause'}
+                    onClick={() =>
+                      run('cancel-pause', () =>
+                        adminUpdateEnrollmentStatus(row.id, 'confirmed', { cancelScheduledPause: true }),
+                      )
+                    }
+                  />
                 ) : (
                   <ActionButton
                     icon={<Pause className="w-4 h-4" />}
                     label="Pause"
                     disabled={status === 'cancelled' || status === 'completed'}
                     busy={busy === 'pause'}
-                    onClick={() => run('pause', () => adminUpdateEnrollmentStatus(row.id, 'paused'))}
+                    onClick={() => {
+                      setShowPauseOptions(true)
+                      setPauseMode('next_month')
+                    }}
                   />
                 )}
                 {(status === 'cancelled' || status === 'completed') && (
@@ -349,6 +383,70 @@ function EnrollmentActionModal({
                   onClick={() => run('disenroll', () => adminUpdateEnrollmentStatus(row.id, 'cancelled'))}
                 />
               </div>
+
+              {showPauseOptions && status !== 'paused' && !hasScheduledPause && (
+                <div className="mt-3 rounded-md border border-blue-100 bg-blue-50/50 px-3 py-3 space-y-3">
+                  <div className="text-xs font-semibold text-gray-700">When should billing pause?</div>
+                  <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+                    <input
+                      type="radio"
+                      name={`pause-mode-${row.id}`}
+                      checked={pauseMode === 'next_month'}
+                      onChange={() => setPauseMode('next_month')}
+                      className="mt-0.5"
+                    />
+                    <span>
+                      <span className="font-medium">Start of next month</span>
+                      <span className="block text-xs text-gray-500">
+                        Stays active through this month; no mid-month credit.
+                      </span>
+                    </span>
+                  </label>
+                  <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+                    <input
+                      type="radio"
+                      name={`pause-mode-${row.id}`}
+                      checked={pauseMode === 'prorated'}
+                      onChange={() => setPauseMode('prorated')}
+                      className="mt-0.5"
+                    />
+                    <span>
+                      <span className="font-medium">Pause now (prorated)</span>
+                      <span className="block text-xs text-gray-500">
+                        Pauses immediately; unused sessions this month become a credit on next bill.
+                      </span>
+                    </span>
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={busy === 'pause'}
+                      onClick={() =>
+                        run('pause', () =>
+                          adminUpdateEnrollmentStatus(row.id, 'paused', { pauseMode }),
+                        )
+                      }
+                      className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                    >
+                      {busy === 'pause' && <Loader2 className="w-4 h-4 animate-spin" />}
+                      Confirm pause
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowPauseOptions(false)}
+                      className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-white"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {hasScheduledPause && row.pause_effective_date && (
+                <p className="mt-2 text-xs text-blue-700">
+                  Billing pauses on {formatPauseDate(row.pause_effective_date)}. Enrollment stays active until then.
+                </p>
+              )}
             </div>
           )}
 

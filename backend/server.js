@@ -9735,6 +9735,61 @@ app.get('/api/members/enrollments', authenticateMember, async (req, res) => {
   }
 })
 
+// Cancel a scheduling enrollment (member portal). Billing changes take effect on the 1st.
+app.post('/api/members/enrollments/:signupId/cancel', authenticateMember, async (req, res) => {
+  try {
+    const signupId = Number(req.params.signupId)
+    if (!Number.isFinite(signupId)) {
+      return res.status(400).json({ success: false, message: 'Invalid enrollment id' })
+    }
+
+    const userId = req.userId || req.memberId
+    let allowedMemberIds = []
+
+    let familyContext = null
+    try {
+      familyContext = await ensureUserFamilyContext(userId)
+    } catch {
+      familyContext = null
+    }
+
+    if (familyContext) {
+      allowedMemberIds = await listActiveFamilyMemberIds(pool, familyContext.id, {
+        fallbackMemberId: familyContext.current_member_id,
+      })
+    } else {
+      const member = await getMemberForAppUser(userId)
+      if (member?.id != null) allowedMemberIds = [Number(member.id)]
+    }
+
+    if (!allowedMemberIds.length) {
+      return res.status(403).json({ success: false, message: 'Not authorized to cancel enrollments' })
+    }
+
+    const { requestMemberEnrollmentCancellation } = await import('./scheduling/memberEnrollmentCancel.js')
+    const result = await requestMemberEnrollmentCancellation(pool, {
+      signupId,
+      allowedMemberIds,
+    })
+
+    res.json({
+      success: true,
+      data: result,
+      message: result.immediate
+        ? 'Enrollment cancelled.'
+        : `Cancellation scheduled. Billing changes take effect on ${result.effectiveDate}.`,
+    })
+  } catch (error) {
+    const status =
+      error?.statusCode === 403 ? 403 : error?.statusCode === 404 ? 404 : error?.statusCode === 400 ? 400 : 500
+    if (status === 500) console.error('Cancel enrollment error:', error)
+    res.status(status).json({
+      success: false,
+      message: error?.message || 'Failed to cancel enrollment',
+    })
+  }
+})
+
 // Get programs for members (member-accessible endpoint)
 app.get('/api/members/programs', authenticateMember, async (req, res) => {
   try {

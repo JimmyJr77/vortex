@@ -49,6 +49,29 @@ export async function ensurePauseCreditTable(pool) {
   `)
 }
 
+async function signupChargedForMonth(pool, signupId, monthStart, monthEnd) {
+  try {
+    const res = await pool.query(
+      `
+      SELECT 1
+      FROM billing_charge
+      WHERE (
+          (source_type = 'scheduling_signup' AND source_id = $1)
+          OR (source_type = 'billing_subscription' AND source_id LIKE $2)
+        )
+        AND charge_type IN ('recurring', 'one_time')
+        AND COALESCE(service_period_start, created_at::date) >= $3::date
+        AND COALESCE(service_period_start, created_at::date) <= $4::date
+      LIMIT 1
+      `,
+      [String(signupId), `%:${monthStart.slice(0, 7)}%`, monthStart, monthEnd],
+    )
+    return res.rows.length > 0
+  } catch {
+    return false
+  }
+}
+
 /**
  * Prorated credit for sessions not used after a mid-month pause.
  * @returns {{ creditCents:number, ratio:number, remainingClasses:number }}
@@ -71,27 +94,54 @@ export function pauseCreditForLine(calendarRows, { slotGroupId, timeSlotId = nul
   }
 }
 
-async function signupChargedForMonth(pool, signupId, monthStart, monthEnd) {
-  try {
-    const res = await pool.query(
-      `
-      SELECT 1
-      FROM billing_charge
-      WHERE (
-          (source_type = 'scheduling_signup' AND source_id = $1)
-          OR (source_type = 'billing_subscription' AND source_id LIKE $2)
-        )
-        AND charge_type IN ('recurring', 'one_time')
-        AND COALESCE(service_period_start, created_at::date) >= $3::date
-        AND COALESCE(service_period_start, created_at::date) <= $4::date
-      LIMIT 1
-      `,
-      [String(signupId), `%:${monthStart.slice(0, 7)}%`, monthStart, monthEnd],
-    )
-    return res.rows.length > 0
-  } catch {
-    return false
-  }
+/** First day of the month after `asOf` (YYYY-MM-DD). */
+export function nextMonthPauseEffectiveDate(asOf = new Date()) {
+  return firstOfNextMonth(todayDateOnly(asOf))
+}
+
+/** Schedule pause at start of next month; enrollment stays active until then. */
+export async function schedulePauseNextMonth(client, signupId, asOf = new Date()) {
+  const effectiveDate = nextMonthPauseEffectiveDate(asOf)
+  const res = await client.query(
+    `
+    UPDATE scheduling_signup
+    SET pause_effective_date = $2, pause_mode = 'next_month'
+    WHERE id = $1
+    RETURNING *
+    `,
+    [signupId, effectiveDate],
+  )
+  return res.rows[0]
+}
+
+/** Pause immediately with prorated billing credit. */
+export async function applyImmediatePause(client, signupId) {
+  const { updateSignupLifecycleStatus } = await import('./enrollmentLifecycle.js')
+  await updateSignupLifecycleStatus(client, signupId, 'paused')
+  const res = await client.query(
+    `
+    UPDATE scheduling_signup
+    SET pause_mode = 'prorated', pause_effective_date = CURRENT_DATE
+    WHERE id = $1
+    RETURNING *
+    `,
+    [signupId],
+  )
+  return res.rows[0]
+}
+
+/** Clear a scheduled pause without changing enrollment status. */
+export async function clearScheduledPause(client, signupId) {
+  const res = await client.query(
+    `
+    UPDATE scheduling_signup
+    SET pause_effective_date = NULL, pause_mode = NULL
+    WHERE id = $1
+    RETURNING *
+    `,
+    [signupId],
+  )
+  return res.rows[0]
 }
 
 async function loadSignupBillingContext(pool, signupId) {
@@ -348,8 +398,9 @@ export async function applyPendingPauseCredits(pool, { periodStart }) {
 
 /**
  * Run after signup status commit when entering or leaving paused.
+ * @param {'prorated'|'next_month'} [pauseMode] — prorated pauses now with mid-month credit; next_month skips credit.
  */
-export async function handleEnrollmentPauseBilling(pool, { signupId, enteringPaused, leavingPaused }) {
+export async function handleEnrollmentPauseBilling(pool, { signupId, enteringPaused, leavingPaused, pauseMode = 'prorated' }) {
   const signup = await loadSignupBillingContext(pool, signupId)
   if (!signup) return
 
@@ -359,7 +410,9 @@ export async function handleEnrollmentPauseBilling(pool, { signupId, enteringPau
       sourceId: signupId,
       paused: true,
     })
-    await recordPauseCredit(pool, signup)
+    if (pauseMode === 'prorated') {
+      await recordPauseCredit(pool, signup)
+    }
   } else if (leavingPaused) {
     await safeSetSubscriptionPausedForSource(pool, {
       sourceType: 'scheduling_signup',
@@ -368,7 +421,71 @@ export async function handleEnrollmentPauseBilling(pool, { signupId, enteringPau
     })
   }
 
-  if (signup.family_id) {
+  if (signup.family_id && (enteringPaused || leavingPaused)) {
     await syncFamilyEnrollmentDiscounts(pool, Number(signup.family_id))
   }
+}
+
+/**
+ * Activate enrollments whose pause_effective_date has arrived (start-of-month pauses).
+ * @returns {Promise<number>} count activated
+ */
+export async function applyScheduledPauses(pool, { asOf = new Date() } = {}) {
+  const today = todayDateOnly(asOf)
+  let due
+  try {
+    due = await pool.query(
+      `
+      SELECT id, pause_effective_date, pause_mode
+      FROM scheduling_signup
+      WHERE pause_effective_date IS NOT NULL
+        AND pause_effective_date <= $1
+        AND status IN ('confirmed', 'waitlisted')
+        AND orphaned_at IS NULL
+      ORDER BY id
+      `,
+      [today],
+    )
+  } catch (err) {
+    console.warn('[pauseBilling] applyScheduledPauses query:', err?.message ?? err)
+    return 0
+  }
+
+  let applied = 0
+  for (const row of due.rows) {
+    const signupId = Number(row.id)
+    const mode = row.pause_mode === 'prorated' ? 'prorated' : 'next_month'
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const { updateSignupLifecycleStatus } = await import('./enrollmentLifecycle.js')
+      await updateSignupLifecycleStatus(client, signupId, 'paused')
+      await client.query(
+        `
+        UPDATE scheduling_signup
+        SET pause_effective_date = NULL,
+            pause_mode = $2
+        WHERE id = $1
+        `,
+        [signupId, mode],
+      )
+      await client.query('COMMIT')
+      await handleEnrollmentPauseBilling(pool, {
+        signupId,
+        enteringPaused: true,
+        pauseMode: mode,
+      })
+      applied += 1
+    } catch (err) {
+      try {
+        await client.query('ROLLBACK')
+      } catch {
+        /* ignore */
+      }
+      console.warn('[pauseBilling] applyScheduledPauses signup', signupId, err?.message ?? err)
+    } finally {
+      client.release()
+    }
+  }
+  return applied
 }
