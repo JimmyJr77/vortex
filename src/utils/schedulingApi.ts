@@ -1212,7 +1212,7 @@ export function enrollmentNeedsPayment(preview: SignupOrderPreview): boolean {
     (line) =>
       line.billingType === 'recurring' &&
       !line.multiClassPassApplied &&
-      (line.monthlyPrice ?? 0) > 0,
+      (line.monthlyPrice ?? line.incrementalMonthly ?? 0) > 0,
   )
   const hasPassPurchase = (preview.passPurchases?.length ?? 0) > 0
   return dueNow > 0 || hasRecurring || hasPassPurchase

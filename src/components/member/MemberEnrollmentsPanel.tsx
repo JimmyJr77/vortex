@@ -229,6 +229,7 @@ function MemberEnrollmentActionModal({
       await onChanged(result)
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Failed to cancel enrollment')
+    } finally {
       setBusy(false)
     }
   }
@@ -564,8 +565,8 @@ export default function MemberEnrollmentsPanel({
           memberToken={memberToken}
           onClose={() => setActiveRow(null)}
           onChanged={async (result) => {
-            setActiveRow(null)
             await onEnrollmentsChanged?.(result)
+            setActiveRow(null)
           }}
         />
       )}

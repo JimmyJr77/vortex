@@ -682,12 +682,19 @@ export default function MemberDashboard({
   }, [])
 
   useEffect(() => {
+    if (token) {
+      void fetchBillingStatements()
+    }
+  }, [token])
+
+  useEffect(() => {
     if (activeTab === 'home') {
       fetchEnrollments()
       loadClassesOffered()
     } else if (activeTab === 'classes') {
       fetchEnrollments()
       loadClassesOffered()
+      void fetchBillingStatements()
       if (token) {
         void fetchMemberMultiClassPasses(token)
           .then(setMultiClassPasses)
@@ -1074,7 +1081,7 @@ export default function MemberDashboard({
   }
 
 
-  const fetchEnrollments = async () => {
+  const fetchEnrollments = async (preserveOnError = false) => {
     if (!token) return
     try {
       setEnrollmentsLoading(true)
@@ -1091,7 +1098,7 @@ export default function MemberDashboard({
       setEnrollments(Array.isArray(data.enrollments) ? data.enrollments : [])
     } catch (error) {
       console.error('Error fetching enrollments:', error)
-      setEnrollments([])
+      if (!preserveOnError) setEnrollments([])
     } finally {
       setEnrollmentsLoading(false)
     }
@@ -1806,7 +1813,7 @@ export default function MemberDashboard({
                         ),
                       )
                     }
-                    await fetchEnrollments()
+                    void fetchEnrollments(true)
                   }}
                   classesOffered={classesOffered}
                   multiClassPasses={multiClassPasses.map((p) => ({

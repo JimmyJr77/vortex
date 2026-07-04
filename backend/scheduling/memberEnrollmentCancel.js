@@ -17,6 +17,20 @@ import { syncFamilyEnrollmentDiscounts } from './pauseEnrollmentBilling.js'
 import { safeRestorePassCreditsForSignup } from '../programs/multiClassPass.js'
 import { syncStripeForBillingSource } from '../billing/stripeSubscriptionSync.js'
 
+/** Discount resync can be slow; never block the cancel HTTP response on it. */
+function scheduleFamilyDiscountResync(pool, memberId) {
+  if (memberId == null) return
+  void (async () => {
+    try {
+      const famRes = await pool.query(`SELECT family_id FROM member WHERE id = $1`, [memberId])
+      const familyId = famRes.rows[0]?.family_id
+      if (familyId) await syncFamilyEnrollmentDiscounts(pool, Number(familyId))
+    } catch (syncErr) {
+      console.warn('[memberEnrollmentCancel] discount resync:', syncErr?.message ?? syncErr)
+    }
+  })()
+}
+
 /** The next billing anchor (1st) after today — when billing/enrollment changes take effect. */
 export function nextEnrollmentBillingChangeDate(fromDate = todayDateOnly()) {
   return firstOfNextMonth(fromDate)
@@ -130,15 +144,7 @@ async function finalizeEnrollmentCancellation(pool, { signupId, previousStatus, 
     client.release()
   }
 
-  if (memberId != null) {
-    try {
-      const famRes = await pool.query(`SELECT family_id FROM member WHERE id = $1`, [memberId])
-      const familyId = famRes.rows[0]?.family_id
-      if (familyId) await syncFamilyEnrollmentDiscounts(pool, Number(familyId))
-    } catch (syncErr) {
-      console.warn('[memberEnrollmentCancel] discount resync:', syncErr?.message ?? syncErr)
-    }
-  }
+  scheduleFamilyDiscountResync(pool, memberId)
 
   return signupId
 }
@@ -233,22 +239,16 @@ export async function requestMemberEnrollmentCancellation(pool, {
     client.release()
   }
 
-  await syncStripeForBillingSource(pool, {
+  void syncStripeForBillingSource(pool, {
     sourceType: 'scheduling_signup',
     sourceId: signupId,
     effectiveDate,
     immediate: false,
+  }).catch((syncErr) => {
+    console.warn('[memberEnrollmentCancel] stripe sync:', syncErr?.message ?? syncErr)
   })
 
-  if (signup.member_id != null) {
-    try {
-      const famRes = await pool.query(`SELECT family_id FROM member WHERE id = $1`, [signup.member_id])
-      const familyId = famRes.rows[0]?.family_id
-      if (familyId) await syncFamilyEnrollmentDiscounts(pool, Number(familyId))
-    } catch (syncErr) {
-      console.warn('[memberEnrollmentCancel] discount resync:', syncErr?.message ?? syncErr)
-    }
-  }
+  scheduleFamilyDiscountResync(pool, signup.member_id != null ? Number(signup.member_id) : null)
 
   return { signupId: Number(signup.id), effectiveDate, immediate: false }
 }
