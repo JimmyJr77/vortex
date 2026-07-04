@@ -306,8 +306,9 @@ export async function loadThreadWithParticipants(pool, threadId, facilityId) {
 /**
  * Admin thread list with optional search (subject, participants, message bodies) and sort.
  * sort: title | created | updated (default: updated = last_message_at)
+ * scope: all | mine — when mine, only threads the admin user participates in
  */
-export async function queryAdminMessageThreads(pool, facilityId, { status = 'open', sort = 'updated', q = null, limit = 300 }) {
+export async function queryAdminMessageThreads(pool, facilityId, { status = 'open', sort = 'updated', q = null, limit = 300, scope = 'all', adminUserId = null }) {
   const params = [facilityId, status]
   const pattern = q && String(q).trim() ? `%${String(q).trim()}%` : null
   let searchSql = ''
@@ -332,6 +333,24 @@ export async function queryAdminMessageThreads(pool, facilityId, { status = 'ope
             OR COALESCE(mem.first_name, '') ILIKE ${p}
             OR COALESCE(mem.last_name, '') ILIKE ${p}
           )
+        )
+      )
+    `
+  }
+
+  let participantSql = ''
+  if (scope === 'mine' && adminUserId != null && Number.isFinite(Number(adminUserId))) {
+    params.push(Number(adminUserId))
+    const uid = `$${params.length}`
+    participantSql = `
+      AND (
+        EXISTS (
+          SELECT 1 FROM coaching.message_thread_participant p
+          WHERE p.thread_id = t.id AND p.user_id = ${uid}
+        )
+        OR EXISTS (
+          SELECT 1 FROM coaching.message msg
+          WHERE msg.thread_id = t.id AND msg.sender_user_id = ${uid}
         )
       )
     `
@@ -372,6 +391,7 @@ export async function queryAdminMessageThreads(pool, facilityId, { status = 'ope
         WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
       ) lm ON TRUE
       WHERE t.facility_id = $1 AND t.status = $2
+      ${participantSql}
       ${searchSql}
       ORDER BY ${orderSql}
       LIMIT ${limitParam}

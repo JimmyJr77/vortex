@@ -9,8 +9,8 @@ import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import type { MessageRow, MessageThread, RecipientOption, ThreadParticipant } from '../messaging/types'
 import { participantKey } from '../messaging/types'
 
-type AdminMessagesTab = 'active' | 'archived'
-type ArchivedSort = 'title' | 'created'
+type AdminMessagesTab = 'active-mine' | 'active-all' | 'archived'
+type ListSort = 'title' | 'created'
 
 async function adminFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const res = await adminApiRequest(endpoint, options)
@@ -26,7 +26,7 @@ function threadTitle(t: MessageThread) {
 }
 
 export default function AdminMessagesPanel() {
-  const [tab, setTab] = useState<AdminMessagesTab>('active')
+  const [tab, setTab] = useState<AdminMessagesTab>('active-mine')
   const [threads, setThreads] = useState<MessageThread[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [messages, setMessages] = useState<MessageRow[]>([])
@@ -45,9 +45,12 @@ export default function AdminMessagesPanel() {
   const [newRecipients, setNewRecipients] = useState<RecipientOption[]>([])
   const [newSubject, setNewSubject] = useState('')
   const [newBody, setNewBody] = useState('')
-  const [archivedSearch, setArchivedSearch] = useState('')
-  const [archivedSearchApplied, setArchivedSearchApplied] = useState('')
-  const [archivedSort, setArchivedSort] = useState<ArchivedSort>('title')
+  const [listSearch, setListSearch] = useState('')
+  const [listSearchApplied, setListSearchApplied] = useState('')
+  const [listSort, setListSort] = useState<ListSort>('title')
+
+  const isFlatView = tab === 'active-all' || tab === 'archived'
+  const canReply = tab === 'active-mine' || tab === 'active-all'
 
   const viewer = useMemo(() => getMessageViewer('admin'), [])
   const existingParticipantKeys = useMemo(
@@ -69,9 +72,14 @@ export default function AdminMessagesPanel() {
     try {
       const params = new URLSearchParams()
       params.set('status', tab === 'archived' ? 'archived' : 'open')
-      if (tab === 'archived') {
-        params.set('sort', archivedSort)
-        if (archivedSearchApplied.trim()) params.set('q', archivedSearchApplied.trim())
+      if (tab === 'active-mine') {
+        params.set('scope', 'mine')
+      } else if (tab === 'active-all') {
+        params.set('scope', 'all')
+      }
+      if (isFlatView) {
+        params.set('sort', listSort)
+        if (listSearchApplied.trim()) params.set('q', listSearchApplied.trim())
       }
       setThreads(await adminFetch<MessageThread[]>(`/api/admin/messages?${params.toString()}`))
     } catch (err) {
@@ -79,11 +87,12 @@ export default function AdminMessagesPanel() {
     } finally {
       setLoading(false)
     }
-  }, [tab, archivedSort, archivedSearchApplied])
+  }, [tab, isFlatView, listSort, listSearchApplied])
 
   useEffect(() => {
     setSelectedId(null)
     setMessages([])
+    setNewOpen(false)
     void loadThreads()
   }, [loadThreads])
 
@@ -106,7 +115,7 @@ export default function AdminMessagesPanel() {
   }
 
   const sendReply = async () => {
-    if (!selectedId || !reply.trim() || tab !== 'active') return
+    if (!selectedId || !reply.trim() || !canReply) return
     setSending(true)
     try {
       const msg = await adminFetch<MessageRow>(`/api/admin/messages/${selectedId}`, {
@@ -179,9 +188,19 @@ export default function AdminMessagesPanel() {
     void loadThreads()
   }
 
-  const applyArchivedSearch = () => {
-    setArchivedSearchApplied(archivedSearch)
+  const applyListSearch = () => {
+    setListSearchApplied(listSearch)
   }
+
+  const listPanelTitle =
+    tab === 'archived' ? 'Archived threads' : tab === 'active-all' ? 'All active threads' : 'Your active threads'
+
+  const emptyDetailHint =
+    tab === 'archived'
+      ? 'Select an archived thread to review messages.'
+      : tab === 'active-all'
+        ? 'Select a thread to review the full transcript.'
+        : 'Select a thread to view and reply.'
 
   return (
     <div className="space-y-5">
@@ -190,9 +209,11 @@ export default function AdminMessagesPanel() {
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
           </h2>
-          <p className="text-sm text-gray-500">Manage facility threads and browse archived conversations.</p>
+          <p className="text-sm text-gray-500">
+            Your conversations, facility-wide active threads, and archived history.
+          </p>
         </div>
-        {tab === 'active' && (
+        {tab !== 'archived' && (
           <button
             type="button"
             onClick={() => setNewOpen((v) => !v)}
@@ -203,26 +224,28 @@ export default function AdminMessagesPanel() {
         )}
       </div>
 
-      <div className="flex gap-2 border-b border-gray-200">
-        <button
-          type="button"
-          onClick={() => setTab('active')}
-          className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px ${tab === 'active' ? 'border-vortex-red text-vortex-red' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
-        >
-          Active
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab('archived')}
-          className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px ${tab === 'archived' ? 'border-vortex-red text-vortex-red' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
-        >
-          Archived
-        </button>
+      <div className="flex gap-2 border-b border-gray-200 flex-wrap">
+        {(
+          [
+            ['active-mine', 'Active · Admin'],
+            ['active-all', 'Active · All'],
+            ['archived', 'Archived'],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px ${tab === id ? 'border-vortex-red text-vortex-red' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
 
-      {tab === 'active' && newOpen && (
+      {tab !== 'archived' && newOpen && (
         <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
           <h3 className="font-semibold text-gray-800">New thread</h3>
           <RecipientPicker
@@ -261,22 +284,22 @@ export default function AdminMessagesPanel() {
         </div>
       )}
 
-      {tab === 'archived' && (
+      {isFlatView && (
         <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
           <div className="flex flex-wrap gap-2 items-end">
             <label className="flex-1 min-w-[200px] text-sm">
               <span className="block text-xs font-semibold text-gray-500 mb-1">Search</span>
               <input
-                value={archivedSearch}
-                onChange={(e) => setArchivedSearch(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') applyArchivedSearch() }}
+                value={listSearch}
+                onChange={(e) => setListSearch(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') applyListSearch() }}
                 placeholder="Title, user, or message text…"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
               />
             </label>
             <button
               type="button"
-              onClick={applyArchivedSearch}
+              onClick={applyListSearch}
               className="px-4 py-2 text-sm font-semibold border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               Search
@@ -284,8 +307,8 @@ export default function AdminMessagesPanel() {
             <label className="text-sm">
               <span className="block text-xs font-semibold text-gray-500 mb-1">Sort</span>
               <select
-                value={archivedSort}
-                onChange={(e) => setArchivedSort(e.target.value as ArchivedSort)}
+                value={listSort}
+                onChange={(e) => setListSort(e.target.value as ListSort)}
                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
               >
                 <option value="title">Title (A–Z)</option>
@@ -299,7 +322,7 @@ export default function AdminMessagesPanel() {
       <div className="grid gap-5 lg:grid-cols-[300px_1fr] min-h-[420px]">
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col">
           <div className="px-4 py-3 border-b border-gray-100 font-semibold text-sm shrink-0">
-            {tab === 'archived' ? 'Archived threads' : 'Active threads'}
+            {listPanelTitle}
           </div>
           {loading ? (
             <div className="p-4 flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
@@ -318,12 +341,12 @@ export default function AdminMessagesPanel() {
                   {t.participant_names && (
                     <div className="text-xs text-gray-500 truncate">{t.participant_names}</div>
                   )}
-                  {tab === 'archived' && t.created_at && (
+                  {isFlatView && t.created_at && (
                     <div className="text-[10px] text-gray-400 mt-0.5">
                       Created {new Date(t.created_at).toLocaleDateString()}
                     </div>
                   )}
-                  {t.last_message_body && tab === 'active' && (
+                  {t.last_message_body && tab === 'active-mine' && (
                     <div className="text-xs text-gray-400 truncate mt-0.5">{t.last_message_body}</div>
                   )}
                 </button>
@@ -332,17 +355,17 @@ export default function AdminMessagesPanel() {
           )}
         </div>
 
-        <div className={`bg-white border border-gray-200 rounded-xl flex flex-col min-h-[420px] ${tab === 'archived' ? 'font-sans' : ''}`}>
+        <div className={`bg-white border border-gray-200 rounded-xl flex flex-col min-h-[420px] ${isFlatView ? 'font-sans' : ''}`}>
           {!selectedId ? (
             <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-8">
-              {tab === 'archived' ? 'Select an archived thread to review messages.' : 'Select a thread to view and reply.'}
+              {emptyDetailHint}
             </div>
           ) : detailLoading ? (
             <div className="flex-1 flex items-center justify-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
-          ) : tab === 'archived' ? (
+          ) : isFlatView ? (
             <>
               <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-start justify-between gap-3">
-                <div>
+                <div className="min-w-0 flex-1">
                   <div className="font-semibold text-sm text-gray-900">{threadSubject || 'Conversation'}</div>
                   {threadParticipants.length > 0 && (
                     <div className="text-xs text-gray-500 mt-1">
@@ -350,17 +373,60 @@ export default function AdminMessagesPanel() {
                     </div>
                   )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => void setArchiveStatus(false)}
-                  className="shrink-0 text-xs font-semibold text-vortex-red hover:underline"
-                >
-                  Restore thread
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  {tab === 'archived' ? (
+                    <button
+                      type="button"
+                      onClick={() => void setArchiveStatus(false)}
+                      className="text-xs font-semibold text-vortex-red hover:underline"
+                    >
+                      Restore thread
+                    </button>
+                  ) : (
+                    <ThreadHeaderMenu
+                      subject={threadSubject}
+                      subjectLocked={threadSubjectLocked}
+                      canLock
+                      canEdit
+                      onUpdateSubject={updateThreadSubject}
+                      recipientOptions={recipientOptions}
+                      existingParticipantKeys={existingParticipantKeys}
+                      recipientsLoading={recipientsLoading}
+                      onAddRecipients={addRecipients}
+                      canArchive
+                      isArchived={false}
+                      onArchive={setArchiveStatus}
+                    />
+                  )}
+                </div>
               </div>
               <div className="flex-1 overflow-y-auto">
                 <ArchivedMessageLines messages={messages} />
               </div>
+              {canReply && (
+                <div className="p-4 border-t border-gray-100 flex gap-2">
+                  <input
+                    value={reply}
+                    onChange={(e) => setReply(e.target.value)}
+                    placeholder="Reply as admin…"
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        void sendReply()
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void sendReply()}
+                    disabled={sending || !reply.trim()}
+                    className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
+                  >
+                    Send
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             <>

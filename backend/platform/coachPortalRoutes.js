@@ -3016,12 +3016,20 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     try {
       if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
       const facilityId = req.platformAuth.user.facility_id
+      const adminUserId = Number(req.platformAuth.user.id)
       const status = req.query.status === 'archived' ? 'archived' : 'open'
+      const scope = req.query.scope === 'mine' ? 'mine' : 'all'
       const sort = ['title', 'created', 'updated'].includes(String(req.query.sort || ''))
         ? String(req.query.sort)
-        : (status === 'archived' ? 'title' : 'updated')
+        : (status === 'archived' || (status === 'open' && scope === 'all') ? 'title' : 'updated')
       const q = req.query.q ? String(req.query.q) : null
-      const rows = await queryAdminMessageThreads(pool, facilityId, { status, sort, q })
+      const rows = await queryAdminMessageThreads(pool, facilityId, {
+        status,
+        sort,
+        q,
+        scope: status === 'archived' ? 'all' : scope,
+        adminUserId: scope === 'mine' ? adminUserId : null,
+      })
       ok(res, rows)
     } catch (error) {
       bad(res, error.message, 500)
