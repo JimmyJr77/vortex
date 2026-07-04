@@ -709,6 +709,17 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
     }
 
     await client.query('COMMIT')
+
+    if (stripeSession?.id) {
+      const stripe = await getStripeClient()
+      if (stripe) {
+        await recordEnrollmentStripePayment(pool, stripe, {
+          session: stripeSession,
+          accountId: Number(pending.family_billing_account_id),
+        })
+      }
+    }
+
     return { status: 'completed', result }
   } catch (err) {
     await client.query('ROLLBACK')

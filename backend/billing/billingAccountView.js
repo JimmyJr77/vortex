@@ -13,6 +13,7 @@
 
 import { loadPassUsageHistory } from '../programs/multiClassPass.js'
 import { buildBillingHistory, buildCurrentPeriod } from './billingPeriodView.js'
+import { reconcileEnrollmentLedger } from './enrollmentLedgerReconcile.js'
 
 function mapSubscription(row) {
   return {
@@ -147,6 +148,14 @@ export function buildLedgerFallback({ charges = [], payments = [], refunds = [] 
  */
 export async function buildBillingAccountView(pool, account, { memberScopeId = null } = {}) {
   const familyScope = memberScopeId == null
+
+  if (familyScope) {
+    try {
+      await reconcileEnrollmentLedger(pool, account)
+    } catch (err) {
+      console.warn('[billingAccountView] reconcileEnrollmentLedger:', err.message)
+    }
+  }
 
   // Charges (member-filtered for non-payer member view).
   const chargeParams = [account.id]

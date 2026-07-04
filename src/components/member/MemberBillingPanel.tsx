@@ -241,7 +241,7 @@ export default function MemberBillingPanel({
             <p className="text-xl font-bold text-gray-900">{formatMoney(totals?.chargesCents ?? 0)}</p>
           </div>
           <div className="rounded-xl border border-gray-200 p-4">
-            <p className="text-xs uppercase tracking-wide text-gray-500">Outstanding charges</p>
+            <p className="text-xs uppercase tracking-wide text-gray-500">Outstanding balance</p>
             <p className="text-xl font-bold text-gray-900">{formatMoney(totals?.debitsCents ?? 0)}</p>
           </div>
           <div className="rounded-xl border border-gray-200 p-4">
@@ -412,10 +412,10 @@ export default function MemberBillingPanel({
           formatMoney={formatMoney}
         />
 
-        <h3 className="text-sm font-semibold text-gray-900 mb-2">Outstanding charges</h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Outstanding balance</h3>
         <LineList
           items={period?.debits ?? []}
-          emptyMessage="No outstanding charges."
+          emptyMessage="No outstanding balance items."
           formatMoney={formatMoney}
         />
 

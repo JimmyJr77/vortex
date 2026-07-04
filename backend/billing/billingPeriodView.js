@@ -26,6 +26,11 @@ export function periodBoundsFromKey(key) {
 }
 
 export function chargeOccurredAt(charge) {
+  const category = chargeDisplayCategory(charge)
+  // Enrollment checkout posts in the month paid at signup, not the covered service month.
+  if (category === 'enrollment_first_month' || category === 'membership_fee') {
+    return charge.created_at
+  }
   return charge.service_period_start ?? charge.created_at
 }
 
