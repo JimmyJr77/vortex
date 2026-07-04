@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Lock, MoreHorizontal, Pencil, UserPlus } from 'lucide-react'
+import { Lock, MoreHorizontal, Pencil, UserPlus, Archive, ArchiveRestore } from 'lucide-react'
 import RecipientPicker from './RecipientPicker'
 import type { RecipientOption } from './types'
 
@@ -13,6 +13,9 @@ interface ThreadHeaderMenuProps {
   existingParticipantKeys?: string[]
   recipientsLoading?: boolean
   onAddRecipients?: (recipients: RecipientOption[]) => Promise<void>
+  canArchive?: boolean
+  isArchived?: boolean
+  onArchive?: (archived: boolean) => Promise<void>
 }
 
 export default function ThreadHeaderMenu({
@@ -25,6 +28,9 @@ export default function ThreadHeaderMenu({
   existingParticipantKeys = [],
   recipientsLoading = false,
   onAddRecipients,
+  canArchive = false,
+  isArchived = false,
+  onArchive,
 }: ThreadHeaderMenuProps) {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -35,6 +41,7 @@ export default function ThreadHeaderMenu({
   const rootRef = useRef<HTMLDivElement>(null)
 
   const canAddRecipients = Boolean(onAddRecipients)
+  const canArchiveThread = Boolean(onArchive) && canArchive
   const existingKeys = useMemo(() => new Set(existingParticipantKeys), [existingParticipantKeys])
   const availableOptions = useMemo(
     () => recipientOptions.filter((o) => !existingKeys.has(o.key)),
@@ -88,7 +95,18 @@ export default function ThreadHeaderMenu({
     }
   }
 
-  if (!canEdit && !canLock && !canAddRecipients) return null
+  const toggleArchive = async () => {
+    if (!onArchive) return
+    setSaving(true)
+    try {
+      await onArchive(!isArchived)
+      setOpen(false)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (!canEdit && !canLock && !canAddRecipients && !canArchiveThread) return null
 
   return (
     <div ref={rootRef} className="relative shrink-0">
@@ -122,6 +140,20 @@ export default function ThreadHeaderMenu({
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
             >
               <UserPlus className="w-4 h-4" /> Add recipients
+            </button>
+          )}
+          {canArchiveThread && (
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() => void toggleArchive()}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 disabled:opacity-60"
+            >
+              {isArchived ? (
+                <><ArchiveRestore className="w-4 h-4" /> Restore thread</>
+              ) : (
+                <><Archive className="w-4 h-4" /> Archive thread</>
+              )}
             </button>
           )}
           {canLock && (

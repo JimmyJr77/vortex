@@ -133,6 +133,17 @@ export default function MessagesPanel() {
     setThreadParticipants(Array.isArray(updated.participants) ? updated.participants : [])
   }
 
+  const setArchiveStatus = async (archived: boolean) => {
+    if (!selectedId) return
+    await coachFetch<MessageThread>(`/api/coach/messages/${selectedId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ archived }),
+    })
+    setSelectedId(null)
+    setMessages([])
+    void loadThreads()
+  }
+
   const openToCoachingCircle = async () => {
     if (!selectedId) return
     try {
@@ -324,6 +335,8 @@ export default function MessagesPanel() {
                     existingParticipantKeys={existingParticipantKeys}
                     recipientsLoading={recipientsLoading}
                     onAddRecipients={addRecipients}
+                    canArchive
+                    onArchive={setArchiveStatus}
                   />
                 </div>
               </div>

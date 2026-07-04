@@ -112,7 +112,7 @@ RBAC-filtered from `/api/admin/access/me`. Cross-tab deep-linking (Classes → S
 | Admins | `AdminAdmins.tsx` | Legacy admin accounts (master vs admin) | `admins.manage` |
 | Access | `AdminAccess.tsx` | Roles + allow/deny overrides, accounts, activate | `admin_access.manage` |
 | Members | `AdminMembers.tsx` | Member/family/guardian/athlete CRUD; expandable row panel (Member Details, Account Security, Enrollments, Staff Notes, Billing); enroll, archive, pricing modal | `members.view` |
-| Messages | `AdminMessagesPanel.tsx` | All facility messaging threads; reply as admin; edit/lock thread names | `members.view` |
+| Messages | `AdminMessagesPanel.tsx` | Active threads (new/reply/archive) + archived browse with search, sort, flat line-item transcript | `members.view` |
 | Inquiries | `AdminInquiries.tsx` | Registrations + newsletter + notes/follow-up | `members.view` |
 | Classes | `AdminClasses.tsx` | Top programs/categories, class rows, discipline tags | `classes.view` |
 | Coaches | `AdminCoaches.tsx` | Coach roster + program/iteration assignments | `classes.manage` |

@@ -302,3 +302,91 @@ export async function loadThreadWithParticipants(pool, threadId, facilityId) {
   )
   return data.rows[0] ?? null
 }
+
+/**
+ * Admin thread list with optional search (subject, participants, message bodies) and sort.
+ * sort: title | created | updated (default: updated = last_message_at)
+ */
+export async function queryAdminMessageThreads(pool, facilityId, { status = 'open', sort = 'updated', q = null, limit = 300 }) {
+  const params = [facilityId, status]
+  const pattern = q && String(q).trim() ? `%${String(q).trim()}%` : null
+  let searchSql = ''
+  if (pattern) {
+    params.push(pattern)
+    const p = `$${params.length}`
+    searchSql = `
+      AND (
+        t.subject ILIKE ${p}
+        OR COALESCE(m.first_name, '') ILIKE ${p}
+        OR COALESCE(m.last_name, '') ILIKE ${p}
+        OR EXISTS (
+          SELECT 1 FROM coaching.message msg
+          WHERE msg.thread_id = t.id AND msg.body ILIKE ${p}
+        )
+        OR EXISTS (
+          SELECT 1 FROM coaching.message_thread_participant p
+          LEFT JOIN public.app_user au ON au.id = p.user_id
+          LEFT JOIN public.member mem ON mem.id = p.member_id
+          WHERE p.thread_id = t.id AND (
+            COALESCE(au.full_name, '') ILIKE ${p}
+            OR COALESCE(mem.first_name, '') ILIKE ${p}
+            OR COALESCE(mem.last_name, '') ILIKE ${p}
+          )
+        )
+      )
+    `
+  }
+
+  let orderSql = 't.last_message_at DESC NULLS LAST, t.created_at DESC'
+  if (sort === 'title') {
+    orderSql = `LOWER(COALESCE(NULLIF(TRIM(t.subject), ''), 'conversation')) ASC, t.created_at DESC`
+  } else if (sort === 'created') {
+    orderSql = 't.created_at DESC'
+  }
+
+  params.push(Number(limit) || 300)
+  const limitParam = `$${params.length}`
+
+  const result = await pool.query(
+    `
+      SELECT t.*, m.first_name, m.last_name,
+        lm.body AS last_message_body,
+        lm.created_at AS last_message_created_at,
+        (
+          SELECT string_agg(names.n, ', ')
+          FROM (
+            SELECT DISTINCT COALESCE(
+              (SELECT full_name FROM public.app_user WHERE id = p.user_id),
+              TRIM(CONCAT(mem.first_name, ' ', mem.last_name))
+            ) AS n
+            FROM coaching.message_thread_participant p
+            LEFT JOIN public.member mem ON mem.id = p.member_id
+            WHERE p.thread_id = t.id
+          ) names
+          WHERE names.n IS NOT NULL AND names.n <> ''
+        ) AS participant_names
+      FROM coaching.message_thread t
+      LEFT JOIN public.member m ON m.id = t.member_id
+      LEFT JOIN LATERAL (
+        SELECT body, created_at FROM coaching.message
+        WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
+      ) lm ON TRUE
+      WHERE t.facility_id = $1 AND t.status = $2
+      ${searchSql}
+      ORDER BY ${orderSql}
+      LIMIT ${limitParam}
+    `,
+    params,
+  )
+  return result.rows
+}
+
+export async function setMessageThreadStatus(pool, threadId, facilityId, status) {
+  const next = status === 'archived' ? 'archived' : 'open'
+  const updated = await pool.query(
+    `UPDATE coaching.message_thread SET status = $1, updated_at = now()
+     WHERE id = $2 AND facility_id = $3 RETURNING *`,
+    [next, threadId, facilityId],
+  )
+  return updated.rows[0] ?? null
+}

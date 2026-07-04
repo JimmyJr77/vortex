@@ -29,7 +29,7 @@ import {
   queryCoachMemberPickerList,
   queryMinorChildGuardianMemberIds,
 } from './coachRoster.js'
-import { ensureCoachingNotificationSchema } from './coachingSchemaEnsure.js'
+import { ensureCoachingNotificationSchema, ensureCoachingMessageThreadSchema } from './coachingSchemaEnsure.js'
 import {
   insertThreadParticipants,
   coachCanAccessThreadWithParticipants,
@@ -43,6 +43,8 @@ import {
   memberIsThreadParticipant,
   addRecipientsToThread,
   queryAdminRecipientOptions,
+  queryAdminMessageThreads,
+  setMessageThreadStatus,
 } from './messageThreads.js'
 
 function ok(res, data) {
@@ -2683,6 +2685,19 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   // MESSAGING (Phase G)
   // ==========================================================
 
+  async function ensureMessagesSchema(_req, res, next) {
+    try {
+      await ensureCoachingMessageThreadSchema(pool)
+      next()
+    } catch (error) {
+      return bad(res, error.message, 500)
+    }
+  }
+
+  app.use('/api/member/messages', ensureMessagesSchema)
+  app.use('/api/coach/messages', ensureMessagesSchema)
+  app.use('/api/admin/messages', ensureMessagesSchema)
+
   async function appendThreadMessage(threadId, { senderUserId, senderMemberId, body }) {
     const inserted = await pool.query(
       `INSERT INTO coaching.message (thread_id, sender_user_id, sender_member_id, body)
@@ -3023,24 +3038,45 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
       const facilityId = req.platformAuth.user.facility_id
       const status = req.query.status === 'archived' ? 'archived' : 'open'
-      const result = await pool.query(
-        `
-          SELECT t.*, m.first_name, m.last_name,
-            lm.body AS last_message_body,
-            lm.created_at AS last_message_created_at
-          FROM coaching.message_thread t
-          LEFT JOIN public.member m ON m.id = t.member_id
-          LEFT JOIN LATERAL (
-            SELECT body, created_at FROM coaching.message
-            WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
-          ) lm ON TRUE
-          WHERE t.facility_id = $1 AND t.status = $2
-          ORDER BY t.last_message_at DESC NULLS LAST, t.created_at DESC
-          LIMIT 200
-        `,
-        [facilityId, status],
+      const sort = ['title', 'created', 'updated'].includes(String(req.query.sort || ''))
+        ? String(req.query.sort)
+        : (status === 'archived' ? 'title' : 'updated')
+      const q = req.query.q ? String(req.query.q) : null
+      const rows = await queryAdminMessageThreads(pool, facilityId, { status, sort, q })
+      ok(res, rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/admin/messages', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const adminUserId = Number(req.platformAuth.user.id)
+      const body = String(req.body?.body || '').trim()
+      if (!body) return bad(res, 'body is required.')
+      const { userIds, memberIds } = parseRecipientPayload(req.body)
+      const validMembers = await validateMemberRecipients(pool, facilityId, memberIds)
+      const validStaff = await validateStaffRecipients(pool, facilityId, userIds.filter((id) => id !== adminUserId))
+      if (validMembers.length === 0 && validStaff.length === 0) {
+        return bad(res, 'At least one recipient is required.')
+      }
+      const subject = req.body?.subject ? String(req.body.subject).trim() : null
+      const primaryMemberId = validMembers[0] ?? null
+      const created = await pool.query(
+        `INSERT INTO coaching.message_thread (facility_id, member_id, coach_user_id, subject, thread_scope, last_message_at)
+         VALUES ($1, $2, NULL, $3, 'coaching_circle', now()) RETURNING *`,
+        [facilityId, primaryMemberId, subject],
       )
-      ok(res, result.rows)
+      const thread = created.rows[0]
+      await insertThreadParticipants(pool, thread.id, {
+        userIds: [adminUserId, ...validStaff],
+        memberIds: validMembers,
+      })
+      const message = await appendThreadMessage(thread.id, { senderUserId: adminUserId, body })
+      void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: adminUserId })
+      ok(res, { thread, message })
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -3130,6 +3166,41 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const result = await addRecipientsToThread(pool, threadId, facilityId, req.body)
       if (result.addedCount === 0) return bad(res, 'No new recipients to add.', 400)
       ok(res, result.thread)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/admin/messages/:threadId/status', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const threadId = num(req.params.threadId)
+      const archived = req.body?.archived === true || req.body?.status === 'archived'
+      const updated = await setMessageThreadStatus(pool, threadId, facilityId, archived ? 'archived' : 'open')
+      if (!updated) return bad(res, 'Thread not found.', 404)
+      ok(res, updated)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/coach/messages/:threadId/status', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const threadId = num(req.params.threadId)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      if (!await coachHasThreadAccess(thread, coachUserId)) return bad(res, 'Thread not found.', 404)
+      const archived = req.body?.archived === true || req.body?.status === 'archived'
+      const updated = await setMessageThreadStatus(pool, threadId, facilityId, archived ? 'archived' : 'open')
+      if (!updated) return bad(res, 'Thread not found.', 404)
+      ok(res, updated)
     } catch (error) {
       bad(res, error.message, 500)
     }

@@ -44,7 +44,7 @@ import { queryFamilyMemberEnrollments } from './platform/memberEnrollments.js'
 import { listActiveFamilyMemberIds, syncFamilyMemberLinks } from './platform/familyMembers.js'
 import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
 import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
-import { ensureCoachingNotificationSchema } from './platform/coachingSchemaEnsure.js'
+import { ensureCoachingNotificationSchema, ensureCoachingMessageThreadSchema } from './platform/coachingSchemaEnsure.js'
 import { generateTemporaryPassword, sendTemporaryPasswordEmail } from './scheduling/tempPasswordEmail.js'
 import { logWarn, reportError } from './observability/logger.js'
 import { startAccountInviteReminderScheduler } from './email/accountInviteReminderService.js'
@@ -14369,6 +14369,11 @@ const startServer = async () => {
       await ensureCoachingNotificationSchema(pool)
     } catch (notificationSchemaError) {
       console.error(`[Server ${workerId}] Coaching notification schema init failed:`, notificationSchemaError)
+    }
+    try {
+      await ensureCoachingMessageThreadSchema(pool)
+    } catch (messageThreadSchemaError) {
+      console.error(`[Server ${workerId}] Coaching message thread schema init failed:`, messageThreadSchemaError)
     }
     console.log(`[Server ${workerId}] Database initialization complete`)
     

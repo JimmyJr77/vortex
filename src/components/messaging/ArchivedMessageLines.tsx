@@ -1,0 +1,36 @@
+import type { MessageRow } from './types'
+
+interface ArchivedMessageLinesProps {
+  messages: MessageRow[]
+}
+
+function senderRoleLabel(kind?: string) {
+  if (kind === 'admin') return 'Admin'
+  if (kind === 'coach') return 'Coach'
+  if (kind === 'member') return 'Member'
+  return 'User'
+}
+
+export default function ArchivedMessageLines({ messages }: ArchivedMessageLinesProps) {
+  if (messages.length === 0) {
+    return <div className="p-4 text-sm text-gray-500">No messages in this thread.</div>
+  }
+
+  return (
+    <div className="border-t border-gray-200">
+      {messages.map((m) => (
+        <div key={m.id} className="border-b border-gray-100 px-3 py-2.5 text-sm">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-xs text-gray-500 mb-1">
+            <span className="tabular-nums">{new Date(m.created_at).toLocaleString()}</span>
+            <span className="text-gray-700">{m.sender_name || 'Unknown sender'}</span>
+            <span className="uppercase tracking-wide text-[10px] text-gray-400">
+              {senderRoleLabel(m.sender_kind)}
+            </span>
+            <span className="text-gray-400">#{m.id}</span>
+          </div>
+          <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">{m.body}</div>
+        </div>
+      ))}
+    </div>
+  )
+}

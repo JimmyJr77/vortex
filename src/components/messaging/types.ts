@@ -10,6 +10,9 @@ export interface MessageThread {
   last_message_body?: string | null
   last_message_created_at?: string | null
   last_message_at?: string | null
+  created_at?: string | null
+  status?: 'open' | 'archived'
+  participant_names?: string | null
   participants?: ThreadParticipant[]
 }
 

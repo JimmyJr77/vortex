@@ -144,7 +144,9 @@ goals and lightweight achievements.*
 **Backend ✅ (except video review)**
 - In-app notification fan-out for assignments, PRs, messages, achievements.
 - `GET/PATCH/POST /api/coach/notifications`, `/api/member/notifications`.
-- `GET/POST /api/coach/messages`, `/api/member/messages`, `/api/admin/messages` (+ thread replies).
+- `GET/POST /api/admin/messages`, `/api/member/messages`, `/api/admin/messages` (+ thread replies).
+- `GET /api/admin/messages?status=archived&sort=title|created&q=` — archived browse with search.
+- `PATCH …/messages/:threadId/status` — archive or restore thread (admin + coach).
 - `GET /api/coach/messages/recipient-options`, `/api/member/messages/recipient-options` (multi-recipient picker).
 - `PATCH …/messages/:threadId/subject` — rename thread; coaches/admins may set `subject_locked`.
 - Goals: `GET/POST /api/coach/athletes/:id/goals`, `PATCH /api/coach/goals/:id`,
