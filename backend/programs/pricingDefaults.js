@@ -15,7 +15,7 @@ function normalizeCostUnit(unit) {
 }
 
 /** Reads a cost {amountCents, unit} from a row that may use new cadence or legacy monthly columns. */
-function readCost(row, { amountKey, unitKey, legacyKey }) {
+export function readCost(row, { amountKey, unitKey, legacyKey }) {
   if (!row) return null
   const amount = row[amountKey]
   const unit = row[unitKey]
@@ -27,6 +27,22 @@ function readCost(row, { amountKey, unitKey, legacyKey }) {
     return { amountCents: Number(legacy) || 0, unit: 'per_month' }
   }
   return null
+}
+
+const FORM_COST_KEYS = {
+  amountKey: 'cost_amount_cents',
+  unitKey: 'cost_unit',
+  legacyKey: 'slot_cost_monthly_cents',
+}
+
+/** Class-level custom cost only (ignores program fallback). */
+export function readFormOverrideCost(formRow) {
+  return readCost(formRow, FORM_COST_KEYS)
+}
+
+/** True when the form stores its own price, not just the override flag with inherited program cost. */
+export function formHasCustomPricingOverride(formRow) {
+  return Boolean(formRow?.pricing_overrides_program) && readFormOverrideCost(formRow) != null
 }
 
 /**

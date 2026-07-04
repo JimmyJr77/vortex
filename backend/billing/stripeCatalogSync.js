@@ -10,8 +10,13 @@ import { getStripeClient, stripeEnabled } from './stripeBilling.js'
 import { resolveProgramsSchema } from '../programs/schema.js'
 import {
   PROGRAM_PRICING_OPTION_KEYS,
+  hydrateProgramPricingRow,
   normalizeProgramPricingOptions,
 } from '../programs/programPricingOptions.js'
+import {
+  formHasCustomPricingOverride,
+  readFormOverrideCost,
+} from '../programs/pricingDefaults.js'
 import { normalizeMultiClassPassPackages } from '../programs/multiClassPass.js'
 
 const OPTION_LABELS = {
@@ -279,6 +284,7 @@ async function loadProgramRow(pool, programsId) {
   const schema = await resolveProgramsSchema(pool)
   const res = await pool.query(
     `SELECT id, facility_id, name, display_name,
+            pricing_cost_amount_cents, pricing_slot_cost_monthly_cents, pricing_cost_unit,
             COALESCE(pricing_cost_options, '[]'::jsonb) AS pricing_cost_options,
             COALESCE(multi_class_pass_packages, '[]'::jsonb) AS multi_class_pass_packages
      FROM ${schema.programsTable} WHERE id = $1`,
@@ -295,8 +301,9 @@ function programDisplayName(row) {
 /** Sync all enabled pricing options + multi-class passes for one program. */
 export async function syncProgramCatalog(pool, programsId) {
   if (!stripeEnabled()) return { status: 'skipped', reason: 'stripe_disabled' }
-  const program = await loadProgramRow(pool, programsId)
-  if (!program) return { status: 'error', reason: 'program_not_found' }
+  const rawProgram = await loadProgramRow(pool, programsId)
+  if (!rawProgram) return { status: 'error', reason: 'program_not_found' }
+  const program = hydrateProgramPricingRow(rawProgram)
 
   const facilityId = program.facility_id != null ? Number(program.facility_id) : null
   const programName = programDisplayName(program)
@@ -406,13 +413,18 @@ export async function syncClassOverrideCatalog(pool, formId) {
   if (!form) return { status: 'error', reason: 'form_not_found' }
 
   const lookupKey = formOverrideLookupKey(formId)
-  const overrides = Boolean(form.pricing_overrides_program)
-  const costUnit = form.cost_unit ?? 'per_month'
-  const amountCents = Number(form.cost_amount_cents ?? form.slot_cost_monthly_cents ?? 0)
+  const hasCustomOverride = formHasCustomPricingOverride(form)
+  if (!hasCustomOverride) {
+    return deactivateClassOverrideCatalog(pool, formId)
+  }
+
+  const formCost = readFormOverrideCost(form)
+  const costUnit = formCost?.unit ?? 'per_month'
+  const amountCents = Number(formCost?.amountCents ?? 0)
   const facilityId = form.facility_id != null ? Number(form.facility_id) : null
   const className = String(form.title ?? '').trim() || `Class ${formId}`
   const programName = String(form.display_name ?? form.name ?? '').trim()
-  const active = overrides && amountCents > 0
+  const active = amountCents > 0
 
   return upsertCatalogItem(pool, {
     facilityId,

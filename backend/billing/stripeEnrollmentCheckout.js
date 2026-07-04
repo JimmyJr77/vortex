@@ -17,7 +17,11 @@ import {
 import { buildSignupOrderPreview } from '../scheduling/orderPricing.js'
 import { executeSignupBatch } from '../scheduling/handlers.js'
 import { weeklyTierKeyForSlotCount, programUsesWeeklyTierPricing } from '../programs/weeklyTierPricing.js'
-import { normalizeProgramPricingOptions } from '../programs/programPricingOptions.js'
+import {
+  hydrateProgramPricingRow,
+  normalizeProgramPricingOptions,
+} from '../programs/programPricingOptions.js'
+import { formHasCustomPricingOverride } from '../programs/pricingDefaults.js'
 
 let pendingSchemaEnsured = false
 
@@ -64,16 +68,16 @@ async function resolveOptionKeyForPreviewLine(pool, preview, line) {
   const formRow = formRes.rows[0]
   if (!formRow) return 'monthly_1x'
 
-  if (formRow.pricing_overrides_program) return 'override'
-
   if (formRow.programs_id != null) {
     const { resolveProgramsSchema } = await import('../programs/schema.js')
     const schema = await resolveProgramsSchema(pool)
     const progRes = await pool.query(
-      `SELECT pricing_cost_options FROM ${schema.programsTable} WHERE id = $1`,
+      `SELECT id, pricing_cost_options, pricing_cost_amount_cents, pricing_slot_cost_monthly_cents, pricing_cost_unit
+       FROM ${schema.programsTable} WHERE id = $1`,
       [formRow.programs_id],
     )
-    const options = normalizeProgramPricingOptions(progRes.rows[0]?.pricing_cost_options)
+    const programRow = hydrateProgramPricingRow(progRes.rows[0])
+    const options = normalizeProgramPricingOptions(programRow?.pricing_cost_options)
     if (programUsesWeeklyTierPricing({ pricing_cost_options: options })) {
       const count = summary?.totalSlotCount ?? 1
       return weeklyTierKeyForSlotCount(count) ?? 'monthly_1x'
@@ -86,13 +90,14 @@ async function resolveOptionKeyForPreviewLine(pool, preview, line) {
 
 async function catalogLookupForLine(pool, preview, line) {
   const formRes = await pool.query(
-    `SELECT id, programs_id, pricing_overrides_program FROM scheduling_form WHERE id = $1`,
+    `SELECT id, programs_id, pricing_overrides_program, cost_amount_cents, cost_unit, slot_cost_monthly_cents
+     FROM scheduling_form WHERE id = $1`,
     [line.formId],
   )
   const formRow = formRes.rows[0]
   const programsId = line.programsId ?? formRow?.programs_id
 
-  if (formRow?.pricing_overrides_program) {
+  if (formHasCustomPricingOverride(formRow)) {
     return formOverrideLookupKey(formRow.id)
   }
 
