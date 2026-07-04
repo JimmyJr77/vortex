@@ -32,6 +32,22 @@ const OPTION_LABELS = {
 }
 
 let schemaEnsured = false
+let recurringSchemaEnsured = false
+
+async function runMigrationFile(pool, relativePath) {
+  const fs = await import('fs')
+  const migrationPath = new URL(relativePath, import.meta.url)
+  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+}
+
+/** billing_subscription and related columns — required before 056 Stripe catalog ALTERs. */
+export async function ensureBillingRecurringSchema(pool) {
+  if (recurringSchemaEnsured) return
+  await runMigrationFile(pool, '../migrations/053_billing_recurring_model.sql')
+  await runMigrationFile(pool, '../migrations/054_billing_anchor_first.sql')
+  await runMigrationFile(pool, '../migrations/055_enrollment_cancel_effective.sql')
+  recurringSchemaEnsured = true
+}
 
 export function programOptionLookupKey(programsId, optionKey) {
   return `vortex:program:${programsId}:${optionKey}`
@@ -69,10 +85,8 @@ function buildMetadata({ entityType, entityId, subKey, facilityId }) {
 
 export async function ensureStripeCatalogSchema(pool) {
   if (schemaEnsured) return
-  const migrationPath = new URL('../migrations/056_stripe_catalog.sql', import.meta.url)
-  const fs = await import('fs')
-  const sql = fs.readFileSync(migrationPath, 'utf8')
-  await pool.query(sql)
+  await ensureBillingRecurringSchema(pool)
+  await runMigrationFile(pool, '../migrations/056_stripe_catalog.sql')
   schemaEnsured = true
 }
 

@@ -12,6 +12,7 @@ import {
   programOptionLookupKey,
   resolveStripePriceId,
   ensureStripeCatalogSchema,
+  ensureBillingRecurringSchema,
 } from './stripeCatalogSync.js'
 import { buildSignupOrderPreview } from '../scheduling/orderPricing.js'
 import { executeSignupBatch } from '../scheduling/handlers.js'
@@ -322,6 +323,7 @@ export async function createEnrollmentCheckoutSession(
 }
 
 export async function commitPendingEnrollment(pool, { pendingEnrollmentId, stripeSession = null }) {
+  await ensureBillingRecurringSchema(pool)
   await ensurePendingEnrollmentSchema(pool)
 
   const client = await pool.connect()

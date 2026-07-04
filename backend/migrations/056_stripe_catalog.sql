@@ -31,13 +31,29 @@ CREATE INDEX IF NOT EXISTS idx_stripe_catalog_item_facility_active
 ALTER TABLE billing_charge ADD COLUMN IF NOT EXISTS stripe_price_id TEXT;
 ALTER TABLE billing_charge ADD COLUMN IF NOT EXISTS stripe_invoice_item_id TEXT;
 
-ALTER TABLE billing_subscription ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT;
-ALTER TABLE billing_subscription ADD COLUMN IF NOT EXISTS stripe_subscription_item_id TEXT;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'billing_subscription'
+  ) THEN
+    ALTER TABLE billing_subscription ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT;
+    ALTER TABLE billing_subscription ADD COLUMN IF NOT EXISTS stripe_subscription_item_id TEXT;
+  END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_billing_charge_stripe_price
   ON billing_charge (stripe_price_id)
   WHERE stripe_price_id IS NOT NULL;
 
-CREATE INDEX IF NOT EXISTS idx_billing_subscription_stripe_sub
-  ON billing_subscription (stripe_subscription_id)
-  WHERE stripe_subscription_id IS NOT NULL;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'billing_subscription'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_billing_subscription_stripe_sub
+      ON billing_subscription (stripe_subscription_id)
+      WHERE stripe_subscription_id IS NOT NULL;
+  END IF;
+END $$;

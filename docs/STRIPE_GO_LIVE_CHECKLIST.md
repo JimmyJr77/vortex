@@ -107,36 +107,43 @@ Save → Render redeploys automatically.
 
 ### B4. Run migrations on production database
 
-Production DB is separate from local. Options:
+Production DB is separate from local. **Stripe checkout requires migration `053` first** — without `billing_subscription`, Confirm & pay returns `relation "billing_subscription" does not exist`.
 
-**Option 1 — Render shell** (if available on your plan):
+Run **in order**:
+
+1. `053_billing_recurring_model.sql` — creates `billing_subscription`
+2. `054_billing_anchor_first.sql`
+3. `055_enrollment_cancel_effective.sql`
+4. `056_stripe_catalog.sql`
+5. `057_stripe_pending_enrollment.sql`
+
+**Option 1 — From your machine** (recommended; set production `DATABASE_URL`):
 
 ```bash
-cd backend && node run-migration.js 056_stripe_catalog.sql
-node run-migration.js 057_stripe_pending_enrollment.sql
+cd backend
+export DATABASE_URL='postgres://...'   # Render external DB URL
+npm run migrate:all
 ```
 
-**Option 2 — Migration endpoint** (if `ENABLE_MIGRATION_ENDPOINT=true` on Render):
+Or run each file: `node run-migration.js 053_billing_recurring_model.sql` (repeat for 054–057).
+
+**Option 2 — Render shell** (if available on your plan):
 
 ```bash
-curl -X POST "https://vortex-backend-qybl.onrender.com/api/admin/run-migration" \
-  -H "Authorization: Bearer YOUR_ADMIN_JWT" \
-  -H "Content-Type: application/json" \
-  -d '{"migration":"056_stripe_catalog.sql"}'
+cd backend && npm run migrate:all
 ```
 
-Repeat for `057_stripe_pending_enrollment.sql`.
-
-**Option 3 — Restart service** after deploying code that includes `056`/`057` in `initPlatformTables` (applies on boot).
+**Option 3 — Redeploy backend** after pushing code that self-heals prerequisites on checkout (`ensureBillingRecurringSchema` runs 053–055 before 056). Still prefer `migrate:all` once so boot and ledger stay consistent.
 
 Verify:
 
 ```sql
+SELECT to_regclass('billing_subscription');
 SELECT to_regclass('stripe_catalog_item');
 SELECT to_regclass('stripe_pending_enrollment');
 ```
 
-Both should return table names.
+All three should return table names (not NULL).
 
 ### B5. Sync catalog on production
 
