@@ -140,6 +140,54 @@ interface MemberBillingPanelProps {
   formatMoney: (cents: number) => string
 }
 
+function formatShortDate(value: string) {
+  return new Date(value).toLocaleDateString()
+}
+
+function BillingLineRow({
+  primary,
+  meta,
+  amount,
+  amountClassName = 'text-gray-900',
+}: {
+  primary: string
+  meta?: string | null
+  amount: string
+  amountClassName?: string
+}) {
+  return (
+    <div className="py-2 flex items-start justify-between gap-4 text-sm">
+      <p className="min-w-0 leading-snug">
+        <span className="text-gray-900">{primary}</span>
+        {meta ? (
+          <>
+            <span className="text-gray-400"> · </span>
+            <span className="text-gray-500">{meta}</span>
+          </>
+        ) : null}
+      </p>
+      <span className={`shrink-0 tabular-nums ${amountClassName}`}>{amount}</span>
+    </div>
+  )
+}
+
+function SummaryLine({
+  label,
+  amount,
+  amountClassName = 'text-gray-900',
+}: {
+  label: string
+  amount: string
+  amountClassName?: string
+}) {
+  return (
+    <div className="py-1.5 flex items-center justify-between gap-4 text-sm">
+      <span className="text-gray-500">{label}</span>
+      <span className={`tabular-nums ${amountClassName}`}>{amount}</span>
+    </div>
+  )
+}
+
 function LineList({
   items,
   emptyMessage,
@@ -150,29 +198,28 @@ function LineList({
   formatMoney: (cents: number) => string
 }) {
   if (items.length === 0) {
-    return <div className="text-sm text-gray-500 mb-6">{emptyMessage}</div>
+    return <div className="text-sm text-gray-500 mb-4">{emptyMessage}</div>
   }
   return (
-    <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
-      {items.map((item) => (
-        <div key={item.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-          <div className="min-w-0">
-            <p className="font-medium text-gray-900">{item.description}</p>
-            <p className="text-xs text-gray-500">
-              {item.memberName ? `${item.memberName} · ` : ''}
-              {new Date(item.occurredAt).toLocaleDateString()}
-              {(item.discountCents ?? 0) > 0 && item.grossCents != null && (
-                <> · {formatMoney(item.grossCents)} − {formatMoney(item.discountCents ?? 0)}</>
-              )}
-            </p>
-          </div>
-          <span
-            className={`shrink-0 font-semibold ${item.amountCents < 0 ? 'text-green-700' : 'text-gray-900'}`}
-          >
-            {formatMoney(item.amountCents)}
-          </span>
-        </div>
-      ))}
+    <div className="mb-4 divide-y divide-gray-100">
+      {items.map((item) => {
+        const metaParts = [
+          item.memberName ?? null,
+          formatShortDate(item.occurredAt),
+          (item.discountCents ?? 0) > 0 && item.grossCents != null
+            ? `${formatMoney(item.grossCents)} − ${formatMoney(item.discountCents ?? 0)}`
+            : null,
+        ].filter(Boolean)
+        return (
+          <BillingLineRow
+            key={item.id}
+            primary={item.description}
+            meta={metaParts.join(' · ')}
+            amount={formatMoney(item.amountCents)}
+            amountClassName={item.amountCents < 0 ? 'text-green-700' : 'text-gray-900'}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -185,18 +232,18 @@ function PaymentList({
   formatMoney: (cents: number) => string
 }) {
   if (payments.length === 0) {
-    return <div className="text-sm text-gray-500 mb-6">No payments this month.</div>
+    return <div className="text-sm text-gray-500 mb-4">No payments this month.</div>
   }
   return (
-    <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
+    <div className="mb-4 divide-y divide-gray-100">
       {payments.map((payment) => (
-        <div key={payment.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-          <div className="min-w-0">
-            <p className="font-medium text-gray-900">{payment.method || 'Payment'}</p>
-            <p className="text-xs text-gray-500">{new Date(payment.paidAt).toLocaleDateString()}</p>
-          </div>
-          <span className="shrink-0 font-semibold text-green-700">{formatMoney(payment.amountCents)}</span>
-        </div>
+        <BillingLineRow
+          key={payment.id}
+          primary={payment.method || 'Payment'}
+          meta={`Paid ${formatShortDate(payment.paidAt)}`}
+          amount={formatMoney(payment.amountCents)}
+          amountClassName="text-green-700"
+        />
       ))}
     </div>
   )
@@ -235,35 +282,26 @@ export default function MemberBillingPanel({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-          <div className="rounded-xl border border-gray-200 p-4">
-            <p className="text-xs uppercase tracking-wide text-gray-500">New charges</p>
-            <p className="text-xl font-bold text-gray-900">{formatMoney(totals?.chargesCents ?? 0)}</p>
-          </div>
-          <div className="rounded-xl border border-gray-200 p-4">
-            <p className="text-xs uppercase tracking-wide text-gray-500">Outstanding balance</p>
-            <p className="text-xl font-bold text-gray-900">{formatMoney(totals?.debitsCents ?? 0)}</p>
-          </div>
-          <div className="rounded-xl border border-gray-200 p-4">
-            <p className="text-xs uppercase tracking-wide text-gray-500">Credits</p>
-            <p className="text-xl font-bold text-green-700">{formatMoney(totals?.creditsCents ?? 0)}</p>
-          </div>
-          <div className="rounded-xl border border-gray-200 p-4">
-            <p className="text-xs uppercase tracking-wide text-gray-500">Payments</p>
-            <p className="text-xl font-bold text-green-700">{formatMoney(totals?.paymentsCents ?? 0)}</p>
-          </div>
-          <div className="rounded-xl border-2 border-black p-4 col-span-2 sm:col-span-1">
-            <p className="text-xs uppercase tracking-wide text-gray-500">Balance due</p>
-            <p className="text-xl font-bold text-black">{formatMoney(totals?.balanceDueCents ?? 0)}</p>
-          </div>
+        <div className="mb-6 divide-y divide-gray-100">
+          <SummaryLine label="New charges" amount={formatMoney(totals?.chargesCents ?? 0)} />
+          <SummaryLine label="Outstanding balance" amount={formatMoney(totals?.debitsCents ?? 0)} />
+          <SummaryLine
+            label="Credits"
+            amount={formatMoney(totals?.creditsCents ?? 0)}
+            amountClassName="text-green-700"
+          />
+          <SummaryLine
+            label="Payments"
+            amount={formatMoney(totals?.paymentsCents ?? 0)}
+            amountClassName="text-green-700"
+          />
+          <SummaryLine label="Balance due" amount={formatMoney(totals?.balanceDueCents ?? 0)} />
         </div>
 
         {(billingAccount?.monthlyTotals?.netCents ?? 0) > 0 && (
-          <p className="text-xs text-gray-500 mb-6">
-            Recurring monthly total (active enrollments):{' '}
-            <span className="font-semibold text-gray-800">
-              {formatMoney(billingAccount!.monthlyTotals!.netCents)}/mo
-            </span>
+          <p className="text-sm text-gray-500 mb-6">
+            Recurring monthly total:{' '}
+            <span className="text-gray-900">{formatMoney(billingAccount!.monthlyTotals!.netCents)}/mo</span>
           </p>
         )}
 
@@ -283,19 +321,20 @@ export default function MemberBillingPanel({
         {(period?.membershipFees?.length ?? 0) > 0 && (
           <>
             <h3 className="text-sm font-semibold text-gray-900 mb-2">Membership fee</h3>
-            <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
-              {period!.membershipFees.map((fee, idx) => (
-                <div key={`${fee.description}-${idx}`} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-900">{fee.description}</p>
-                    <p className="text-xs text-gray-500">
-                      {fee.memberName ? `${fee.memberName} · ` : ''}
-                      Paid {new Date(fee.paidAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <span className="shrink-0 font-semibold text-gray-900">{formatMoney(fee.amountCents)}</span>
-                </div>
-              ))}
+            <div className="mb-4 divide-y divide-gray-100">
+              {period!.membershipFees.map((fee, idx) => {
+                const meta = [fee.memberName ?? null, `Paid ${formatShortDate(fee.paidAt)}`]
+                  .filter(Boolean)
+                  .join(' · ')
+                return (
+                  <BillingLineRow
+                    key={`${fee.description}-${idx}`}
+                    primary={fee.description}
+                    meta={meta}
+                    amount={formatMoney(fee.amountCents)}
+                  />
+                )
+              })}
             </div>
           </>
         )}
@@ -303,28 +342,22 @@ export default function MemberBillingPanel({
         {(period?.recurringEnrollments?.length ?? 0) > 0 && (
           <>
             <h3 className="text-sm font-semibold text-gray-900 mb-2">Recurring enrollments</h3>
-            <p className="text-xs text-gray-500 mb-2">Active subscriptions contributing to your monthly total.</p>
-            <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
-              {period!.recurringEnrollments.map((sub) => (
-                <div key={sub.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-900">{sub.description}</p>
-                    <p className="text-xs text-gray-500">
-                      {sub.memberName ? `${sub.memberName} · ` : ''}
-                      <span className="capitalize">{sub.status}</span>
-                      {sub.nextBillDate ? ` · next ${new Date(sub.nextBillDate).toLocaleDateString()}` : ''}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <span className="font-semibold text-gray-900">{formatMoney(sub.netMonthlyCents)}/mo</span>
-                    {sub.discountAmountCents > 0 && (
-                      <p className="text-xs text-gray-500">
-                        {formatMoney(sub.monthlyAmountCents)} − {formatMoney(sub.discountAmountCents)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
+            <div className="mb-4 divide-y divide-gray-100">
+              {period!.recurringEnrollments.map((sub) => {
+                const metaParts = [
+                  sub.memberName ?? null,
+                  sub.status,
+                  sub.nextBillDate ? `next ${formatShortDate(sub.nextBillDate)}` : null,
+                ].filter(Boolean)
+                return (
+                  <BillingLineRow
+                    key={sub.id}
+                    primary={sub.description}
+                    meta={metaParts.join(' · ')}
+                    amount={`${formatMoney(sub.netMonthlyCents)}/mo`}
+                  />
+                )
+              })}
             </div>
           </>
         )}
@@ -338,18 +371,14 @@ export default function MemberBillingPanel({
             <>
               <h3 className="text-sm font-semibold text-gray-900 mb-2">One-time purchases</h3>
               {showLifetimeOneTime ? (
-                <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
+                <div className="mb-4 divide-y divide-gray-100">
                   {oneTimeLifetime.slice(0, 10).map((charge) => (
-                    <div key={charge.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-                      <div className="min-w-0">
-                        <p className="font-medium text-gray-900">{charge.description}</p>
-                        <p className="text-xs text-gray-500">
-                          {charge.memberName ? `${charge.memberName} · ` : ''}
-                          {new Date(charge.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <span className="shrink-0 font-semibold text-gray-900">{formatMoney(charge.amountCents)}</span>
-                    </div>
+                    <BillingLineRow
+                      key={charge.id}
+                      primary={charge.description}
+                      meta={[charge.memberName, formatShortDate(charge.createdAt)].filter(Boolean).join(' · ')}
+                      amount={formatMoney(charge.amountCents)}
+                    />
                   ))}
                 </div>
               ) : (
@@ -366,31 +395,31 @@ export default function MemberBillingPanel({
         {(billingAccount?.bundlePasses?.length ?? 0) > 0 && (
           <>
             <h3 className="text-sm font-semibold text-gray-900 mb-2">Class bundles</h3>
-            <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
-              {billingAccount!.bundlePasses!.map((b) => (
-                <div key={b.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-900">{b.packageLabel || `Pass #${b.id}`}</p>
-                    <p className="text-xs text-gray-500">
-                      {b.memberName ? `${b.memberName} · ` : ''}
-                      <span className="capitalize">{b.status}</span>
-                      {b.expiresAt ? ` · expires ${new Date(b.expiresAt).toLocaleDateString()}` : ''}
-                    </p>
-                  </div>
-                  <span className="shrink-0 font-semibold text-gray-900">
-                    {b.classesRemaining} / {b.classCountPurchased} left
-                  </span>
-                </div>
-              ))}
+            <div className="mb-4 divide-y divide-gray-100">
+              {billingAccount!.bundlePasses!.map((b) => {
+                const metaParts = [
+                  b.memberName ?? null,
+                  b.status,
+                  b.expiresAt ? `expires ${formatShortDate(b.expiresAt)}` : null,
+                ].filter(Boolean)
+                return (
+                  <BillingLineRow
+                    key={b.id}
+                    primary={b.packageLabel || `Pass #${b.id}`}
+                    meta={metaParts.join(' · ')}
+                    amount={`${b.classesRemaining} / ${b.classCountPurchased} left`}
+                  />
+                )
+              })}
             </div>
             {(billingAccount?.bundleUsage?.length ?? 0) > 0 && (
-              <details className="mb-6">
+              <details className="mb-4">
                 <summary className="text-xs font-semibold text-gray-500 cursor-pointer">Bundle usage history</summary>
                 <div className="mt-2 space-y-1">
                   {billingAccount!.bundleUsage!.slice(0, 20).map((u) => (
                     <div key={u.id} className="flex justify-between gap-3 text-xs text-gray-600">
                       <span>
-                        {new Date(u.createdAt).toLocaleDateString()} · {u.entryType}
+                        {formatShortDate(u.createdAt)} · {u.entryType}
                         {u.reason ? ` · ${u.reason}` : ''}
                       </span>
                       <span className={u.creditDelta != null && u.creditDelta > 0 ? 'text-green-700' : 'text-gray-700'}>
@@ -405,13 +434,6 @@ export default function MemberBillingPanel({
           </>
         )}
 
-        <h3 className="text-sm font-semibold text-gray-900 mb-2">Recurring charges</h3>
-        <LineList
-          items={period?.recurringCharges ?? []}
-          emptyMessage="No recurring charges."
-          formatMoney={formatMoney}
-        />
-
         <h3 className="text-sm font-semibold text-gray-900 mb-2">Outstanding balance</h3>
         <LineList
           items={period?.debits ?? []}
@@ -420,11 +442,7 @@ export default function MemberBillingPanel({
         />
 
         <h3 className="text-sm font-semibold text-gray-900 mb-2">Credits</h3>
-        <LineList
-          items={period?.credits ?? []}
-          emptyMessage="No credits."
-          formatMoney={formatMoney}
-        />
+        <LineList items={period?.credits ?? []} emptyMessage="No credits." formatMoney={formatMoney} />
 
         {billingAccount?.canSeeFamily && (
           <>
@@ -471,23 +489,21 @@ export default function MemberBillingPanel({
                         <div className="px-4 py-3 text-sm text-gray-500">No activity this month.</div>
                       ) : (
                         month.lines.map((line, idx) => (
-                          <div key={`${line.kind}-${line.occurredAt}-${idx}`} className="px-4 py-2 flex justify-between gap-3 text-sm">
-                            <div className="min-w-0">
-                              <p className="text-gray-800">{line.description}</p>
-                              <p className="text-xs text-gray-500">
-                                {line.memberName ? `${line.memberName} · ` : ''}
-                                {new Date(line.occurredAt).toLocaleDateString()}
-                                {(line.discountCents ?? 0) > 0 && line.grossCents != null && (
-                                  <> · {formatMoney(line.grossCents)} − {formatMoney(line.discountCents ?? 0)}</>
-                                )}
-                              </p>
-                            </div>
-                            <span
-                              className={`shrink-0 font-semibold ${line.netCents < 0 ? 'text-green-700' : 'text-gray-900'}`}
-                            >
-                              {formatMoney(Math.abs(line.netCents))}
-                              {line.netCents < 0 ? ' paid' : ''}
-                            </span>
+                          <div key={`${line.kind}-${line.occurredAt}-${idx}`} className="px-4 py-2">
+                            <BillingLineRow
+                              primary={line.description}
+                              meta={[
+                                line.memberName ?? null,
+                                formatShortDate(line.occurredAt),
+                                (line.discountCents ?? 0) > 0 && line.grossCents != null
+                                  ? `${formatMoney(line.grossCents)} − ${formatMoney(line.discountCents ?? 0)}`
+                                  : null,
+                              ]
+                                .filter(Boolean)
+                                .join(' · ')}
+                              amount={`${formatMoney(Math.abs(line.netCents))}${line.netCents < 0 ? ' paid' : ''}`}
+                              amountClassName={line.netCents < 0 ? 'text-green-700' : 'text-gray-900'}
+                            />
                           </div>
                         ))
                       )}
