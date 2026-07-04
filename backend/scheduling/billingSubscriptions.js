@@ -12,6 +12,7 @@
  */
 
 import { runIsolated } from './transactionSavepoint.js'
+import { cancelStripeSubscriptionNow } from '../billing/stripeSubscriptionSync.js'
 
 /** Days in a given UTC year/month (month is 0-based). */
 function daysInMonth(year, month) {
@@ -155,6 +156,14 @@ export async function upsertSubscriptionForSource(db, {
  */
 export async function cancelSubscriptionsForSource(db, { sourceType = 'scheduling_signup', sourceId, endDate = null }) {
   if (sourceId == null) return []
+  const existing = await db.query(
+    `
+      SELECT id, stripe_subscription_id
+      FROM billing_subscription
+      WHERE source_type = $1 AND source_id = $2 AND status <> 'cancelled'
+    `,
+    [sourceType, String(sourceId)],
+  )
   const res = await db.query(
     `
       UPDATE billing_subscription
@@ -167,6 +176,11 @@ export async function cancelSubscriptionsForSource(db, { sourceType = 'schedulin
     `,
     [sourceType, String(sourceId), endDate],
   )
+  for (const row of existing.rows) {
+    if (row.stripe_subscription_id) {
+      void cancelStripeSubscriptionNow(row.stripe_subscription_id)
+    }
+  }
   return res.rows.map((r) => Number(r.id))
 }
 

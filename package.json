@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:backend": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build postgres backend",
+    "dev:backend:detach": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d postgres backend",
+    "dev:db": "docker compose up -d postgres",
     "prebuild": "node scripts/generate-sitemap.mjs",
     "build": "npm run prebuild && tsc -b && vite build",
     "postbuild": "node scripts/prerender.mjs",

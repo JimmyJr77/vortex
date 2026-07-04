@@ -112,6 +112,7 @@ export interface SignupOrderPreviewClass {
   lineType?: 'slot' | 'multi_class_pass'
   selectedPricingOptionKey?: string | null
   programsId?: number | null
+  billingType?: 'recurring' | 'one_time'
 }
 
 export interface MultiClassPassPurchasePreview {
@@ -1167,6 +1168,57 @@ export async function submitSchedulingSignupBatch(payload: {
   return parseJson(res)
 }
 
+/** Start Stripe Checkout for enrollment (pay-then-commit). Requires member JWT. */
+export async function createEnrollmentCheckoutSession(
+  memberToken: string,
+  payload: {
+    signups: Array<{
+      lineType?: 'slot' | 'multi_class_pass'
+      formId?: number
+      slotGroupId?: number
+      timeSlotId?: number
+      selectedPricingOptionKey?: string
+      useMultiClassPass?: boolean
+      programsId?: number
+      packageId?: string
+    }>
+    signupAuthToken: string
+    promoCodes?: string[]
+    responses?: Record<string, string | boolean | number | string[]>
+  },
+): Promise<{ url?: string; skipCheckout?: boolean; pendingEnrollmentId?: number }> {
+  const res = await fetch(`${getApiUrl()}/api/members/billing/enrollment-checkout-session`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${memberToken}`,
+    },
+    body: JSON.stringify(payload),
+  })
+  const data = await parseJson(res)
+  return data.data ?? data
+}
+
+export function enrollmentDueNowCents(preview: SignupOrderPreview): number {
+  const fees = Math.round((preview.additionalFeesOneTime ?? 0) * 100)
+  const firstMonth = preview.firstMonth?.totalCents ?? 0
+  const passes = preview.passPurchaseTotalCents ?? 0
+  const carriedForward = preview.carriedForward?.totalCents ?? 0
+  return Math.max(0, fees + firstMonth + passes + (carriedForward > 0 ? carriedForward : 0))
+}
+
+export function enrollmentNeedsPayment(preview: SignupOrderPreview): boolean {
+  const dueNow = enrollmentDueNowCents(preview)
+  const hasRecurring = (preview.newSignups ?? []).some(
+    (line) =>
+      line.billingType === 'recurring' &&
+      !line.multiClassPassApplied &&
+      (line.monthlyPrice ?? 0) > 0,
+  )
+  const hasPassPurchase = (preview.passPurchases?.length ?? 0) > 0
+  return dueNow > 0 || hasRecurring || hasPassPurchase
+}
+
 export async function adminFetchDiscountRules(): Promise<{
   rules: DiscountRule[]
   globalSettings: DiscountGlobalSettings
@@ -1435,6 +1487,94 @@ export interface AdminMemberEnrollments {
 
 export async function adminFetchMemberEnrollments(memberId: number): Promise<AdminMemberEnrollments> {
   const res = await adminApiRequest(`/api/admin/scheduling/members/${memberId}/enrollments`)
+  return parseJson(res)
+}
+
+export interface AdminPortalEnrollmentRow {
+  id: number
+  member_id: number
+  member_first_name: string
+  member_last_name: string
+  class_name: string
+  sport_name?: string | null
+  program_name?: string | null
+  class_context_line?: string | null
+  program_id?: number | null
+  form_id?: number | null
+  slot_group_id?: number | null
+  time_slot_id?: number | null
+  offering_id?: number | null
+  offering_label?: string | null
+  offering_start_date?: string | null
+  offering_end_date?: string | null
+  offering_dates?: string | null
+  slot_label: string
+  status: string
+  cancel_effective_date?: string | null
+  cancel_requested_at?: string | null
+  created_at?: string | null
+  source?: 'scheduling' | 'legacy'
+}
+
+export interface AdminMemberWithEnrollments {
+  id: number
+  firstName: string
+  lastName: string
+  enrollments: AdminPortalEnrollmentRow[]
+}
+
+export interface AdminEnrollmentsByMemberResponse {
+  members: AdminMemberWithEnrollments[]
+}
+
+export async function adminFetchEnrollmentsByMember(): Promise<AdminEnrollmentsByMemberResponse> {
+  const res = await adminApiRequest('/api/admin/scheduling/enrollments/by-member')
+  return parseJson(res)
+}
+
+export interface AdminClassRegistrationSummary {
+  rowKey: string
+  formId: number
+  slotGroupId: number
+  timeSlotId: number | null
+  sportName: string | null
+  programName: string | null
+  className: string
+  programId: number | null
+  skillLevel: string | null
+  offeringLabel: string | null
+  offeringDates: string | null
+  schedule: string
+  formActive: boolean
+  enrollmentCount: number
+  statusLabel: string
+}
+
+export interface AdminClassRegistrationSummariesResponse {
+  rows: AdminClassRegistrationSummary[]
+}
+
+export async function adminFetchClassRegistrationSummaries(): Promise<AdminClassRegistrationSummariesResponse> {
+  const res = await adminApiRequest('/api/admin/scheduling/enrollments/class-summaries')
+  return parseJson(res)
+}
+
+export interface AdminFormSlotEnrollmentRow extends AdminEnrollmentRow {
+  member_id: number
+  member_first_name: string
+  member_last_name: string
+}
+
+export async function adminFetchFormSlotEnrollments(
+  formId: number,
+  slotGroupId: number,
+  timeSlotId?: number | null,
+): Promise<{ rows: AdminFormSlotEnrollmentRow[] }> {
+  const params = new URLSearchParams({ slotGroupId: String(slotGroupId) })
+  if (timeSlotId != null) params.set('timeSlotId', String(timeSlotId))
+  const res = await adminApiRequest(
+    `/api/admin/scheduling/forms/${formId}/slot-enrollments?${params.toString()}`,
+  )
   return parseJson(res)
 }
 

@@ -15,6 +15,7 @@ import { ensureEnrollmentLifecycleColumns } from './enrollmentLifecycle.js'
 import { promoteFromWaitlist } from './waitlist.js'
 import { syncFamilyEnrollmentDiscounts } from './pauseEnrollmentBilling.js'
 import { safeRestorePassCreditsForSignup } from '../programs/multiClassPass.js'
+import { syncStripeForBillingSource } from '../billing/stripeSubscriptionSync.js'
 
 /** The next billing anchor (1st) after today — when billing/enrollment changes take effect. */
 export function nextEnrollmentBillingChangeDate(fromDate = todayDateOnly()) {
@@ -177,7 +178,7 @@ export async function requestMemberEnrollmentCancellation(pool, {
   }
 
   const signup = existing.rows[0]
-  if (!allowedMemberIds.includes(Number(signup.member_id))) {
+  if (!allowedMemberIds.map(Number).includes(Number(signup.member_id))) {
     const err = new Error('Not authorized to cancel this enrollment')
     err.statusCode = 403
     throw err
@@ -230,6 +231,23 @@ export async function requestMemberEnrollmentCancellation(pool, {
     throw err
   } finally {
     client.release()
+  }
+
+  await syncStripeForBillingSource(pool, {
+    sourceType: 'scheduling_signup',
+    sourceId: signupId,
+    effectiveDate,
+    immediate: false,
+  })
+
+  if (signup.member_id != null) {
+    try {
+      const famRes = await pool.query(`SELECT family_id FROM member WHERE id = $1`, [signup.member_id])
+      const familyId = famRes.rows[0]?.family_id
+      if (familyId) await syncFamilyEnrollmentDiscounts(pool, Number(familyId))
+    } catch (syncErr) {
+      console.warn('[memberEnrollmentCancel] discount resync:', syncErr?.message ?? syncErr)
+    }
   }
 
   return { signupId: Number(signup.id), effectiveDate, immediate: false }

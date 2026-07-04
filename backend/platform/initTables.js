@@ -46,6 +46,8 @@ export async function initPlatformTables(pool) {
     '053_billing_recurring_model.sql',
     '054_billing_anchor_first.sql',
     '055_enrollment_cancel_effective.sql',
+    '056_stripe_catalog.sql',
+    '057_stripe_pending_enrollment.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

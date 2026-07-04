@@ -772,6 +772,14 @@ export function registerProgramsAdminRoutes(app, pool) {
         }
       }
       const primarySport = await getProgramPrimarySportFields(pool, req.params.id)
+      if (hasPricingUpdate) {
+        const { scheduleStripeCatalogSync, syncProgramCatalog } = await import(
+          '../billing/stripeCatalogSync.js'
+        )
+        scheduleStripeCatalogSync(`program ${req.params.id}`, () =>
+          syncProgramCatalog(pool, Number(req.params.id)),
+        )
+      }
       res.json({ success: true, data: { ...row, ...primarySport } })
     } catch (err) {
       console.error('[programs] update top program:', err)

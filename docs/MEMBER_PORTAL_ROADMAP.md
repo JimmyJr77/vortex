@@ -140,7 +140,10 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
   - **Billing**: account balance + itemized charge ledger via `GET /api/members/billing/account`,
     plus `GET /api/members/billing/statements`, `…/payments`. A flag-gated **Pay now** button
     (`POST /api/members/billing/checkout-session`) appears for the payer/guardian when
-    `stripeEnabled` and a balance is due.
+    `STRIPE_ENABLED=true` and balance &gt; 0. **Enrollment checkout** (Phase 2): when Stripe is
+    enabled and the order preview has billable lines, **Confirm enrollment** redirects to Stripe
+    Checkout via `POST /api/members/billing/enrollment-checkout-session`; webhook commits signups
+    after payment (`stripe_pending_enrollment` + [stripeEnrollmentCheckout.js](../backend/billing/stripeEnrollmentCheckout.js)).
   - **Waivers**: `GET /api/members/waivers`, `POST /api/members/waivers/:templateId/accept`.
 - **[src/components/MemberLogin.tsx](../src/components/MemberLogin.tsx)** — modal login:
   `POST /api/members/login`, `POST /api/members/request-password-reset`.

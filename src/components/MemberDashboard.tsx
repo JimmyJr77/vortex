@@ -1096,7 +1096,6 @@ export default function MemberDashboard({
       setEnrollmentsLoading(false)
     }
   }
-
   const enrollmentSummaryForMember = (memberId: number) => {
     const rows = enrollments.filter((e) => e.member_id === memberId)
     if (rows.length === 0) return null
@@ -1795,7 +1794,20 @@ export default function MemberDashboard({
                   loading={enrollmentsLoading}
                   currentMemberId={profileData?.id != null ? Number(profileData.id) : undefined}
                   memberToken={token}
-                  onEnrollmentsChanged={() => void fetchEnrollments()}
+                  onEnrollmentsChanged={async (result) => {
+                    if (result?.immediate) {
+                      setEnrollments((prev) => prev.filter((e) => e.id !== result.signupId))
+                    } else if (result?.effectiveDate) {
+                      setEnrollments((prev) =>
+                        prev.map((e) =>
+                          e.id === result.signupId
+                            ? { ...e, cancel_effective_date: result.effectiveDate }
+                            : e,
+                        ),
+                      )
+                    }
+                    await fetchEnrollments()
+                  }}
                   classesOffered={classesOffered}
                   multiClassPasses={multiClassPasses.map((p) => ({
                     id: p.id,
@@ -1821,6 +1833,7 @@ export default function MemberDashboard({
                     <MemberClassesOfferedEnroll
                       apiUrl={apiUrl}
                       memberToken={token}
+                      stripeEnabled={Boolean(billingAccount?.stripeEnabled)}
                       programs={classesOffered}
                       members={enrollableMembers}
                       defaultMemberId={Number(profileData.id)}

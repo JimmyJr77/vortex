@@ -27,6 +27,11 @@ async function getStripe() {
   }
 }
 
+/** Shared Stripe client for billing modules (catalog sync, checkout, webhooks). */
+export async function getStripeClient() {
+  return getStripe()
+}
+
 async function ensureStripeCustomer(pool, stripe, account) {
   if (account.stripe_customer_id) return account.stripe_customer_id
   const customer = await stripe.customers.create({

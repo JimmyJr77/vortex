@@ -27,6 +27,12 @@ import {
   parseWebhookEvent,
   recordStripePayment,
 } from '../billing/stripeBilling.js'
+import {
+  createEnrollmentCheckoutSession,
+  commitPendingEnrollment,
+  getCatalogSyncStatus,
+} from '../billing/stripeEnrollmentCheckout.js'
+import { syncAllCatalog } from '../billing/stripeCatalogSync.js'
 import { buildBillingAccountView } from '../billing/billingAccountView.js'
 import { notifyPaymentReceipt, notifyPaymentFailed } from '../email/memberNotifications.js'
 
@@ -1187,28 +1193,34 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   app.get('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
-    const familyId = Number(req.params.familyId)
-    const account = await ensureBillingAccount(pool, familyId)
-    if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
-    const view = await buildBillingAccountView(pool, account, { memberScopeId: null })
-    res.json({
-      success: true,
-      data: {
-        ...mapBillingAccount(account),
-        chargesCents: view.chargesCents,
-        paymentsCents: view.paymentsCents,
-        refundsCents: view.refundsCents,
-        balanceCents: view.balanceCents,
-        charges: view.charges.map(mapCharge),
-        payments: view.payments.map(mapPayment),
-        subscriptions: view.subscriptions,
-        monthlyTotals: view.monthlyTotals,
-        refunds: view.refunds,
-        ledger: view.ledger,
-        bundlePasses: view.bundlePasses,
-        bundleUsage: view.bundleUsage,
-      },
-    })
+    try {
+      const familyId = Number(req.params.familyId)
+      const account = await ensureBillingAccount(pool, familyId)
+      if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
+      const view = await buildBillingAccountView(pool, account, { memberScopeId: null })
+      res.json({
+        success: true,
+        data: {
+          ...mapBillingAccount(account),
+          chargesCents: view.chargesCents,
+          paymentsCents: view.paymentsCents,
+          refundsCents: view.refundsCents,
+          balanceCents: view.balanceCents,
+          charges: view.charges.map(mapCharge),
+          payments: view.payments.map(mapPayment),
+          subscriptions: view.subscriptions,
+          subscriptionHistory: view.subscriptionHistory,
+          monthlyTotals: view.monthlyTotals,
+          refunds: view.refunds,
+          ledger: view.ledger,
+          bundlePasses: view.bundlePasses,
+          bundleUsage: view.bundleUsage,
+        },
+      })
+    } catch (err) {
+      console.error('[billing] billing-account:', err)
+      res.status(500).json({ success: false, message: 'Failed to load billing account' })
+    }
   })
 
   app.put('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'family_billing.manage'), async (req, res) => {
@@ -1473,31 +1485,40 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   app.get('/api/admin/families/:familyId/statements', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
-    if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
-    const statements = await pool.query(
-      `SELECT * FROM billing_statement WHERE family_billing_account_id = $1 ORDER BY statement_date DESC, id DESC`,
-      [account.id],
-    )
-    const lines = await pool.query(
-      `
-        SELECT *
-        FROM billing_statement_line
-        WHERE statement_id = ANY($1::bigint[])
-        ORDER BY id
-      `,
-      [statements.rows.map((s) => s.id)],
-    )
-    const byStatement = new Map()
-    for (const line of lines.rows) {
-      const list = byStatement.get(String(line.statement_id)) ?? []
-      list.push(line)
-      byStatement.set(String(line.statement_id), list)
+    try {
+      const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+      if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
+      const statements = await pool.query(
+        `SELECT * FROM billing_statement WHERE family_billing_account_id = $1 ORDER BY statement_date DESC, id DESC`,
+        [account.id],
+      )
+      const statementIds = statements.rows.map((s) => s.id)
+      let lines = { rows: [] }
+      if (statementIds.length > 0) {
+        lines = await pool.query(
+          `
+            SELECT *
+            FROM billing_statement_line
+            WHERE statement_id = ANY($1::bigint[])
+            ORDER BY id
+          `,
+          [statementIds],
+        )
+      }
+      const byStatement = new Map()
+      for (const line of lines.rows) {
+        const list = byStatement.get(String(line.statement_id)) ?? []
+        list.push(line)
+        byStatement.set(String(line.statement_id), list)
+      }
+      res.json({
+        success: true,
+        data: statements.rows.map((s) => mapStatement(s, byStatement.get(String(s.id)) ?? [])),
+      })
+    } catch (err) {
+      console.error('[billing] statements:', err)
+      res.status(500).json({ success: false, message: 'Failed to load statements' })
     }
-    res.json({
-      success: true,
-      data: statements.rows.map((s) => mapStatement(s, byStatement.get(String(s.id)) ?? [])),
-    })
   })
 
   app.post('/api/admin/families/:familyId/statements', ...requirePermission(pool, jwtSecret, 'billing.statements.manage'), async (req, res) => {
@@ -1908,6 +1929,71 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.post('/api/members/billing/enrollment-checkout-session', authMiddleware(pool, jwtSecret), async (req, res) => {
+    if (!isStripeEnabled()) {
+      return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.', stripeEnabled: false })
+    }
+    const ctx = req.platformAuth
+    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
+    const familyId = ctx.user.family_id
+    if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    const account = await ensureBillingAccount(pool, familyId)
+    if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    const canPay = Number(account.payer_member_id) === memberId || ctx.roles.includes('PARENT_GUARDIAN')
+    if (!canPay) {
+      return res.status(403).json({ success: false, message: 'Only the family payer can complete enrollment checkout.' })
+    }
+
+    const { signups, promoCodes, signupAuthToken, responses } = req.body ?? {}
+    if (!Array.isArray(signups) || signups.length === 0) {
+      return res.status(400).json({ success: false, message: 'No enrollment items provided.' })
+    }
+    if (!signupAuthToken) {
+      return res.status(400).json({ success: false, message: 'Enrollment session expired. Please try again.' })
+    }
+
+    try {
+      const base = publicAppUrl()
+      const result = await createEnrollmentCheckoutSession(pool, {
+        account,
+        memberId,
+        batchPayload: { signups, promoCodes: promoCodes ?? [], signupAuthToken, responses: responses ?? {} },
+        successUrl: `${base}/?enrollment=paid`,
+        cancelUrl: `${base}/?enrollment=cancelled`,
+      })
+      if (!result) {
+        return res.status(503).json({ success: false, message: 'Online payments are not available right now.' })
+      }
+      if (result.skipCheckout) {
+        return res.json({ success: true, data: { skipCheckout: true } })
+      }
+      res.json({ success: true, data: { url: result.url, pendingEnrollmentId: result.pendingEnrollmentId } })
+    } catch (err) {
+      console.error('[stripe] enrollment-checkout-session:', err)
+      res.status(500).json({ success: false, message: err.message || 'Failed to start enrollment checkout.' })
+    }
+  })
+
+  app.get('/api/admin/stripe/catalog-status', ...requirePermission(pool, jwtSecret, 'pricing.manage'), async (_req, res) => {
+    try {
+      const status = await getCatalogSyncStatus(pool)
+      res.json({ success: true, data: status })
+    } catch (err) {
+      console.error('[stripe] catalog-status:', err)
+      res.status(500).json({ success: false, message: 'Failed to load Stripe catalog status.' })
+    }
+  })
+
+  app.post('/api/admin/stripe/sync-catalog', ...requirePermission(pool, jwtSecret, 'pricing.manage'), async (_req, res) => {
+    try {
+      const result = await syncAllCatalog(pool)
+      res.json({ success: true, data: result })
+    } catch (err) {
+      console.error('[stripe] sync-catalog:', err)
+      res.status(500).json({ success: false, message: err.message || 'Catalog sync failed.' })
+    }
+  })
+
   app.post('/api/stripe/webhook', async (req, res) => {
     if (!isStripeEnabled()) return res.status(503).json({ success: false })
     try {
@@ -1916,6 +2002,21 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       if (!event) return res.status(400).json({ success: false })
       if (event.type === 'checkout.session.completed' || event.type === 'payment_intent.succeeded') {
         const obj = event.data?.object ?? {}
+        if (
+          event.type === 'checkout.session.completed' &&
+          obj.metadata?.checkoutType === 'enrollment' &&
+          obj.metadata?.pendingEnrollmentId
+        ) {
+          try {
+            await commitPendingEnrollment(pool, {
+              pendingEnrollmentId: Number(obj.metadata.pendingEnrollmentId),
+              stripeSession: obj,
+            })
+          } catch (commitErr) {
+            console.error('[stripe] enrollment commit:', commitErr)
+            return res.status(500).json({ success: false, message: commitErr.message })
+          }
+        }
         const accountId = obj.metadata?.familyBillingAccountId
           ? Number(obj.metadata.familyBillingAccountId)
           : null

@@ -73,6 +73,72 @@ function mapBundle(row) {
   }
 }
 
+function logBillingQueryError(label, err) {
+  const code = err?.code ?? 'unknown'
+  const message = err?.message ?? String(err)
+  console.error(`[billingAccountView] ${label} failed (${code}):`, message)
+}
+
+/**
+ * Build ledger rows from charges/payments/refunds when v_account_ledger is unavailable.
+ * Sign convention matches migration 053: charges +, payments −, refunds +.
+ */
+export function buildLedgerFallback({ charges = [], payments = [], refunds = [] }) {
+  const entries = []
+
+  for (const c of charges) {
+    entries.push({
+      entry_kind: 'charge',
+      entry_type: c.charge_type ?? 'one_time',
+      ref_id: c.id,
+      member_id: c.member_id ?? null,
+      description: c.description,
+      amount_cents: Number(c.amount_cents ?? 0),
+      occurred_at: c.created_at,
+    })
+  }
+  for (const p of payments) {
+    entries.push({
+      entry_kind: 'payment',
+      entry_type: 'payment',
+      ref_id: p.id,
+      member_id: null,
+      description: p.method?.trim() ? p.method : 'Payment',
+      amount_cents: -Number(p.amount_cents ?? 0),
+      occurred_at: p.paid_at,
+    })
+  }
+  for (const r of refunds) {
+    const mapped = typeof r.amountCents === 'number' ? r : mapRefund(r)
+    entries.push({
+      entry_kind: 'refund',
+      entry_type: 'refund',
+      ref_id: mapped.id,
+      member_id: null,
+      description: mapped.reason?.trim() ? mapped.reason : 'Refund',
+      amount_cents: mapped.amountCents,
+      occurred_at: mapped.createdAt ?? r.created_at,
+    })
+  }
+
+  entries.sort((a, b) => {
+    const ta = new Date(a.occurred_at).getTime()
+    const tb = new Date(b.occurred_at).getTime()
+    if (ta !== tb) return ta - tb
+    if (a.entry_kind !== b.entry_kind) return a.entry_kind.localeCompare(b.entry_kind)
+    return Number(a.ref_id) - Number(b.ref_id)
+  })
+
+  let running = 0
+  const withBalance = entries.map((e) => {
+    running += e.amount_cents
+    return { ...e, running_balance_cents: running }
+  })
+
+  withBalance.reverse()
+  return withBalance.slice(0, 500).map(mapLedgerRow)
+}
+
 /**
  * @param {import('pg').Pool} pool
  * @param {{ id:number, family_id:number }} account family_billing_account row
@@ -98,25 +164,48 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     `,
     chargeParams,
   )
+  const charges = chargesRes.rows
+  const chargesCents = charges.reduce((sum, c) => sum + Number(c.amount_cents ?? 0), 0)
 
-  // Active recurring subscriptions (source of truth for monthly total).
   const subParams = [account.id]
   let subFilter = ''
   if (!familyScope) {
     subParams.push(memberScopeId)
     subFilter = ` AND s.member_id = $${subParams.length}`
   }
-  const subsRes = await pool.query(
-    `
-      SELECT s.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
-      FROM billing_subscription s
-      LEFT JOIN member m ON m.id = s.member_id
-      WHERE s.family_billing_account_id = $1 AND s.status <> 'cancelled' ${subFilter}
-      ORDER BY s.status, s.created_at
-    `,
-    subParams,
-  )
-  const subscriptions = subsRes.rows.map(mapSubscription)
+
+  let subscriptions = []
+  let subscriptionHistory = []
+  try {
+    const subsRes = await pool.query(
+      `
+        SELECT s.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
+        FROM billing_subscription s
+        LEFT JOIN member m ON m.id = s.member_id
+        WHERE s.family_billing_account_id = $1 AND s.status <> 'cancelled' ${subFilter}
+        ORDER BY s.status, s.created_at
+      `,
+      subParams,
+    )
+    subscriptions = subsRes.rows.map(mapSubscription)
+
+    const historyRes = await pool.query(
+      `
+        SELECT s.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
+        FROM billing_subscription s
+        LEFT JOIN member m ON m.id = s.member_id
+        WHERE s.family_billing_account_id = $1 AND s.status = 'cancelled' ${subFilter}
+        ORDER BY s.end_date DESC NULLS LAST, s.updated_at DESC, s.id DESC
+      `,
+      subParams,
+    )
+    subscriptionHistory = historyRes.rows.map(mapSubscription)
+  } catch (err) {
+    logBillingQueryError('subscriptions', err)
+    subscriptions = []
+    subscriptionHistory = []
+  }
+
   const activeSubs = subscriptions.filter((s) => s.status === 'active')
   const monthlyTotals = activeSubs.reduce(
     (acc, s) => {
@@ -135,29 +224,44 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   let paymentsCents = 0
   let refundsCents = 0
   if (familyScope) {
-    const paymentsRes = await pool.query(
-      `SELECT * FROM billing_payment WHERE family_billing_account_id = $1 ORDER BY paid_at DESC, id DESC`,
-      [account.id],
-    )
-    payments = paymentsRes.rows
-    paymentsCents = payments.reduce((sum, p) => sum + Number(p.amount_cents ?? 0), 0)
+    try {
+      const paymentsRes = await pool.query(
+        `SELECT * FROM billing_payment WHERE family_billing_account_id = $1 ORDER BY paid_at DESC, id DESC`,
+        [account.id],
+      )
+      payments = paymentsRes.rows
+      paymentsCents = payments.reduce((sum, p) => sum + Number(p.amount_cents ?? 0), 0)
+    } catch (err) {
+      logBillingQueryError('payments', err)
+      payments = []
+      paymentsCents = 0
+    }
 
-    const refundsRes = await pool.query(
-      `SELECT * FROM billing_refund WHERE family_billing_account_id = $1 ORDER BY created_at DESC, id DESC`,
-      [account.id],
-    )
-    refunds = refundsRes.rows.map(mapRefund)
-    refundsCents = refunds.reduce((sum, r) => sum + r.amountCents, 0)
+    try {
+      const refundsRes = await pool.query(
+        `SELECT * FROM billing_refund WHERE family_billing_account_id = $1 ORDER BY created_at DESC, id DESC`,
+        [account.id],
+      )
+      refunds = refundsRes.rows.map(mapRefund)
+      refundsCents = refunds.reduce((sum, r) => sum + r.amountCents, 0)
+    } catch (err) {
+      logBillingQueryError('refunds', err)
+      refunds = []
+      refundsCents = 0
+    }
 
-    const ledgerRes = await pool.query(
-      `SELECT * FROM v_account_ledger WHERE family_billing_account_id = $1 ORDER BY occurred_at DESC, entry_kind DESC, ref_id DESC LIMIT 500`,
-      [account.id],
-    )
-    ledger = ledgerRes.rows.map(mapLedgerRow)
+    try {
+      const ledgerRes = await pool.query(
+        `SELECT * FROM v_account_ledger WHERE family_billing_account_id = $1 ORDER BY occurred_at DESC, entry_kind DESC, ref_id DESC LIMIT 500`,
+        [account.id],
+      )
+      ledger = ledgerRes.rows.map(mapLedgerRow)
+    } catch (err) {
+      logBillingQueryError('v_account_ledger', err)
+      ledger = buildLedgerFallback({ charges, payments, refunds })
+    }
   }
 
-  const charges = chargesRes.rows
-  const chargesCents = charges.reduce((sum, c) => sum + Number(c.amount_cents ?? 0), 0)
   const balanceCents = chargesCents - paymentsCents + refundsCents
 
   // Bundle balances + usage history for the scoped member(s).
@@ -204,6 +308,7 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   return {
     charges,
     subscriptions,
+    subscriptionHistory,
     monthlyTotals,
     payments,
     paymentsCents,

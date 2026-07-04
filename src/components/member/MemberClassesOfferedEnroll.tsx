@@ -24,6 +24,8 @@ import {
   fetchSignupOrderPreview,
   loginSchedulingAuthFromMemberSession,
   submitSchedulingSignupBatch,
+  createEnrollmentCheckoutSession,
+  enrollmentNeedsPayment,
   type SignupOrderPreview,
 } from '../../utils/schedulingApi'
 import {
@@ -44,6 +46,7 @@ export interface EnrollableMember {
 interface Props {
   apiUrl: string
   memberToken: string
+  stripeEnabled?: boolean
   programs: PublicProgramOffered[]
   members: EnrollableMember[]
   defaultMemberId: number
@@ -84,6 +87,7 @@ function classMatchesLevelFilter(skillLevel: string | null, levelFilter: ClassSk
 export default function MemberClassesOfferedEnroll({
   apiUrl,
   memberToken,
+  stripeEnabled = false,
   programs,
   members,
   defaultMemberId,
@@ -537,12 +541,25 @@ export default function MemberClassesOfferedEnroll({
       )
 
       const allSignups = buildPreviewSignups()
-      const result = await submitSchedulingSignupBatch({
+      const batchPayload = {
         signups: allSignups,
         responses: {},
         signupAuthToken: session.signupAuthToken,
         promoCodes,
-      })
+      }
+
+      if (stripeEnabled && preview && enrollmentNeedsPayment(preview)) {
+        const checkout = await createEnrollmentCheckoutSession(memberToken, batchPayload)
+        if (checkout.url) {
+          window.location.href = checkout.url
+          return
+        }
+        if (!checkout.skipCheckout) {
+          throw new Error('Unable to start payment checkout.')
+        }
+      }
+
+      const result = await submitSchedulingSignupBatch(batchPayload)
       total += result.signups.length
       setDoneCount(total)
       setCart([])
@@ -653,7 +670,9 @@ export default function MemberClassesOfferedEnroll({
           className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 py-3 text-sm font-bold text-white disabled:opacity-60 sm:w-auto"
         >
           {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-          Confirm enrollment
+          {stripeEnabled && preview && enrollmentNeedsPayment(preview)
+            ? 'Confirm & pay'
+            : 'Confirm enrollment'}
         </button>
       </div>
     )

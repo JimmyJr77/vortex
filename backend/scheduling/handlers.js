@@ -32,6 +32,11 @@ import { trySavepoint } from './transactionSavepoint.js'
 import { handleEnrollmentPauseBilling, syncFamilyEnrollmentDiscounts, applyScheduledPauses, schedulePauseNextMonth, applyImmediatePause, clearScheduledPause } from './pauseEnrollmentBilling.js'
 import { buildAdminMemberEnrollments, autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
 import {
+  buildAdminEnrollmentsByMember,
+  buildAdminClassRegistrationSummaries,
+  buildAdminFormSlotEnrollments,
+} from './adminRegistrationsOverview.js'
+import {
   persistMultiClassPassPurchaseCharge,
   persistPassRedemptionCharge,
 } from './persistMultiClassPassCharges.js'
@@ -1662,6 +1667,49 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async adminEnrollmentsByMember(req, res) {
+      try {
+        const result = await buildAdminEnrollmentsByMember(pool)
+        res.json({ success: true, data: result })
+      } catch (err) {
+        console.error('[scheduling] adminEnrollmentsByMember:', err)
+        res.status(500).json({ success: false, message: 'Failed to load enrollments by member' })
+      }
+    },
+
+    async adminClassRegistrationSummaries(req, res) {
+      try {
+        const result = await buildAdminClassRegistrationSummaries(pool)
+        res.json({ success: true, data: result })
+      } catch (err) {
+        console.error('[scheduling] adminClassRegistrationSummaries:', err)
+        res.status(500).json({ success: false, message: 'Failed to load class registrations' })
+      }
+    },
+
+    async adminFormSlotEnrollments(req, res) {
+      try {
+        const formId = Number(req.params.formId)
+        const slotGroupId = Number(req.query.slotGroupId)
+        const timeSlotId =
+          req.query.timeSlotId != null && req.query.timeSlotId !== ''
+            ? Number(req.query.timeSlotId)
+            : null
+        if (!Number.isFinite(formId) || !Number.isFinite(slotGroupId)) {
+          return res.status(400).json({ success: false, message: 'formId and slotGroupId are required' })
+        }
+        const result = await buildAdminFormSlotEnrollments(pool, {
+          formId,
+          slotGroupId,
+          timeSlotId: Number.isFinite(timeSlotId) ? timeSlotId : null,
+        })
+        res.json({ success: true, data: result })
+      } catch (err) {
+        console.error('[scheduling] adminFormSlotEnrollments:', err)
+        res.status(500).json({ success: false, message: 'Failed to load class enrollments' })
+      }
+    },
+
     async adminSetSignupDiscount(req, res) {
       const signupId = Number(req.params.id)
       if (!Number.isFinite(signupId)) {
@@ -3055,6 +3103,12 @@ export function createSchedulingHandlers(pool) {
         if (result.rows.length === 0) {
           return res.status(404).json({ success: false, message: 'Form not found' })
         }
+        const { scheduleStripeCatalogSync, syncClassOverrideCatalog } = await import(
+          '../billing/stripeCatalogSync.js'
+        )
+        scheduleStripeCatalogSync(`form ${req.params.id}`, () =>
+          syncClassOverrideCatalog(pool, Number(req.params.id)),
+        )
         res.json({ success: true, data: await mapFormRowWithPricing(pool, result.rows[0]) })
       } catch (err) {
         console.error('[scheduling] updateAdminForm:', err)
@@ -3074,6 +3128,12 @@ export function createSchedulingHandlers(pool) {
         const existing = await pool.query(
           'SELECT * FROM scheduling_form WHERE id = $1 AND deleted_at IS NULL',
           [req.params.id],
+        )
+        const { scheduleStripeCatalogSync, syncClassOverrideCatalog } = await import(
+          '../billing/stripeCatalogSync.js'
+        )
+        scheduleStripeCatalogSync(`form ${req.params.id}`, () =>
+          syncClassOverrideCatalog(pool, Number(req.params.id)),
         )
         res.json({ success: true, data: await mapFormRowWithPricing(pool, existing.rows[0]) })
       } catch (err) {
@@ -4590,4 +4650,29 @@ export function createSchedulingHandlers(pool) {
       }
     },
   }
+}
+
+/** Programmatic signup batch (Stripe webhook enrollment commit). */
+export async function executeSignupBatch(pool, body) {
+  const handlers = createSchedulingHandlers(pool)
+  return new Promise((resolve, reject) => {
+    let statusCode = 200
+    const res = {
+      status(code) {
+        statusCode = code
+        return this
+      },
+      json(data) {
+        if (statusCode >= 400) {
+          const err = new Error(data?.message || 'Signup batch failed')
+          err.statusCode = statusCode
+          err.payload = data
+          reject(err)
+        } else {
+          resolve(data)
+        }
+      },
+    }
+    handlers.createSignupBatch({ body }, res).catch(reject)
+  })
 }

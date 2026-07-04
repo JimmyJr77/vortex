@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Calendar, Loader2, UserMinus, X, Zap } from 'lucide-react'
 import { enrollmentClassHeading, enrichEnrollmentsFromClassesOffered, memberEnrollmentCancelHeading } from '../../utils/enrollmentDisplayLine'
-import { memberCancelEnrollment } from '../../utils/schedulingApi'
+import { memberCancelEnrollment, type MemberEnrollmentCancelResult } from '../../utils/schedulingApi'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
 
 export interface MemberEnrollmentRow {
@@ -44,7 +44,12 @@ interface Props {
     classesRemaining: number
     classCountPurchased: number
   }>
-  onEnrollmentsChanged?: () => void
+  onEnrollmentsChanged?: (result?: MemberEnrollmentCancelResult) => void | Promise<void>
+  /** Admin read-only: hide manage actions */
+  readOnly?: boolean
+  defaultView?: ViewMode
+  /** Nested inside admin sections — hide page header chrome */
+  embedded?: boolean
 }
 
 type ViewMode = 'class' | 'member'
@@ -102,16 +107,20 @@ function canManageEnrollment(row: MemberEnrollmentRow) {
 function statusBadge(row: MemberEnrollmentRow) {
   if (row.cancel_effective_date) {
     return (
-      <span className="inline-flex flex-col gap-0.5">
-        <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-orange-50 text-orange-800">
-          Cancels {formatCancelEffectiveDate(row.cancel_effective_date)}
-        </span>
-        <span className="text-[10px] text-gray-500">Billing changes on the 1st</span>
+      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-orange-50 text-orange-800">
+        Cancellation effective on {formatCancelEffectiveDate(row.cancel_effective_date)}
       </span>
     )
   }
 
   const normalized = row.status.toLowerCase()
+  if (normalized === 'paused') {
+    return (
+      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-800 capitalize">
+        Paused
+      </span>
+    )
+  }
   if (normalized === 'confirmed' || normalized === 'enrolled') {
     return (
       <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 capitalize">
@@ -202,7 +211,7 @@ function MemberEnrollmentActionModal({
   row: MemberEnrollmentRow
   memberToken: string
   onClose: () => void
-  onChanged: () => void
+  onChanged: (result?: MemberEnrollmentCancelResult) => void | Promise<void>
 }) {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -214,8 +223,8 @@ function MemberEnrollmentActionModal({
     setBusy(true)
     setErr(null)
     try {
-      await memberCancelEnrollment(row.id, memberToken)
-      onChanged()
+      const result = await memberCancelEnrollment(row.id, memberToken)
+      await onChanged(result)
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Failed to cancel enrollment')
       setBusy(false)
@@ -249,10 +258,9 @@ function MemberEnrollmentActionModal({
 
           {pendingCancel ? (
             <p className="text-sm text-gray-700">
-              Cancellation is already scheduled for{' '}
+              Cancellation is effective on{' '}
               <span className="font-semibold">{formatCancelEffectiveDate(row.cancel_effective_date!)}</span>.
-              Billing changes take place on the 1st of each month, so you will not be charged again
-              after that date.
+              You may continue attending through the current billing period; billing stops on that date.
             </p>
           ) : (
             <>
@@ -315,8 +323,12 @@ export default function MemberEnrollmentsPanel({
   classesOffered = [],
   multiClassPasses = [],
   onEnrollmentsChanged,
+  readOnly = false,
+  defaultView = 'class',
+  hideViewToggle = false,
+  embedded = false,
 }: Props) {
-  const [view, setView] = useState<ViewMode>('class')
+  const [view, setView] = useState<ViewMode>(defaultView)
   const [activeRow, setActiveRow] = useState<MemberEnrollmentRow | null>(null)
 
   const displayEnrollments = useMemo(
@@ -353,10 +365,11 @@ export default function MemberEnrollmentsPanel({
     })
   }, [displayEnrollments, currentMemberId])
 
-  const handleManage = memberToken ? (row: MemberEnrollmentRow) => setActiveRow(row) : undefined
+  const handleManage = !readOnly && memberToken ? (row: MemberEnrollmentRow) => setActiveRow(row) : undefined
 
   return (
-    <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">
+    <div className={embedded ? 'overflow-hidden' : 'border border-gray-200 rounded-xl bg-white overflow-hidden'}>
+      {!embedded && (
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6 border-b border-gray-200 bg-gray-50/80">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -368,7 +381,7 @@ export default function MemberEnrollmentsPanel({
             take effect on the next billing date.
           </p>
         </div>
-        {enrollments.length > 0 && (
+        {enrollments.length > 0 && !hideViewToggle && (
           <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden bg-white">
             <button
               type="button"
@@ -391,8 +404,9 @@ export default function MemberEnrollmentsPanel({
           </div>
         )}
       </div>
+      )}
 
-      <div className="p-4 md:p-6">
+      <div className={embedded ? '' : 'p-4 md:p-6'}>
         {multiClassPasses.length > 0 && (
           <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
             <h3 className="text-sm font-bold text-gray-900 mb-2">Multi-class pass balances</h3>
@@ -421,6 +435,43 @@ export default function MemberEnrollmentsPanel({
             <Calendar className="w-4 h-4 shrink-0" />
             No enrollments yet. Sign up for a class from the offerings below.
           </p>
+        ) : embedded ? (
+          <EnrollmentTable
+            rows={displayEnrollments}
+            onManage={handleManage}
+            columns={[
+              {
+                key: 'sport',
+                header: 'Sport',
+                cell: (row) => textOrDash(row.sport_name),
+              },
+              {
+                key: 'program',
+                header: 'Program',
+                cell: (row) => textOrDash(row.program_name),
+              },
+              {
+                key: 'class',
+                header: 'Class',
+                cell: (row) => textOrDash(row.class_name),
+              },
+              {
+                key: 'offerings',
+                header: 'Offerings',
+                cell: (row) => offeringsCell(row),
+              },
+              {
+                key: 'slot',
+                header: 'Time',
+                cell: (row) => timeCell(row),
+              },
+              {
+                key: 'status',
+                header: 'Status',
+                cell: (row) => statusBadge(row),
+              },
+            ]}
+          />
         ) : view === 'class' ? (
           <div className="space-y-6">
             {byClass.map(([heading, rows]) => (
@@ -510,9 +561,9 @@ export default function MemberEnrollmentsPanel({
           row={activeRow}
           memberToken={memberToken}
           onClose={() => setActiveRow(null)}
-          onChanged={() => {
+          onChanged={async (result) => {
             setActiveRow(null)
-            onEnrollmentsChanged?.()
+            await onEnrollmentsChanged?.(result)
           }}
         />
       )}

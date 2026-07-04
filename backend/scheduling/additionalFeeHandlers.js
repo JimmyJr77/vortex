@@ -81,6 +81,12 @@ export function createAdditionalFeeHandlers(pool) {
           ],
         )
         res.json({ success: true, data: mapFeeRow(insert.rows[0]) })
+        const { scheduleStripeCatalogSync, syncAdditionalFeeCatalog } = await import(
+          '../billing/stripeCatalogSync.js'
+        )
+        scheduleStripeCatalogSync(`fee ${insert.rows[0].id}`, () =>
+          syncAdditionalFeeCatalog(pool, Number(insert.rows[0].id)),
+        )
       } catch (err) {
         console.error('[scheduling] createFee:', err)
         res.status(500).json({ success: false, message: 'Failed to create additional fee' })
@@ -121,6 +127,10 @@ export function createAdditionalFeeHandlers(pool) {
           return res.status(404).json({ success: false, message: 'Additional fee not found' })
         }
         res.json({ success: true, data: mapFeeRow(upd.rows[0]) })
+        const { scheduleStripeCatalogSync, syncAdditionalFeeCatalog } = await import(
+          '../billing/stripeCatalogSync.js'
+        )
+        scheduleStripeCatalogSync(`fee ${id}`, () => syncAdditionalFeeCatalog(pool, id))
       } catch (err) {
         console.error('[scheduling] updateFee:', err)
         res.status(500).json({ success: false, message: 'Failed to update additional fee' })
@@ -136,6 +146,10 @@ export function createAdditionalFeeHandlers(pool) {
           return res.status(404).json({ success: false, message: 'Additional fee not found' })
         }
         res.json({ success: true })
+        const { scheduleStripeCatalogSync, deactivateAdditionalFeeCatalog } = await import(
+          '../billing/stripeCatalogSync.js'
+        )
+        scheduleStripeCatalogSync(`fee ${id}`, () => deactivateAdditionalFeeCatalog(pool, id))
       } catch (err) {
         console.error('[scheduling] deleteFee:', err)
         res.status(500).json({ success: false, message: 'Failed to delete additional fee' })

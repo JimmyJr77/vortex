@@ -93,7 +93,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
       LEFT JOIN discipline_tag sport_dt ON sport_dt.id = pr.primary_discipline_tag_id
       WHERE s.member_id = ANY($1::bigint[])
         AND s.orphaned_at IS NULL
-        AND s.status IN ('confirmed', 'waitlisted')
+        AND s.status IN ('confirmed', 'waitlisted', 'paused')
       ORDER BY class_name, m.last_name, m.first_name, s.id
     `,
     [memberIds],

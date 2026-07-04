@@ -89,7 +89,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'billing', label: 'Billing', permission: 'billing.view' },
   { id: 'waivers', label: 'Waivers', permission: 'waivers.view' },
   { id: 'insurance', label: 'Insurance', permission: 'waivers.view' },
-  { id: 'signups', label: 'Class Registrations', permission: 'scheduling.view' },
+  { id: 'signups', label: 'Enrollments', permission: 'scheduling.view' },
   { id: 'multiClassPasses', label: 'Multi-Class Passes', permission: 'scheduling.view' },
   { id: 'eventSignups', label: 'Signups', permission: 'scheduling.view' },
   { id: 'highlights', label: 'Highlights', permission: 'classes.view' },

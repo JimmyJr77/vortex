@@ -38,18 +38,23 @@ A modern, technology-driven website for Vortex Athletics - a premier youth athle
 
 ### Option 1: Using Docker Compose (Recommended)
 
+Keeps `node_modules` on a fast Docker volume (not your host disk) and loads env from `backend/.env.local`.
+
 1. **Clone and setup**:
    ```bash
    git clone <repository-url>
    cd vortex
+   cp backend/env.example backend/.env.local
+   # Edit backend/.env.local (DB + Stripe keys)
    ```
 
-2. **Start the database and backend**:
+2. **Start Postgres + backend in Docker**:
    ```bash
-   docker-compose up -d postgres
+   npm run dev:backend
    ```
+   Or detached: `npm run dev:backend:detach`
 
-3. **Install frontend dependencies**:
+3. **Install frontend dependencies** (once):
    ```bash
    npm install
    ```
@@ -59,12 +64,13 @@ A modern, technology-driven website for Vortex Athletics - a premier youth athle
    npm run dev
    ```
 
-5. **Start the backend** (in a new terminal):
+5. **Stripe webhooks (local)** — in another terminal:
    ```bash
-   cd backend
-   npm install
-   npm run dev
+   stripe listen --forward-to localhost:3001/api/stripe/webhook
    ```
+   Put the printed `whsec_...` value in `backend/.env.local` as `STRIPE_WEBHOOK_SECRET`, then restart the backend container.
+
+**Troubleshooting slow local backend startup:** If `cd backend && npm run dev` hangs while loading `node_modules`, your Mac disk may be nearly full or the project path is on a slow/synced volume. Prefer `npm run dev:backend` (Docker) or move the repo off Desktop/iCloud to a local path like `~/Developer/code/vortex`.
 
 ### Option 2: Manual Setup
 

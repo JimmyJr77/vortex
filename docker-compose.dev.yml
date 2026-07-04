@@ -1,0 +1,31 @@
+# Development overrides — keeps node_modules on a fast Docker volume instead of the host disk.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up postgres backend
+services:
+  backend:
+    build:
+      context: ./backend
+      target: dev
+    command: node --watch server.js
+    env_file:
+      - ./backend/.env.local
+    environment:
+      DB_HOST: postgres
+      NODE_ENV: development
+    volumes:
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3001/api/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 90s
+
+volumes:
+  backend_node_modules:
