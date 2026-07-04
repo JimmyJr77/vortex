@@ -1,6 +1,6 @@
 import { Dumbbell, Flame, Sparkles, ClipboardCheck, Send, BarChart3, Trophy, CalendarRange, Users, BookOpen, CalendarDays, GitBranch } from 'lucide-react'
 import type { CoachTab } from './CoachLayout'
-import { isPortalTabVisible } from '../../utils/portalTabConfig'
+import { isPortalTabVisible, orderPortalItems } from '../../utils/portalTabConfig'
 
 const cards: Array<{ tab: CoachTab; title: string; description: string; icon: typeof Dumbbell }> = [
   { tab: 'sessions', title: "Today's Sessions", description: 'Run a class: attendance and group logging.', icon: CalendarDays },
@@ -21,12 +21,16 @@ export default function HomePanel({
   onNavigate,
   coachName,
   hiddenTabs = [],
+  tabOrder,
 }: {
   onNavigate: (tab: CoachTab) => void
   coachName?: string
   hiddenTabs?: CoachTab[]
+  tabOrder?: CoachTab[]
 }) {
-  const visibleCards = cards.filter((card) => isPortalTabVisible(card.tab, hiddenTabs))
+  const visibleCards = orderPortalItems(cards, tabOrder, (card) => card.tab).filter((card) =>
+    isPortalTabVisible(card.tab, hiddenTabs),
+  )
 
   return (
     <div className="space-y-5">

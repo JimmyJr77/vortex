@@ -6,7 +6,7 @@ import PortalNavButtons from '../PortalNavButtons'
 import NotificationBell from '../NotificationBell'
 import type { PortalId } from '../../utils/portalSession'
 import { coachFetch } from '../../coach/api'
-import { firstVisiblePortalTab, isPortalTabVisible } from '../../utils/portalTabConfig'
+import { firstVisiblePortalTab, isPortalTabVisible, orderPortalItems } from '../../utils/portalTabConfig'
 
 const LiveSessionPanel = lazyWithRetry(() => import('./LiveSessionPanel'))
 const RosterPanel = lazyWithRetry(() => import('./RosterPanel'))
@@ -75,18 +75,23 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
   const [tab, setTab] = useState<CoachTab>('home')
   const [navOpen, setNavOpen] = useState(false)
   const [hiddenCoachTabs, setHiddenCoachTabs] = useState<CoachTab[]>([])
+  const [coachTabOrder, setCoachTabOrder] = useState<CoachTab[]>(NAV.map((item) => item.tab))
 
   const visibleNav = useMemo(
-    () => NAV.filter((item) => isPortalTabVisible(item.tab, hiddenCoachTabs)),
-    [hiddenCoachTabs],
+    () =>
+      orderPortalItems(NAV, coachTabOrder, (item) => item.tab).filter((item) =>
+        isPortalTabVisible(item.tab, hiddenCoachTabs),
+      ),
+    [coachTabOrder, hiddenCoachTabs],
   )
 
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       try {
-        const data = await coachFetch<{ hiddenTabs: CoachTab[] }>('/api/coach/portal-config')
+        const data = await coachFetch<{ hiddenTabs: CoachTab[]; tabOrder: CoachTab[] }>('/api/coach/portal-config')
         if (!cancelled) setHiddenCoachTabs(Array.isArray(data.hiddenTabs) ? data.hiddenTabs : [])
+        if (!cancelled) setCoachTabOrder(Array.isArray(data.tabOrder) ? data.tabOrder : NAV.map((item) => item.tab))
       } catch {
         if (!cancelled) setHiddenCoachTabs([])
       }
@@ -98,13 +103,13 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
 
   useEffect(() => {
     if (isPortalTabVisible(tab, hiddenCoachTabs)) return
-    setTab(firstVisiblePortalTab(NAV.map((item) => item.tab), hiddenCoachTabs, 'home'))
-  }, [tab, hiddenCoachTabs])
+    setTab(firstVisiblePortalTab(visibleNav.map((item) => item.tab), hiddenCoachTabs, 'home'))
+  }, [tab, hiddenCoachTabs, visibleNav])
 
   const renderPanel = () => {
     switch (tab) {
       case 'home':
-        return <HomePanel onNavigate={setTab} coachName={coach.fullName} hiddenTabs={hiddenCoachTabs} />
+        return <HomePanel onNavigate={setTab} coachName={coach.fullName} hiddenTabs={hiddenCoachTabs} tabOrder={coachTabOrder} />
       case 'sessions':
         return <LiveSessionPanel />
       case 'roster':

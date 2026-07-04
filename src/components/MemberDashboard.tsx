@@ -17,7 +17,7 @@ import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
 import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
 import type { PortalId } from '../utils/portalSession'
-import { firstVisiblePortalTab, isPortalTabVisible } from '../utils/portalTabConfig'
+import { firstVisiblePortalTab, isPortalTabVisible, orderPortalItems } from '../utils/portalTabConfig'
 
 interface MemberDashboardProps {
   member: any
@@ -311,6 +311,7 @@ export default function MemberDashboard({
   const [enrollmentConfirmError, setEnrollmentConfirmError] = useState<string | null>(null)
   const [enrollmentConfirming, setEnrollmentConfirming] = useState(false)
   const [hiddenMemberTabs, setHiddenMemberTabs] = useState<MemberTab[]>([])
+  const [memberTabOrder, setMemberTabOrder] = useState<MemberTab[]>(NAV.map((item) => item.tab))
 
   const apiUrl = getApiUrl()
   const token = localStorage.getItem('vortex_member_token')
@@ -932,8 +933,11 @@ export default function MemberDashboard({
   }
 
   const visibleNav = useMemo(
-    () => NAV.filter((item) => isPortalTabVisible(item.tab, hiddenMemberTabs)),
-    [hiddenMemberTabs],
+    () =>
+      orderPortalItems(NAV, memberTabOrder, (item) => item.tab).filter((item) =>
+        isPortalTabVisible(item.tab, hiddenMemberTabs),
+      ),
+    [hiddenMemberTabs, memberTabOrder],
   )
 
   useEffect(() => {
@@ -948,6 +952,7 @@ export default function MemberDashboard({
         const json = await res.json()
         if (cancelled) return
         setHiddenMemberTabs(Array.isArray(json.data?.hiddenTabs) ? json.data.hiddenTabs : [])
+        setMemberTabOrder(Array.isArray(json.data?.tabOrder) ? json.data.tabOrder : NAV.map((item) => item.tab))
       } catch {
         if (!cancelled) setHiddenMemberTabs([])
       }
@@ -959,8 +964,8 @@ export default function MemberDashboard({
 
   useEffect(() => {
     if (isPortalTabVisible(activeTab, hiddenMemberTabs)) return
-    setActiveTab(firstVisiblePortalTab(NAV.map((item) => item.tab), hiddenMemberTabs, 'home'))
-  }, [activeTab, hiddenMemberTabs])
+    setActiveTab(firstVisiblePortalTab(visibleNav.map((item) => item.tab), hiddenMemberTabs, 'home'))
+  }, [activeTab, hiddenMemberTabs, visibleNav])
 
   useEffect(() => {
     if (!token) return
@@ -1590,6 +1595,7 @@ export default function MemberDashboard({
                   onNavigate={setActiveTab}
                   firstName={profileData?.firstName}
                   hiddenTabs={hiddenMemberTabs}
+                  tabOrder={memberTabOrder}
                 />
               </motion.div>
             )}

@@ -1,6 +1,6 @@
 import { Users, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, Calendar, CreditCard, FileText } from 'lucide-react'
 import type { MemberTab } from '../MemberDashboard'
-import { isPortalTabVisible } from '../../utils/portalTabConfig'
+import { isPortalTabVisible, orderPortalItems } from '../../utils/portalTabConfig'
 
 const cards: Array<{ tab: MemberTab; title: string; description: string; icon: typeof Users }> = [
   { tab: 'profile', title: 'Profile', description: 'Your account and family members.', icon: Users },
@@ -17,12 +17,16 @@ export default function MemberHomePanel({
   onNavigate,
   firstName,
   hiddenTabs = [],
+  tabOrder,
 }: {
   onNavigate: (tab: MemberTab) => void
   firstName?: string
   hiddenTabs?: MemberTab[]
+  tabOrder?: MemberTab[]
 }) {
-  const visibleCards = cards.filter((card) => isPortalTabVisible(card.tab, hiddenTabs))
+  const visibleCards = orderPortalItems(cards, tabOrder, (card) => card.tab).filter((card) =>
+    isPortalTabVisible(card.tab, hiddenTabs),
+  )
 
   return (
     <div className="space-y-5">

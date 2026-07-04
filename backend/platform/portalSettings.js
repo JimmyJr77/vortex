@@ -80,10 +80,23 @@ function normalizeHiddenTabs(portal, hiddenTabs) {
   return [...new Set(hiddenTabs.map(String))].filter((tab) => valid.includes(tab) && !locked.has(tab))
 }
 
+function normalizeTabOrder(portal, tabOrder) {
+  const valid = portal === 'member' ? MEMBER_PORTAL_TAB_KEYS : COACH_PORTAL_TAB_KEYS
+  if (!Array.isArray(tabOrder)) return [...valid]
+  const selected = [...new Set(tabOrder.map(String))].filter((tab) => valid.includes(tab))
+  return [...selected, ...valid.filter((tab) => !selected.includes(tab))]
+}
+
 export function normalizePortalConfig(raw = {}) {
   return {
-    member: { hiddenTabs: normalizeHiddenTabs('member', raw?.member?.hiddenTabs) },
-    coach: { hiddenTabs: normalizeHiddenTabs('coach', raw?.coach?.hiddenTabs) },
+    member: {
+      hiddenTabs: normalizeHiddenTabs('member', raw?.member?.hiddenTabs),
+      tabOrder: normalizeTabOrder('member', raw?.member?.tabOrder),
+    },
+    coach: {
+      hiddenTabs: normalizeHiddenTabs('coach', raw?.coach?.hiddenTabs),
+      tabOrder: normalizeTabOrder('coach', raw?.coach?.tabOrder),
+    },
   }
 }
 

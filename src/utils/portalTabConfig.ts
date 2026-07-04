@@ -2,8 +2,8 @@ import type { MemberTab } from '../components/MemberDashboard'
 import type { CoachTab } from '../components/coach/CoachLayout'
 
 export interface PortalTabConfig {
-  member: { hiddenTabs: MemberTab[] }
-  coach: { hiddenTabs: CoachTab[] }
+  member: { hiddenTabs: MemberTab[]; tabOrder: MemberTab[] }
+  coach: { hiddenTabs: CoachTab[]; tabOrder: CoachTab[] }
 }
 
 export const MEMBER_PORTAL_TAB_OPTIONS: Array<{ key: MemberTab; label: string; locked?: boolean }> = [
@@ -46,4 +46,18 @@ export function firstVisiblePortalTab<T extends string>(
   fallback: T,
 ): T {
   return tabs.find((tab) => isPortalTabVisible(tab, hiddenTabs)) ?? fallback
+}
+
+export function orderPortalItems<T extends string, Item>(
+  items: Item[],
+  tabOrder: T[] | undefined,
+  getKey: (item: Item) => T,
+): Item[] {
+  const rank = new Map((tabOrder ?? []).map((tab, index) => [tab, index]))
+  return [...items].sort((a, b) => {
+    const aRank = rank.get(getKey(a)) ?? Number.MAX_SAFE_INTEGER
+    const bRank = rank.get(getKey(b)) ?? Number.MAX_SAFE_INTEGER
+    if (aRank !== bRank) return aRank - bRank
+    return items.indexOf(a) - items.indexOf(b)
+  })
 }
