@@ -312,7 +312,7 @@ test('computeFirstMonthLayer skips one-time lines and pass-covered $0 lines', as
 })
 
 function fakeBillingPool() {
-  const calls = { subscriptions: [], charges: [], orderCredits: [] }
+  const calls = { subscriptions: [], charges: [], orderCredits: [], feeRedemptions: [] }
   const pool = {
     calls,
     query: async (sql, params = []) => {
@@ -321,6 +321,10 @@ function fakeBillingPool() {
       if (/INSERT INTO billing_subscription/.test(sql)) {
         calls.subscriptions.push(params)
         return { rows: [{ id: 500 + calls.subscriptions.length, created: true }] }
+      }
+      if (/INSERT INTO additional_fee_redemption/.test(sql)) {
+        calls.feeRedemptions.push(params)
+        return { rows: [] }
       }
       if (/INSERT INTO billing_charge/.test(sql)) {
         if (/'order_discount'/.test(sql)) {
@@ -431,6 +435,39 @@ test('persistSignupCharges posts prepaid first-month charge and credit for futur
   assert.equal(result.charges, 1)
   assert.equal(pool.calls.charges[0][4], 10000)
   assert.equal(pool.calls.subscriptions[0][10], '2026-09-01') // next_bill_date
+})
+
+test('persistSignupCharges posts additional_fee billing_charge and once-per-year redemption', async () => {
+  const pool = fakeBillingPool()
+  const preview = {
+    newSignups: [],
+    formSummaries: [],
+    discounts: { enabled: false, lines: [], orderDiscounts: [] },
+    additionalFees: {
+      enabled: true,
+      items: [
+        {
+          feeId: 3,
+          name: 'Annual Fee',
+          triggerType: 'once_per_year',
+          amountCents: 8500,
+        },
+      ],
+    },
+  }
+
+  const result = await persistSignupCharges(pool, {
+    memberId: 4,
+    signups: [{ signupId: 11, formId: 1, slotGroupId: 2, timeSlotId: 3, formTitle: 'Vortex Team', slotLabel: '' }],
+    preview,
+  })
+
+  assert.equal(result.charges, 1)
+  assert.equal(pool.calls.feeRedemptions.length, 1)
+  const feeCharge = pool.calls.charges.find((params) => params[3] === 'Annual Fee')
+  assert.ok(feeCharge)
+  assert.match(String(feeCharge[2]), /^3:4:\d{4}$/)
+  assert.equal(feeCharge[4], 8500)
 })
 
 test('pauseCreditForLine awards prorated credit for remaining sessions after pause', () => {

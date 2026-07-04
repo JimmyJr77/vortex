@@ -26,6 +26,8 @@ import {
   createCheckoutSession,
   parseWebhookEvent,
   recordStripePayment,
+  recordEnrollmentStripePayment,
+  getStripeClient,
   stripeWebhookRawBody,
   logWebhookVerificationFailure,
 } from '../billing/stripeBilling.js'
@@ -38,6 +40,7 @@ import {
 } from '../billing/stripeEnrollmentCheckout.js'
 import { syncAllCatalog } from '../billing/stripeCatalogSync.js'
 import { buildBillingAccountView } from '../billing/billingAccountView.js'
+import { chargeDisplayCategory } from '../billing/billingPeriodView.js'
 import { notifyPaymentReceipt, notifyPaymentFailed } from '../email/memberNotifications.js'
 
 function tokenFrom(req) {
@@ -478,6 +481,8 @@ function mapPayment(row) {
     externalStatus: row.external_status ?? null,
     stripeCustomerId: row.stripe_customer_id ?? null,
     stripePaymentIntentId: row.stripe_payment_intent_id ?? null,
+    stripeCheckoutSessionId: row.stripe_checkout_session_id ?? null,
+    stripeInvoiceId: row.stripe_invoice_id ?? null,
     createdAt: row.created_at,
   }
 }
@@ -499,6 +504,8 @@ function mapCharge(row) {
     subscriptionId: row.subscription_id != null ? Number(row.subscription_id) : null,
     servicePeriodStart: row.service_period_start ?? null,
     servicePeriodEnd: row.service_period_end ?? null,
+    stripeCheckoutSessionId: row.stripe_checkout_session_id ?? null,
+    displayCategory: row.displayCategory ?? null,
     createdAt: row.created_at,
   }
 }
@@ -1874,7 +1881,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       success: true,
       data: {
         account: mapBillingAccount(account),
-        charges: view.charges.map(mapCharge),
+        charges: view.charges.map((c) =>
+          mapCharge({ ...c, displayCategory: chargeDisplayCategory(c) }),
+        ),
         payments: view.payments.map(mapPayment),
         subscriptions: view.subscriptions,
         monthlyTotals: view.monthlyTotals,
@@ -1886,6 +1895,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         paymentsCents: view.paymentsCents,
         refundsCents: view.refundsCents,
         balanceCents: view.balanceCents,
+        currentPeriod: view.currentPeriod,
+        billingHistory: view.billingHistory,
         canSeeFamily,
         stripeEnabled: process.env.STRIPE_ENABLED === 'true',
       },
@@ -2037,11 +2048,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       if (!event) return res.status(400).json({ success: false })
       if (event.type === 'checkout.session.completed' || event.type === 'payment_intent.succeeded') {
         const obj = event.data?.object ?? {}
-        if (
+        const isEnrollmentCheckout =
           event.type === 'checkout.session.completed' &&
           obj.metadata?.checkoutType === 'enrollment' &&
           obj.metadata?.pendingEnrollmentId
-        ) {
+        if (isEnrollmentCheckout) {
           try {
             await commitPendingEnrollment(pool, {
               pendingEnrollmentId: Number(obj.metadata.pendingEnrollmentId),
@@ -2055,12 +2066,21 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         const accountId = obj.metadata?.familyBillingAccountId
           ? Number(obj.metadata.familyBillingAccountId)
           : null
-        const insertedPayment = await recordStripePayment(pool, {
-          paymentIntentId: obj.payment_intent || obj.id,
-          amountCents: obj.amount_total ?? obj.amount_received ?? obj.amount ?? 0,
-          accountId,
-          customerId: obj.customer ?? null,
-        })
+        let insertedPayment = null
+        if (isEnrollmentCheckout && accountId) {
+          const stripe = await getStripeClient()
+          insertedPayment = await recordEnrollmentStripePayment(pool, stripe, {
+            session: obj,
+            accountId,
+          })
+        } else {
+          insertedPayment = await recordStripePayment(pool, {
+            paymentIntentId: obj.payment_intent || (event.type === 'payment_intent.succeeded' ? obj.id : null),
+            amountCents: obj.amount_total ?? obj.amount_received ?? obj.amount ?? 0,
+            accountId,
+            customerId: obj.customer ?? null,
+          })
+        }
         if (insertedPayment && accountId) {
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])
           if (acct.rows[0]) {

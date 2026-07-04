@@ -14,7 +14,8 @@
  *
  * Charges carry gross/discount split so statements can show list price, discount,
  * and net. Order-level discounts are recorded once as a credit ledger entry.
- * once-per-year additional fees are recorded in `additional_fee_redemption`.
+ * Additional fees (annual/membership) post `billing_charge` rows (`source_type='additional_fee'`)
+ * and once-per-year fees also record `additional_fee_redemption`.
  */
 
 import {
@@ -273,12 +274,37 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
     }
   }
 
-  // Record once-per-year additional fees so they are not charged again.
   const feeItems = preview?.additionalFees?.enabled ? preview.additionalFees.items || [] : []
   const year = calendarYearKey()
   for (const fee of feeItems) {
+    const feeAmount = Math.round(Number(fee.amountCents) || 0)
+    if (feeAmount <= 0 || fee.feeId == null) continue
+
+    const sourceId =
+      fee.triggerType === 'once_per_year'
+        ? `${fee.feeId}:${memberId}:${year}`
+        : `${fee.feeId}:${firstSignupId ?? memberId}`
+
+    try {
+      const feeCharge = await pool.query(
+        `
+          INSERT INTO billing_charge
+            (family_billing_account_id, member_id, source_type, source_id, description,
+             amount_cents, gross_amount_cents, discount_amount_cents,
+             charge_type, billing_interval)
+          VALUES ($1, $2, 'additional_fee', $3, $4, $5, $5, 0, 'one_time', 'one_time')
+          ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
+          DO NOTHING
+          RETURNING id
+        `,
+        [account.id, memberId, sourceId, fee.name || 'Additional fee', feeAmount],
+      )
+      if (feeCharge.rows.length > 0) charges += 1
+    } catch (err) {
+      console.warn('[scheduling] persistSignupCharges additional fee charge:', err.message)
+    }
+
     if (fee.triggerType !== 'once_per_year') continue
-    if (fee.feeId == null) continue
     try {
       await pool.query(
         `
@@ -287,7 +313,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           VALUES ($1, $2, $3, $4, $5)
           ON CONFLICT (fee_id, member_id, period_key) DO NOTHING
         `,
-        [fee.feeId, memberId, firstSignupId, year, Math.round(Number(fee.amountCents) || 0)],
+        [fee.feeId, memberId, firstSignupId, year, feeAmount],
       )
     } catch (err) {
       console.warn('[scheduling] persistSignupCharges fee redemption:', err.message)

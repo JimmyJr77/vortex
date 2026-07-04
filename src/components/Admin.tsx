@@ -25,6 +25,7 @@ import AdminInsurance from './AdminInsurance'
 import AdminHomePanel from './admin/AdminHomePanel'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
 import PortalNavButtons from './PortalNavButtons'
+import NotificationBell from './NotificationBell'
 import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, DollarSign, FileText, Sparkles, Database, Settings, Menu, X } from 'lucide-react'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
@@ -377,12 +378,15 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
               VORTEX <span className="text-vortex-red">ADMIN</span>
             </h1>
           </div>
-          <PortalNavButtons
-            activePortal="admin"
-            availablePortals={availablePortals}
-            onSwitchPortal={onSwitchPortal}
-            onLogout={onLogout}
-          />
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <NotificationBell apiPrefix="admin" />
+            <PortalNavButtons
+              activePortal="admin"
+              availablePortals={availablePortals}
+              onSwitchPortal={onSwitchPortal}
+              onLogout={onLogout}
+            />
+          </div>
         </div>
       </div>
 

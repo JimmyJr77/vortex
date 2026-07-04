@@ -103,7 +103,7 @@ Session keys: `vortex_admin='true'`, `adminToken` (JWT), `vortex-admin-info`, `v
 calls go through `adminApiRequest()` (Bearer `adminToken`).
 
 **Shell** — [src/components/Admin.tsx](../src/components/Admin.tsx): dark header (`VORTEX ADMIN`
-+ `PortalNavButtons` + scrollable tabs) over a white `container-admin` content area. Tabs are
++ `NotificationBell` (stub — no `/api/admin/notifications` yet) + `PortalNavButtons` + scrollable tabs) over a white `container-admin` content area. Tabs are
 RBAC-filtered from `/api/admin/access/me`. Cross-tab deep-linking (Classes → Scheduling) via a
 `SchedulingNavigationIntent`.
 

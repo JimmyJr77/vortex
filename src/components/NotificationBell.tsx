@@ -13,7 +13,7 @@ interface NotificationRow {
 }
 
 interface NotificationBellProps {
-  apiPrefix: 'coach' | 'member'
+  apiPrefix: 'coach' | 'member' | 'admin'
 }
 
 const MAX_LOAD_ATTEMPTS = 4
@@ -27,7 +27,10 @@ export default function NotificationBell({ apiPrefix }: NotificationBellProps) {
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const base = `/api/${apiPrefix}/notifications`
 
+  const isStub = apiPrefix === 'admin'
+
   const load = useCallback(async (attempt = 0) => {
+    if (isStub) return
     if (retryTimerRef.current) {
       clearTimeout(retryTimerRef.current)
       retryTimerRef.current = null
@@ -51,14 +54,14 @@ export default function NotificationBell({ apiPrefix }: NotificationBellProps) {
     } finally {
       setLoading(false)
     }
-  }, [base])
+  }, [base, isStub])
 
   useEffect(() => {
-    void load()
+    if (!isStub) void load()
     return () => {
       if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
     }
-  }, [load])
+  }, [load, isStub])
 
   useEffect(() => {
     if (!open) return
@@ -101,11 +104,15 @@ export default function NotificationBell({ apiPrefix }: NotificationBellProps) {
           setOpen((o) => !o)
           if (!open) void load()
         }}
-        className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+        className={`relative flex items-center justify-center px-3 md:px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+          unreadCount > 0
+            ? 'notification-bell-unread text-white hover:opacity-90'
+            : 'bg-gray-700 text-white hover:bg-gray-600'
+        }`}
         aria-label="Notifications"
         aria-expanded={open}
       >
-        <Bell className="w-5 h-5" />
+        <Bell className={`w-4 h-4 ${unreadCount > 0 ? 'notification-bell-icon' : ''}`} />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-vortex-red text-white text-[10px] font-bold flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}

@@ -13,6 +13,7 @@ export function stripeEnabled() {
 
 let cachedClient = null
 let stripeBillingSchemaEnsured = false
+let billingStripeLinksEnsured = false
 
 async function runMigrationFile(pool, relativePath) {
   const fs = await import('fs')
@@ -25,6 +26,13 @@ export async function ensureStripeBillingSchema(pool) {
   if (stripeBillingSchemaEnsured) return
   await runMigrationFile(pool, '../migrations/047_stripe_billing_scaffold.sql')
   stripeBillingSchemaEnsured = true
+}
+
+/** billing_payment.stripe_checkout_session_id + invoice links (058). */
+export async function ensureBillingStripeLinksSchema(pool) {
+  if (billingStripeLinksEnsured) return
+  await runMigrationFile(pool, '../migrations/058_billing_stripe_links.sql')
+  billingStripeLinksEnsured = true
 }
 
 async function getStripe() {
@@ -172,6 +180,8 @@ export function logWebhookVerificationFailure(err, { rawBody, signature }) {
  */
 export async function recordStripePayment(pool, { paymentIntentId, amountCents, accountId, customerId }) {
   if (!paymentIntentId || !accountId) return null
+  await ensureStripeBillingSchema(pool)
+  await ensureBillingStripeLinksSchema(pool)
   const result = await pool.query(
     `
       INSERT INTO billing_payment
@@ -185,4 +195,121 @@ export async function recordStripePayment(pool, { paymentIntentId, amountCents, 
     [accountId, Math.round(Number(amountCents) || 0), customerId ?? null, paymentIntentId],
   )
   return result.rows[0] ?? null
+}
+
+/**
+ * Resolve PaymentIntent / invoice from a Checkout Session (subscription mode often has PI on invoice).
+ */
+export async function resolveEnrollmentCheckoutPayment(stripe, session) {
+  let paymentIntentId =
+    typeof session.payment_intent === 'string'
+      ? session.payment_intent
+      : session.payment_intent?.id ?? null
+  let invoiceId = typeof session.invoice === 'string' ? session.invoice : session.invoice?.id ?? null
+
+  if ((!paymentIntentId || !invoiceId) && stripe && session.id) {
+    const expanded = await stripe.checkout.sessions.retrieve(session.id, {
+      expand: ['payment_intent', 'invoice.payment_intent'],
+    })
+    paymentIntentId =
+      typeof expanded.payment_intent === 'string'
+        ? expanded.payment_intent
+        : expanded.payment_intent?.id ?? paymentIntentId
+    if (expanded.invoice && typeof expanded.invoice === 'object') {
+      invoiceId = expanded.invoice.id ?? invoiceId
+      const invPi = expanded.invoice.payment_intent
+      paymentIntentId =
+        typeof invPi === 'string' ? invPi : invPi?.id ?? paymentIntentId
+    } else if (expanded.invoice) {
+      invoiceId = expanded.invoice
+    }
+  } else if (invoiceId && !paymentIntentId && stripe) {
+    const invoice =
+      session.invoice && typeof session.invoice === 'object'
+        ? session.invoice
+        : await stripe.invoices.retrieve(invoiceId)
+    const invPi = invoice.payment_intent
+    paymentIntentId = typeof invPi === 'string' ? invPi : invPi?.id ?? null
+  }
+
+  return { paymentIntentId, invoiceId }
+}
+
+/**
+ * Idempotently record enrollment Checkout payment (handles subscription-mode invoice PI).
+ */
+export async function recordEnrollmentStripePayment(pool, stripe, { session, accountId }) {
+  if (!accountId || !session?.id) return null
+  await ensureStripeBillingSchema(pool)
+  await ensureBillingStripeLinksSchema(pool)
+
+  const { paymentIntentId, invoiceId } = await resolveEnrollmentCheckoutPayment(stripe, session)
+  const amountCents = Math.round(Number(session.amount_total) || 0)
+  const customerId =
+    typeof session.customer === 'string' ? session.customer : session.customer?.id ?? null
+  const checkoutSessionId = session.id
+
+  if (paymentIntentId) {
+    const result = await pool.query(
+      `
+        INSERT INTO billing_payment
+          (family_billing_account_id, amount_cents, method, external_processor,
+           external_status, stripe_customer_id, stripe_payment_intent_id,
+           stripe_checkout_session_id, stripe_invoice_id)
+        VALUES ($1, $2, 'card', 'stripe', 'settled', $3, $4, $5, $6)
+        ON CONFLICT (stripe_payment_intent_id) WHERE stripe_payment_intent_id IS NOT NULL
+        DO UPDATE SET
+          stripe_checkout_session_id = COALESCE(
+            billing_payment.stripe_checkout_session_id,
+            EXCLUDED.stripe_checkout_session_id
+          ),
+          stripe_invoice_id = COALESCE(billing_payment.stripe_invoice_id, EXCLUDED.stripe_invoice_id)
+        RETURNING *
+      `,
+      [accountId, amountCents, customerId, paymentIntentId, checkoutSessionId, invoiceId],
+    )
+    const payment = result.rows[0] ?? null
+    if (payment && checkoutSessionId) {
+      await pool.query(
+        `
+          UPDATE billing_charge
+          SET stripe_checkout_session_id = $2
+          WHERE family_billing_account_id = $1
+            AND stripe_checkout_session_id IS NULL
+            AND created_at >= now() - interval '15 minutes'
+        `,
+        [accountId, checkoutSessionId],
+      )
+    }
+    return payment
+  }
+
+  const result = await pool.query(
+    `
+      INSERT INTO billing_payment
+        (family_billing_account_id, amount_cents, method, external_processor,
+         external_status, stripe_customer_id, stripe_checkout_session_id, stripe_invoice_id)
+      VALUES ($1, $2, 'card', 'stripe', 'settled', $3, $4, $5)
+      ON CONFLICT (stripe_checkout_session_id) WHERE stripe_checkout_session_id IS NOT NULL
+      DO NOTHING
+      RETURNING *
+    `,
+    [accountId, amountCents, customerId, checkoutSessionId, invoiceId],
+  )
+  const payment = result.rows[0] ?? null
+
+  if (payment && checkoutSessionId) {
+    await pool.query(
+      `
+        UPDATE billing_charge
+        SET stripe_checkout_session_id = $2
+        WHERE family_billing_account_id = $1
+          AND stripe_checkout_session_id IS NULL
+          AND created_at >= now() - interval '15 minutes'
+      `,
+      [accountId, checkoutSessionId],
+    )
+  }
+
+  return payment
 }

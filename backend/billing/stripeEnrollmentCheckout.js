@@ -4,7 +4,7 @@
  */
 
 import crypto from 'crypto'
-import { getStripeClient, stripeEnabled, ensureStripeBillingSchema, recordStripePayment } from './stripeBilling.js'
+import { getStripeClient, stripeEnabled, ensureStripeBillingSchema, recordEnrollmentStripePayment } from './stripeBilling.js'
 import {
   feeLookupKey,
   formOverrideLookupKey,
@@ -635,18 +635,10 @@ export async function confirmEnrollmentCheckoutSession(
   }
 
   if (commitResult.status === 'completed' || commitResult.status === 'already_completed') {
-    const paymentIntentId =
-      typeof session.payment_intent === 'string'
-        ? session.payment_intent
-        : session.payment_intent?.id ?? null
-    if (paymentIntentId) {
-      await recordStripePayment(pool, {
-        paymentIntentId,
-        amountCents: session.amount_total ?? 0,
-        accountId: Number(pending.family_billing_account_id),
-        customerId: session.customer ?? null,
-      })
-    }
+    await recordEnrollmentStripePayment(pool, stripe, {
+      session,
+      accountId: Number(pending.family_billing_account_id),
+    })
   }
 
   return commitResult

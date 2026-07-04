@@ -48,6 +48,7 @@ export async function initPlatformTables(pool) {
     '055_enrollment_cancel_effective.sql',
     '056_stripe_catalog.sql',
     '057_stripe_pending_enrollment.sql',
+    '058_billing_stripe_links.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

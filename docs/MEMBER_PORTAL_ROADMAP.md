@@ -12,7 +12,7 @@ decisions worth preserving. Keep it current as the portal evolves (see the proje
 - ✅ Multi-portal session + login (one JWT spans member/coach/admin where eligible).
 - ✅ Dashboard with 7 tabs: Profile, Classes, Training, Progress, Events, Billing, Waivers.
 - ✅ Family self-service (add/edit family members inline, guardian-gated).
-- ✅ Billing: account balance + itemized charge ledger, statements + payment history; waiver acceptance.
+- ✅ Billing: calendar-month cycle view (`currentPeriod` + `billingHistory` on account API), membership fees, itemized charges/payments; waiver acceptance.
 - ✅ In-portal class enrollment with day/time checkboxes → real-price checkout → family billing ledger (Stripe scaffold flag-gated).
 - ✅ Coaching Corner athlete views (assignments, completion logging, progress, wellness).
 - ✅ Light-theme modernization of profile + view/edit modals.
@@ -137,8 +137,7 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
     via `GET /api/members/multi-class-passes`.
   - **Training / Progress**: delegate to `MemberTrainingTab` / `MemberProgressTab`.
   - **Events**: `GET /api/events` (public), filtered by enrollment tags.
-  - **Billing**: account balance + itemized charge ledger via `GET /api/members/billing/account`,
-    plus `GET /api/members/billing/statements`, `…/payments`. A flag-gated **Pay now** button
+  - **Billing**: calendar-month summary (charges, debits, credits, payments, balance due), membership fees, recurring enrollments, one-time purchases, monthly detail blocks, and computed **Billing history** via `GET /api/members/billing/account` (`currentPeriod`, `billingHistory`). Legacy admin-generated statements remain at `GET /api/members/billing/statements`. A flag-gated **Pay now** button
     (`POST /api/members/billing/checkout-session`) appears for the payer/guardian when
     `STRIPE_ENABLED=true` and balance &gt; 0. **Enrollment checkout** (Phase 2): when Stripe is
     enabled and the order preview has billable lines, **Confirm enrollment** redirects to Stripe

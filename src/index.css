@@ -77,4 +77,22 @@
     animation: gymnastics-hero-scroll 60s linear infinite;
     will-change: transform;
   }
+
+  @keyframes notification-bell-bg-pulse {
+    0%, 100% { background-color: rgb(55 65 81); }
+    50% { background-color: rgb(255 255 255); }
+  }
+
+  @keyframes notification-bell-icon-pulse {
+    0%, 100% { color: rgb(255 255 255); }
+    50% { color: rgb(156 163 175); }
+  }
+
+  .notification-bell-unread {
+    animation: notification-bell-bg-pulse 2.5s ease-in-out infinite;
+  }
+
+  .notification-bell-unread .notification-bell-icon {
+    animation: notification-bell-icon-pulse 2.5s ease-in-out infinite;
+  }
 }

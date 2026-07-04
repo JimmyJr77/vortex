@@ -35,9 +35,10 @@ Restart backend after changes.
 cd backend
 node run-migration.js 056_stripe_catalog.sql
 node run-migration.js 057_stripe_pending_enrollment.sql
+node run-migration.js 058_billing_stripe_links.sql
 ```
 
-Or restart backend (Docker `npm run dev:backend`) — migrations `056`/`057` apply via `initPlatformTables`.
+Or restart backend (Docker `npm run dev:backend`) — migrations `056`/`057`/`058` apply via `initPlatformTables`.
 
 ### A3. Stripe CLI webhook forwarding
 
@@ -229,8 +230,28 @@ Uses whichever `STRIPE_SECRET_KEY` is in env — must be live key for live Produ
 | Checkout button missing | `STRIPE_ENABLED=true` + secret key set; restart backend |
 | Webhook 400 signature error | `STRIPE_WEBHOOK_SECRET` must match the endpoint (local `stripe listen` vs Render Dashboard secret) |
 | Enrollment paid but no signups | Check Render logs for `[stripe] enrollment commit`; verify `057` migration applied |
+| Enrollment paid but billing tab empty | Run migration `058`; subscription Checkout records payment via invoice PI — see **Recovery** below |
 | Prices stale in Stripe | `npm run stripe:sync-catalog` or re-save program pricing |
 | `column stripe_price_id does not exist` | Run migration `056` on that database |
+
+---
+
+## Recovery — enrollment checkout missing ledger rows
+
+When Stripe shows a paid enrollment (`checkout.session.completed`) but the member Billing tab has **$0 charges** and **no payments** (common with subscription-mode Checkout before migration `058`):
+
+1. Apply migration `058_billing_stripe_links.sql` on the database.
+2. Deploy backend with `recordEnrollmentStripePayment` (invoice-backed PI + checkout session idempotency).
+3. For account **461** (pending enrollment id **9**, session `cs_test_b1NBuhvlZk32oKJFK3XvXxCjgtWxGECsRAuqqwYuM8P0tB1O0GI66T9udG`):
+
+```bash
+cd backend
+STRIPE_SECRET_KEY=sk_test_... DATABASE_URL=... node scripts/backfill-billing-account-461.mjs
+```
+
+4. Verify `GET /api/members/billing/account` shows `currentPeriod.totals` matching checkout amount ($235 = $85 annual + $150 first month) and a `billing_payment` row.
+
+Future enrollments persist additional fees as `billing_charge` (`source_type='additional_fee'`) at signup commit time — no manual backfill needed.
 
 ---
 

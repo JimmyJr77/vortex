@@ -12,6 +12,7 @@ import { MemberTrainingTab, MemberProgressTab, MemberMessagesTab } from './Membe
 import MemberEnrollmentsPanel, { type MemberEnrollmentRow } from './member/MemberEnrollmentsPanel'
 import { enrollmentClassHeading } from '../utils/enrollmentDisplayLine'
 import MemberHomePanel from './member/MemberHomePanel'
+import MemberBillingPanel from './member/MemberBillingPanel'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
 import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
@@ -189,6 +190,8 @@ interface BillingAccountSummary {
   monthlyTotals?: { grossCents: number; discountCents: number; netCents: number }
   bundlePasses?: BillingBundlePass[]
   bundleUsage?: BillingBundleUsage[]
+  currentPeriod?: import('./member/MemberBillingPanel').BillingCurrentPeriod | null
+  billingHistory?: import('./member/MemberBillingPanel').BillingHistoryMonth[]
 }
 
 interface MemberWaiver {
@@ -2265,228 +2268,14 @@ export default function MemberDashboard({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-6"
               >
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                      <CreditCard className="w-7 h-7 text-vortex-red" />
-                      Account Balance
-                    </h2>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Your family account ledger. Charges post automatically when you enroll in classes.
-                    </p>
-                  </div>
-                  {billingLoading ? (
-                    <div className="text-center py-12 text-gray-600">Loading your account…</div>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                        <div className="rounded-xl border border-gray-200 p-4">
-                          <p className="text-xs uppercase tracking-wide text-gray-500">Monthly total</p>
-                          <p className="text-xl font-bold text-gray-900">{formatMoney(billingAccount?.monthlyTotals?.netCents ?? 0)}</p>
-                          {(billingAccount?.monthlyTotals?.discountCents ?? 0) > 0 && (
-                            <p className="text-xs text-gray-500">{formatMoney(billingAccount?.monthlyTotals?.grossCents ?? 0)} − {formatMoney(billingAccount?.monthlyTotals?.discountCents ?? 0)}</p>
-                          )}
-                        </div>
-                        <div className="rounded-xl border border-gray-200 p-4">
-                          <p className="text-xs uppercase tracking-wide text-gray-500">Total charges</p>
-                          <p className="text-xl font-bold text-gray-900">{formatMoney(billingAccount?.chargesCents ?? 0)}</p>
-                        </div>
-                        <div className="rounded-xl border border-gray-200 p-4">
-                          <p className="text-xs uppercase tracking-wide text-gray-500">Payments / Refunds</p>
-                          <p className="text-xl font-bold text-gray-900">
-                            {formatMoney(billingAccount?.paymentsCents ?? 0)}
-                            <span className="text-xs font-normal text-gray-500"> / {formatMoney(billingAccount?.refundsCents ?? 0)}</span>
-                          </p>
-                        </div>
-                        <div className="rounded-xl border-2 border-black p-4">
-                          <p className="text-xs uppercase tracking-wide text-gray-500">Balance due</p>
-                          <p className="text-xl font-bold text-black">{formatMoney(billingAccount?.balanceCents ?? 0)}</p>
-                        </div>
-                      </div>
-
-                      {billingAccount?.stripeEnabled && billingAccount.canSeeFamily && (billingAccount.balanceCents ?? 0) > 0 && (
-                        <div className="mb-6">
-                          <button
-                            type="button"
-                            onClick={handlePayNow}
-                            disabled={payNowLoading}
-                            className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
-                          >
-                            {payNowLoading ? 'Starting checkout…' : 'Pay now'}
-                          </button>
-                        </div>
-                      )}
-
-                      {(billingAccount?.subscriptions?.length ?? 0) > 0 && (
-                        <>
-                          <h3 className="text-sm font-semibold text-gray-900 mb-2">Recurring enrollments</h3>
-                          <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
-                            {billingAccount!.subscriptions!.map((sub) => (
-                              <div key={sub.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-                                <div className="min-w-0">
-                                  <p className="font-medium text-gray-900">{sub.description}</p>
-                                  <p className="text-xs text-gray-500">
-                                    {sub.memberName ? `${sub.memberName} · ` : ''}
-                                    <span className="capitalize">{sub.status}</span>
-                                    {sub.nextBillDate ? ` · next ${new Date(sub.nextBillDate).toLocaleDateString()}` : ''}
-                                  </p>
-                                </div>
-                                <div className="text-right shrink-0">
-                                  <span className="font-semibold text-gray-900">{formatMoney(sub.netMonthlyCents)}/mo</span>
-                                  {sub.discountAmountCents > 0 && (
-                                    <p className="text-xs text-gray-500">{formatMoney(sub.monthlyAmountCents)} − {formatMoney(sub.discountAmountCents)}</p>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-
-                      {(() => {
-                        const oneTime = (billingAccount?.charges ?? []).filter((c) => c.chargeType !== 'recurring')
-                        return (
-                          <>
-                            <h3 className="text-sm font-semibold text-gray-900 mb-2">One-time purchases &amp; adjustments</h3>
-                            {oneTime.length === 0 ? (
-                              <div className="text-sm text-gray-500 mb-6">No one-time charges on file.</div>
-                            ) : (
-                              <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
-                                {oneTime.map((charge) => (
-                                  <div key={charge.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-                                    <div className="min-w-0">
-                                      <p className="font-medium text-gray-900">{charge.description}</p>
-                                      <p className="text-xs text-gray-500">
-                                        {charge.memberName ? `${charge.memberName} · ` : ''}
-                                        {charge.sourceType === 'multi_class_pass_purchase'
-                                          ? 'Class bundle · '
-                                          : charge.sourceType === 'scheduling_signup'
-                                            ? 'Class registration · '
-                                            : charge.chargeType === 'credit'
-                                              ? 'Credit · '
-                                              : ''}
-                                        {new Date(charge.createdAt).toLocaleDateString()}
-                                      </p>
-                                    </div>
-                                    <span className={`shrink-0 font-semibold ${charge.amountCents < 0 ? 'text-green-700' : 'text-gray-900'}`}>{formatMoney(charge.amountCents)}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </>
-                        )
-                      })()}
-
-                      {(billingAccount?.bundlePasses?.length ?? 0) > 0 && (
-                        <>
-                          <h3 className="text-sm font-semibold text-gray-900 mb-2">Class bundles</h3>
-                          <div className="mb-6 divide-y divide-gray-100 rounded-xl border border-gray-200">
-                            {billingAccount!.bundlePasses!.map((b) => (
-                              <div key={b.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-                                <div className="min-w-0">
-                                  <p className="font-medium text-gray-900">{b.packageLabel || `Pass #${b.id}`}</p>
-                                  <p className="text-xs text-gray-500">
-                                    {b.memberName ? `${b.memberName} · ` : ''}
-                                    <span className="capitalize">{b.status}</span>
-                                    {b.expiresAt ? ` · expires ${new Date(b.expiresAt).toLocaleDateString()}` : ''}
-                                  </p>
-                                </div>
-                                <span className="shrink-0 font-semibold text-gray-900">{b.classesRemaining} / {b.classCountPurchased} left</span>
-                              </div>
-                            ))}
-                          </div>
-                          {(billingAccount?.bundleUsage?.length ?? 0) > 0 && (
-                            <details className="mb-6">
-                              <summary className="text-xs font-semibold text-gray-500 cursor-pointer">Bundle usage history</summary>
-                              <div className="mt-2 space-y-1">
-                                {billingAccount!.bundleUsage!.slice(0, 20).map((u) => (
-                                  <div key={u.id} className="flex justify-between gap-3 text-xs text-gray-600">
-                                    <span>
-                                      {new Date(u.createdAt).toLocaleDateString()} · {u.entryType}
-                                      {u.reason ? ` · ${u.reason}` : ''}
-                                    </span>
-                                    <span className={u.creditDelta != null && u.creditDelta > 0 ? 'text-green-700' : 'text-gray-700'}>
-                                      {u.creditDelta != null ? (u.creditDelta > 0 ? `+${u.creditDelta}` : u.creditDelta) : ''} → {u.classesRemainingAfter} left
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </details>
-                          )}
-                        </>
-                      )}
-
-                      {billingAccount?.canSeeFamily && (
-                        <>
-                          <h3 className="text-sm font-semibold text-gray-900 mb-2">Payment history</h3>
-                          {(billingAccount?.payments?.length ?? 0) === 0 ? (
-                            <div className="text-sm text-gray-500">No payments recorded yet.</div>
-                          ) : (
-                            <div className="divide-y divide-gray-100 rounded-xl border border-gray-200">
-                              {billingAccount!.payments.map((payment) => (
-                                <div key={payment.id} className="px-4 py-3 flex items-start justify-between gap-3 text-sm">
-                                  <div className="min-w-0">
-                                    <p className="font-medium text-gray-900">{payment.method || 'Payment'}</p>
-                                    <p className="text-xs text-gray-500">
-                                      {new Date(payment.paidAt).toLocaleDateString()}
-                                      {payment.externalReference ? ` · Ref ${payment.externalReference}` : ''}
-                                    </p>
-                                  </div>
-                                  <span className="shrink-0 font-semibold text-green-700">{formatMoney(payment.amountCents)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-2">
-                    Billing Statements
-                  </h2>
-                  <p className="text-gray-600 text-sm mb-6">
-                    Family payers and guardians can see family statements. Athlete accounts see their individual statement lines.
-                  </p>
-                  {billingLoading ? (
-                    <div className="text-center py-12 text-gray-600">Loading billing statements...</div>
-                  ) : billingStatements.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500">No billing statements yet.</div>
-                  ) : (
-                    <div className="space-y-4">
-                      {billingStatements.map((statement) => (
-                        <div key={statement.id} className="rounded-xl border border-gray-200 p-4">
-                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                            <div>
-                              <h3 className="font-bold text-gray-900">
-                                Statement #{statement.id} · {statement.status}
-                              </h3>
-                              <p className="text-xs text-gray-500">
-                                {new Date(statement.statementDate).toLocaleDateString()}
-                                {statement.dueDate ? ` · Due ${new Date(statement.dueDate).toLocaleDateString()}` : ''}
-                              </p>
-                            </div>
-                            <div className="text-xl font-bold text-gray-900">{formatMoney(statement.totalCents)}</div>
-                          </div>
-                          <div className="mt-4 divide-y divide-gray-100">
-                            {statement.lines.map((line, idx) => (
-                              <div key={line.id ?? idx} className="py-2 flex justify-between gap-3 text-sm">
-                                <span className="text-gray-700">{line.description}</span>
-                                <span className="font-semibold text-gray-900">
-                                  {formatMoney(Number(line.amount_cents ?? line.amountCents ?? 0))}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <MemberBillingPanel
+                  billingAccount={billingAccount}
+                  billingLoading={billingLoading}
+                  payNowLoading={payNowLoading}
+                  onPayNow={handlePayNow}
+                  formatMoney={formatMoney}
+                />
               </motion.div>
             )}
 

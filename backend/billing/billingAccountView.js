@@ -12,6 +12,7 @@
  */
 
 import { loadPassUsageHistory } from '../programs/multiClassPass.js'
+import { buildBillingHistory, buildCurrentPeriod } from './billingPeriodView.js'
 
 function mapSubscription(row) {
   return {
@@ -319,5 +320,13 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     balanceCents,
     bundlePasses,
     bundleUsage,
+    currentPeriod: buildCurrentPeriod({ charges, payments, subscriptions }),
+    billingHistory: familyScope
+      ? buildBillingHistory({ charges, payments, months: 12 })
+      : buildBillingHistory({
+          charges: charges.filter((c) => Number(c.member_id) === Number(memberScopeId)),
+          payments: [],
+          months: 12,
+        }),
   }
 }
