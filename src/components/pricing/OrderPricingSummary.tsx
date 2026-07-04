@@ -388,7 +388,9 @@ export default function OrderPricingSummary({
                           {item.displayLine ?? item.formTitle ?? 'Class'}
                         </p>
                         <p className="shrink-0 text-right">
-                          {formatMoney(item.proratedCents / 100)}
+                          {formatMoney(
+                            (item.proratedCents + (item.prepaidFirstMonthCents ?? 0)) / 100,
+                          )}
                         </p>
                       </div>
                       <p className="mt-0.5 text-xs text-amber-800">

@@ -22,6 +22,7 @@ import {
   normalizeProgramPricingOptions,
 } from '../programs/programPricingOptions.js'
 import { formHasCustomPricingOverride } from '../programs/pricingDefaults.js'
+import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
 
 let pendingSchemaEnsured = false
 
@@ -51,6 +52,68 @@ export function enrollmentNeedsStripeCheckout(preview) {
   )
   const hasPassPurchase = (preview.passPurchases?.length ?? 0) > 0
   return dueNow > 0 || hasRecurring || hasPassPurchase
+}
+
+function dateStringToUnixTrialEnd(dateStr) {
+  const [y, m, d] = String(dateStr).split('-').map(Number)
+  return Math.floor(Date.UTC(y, m - 1, d, 12, 0, 0) / 1000)
+}
+
+/**
+ * One-time tuition line items matching preview.firstMonth (prorated now + prepaid now).
+ * Does not include fees, passes, or recurring subscription amounts.
+ */
+export function computeFirstMonthTuitionLineItems(preview) {
+  const lines = []
+  if (!preview.firstMonth?.enabled) return lines
+  for (const fm of preview.firstMonth.items ?? []) {
+    const label = fm.displayLine ?? fm.formTitle ?? 'Class enrollment'
+    const prorated = Math.round(Number(fm.proratedCents) || 0)
+    const prepaid = Math.round(Number(fm.prepaidFirstMonthCents) || 0)
+    if (prorated > 0) {
+      lines.push({
+        amountCents: prorated,
+        name: `${label} — first month (prorated)`,
+      })
+    }
+    if (prepaid > 0) {
+      lines.push({
+        amountCents: prepaid,
+        name: `${label} — first month (prepaid)`,
+      })
+    }
+  }
+  return lines
+}
+
+/**
+ * When checkout uses subscription mode, defer the first recurring Stripe charge until
+ * after first-month tuition is collected as one-time line items:
+ * - In-session classes: trial ends on firstBillDate (next 1st) after prorated payment now.
+ * - Future-start classes: trial ends the month after the prepaid service month.
+ */
+export function computeSubscriptionTrialEndUnix(preview, asOfDate = null) {
+  const fromDate = asOfDate ?? todayDateOnly()
+  const fmItems = preview.firstMonth?.enabled ? preview.firstMonth.items ?? [] : []
+  let maxTrialDate = null
+
+  for (const fm of fmItems) {
+    let trialEndDate = null
+    if (fm.classStartsFutureMonth) {
+      const serviceMonthStart = fm.firstBillDate ?? fm.firstServicePeriodStart ?? fromDate
+      trialEndDate = firstOfNextMonth(serviceMonthStart)
+    } else if ((fm.proratedCents ?? 0) > 0) {
+      trialEndDate = fm.firstBillDate ?? firstOfNextMonth(fromDate)
+    }
+    if (trialEndDate && (!maxTrialDate || trialEndDate > maxTrialDate)) {
+      maxTrialDate = trialEndDate
+    }
+  }
+
+  if (!maxTrialDate) {
+    maxTrialDate = firstOfNextMonth(fromDate)
+  }
+  return dateStringToUnixTrialEnd(maxTrialDate)
 }
 
 async function resolveOptionKeyForPreviewLine(pool, preview, line) {
@@ -153,24 +216,15 @@ async function buildCheckoutLineItems(pool, preview) {
     }
   }
 
-  const prorationCents =
-    (preview.firstMonth?.totalProratedCents ?? 0) + (preview.firstMonth?.totalPrepaidCents ?? 0)
-  if (prorationCents > 0) {
-    const alreadyListed = lineItems.reduce((sum, item) => sum + (item.price_data?.unit_amount ?? 0), 0)
-    const passAndFeeCents =
-      (preview.passPurchaseTotalCents ?? 0) +
-      Math.round((preview.additionalFeesOneTime ?? 0) * 100)
-    const prorationRemainder = Math.max(0, prorationCents - passAndFeeCents)
-    if (prorationRemainder > 0) {
-      lineItems.push({
-        quantity: 1,
-        price_data: {
-          currency: 'usd',
-          unit_amount: prorationRemainder,
-          product_data: { name: 'First month tuition (prorated)' },
-        },
-      })
-    }
+  for (const tuition of computeFirstMonthTuitionLineItems(preview)) {
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: 'usd',
+        unit_amount: tuition.amountCents,
+        product_data: { name: tuition.name.slice(0, 200) },
+      },
+    })
   }
 
   if (lineItems.length === 0) {
@@ -309,6 +363,7 @@ export async function createEnrollmentCheckoutSession(
 
   if (mode === 'subscription') {
     sessionParams.subscription_data = {
+      trial_end: computeSubscriptionTrialEndUnix(preview),
       metadata: {
         pendingEnrollmentId: String(pendingId),
         familyBillingAccountId: String(account.id),
