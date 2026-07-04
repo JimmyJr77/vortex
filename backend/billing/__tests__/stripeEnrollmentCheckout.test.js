@@ -5,8 +5,32 @@ import {
   computeFirstMonthBillingAnchorDate,
   computeFirstMonthTuitionLineItems,
   computeSubscriptionBillingAnchorDate,
+  formatFirstMonthTuitionLineName,
 } from '../stripeEnrollmentCheckout.js'
 import { firstOfNextMonth } from '../../scheduling/firstMonthProration.js'
+
+test('formatFirstMonthTuitionLineName uses tuition wording for a full remaining month', () => {
+  const name = formatFirstMonthTuitionLineName({
+    formTitle: 'Typhoons',
+    proratedCents: 15000,
+    remainingClasses: 4,
+    classesPerMonth: 4,
+    ratio: 1,
+  })
+  assert.match(name, /first month tuition/i)
+  assert.doesNotMatch(name, /prorated/i)
+})
+
+test('formatFirstMonthTuitionLineName uses prorated wording for partial months', () => {
+  const name = formatFirstMonthTuitionLineName({
+    formTitle: 'Typhoons',
+    proratedCents: 7500,
+    remainingClasses: 2,
+    classesPerMonth: 4,
+    ratio: 0.5,
+  })
+  assert.match(name, /first month \(prorated\)/i)
+})
 
 test('computeFirstMonthTuitionLineItems separates prorated and prepaid per class', () => {
   const preview = {
@@ -18,6 +42,9 @@ test('computeFirstMonthTuitionLineItems separates prorated and prepaid per class
           formTitle: 'Typhoons',
           proratedCents: 11250,
           prepaidFirstMonthCents: 0,
+          remainingClasses: 3,
+          classesPerMonth: 4,
+          ratio: 0.75,
         },
         {
           slotKey: 'b',

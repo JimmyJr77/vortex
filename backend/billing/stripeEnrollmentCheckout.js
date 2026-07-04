@@ -65,6 +65,27 @@ function dateStringToUnixTrialEnd(dateStr) {
 }
 
 /**
+ * Checkout line label for first-month tuition due at enrollment.
+ * Full remaining months use neutral "tuition" wording; partial months say "prorated".
+ */
+export function formatFirstMonthTuitionLineName(fm) {
+  const label = fm.displayLine ?? fm.formTitle ?? 'Class enrollment'
+  const prepaid = Math.round(Number(fm.prepaidFirstMonthCents) || 0)
+  const prorated = Math.round(Number(fm.proratedCents) || 0)
+  if (prepaid > 0) {
+    return `${label} — first month (prepaid)`
+  }
+  const classesPerMonth = fm.classesPerMonth ?? 4
+  const remaining = fm.remainingClasses ?? classesPerMonth
+  const ratio = Number(fm.ratio ?? 1)
+  const isFullMonth = ratio >= 1 || remaining >= classesPerMonth
+  if (prorated > 0 && !isFullMonth) {
+    return `${label} — first month (prorated)`
+  }
+  return `${label} — first month tuition`
+}
+
+/**
  * One-time tuition line items matching preview.firstMonth (prorated now + prepaid now).
  * Does not include fees, passes, or recurring subscription amounts.
  */
@@ -72,19 +93,18 @@ export function computeFirstMonthTuitionLineItems(preview) {
   const lines = []
   if (!preview.firstMonth?.enabled) return lines
   for (const fm of preview.firstMonth.items ?? []) {
-    const label = fm.displayLine ?? fm.formTitle ?? 'Class enrollment'
     const prorated = Math.round(Number(fm.proratedCents) || 0)
     const prepaid = Math.round(Number(fm.prepaidFirstMonthCents) || 0)
     if (prorated > 0) {
       lines.push({
         amountCents: prorated,
-        name: `${label} — first month (prorated)`,
+        name: formatFirstMonthTuitionLineName({ ...fm, prepaidFirstMonthCents: 0 }),
       })
     }
     if (prepaid > 0) {
       lines.push({
         amountCents: prepaid,
-        name: `${label} — first month (prepaid)`,
+        name: formatFirstMonthTuitionLineName(fm),
       })
     }
   }
@@ -179,6 +199,7 @@ async function catalogLookupForLine(pool, preview, line) {
 
 async function buildCheckoutLineItems(pool, preview, { includeRecurringSubscriptionPrices = false } = {}) {
   const lineItems = []
+  const recurringLineItems = []
   const seenRecurring = new Set()
 
   if (includeRecurringSubscriptionPrices) {
@@ -195,7 +216,7 @@ async function buildCheckoutLineItems(pool, preview, { includeRecurringSubscript
       if (!priceId) {
         throw new Error(`Stripe price not synced for ${lookupKey}. Run catalog sync or re-save program pricing.`)
       }
-      lineItems.push({ price: priceId, quantity: 1 })
+      recurringLineItems.push({ price: priceId, quantity: 1 })
     }
   }
 
@@ -236,6 +257,8 @@ async function buildCheckoutLineItems(pool, preview, { includeRecurringSubscript
       },
     })
   }
+
+  lineItems.push(...recurringLineItems)
 
   if (lineItems.length === 0) {
     const dueNow = computeEnrollmentDueNowCents(preview)
@@ -398,11 +421,9 @@ export async function createEnrollmentCheckoutSession(
   const hasRecurring = (preview.newSignups ?? []).some(
     (line) => line.billingType === 'recurring' && !line.multiClassPassApplied,
   )
-  // Payment mode: collect due-now tuition/fees only. Recurring Stripe subscriptions are
-  // created after payment with a billing-cycle anchor (no misleading "free trial" copy).
-  const mode = 'payment'
+  const mode = hasRecurring ? 'subscription' : 'payment'
   const lineItems = await buildCheckoutLineItems(pool, preview, {
-    includeRecurringSubscriptionPrices: false,
+    includeRecurringSubscriptionPrices: hasRecurring,
   })
 
   if (lineItems.length === 0) {
@@ -451,9 +472,6 @@ export async function createEnrollmentCheckoutSession(
     line_items: lineItems,
     success_url: successUrl,
     cancel_url: cancelUrl,
-    payment_intent_data: {
-      setup_future_usage: 'off_session',
-    },
     metadata: {
       checkoutType: 'enrollment',
       pendingEnrollmentId: String(pendingId),
@@ -462,6 +480,23 @@ export async function createEnrollmentCheckoutSession(
       previewHash: previewFingerprint(preview),
       hasRecurring: hasRecurring ? 'true' : 'false',
     },
+  }
+
+  if (mode === 'subscription') {
+    sessionParams.subscription_data = {
+      billing_cycle_anchor: dateStringToUnixBillingAnchor(
+        computeSubscriptionBillingAnchorDate(preview),
+      ),
+      proration_behavior: 'none',
+      metadata: {
+        pendingEnrollmentId: String(pendingId),
+        familyBillingAccountId: String(account.id),
+      },
+    }
+  } else {
+    sessionParams.payment_intent_data = {
+      setup_future_usage: 'off_session',
+    }
   }
 
   const session = await stripe.checkout.sessions.create(sessionParams)
@@ -518,7 +553,6 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
     const signupIds = (result?.data?.signups ?? []).map((row) => Number(row.id)).filter(Boolean)
 
     if (stripeSession?.subscription) {
-      // Legacy Checkout sessions created in subscription mode (pre–payment-only enrollment).
       await client.query(
         `UPDATE billing_subscription
          SET stripe_subscription_id = $2, updated_at = now()
@@ -528,7 +562,8 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
            AND created_at >= now() - interval '5 minutes'`,
         [pending.family_billing_account_id, stripeSession.subscription],
       )
-    } else if (signupIds.length > 0 && previewSnapshot) {
+    } else if (signupIds.length > 0 && previewSnapshot && pending.checkout_mode === 'payment') {
+      // Payment-only checkout (legacy): create anchored subscriptions after enrollment.
       const stripe = await getStripeClient()
       if (stripe) {
         await createEnrollmentStripeSubscriptions(pool, stripe, {
