@@ -237,11 +237,11 @@ export default function MemberBillingPanel({
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
           <div className="rounded-xl border border-gray-200 p-4">
-            <p className="text-xs uppercase tracking-wide text-gray-500">Total charges</p>
+            <p className="text-xs uppercase tracking-wide text-gray-500">New charges</p>
             <p className="text-xl font-bold text-gray-900">{formatMoney(totals?.chargesCents ?? 0)}</p>
           </div>
           <div className="rounded-xl border border-gray-200 p-4">
-            <p className="text-xs uppercase tracking-wide text-gray-500">Debits</p>
+            <p className="text-xs uppercase tracking-wide text-gray-500">Outstanding charges</p>
             <p className="text-xl font-bold text-gray-900">{formatMoney(totals?.debitsCents ?? 0)}</p>
           </div>
           <div className="rounded-xl border border-gray-200 p-4">
@@ -405,22 +405,26 @@ export default function MemberBillingPanel({
           </>
         )}
 
-        <h3 className="text-sm font-semibold text-gray-900 mb-2">This month — recurring charges</h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Recurring charges</h3>
         <LineList
           items={period?.recurringCharges ?? []}
-          emptyMessage="No recurring charges posted this month."
+          emptyMessage="No recurring charges."
           formatMoney={formatMoney}
         />
 
-        <h3 className="text-sm font-semibold text-gray-900 mb-2">This month — debits &amp; credits</h3>
-        {(period?.debits?.length ?? 0) === 0 && (period?.credits?.length ?? 0) === 0 ? (
-          <div className="text-sm text-gray-500 mb-6">No debits or credits this month.</div>
-        ) : (
-          <>
-            <LineList items={period?.debits ?? []} emptyMessage="" formatMoney={formatMoney} />
-            <LineList items={period?.credits ?? []} emptyMessage="" formatMoney={formatMoney} />
-          </>
-        )}
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Outstanding charges</h3>
+        <LineList
+          items={period?.debits ?? []}
+          emptyMessage="No outstanding charges."
+          formatMoney={formatMoney}
+        />
+
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Credits</h3>
+        <LineList
+          items={period?.credits ?? []}
+          emptyMessage="No credits."
+          formatMoney={formatMoney}
+        />
 
         {billingAccount?.canSeeFamily && (
           <>
