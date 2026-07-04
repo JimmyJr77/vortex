@@ -26,6 +26,7 @@ import {
   submitSchedulingSignupBatch,
   createEnrollmentCheckoutSession,
   enrollmentNeedsPayment,
+  storePendingEnrollmentId,
   type SignupOrderPreview,
 } from '../../utils/schedulingApi'
 import {
@@ -551,6 +552,9 @@ export default function MemberClassesOfferedEnroll({
       if (stripeEnabled && preview && enrollmentNeedsPayment(preview)) {
         const checkout = await createEnrollmentCheckoutSession(memberToken, batchPayload)
         if (checkout.url) {
+          if (checkout.pendingEnrollmentId != null) {
+            storePendingEnrollmentId(checkout.pendingEnrollmentId)
+          }
           window.location.href = checkout.url
           return
         }

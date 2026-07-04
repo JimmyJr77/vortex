@@ -1198,6 +1198,42 @@ export async function createEnrollmentCheckoutSession(
   return parseJson<{ url?: string; skipCheckout?: boolean; pendingEnrollmentId?: number }>(res)
 }
 
+const PENDING_ENROLLMENT_STORAGE_KEY = 'vortex_pending_enrollment_id'
+
+export function storePendingEnrollmentId(pendingEnrollmentId: number): void {
+  sessionStorage.setItem(PENDING_ENROLLMENT_STORAGE_KEY, String(pendingEnrollmentId))
+}
+
+export function readPendingEnrollmentId(): number | null {
+  const raw = sessionStorage.getItem(PENDING_ENROLLMENT_STORAGE_KEY)
+  if (!raw) return null
+  const id = Number(raw)
+  return Number.isFinite(id) && id > 0 ? id : null
+}
+
+export function clearPendingEnrollmentId(): void {
+  sessionStorage.removeItem(PENDING_ENROLLMENT_STORAGE_KEY)
+}
+
+/** Confirm paid enrollment after Stripe redirect (backup when webhook is delayed). */
+export async function confirmEnrollmentCheckoutSession(
+  memberToken: string,
+  payload: { checkoutSessionId?: string; pendingEnrollmentId?: number },
+): Promise<{ status: string }> {
+  const res = await fetch(`${getApiUrl()}/api/members/billing/confirm-enrollment-checkout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${memberToken}`,
+    },
+    body: JSON.stringify({
+      checkoutSessionId: payload.checkoutSessionId,
+      pendingEnrollmentId: payload.pendingEnrollmentId,
+    }),
+  })
+  return parseJson<{ status: string }>(res)
+}
+
 export function enrollmentDueNowCents(preview: SignupOrderPreview): number {
   const fees = Math.round((preview.additionalFeesOneTime ?? 0) * 100)
   const firstMonth = preview.firstMonth?.totalCents ?? 0

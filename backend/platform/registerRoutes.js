@@ -30,6 +30,7 @@ import {
 import {
   createEnrollmentCheckoutSession,
   commitPendingEnrollment,
+  confirmEnrollmentCheckoutSession,
   getCatalogSyncStatus,
 } from '../billing/stripeEnrollmentCheckout.js'
 import { syncAllCatalog } from '../billing/stripeCatalogSync.js'
@@ -1958,7 +1959,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         account,
         memberId,
         batchPayload: { signups, promoCodes: promoCodes ?? [], signupAuthToken, responses: responses ?? {} },
-        successUrl: `${base}/?enrollment=paid`,
+        successUrl: `${base}/?enrollment=paid&session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${base}/?enrollment=cancelled`,
       })
       if (!result) {
@@ -1971,6 +1972,36 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     } catch (err) {
       console.error('[stripe] enrollment-checkout-session:', err)
       res.status(500).json({ success: false, message: err.message || 'Failed to start enrollment checkout.' })
+    }
+  })
+
+  app.post('/api/members/billing/confirm-enrollment-checkout', authMiddleware(pool, jwtSecret), async (req, res) => {
+    if (!isStripeEnabled()) {
+      return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.', stripeEnabled: false })
+    }
+    const ctx = req.platformAuth
+    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
+    const familyId = ctx.user.family_id
+    if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
+
+    const checkoutSessionId = req.body?.checkoutSessionId ?? req.body?.sessionId ?? null
+    const pendingEnrollmentId = req.body?.pendingEnrollmentId ?? null
+    if (!checkoutSessionId && !pendingEnrollmentId) {
+      return res.status(400).json({ success: false, message: 'Missing checkout session.' })
+    }
+
+    try {
+      const result = await confirmEnrollmentCheckoutSession(pool, {
+        checkoutSessionId,
+        pendingEnrollmentId,
+        memberId,
+        familyId,
+        roles: ctx.roles ?? [],
+      })
+      res.json({ success: true, data: result })
+    } catch (err) {
+      console.error('[stripe] confirm-enrollment-checkout:', err)
+      res.status(400).json({ success: false, message: err.message || 'Failed to confirm enrollment.' })
     }
   })
 

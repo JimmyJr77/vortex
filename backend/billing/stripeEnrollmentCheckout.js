@@ -4,7 +4,7 @@
  */
 
 import crypto from 'crypto'
-import { getStripeClient, stripeEnabled, ensureStripeBillingSchema } from './stripeBilling.js'
+import { getStripeClient, stripeEnabled, ensureStripeBillingSchema, recordStripePayment } from './stripeBilling.js'
 import {
   feeLookupKey,
   formOverrideLookupKey,
@@ -23,6 +23,34 @@ import {
 } from '../programs/programPricingOptions.js'
 import { formHasCustomPricingOverride } from '../programs/pricingDefaults.js'
 import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
+import { issueSignupAuthToken } from '../scheduling/signupAuth.js'
+import { findMemberById } from '../members/createMemberStub.js'
+
+async function loadFormProgramsId(pool, formId) {
+  const res = await pool.query(`SELECT programs_id FROM scheduling_form WHERE id = $1`, [formId])
+  return res.rows[0]?.programs_id != null ? Number(res.rows[0].programs_id) : null
+}
+
+/** Fresh signup JWT for webhook/confirm commit (avoids expired tokens from checkout redirect delay). */
+async function refreshSignupAuthForCommit(pool, payload, memberId) {
+  const body = typeof payload === 'string' ? JSON.parse(payload) : { ...payload }
+  const member = await findMemberById(pool, memberId)
+  if (!member) throw new Error('Member account not found')
+  const firstFormId = body.signups?.find((s) => s.formId != null)?.formId
+  if (!firstFormId) throw new Error('Invalid enrollment payload')
+  const programsId = await loadFormProgramsId(pool, firstFormId)
+  body.signupAuthToken = issueSignupAuthToken({
+    formId: firstFormId,
+    memberId: Number(memberId),
+    email: member.email,
+    programsId,
+  })
+  return body
+}
+
+function parsePendingPayload(payload) {
+  return typeof payload === 'string' ? JSON.parse(payload) : payload
+}
 
 let pendingSchemaEnsured = false
 
@@ -42,14 +70,23 @@ export function computeEnrollmentDueNowCents(preview) {
   return Math.max(0, fees + firstMonth + passes + (carriedForward > 0 ? carriedForward : 0))
 }
 
-export function enrollmentNeedsStripeCheckout(preview) {
-  const dueNow = computeEnrollmentDueNowCents(preview)
-  const hasRecurring = (preview.newSignups ?? []).some(
+export function enrollmentHasRecurringMembership(preview) {
+  return (preview.newSignups ?? []).some(
     (line) =>
       line.billingType === 'recurring' &&
       !line.multiClassPassApplied &&
       (line.monthlyPrice ?? line.incrementalMonthly ?? 0) > 0,
   )
+}
+
+/** Stripe trial_end disclaimer — only for recurring membership checkout, not one-time purchases. */
+export function shouldShowEnrollmentCheckoutSubmitMessage(preview) {
+  return enrollmentHasRecurringMembership(preview)
+}
+
+export function enrollmentNeedsStripeCheckout(preview) {
+  const dueNow = computeEnrollmentDueNowCents(preview)
+  const hasRecurring = enrollmentHasRecurringMembership(preview)
   const hasPassPurchase = (preview.passPurchases?.length ?? 0) > 0
   return dueNow > 0 || hasRecurring || hasPassPurchase
 }
@@ -144,42 +181,15 @@ export function computeSubscriptionTrialEndUnix(preview, asOfDate = null) {
   return dateStringToUnixBillingAnchor(computeSubscriptionBillingAnchorDate(preview, asOfDate))
 }
 
-function formatUsdFromDollars(amount) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-    Number(amount) || 0,
-  )
-}
-
-function formatAnchorDateLabel(dateStr) {
-  const [y, m, d] = String(dateStr).split('-').map(Number)
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(Date.UTC(y, m - 1, d)))
-}
-
 /**
- * Checkout submit note — Stripe trial_end defers recurring but can show "free trial" copy;
- * this clarifies that today's payment is fees + first-month tuition, not a comped membership.
+ * Checkout submit note — Stripe trial_end can show misleading "X days free" copy in the bill overview.
  */
-export function formatEnrollmentCheckoutSubmitMessage(preview, anchorDate = null) {
-  const anchor = anchorDate ?? computeSubscriptionBillingAnchorDate(preview)
-  const monthly =
-    preview.estimatedMonthlyTotal ??
-    (preview.newSignups ?? []).reduce(
-      (sum, line) =>
-        line.billingType === 'recurring' && !line.multiClassPassApplied
-          ? sum + (line.monthlyPrice ?? line.incrementalMonthly ?? 0)
-          : sum,
-      0,
-    )
-  const monthlyLabel = formatUsdFromDollars(monthly)
-  const dateLabel = formatAnchorDateLabel(anchor)
+export function formatEnrollmentCheckoutSubmitMessage() {
   return (
-    `Today's payment covers enrollment fees and first-month tuition only. ` +
-    `Membership renews at ${monthlyLabel}/month starting ${dateLabel} — not a free trial.`
+    'DISREGARD THE ## DAYS FREE MESSAGE IN THE BILL OVERVIEW. ' +
+    "Today's payment covers first-month tuition and any additional fees. " +
+    'Membership starts on assigned class start date. ' +
+    'Membership renews at monthly rate.'
   ).slice(0, 500)
 }
 
@@ -457,9 +467,7 @@ export async function createEnrollmentCheckoutSession(
   }
 
   const dueNowCents = computeEnrollmentDueNowCents(preview)
-  const hasRecurring = (preview.newSignups ?? []).some(
-    (line) => line.billingType === 'recurring' && !line.multiClassPassApplied,
-  )
+  const hasRecurring = enrollmentHasRecurringMembership(preview)
   const mode = hasRecurring ? 'subscription' : 'payment'
   const lineItems = await buildCheckoutLineItems(pool, preview, {
     includeRecurringSubscriptionPrices: hasRecurring,
@@ -532,10 +540,12 @@ export async function createEnrollmentCheckoutSession(
         familyBillingAccountId: String(account.id),
       },
     }
-    sessionParams.custom_text = {
-      submit: {
-        message: formatEnrollmentCheckoutSubmitMessage(preview, anchorDate),
-      },
+    if (shouldShowEnrollmentCheckoutSubmitMessage(preview)) {
+      sessionParams.custom_text = {
+        submit: {
+          message: formatEnrollmentCheckoutSubmitMessage(),
+        },
+      }
     }
   } else {
     sessionParams.payment_intent_data = {
@@ -553,6 +563,93 @@ export async function createEnrollmentCheckoutSession(
   )
 
   return { url: session.url, pendingEnrollmentId: pendingId, preview }
+}
+
+/**
+ * Commit enrollment after Stripe Checkout when the member returns to the portal.
+ * Backup for webhook delivery — verifies payment with Stripe before creating signups.
+ */
+export async function confirmEnrollmentCheckoutSession(
+  pool,
+  { checkoutSessionId, pendingEnrollmentId, memberId, familyId, roles },
+) {
+  const stripe = await getStripeClient()
+  if (!stripe) throw new Error('Online payments are not available right now.')
+
+  let sessionId = checkoutSessionId ? String(checkoutSessionId).trim() : null
+  let pendingId = pendingEnrollmentId ? Number(pendingEnrollmentId) : null
+
+  if (!sessionId && pendingId) {
+    const pendingRes = await pool.query(
+      `SELECT stripe_checkout_session_id FROM stripe_pending_enrollment WHERE id = $1`,
+      [pendingId],
+    )
+    sessionId = pendingRes.rows[0]?.stripe_checkout_session_id ?? null
+  }
+
+  if (!sessionId) {
+    throw new Error('Missing checkout session. Please contact the gym office.')
+  }
+
+  const session = await stripe.checkout.sessions.retrieve(sessionId)
+  if (session.payment_status !== 'paid' && session.status !== 'complete') {
+    throw new Error('Payment is not complete yet. If you were charged, please wait a moment and refresh.')
+  }
+  if (session.metadata?.checkoutType !== 'enrollment') {
+    throw new Error('This checkout session is not an enrollment payment.')
+  }
+
+  pendingId = pendingId || Number(session.metadata?.pendingEnrollmentId)
+  if (!pendingId) throw new Error('Enrollment reference missing from checkout session.')
+
+  const pendingRes = await pool.query(
+    `SELECT pe.*, fba.family_id, fba.payer_member_id
+     FROM stripe_pending_enrollment pe
+     JOIN family_billing_account fba ON fba.id = pe.family_billing_account_id
+     WHERE pe.id = $1`,
+    [pendingId],
+  )
+  const pending = pendingRes.rows[0]
+  if (!pending) throw new Error('Enrollment checkout not found.')
+  if (Number(pending.family_id) !== Number(familyId)) {
+    throw new Error('This enrollment belongs to a different family account.')
+  }
+
+  const canPay =
+    Number(pending.payer_member_id) === Number(memberId) || (roles ?? []).includes('PARENT_GUARDIAN')
+  if (!canPay) {
+    throw new Error('Only the family payer or a guardian can confirm enrollment checkout.')
+  }
+
+  if (pending.stripe_checkout_session_id && pending.stripe_checkout_session_id !== session.id) {
+    throw new Error('Checkout session does not match this enrollment.')
+  }
+
+  const commitResult = await commitPendingEnrollment(pool, {
+    pendingEnrollmentId: pendingId,
+    stripeSession: session,
+  })
+
+  if (commitResult.status === 'not_found') {
+    throw new Error('Enrollment checkout not found.')
+  }
+
+  if (commitResult.status === 'completed' || commitResult.status === 'already_completed') {
+    const paymentIntentId =
+      typeof session.payment_intent === 'string'
+        ? session.payment_intent
+        : session.payment_intent?.id ?? null
+    if (paymentIntentId) {
+      await recordStripePayment(pool, {
+        paymentIntentId,
+        amountCents: session.amount_total ?? 0,
+        accountId: Number(pending.family_billing_account_id),
+        customerId: session.customer ?? null,
+      })
+    }
+  }
+
+  return commitResult
 }
 
 export async function commitPendingEnrollment(pool, { pendingEnrollmentId, stripeSession = null }) {
@@ -575,12 +672,12 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
       await client.query('COMMIT')
       return { status: 'already_completed' }
     }
-    if (pending.status !== 'pending') {
+    if (pending.status !== 'pending' && pending.status !== 'failed') {
       await client.query('ROLLBACK')
       return { status: 'invalid', reason: pending.status }
     }
 
-    const payload = pending.payload
+    const payload = await refreshSignupAuthForCommit(pool, pending.payload, pending.member_id)
     const previewSnapshot =
       typeof pending.preview_snapshot === 'string'
         ? JSON.parse(pending.preview_snapshot)

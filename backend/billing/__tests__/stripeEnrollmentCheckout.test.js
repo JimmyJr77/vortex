@@ -5,19 +5,45 @@ import {
   computeFirstMonthBillingAnchorDate,
   computeFirstMonthTuitionLineItems,
   computeSubscriptionBillingAnchorDate,
+  enrollmentHasRecurringMembership,
   formatEnrollmentCheckoutSubmitMessage,
   formatFirstMonthTuitionLineName,
+  shouldShowEnrollmentCheckoutSubmitMessage,
 } from '../stripeEnrollmentCheckout.js'
 import { firstOfNextMonth } from '../../scheduling/firstMonthProration.js'
 
-test('formatEnrollmentCheckoutSubmitMessage clarifies deferred membership billing', () => {
-  const message = formatEnrollmentCheckoutSubmitMessage(
-    { estimatedMonthlyTotal: 150, newSignups: [] },
-    '2026-08-01',
-  )
-  assert.match(message, /\$150\.00\/month/i)
-  assert.match(message, /August 1, 2026/i)
-  assert.match(message, /not a free trial/i)
+test('formatEnrollmentCheckoutSubmitMessage warns about Stripe days-free copy', () => {
+  const message = formatEnrollmentCheckoutSubmitMessage()
+  assert.match(message, /DISREGARD THE ## DAYS FREE MESSAGE IN THE BILL OVERVIEW/i)
+  assert.match(message, /first-month tuition and any additional fees/i)
+  assert.match(message, /assigned class start date/i)
+  assert.match(message, /Membership renews at monthly rate/i)
+})
+
+test('shouldShowEnrollmentCheckoutSubmitMessage is false for one-time class or event purchases', () => {
+  const oneTimeOnly = {
+    newSignups: [{ billingType: 'one_time', incrementalMonthly: 75 }],
+  }
+  assert.equal(enrollmentHasRecurringMembership(oneTimeOnly), false)
+  assert.equal(shouldShowEnrollmentCheckoutSubmitMessage(oneTimeOnly), false)
+
+  const passOnly = { newSignups: [], passPurchases: [{ programsId: 1, packageId: 2 }] }
+  assert.equal(shouldShowEnrollmentCheckoutSubmitMessage(passOnly), false)
+})
+
+test('shouldShowEnrollmentCheckoutSubmitMessage is true for recurring membership enrollments', () => {
+  const recurring = {
+    newSignups: [{ billingType: 'recurring', incrementalMonthly: 150 }],
+  }
+  assert.equal(enrollmentHasRecurringMembership(recurring), true)
+  assert.equal(shouldShowEnrollmentCheckoutSubmitMessage(recurring), true)
+})
+
+test('enrollmentHasRecurringMembership ignores zero-dollar recurring lines', () => {
+  const preview = {
+    newSignups: [{ billingType: 'recurring', incrementalMonthly: 0, monthlyPrice: 0 }],
+  }
+  assert.equal(enrollmentHasRecurringMembership(preview), false)
 })
 
 test('formatFirstMonthTuitionLineName uses tuition wording for a full remaining month', () => {

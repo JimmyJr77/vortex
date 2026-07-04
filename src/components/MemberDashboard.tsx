@@ -5,6 +5,7 @@ import { getApiUrl } from '../utils/api'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 import { fetchClassesOffered, fetchMemberMultiClassPasses, type PublicProgramOffered, type MemberMultiClassPassBalance } from '../utils/publicClassesApi'
+import { confirmEnrollmentCheckoutSession, clearPendingEnrollmentId, readPendingEnrollmentId } from '../utils/schedulingApi'
 import MemberClassesOfferedEnroll, { type EnrollableMember } from './member/MemberClassesOfferedEnroll'
 import EventAttachedSignup from './EventAttachedSignup'
 import { MemberTrainingTab, MemberProgressTab, MemberMessagesTab } from './MemberTraining'
@@ -318,6 +319,9 @@ export default function MemberDashboard({
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [changingPassword, setChangingPassword] = useState(false)
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null)
+  const [enrollmentConfirmMessage, setEnrollmentConfirmMessage] = useState<string | null>(null)
+  const [enrollmentConfirmError, setEnrollmentConfirmError] = useState<string | null>(null)
+  const [enrollmentConfirming, setEnrollmentConfirming] = useState(false)
 
   const apiUrl = getApiUrl()
   const token = localStorage.getItem('vortex_member_token')
@@ -943,6 +947,72 @@ export default function MemberDashboard({
     }
   }
 
+  useEffect(() => {
+    if (!token) return
+
+    const params = new URLSearchParams(window.location.search)
+    const enrollmentStatus = params.get('enrollment')
+
+    if (enrollmentStatus === 'cancelled') {
+      clearPendingEnrollmentId()
+      const url = new URL(window.location.href)
+      url.searchParams.delete('enrollment')
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash)
+      return
+    }
+
+    if (enrollmentStatus !== 'paid') return
+
+    const checkoutSessionId = params.get('session_id') ?? undefined
+    const pendingEnrollmentId = readPendingEnrollmentId() ?? undefined
+    if (!checkoutSessionId && !pendingEnrollmentId) {
+      setEnrollmentConfirmError(
+        'Payment may have completed, but enrollment could not be confirmed automatically. Please refresh in a minute or contact the gym office.',
+      )
+      return
+    }
+
+    let cancelled = false
+    ;(async () => {
+      try {
+        setEnrollmentConfirming(true)
+        setEnrollmentConfirmError(null)
+        setEnrollmentConfirmMessage(null)
+        const result = await confirmEnrollmentCheckoutSession(token, {
+          checkoutSessionId,
+          pendingEnrollmentId,
+        })
+        if (cancelled) return
+
+        clearPendingEnrollmentId()
+        const url = new URL(window.location.href)
+        url.searchParams.delete('enrollment')
+        url.searchParams.delete('session_id')
+        window.history.replaceState({}, '', url.pathname + url.search + url.hash)
+        setActiveTab('classes')
+        setEnrollmentConfirmMessage(
+          result.status === 'already_completed'
+            ? 'Your enrollment is already active.'
+            : 'Enrollment complete. Your classes and billing have been updated.',
+        )
+        await fetchEnrollments(true)
+        await fetchBillingStatements()
+      } catch (err) {
+        if (!cancelled) {
+          setEnrollmentConfirmError(
+            err instanceof Error ? err.message : 'Failed to confirm enrollment after payment.',
+          )
+        }
+      } finally {
+        if (!cancelled) setEnrollmentConfirming(false)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [token])
+
   const [payNowLoading, setPayNowLoading] = useState(false)
   const handlePayNow = async () => {
     if (!token) return
@@ -1430,6 +1500,26 @@ export default function MemberDashboard({
           </div>
         </div>
       </div>
+
+      {(enrollmentConfirming || enrollmentConfirmMessage || enrollmentConfirmError) && (
+        <div className="container-admin pt-4">
+          <div
+            className={`rounded-lg border px-4 py-3 text-sm ${
+              enrollmentConfirming
+                ? 'border-blue-200 bg-blue-50 text-blue-900'
+                : enrollmentConfirmError
+                  ? 'border-red-200 bg-red-50 text-red-900'
+                  : enrollmentConfirmMessage?.includes('complete')
+                    ? 'border-green-200 bg-green-50 text-green-900'
+                    : 'border-amber-200 bg-amber-50 text-amber-900'
+            }`}
+          >
+            {enrollmentConfirming
+              ? 'Confirming your enrollment payment…'
+              : enrollmentConfirmError ?? enrollmentConfirmMessage}
+          </div>
+        </div>
+      )}
 
       {/* Workspace: sidebar nav + main content */}
       <div className="container-admin py-6 grid gap-6 lg:grid-cols-[220px_1fr]">

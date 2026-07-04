@@ -62,6 +62,10 @@ Takes several minutes. Confirm in [Stripe Dashboard → Products](https://dashbo
 
 1. **Admin:** change a program price → save → verify new Price in Stripe (old price deactivated).
 2. **Member enroll:** add classes → checkout → pay with `4242 4242 4242 4242` → enrollment completes.
+   - Enrollment is committed by **both** paths (either is enough):
+     - **Webhook:** `checkout.session.completed` → `commitPendingEnrollment`
+     - **Return URL:** member lands on `/?enrollment=paid&session_id=...` → portal calls `POST /api/members/billing/confirm-enrollment-checkout`
+   - If payment succeeds but enrollments are missing, check Render logs for `[stripe] enrollment commit:` and verify the webhook endpoint (Part B3) and `STRIPE_WEBHOOK_SECRET`.
 3. **Balance paydown:** Billing tab → Pay now (for any outstanding ledger balance).
 
 ---
@@ -104,6 +108,8 @@ Save → Render redeploys automatically.
      - `customer.subscription.deleted`
 3. Create → reveal **Signing secret** (`whsec_...`).
 4. Paste into Render as `STRIPE_WEBHOOK_SECRET` → redeploy.
+
+**Enrollment commit:** Production must have this webhook configured. Without it, enrollment still completes when the member returns to the portal (`?enrollment=paid`), but webhook delivery is the primary path and records the payment if the member closes the browser before redirect.
 
 ### B4. Run migrations on production database
 
