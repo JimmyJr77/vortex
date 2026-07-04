@@ -5,9 +5,20 @@ import {
   computeFirstMonthBillingAnchorDate,
   computeFirstMonthTuitionLineItems,
   computeSubscriptionBillingAnchorDate,
+  formatEnrollmentCheckoutSubmitMessage,
   formatFirstMonthTuitionLineName,
 } from '../stripeEnrollmentCheckout.js'
 import { firstOfNextMonth } from '../../scheduling/firstMonthProration.js'
+
+test('formatEnrollmentCheckoutSubmitMessage clarifies deferred membership billing', () => {
+  const message = formatEnrollmentCheckoutSubmitMessage(
+    { estimatedMonthlyTotal: 150, newSignups: [] },
+    '2026-08-01',
+  )
+  assert.match(message, /\$150\.00\/month/i)
+  assert.match(message, /August 1, 2026/i)
+  assert.match(message, /not a free trial/i)
+})
 
 test('formatFirstMonthTuitionLineName uses tuition wording for a full remaining month', () => {
   const name = formatFirstMonthTuitionLineName({

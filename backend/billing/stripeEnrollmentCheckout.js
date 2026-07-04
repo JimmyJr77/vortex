@@ -139,9 +139,48 @@ export function computeSubscriptionBillingAnchorDate(preview, asOfDate = null) {
   return maxAnchorDate ?? firstOfNextMonth(fromDate)
 }
 
-/** @deprecated Stripe trial_end showed misleading "X days free" — use billing_cycle_anchor after payment instead. */
+/** Unix timestamp for deferred recurring billing in Checkout (required with one-time line items). */
 export function computeSubscriptionTrialEndUnix(preview, asOfDate = null) {
   return dateStringToUnixBillingAnchor(computeSubscriptionBillingAnchorDate(preview, asOfDate))
+}
+
+function formatUsdFromDollars(amount) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+    Number(amount) || 0,
+  )
+}
+
+function formatAnchorDateLabel(dateStr) {
+  const [y, m, d] = String(dateStr).split('-').map(Number)
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(y, m - 1, d)))
+}
+
+/**
+ * Checkout submit note — Stripe trial_end defers recurring but can show "free trial" copy;
+ * this clarifies that today's payment is fees + first-month tuition, not a comped membership.
+ */
+export function formatEnrollmentCheckoutSubmitMessage(preview, anchorDate = null) {
+  const anchor = anchorDate ?? computeSubscriptionBillingAnchorDate(preview)
+  const monthly =
+    preview.estimatedMonthlyTotal ??
+    (preview.newSignups ?? []).reduce(
+      (sum, line) =>
+        line.billingType === 'recurring' && !line.multiClassPassApplied
+          ? sum + (line.monthlyPrice ?? line.incrementalMonthly ?? 0)
+          : sum,
+      0,
+    )
+  const monthlyLabel = formatUsdFromDollars(monthly)
+  const dateLabel = formatAnchorDateLabel(anchor)
+  return (
+    `Today's payment covers enrollment fees and first-month tuition only. ` +
+    `Membership renews at ${monthlyLabel}/month starting ${dateLabel} — not a free trial.`
+  ).slice(0, 500)
 }
 
 async function resolveOptionKeyForPreviewLine(pool, preview, line) {
@@ -483,14 +522,19 @@ export async function createEnrollmentCheckoutSession(
   }
 
   if (mode === 'subscription') {
+    const anchorDate = computeSubscriptionBillingAnchorDate(preview)
+    // Stripe rejects proration_behavior=none when Checkout includes one-time line items
+    // (fees + first-month tuition). trial_end defers recurring until the anchor date.
     sessionParams.subscription_data = {
-      billing_cycle_anchor: dateStringToUnixBillingAnchor(
-        computeSubscriptionBillingAnchorDate(preview),
-      ),
-      proration_behavior: 'none',
+      trial_end: dateStringToUnixBillingAnchor(anchorDate),
       metadata: {
         pendingEnrollmentId: String(pendingId),
         familyBillingAccountId: String(account.id),
+      },
+    }
+    sessionParams.custom_text = {
+      submit: {
+        message: formatEnrollmentCheckoutSubmitMessage(preview, anchorDate),
       },
     }
   } else {
