@@ -238,7 +238,7 @@ export async function resolveEnrollmentCheckoutPayment(stripe, session) {
 /**
  * Idempotently record enrollment Checkout payment (handles subscription-mode invoice PI).
  */
-export async function recordEnrollmentStripePayment(pool, stripe, { session, accountId }) {
+export async function recordEnrollmentStripePayment(pool, stripe, { session, accountId, paidAt = null }) {
   if (!accountId || !session?.id) return null
   await ensureStripeBillingSchema(pool)
   await ensureBillingStripeLinksSchema(pool)
@@ -248,15 +248,23 @@ export async function recordEnrollmentStripePayment(pool, stripe, { session, acc
   const customerId =
     typeof session.customer === 'string' ? session.customer : session.customer?.id ?? null
   const checkoutSessionId = session.id
+  const paidAtValue =
+    paidAt instanceof Date
+      ? paidAt
+      : paidAt
+        ? new Date(paidAt)
+        : session.created
+          ? new Date(session.created * 1000)
+          : new Date()
 
   if (paymentIntentId) {
     const result = await pool.query(
       `
         INSERT INTO billing_payment
-          (family_billing_account_id, amount_cents, method, external_processor,
+          (family_billing_account_id, amount_cents, paid_at, method, external_processor,
            external_status, stripe_customer_id, stripe_payment_intent_id,
            stripe_checkout_session_id, stripe_invoice_id)
-        VALUES ($1, $2, 'card', 'stripe', 'settled', $3, $4, $5, $6)
+        VALUES ($1, $2, $3, 'card', 'stripe', 'settled', $4, $5, $6, $7)
         ON CONFLICT (stripe_payment_intent_id) WHERE stripe_payment_intent_id IS NOT NULL
         DO UPDATE SET
           stripe_checkout_session_id = COALESCE(
@@ -266,7 +274,7 @@ export async function recordEnrollmentStripePayment(pool, stripe, { session, acc
           stripe_invoice_id = COALESCE(billing_payment.stripe_invoice_id, EXCLUDED.stripe_invoice_id)
         RETURNING *
       `,
-      [accountId, amountCents, customerId, paymentIntentId, checkoutSessionId, invoiceId],
+      [accountId, amountCents, paidAtValue, customerId, paymentIntentId, checkoutSessionId, invoiceId],
     )
     const payment = result.rows[0] ?? null
     if (payment && checkoutSessionId) {
@@ -287,14 +295,14 @@ export async function recordEnrollmentStripePayment(pool, stripe, { session, acc
   const result = await pool.query(
     `
       INSERT INTO billing_payment
-        (family_billing_account_id, amount_cents, method, external_processor,
+        (family_billing_account_id, amount_cents, paid_at, method, external_processor,
          external_status, stripe_customer_id, stripe_checkout_session_id, stripe_invoice_id)
-      VALUES ($1, $2, 'card', 'stripe', 'settled', $3, $4, $5)
+      VALUES ($1, $2, $3, 'card', 'stripe', 'settled', $4, $5, $6)
       ON CONFLICT (stripe_checkout_session_id) WHERE stripe_checkout_session_id IS NOT NULL
       DO NOTHING
       RETURNING *
     `,
-    [accountId, amountCents, customerId, checkoutSessionId, invoiceId],
+    [accountId, amountCents, paidAtValue, customerId, checkoutSessionId, invoiceId],
   )
   const payment = result.rows[0] ?? null
 
