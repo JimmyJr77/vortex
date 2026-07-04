@@ -107,21 +107,6 @@ interface Event {
   schedulingFormTitle?: string | null
 }
 
-interface BillingStatement {
-  id: number
-  statementDate: string
-  dueDate: string | null
-  totalCents: number
-  status: string
-  lines: Array<{
-    id?: number
-    description: string
-    amount_cents?: number
-    amountCents?: number
-    member_id?: number | null
-  }>
-}
-
 interface BillingPayment {
   id: number
   amountCents: number
@@ -306,7 +291,6 @@ export default function MemberDashboard({
   const [showAllEvents, setShowAllEvents] = useState(true)
   const [selectedFamilyMembersForFilter, setSelectedFamilyMembersForFilter] = useState<number[]>([])
   const [eventView, setEventView] = useState<'upcoming' | 'past'>('upcoming') // Toggle between past and upcoming events
-  const [billingStatements, setBillingStatements] = useState<BillingStatement[]>([])
   const [billingPayments, setBillingPayments] = useState<BillingPayment[]>([])
   const [billingAccount, setBillingAccount] = useState<BillingAccountSummary | null>(null)
   const [billingLoading, setBillingLoading] = useState(false)
@@ -923,16 +907,12 @@ export default function MemberDashboard({
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       }
-      const [accountResponse, statementsResponse, paymentsResponse] = await Promise.all([
+      const [accountResponse, paymentsResponse] = await Promise.all([
         fetch(`${apiUrl}/api/members/billing/account`, { headers }),
-        fetch(`${apiUrl}/api/members/billing/statements`, { headers }),
         fetch(`${apiUrl}/api/members/billing/payments`, { headers }),
       ])
-      if (!statementsResponse.ok) throw new Error(`Backend returned ${statementsResponse.status}`)
       if (!paymentsResponse.ok) throw new Error(`Backend returned ${paymentsResponse.status}`)
-      const statementsData = await statementsResponse.json()
       const paymentsData = await paymentsResponse.json()
-      setBillingStatements(statementsData.data ?? [])
       setBillingPayments(paymentsData.data ?? [])
       if (accountResponse.ok) {
         const accountData = await accountResponse.json()
@@ -941,8 +921,7 @@ export default function MemberDashboard({
         setBillingAccount(null)
       }
     } catch (error) {
-      console.error('Error fetching billing statements:', error)
-      setBillingStatements([])
+      console.error('Error fetching billing data:', error)
       setBillingPayments([])
       setBillingAccount(null)
     } finally {
