@@ -12,6 +12,20 @@ export function stripeEnabled() {
 }
 
 let cachedClient = null
+let stripeBillingSchemaEnsured = false
+
+async function runMigrationFile(pool, relativePath) {
+  const fs = await import('fs')
+  const migrationPath = new URL(relativePath, import.meta.url)
+  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+}
+
+/** family_billing_account.stripe_customer_id + payment idempotency index (047). */
+export async function ensureStripeBillingSchema(pool) {
+  if (stripeBillingSchemaEnsured) return
+  await runMigrationFile(pool, '../migrations/047_stripe_billing_scaffold.sql')
+  stripeBillingSchemaEnsured = true
+}
 
 async function getStripe() {
   if (!stripeEnabled()) return null
@@ -33,6 +47,7 @@ export async function getStripeClient() {
 }
 
 async function ensureStripeCustomer(pool, stripe, account) {
+  await ensureStripeBillingSchema(pool)
   if (account.stripe_customer_id) return account.stripe_customer_id
   const customer = await stripe.customers.create({
     email: account.billing_email || undefined,

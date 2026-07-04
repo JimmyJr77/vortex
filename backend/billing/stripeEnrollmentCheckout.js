@@ -4,7 +4,7 @@
  */
 
 import crypto from 'crypto'
-import { getStripeClient, stripeEnabled } from './stripeBilling.js'
+import { getStripeClient, stripeEnabled, ensureStripeBillingSchema } from './stripeBilling.js'
 import {
   feeLookupKey,
   formOverrideLookupKey,
@@ -210,6 +210,7 @@ export async function createEnrollmentCheckoutSession(
   { account, memberId, batchPayload, successUrl, cancelUrl },
 ) {
   if (!stripeEnabled()) return null
+  await ensureStripeBillingSchema(pool)
   await ensureStripeCatalogSchema(pool)
   await ensurePendingEnrollmentSchema(pool)
 

@@ -111,11 +111,12 @@ Production DB is separate from local. **Stripe checkout requires migration `053`
 
 Run **in order**:
 
-1. `053_billing_recurring_model.sql` — creates `billing_subscription`
-2. `054_billing_anchor_first.sql`
-3. `055_enrollment_cancel_effective.sql`
-4. `056_stripe_catalog.sql`
-5. `057_stripe_pending_enrollment.sql`
+1. `047_stripe_billing_scaffold.sql` — `family_billing_account.stripe_customer_id`
+2. `053_billing_recurring_model.sql` — creates `billing_subscription`
+3. `054_billing_anchor_first.sql`
+4. `055_enrollment_cancel_effective.sql`
+5. `056_stripe_catalog.sql`
+6. `057_stripe_pending_enrollment.sql`
 
 **Option 1 — From your machine** (recommended; set production `DATABASE_URL`):
 
@@ -125,7 +126,7 @@ export DATABASE_URL='postgres://...'   # Render external DB URL
 npm run migrate:all
 ```
 
-Or run each file: `node run-migration.js 053_billing_recurring_model.sql` (repeat for 054–057).
+Or run each file: `node run-migration.js 047_stripe_billing_scaffold.sql` (repeat for 053–057).
 
 **Option 2 — Render shell** (if available on your plan):
 
@@ -139,6 +140,8 @@ Verify:
 
 ```sql
 SELECT to_regclass('billing_subscription');
+SELECT column_name FROM information_schema.columns
+  WHERE table_name = 'family_billing_account' AND column_name = 'stripe_customer_id';
 SELECT to_regclass('stripe_catalog_item');
 SELECT to_regclass('stripe_pending_enrollment');
 ```
