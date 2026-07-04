@@ -446,10 +446,15 @@ export default function MemberBillingPanel({
       </div>
 
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-        <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-2">Billing history</h2>
-        <p className="text-gray-600 text-sm mb-6">
-          Month-by-month ledger computed from charges and payments — no admin statement required.
-        </p>
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <CreditCard className="w-7 h-7 text-vortex-red" />
+            Billing history
+          </h2>
+          <p className="text-gray-600 text-sm mt-1">
+            Month-by-month ledger computed from charges and payments — no admin statement required.
+          </p>
+        </div>
         {(billingAccount?.billingHistory?.length ?? 0) === 0 ? (
           <div className="text-center py-12 text-gray-500">No billing history yet.</div>
         ) : (

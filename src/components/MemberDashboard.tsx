@@ -1458,6 +1458,11 @@ export default function MemberDashboard({
     }
   }
 
+  const dismissEnrollmentBanner = () => {
+    setEnrollmentConfirmMessage(null)
+    setEnrollmentConfirmError(null)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Member Portal Header Section - Dark Background */}
@@ -1486,7 +1491,7 @@ export default function MemberDashboard({
       {(enrollmentConfirming || enrollmentConfirmMessage || enrollmentConfirmError) && (
         <div className="container-admin pt-4">
           <div
-            className={`rounded-lg border px-4 py-3 text-sm ${
+            className={`rounded-lg border px-4 py-3 text-sm flex items-start justify-between gap-3 ${
               enrollmentConfirming
                 ? 'border-blue-200 bg-blue-50 text-blue-900'
                 : enrollmentConfirmError
@@ -1496,9 +1501,21 @@ export default function MemberDashboard({
                     : 'border-amber-200 bg-amber-50 text-amber-900'
             }`}
           >
-            {enrollmentConfirming
-              ? 'Confirming your enrollment payment…'
-              : enrollmentConfirmError ?? enrollmentConfirmMessage}
+            <span className="min-w-0">
+              {enrollmentConfirming
+                ? 'Confirming your enrollment payment…'
+                : enrollmentConfirmError ?? enrollmentConfirmMessage}
+            </span>
+            {!enrollmentConfirming && (
+              <button
+                type="button"
+                onClick={dismissEnrollmentBanner}
+                className="shrink-0 rounded p-0.5 text-current opacity-60 hover:opacity-100"
+                aria-label="Dismiss"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       )}
