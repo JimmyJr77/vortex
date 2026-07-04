@@ -48,6 +48,8 @@ interface Props {
   /** Admin read-only: hide manage actions */
   readOnly?: boolean
   defaultView?: ViewMode
+  /** Hide class/member view toggle (e.g. embedded admin by-member list) */
+  hideViewToggle?: boolean
   /** Nested inside admin sections — hide page header chrome */
   embedded?: boolean
 }

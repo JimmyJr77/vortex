@@ -35,7 +35,7 @@ function classMatchesLevelFilter(skillLevel: string | null, levelFilter: ClassSk
   return skillLevel == null || skillLevel === levelFilter
 }
 
-function sortRows<T extends Record<string, unknown>>(
+function sortRows<T extends object>(
   rows: T[],
   key: keyof T,
   dir: SortDir,

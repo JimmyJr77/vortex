@@ -1195,8 +1195,7 @@ export async function createEnrollmentCheckoutSession(
     },
     body: JSON.stringify(payload),
   })
-  const data = await parseJson(res)
-  return data.data ?? data
+  return parseJson<{ url?: string; skipCheckout?: boolean; pendingEnrollmentId?: number }>(res)
 }
 
 export function enrollmentDueNowCents(preview: SignupOrderPreview): number {
