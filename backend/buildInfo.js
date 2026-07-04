@@ -1,5 +1,5 @@
 /** Bumped when backend behavior changes — visible on GET /api/health and admin email status. */
-export const API_BUILD_ID = 'member-billing-reconcile-2026-07-04'
+export const API_BUILD_ID = 'billing-charge-index-fix-2026-07-04'
 
 /** Advertised on GET /api/health → apiFeatures for frontend capability checks. */
 export const API_FEATURES = {

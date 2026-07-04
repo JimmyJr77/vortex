@@ -5,6 +5,7 @@
 
 import { ensureBillingStripeLinksSchema, getStripeClient, recordEnrollmentStripePayment } from './stripeBilling.js'
 import { ensureBillingRecurringSchema } from './stripeCatalogSync.js'
+import { ensureBillingChargeSchema } from './billingChargeSchema.js'
 import { persistSignupCharges } from '../scheduling/persistSignupCharges.js'
 import { calendarYearKey } from '../scheduling/additionalFeesEngine.js'
 
@@ -16,6 +17,7 @@ async function runMigrationFile(pool, relativePath) {
 
 async function ensureReconcileSchema(pool) {
   await ensureBillingRecurringSchema(pool)
+  await ensureBillingChargeSchema(pool)
   await ensureBillingStripeLinksSchema(pool)
   try {
     await runMigrationFile(pool, '../migrations/057_stripe_pending_enrollment.sql')

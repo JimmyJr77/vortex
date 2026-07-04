@@ -24,6 +24,7 @@ import {
 } from './billingSubscriptions.js'
 import { recordPrepaidFirstMonthCredit } from './pauseEnrollmentBilling.js'
 import { calendarYearKey } from './additionalFeesEngine.js'
+import { ensureBillingChargeSchema } from '../billing/billingChargeSchema.js'
 
 async function ensureBillingAccount(pool, familyId) {
   const existing = await pool.query(
@@ -106,6 +107,8 @@ function chargeDescription(preview, signup) {
  */
 export async function persistSignupCharges(pool, { memberId, signups = [], preview = null }) {
   if (!memberId || signups.length === 0) return { charges: 0, subscriptions: 0 }
+
+  await ensureBillingChargeSchema(pool)
 
   let familyId = null
   try {

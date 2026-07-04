@@ -153,7 +153,7 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     try {
       await reconcileEnrollmentLedger(pool, account)
     } catch (err) {
-      console.warn('[billingAccountView] reconcileEnrollmentLedger:', err.message)
+      console.error('[billingAccountView] reconcileEnrollmentLedger:', err?.message ?? err, err?.code)
     }
   }
 
