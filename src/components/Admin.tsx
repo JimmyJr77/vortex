@@ -27,7 +27,7 @@ import AdminHomePanel from './admin/AdminHomePanel'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
-import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, DollarSign, FileText, Sparkles, Database, Settings, Menu, X } from 'lucide-react'
+import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, DollarSign, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare } from 'lucide-react'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
 
@@ -68,7 +68,7 @@ interface Category {
 
 type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages'
 
-export type GroupId = 'home' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'settings'
+export type GroupId = 'home' | 'messaging' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'settings'
 
 interface AccessContext {
   permissions: string[]
@@ -80,7 +80,7 @@ interface AccessContext {
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
   { id: 'admins', label: 'Admins', permission: 'admins.manage' },
   { id: 'membership', label: 'Vortex Accounts', permission: 'members.view' },
-  { id: 'messages', label: 'Messages', permission: 'members.view' },
+  { id: 'messages', label: 'Messages' },
   { id: 'access', label: 'Access', permission: 'admin_access.manage' },
   { id: 'users', label: 'Inquiries', permission: 'members.view' },
   { id: 'classes', label: 'Classes', permission: 'classes.view' },
@@ -114,7 +114,8 @@ interface GroupDef {
 
 const GROUPS: GroupDef[] = [
   { id: 'home', label: 'Home', icon: Home, sections: [] },
-  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'messages', 'access'] },
+  { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
+  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'access'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classes', 'coaches', 'scheduling', 'classesEvents'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },

@@ -1,6 +1,7 @@
 import type { MessageRow } from './types'
 
 export type SenderKind = 'member' | 'coach' | 'admin'
+export type SenderPortal = 'member' | 'coach' | 'admin'
 
 export interface MessageViewer {
   portal: 'member' | 'coach' | 'admin'
@@ -33,6 +34,14 @@ export function resolveSenderKind(message: MessageRow): SenderKind {
   return 'coach'
 }
 
+export function resolveSenderPortal(message: MessageRow): SenderPortal {
+  if (message.sender_portal) return message.sender_portal
+  if (message.sender_member_id != null) return 'member'
+  if (message.sender_kind === 'admin') return 'admin'
+  if (message.sender_kind === 'coach') return 'coach'
+  return 'member'
+}
+
 export function isOwnMessage(message: MessageRow, viewer: MessageViewer): boolean {
   if (viewer.portal === 'member') {
     if (message.sender_member_id != null && viewer.memberId != null) {
@@ -46,22 +55,35 @@ export function isOwnMessage(message: MessageRow, viewer: MessageViewer): boolea
   return false
 }
 
-export function messageBubbleClassName(message: MessageRow, viewer: MessageViewer): string {
-  const base = 'rounded-lg px-3 py-2 text-sm max-w-[85%]'
-  if (isOwnMessage(message, viewer)) {
-    return `${base} ml-auto bg-green-100 text-gray-900 border border-green-200`
-  }
-  switch (resolveSenderKind(message)) {
+function portalBubbleStyles(portal: SenderPortal): string {
+  switch (portal) {
     case 'coach':
-      return `${base} ml-0 bg-red-50 text-gray-900 border border-red-400`
+      return 'bg-red-50 text-gray-900 border border-red-400'
     case 'admin':
-      return `${base} ml-0 bg-gray-100 text-gray-900 border border-gray-600`
+      return 'bg-gray-100 text-gray-900 border border-gray-600'
     default:
-      return `${base} ml-0 bg-blue-50 text-gray-900 border border-blue-100`
+      return 'bg-blue-50 text-gray-900 border border-blue-100'
   }
 }
 
+export function portalShortLabel(portal: SenderPortal): string {
+  if (portal === 'admin') return 'Admin portal'
+  if (portal === 'coach') return 'Coach portal'
+  return 'Member portal'
+}
+
+export function messageBubbleClassName(message: MessageRow, viewer: MessageViewer): string {
+  const base = 'rounded-lg px-3 py-2 text-sm max-w-[85%]'
+  const portal = resolveSenderPortal(message)
+  const align = isOwnMessage(message, viewer) ? 'ml-auto' : 'ml-0'
+  return `${base} ${align} ${portalBubbleStyles(portal)}`
+}
+
 export function senderLabel(message: MessageRow, viewer: MessageViewer): string | null {
-  if (isOwnMessage(message, viewer)) return null
-  return message.sender_name || null
+  const portal = portalShortLabel(resolveSenderPortal(message))
+  if (isOwnMessage(message, viewer)) {
+    return portal
+  }
+  const name = message.sender_name || 'Unknown'
+  return `${name} · ${portal}`
 }

@@ -114,4 +114,27 @@ async function applyCoachingMessageThreadSchema(pool) {
         WHERE p.thread_id = t.id AND p.user_id = t.coach_user_id
       )
   `)
+  await pool.query(`
+    ALTER TABLE coaching.message
+      ADD COLUMN IF NOT EXISTS sender_portal TEXT
+  `)
+  await pool.query(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'message_sender_portal_check'
+          AND conrelid = 'coaching.message'::regclass
+      ) THEN
+        ALTER TABLE coaching.message
+          ADD CONSTRAINT message_sender_portal_check
+          CHECK (sender_portal IS NULL OR sender_portal IN ('admin', 'coach', 'member'));
+      END IF;
+    END $$
+  `)
+  await pool.query(`
+    UPDATE coaching.message
+    SET sender_portal = 'member'
+    WHERE sender_portal IS NULL AND sender_member_id IS NOT NULL
+  `)
 }

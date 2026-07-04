@@ -33,6 +33,7 @@ export interface MessageRow {
   body: string
   sender_name?: string | null
   sender_kind?: 'member' | 'coach' | 'admin'
+  sender_portal?: 'member' | 'coach' | 'admin'
   sender_user_id?: number | null
   sender_member_id?: number | null
   created_at: string

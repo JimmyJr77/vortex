@@ -45,6 +45,8 @@ import {
   queryAdminRecipientOptions,
   queryAdminMessageThreads,
   setMessageThreadStatus,
+  loadEnrichedMessagesForThread,
+  loadEnrichedMessageById,
 } from './messageThreads.js'
 
 function ok(res, data) {
@@ -2698,17 +2700,17 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   app.use('/api/coach/messages', ensureMessagesSchema)
   app.use('/api/admin/messages', ensureMessagesSchema)
 
-  async function appendThreadMessage(threadId, { senderUserId, senderMemberId, body }) {
+  async function appendThreadMessage(threadId, { senderUserId, senderMemberId, body, senderPortal }) {
     const inserted = await pool.query(
-      `INSERT INTO coaching.message (thread_id, sender_user_id, sender_member_id, body)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [threadId, senderUserId ?? null, senderMemberId ?? null, body],
+      `INSERT INTO coaching.message (thread_id, sender_user_id, sender_member_id, body, sender_portal)
+       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+      [threadId, senderUserId ?? null, senderMemberId ?? null, body, senderPortal ?? null],
     )
     await pool.query(
       `UPDATE coaching.message_thread SET last_message_at = now(), updated_at = now() WHERE id = $1`,
       [threadId],
     )
-    return inserted.rows[0]
+    return loadEnrichedMessageById(pool, inserted.rows[0].id)
   }
 
   async function memberCanAccessMessageThread(viewerMemberId, threadMemberId) {
@@ -2778,31 +2780,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   async function loadThreadMessages(threadId, facilityId) {
     const thread = await loadThreadWithParticipants(pool, threadId, facilityId)
     if (!thread) return null
-    const messages = await pool.query(
-      `SELECT msg.*,
-         CASE WHEN msg.sender_member_id IS NOT NULL THEN (SELECT first_name FROM public.member WHERE id = msg.sender_member_id)
-              ELSE (SELECT full_name FROM public.app_user WHERE id = msg.sender_user_id) END AS sender_name,
-         CASE
-           WHEN msg.sender_member_id IS NOT NULL THEN 'member'
-           WHEN EXISTS (
-             SELECT 1 FROM public.app_user au
-             WHERE au.id = msg.sender_user_id
-               AND (
-                 COALESCE(au.role::text, '') IN ('MASTER_ADMIN', 'ADMIN')
-                 OR EXISTS (
-                   SELECT 1 FROM public.app_user_role aur
-                   WHERE aur.user_id = au.id AND aur.role::text IN ('MASTER_ADMIN', 'ADMIN')
-                 )
-               )
-           ) THEN 'admin'
-           ELSE 'coach'
-         END AS sender_kind
-       FROM coaching.message msg
-       WHERE msg.thread_id = $1
-       ORDER BY msg.created_at ASC`,
-      [threadId],
-    )
-    return { thread, messages: messages.rows }
+    const messages = await loadEnrichedMessagesForThread(pool, threadId)
+    return { thread, messages }
   }
 
   async function coachHasThreadAccess(thread, coachUserId) {
@@ -2925,7 +2904,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         userIds: [coachUserId, ...validStaff],
         memberIds: validMembers,
       })
-      const message = await appendThreadMessage(thread.id, { senderUserId: coachUserId, body })
+      const message = await appendThreadMessage(thread.id, { senderUserId: coachUserId, body, senderPortal: 'coach' })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: coachUserId })
       ok(res, { thread, message })
     } catch (error) {
@@ -2951,7 +2930,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         await pool.query(`UPDATE coaching.message_thread SET coach_user_id = $1 WHERE id = $2`, [coachUserId, threadId])
         thread.coach_user_id = coachUserId
       }
-      const message = await appendThreadMessage(threadId, { senderUserId: coachUserId, body })
+      const message = await appendThreadMessage(threadId, { senderUserId: coachUserId, body, senderPortal: 'coach' })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: coachUserId })
       ok(res, message)
     } catch (error) {
@@ -3074,7 +3053,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         userIds: [adminUserId, ...validStaff],
         memberIds: validMembers,
       })
-      const message = await appendThreadMessage(thread.id, { senderUserId: adminUserId, body })
+      const message = await appendThreadMessage(thread.id, { senderUserId: adminUserId, body, senderPortal: 'admin' })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: adminUserId })
       ok(res, { thread, message })
     } catch (error) {
@@ -3110,7 +3089,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
       await insertThreadParticipants(pool, thread.id, { userIds: [adminUserId] })
-      const message = await appendThreadMessage(threadId, { senderUserId: adminUserId, body })
+      const message = await appendThreadMessage(threadId, { senderUserId: adminUserId, body, senderPortal: 'admin' })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: adminUserId })
       ok(res, message)
     } catch (error) {
@@ -3305,7 +3284,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         userIds: validStaff,
         memberIds: [memberId, ...validMembers],
       })
-      const message = await appendThreadMessage(thread.id, { senderMemberId: memberId, body })
+      const message = await appendThreadMessage(thread.id, { senderMemberId: memberId, body, senderPortal: 'member' })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderMemberId: memberId })
       ok(res, { thread, message })
     } catch (error) {
@@ -3331,7 +3310,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
         return bad(res, 'Thread not found.', 404)
       }
-      const message = await appendThreadMessage(threadId, { senderMemberId: memberId, body })
+      const message = await appendThreadMessage(threadId, { senderMemberId: memberId, body, senderPortal: 'member' })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderMemberId: memberId })
       ok(res, message)
     } catch (error) {

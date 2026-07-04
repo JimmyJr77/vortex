@@ -8,6 +8,7 @@ interface GroupCard {
 }
 
 const DESCRIPTIONS: Partial<Record<GroupId, string>> = {
+  messaging: 'Staff messaging with athletes, coaches, and admins.',
   accounts: 'Admins, Vortex accounts, and access control.',
   leads: 'Inbound inquiries from prospective families.',
   classSetup: 'Classes, coaches, and scheduling.',

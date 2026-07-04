@@ -390,3 +390,56 @@ export async function setMessageThreadStatus(pool, threadId, facilityId, status)
   )
   return updated.rows[0] ?? null
 }
+
+const MESSAGE_ENRICH_SELECT = `
+  SELECT msg.*,
+    CASE WHEN msg.sender_member_id IS NOT NULL THEN (SELECT first_name FROM public.member WHERE id = msg.sender_member_id)
+         ELSE (SELECT full_name FROM public.app_user WHERE id = msg.sender_user_id) END AS sender_name,
+    CASE
+      WHEN msg.sender_member_id IS NOT NULL THEN 'member'
+      WHEN EXISTS (
+        SELECT 1 FROM public.app_user au
+        WHERE au.id = msg.sender_user_id
+          AND (
+            COALESCE(au.role::text, '') IN ('MASTER_ADMIN', 'ADMIN')
+            OR EXISTS (
+              SELECT 1 FROM public.app_user_role aur
+              WHERE aur.user_id = au.id AND aur.role::text IN ('MASTER_ADMIN', 'ADMIN')
+            )
+          )
+      ) THEN 'admin'
+      ELSE 'coach'
+    END AS sender_kind,
+    COALESCE(
+      NULLIF(msg.sender_portal, ''),
+      CASE
+        WHEN msg.sender_member_id IS NOT NULL THEN 'member'
+        WHEN EXISTS (
+          SELECT 1 FROM public.app_user au
+          WHERE au.id = msg.sender_user_id
+            AND (
+              COALESCE(au.role::text, '') IN ('MASTER_ADMIN', 'ADMIN')
+              OR EXISTS (
+                SELECT 1 FROM public.app_user_role aur
+                WHERE aur.user_id = au.id AND aur.role::text IN ('MASTER_ADMIN', 'ADMIN')
+              )
+            )
+        ) THEN 'admin'
+        ELSE 'coach'
+      END
+    ) AS sender_portal
+  FROM coaching.message msg
+`
+
+export async function loadEnrichedMessagesForThread(pool, threadId) {
+  const r = await pool.query(
+    `${MESSAGE_ENRICH_SELECT} WHERE msg.thread_id = $1 ORDER BY msg.created_at ASC`,
+    [threadId],
+  )
+  return r.rows
+}
+
+export async function loadEnrichedMessageById(pool, messageId) {
+  const r = await pool.query(`${MESSAGE_ENRICH_SELECT} WHERE msg.id = $1`, [messageId])
+  return r.rows[0] ?? null
+}

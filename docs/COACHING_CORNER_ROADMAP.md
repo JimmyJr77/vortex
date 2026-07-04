@@ -139,6 +139,7 @@ goals and lightweight achievements.*
 - `023_coaching_engagement.sql` — `coaching.notification` ✅
 - `024_coaching_messaging.sql` — `message_thread`, `message` ✅
 - `060_coaching_message_enhancements.sql` — `subject_locked`, `message_thread_participant`, nullable `member_id` ✅
+- `061_coaching_message_sender_portal.sql` — `message.sender_portal` (`admin` | `coach` | `member`) ✅
 - `025_coaching_goals_achievements.sql` — `goal`, `achievement` ✅
 
 **Backend ✅ (except video review)**

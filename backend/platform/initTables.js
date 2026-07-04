@@ -51,6 +51,7 @@ export async function initPlatformTables(pool) {
     '058_billing_stripe_links.sql',
     '059_facility_portal_config.sql',
     '060_coaching_message_enhancements.sql',
+    '061_coaching_message_sender_portal.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

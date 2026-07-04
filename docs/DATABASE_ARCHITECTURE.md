@@ -191,7 +191,9 @@ adds `coaching.notification` (`recipient_member_id` / `recipient_user_id` FKs).
 **`024`** adds `message_thread` / `message`. **`060_coaching_message_enhancements.sql`**
 adds `message_thread.subject_locked`, nullable `message_thread.member_id` (staff-only threads),
 and `message_thread_participant` (`thread_id` + optional `user_id` / `member_id` for group
-recipients). **`025`** adds `goal` / `achievement`. **Loose
+recipients). **`061_coaching_message_sender_portal.sql`** adds `message.sender_portal`
+(`admin` | `coach` | `member`) so UI can color bubbles by portal origin for multi-role users.
+**`025`** adds `goal` / `achievement`. **Loose
 BIGINT refs (no FK)** are deliberate for polymorphic/calendar wiring:
 `plan_assignment.target_id`/`assignable_id` (polymorphic by `*_type`),
 `session.facility_id`/`coach_user_id`/`assignment_id`/`program_id`/`class_iteration_id` (legacy — see §10.1),

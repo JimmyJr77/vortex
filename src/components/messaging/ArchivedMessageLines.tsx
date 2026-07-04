@@ -4,11 +4,11 @@ interface ArchivedMessageLinesProps {
   messages: MessageRow[]
 }
 
-function senderRoleLabel(kind?: string) {
-  if (kind === 'admin') return 'Admin'
-  if (kind === 'coach') return 'Coach'
-  if (kind === 'member') return 'Member'
-  return 'User'
+function senderPortalLabel(portal?: string) {
+  if (portal === 'admin') return 'Admin portal'
+  if (portal === 'coach') return 'Coach portal'
+  if (portal === 'member') return 'Member portal'
+  return 'Unknown portal'
 }
 
 export default function ArchivedMessageLines({ messages }: ArchivedMessageLinesProps) {
@@ -24,7 +24,7 @@ export default function ArchivedMessageLines({ messages }: ArchivedMessageLinesP
             <span className="tabular-nums">{new Date(m.created_at).toLocaleString()}</span>
             <span className="text-gray-700">{m.sender_name || 'Unknown sender'}</span>
             <span className="uppercase tracking-wide text-[10px] text-gray-400">
-              {senderRoleLabel(m.sender_kind)}
+              {senderPortalLabel(m.sender_portal ?? m.sender_kind)}
             </span>
             <span className="text-gray-400">#{m.id}</span>
           </div>
