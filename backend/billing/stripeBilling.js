@@ -89,15 +89,34 @@ export async function createCheckoutSession(pool, { account, balanceCents, succe
 }
 
 /**
+ * Raw request body for Stripe webhook signature verification.
+ * @returns {Buffer|string|null}
+ */
+export function stripeWebhookRawBody(req) {
+  if (Buffer.isBuffer(req.body)) return req.body
+  if (Buffer.isBuffer(req.rawBody)) return req.rawBody
+  if (typeof req.rawBody === 'string') return req.rawBody
+  return null
+}
+
+/**
  * Verify and parse a Stripe webhook event. Falls back to JSON parsing when no
  * signing secret/raw body is available (scaffold only — harden before go-live).
  */
 export async function parseWebhookEvent(rawBody, signature) {
   const stripe = await getStripe()
   if (!stripe) return null
-  const secret = process.env.STRIPE_WEBHOOK_SECRET
-  if (secret && signature && rawBody) {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET?.trim()
+  if (secret && signature && rawBody != null) {
+    if (typeof rawBody === 'object' && !Buffer.isBuffer(rawBody)) {
+      throw new Error(
+        'Webhook raw body missing — Stripe signature verification requires the unparsed request body.',
+      )
+    }
     return stripe.webhooks.constructEvent(rawBody, signature, secret)
+  }
+  if (Buffer.isBuffer(rawBody)) {
+    return JSON.parse(rawBody.toString('utf8'))
   }
   return typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody
 }

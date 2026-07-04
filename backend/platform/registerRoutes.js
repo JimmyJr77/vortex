@@ -26,6 +26,7 @@ import {
   createCheckoutSession,
   parseWebhookEvent,
   recordStripePayment,
+  stripeWebhookRawBody,
 } from '../billing/stripeBilling.js'
 import {
   createEnrollmentCheckoutSession,
@@ -2028,7 +2029,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   app.post('/api/stripe/webhook', async (req, res) => {
     if (!isStripeEnabled()) return res.status(503).json({ success: false })
     try {
-      const rawBody = req.rawBody ?? req.body
+      const rawBody = stripeWebhookRawBody(req)
       const event = await parseWebhookEvent(rawBody, req.headers['stripe-signature'])
       if (!event) return res.status(400).json({ success: false })
       if (event.type === 'checkout.session.completed' || event.type === 'payment_intent.succeeded') {

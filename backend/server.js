@@ -217,19 +217,14 @@ app.use((req, res, next) => {
   next()
 })
 
-// Capture the raw request body for the Stripe webhook so signature verification
-// (stripe.webhooks.constructEvent) can run when STRIPE_WEBHOOK_SECRET is configured.
-// All other routes keep the normal parsed JSON body.
-app.use(
-  express.json({
-    limit: '10mb',
-    verify: (req, _res, buf) => {
-      if (req.originalUrl === '/api/stripe/webhook') {
-        req.rawBody = buf
-      }
-    },
-  }),
-)
+// Stripe webhook must receive the raw JSON body for signature verification.
+// Route JSON parsing separately so other API routes stay unchanged.
+app.use((req, res, next) => {
+  if (req.originalUrl.startsWith('/api/stripe/webhook')) {
+    return express.raw({ type: 'application/json' })(req, res, next)
+  }
+  return express.json({ limit: '10mb' })(req, res, next)
+})
 
 // Rate limiting — higher cap in dev (React Strict Mode doubles effect fetches).
 const isProduction = process.env.NODE_ENV === 'production'

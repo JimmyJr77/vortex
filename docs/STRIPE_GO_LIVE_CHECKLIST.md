@@ -109,7 +109,11 @@ Save → Render redeploys automatically.
 3. Create → reveal **Signing secret** (`whsec_...`).
 4. Paste into Render as `STRIPE_WEBHOOK_SECRET` → redeploy.
 
+   **Important:** Use the **Signing secret** from this Dashboard webhook endpoint (`whsec_...`). Do **not** use the secret from `stripe listen` (local CLI) on Render — that causes `400` / “No signatures found matching the expected signature”.
+
 **Enrollment commit:** Production must have this webhook configured. Without it, enrollment still completes when the member returns to the portal (`?enrollment=paid`), but webhook delivery is the primary path and records the payment if the member closes the browser before redirect.
+
+If webhook deliveries show **400 Bad Request** with a signature error, verify `STRIPE_WEBHOOK_SECRET` on Render matches the endpoint signing secret exactly (no extra spaces/newlines).
 
 ### B4. Run migrations on production database
 
