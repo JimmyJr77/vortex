@@ -147,8 +147,9 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
 - **[src/components/MemberLogin.tsx](../src/components/MemberLogin.tsx)** — modal login:
   `POST /api/members/login`, `POST /api/members/request-password-reset`.
 - **[src/components/MemberTraining.tsx](../src/components/MemberTraining.tsx)** —
-  `MemberTrainingTab` (assignments + completion logging) and `MemberProgressTab` (assessment
-  trends, skill grades, PRs, daily wellness check-in).
+  `MemberTrainingTab` (assignments + completion logging), `MemberProgressTab` (assessment
+  trends, skill grades, PRs, daily wellness check-in), and `MemberMessagesTab` (multi-recipient
+  threads to coaches/admins/members; ⋯ menu to edit thread name when unlocked).
 - **[src/components/PortalNavButtons.tsx](../src/components/PortalNavButtons.tsx)** — portal switcher.
 - **[src/components/FamilyMemberModal.tsx](../src/components/FamilyMemberModal.tsx)** —
   ⚠️ legacy dark admin-oriented stub; **not** used by the member portal (family CRUD is inline).
@@ -194,6 +195,8 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
 - `POST /api/member/training/log`
 - `GET /api/member/training/progress`
 - `POST/GET /api/member/training/wellness`
+- `GET/POST /api/member/messages`, `GET /api/member/messages/recipient-options`,
+  `PATCH /api/member/messages/:threadId/subject` (blocked when `subject_locked`).
 
 ### Public endpoints consumed
 - `GET /api/events`; `GET /api/public/classes-offered?site=`

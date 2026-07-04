@@ -2001,9 +2001,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
     const checkoutSessionId = req.body?.checkoutSessionId ?? req.body?.sessionId ?? null
     const pendingEnrollmentId = req.body?.pendingEnrollmentId ?? null
-    if (!checkoutSessionId && !pendingEnrollmentId) {
-      return res.status(400).json({ success: false, message: 'Missing checkout session.' })
-    }
 
     try {
       const result = await confirmEnrollmentCheckoutSession(pool, {

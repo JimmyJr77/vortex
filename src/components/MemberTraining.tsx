@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import RecipientPicker, { recipientsToPayload } from './messaging/RecipientPicker'
+import ThreadHeaderMenu from './messaging/ThreadHeaderMenu'
+import MessageBubble from './messaging/MessageBubble'
+import { getMessageViewer } from './messaging/messageBubbleStyle'
+import type { MessageRow, MessageThread, RecipientOption, ThreadParticipant } from './messaging/types'
+import { participantKey } from './messaging/types'
 import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Trophy, Video } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts'
 import { coachFetch } from '../coach/api'
@@ -783,44 +789,41 @@ function WellnessCheckinCard() {
   )
 }
 
-interface MemberThread {
-  id: number
-  subject?: string | null
-  last_message_body?: string | null
-}
-
-interface MemberMessage {
-  id: number
-  body: string
-  sender_name?: string | null
-  sender_member_id?: number | null
-  created_at: string
-}
-
 export function MemberMessagesTab() {
-  const [threads, setThreads] = useState<MemberThread[]>([])
+  const [threads, setThreads] = useState<MessageThread[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
-  const [messages, setMessages] = useState<MemberMessage[]>([])
+  const [messages, setMessages] = useState<MessageRow[]>([])
   const [subject, setSubject] = useState<string | null>(null)
+  const [subjectLocked, setSubjectLocked] = useState(false)
+  const [threadParticipants, setThreadParticipants] = useState<ThreadParticipant[]>([])
   const [loading, setLoading] = useState(true)
   const [reply, setReply] = useState('')
+  const [newOpen, setNewOpen] = useState(false)
   const [newBody, setNewBody] = useState('')
   const [newSubject, setNewSubject] = useState('')
+  const [newRecipients, setNewRecipients] = useState<RecipientOption[]>([])
+  const [recipientOptions, setRecipientOptions] = useState<RecipientOption[]>([])
+  const [recipientsLoading, setRecipientsLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [coaches, setCoaches] = useState<Array<{ id: number; name: string }>>([])
-  const [pickedCoachId, setPickedCoachId] = useState<number | ''>('')
+  const viewer = useMemo(() => getMessageViewer('member'), [])
+  const existingParticipantKeys = useMemo(
+    () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
+    [threadParticipants],
+  )
 
   useEffect(() => {
-    coachFetch<Array<{ id: number; name: string }>>('/api/member/training/coaches')
-      .then(setCoaches)
+    setRecipientsLoading(true)
+    coachFetch<RecipientOption[]>('/api/member/messages/recipient-options')
+      .then(setRecipientOptions)
       .catch(() => {})
+      .finally(() => setRecipientsLoading(false))
   }, [])
 
   const loadThreads = useCallback(async () => {
     setLoading(true)
     try {
-      setThreads(await coachFetch<MemberThread[]>('/api/member/messages'))
+      setThreads(await coachFetch<MessageThread[]>('/api/member/messages'))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load messages')
     } finally {
@@ -835,8 +838,10 @@ export function MemberMessagesTab() {
   const openThread = async (id: number) => {
     setSelectedId(id)
     try {
-      const data = await coachFetch<{ thread: MemberThread; messages: MemberMessage[] }>(`/api/member/messages/${id}`)
+      const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/member/messages/${id}`)
       setSubject(data.thread.subject ?? null)
+      setSubjectLocked(Boolean(data.thread.subject_locked))
+      setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
       setMessages(data.messages)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load thread')
@@ -847,7 +852,7 @@ export function MemberMessagesTab() {
     if (!selectedId || !reply.trim()) return
     setSending(true)
     try {
-      const msg = await coachFetch<MemberMessage>(`/api/member/messages/${selectedId}`, {
+      const msg = await coachFetch<MessageRow>(`/api/member/messages/${selectedId}`, {
         method: 'POST',
         body: JSON.stringify({ body: reply.trim() }),
       })
@@ -861,20 +866,42 @@ export function MemberMessagesTab() {
     }
   }
 
+  const updateThreadSubject = async (update: { subject: string | null }) => {
+    if (!selectedId) return
+    const updated = await coachFetch<MessageThread>(`/api/member/messages/${selectedId}/subject`, {
+      method: 'PATCH',
+      body: JSON.stringify(update),
+    })
+    setSubject(updated.subject ?? null)
+    setSubjectLocked(Boolean(updated.subject_locked))
+    void loadThreads()
+  }
+
+  const addRecipients = async (recipients: RecipientOption[]) => {
+    if (!selectedId || recipients.length === 0) return
+    const updated = await coachFetch<MessageThread>(`/api/member/messages/${selectedId}/recipients`, {
+      method: 'PATCH',
+      body: JSON.stringify(recipientsToPayload(recipients)),
+    })
+    setThreadParticipants(Array.isArray(updated.participants) ? updated.participants : [])
+  }
+
   const startThread = async () => {
-    if (!newBody.trim()) return
+    if (!newBody.trim() || newRecipients.length === 0) return
     setSending(true)
     try {
-      const data = await coachFetch<{ thread: MemberThread; message: MemberMessage }>('/api/member/messages', {
+      const data = await coachFetch<{ thread: MessageThread; message: MessageRow }>('/api/member/messages', {
         method: 'POST',
         body: JSON.stringify({
           subject: newSubject.trim() || null,
           body: newBody.trim(),
-          coach_user_id: pickedCoachId !== '' ? pickedCoachId : null,
+          ...recipientsToPayload(newRecipients),
         }),
       })
       setNewBody('')
       setNewSubject('')
+      setNewRecipients([])
+      setNewOpen(false)
       void loadThreads()
       await openThread(data.thread.id)
     } catch (err) {
@@ -886,47 +913,53 @@ export function MemberMessagesTab() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-        <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
-      </h2>
-      {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
-
-      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-        <h3 className="font-semibold text-gray-800 text-sm">Message your coach</h3>
-        {coaches.length > 0 && (
-          <select
-            value={pickedCoachId}
-            onChange={(e) => setPickedCoachId(e.target.value ? Number(e.target.value) : '')}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="">Any coach (coaching circle)</option>
-            {coaches.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        )}
-        <input
-          value={newSubject}
-          onChange={(e) => setNewSubject(e.target.value)}
-          placeholder="Subject (optional)"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-        />
-        <textarea
-          value={newBody}
-          onChange={(e) => setNewBody(e.target.value)}
-          placeholder="Your message…"
-          rows={2}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-        />
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
+        </h2>
         <button
           type="button"
-          onClick={() => void startThread()}
-          disabled={sending || !newBody.trim()}
-          className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
+          onClick={() => setNewOpen((v) => !v)}
+          className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700"
         >
-          Send
+          {newOpen ? 'Cancel' : 'New thread'}
         </button>
       </div>
+      {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
+
+      {newOpen && (
+        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+          <h3 className="font-semibold text-gray-800 text-sm">Start a conversation</h3>
+          <RecipientPicker
+            options={recipientOptions}
+            selected={newRecipients}
+            onChange={setNewRecipients}
+            loading={recipientsLoading}
+            placeholder="Search coaches, admins, members…"
+          />
+          <input
+            value={newSubject}
+            onChange={(e) => setNewSubject(e.target.value)}
+            placeholder="Thread name (optional)"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+          <textarea
+            value={newBody}
+            onChange={(e) => setNewBody(e.target.value)}
+            placeholder="Your message…"
+            rows={2}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => void startThread()}
+            disabled={sending || !newBody.trim() || newRecipients.length === 0}
+            className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
+          >
+            Send
+          </button>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -953,21 +986,30 @@ export function MemberMessagesTab() {
         </div>
         <div className="bg-white border border-gray-200 rounded-xl min-h-[280px] flex flex-col">
           {!selectedId ? (
-            <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-6">Select a thread.</div>
+            <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-6">Select a thread or start a new one.</div>
           ) : (
             <>
-              <div className="px-4 py-2 border-b text-sm font-semibold">{subject || 'Conversation'}</div>
+              <div className="px-4 py-2 border-b flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-sm font-semibold truncate">{subject || 'Conversation'}</span>
+                  {subjectLocked && (
+                    <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
+                  )}
+                </div>
+                <ThreadHeaderMenu
+                  subject={subject}
+                  subjectLocked={subjectLocked}
+                  canEdit={!subjectLocked}
+                  onUpdateSubject={updateThreadSubject}
+                  recipientOptions={recipientOptions}
+                  existingParticipantKeys={existingParticipantKeys}
+                  recipientsLoading={recipientsLoading}
+                  onAddRecipients={addRecipients}
+                />
+              </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-2">
                 {messages.map((m) => (
-                  <div
-                    key={m.id}
-                    className={`rounded-lg px-3 py-2 text-sm max-w-[85%] ${
-                      m.sender_member_id ? 'bg-vortex-red text-white ml-auto' : 'bg-gray-100 text-gray-900'
-                    }`}
-                  >
-                    <div>{m.body}</div>
-                    <div className="text-[10px] opacity-70 mt-1">{new Date(m.created_at).toLocaleString()}</div>
-                  </div>
+                  <MessageBubble key={m.id} message={m} viewer={viewer} showSenderName={false} />
                 ))}
               </div>
               <div className="p-3 border-t flex gap-2">

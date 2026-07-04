@@ -565,6 +565,20 @@ export async function createEnrollmentCheckoutSession(
   return { url: session.url, pendingEnrollmentId: pendingId, preview }
 }
 
+async function findLatestFamilyEnrollmentReturn(pool, familyId) {
+  const res = await pool.query(
+    `SELECT pe.id, pe.stripe_checkout_session_id, pe.status
+     FROM stripe_pending_enrollment pe
+     JOIN family_billing_account fba ON fba.id = pe.family_billing_account_id
+     WHERE fba.family_id = $1
+       AND pe.created_at > now() - interval '7 days'
+     ORDER BY pe.updated_at DESC
+     LIMIT 1`,
+    [familyId],
+  )
+  return res.rows[0] ?? null
+}
+
 /**
  * Commit enrollment after Stripe Checkout when the member returns to the portal.
  * Backup for webhook delivery — verifies payment with Stripe before creating signups.
@@ -579,6 +593,14 @@ export async function confirmEnrollmentCheckoutSession(
   let sessionId = checkoutSessionId ? String(checkoutSessionId).trim() : null
   let pendingId = pendingEnrollmentId ? Number(pendingEnrollmentId) : null
 
+  if (!sessionId && !pendingId && familyId) {
+    const latest = await findLatestFamilyEnrollmentReturn(pool, familyId)
+    if (!latest) return { status: 'none' }
+    if (latest.status === 'completed') return { status: 'already_completed' }
+    pendingId = Number(latest.id)
+    sessionId = latest.stripe_checkout_session_id ?? null
+  }
+
   if (!sessionId && pendingId) {
     const pendingRes = await pool.query(
       `SELECT stripe_checkout_session_id FROM stripe_pending_enrollment WHERE id = $1`,
@@ -588,7 +610,7 @@ export async function confirmEnrollmentCheckoutSession(
   }
 
   if (!sessionId) {
-    throw new Error('Missing checkout session. Please contact the gym office.')
+    return { status: 'none' }
   }
 
   const session = await stripe.checkout.sessions.retrieve(sessionId)

@@ -1,106 +1,71 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, MessageSquare, Plus } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
-import { fetchCoachMemberOptions } from './fetchCoachMemberOptions'
-import SearchCombobox, { type SearchComboboxOption } from './SearchCombobox'
-
-interface MemberOption {
-  id: number
-  name: string
-}
+import RecipientPicker, { recipientsToPayload } from '../messaging/RecipientPicker'
+import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
+import MessageBubble from '../messaging/MessageBubble'
+import { getMessageViewer } from '../messaging/messageBubbleStyle'
+import type { MessageRow, MessageThread, RecipientOption, ThreadParticipant } from '../messaging/types'
+import { participantKey } from '../messaging/types'
 
 type MemberPickerScope = 'my_classes' | 'all'
 
-interface ThreadRow {
-  id: number
-  member_id: number
-  subject?: string | null
-  coach_user_id?: number | null
-  thread_scope?: 'assigned_coach' | 'coaching_circle'
-  first_name?: string
-  last_name?: string
-  last_message_body?: string | null
-  last_message_created_at?: string | null
-  last_message_at?: string | null
-}
-
-interface MessageRow {
-  id: number
-  body: string
-  sender_name?: string | null
-  sender_user_id?: number | null
-  sender_member_id?: number | null
-  created_at: string
-}
-
 export default function MessagesPanel() {
   const [memberScope, setMemberScope] = useState<MemberPickerScope>('my_classes')
-  const [members, setMembers] = useState<MemberOption[]>([])
-  const [membersLoading, setMembersLoading] = useState(true)
-  const [threads, setThreads] = useState<ThreadRow[]>([])
+  const [recipientOptions, setRecipientOptions] = useState<RecipientOption[]>([])
+  const [recipientsLoading, setRecipientsLoading] = useState(true)
+  const [threads, setThreads] = useState<MessageThread[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [messages, setMessages] = useState<MessageRow[]>([])
   const [threadSubject, setThreadSubject] = useState<string | null>(null)
+  const [threadSubjectLocked, setThreadSubjectLocked] = useState(false)
   const [threadScope, setThreadScope] = useState<'assigned_coach' | 'coaching_circle' | null>(null)
+  const [threadParticipants, setThreadParticipants] = useState<ThreadParticipant[]>([])
   const [loading, setLoading] = useState(true)
   const [detailLoading, setDetailLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reply, setReply] = useState('')
   const [sending, setSending] = useState(false)
   const [newOpen, setNewOpen] = useState(false)
-  const [newMemberId, setNewMemberId] = useState<number | ''>('')
-  const [newMemberSearch, setNewMemberSearch] = useState('')
+  const [newRecipients, setNewRecipients] = useState<RecipientOption[]>([])
   const [newSubject, setNewSubject] = useState('')
   const [newBody, setNewBody] = useState('')
-  const [memberLoadError, setMemberLoadError] = useState<string | null>(null)
+  const [recipientLoadError, setRecipientLoadError] = useState<string | null>(null)
+  const viewer = useMemo(() => getMessageViewer('coach'), [])
+  const existingParticipantKeys = useMemo(
+    () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
+    [threadParticipants],
+  )
 
-  const loadMemberOptions = useCallback(async (scope: MemberPickerScope) => {
-    setMembersLoading(true)
-    setMemberLoadError(null)
+  const loadRecipientOptions = useCallback(async (scope: MemberPickerScope) => {
+    setRecipientsLoading(true)
+    setRecipientLoadError(null)
     try {
-      const list = await fetchCoachMemberOptions(scope)
-      setMembers(list)
+      const list = await coachFetch<RecipientOption[]>(`/api/coach/messages/recipient-options?scope=${scope}`)
+      setRecipientOptions(list)
       if (list.length === 0) {
-        setMemberLoadError(
-          scope === 'my_classes'
-            ? 'No athletes found in your classes. Try “Any athlete” or check class assignments.'
-            : 'No active athletes found at this facility.',
-        )
+        setRecipientLoadError('No recipients found. Try “Any athlete” or check class assignments.')
       }
     } catch (err) {
-      setMembers([])
-      setMemberLoadError(err instanceof Error ? err.message : 'Failed to load athletes')
+      setRecipientOptions([])
+      setRecipientLoadError(err instanceof Error ? err.message : 'Failed to load recipients')
     } finally {
-      setMembersLoading(false)
+      setRecipientsLoading(false)
     }
   }, [])
 
-  const memberComboboxOptions = useMemo<SearchComboboxOption[]>(
-    () => members.map((m) => ({ key: String(m.id), label: m.name })),
-    [members],
-  )
-
-  const filteredMemberOptions = useMemo(() => {
-    const q = newMemberSearch.trim().toLowerCase()
-    if (!q) return memberComboboxOptions
-    return memberComboboxOptions.filter((m) => m.label.toLowerCase().includes(q))
-  }, [memberComboboxOptions, newMemberSearch])
+  useEffect(() => {
+    void loadRecipientOptions(memberScope)
+  }, [memberScope, loadRecipientOptions])
 
   useEffect(() => {
-    void loadMemberOptions(memberScope)
-  }, [memberScope, loadMemberOptions])
-
-  useEffect(() => {
-    if (newMemberId !== '' && !members.some((m) => m.id === newMemberId)) {
-      setNewMemberId('')
-      setNewMemberSearch('')
-    }
-  }, [members, newMemberId])
+    setNewRecipients((prev) => prev.filter((r) => recipientOptions.some((o) => o.key === r.key)))
+  }, [recipientOptions])
 
   const loadThreads = useCallback(async () => {
     setLoading(true)
     try {
-      setThreads(await coachFetch<ThreadRow[]>('/api/coach/messages'))
+      setThreads(await coachFetch<MessageThread[]>('/api/coach/messages'))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load messages')
     } finally {
@@ -117,9 +82,11 @@ export default function MessagesPanel() {
     setDetailLoading(true)
     setError(null)
     try {
-      const data = await coachFetch<{ thread: ThreadRow; messages: MessageRow[] }>(`/api/coach/messages/${id}`)
+      const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/coach/messages/${id}`)
       setThreadSubject(data.thread.subject ?? null)
+      setThreadSubjectLocked(Boolean(data.thread.subject_locked))
       setThreadScope(data.thread.thread_scope ?? 'coaching_circle')
+      setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
       setMessages(data.messages)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load thread')
@@ -146,10 +113,30 @@ export default function MessagesPanel() {
     }
   }
 
+  const updateThreadSubject = async (update: { subject: string | null; subject_locked?: boolean }) => {
+    if (!selectedId) return
+    const updated = await coachFetch<MessageThread>(`/api/coach/messages/${selectedId}/subject`, {
+      method: 'PATCH',
+      body: JSON.stringify(update),
+    })
+    setThreadSubject(updated.subject ?? null)
+    setThreadSubjectLocked(Boolean(updated.subject_locked))
+    void loadThreads()
+  }
+
+  const addRecipients = async (recipients: RecipientOption[]) => {
+    if (!selectedId || recipients.length === 0) return
+    const updated = await coachFetch<MessageThread>(`/api/coach/messages/${selectedId}/recipients`, {
+      method: 'PATCH',
+      body: JSON.stringify(recipientsToPayload(recipients)),
+    })
+    setThreadParticipants(Array.isArray(updated.participants) ? updated.participants : [])
+  }
+
   const openToCoachingCircle = async () => {
     if (!selectedId) return
     try {
-      const updated = await coachFetch<ThreadRow>(`/api/coach/messages/${selectedId}/open-circle`, { method: 'PATCH' })
+      const updated = await coachFetch<MessageThread>(`/api/coach/messages/${selectedId}/open-circle`, { method: 'PATCH' })
       setThreadScope(updated.thread_scope ?? 'coaching_circle')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to open thread')
@@ -157,22 +144,21 @@ export default function MessagesPanel() {
   }
 
   const startThread = async () => {
-    if (newMemberId === '' || !newBody.trim()) return
+    if (newRecipients.length === 0 || !newBody.trim()) return
     setSending(true)
     try {
-      const data = await coachFetch<{ thread: ThreadRow; message: MessageRow }>('/api/coach/messages', {
+      const data = await coachFetch<{ thread: MessageThread; message: MessageRow }>('/api/coach/messages', {
         method: 'POST',
         body: JSON.stringify({
-          member_id: newMemberId,
           subject: newSubject.trim() || null,
           body: newBody.trim(),
+          ...recipientsToPayload(newRecipients),
         }),
       })
       setNewOpen(false)
       setNewSubject('')
       setNewBody('')
-      setNewMemberId('')
-      setNewMemberSearch('')
+      setNewRecipients([])
       void loadThreads()
       await openThread(data.thread.id)
     } catch (err) {
@@ -189,7 +175,7 @@ export default function MessagesPanel() {
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
           </h2>
-          <p className="text-sm text-gray-500">Feedback threads with athletes and families.</p>
+          <p className="text-sm text-gray-500">Feedback threads with athletes, coaches, and admins.</p>
         </div>
         <button
           type="button"
@@ -210,8 +196,7 @@ export default function MessagesPanel() {
               type="button"
               onClick={() => {
                 setMemberScope('my_classes')
-                setNewMemberId('')
-                setNewMemberSearch('')
+                setNewRecipients([])
               }}
               className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${memberScope === 'my_classes' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
             >
@@ -221,8 +206,7 @@ export default function MessagesPanel() {
               type="button"
               onClick={() => {
                 setMemberScope('all')
-                setNewMemberId('')
-                setNewMemberSearch('')
+                setNewRecipients([])
               }}
               className={`text-xs px-3 py-1.5 rounded-lg font-semibold ${memberScope === 'all' ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-700'}`}
             >
@@ -231,40 +215,25 @@ export default function MessagesPanel() {
           </div>
           <p className="text-xs text-gray-500">
             {memberScope === 'my_classes'
-              ? 'Athletes enrolled in programs you teach.'
-              : 'All active athletes at your facility.'}
+              ? 'Athletes in your classes, plus coaches and admins.'
+              : 'All active athletes at your facility, plus coaches and admins.'}
           </p>
-          {memberLoadError && (
+          {recipientLoadError && (
             <div className="text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-              {memberLoadError}
+              {recipientLoadError}
             </div>
           )}
-          <label className="text-sm block">
-            <span className="block text-xs font-semibold text-gray-500 mb-1">Athlete</span>
-            <SearchCombobox
-              value={newMemberSearch}
-              onChange={(value) => {
-                setNewMemberSearch(value)
-                setNewMemberId('')
-              }}
-              onSelect={(opt) => {
-                const member = members.find((m) => String(m.id) === opt.key)
-                if (member) {
-                  setNewMemberId(member.id)
-                  setNewMemberSearch(member.name)
-                }
-              }}
-              options={filteredMemberOptions}
-              loading={membersLoading}
-              placeholder="Search athletes…"
-              emptyMessage="No athletes match your search."
-              loadingMessage="Loading athletes…"
-            />
-          </label>
+          <RecipientPicker
+            options={recipientOptions}
+            selected={newRecipients}
+            onChange={setNewRecipients}
+            loading={recipientsLoading}
+            placeholder="Search athletes, coaches, admins…"
+          />
           <input
             value={newSubject}
             onChange={(e) => setNewSubject(e.target.value)}
-            placeholder="Subject (optional)"
+            placeholder="Thread name (optional)"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
           />
           <textarea
@@ -275,7 +244,12 @@ export default function MessagesPanel() {
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
           />
           <div className="flex gap-2">
-            <button type="button" onClick={() => void startThread()} disabled={sending || newMemberId === ''} className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60">
+            <button
+              type="button"
+              onClick={() => void startThread()}
+              disabled={sending || newRecipients.length === 0 || !newBody.trim()}
+              className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
+            >
               Send
             </button>
             <button type="button" onClick={() => setNewOpen(false)} className="px-4 py-2 rounded-lg text-sm border border-gray-300">
@@ -301,10 +275,12 @@ export default function MessagesPanel() {
                   onClick={() => void openThread(t.id)}
                   className={`w-full px-4 py-3 text-left hover:bg-gray-50 ${selectedId === t.id ? 'bg-red-50' : ''}`}
                 >
-                  <div className="font-semibold text-gray-900 text-sm">
-                    {t.first_name} {t.last_name}
+                  <div className="font-semibold text-gray-900 text-sm truncate">
+                    {t.subject || (t.first_name ? `${t.first_name} ${t.last_name}` : 'Conversation')}
                   </div>
-                  {t.subject && <div className="text-xs text-gray-600 truncate">{t.subject}</div>}
+                  {t.subject && t.first_name && (
+                    <div className="text-xs text-gray-500 truncate">{t.first_name} {t.last_name}</div>
+                  )}
                   {t.last_message_body && (
                     <div className="text-xs text-gray-400 truncate mt-0.5">{t.last_message_body}</div>
                   )}
@@ -322,29 +298,38 @@ export default function MessagesPanel() {
           ) : (
             <>
               <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
-                <span className="font-semibold text-sm">{threadSubject || 'Conversation'}</span>
-                {threadScope === 'assigned_coach' && (
-                  <button
-                    type="button"
-                    onClick={() => void openToCoachingCircle()}
-                    className="text-xs font-semibold text-vortex-red hover:underline"
-                  >
-                    Share with coaching circle
-                  </button>
-                )}
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <span className="font-semibold text-sm truncate">{threadSubject || 'Conversation'}</span>
+                  {threadSubjectLocked && (
+                    <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {threadScope === 'assigned_coach' && (
+                    <button
+                      type="button"
+                      onClick={() => void openToCoachingCircle()}
+                      className="text-xs font-semibold text-vortex-red hover:underline"
+                    >
+                      Share with coaching circle
+                    </button>
+                  )}
+                  <ThreadHeaderMenu
+                    subject={threadSubject}
+                    subjectLocked={threadSubjectLocked}
+                    canLock
+                    canEdit
+                    onUpdateSubject={updateThreadSubject}
+                    recipientOptions={recipientOptions}
+                    existingParticipantKeys={existingParticipantKeys}
+                    recipientsLoading={recipientsLoading}
+                    onAddRecipients={addRecipients}
+                  />
+                </div>
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[360px]">
                 {messages.map((m) => (
-                  <div
-                    key={m.id}
-                    className={`rounded-lg px-3 py-2 text-sm max-w-[85%] ${
-                      m.sender_member_id ? 'bg-gray-100 text-gray-900 ml-0' : 'bg-vortex-red text-white ml-auto'
-                    }`}
-                  >
-                    <div className="text-[10px] opacity-70 mb-0.5">{m.sender_name || 'Coach'}</div>
-                    <div>{m.body}</div>
-                    <div className="text-[10px] opacity-60 mt-1">{new Date(m.created_at).toLocaleString()}</div>
-                  </div>
+                  <MessageBubble key={m.id} message={m} viewer={viewer} />
                 ))}
               </div>
               <div className="p-4 border-t border-gray-100 flex gap-2">

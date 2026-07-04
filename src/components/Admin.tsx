@@ -22,6 +22,7 @@ import AdminSettings from './admin/AdminSettings'
 import AdminCoaches from './AdminCoaches'
 import AdminEventSignups from './AdminEventSignups'
 import AdminInsurance from './AdminInsurance'
+import AdminMessagesPanel from './admin/AdminMessagesPanel'
 import AdminHomePanel from './admin/AdminHomePanel'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
 import PortalNavButtons from './PortalNavButtons'
@@ -65,7 +66,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages'
 
 export type GroupId = 'home' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'settings'
 
@@ -79,6 +80,7 @@ interface AccessContext {
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
   { id: 'admins', label: 'Admins', permission: 'admins.manage' },
   { id: 'membership', label: 'Vortex Accounts', permission: 'members.view' },
+  { id: 'messages', label: 'Messages', permission: 'members.view' },
   { id: 'access', label: 'Access', permission: 'admin_access.manage' },
   { id: 'users', label: 'Inquiries', permission: 'members.view' },
   { id: 'classes', label: 'Classes', permission: 'classes.view' },
@@ -112,7 +114,7 @@ interface GroupDef {
 
 const GROUPS: GroupDef[] = [
   { id: 'home', label: 'Home', icon: Home, sections: [] },
-  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'access'] },
+  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'messages', 'access'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classes', 'coaches', 'scheduling', 'classesEvents'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
@@ -358,6 +360,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
         return <AdminAdmins adminInfo={adminInfo} setAdminInfo={setAdminInfo} />
       case 'membership':
         return <AdminMembers isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
+      case 'messages':
+        return <AdminMessagesPanel />
       default:
         return <AdminInquiries />
     }

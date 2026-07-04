@@ -985,11 +985,11 @@ export default function MemberDashboard({
 
     const checkoutSessionId = params.get('session_id') ?? undefined
     const pendingEnrollmentId = readPendingEnrollmentId() ?? undefined
-    if (!checkoutSessionId && !pendingEnrollmentId) {
-      setEnrollmentConfirmError(
-        'Payment may have completed, but enrollment could not be confirmed automatically. Please refresh in a minute or contact the gym office.',
-      )
-      return
+    const clearEnrollmentReturnParams = () => {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('enrollment')
+      url.searchParams.delete('session_id')
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash)
     }
 
     let cancelled = false
@@ -1005,10 +1005,14 @@ export default function MemberDashboard({
         if (cancelled) return
 
         clearPendingEnrollmentId()
-        const url = new URL(window.location.href)
-        url.searchParams.delete('enrollment')
-        url.searchParams.delete('session_id')
-        window.history.replaceState({}, '', url.pathname + url.search + url.hash)
+        clearEnrollmentReturnParams()
+
+        if (result.status === 'none') {
+          await fetchEnrollments(true)
+          await fetchBillingStatements()
+          return
+        }
+
         setActiveTab('classes')
         setEnrollmentConfirmMessage(
           result.status === 'already_completed'
@@ -1019,6 +1023,7 @@ export default function MemberDashboard({
         await fetchBillingStatements()
       } catch (err) {
         if (!cancelled) {
+          clearEnrollmentReturnParams()
           setEnrollmentConfirmError(
             err instanceof Error ? err.message : 'Failed to confirm enrollment after payment.',
           )

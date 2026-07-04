@@ -30,6 +30,20 @@ import {
   queryMinorChildGuardianMemberIds,
 } from './coachRoster.js'
 import { ensureCoachingNotificationSchema } from './coachingSchemaEnsure.js'
+import {
+  insertThreadParticipants,
+  coachCanAccessThreadWithParticipants,
+  queryMemberRecipientOptions,
+  queryCoachRecipientOptions,
+  parseRecipientPayload,
+  validateMemberRecipients,
+  validateStaffRecipients,
+  notifyThreadParticipants,
+  loadThreadWithParticipants,
+  memberIsThreadParticipant,
+  addRecipientsToThread,
+  queryAdminRecipientOptions,
+} from './messageThreads.js'
 
 function ok(res, data) {
   res.json({ success: true, data })
@@ -1584,6 +1598,11 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   }
 
+  function isStaffAdmin(ctx) {
+    if (ctx.isMasterAdmin) return true
+    return (ctx.roles || []).some((role) => ['MASTER_ADMIN', 'ADMIN'].includes(role))
+  }
+
   function coachCanAccessThread(thread, coachUserId) {
     if (thread.thread_scope === 'coaching_circle') return true
     if (thread.coach_user_id == null) return true
@@ -2678,6 +2697,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   }
 
   async function memberCanAccessMessageThread(viewerMemberId, threadMemberId) {
+    if (threadMemberId == null) return false
     if (Number(threadMemberId) === Number(viewerMemberId)) return true
     const guardianIds = await queryMinorChildGuardianMemberIds(pool, threadMemberId)
     return guardianIds.includes(Number(viewerMemberId))
@@ -2741,24 +2761,37 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   }
 
   async function loadThreadMessages(threadId, facilityId) {
-    const thread = await pool.query(
-      `SELECT t.*, m.first_name, m.last_name
-       FROM coaching.message_thread t
-       JOIN public.member m ON m.id = t.member_id
-       WHERE t.id = $1 AND t.facility_id = $2`,
-      [threadId, facilityId],
-    )
-    if (thread.rows.length === 0) return null
+    const thread = await loadThreadWithParticipants(pool, threadId, facilityId)
+    if (!thread) return null
     const messages = await pool.query(
       `SELECT msg.*,
          CASE WHEN msg.sender_member_id IS NOT NULL THEN (SELECT first_name FROM public.member WHERE id = msg.sender_member_id)
-              ELSE (SELECT full_name FROM public.app_user WHERE id = msg.sender_user_id) END AS sender_name
+              ELSE (SELECT full_name FROM public.app_user WHERE id = msg.sender_user_id) END AS sender_name,
+         CASE
+           WHEN msg.sender_member_id IS NOT NULL THEN 'member'
+           WHEN EXISTS (
+             SELECT 1 FROM public.app_user au
+             WHERE au.id = msg.sender_user_id
+               AND (
+                 COALESCE(au.role::text, '') IN ('MASTER_ADMIN', 'ADMIN')
+                 OR EXISTS (
+                   SELECT 1 FROM public.app_user_role aur
+                   WHERE aur.user_id = au.id AND aur.role::text IN ('MASTER_ADMIN', 'ADMIN')
+                 )
+               )
+           ) THEN 'admin'
+           ELSE 'coach'
+         END AS sender_kind
        FROM coaching.message msg
        WHERE msg.thread_id = $1
        ORDER BY msg.created_at ASC`,
       [threadId],
     )
-    return { thread: thread.rows[0], messages: messages.rows }
+    return { thread, messages: messages.rows }
+  }
+
+  async function coachHasThreadAccess(thread, coachUserId) {
+    return coachCanAccessThreadWithParticipants(pool, thread, coachUserId)
   }
 
   app.get('/api/coach/messages/member-options', auth, async (req, res) => {
@@ -2772,6 +2805,31 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         scope,
       })
       ok(res, members)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/messages/recipient-options', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const scope = String(req.query.scope || 'my_classes') === 'all' ? 'all' : 'my_classes'
+      const members = await queryCoachMemberPickerList(pool, { coachUserId, facilityId, scope })
+      const options = await queryCoachRecipientOptions(pool, { facilityId, coachUserId, memberOptions: members })
+      ok(res, options)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/member/messages/recipient-options', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const options = await queryMemberRecipientOptions(pool, facilityId, memberId)
+      ok(res, options)
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -2798,6 +2856,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
               t.thread_scope = 'coaching_circle'
               OR t.coach_user_id IS NULL
               OR t.coach_user_id = $3
+              OR EXISTS (
+                SELECT 1 FROM coaching.message_thread_participant p
+                WHERE p.thread_id = t.id AND p.user_id = $3
+              )
             )
           ORDER BY t.last_message_at DESC NULLS LAST, t.created_at DESC
           LIMIT 100
@@ -2817,7 +2879,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const data = await loadThreadMessages(threadId, facilityId)
       if (!data) return bad(res, 'Thread not found.', 404)
       const coachUserId = Number(req.platformAuth.user.id)
-      if (!coachCanAccessThread(data.thread, coachUserId)) return bad(res, 'Thread not found.', 404)
+      if (!await coachHasThreadAccess(data.thread, coachUserId)) return bad(res, 'Thread not found.', 404)
       ok(res, data)
     } catch (error) {
       bad(res, error.message, 500)
@@ -2828,23 +2890,28 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     try {
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
-      const memberId = num(req.body?.member_id)
       const body = String(req.body?.body || '').trim()
-      if (memberId == null || !body) return bad(res, 'member_id and body are required.')
-      const memberCheck = await pool.query(
-        `SELECT id FROM public.member WHERE id = $1 AND facility_id = $2`,
-        [memberId, facilityId],
-      )
-      if (memberCheck.rows.length === 0) return bad(res, 'Member not found.', 404)
+      if (!body) return bad(res, 'body is required.')
+      const { userIds, memberIds } = parseRecipientPayload(req.body)
+      const validMembers = await validateMemberRecipients(pool, facilityId, memberIds)
+      const validStaff = await validateStaffRecipients(pool, facilityId, userIds.filter((id) => id !== coachUserId))
+      if (validMembers.length === 0 && validStaff.length === 0) {
+        return bad(res, 'At least one recipient is required.')
+      }
       const subject = req.body?.subject ? String(req.body.subject).trim() : null
+      const primaryMemberId = validMembers[0] ?? null
       const created = await pool.query(
         `INSERT INTO coaching.message_thread (facility_id, member_id, coach_user_id, subject, thread_scope, last_message_at)
          VALUES ($1, $2, $3, $4, 'assigned_coach', now()) RETURNING *`,
-        [facilityId, memberId, coachUserId, subject],
+        [facilityId, primaryMemberId, coachUserId, subject],
       )
       const thread = created.rows[0]
+      await insertThreadParticipants(pool, thread.id, {
+        userIds: [coachUserId, ...validStaff],
+        memberIds: validMembers,
+      })
       const message = await appendThreadMessage(thread.id, { senderUserId: coachUserId, body })
-      void notifyNewMessage(thread, message, true)
+      void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: coachUserId })
       ok(res, { thread, message })
     } catch (error) {
       bad(res, error.message, 500)
@@ -2864,13 +2931,13 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       )
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
-      if (!coachCanAccessThread(thread, coachUserId)) return bad(res, 'Thread not found.', 404)
+      if (!await coachHasThreadAccess(thread, coachUserId)) return bad(res, 'Thread not found.', 404)
       if (!thread.coach_user_id) {
         await pool.query(`UPDATE coaching.message_thread SET coach_user_id = $1 WHERE id = $2`, [coachUserId, threadId])
         thread.coach_user_id = coachUserId
       }
       const message = await appendThreadMessage(threadId, { senderUserId: coachUserId, body })
-      void notifyNewMessage(thread, message, true)
+      void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: coachUserId })
       ok(res, message)
     } catch (error) {
       bad(res, error.message, 500)
@@ -2905,6 +2972,169 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.patch('/api/coach/messages/:threadId/subject', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const threadId = num(req.params.threadId)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      if (!await coachHasThreadAccess(thread, coachUserId)) return bad(res, 'Thread not found.', 404)
+      const subject = req.body?.subject != null ? String(req.body.subject).trim() || null : thread.subject
+      const subjectLocked = req.body?.subject_locked != null ? Boolean(req.body.subject_locked) : thread.subject_locked
+      const updated = await pool.query(
+        `UPDATE coaching.message_thread
+         SET subject = $1, subject_locked = $2, updated_at = now()
+         WHERE id = $3 RETURNING *`,
+        [subject, subjectLocked, threadId],
+      )
+      ok(res, updated.rows[0])
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/coach/messages/:threadId/recipients', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const threadId = num(req.params.threadId)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      if (!await coachHasThreadAccess(thread, coachUserId)) return bad(res, 'Thread not found.', 404)
+      const result = await addRecipientsToThread(pool, threadId, facilityId, req.body)
+      if (result.addedCount === 0) return bad(res, 'No new recipients to add.', 400)
+      ok(res, result.thread)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/admin/messages', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const status = req.query.status === 'archived' ? 'archived' : 'open'
+      const result = await pool.query(
+        `
+          SELECT t.*, m.first_name, m.last_name,
+            lm.body AS last_message_body,
+            lm.created_at AS last_message_created_at
+          FROM coaching.message_thread t
+          LEFT JOIN public.member m ON m.id = t.member_id
+          LEFT JOIN LATERAL (
+            SELECT body, created_at FROM coaching.message
+            WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
+          ) lm ON TRUE
+          WHERE t.facility_id = $1 AND t.status = $2
+          ORDER BY t.last_message_at DESC NULLS LAST, t.created_at DESC
+          LIMIT 200
+        `,
+        [facilityId, status],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/admin/messages/:threadId', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const threadId = num(req.params.threadId)
+      const data = await loadThreadMessages(threadId, facilityId)
+      if (!data) return bad(res, 'Thread not found.', 404)
+      ok(res, data)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/admin/messages/:threadId', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const adminUserId = Number(req.platformAuth.user.id)
+      const threadId = num(req.params.threadId)
+      const body = String(req.body?.body || '').trim()
+      if (!body) return bad(res, 'body is required.')
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      await insertThreadParticipants(pool, thread.id, { userIds: [adminUserId] })
+      const message = await appendThreadMessage(threadId, { senderUserId: adminUserId, body })
+      void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: adminUserId })
+      ok(res, message)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/admin/messages/:threadId/subject', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const threadId = num(req.params.threadId)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      const subject = req.body?.subject != null ? String(req.body.subject).trim() || null : thread.subject
+      const subjectLocked = req.body?.subject_locked != null ? Boolean(req.body.subject_locked) : thread.subject_locked
+      const updated = await pool.query(
+        `UPDATE coaching.message_thread
+         SET subject = $1, subject_locked = $2, updated_at = now()
+         WHERE id = $3 RETURNING *`,
+        [subject, subjectLocked, threadId],
+      )
+      ok(res, updated.rows[0])
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/admin/messages/recipient-options', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      ok(res, await queryAdminRecipientOptions(pool, facilityId))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/admin/messages/:threadId/recipients', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const threadId = num(req.params.threadId)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const result = await addRecipientsToThread(pool, threadId, facilityId, req.body)
+      if (result.addedCount === 0) return bad(res, 'No new recipients to add.', 400)
+      ok(res, result.thread)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
   app.get('/api/member/messages', auth, async (req, res) => {
     try {
       const ctx = req.platformAuth
@@ -2918,16 +3148,21 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
             lm.body AS last_message_body,
             lm.created_at AS last_message_created_at
           FROM coaching.message_thread t
-          JOIN public.member athlete ON athlete.id = t.member_id
+          LEFT JOIN public.member athlete ON athlete.id = t.member_id
           LEFT JOIN LATERAL (
             SELECT body, created_at FROM coaching.message
             WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
           ) lm ON TRUE
           WHERE t.facility_id = $1 AND t.status = 'open'
             AND (
-              t.member_id = $2
+              EXISTS (
+                SELECT 1 FROM coaching.message_thread_participant p
+                WHERE p.thread_id = t.id AND p.member_id = $2
+              )
+              OR t.member_id = $2
               OR (
-                athlete.date_of_birth IS NOT NULL
+                t.member_id IS NOT NULL
+                AND athlete.date_of_birth IS NOT NULL
                 AND athlete.date_of_birth > (CURRENT_DATE - INTERVAL '18 years')
                 AND (
                   $2 = ANY(athlete.parent_guardian_ids)
@@ -2962,7 +3197,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       )
       if (threadCheck.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadCheck.rows[0]
-      if (!await memberCanAccessMessageThread(memberId, thread.member_id)) {
+      const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
         return bad(res, 'Thread not found.', 404)
       }
       const data = await loadThreadMessages(threadId, facilityId)
@@ -2980,30 +3216,26 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const body = String(req.body?.body || '').trim()
       if (!body) return bad(res, 'body is required.')
       const subject = req.body?.subject ? String(req.body.subject).trim() : null
-      const pickedCoachId = num(req.body?.coach_user_id)
-      let coachUserId = null
-      let threadScope = 'coaching_circle'
-      if (pickedCoachId != null) {
-        const coachCheck = await pool.query(
-          `SELECT id FROM public.app_user WHERE id = $1 AND facility_id = $2 AND is_active = TRUE`,
-          [pickedCoachId, facilityId],
-        )
-        if (coachCheck.rows.length === 0) return bad(res, 'Selected coach not found.', 404)
-        const assigned = await resolveAssignedCoachUserIdsForMember(memberId, facilityId)
-        if (!assigned.includes(pickedCoachId)) {
-          return bad(res, 'Selected coach is not assigned to your classes.', 400)
-        }
-        coachUserId = pickedCoachId
-        threadScope = 'assigned_coach'
+      const { userIds, memberIds } = parseRecipientPayload(req.body)
+      const validMembers = await validateMemberRecipients(pool, facilityId, memberIds, memberId)
+      const validStaff = await validateStaffRecipients(pool, facilityId, userIds)
+      if (validMembers.length === 0 && validStaff.length === 0) {
+        return bad(res, 'At least one recipient is required.')
       }
+      const primaryCoachId = validStaff[0] ?? null
+      const threadScope = primaryCoachId != null && validStaff.length === 1 ? 'assigned_coach' : 'coaching_circle'
       const created = await pool.query(
         `INSERT INTO coaching.message_thread (facility_id, member_id, coach_user_id, subject, thread_scope, last_message_at)
          VALUES ($1, $2, $3, $4, $5, now()) RETURNING *`,
-        [facilityId, memberId, coachUserId, subject, threadScope],
+        [facilityId, memberId, primaryCoachId, subject, threadScope],
       )
       const thread = created.rows[0]
+      await insertThreadParticipants(pool, thread.id, {
+        userIds: validStaff,
+        memberIds: [memberId, ...validMembers],
+      })
       const message = await appendThreadMessage(thread.id, { senderMemberId: memberId, body })
-      void notifyNewMessage(thread, message, false)
+      void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderMemberId: memberId })
       ok(res, { thread, message })
     } catch (error) {
       bad(res, error.message, 500)
@@ -3024,12 +3256,65 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       )
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
-      if (!await memberCanAccessMessageThread(memberId, thread.member_id)) {
+      const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
         return bad(res, 'Thread not found.', 404)
       }
       const message = await appendThreadMessage(threadId, { senderMemberId: memberId, body })
-      void notifyNewMessage(thread, message, false)
+      void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderMemberId: memberId })
       ok(res, message)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/member/messages/:threadId/subject', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const threadId = num(req.params.threadId)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
+        return bad(res, 'Thread not found.', 404)
+      }
+      if (thread.subject_locked) return bad(res, 'Thread name is locked.', 403)
+      const subject = req.body?.subject != null ? String(req.body.subject).trim() || null : thread.subject
+      const updated = await pool.query(
+        `UPDATE coaching.message_thread SET subject = $1, updated_at = now() WHERE id = $2 RETURNING *`,
+        [subject, threadId],
+      )
+      ok(res, updated.rows[0])
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/member/messages/:threadId/recipients', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const threadId = num(req.params.threadId)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
+        return bad(res, 'Thread not found.', 404)
+      }
+      const result = await addRecipientsToThread(pool, threadId, facilityId, req.body)
+      if (result.addedCount === 0) return bad(res, 'No new recipients to add.', 400)
+      ok(res, result.thread)
     } catch (error) {
       bad(res, error.message, 500)
     }

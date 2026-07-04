@@ -1219,7 +1219,7 @@ export function clearPendingEnrollmentId(): void {
 export async function confirmEnrollmentCheckoutSession(
   memberToken: string,
   payload: { checkoutSessionId?: string; pendingEnrollmentId?: number },
-): Promise<{ status: string }> {
+): Promise<{ status: 'completed' | 'already_completed' | 'none' | string }> {
   const res = await fetch(`${getApiUrl()}/api/members/billing/confirm-enrollment-checkout`, {
     method: 'POST',
     headers: {

@@ -138,12 +138,15 @@ goals and lightweight achievements.*
 **Schema**
 - `023_coaching_engagement.sql` — `coaching.notification` ✅
 - `024_coaching_messaging.sql` — `message_thread`, `message` ✅
+- `060_coaching_message_enhancements.sql` — `subject_locked`, `message_thread_participant`, nullable `member_id` ✅
 - `025_coaching_goals_achievements.sql` — `goal`, `achievement` ✅
 
 **Backend ✅ (except video review)**
 - In-app notification fan-out for assignments, PRs, messages, achievements.
 - `GET/PATCH/POST /api/coach/notifications`, `/api/member/notifications`.
-- `GET/POST /api/coach/messages`, `/api/member/messages` (+ thread replies).
+- `GET/POST /api/coach/messages`, `/api/member/messages`, `/api/admin/messages` (+ thread replies).
+- `GET /api/coach/messages/recipient-options`, `/api/member/messages/recipient-options` (multi-recipient picker).
+- `PATCH …/messages/:threadId/subject` — rename thread; coaches/admins may set `subject_locked`.
 - Goals: `GET/POST /api/coach/athletes/:id/goals`, `PATCH /api/coach/goals/:id`,
   `GET /api/member/training/goals`.
 - Achievements: auto `milestone` on PR (`notify: false` on duplicate); manual coach award;
@@ -151,7 +154,8 @@ goals and lightweight achievements.*
 
 **Frontend ✅ (except video review UI)**
 - `NotificationBell` (coach + member headers).
-- `MessagesPanel` (coach tab), `MemberMessagesTab` (member tab).
+- `MessagesPanel` (coach tab), `MemberMessagesTab` (member tab), `AdminMessagesPanel` (admin Accounts group).
+- Shared `ThreadHeaderMenu` (⋯ → edit/lock thread name), `RecipientPicker` (multi-select chips).
 - Goals widget on `MemberProgressTab`; coach goal CRUD in `InsightsPanel`.
 - Achievements on member progress tab; print-friendly parent report from narrative + PRs.
 

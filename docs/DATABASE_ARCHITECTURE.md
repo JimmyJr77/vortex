@@ -188,7 +188,10 @@ slot groups and time slots via `updateOffering` in [handlers.js](../backend/sche
 ### 4.5 Coaching graph (see [COACHING_CORNER_ROADMAP.md](COACHING_CORNER_ROADMAP.md) Part 5)
 Strong cross-schema FKs to `public.facility`, `public.app_user`, `public.member`. **`023`**
 adds `coaching.notification` (`recipient_member_id` / `recipient_user_id` FKs).
-**`024`** adds `message_thread` / `message`. **`025`** adds `goal` / `achievement`. **Loose
+**`024`** adds `message_thread` / `message`. **`060_coaching_message_enhancements.sql`**
+adds `message_thread.subject_locked`, nullable `message_thread.member_id` (staff-only threads),
+and `message_thread_participant` (`thread_id` + optional `user_id` / `member_id` for group
+recipients). **`025`** adds `goal` / `achievement`. **Loose
 BIGINT refs (no FK)** are deliberate for polymorphic/calendar wiring:
 `plan_assignment.target_id`/`assignable_id` (polymorphic by `*_type`),
 `session.facility_id`/`coach_user_id`/`assignment_id`/`program_id`/`class_iteration_id` (legacy — see §10.1),
