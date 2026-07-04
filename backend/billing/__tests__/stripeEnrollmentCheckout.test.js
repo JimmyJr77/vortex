@@ -2,8 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   computeEnrollmentDueNowCents,
+  computeFirstMonthBillingAnchorDate,
   computeFirstMonthTuitionLineItems,
-  computeSubscriptionTrialEndUnix,
+  computeSubscriptionBillingAnchorDate,
 } from '../stripeEnrollmentCheckout.js'
 import { firstOfNextMonth } from '../../scheduling/firstMonthProration.js'
 
@@ -35,7 +36,32 @@ test('computeFirstMonthTuitionLineItems separates prorated and prepaid per class
   assert.match(lines[1].name, /prepaid/i)
 })
 
-test('computeSubscriptionTrialEndUnix defers recurring until next 1st after prorated signup', () => {
+test('computeFirstMonthBillingAnchorDate uses next 1st after in-session tuition paid now', () => {
+  const anchor = computeFirstMonthBillingAnchorDate(
+    {
+      proratedCents: 15000,
+      classStartsFutureMonth: false,
+      firstBillDate: '2026-08-01',
+    },
+    '2026-07-04',
+  )
+  assert.equal(anchor, '2026-08-01')
+})
+
+test('computeFirstMonthBillingAnchorDate defers recurring until month after prepaid service month', () => {
+  const anchor = computeFirstMonthBillingAnchorDate(
+    {
+      proratedCents: 0,
+      prepaidFirstMonthCents: 15000,
+      classStartsFutureMonth: true,
+      firstBillDate: '2026-09-01',
+    },
+    '2026-07-04',
+  )
+  assert.equal(anchor, firstOfNextMonth('2026-09-01'))
+})
+
+test('computeSubscriptionBillingAnchorDate picks latest anchor across lines', () => {
   const preview = {
     firstMonth: {
       enabled: true,
@@ -45,26 +71,7 @@ test('computeSubscriptionTrialEndUnix defers recurring until next 1st after pror
           classStartsFutureMonth: false,
           firstBillDate: '2026-08-01',
         },
-      ],
-    },
-  }
-  const trialEnd = computeSubscriptionTrialEndUnix(preview, '2026-07-04')
-  assert.equal(trialEnd, computeSubscriptionTrialEndUnix({ firstMonth: { enabled: true, items: [{
-    proratedCents: 1,
-    classStartsFutureMonth: false,
-    firstBillDate: '2026-08-01',
-  }] } }, '2026-07-04'))
-  const expected = Math.floor(Date.UTC(2026, 7, 1, 12, 0, 0) / 1000)
-  assert.equal(trialEnd, expected)
-})
-
-test('computeSubscriptionTrialEndUnix defers recurring until month after prepaid service month', () => {
-  const preview = {
-    firstMonth: {
-      enabled: true,
-      items: [
         {
-          proratedCents: 0,
           prepaidFirstMonthCents: 15000,
           classStartsFutureMonth: true,
           firstBillDate: '2026-09-01',
@@ -72,19 +79,7 @@ test('computeSubscriptionTrialEndUnix defers recurring until month after prepaid
       ],
     },
   }
-  const trialEnd = computeSubscriptionTrialEndUnix(preview, '2026-07-04')
-  const afterPrepaidMonth = firstOfNextMonth('2026-09-01')
-  const expected = Math.floor(
-    Date.UTC(
-      Number(afterPrepaidMonth.slice(0, 4)),
-      Number(afterPrepaidMonth.slice(5, 7)) - 1,
-      Number(afterPrepaidMonth.slice(8, 10)),
-      12,
-      0,
-      0,
-    ) / 1000,
-  )
-  assert.equal(trialEnd, expected)
+  assert.equal(computeSubscriptionBillingAnchorDate(preview, '2026-07-04'), '2026-10-01')
 })
 
 test('computeEnrollmentDueNowCents matches fees plus first-month tuition', () => {

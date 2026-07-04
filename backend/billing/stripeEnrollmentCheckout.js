@@ -54,9 +54,14 @@ export function enrollmentNeedsStripeCheckout(preview) {
   return dueNow > 0 || hasRecurring || hasPassPurchase
 }
 
-function dateStringToUnixTrialEnd(dateStr) {
+function dateStringToUnixBillingAnchor(dateStr) {
   const [y, m, d] = String(dateStr).split('-').map(Number)
   return Math.floor(Date.UTC(y, m - 1, d, 12, 0, 0) / 1000)
+}
+
+/** @deprecated use dateStringToUnixBillingAnchor */
+function dateStringToUnixTrialEnd(dateStr) {
+  return dateStringToUnixBillingAnchor(dateStr)
 }
 
 /**
@@ -87,33 +92,36 @@ export function computeFirstMonthTuitionLineItems(preview) {
 }
 
 /**
- * When checkout uses subscription mode, defer the first recurring Stripe charge until
- * after first-month tuition is collected as one-time line items:
- * - In-session classes: trial ends on firstBillDate (next 1st) after prorated payment now.
- * - Future-start classes: trial ends the month after the prepaid service month.
+ * When recurring billing should start in Stripe for one first-month line item.
+ * - In-session classes: next 1st after prorated/prepaid tuition collected at checkout.
+ * - Future-start prepaid classes: 1st of the month after the prepaid service month.
  */
-export function computeSubscriptionTrialEndUnix(preview, asOfDate = null) {
+export function computeFirstMonthBillingAnchorDate(fmItem, fromDate) {
+  if (fmItem?.classStartsFutureMonth) {
+    const serviceMonthStart = fmItem.firstBillDate ?? fmItem.firstServicePeriodStart ?? fromDate
+    return firstOfNextMonth(serviceMonthStart)
+  }
+  if ((fmItem?.proratedCents ?? 0) > 0 || (fmItem?.prepaidFirstMonthCents ?? 0) > 0) {
+    return fmItem.firstBillDate ?? firstOfNextMonth(fromDate)
+  }
+  return firstOfNextMonth(fromDate)
+}
+
+/** Latest billing anchor when multiple classes enroll in one checkout. */
+export function computeSubscriptionBillingAnchorDate(preview, asOfDate = null) {
   const fromDate = asOfDate ?? todayDateOnly()
   const fmItems = preview.firstMonth?.enabled ? preview.firstMonth.items ?? [] : []
-  let maxTrialDate = null
-
+  let maxAnchorDate = null
   for (const fm of fmItems) {
-    let trialEndDate = null
-    if (fm.classStartsFutureMonth) {
-      const serviceMonthStart = fm.firstBillDate ?? fm.firstServicePeriodStart ?? fromDate
-      trialEndDate = firstOfNextMonth(serviceMonthStart)
-    } else if ((fm.proratedCents ?? 0) > 0) {
-      trialEndDate = fm.firstBillDate ?? firstOfNextMonth(fromDate)
-    }
-    if (trialEndDate && (!maxTrialDate || trialEndDate > maxTrialDate)) {
-      maxTrialDate = trialEndDate
-    }
+    const anchorDate = computeFirstMonthBillingAnchorDate(fm, fromDate)
+    if (!maxAnchorDate || anchorDate > maxAnchorDate) maxAnchorDate = anchorDate
   }
+  return maxAnchorDate ?? firstOfNextMonth(fromDate)
+}
 
-  if (!maxTrialDate) {
-    maxTrialDate = firstOfNextMonth(fromDate)
-  }
-  return dateStringToUnixTrialEnd(maxTrialDate)
+/** @deprecated Stripe trial_end showed misleading "X days free" — use billing_cycle_anchor after payment instead. */
+export function computeSubscriptionTrialEndUnix(preview, asOfDate = null) {
+  return dateStringToUnixBillingAnchor(computeSubscriptionBillingAnchorDate(preview, asOfDate))
 }
 
 async function resolveOptionKeyForPreviewLine(pool, preview, line) {
@@ -169,24 +177,26 @@ async function catalogLookupForLine(pool, preview, line) {
   return programOptionLookupKey(Number(programsId), optionKey)
 }
 
-async function buildCheckoutLineItems(pool, preview) {
+async function buildCheckoutLineItems(pool, preview, { includeRecurringSubscriptionPrices = false } = {}) {
   const lineItems = []
   const seenRecurring = new Set()
 
-  for (const line of preview.newSignups ?? []) {
-    if (line.multiClassPassApplied) continue
-    if (line.billingType !== 'recurring') continue
-    if ((line.monthlyPrice ?? line.incrementalMonthly ?? 0) <= 0) continue
+  if (includeRecurringSubscriptionPrices) {
+    for (const line of preview.newSignups ?? []) {
+      if (line.multiClassPassApplied) continue
+      if (line.billingType !== 'recurring') continue
+      if ((line.monthlyPrice ?? line.incrementalMonthly ?? 0) <= 0) continue
 
-    const lookupKey = await catalogLookupForLine(pool, preview, line)
-    if (!lookupKey || seenRecurring.has(lookupKey)) continue
-    seenRecurring.add(lookupKey)
+      const lookupKey = await catalogLookupForLine(pool, preview, line)
+      if (!lookupKey || seenRecurring.has(lookupKey)) continue
+      seenRecurring.add(lookupKey)
 
-    const priceId = await resolveStripePriceId(pool, lookupKey)
-    if (!priceId) {
-      throw new Error(`Stripe price not synced for ${lookupKey}. Run catalog sync or re-save program pricing.`)
+      const priceId = await resolveStripePriceId(pool, lookupKey)
+      if (!priceId) {
+        throw new Error(`Stripe price not synced for ${lookupKey}. Run catalog sync or re-save program pricing.`)
+      }
+      lineItems.push({ price: priceId, quantity: 1 })
     }
-    lineItems.push({ price: priceId, quantity: 1 })
   }
 
   for (const pass of preview.passPurchases ?? []) {
@@ -242,6 +252,91 @@ async function buildCheckoutLineItems(pool, preview) {
   }
 
   return lineItems
+}
+
+/**
+ * After enrollment payment, create Stripe Subscriptions anchored to the 1st when recurring
+ * billing begins — avoids Checkout "X days free" trial wording while first-month tuition
+ * is collected as one-time line items.
+ */
+export async function createEnrollmentStripeSubscriptions(
+  pool,
+  stripe,
+  { preview, stripeSession, signupIds, familyBillingAccountId },
+) {
+  if (!stripe || !signupIds?.length) return
+
+  const sessionId = typeof stripeSession === 'string' ? stripeSession : stripeSession?.id
+  if (!sessionId) return
+
+  const session = await stripe.checkout.sessions.retrieve(sessionId, {
+    expand: ['payment_intent.payment_method'],
+  })
+  const customerId = session.customer
+  if (!customerId) return
+
+  let defaultPaymentMethod = session.payment_intent?.payment_method ?? null
+  if (defaultPaymentMethod && typeof defaultPaymentMethod === 'object') {
+    defaultPaymentMethod = defaultPaymentMethod.id
+  }
+
+  const previewObj = preview
+  const fromDate = previewObj.firstMonth?.periodStart ?? todayDateOnly()
+
+  const subsRes = await pool.query(
+    `SELECT bs.id, bs.source_id
+     FROM billing_subscription bs
+     WHERE bs.source_type = 'scheduling_signup'
+       AND bs.source_id = ANY($1::text[])
+       AND bs.status = 'active'
+       AND bs.stripe_subscription_id IS NULL`,
+    [signupIds.map(String)],
+  )
+
+  for (const subRow of subsRes.rows) {
+    const signupId = Number(subRow.source_id)
+    const signupRes = await pool.query(
+      `SELECT form_id, slot_group_id, time_slot_id FROM scheduling_signup WHERE id = $1`,
+      [signupId],
+    )
+    const signup = signupRes.rows[0]
+    if (!signup) continue
+
+    const slotKey = `${signup.form_id}:${signup.slot_group_id}:${signup.time_slot_id ?? 'none'}`
+    const previewLine = (previewObj.newSignups ?? []).find((line) => line.slotKey === slotKey)
+    if (!previewLine || previewLine.billingType !== 'recurring' || previewLine.multiClassPassApplied) {
+      continue
+    }
+    if ((previewLine.monthlyPrice ?? previewLine.incrementalMonthly ?? 0) <= 0) continue
+
+    const fmItem = (previewObj.firstMonth?.items ?? []).find((item) => item.slotKey === slotKey)
+    const anchorDate = fmItem
+      ? computeFirstMonthBillingAnchorDate(fmItem, fromDate)
+      : firstOfNextMonth(fromDate)
+
+    const lookupKey = await catalogLookupForLine(pool, previewObj, previewLine)
+    if (!lookupKey) continue
+    const priceId = await resolveStripePriceId(pool, lookupKey)
+    if (!priceId) continue
+
+    const stripeSub = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{ price: priceId }],
+      billing_cycle_anchor: dateStringToUnixBillingAnchor(anchorDate),
+      proration_behavior: 'none',
+      ...(defaultPaymentMethod ? { default_payment_method: defaultPaymentMethod } : {}),
+      metadata: {
+        billingSubscriptionId: String(subRow.id),
+        familyBillingAccountId: String(familyBillingAccountId),
+        checkoutType: 'enrollment',
+      },
+    })
+
+    await pool.query(
+      `UPDATE billing_subscription SET stripe_subscription_id = $2, updated_at = now() WHERE id = $1`,
+      [subRow.id, stripeSub.id],
+    )
+  }
 }
 
 function previewFingerprint(preview) {
@@ -303,8 +398,12 @@ export async function createEnrollmentCheckoutSession(
   const hasRecurring = (preview.newSignups ?? []).some(
     (line) => line.billingType === 'recurring' && !line.multiClassPassApplied,
   )
-  const mode = hasRecurring ? 'subscription' : 'payment'
-  const lineItems = await buildCheckoutLineItems(pool, preview)
+  // Payment mode: collect due-now tuition/fees only. Recurring Stripe subscriptions are
+  // created after payment with a billing-cycle anchor (no misleading "free trial" copy).
+  const mode = 'payment'
+  const lineItems = await buildCheckoutLineItems(pool, preview, {
+    includeRecurringSubscriptionPrices: false,
+  })
 
   if (lineItems.length === 0) {
     return { skipCheckout: true, preview }
@@ -352,23 +451,17 @@ export async function createEnrollmentCheckoutSession(
     line_items: lineItems,
     success_url: successUrl,
     cancel_url: cancelUrl,
+    payment_intent_data: {
+      setup_future_usage: 'off_session',
+    },
     metadata: {
       checkoutType: 'enrollment',
       pendingEnrollmentId: String(pendingId),
       familyBillingAccountId: String(account.id),
       memberId: String(memberId),
       previewHash: previewFingerprint(preview),
+      hasRecurring: hasRecurring ? 'true' : 'false',
     },
-  }
-
-  if (mode === 'subscription') {
-    sessionParams.subscription_data = {
-      trial_end: computeSubscriptionTrialEndUnix(preview),
-      metadata: {
-        pendingEnrollmentId: String(pendingId),
-        familyBillingAccountId: String(account.id),
-      },
-    }
   }
 
   const session = await stripe.checkout.sessions.create(sessionParams)
@@ -409,6 +502,10 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
     }
 
     const payload = pending.payload
+    const previewSnapshot =
+      typeof pending.preview_snapshot === 'string'
+        ? JSON.parse(pending.preview_snapshot)
+        : pending.preview_snapshot
 
     const result = await executeSignupBatch(pool, payload)
     await client.query(
@@ -418,7 +515,10 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
       [pendingEnrollmentId],
     )
 
+    const signupIds = (result?.data?.signups ?? []).map((row) => Number(row.id)).filter(Boolean)
+
     if (stripeSession?.subscription) {
+      // Legacy Checkout sessions created in subscription mode (pre–payment-only enrollment).
       await client.query(
         `UPDATE billing_subscription
          SET stripe_subscription_id = $2, updated_at = now()
@@ -428,6 +528,16 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
            AND created_at >= now() - interval '5 minutes'`,
         [pending.family_billing_account_id, stripeSession.subscription],
       )
+    } else if (signupIds.length > 0 && previewSnapshot) {
+      const stripe = await getStripeClient()
+      if (stripe) {
+        await createEnrollmentStripeSubscriptions(pool, stripe, {
+          preview: previewSnapshot,
+          stripeSession,
+          signupIds,
+          familyBillingAccountId: pending.family_billing_account_id,
+        })
+      }
     }
 
     await client.query('COMMIT')
