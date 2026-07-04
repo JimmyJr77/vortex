@@ -144,6 +144,9 @@ function formatShortDate(value: string) {
   return new Date(value).toLocaleDateString()
 }
 
+const sectionItemsClass = 'mb-4 pl-4 divide-y divide-gray-100'
+const sectionEmptyClass = 'text-sm text-gray-500 mb-4 pl-4'
+
 function BillingLineRow({
   primary,
   meta,
@@ -171,23 +174,6 @@ function BillingLineRow({
   )
 }
 
-function SummaryLine({
-  label,
-  amount,
-  amountClassName = 'text-gray-900',
-}: {
-  label: string
-  amount: string
-  amountClassName?: string
-}) {
-  return (
-    <div className="py-1.5 flex items-center justify-between gap-4 text-sm">
-      <span className="text-gray-500">{label}</span>
-      <span className={`tabular-nums ${amountClassName}`}>{amount}</span>
-    </div>
-  )
-}
-
 function LineList({
   items,
   emptyMessage,
@@ -198,10 +184,10 @@ function LineList({
   formatMoney: (cents: number) => string
 }) {
   if (items.length === 0) {
-    return <div className="text-sm text-gray-500 mb-4">{emptyMessage}</div>
+    return <div className={sectionEmptyClass}>{emptyMessage}</div>
   }
   return (
-    <div className="mb-4 divide-y divide-gray-100">
+    <div className={sectionItemsClass}>
       {items.map((item) => {
         const metaParts = [
           item.memberName ?? null,
@@ -232,10 +218,10 @@ function PaymentList({
   formatMoney: (cents: number) => string
 }) {
   if (payments.length === 0) {
-    return <div className="text-sm text-gray-500 mb-4">No payments this month.</div>
+    return <div className={sectionEmptyClass}>No payments this month.</div>
   }
   return (
-    <div className="mb-4 divide-y divide-gray-100">
+    <div className={sectionItemsClass}>
       {payments.map((payment) => (
         <BillingLineRow
           key={payment.id}
@@ -282,20 +268,27 @@ export default function MemberBillingPanel({
           </p>
         </div>
 
-        <div className="mb-6 divide-y divide-gray-100">
-          <SummaryLine label="New charges" amount={formatMoney(totals?.chargesCents ?? 0)} />
-          <SummaryLine label="Outstanding balance" amount={formatMoney(totals?.debitsCents ?? 0)} />
-          <SummaryLine
-            label="Credits"
-            amount={formatMoney(totals?.creditsCents ?? 0)}
-            amountClassName="text-green-700"
-          />
-          <SummaryLine
-            label="Payments"
-            amount={formatMoney(totals?.paymentsCents ?? 0)}
-            amountClassName="text-green-700"
-          />
-          <SummaryLine label="Balance due" amount={formatMoney(totals?.balanceDueCents ?? 0)} />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+          <div className="rounded-xl border border-gray-200 p-4">
+            <p className="text-xs uppercase tracking-wide text-gray-500">New charges</p>
+            <p className="text-xl font-bold text-gray-900">{formatMoney(totals?.chargesCents ?? 0)}</p>
+          </div>
+          <div className="rounded-xl border border-gray-200 p-4">
+            <p className="text-xs uppercase tracking-wide text-gray-500">Outstanding balance</p>
+            <p className="text-xl font-bold text-gray-900">{formatMoney(totals?.debitsCents ?? 0)}</p>
+          </div>
+          <div className="rounded-xl border border-gray-200 p-4">
+            <p className="text-xs uppercase tracking-wide text-gray-500">Credits</p>
+            <p className="text-xl font-bold text-green-700">{formatMoney(totals?.creditsCents ?? 0)}</p>
+          </div>
+          <div className="rounded-xl border border-gray-200 p-4">
+            <p className="text-xs uppercase tracking-wide text-gray-500">Payments</p>
+            <p className="text-xl font-bold text-green-700">{formatMoney(totals?.paymentsCents ?? 0)}</p>
+          </div>
+          <div className="rounded-xl border-2 border-black p-4 col-span-2 sm:col-span-1">
+            <p className="text-xs uppercase tracking-wide text-gray-500">Balance due</p>
+            <p className="text-xl font-bold text-black">{formatMoney(totals?.balanceDueCents ?? 0)}</p>
+          </div>
         </div>
 
         {(billingAccount?.monthlyTotals?.netCents ?? 0) > 0 && (
@@ -321,7 +314,7 @@ export default function MemberBillingPanel({
         {(period?.membershipFees?.length ?? 0) > 0 && (
           <>
             <h3 className="text-sm font-semibold text-gray-900 mb-2">Membership fee</h3>
-            <div className="mb-4 divide-y divide-gray-100">
+            <div className={sectionItemsClass}>
               {period!.membershipFees.map((fee, idx) => {
                 const meta = [fee.memberName ?? null, `Paid ${formatShortDate(fee.paidAt)}`]
                   .filter(Boolean)
@@ -342,7 +335,7 @@ export default function MemberBillingPanel({
         {(period?.recurringEnrollments?.length ?? 0) > 0 && (
           <>
             <h3 className="text-sm font-semibold text-gray-900 mb-2">Recurring enrollments</h3>
-            <div className="mb-4 divide-y divide-gray-100">
+            <div className={sectionItemsClass}>
               {period!.recurringEnrollments.map((sub) => {
                 const metaParts = [
                   sub.memberName ?? null,
@@ -354,7 +347,7 @@ export default function MemberBillingPanel({
                     key={sub.id}
                     primary={sub.description}
                     meta={metaParts.join(' · ')}
-                    amount={`${formatMoney(sub.netMonthlyCents)}/mo`}
+                    amount={formatMoney(sub.netMonthlyCents)}
                   />
                 )
               })}
@@ -371,7 +364,7 @@ export default function MemberBillingPanel({
             <>
               <h3 className="text-sm font-semibold text-gray-900 mb-2">One-time purchases</h3>
               {showLifetimeOneTime ? (
-                <div className="mb-4 divide-y divide-gray-100">
+                <div className={sectionItemsClass}>
                   {oneTimeLifetime.slice(0, 10).map((charge) => (
                     <BillingLineRow
                       key={charge.id}
@@ -395,7 +388,7 @@ export default function MemberBillingPanel({
         {(billingAccount?.bundlePasses?.length ?? 0) > 0 && (
           <>
             <h3 className="text-sm font-semibold text-gray-900 mb-2">Class bundles</h3>
-            <div className="mb-4 divide-y divide-gray-100">
+            <div className={sectionItemsClass}>
               {billingAccount!.bundlePasses!.map((b) => {
                 const metaParts = [
                   b.memberName ?? null,
@@ -413,7 +406,7 @@ export default function MemberBillingPanel({
               })}
             </div>
             {(billingAccount?.bundleUsage?.length ?? 0) > 0 && (
-              <details className="mb-4">
+              <details className="mb-4 pl-4">
                 <summary className="text-xs font-semibold text-gray-500 cursor-pointer">Bundle usage history</summary>
                 <div className="mt-2 space-y-1">
                   {billingAccount!.bundleUsage!.slice(0, 20).map((u) => (
@@ -489,7 +482,7 @@ export default function MemberBillingPanel({
                         <div className="px-4 py-3 text-sm text-gray-500">No activity this month.</div>
                       ) : (
                         month.lines.map((line, idx) => (
-                          <div key={`${line.kind}-${line.occurredAt}-${idx}`} className="px-4 py-2">
+                          <div key={`${line.kind}-${line.occurredAt}-${idx}`} className="pl-4 py-2">
                             <BillingLineRow
                               primary={line.description}
                               meta={[
