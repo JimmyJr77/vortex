@@ -111,9 +111,11 @@ Save → Render redeploys automatically.
 
    **Important:** Use the **Signing secret** from this Dashboard webhook endpoint (`whsec_...`). Do **not** use the secret from `stripe listen` (local CLI) on Render — that causes `400` / “No signatures found matching the expected signature”.
 
+   Open the failed delivery in Stripe → **View webhook endpoint** / event destination → **Reveal signing secret** on **that** destination. Sandbox/test and live each have different secrets. If you rotated the secret, update Render immediately or add the previous secret as `STRIPE_WEBHOOK_SECRETS` (comma-separated) during the grace period.
+
 **Enrollment commit:** Production must have this webhook configured. Without it, enrollment still completes when the member returns to the portal (`?enrollment=paid`), but webhook delivery is the primary path and records the payment if the member closes the browser before redirect.
 
-If webhook deliveries show **400 Bad Request** with a signature error, verify `STRIPE_WEBHOOK_SECRET` on Render matches the endpoint signing secret exactly (no extra spaces/newlines).
+If webhook deliveries show **400 Bad Request** with a signature error, verify `STRIPE_WEBHOOK_SECRET` on Render matches the endpoint signing secret exactly (no extra spaces/newlines). After deploy, `GET /api/health` should show `buildId` **`stripe-webhook-raw-route-2026-07-04`**. Check Render logs for `[stripe] webhook signature verification failed` — `bodyIsBuffer` should be `true`.
 
 ### B4. Run migrations on production database
 

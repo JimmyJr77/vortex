@@ -88,6 +88,30 @@ export async function createCheckoutSession(pool, { account, balanceCents, succe
   return { url: session.url }
 }
 
+function normalizeWebhookSecret(value) {
+  if (!value) return null
+  let secret = String(value).trim()
+  if (
+    (secret.startsWith('"') && secret.endsWith('"')) ||
+    (secret.startsWith("'") && secret.endsWith("'"))
+  ) {
+    secret = secret.slice(1, -1).trim()
+  }
+  return secret || null
+}
+
+function webhookSigningSecrets() {
+  const secrets = []
+  const primary = normalizeWebhookSecret(process.env.STRIPE_WEBHOOK_SECRET)
+  if (primary) secrets.push(primary)
+  const extra = process.env.STRIPE_WEBHOOK_SECRETS ?? ''
+  for (const part of extra.split(',')) {
+    const secret = normalizeWebhookSecret(part)
+    if (secret && !secrets.includes(secret)) secrets.push(secret)
+  }
+  return secrets
+}
+
 /**
  * Raw request body for Stripe webhook signature verification.
  * @returns {Buffer|string|null}
@@ -100,25 +124,47 @@ export function stripeWebhookRawBody(req) {
 }
 
 /**
- * Verify and parse a Stripe webhook event. Falls back to JSON parsing when no
- * signing secret/raw body is available (scaffold only — harden before go-live).
+ * Verify and parse a Stripe webhook event.
  */
 export async function parseWebhookEvent(rawBody, signature) {
   const stripe = await getStripe()
   if (!stripe) return null
-  const secret = process.env.STRIPE_WEBHOOK_SECRET?.trim()
-  if (secret && signature && rawBody != null) {
+
+  const secrets = webhookSigningSecrets()
+  if (secrets.length && signature && rawBody != null) {
     if (typeof rawBody === 'object' && !Buffer.isBuffer(rawBody)) {
       throw new Error(
         'Webhook raw body missing — Stripe signature verification requires the unparsed request body.',
       )
     }
-    return stripe.webhooks.constructEvent(rawBody, signature, secret)
+
+    let lastError = null
+    for (const secret of secrets) {
+      try {
+        return stripe.webhooks.constructEvent(rawBody, signature, secret)
+      } catch (err) {
+        lastError = err
+      }
+    }
+    throw lastError ?? new Error('Webhook signature verification failed.')
   }
+
   if (Buffer.isBuffer(rawBody)) {
     return JSON.parse(rawBody.toString('utf8'))
   }
   return typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody
+}
+
+export function logWebhookVerificationFailure(err, { rawBody, signature }) {
+  const secrets = webhookSigningSecrets()
+  console.error('[stripe] webhook signature verification failed:', err?.message ?? err, {
+    bodyIsBuffer: Buffer.isBuffer(rawBody),
+    bodyLength: Buffer.isBuffer(rawBody) ? rawBody.length : null,
+    bodyType: rawBody == null ? 'null' : typeof rawBody,
+    hasSignature: Boolean(signature),
+    configuredSecretCount: secrets.length,
+    secretPrefixes: secrets.map((s) => s.slice(0, 6)),
+  })
 }
 
 /**

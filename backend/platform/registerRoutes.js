@@ -27,7 +27,9 @@ import {
   parseWebhookEvent,
   recordStripePayment,
   stripeWebhookRawBody,
+  logWebhookVerificationFailure,
 } from '../billing/stripeBilling.js'
+import { stripeWebhookRawParser } from '../billing/stripeWebhookMiddleware.js'
 import {
   createEnrollmentCheckoutSession,
   commitPendingEnrollment,
@@ -2026,11 +2028,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/stripe/webhook', async (req, res) => {
+  app.post('/api/stripe/webhook', stripeWebhookRawParser, async (req, res) => {
     if (!isStripeEnabled()) return res.status(503).json({ success: false })
+    const rawBody = stripeWebhookRawBody(req)
+    const signature = req.headers['stripe-signature']
     try {
-      const rawBody = stripeWebhookRawBody(req)
-      const event = await parseWebhookEvent(rawBody, req.headers['stripe-signature'])
+      const event = await parseWebhookEvent(rawBody, signature)
       if (!event) return res.status(400).json({ success: false })
       if (event.type === 'checkout.session.completed' || event.type === 'payment_intent.succeeded') {
         const obj = event.data?.object ?? {}
@@ -2088,7 +2091,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       }
       res.json({ received: true })
     } catch (err) {
-      console.error('[stripe] webhook:', err)
+      if (String(err?.message ?? '').includes('signature')) {
+        logWebhookVerificationFailure(err, { rawBody, signature })
+      } else {
+        console.error('[stripe] webhook:', err)
+      }
       res.status(400).json({ success: false, message: err.message })
     }
   })
