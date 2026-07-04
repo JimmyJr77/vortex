@@ -22,7 +22,7 @@ interface EmailStatus {
   emailLayoutVersion?: string | null
 }
 
-export default function AdminEmail() {
+export default function AdminEmail({ embedded = false }: { embedded?: boolean }) {
   const [status, setStatus] = useState<EmailStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -98,18 +98,29 @@ export default function AdminEmail() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Mail className="w-5 h-5 text-gray-700" />
-          <h2 className="text-xl font-semibold text-gray-900">Email</h2>
+      {!embedded ? (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-gray-700" />
+            <h2 className="text-xl font-semibold text-gray-900">Email</h2>
+          </div>
+          <button
+            onClick={() => void load()}
+            className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+          >
+            <RefreshCw className="w-4 h-4" /> Refresh
+          </button>
         </div>
-        <button
-          onClick={() => void load()}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
-        >
-          <RefreshCw className="w-4 h-4" /> Refresh
-        </button>
-      </div>
+      ) : (
+        <div className="flex justify-end">
+          <button
+            onClick={() => void load()}
+            className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+          >
+            <RefreshCw className="w-4 h-4" /> Refresh
+          </button>
+        </div>
+      )}
 
       <p className="text-sm text-gray-500">
         Transactional email (enrollment confirmations, waiver requests, parent invites, email

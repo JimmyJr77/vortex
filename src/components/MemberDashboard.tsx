@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
@@ -17,6 +17,7 @@ import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
 import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
 import type { PortalId } from '../utils/portalSession'
+import { firstVisiblePortalTab, isPortalTabVisible } from '../utils/portalTabConfig'
 
 interface MemberDashboardProps {
   member: any
@@ -309,6 +310,7 @@ export default function MemberDashboard({
   const [enrollmentConfirmMessage, setEnrollmentConfirmMessage] = useState<string | null>(null)
   const [enrollmentConfirmError, setEnrollmentConfirmError] = useState<string | null>(null)
   const [enrollmentConfirming, setEnrollmentConfirming] = useState(false)
+  const [hiddenMemberTabs, setHiddenMemberTabs] = useState<MemberTab[]>([])
 
   const apiUrl = getApiUrl()
   const token = localStorage.getItem('vortex_member_token')
@@ -929,6 +931,37 @@ export default function MemberDashboard({
     }
   }
 
+  const visibleNav = useMemo(
+    () => NAV.filter((item) => isPortalTabVisible(item.tab, hiddenMemberTabs)),
+    [hiddenMemberTabs],
+  )
+
+  useEffect(() => {
+    if (!token) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch(`${apiUrl}/api/members/portal-config`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (!res.ok || cancelled) return
+        const json = await res.json()
+        if (cancelled) return
+        setHiddenMemberTabs(Array.isArray(json.data?.hiddenTabs) ? json.data.hiddenTabs : [])
+      } catch {
+        if (!cancelled) setHiddenMemberTabs([])
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [apiUrl, token])
+
+  useEffect(() => {
+    if (isPortalTabVisible(activeTab, hiddenMemberTabs)) return
+    setActiveTab(firstVisiblePortalTab(NAV.map((item) => item.tab), hiddenMemberTabs, 'home'))
+  }, [activeTab, hiddenMemberTabs])
+
   useEffect(() => {
     if (!token) return
 
@@ -1524,7 +1557,7 @@ export default function MemberDashboard({
       <div className="container-admin py-6 grid gap-6 lg:grid-cols-[220px_1fr]">
         <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
-            {NAV.map((item) => {
+            {visibleNav.map((item) => {
               const Icon = item.icon
               const active = activeTab === item.tab
               return (
@@ -1553,7 +1586,11 @@ export default function MemberDashboard({
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <MemberHomePanel onNavigate={setActiveTab} firstName={profileData?.firstName} />
+                <MemberHomePanel
+                  onNavigate={setActiveTab}
+                  firstName={profileData?.firstName}
+                  hiddenTabs={hiddenMemberTabs}
+                />
               </motion.div>
             )}
 

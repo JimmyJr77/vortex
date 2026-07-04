@@ -1,5 +1,6 @@
 import { Users, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, Calendar, CreditCard, FileText } from 'lucide-react'
 import type { MemberTab } from '../MemberDashboard'
+import { isPortalTabVisible } from '../../utils/portalTabConfig'
 
 const cards: Array<{ tab: MemberTab; title: string; description: string; icon: typeof Users }> = [
   { tab: 'profile', title: 'Profile', description: 'Your account and family members.', icon: Users },
@@ -12,7 +13,17 @@ const cards: Array<{ tab: MemberTab; title: string; description: string; icon: t
   { tab: 'waivers', title: 'Waivers', description: 'Review and sign required waivers.', icon: FileText },
 ]
 
-export default function MemberHomePanel({ onNavigate, firstName }: { onNavigate: (tab: MemberTab) => void; firstName?: string }) {
+export default function MemberHomePanel({
+  onNavigate,
+  firstName,
+  hiddenTabs = [],
+}: {
+  onNavigate: (tab: MemberTab) => void
+  firstName?: string
+  hiddenTabs?: MemberTab[]
+}) {
+  const visibleCards = cards.filter((card) => isPortalTabVisible(card.tab, hiddenTabs))
+
   return (
     <div className="space-y-5">
       <div>
@@ -20,7 +31,7 @@ export default function MemberHomePanel({ onNavigate, firstName }: { onNavigate:
         <p className="text-sm text-gray-500">Your member portal. Jump into any section.</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((c) => {
+        {visibleCards.map((c) => {
           const Icon = c.icon
           return (
             <button key={c.tab} type="button" onClick={() => onNavigate(c.tab)} className="text-left bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-vortex-red transition-all">

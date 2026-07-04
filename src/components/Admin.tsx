@@ -18,7 +18,7 @@ import AdminSchools from './AdminSchools'
 import AdminAccess from './AdminAccess'
 import AdminFamilyBilling from './AdminFamilyBilling'
 import AdminWaivers from './AdminWaivers'
-import AdminEmail from './AdminEmail'
+import AdminSettings from './admin/AdminSettings'
 import AdminCoaches from './AdminCoaches'
 import AdminEventSignups from './AdminEventSignups'
 import AdminInsurance from './AdminInsurance'
@@ -315,7 +315,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
       case 'dbQueries':
         return <AdminDbQueries />
       case 'email':
-        return <AdminEmail />
+        return <AdminSettings />
       case 'schools':
         return <AdminSchools />
       case 'scheduling':

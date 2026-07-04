@@ -1,5 +1,6 @@
 import { Dumbbell, Flame, Sparkles, ClipboardCheck, Send, BarChart3, Trophy, CalendarRange, Users, BookOpen, CalendarDays, GitBranch } from 'lucide-react'
 import type { CoachTab } from './CoachLayout'
+import { isPortalTabVisible } from '../../utils/portalTabConfig'
 
 const cards: Array<{ tab: CoachTab; title: string; description: string; icon: typeof Dumbbell }> = [
   { tab: 'sessions', title: "Today's Sessions", description: 'Run a class: attendance and group logging.', icon: CalendarDays },
@@ -16,7 +17,17 @@ const cards: Array<{ tab: CoachTab; title: string; description: string; icon: ty
   { tab: 'roster', title: 'Roster', description: 'Attendance, notes, waivers.', icon: Users },
 ]
 
-export default function HomePanel({ onNavigate, coachName }: { onNavigate: (tab: CoachTab) => void; coachName?: string }) {
+export default function HomePanel({
+  onNavigate,
+  coachName,
+  hiddenTabs = [],
+}: {
+  onNavigate: (tab: CoachTab) => void
+  coachName?: string
+  hiddenTabs?: CoachTab[]
+}) {
+  const visibleCards = cards.filter((card) => isPortalTabVisible(card.tab, hiddenTabs))
+
   return (
     <div className="space-y-5">
       <div>
@@ -24,7 +35,7 @@ export default function HomePanel({ onNavigate, coachName }: { onNavigate: (tab:
         <p className="text-sm text-gray-500">Your coaching workspace. Jump into any tool.</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((c) => {
+        {visibleCards.map((c) => {
           const Icon = c.icon
           return (
             <button key={c.tab} type="button" onClick={() => onNavigate(c.tab)} className="text-left bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-vortex-red transition-all">

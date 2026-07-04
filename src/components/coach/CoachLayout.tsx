@@ -1,10 +1,12 @@
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect, useMemo } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video } from 'lucide-react'
 import HomePanel from './HomePanel'
 import PortalNavButtons from '../PortalNavButtons'
 import NotificationBell from '../NotificationBell'
 import type { PortalId } from '../../utils/portalSession'
+import { coachFetch } from '../../coach/api'
+import { firstVisiblePortalTab, isPortalTabVisible } from '../../utils/portalTabConfig'
 
 const LiveSessionPanel = lazyWithRetry(() => import('./LiveSessionPanel'))
 const RosterPanel = lazyWithRetry(() => import('./RosterPanel'))
@@ -72,11 +74,37 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
 export default function CoachLayout({ coach, onLogout, availablePortals = ['coach'], onSwitchPortal }: CoachLayoutProps) {
   const [tab, setTab] = useState<CoachTab>('home')
   const [navOpen, setNavOpen] = useState(false)
+  const [hiddenCoachTabs, setHiddenCoachTabs] = useState<CoachTab[]>([])
+
+  const visibleNav = useMemo(
+    () => NAV.filter((item) => isPortalTabVisible(item.tab, hiddenCoachTabs)),
+    [hiddenCoachTabs],
+  )
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const data = await coachFetch<{ hiddenTabs: CoachTab[] }>('/api/coach/portal-config')
+        if (!cancelled) setHiddenCoachTabs(Array.isArray(data.hiddenTabs) ? data.hiddenTabs : [])
+      } catch {
+        if (!cancelled) setHiddenCoachTabs([])
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isPortalTabVisible(tab, hiddenCoachTabs)) return
+    setTab(firstVisiblePortalTab(NAV.map((item) => item.tab), hiddenCoachTabs, 'home'))
+  }, [tab, hiddenCoachTabs])
 
   const renderPanel = () => {
     switch (tab) {
       case 'home':
-        return <HomePanel onNavigate={setTab} coachName={coach.fullName} />
+        return <HomePanel onNavigate={setTab} coachName={coach.fullName} hiddenTabs={hiddenCoachTabs} />
       case 'sessions':
         return <LiveSessionPanel />
       case 'roster':
@@ -138,7 +166,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
       <div className="container-admin py-6 grid gap-6 lg:grid-cols-[220px_1fr]">
         <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
-            {NAV.map((item) => {
+            {visibleNav.map((item) => {
               const Icon = item.icon
               const active = tab === item.tab
               return (

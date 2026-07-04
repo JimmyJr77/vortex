@@ -21,6 +21,7 @@ import {
 import { composeEmailHtml, emailButtonHtml, EMAIL_LAYOUT_VERSION, escapeHtml } from '../email/emailHtml.js'
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { API_BUILD_ID } from '../buildInfo.js'
+import { loadPortalConfig, savePortalConfig } from './portalSettings.js'
 import {
   stripeEnabled as isStripeEnabled,
   createCheckoutSession,
@@ -2477,6 +2478,51 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       ],
     )
     res.json({ success: true, data: updated.rows[0] })
+  })
+
+  app.get('/api/admin/portal-settings', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (_req, res) => {
+    try {
+      const config = await loadPortalConfig(pool)
+      res.json({ success: true, data: config })
+    } catch (err) {
+      console.error('[admin] portal-settings get:', err)
+      res.status(500).json({ success: false, message: 'Failed to load portal settings' })
+    }
+  })
+
+  app.put('/api/admin/portal-settings', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (req, res) => {
+    try {
+      const config = await savePortalConfig(pool, {
+        member: req.body?.member,
+        coach: req.body?.coach,
+      })
+      res.json({ success: true, data: config })
+    } catch (err) {
+      console.error('[admin] portal-settings put:', err)
+      res.status(500).json({ success: false, message: 'Failed to save portal settings' })
+    }
+  })
+
+  app.get('/api/members/portal-config', authMiddleware(pool, jwtSecret), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth?.user?.facility_id ?? null
+      const config = await loadPortalConfig(pool, facilityId)
+      res.json({ success: true, data: { hiddenTabs: config.member.hiddenTabs } })
+    } catch (err) {
+      console.error('[members] portal-config:', err)
+      res.status(500).json({ success: false, message: 'Failed to load portal config' })
+    }
+  })
+
+  app.get('/api/coach/portal-config', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth?.user?.facility_id ?? null
+      const config = await loadPortalConfig(pool, facilityId)
+      res.json({ success: true, data: { hiddenTabs: config.coach.hiddenTabs } })
+    } catch (err) {
+      console.error('[coach] portal-config:', err)
+      res.status(500).json({ success: false, message: 'Failed to load portal config' })
+    }
   })
 
   app.get('/api/admin/email/status', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (_req, res) => {
