@@ -18,6 +18,7 @@ const DESCRIPTIONS: Partial<Record<GroupId, string>> = {
   legal: 'Waivers and insurance.',
   highlightsEvents: 'Site highlights and events.',
   dataAnalysis: 'Analytics, database queries, and schools.',
+  preferences: 'Critical alerts and notification settings.',
   settings: 'Email and system configuration.',
 }
 

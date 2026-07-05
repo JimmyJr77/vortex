@@ -472,87 +472,125 @@ export async function acknowledgeMessage(pool, messageId, viewer) {
   return null
 }
 
+export async function resolveNotificationIdentity(pool, viewer) {
+  let userId = viewer?.userId != null ? Number(viewer.userId) : null
+  let memberId = viewer?.memberId != null ? Number(viewer.memberId) : null
+
+  if (memberId && !userId) {
+    const linked = await pool.query(
+      `SELECT app_user_id FROM member WHERE id = $1 AND app_user_id IS NOT NULL`,
+      [memberId],
+    )
+    if (linked.rows[0]?.app_user_id != null) {
+      userId = Number(linked.rows[0].app_user_id)
+    }
+  }
+
+  if (userId && !memberId) {
+    const linked = await pool.query(
+      `SELECT id FROM member WHERE app_user_id = $1`,
+      [userId],
+    )
+    if (linked.rows[0]?.id != null) {
+      memberId = Number(linked.rows[0].id)
+    }
+  }
+
+  return { userId, memberId }
+}
+
+function defaultNotificationPreference(facilityId, { userId, memberId }) {
+  return {
+    facility_id: facilityId,
+    user_id: userId ?? null,
+    member_id: memberId ?? null,
+    allow_critical_email: false,
+    allow_critical_sms: false,
+    phone_e164: null,
+  }
+}
+
+async function upsertNotificationPreferenceRow(pool, facilityId, column, id, prefs) {
+  const allowEmail = Boolean(prefs.allow_critical_email)
+  const allowSms = Boolean(prefs.allow_critical_sms)
+  const phone = prefs.phone_e164 != null ? String(prefs.phone_e164).trim() || null : null
+  const existing = await pool.query(
+    `SELECT id FROM coaching.notification_preference WHERE facility_id = $1 AND ${column} = $2`,
+    [facilityId, id],
+  )
+  if (existing.rows.length > 0) {
+    const r = await pool.query(
+      `UPDATE coaching.notification_preference
+       SET allow_critical_email = $3, allow_critical_sms = $4, phone_e164 = $5, updated_at = now()
+       WHERE facility_id = $1 AND ${column} = $2
+       RETURNING *`,
+      [facilityId, id, allowEmail, allowSms, phone],
+    )
+    return r.rows[0]
+  }
+  const insertCols = column === 'user_id'
+    ? '(facility_id, user_id, allow_critical_email, allow_critical_sms, phone_e164, updated_at)'
+    : '(facility_id, member_id, allow_critical_email, allow_critical_sms, phone_e164, updated_at)'
+  const r = await pool.query(
+    `INSERT INTO coaching.notification_preference ${insertCols}
+     VALUES ($1, $2, $3, $4, $5, now()) RETURNING *`,
+    [facilityId, id, allowEmail, allowSms, phone],
+  )
+  return r.rows[0]
+}
+
 export async function getNotificationPreferences(pool, facilityId, viewer) {
-  if (viewer?.userId != null) {
+  const identity = await resolveNotificationIdentity(pool, viewer)
+  const rows = []
+
+  if (identity.userId != null) {
     const r = await pool.query(
       `SELECT * FROM coaching.notification_preference
        WHERE facility_id = $1 AND user_id = $2`,
-      [facilityId, viewer.userId],
+      [facilityId, identity.userId],
     )
-    return r.rows[0] ?? {
-      facility_id: facilityId,
-      user_id: viewer.userId,
-      allow_critical_email: false,
-      allow_critical_sms: false,
-      phone_e164: null,
-    }
+    if (r.rows[0]) rows.push(r.rows[0])
   }
-  if (viewer?.memberId != null) {
+  if (identity.memberId != null) {
     const r = await pool.query(
       `SELECT * FROM coaching.notification_preference
        WHERE facility_id = $1 AND member_id = $2`,
-      [facilityId, viewer.memberId],
+      [facilityId, identity.memberId],
     )
-    return r.rows[0] ?? {
-      facility_id: facilityId,
-      member_id: viewer.memberId,
-      allow_critical_email: false,
-      allow_critical_sms: false,
-      phone_e164: null,
-    }
+    if (r.rows[0]) rows.push(r.rows[0])
   }
-  return null
+
+  if (rows.length === 0) {
+    return defaultNotificationPreference(facilityId, identity)
+  }
+
+  rows.sort((a, b) => {
+    const aTime = a.updated_at ? new Date(a.updated_at).getTime() : 0
+    const bTime = b.updated_at ? new Date(b.updated_at).getTime() : 0
+    return bTime - aTime
+  })
+  return rows[0]
 }
 
 export async function updateNotificationPreferences(pool, facilityId, viewer, prefs) {
+  const identity = await resolveNotificationIdentity(pool, viewer)
   const allowEmail = Boolean(prefs?.allow_critical_email)
   const allowSms = Boolean(prefs?.allow_critical_sms)
   const phone = prefs?.phone_e164 != null ? String(prefs.phone_e164).trim() || null : null
-  if (viewer?.userId != null) {
-    const existing = await pool.query(
-      `SELECT id FROM coaching.notification_preference WHERE facility_id = $1 AND user_id = $2`,
-      [facilityId, viewer.userId],
-    )
-    if (existing.rows.length > 0) {
-      const r = await pool.query(
-        `UPDATE coaching.notification_preference
-         SET allow_critical_email = $3, allow_critical_sms = $4, phone_e164 = $5, updated_at = now()
-         WHERE facility_id = $1 AND user_id = $2 RETURNING *`,
-        [facilityId, viewer.userId, allowEmail, allowSms, phone],
-      )
-      return r.rows[0]
-    }
-    const r = await pool.query(
-      `INSERT INTO coaching.notification_preference
-         (facility_id, user_id, allow_critical_email, allow_critical_sms, phone_e164, updated_at)
-       VALUES ($1, $2, $3, $4, $5, now()) RETURNING *`,
-      [facilityId, viewer.userId, allowEmail, allowSms, phone],
-    )
-    return r.rows[0]
+  const payload = {
+    allow_critical_email: allowEmail,
+    allow_critical_sms: allowSms,
+    phone_e164: phone,
   }
-  if (viewer?.memberId != null) {
-    const existing = await pool.query(
-      `SELECT id FROM coaching.notification_preference WHERE facility_id = $1 AND member_id = $2`,
-      [facilityId, viewer.memberId],
-    )
-    if (existing.rows.length > 0) {
-      const r = await pool.query(
-        `UPDATE coaching.notification_preference
-         SET allow_critical_email = $3, allow_critical_sms = $4, phone_e164 = $5, updated_at = now()
-         WHERE facility_id = $1 AND member_id = $2 RETURNING *`,
-        [facilityId, viewer.memberId, allowEmail, allowSms, phone],
-      )
-      return r.rows[0]
-    }
-    const r = await pool.query(
-      `INSERT INTO coaching.notification_preference
-         (facility_id, member_id, allow_critical_email, allow_critical_sms, phone_e164, updated_at)
-       VALUES ($1, $2, $3, $4, $5, now()) RETURNING *`,
-      [facilityId, viewer.memberId, allowEmail, allowSms, phone],
-    )
-    return r.rows[0]
+
+  let saved = null
+  if (identity.userId != null) {
+    saved = await upsertNotificationPreferenceRow(pool, facilityId, 'user_id', identity.userId, payload)
   }
-  return null
+  if (identity.memberId != null) {
+    saved = await upsertNotificationPreferenceRow(pool, facilityId, 'member_id', identity.memberId, payload)
+  }
+  return saved ?? defaultNotificationPreference(facilityId, identity)
 }
 
 export async function logMessageAudit(pool, { facilityId, threadId, messageId, actor, action, detail }) {

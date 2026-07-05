@@ -13,7 +13,6 @@ import CriticalMessageToggle from './messaging/CriticalMessageToggle'
 import { getMessageViewer } from './messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from './messaging/messageAttachmentUpload'
 import { markThreadRead } from './messaging/messagingApi'
-import MessagingNotificationPreferences from './messaging/MessagingNotificationPreferences'
 import MessagingThreadFaq from './messaging/MessagingThreadFaq'
 import {
   countThreadsByInboxTab,
@@ -1126,10 +1125,7 @@ export function MemberMessagesTab({
             onSearchChange={setThreadSearch}
             searchPlaceholder="Search threads…"
             headerExtra={
-              <>
-                <MessagingInboxTabs activeTab={inboxTab} onChange={setInboxTab} counts={inboxCounts} />
-                <MessagingNotificationPreferences role="member" fetcher={coachFetch} />
-              </>
+              <MessagingInboxTabs activeTab={inboxTab} onChange={setInboxTab} counts={inboxCounts} />
             }
           >
             {loading ? (

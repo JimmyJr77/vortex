@@ -27,7 +27,12 @@ import AdminHomePanel from './admin/AdminHomePanel'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
-import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, DollarSign, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare } from 'lucide-react'
+import PortalPreferencesPanel from './messaging/PortalPreferencesPanel'
+import {
+  NOTIFICATION_NAV_EVENT,
+  type NotificationNavigateDetail,
+} from '../utils/notificationNavigation'
+import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, DollarSign, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell } from 'lucide-react'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
 
@@ -66,9 +71,9 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'preferences'
 
-export type GroupId = 'home' | 'messaging' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'settings'
+export type GroupId = 'home' | 'messaging' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'preferences' | 'settings'
 
 interface AccessContext {
   permissions: string[]
@@ -101,6 +106,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'email', label: 'Email', permission: 'admin_access.manage' },
   { id: 'schools', label: 'Schools', permission: 'schools.view' },
   { id: 'analytics', label: 'Analytics & Engagement', permission: 'analytics.view' },
+  { id: 'preferences', label: 'Preferences' },
 ]
 
 const tabLabel = (id: TabType): string => tabDefinitions.find((t) => t.id === id)?.label ?? id
@@ -124,6 +130,7 @@ const GROUPS: GroupDef[] = [
   { id: 'legal', label: 'Legal', icon: FileText, sections: ['waivers', 'insurance'] },
   { id: 'highlightsEvents', label: 'Highlights & Events', icon: Sparkles, sections: ['highlights', 'events'] },
   { id: 'dataAnalysis', label: 'Database & Analysis', icon: Database, sections: ['analytics', 'dbQueries', 'schools'] },
+  { id: 'preferences', label: 'Preferences', icon: Bell, sections: ['preferences'] },
   { id: 'settings', label: 'Settings', icon: Settings, sections: ['email'] },
 ]
 
@@ -142,6 +149,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
   const [schedulingNavKey, setSchedulingNavKey] = useState(0)
   const [accessContext, setAccessContext] = useState<AccessContext | null>(null)
   const [accessLoading, setAccessLoading] = useState(true)
+  const [openMessageThreadId, setOpenMessageThreadId] = useState<number | null>(null)
 
   useEffect(() => {
     if (!getAdminToken()) {
@@ -223,6 +231,15 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     setActiveGroup(groupForSection(tab))
   }, [])
 
+  const adminFetch = useCallback(async <T,>(endpoint: string, options: RequestInit = {}): Promise<T> => {
+    const res = await adminApiRequest(endpoint, options)
+    const json = await res.json().catch(() => ({}))
+    if (!res.ok || json?.success === false) {
+      throw new Error(json?.message || `Request failed: ${res.status}`)
+    }
+    return (json?.data ?? json) as T
+  }, [])
+
   const openGroup = useCallback(
     (groupId: GroupId) => {
       setActiveGroup(groupId)
@@ -234,6 +251,18 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     },
     [visibleSectionsForGroup],
   )
+
+  useEffect(() => {
+    const onNavigateNotification = (evt: globalThis.Event) => {
+      const detail = (evt as CustomEvent<NotificationNavigateDetail>).detail
+      if (!detail || detail.portal !== 'admin') return
+      if (detail.group) openGroup(detail.group as GroupId)
+      if (detail.section) goToSection(detail.section as TabType)
+      if (detail.threadId != null) setOpenMessageThreadId(detail.threadId)
+    }
+    window.addEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
+    return () => window.removeEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
+  }, [goToSection, openGroup])
 
   useEffect(() => {
     if (activeGroup === 'home') return
@@ -362,7 +391,14 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
       case 'membership':
         return <AdminMembers isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
       case 'messages':
-        return <AdminMessagesPanel />
+        return (
+          <AdminMessagesPanel
+            initialThreadId={openMessageThreadId}
+            onInitialThreadOpened={() => setOpenMessageThreadId(null)}
+          />
+        )
+      case 'preferences':
+        return <PortalPreferencesPanel role="admin" fetcher={adminFetch} />
       default:
         return <AdminInquiries />
     }

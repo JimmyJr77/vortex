@@ -1,9 +1,14 @@
 import { Suspense, useState, useEffect, useMemo } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
-import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video } from 'lucide-react'
+import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Settings } from 'lucide-react'
+import PortalPreferencesPanel from '../messaging/PortalPreferencesPanel'
 import HomePanel from './HomePanel'
 import PortalNavButtons from '../PortalNavButtons'
 import NotificationBell from '../NotificationBell'
+import {
+  NOTIFICATION_NAV_EVENT,
+  type NotificationNavigateDetail,
+} from '../../utils/notificationNavigation'
 import type { PortalId } from '../../utils/portalSession'
 import { coachFetch } from '../../coach/api'
 import { firstVisiblePortalTab, isPortalTabVisible, orderPortalItems } from '../../utils/portalTabConfig'
@@ -38,6 +43,7 @@ export type CoachTab =
   | 'skills'
   | 'messages'
   | 'reviews'
+  | 'preferences'
 
 interface CoachAccount {
   fullName?: string
@@ -69,11 +75,14 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'reviews', label: 'Form Review', icon: Video },
   { tab: 'insights', label: 'Insights', icon: BarChart3 },
   { tab: 'roster', label: 'Roster', icon: Users },
+  { tab: 'preferences', label: 'Preferences', icon: Settings },
 ]
 
 export default function CoachLayout({ coach, onLogout, availablePortals = ['coach'], onSwitchPortal }: CoachLayoutProps) {
   const [tab, setTab] = useState<CoachTab>('home')
   const [navOpen, setNavOpen] = useState(false)
+  const [openMessageThreadId, setOpenMessageThreadId] = useState<number | null>(null)
+  const [openFormReviewSubmissionId, setOpenFormReviewSubmissionId] = useState<number | null>(null)
   const [hiddenCoachTabs, setHiddenCoachTabs] = useState<CoachTab[]>([])
   const [coachTabOrder, setCoachTabOrder] = useState<CoachTab[]>(NAV.map((item) => item.tab))
 
@@ -106,6 +115,19 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
     setTab(firstVisiblePortalTab(visibleNav.map((item) => item.tab), hiddenCoachTabs, 'home'))
   }, [tab, hiddenCoachTabs, visibleNav])
 
+  useEffect(() => {
+    const onNavigateNotification = (evt: globalThis.Event) => {
+      const detail = (evt as CustomEvent<NotificationNavigateDetail>).detail
+      if (!detail || detail.portal !== 'coach') return
+      if (detail.tab) setTab(detail.tab as CoachTab)
+      if (detail.threadId != null) setOpenMessageThreadId(detail.threadId)
+      if (detail.submissionId != null) setOpenFormReviewSubmissionId(detail.submissionId)
+      setNavOpen(false)
+    }
+    window.addEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
+    return () => window.removeEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
+  }, [])
+
   const renderPanel = () => {
     switch (tab) {
       case 'home':
@@ -133,11 +155,23 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
       case 'assign':
         return <AssignPanel />
       case 'messages':
-        return <MessagesPanel />
+        return (
+          <MessagesPanel
+            initialThreadId={openMessageThreadId}
+            onInitialThreadOpened={() => setOpenMessageThreadId(null)}
+          />
+        )
       case 'reviews':
-        return <FormReviewPanel />
+        return (
+          <FormReviewPanel
+            initialSubmissionId={openFormReviewSubmissionId}
+            onInitialSubmissionOpened={() => setOpenFormReviewSubmissionId(null)}
+          />
+        )
       case 'insights':
         return <InsightsPanel />
+      case 'preferences':
+        return <PortalPreferencesPanel role="coach" fetcher={coachFetch} />
       default:
         return null
     }

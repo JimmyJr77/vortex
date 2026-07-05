@@ -27,6 +27,7 @@ test('normalizePortalConfig defaults to empty hidden lists and canonical order',
     'events',
     'billing',
     'waivers',
+    'preferences',
   ])
   assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'needs', 'library'])
 })

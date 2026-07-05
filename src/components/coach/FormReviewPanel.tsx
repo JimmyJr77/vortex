@@ -45,7 +45,13 @@ interface ReviewDetail {
   rubrics: Rubric[]
 }
 
-export default function FormReviewPanel() {
+export default function FormReviewPanel({
+  initialSubmissionId = null,
+  onInitialSubmissionOpened,
+}: {
+  initialSubmissionId?: number | null
+  onInitialSubmissionOpened?: () => void
+} = {}) {
   const [pending, setPending] = useState<SubmissionRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -82,6 +88,11 @@ export default function FormReviewPanel() {
       setError(err instanceof Error ? err.message : 'Failed to load submission')
     }
   }
+
+  useEffect(() => {
+    if (initialSubmissionId == null) return
+    void openSubmission(initialSubmissionId).finally(() => onInitialSubmissionOpened?.())
+  }, [initialSubmissionId])
 
   const selectedRubric = detail?.rubrics.find((r) => r.id === selectedRubricId)
 

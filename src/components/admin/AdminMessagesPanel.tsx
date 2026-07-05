@@ -16,7 +16,6 @@ import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
 import { markThreadRead } from '../messaging/messagingApi'
-import MessagingNotificationPreferences from '../messaging/MessagingNotificationPreferences'
 import MessagingThreadFaq from '../messaging/MessagingThreadFaq'
 import {
   countThreadsByInboxTab,
@@ -48,7 +47,13 @@ async function adminFetch<T>(endpoint: string, options: RequestInit = {}): Promi
   return (json?.data ?? json) as T
 }
 
-export default function AdminMessagesPanel() {
+export default function AdminMessagesPanel({
+  initialThreadId = null,
+  onInitialThreadOpened,
+}: {
+  initialThreadId?: number | null
+  onInitialThreadOpened?: () => void
+} = {}) {
   const [tab, setTab] = useState<AdminMessagesTab>('active-mine')
   const [threads, setThreads] = useState<MessageThread[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -207,6 +212,11 @@ export default function AdminMessagesPanel() {
       setDetailLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (initialThreadId == null) return
+    void openThread(initialThreadId).finally(() => onInitialThreadOpened?.())
+  }, [initialThreadId])
 
   const sendReply = async () => {
     if (!selectedId || (!reply.trim() && !pendingAttachment) || !canReply) return
@@ -441,7 +451,6 @@ export default function AdminMessagesPanel() {
                     counts={inboxCounts}
                     hiddenTabs={['archived']}
                   />
-                  <MessagingNotificationPreferences role="admin" fetcher={adminFetch} />
                   {isFlatView ? (
                     <label className="block text-sm">
                       <span className="block text-xs font-semibold text-gray-500 mb-1">Sort</span>

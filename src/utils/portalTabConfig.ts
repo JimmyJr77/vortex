@@ -16,6 +16,7 @@ export const MEMBER_PORTAL_TAB_OPTIONS: Array<{ key: MemberTab; label: string; l
   { key: 'events', label: 'Events' },
   { key: 'billing', label: 'Billing' },
   { key: 'waivers', label: 'Waivers' },
+  { key: 'preferences', label: 'Preferences' },
 ]
 
 export const COACH_PORTAL_TAB_OPTIONS: Array<{ key: CoachTab; label: string; locked?: boolean }> = [
@@ -34,7 +35,44 @@ export const COACH_PORTAL_TAB_OPTIONS: Array<{ key: CoachTab; label: string; loc
   { key: 'reviews', label: 'Form Review' },
   { key: 'insights', label: 'Insights' },
   { key: 'roster', label: 'Roster' },
+  { key: 'preferences', label: 'Preferences' },
 ]
+
+export const MEMBER_PORTAL_HOME_CARD_COPY: Record<
+  Exclude<MemberTab, 'home'>,
+  { title: string; description: string }
+> = {
+  profile: { title: 'Profile', description: 'Your account and family members.' },
+  classes: { title: 'Classes', description: 'Current enrollments and class signups.' },
+  training: { title: 'Training', description: 'Your assigned workouts and programs.' },
+  progress: { title: 'Progress', description: 'PRs, goals, and achievements.' },
+  messages: { title: 'Messages', description: 'Talk with your coaches.' },
+  events: { title: 'Events', description: 'Upcoming events and signups.' },
+  billing: { title: 'Billing', description: 'Statements and payment history.' },
+  waivers: { title: 'Waivers', description: 'Review and sign required waivers.' },
+  preferences: { title: 'Preferences', description: 'Critical alerts and notification settings.' },
+}
+
+export const COACH_PORTAL_HOME_CARD_COPY: Record<
+  Exclude<CoachTab, 'home'>,
+  { title: string; description: string }
+> = {
+  sessions: { title: "Today's Sessions", description: 'Run a class: attendance and group logging.' },
+  needs: { title: 'Needs Engine', description: 'Describe a need, get a time-packed session.' },
+  library: { title: 'Exercise Library', description: 'Search and tag the movement library.' },
+  workout: { title: 'Workout Builder', description: 'Build sessions with a live time clock.' },
+  warmup: { title: 'Warmup Builder', description: 'Design quick activation routines.' },
+  programs: { title: 'Training Programs', description: 'Sequence weeks of training.' },
+  challenges: { title: 'Challenges', description: 'Run scored competitions.' },
+  assess: { title: 'Assess & Grade', description: 'Record benchmarks and skills.' },
+  skills: { title: 'Skill Tree', description: 'Prerequisite progressions and mastery.' },
+  assign: { title: 'Assign & Share', description: 'Push plans to athletes.' },
+  messages: { title: 'Messages', description: 'Talk with athletes, coaches, and admins.' },
+  reviews: { title: 'Form Review', description: 'Review athlete video submissions.' },
+  insights: { title: 'Insights', description: 'Load, readiness, PRs, and trends.' },
+  roster: { title: 'Roster', description: 'Attendance, notes, waivers.' },
+  preferences: { title: 'Preferences', description: 'Critical alerts and notification settings.' },
+}
 
 export function isPortalTabVisible<T extends string>(tab: T, hiddenTabs: T[] | undefined): boolean {
   return !(hiddenTabs ?? []).includes(tab)

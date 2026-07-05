@@ -8,6 +8,7 @@ export const MEMBER_PORTAL_TAB_KEYS = [
   'events',
   'billing',
   'waivers',
+  'preferences',
 ]
 
 export const COACH_PORTAL_TAB_KEYS = [
@@ -26,6 +27,7 @@ export const COACH_PORTAL_TAB_KEYS = [
   'reviews',
   'insights',
   'roster',
+  'preferences',
 ]
 
 export const MEMBER_PORTAL_LOCKED_TABS = new Set(['home'])
@@ -41,6 +43,7 @@ export const MEMBER_PORTAL_TAB_LABELS = {
   events: 'Events',
   billing: 'Billing',
   waivers: 'Waivers',
+  preferences: 'Preferences',
 }
 
 export const COACH_PORTAL_TAB_LABELS = {
@@ -59,6 +62,7 @@ export const COACH_PORTAL_TAB_LABELS = {
   reviews: 'Form Review',
   insights: 'Insights',
   roster: 'Roster',
+  preferences: 'Preferences',
 }
 
 async function getDefaultFacilityId(pool) {

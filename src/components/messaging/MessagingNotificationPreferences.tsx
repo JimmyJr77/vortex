@@ -14,18 +14,20 @@ interface MessagingNotificationPreferencesProps {
   role: MessagingRole
   fetcher: Fetcher
   className?: string
+  variant?: 'compact' | 'page'
 }
 
 const PREFS_PATH: Record<MessagingRole, string> = {
-  coach: '/api/coach/messages/notification-preferences',
-  member: '/api/member/messages/notification-preferences',
-  admin: '/api/admin/messages/notification-preferences',
+  coach: '/api/coach/preferences/notifications',
+  member: '/api/member/preferences/notifications',
+  admin: '/api/admin/preferences/notifications',
 }
 
 export default function MessagingNotificationPreferences({
   role,
   fetcher,
   className = '',
+  variant = 'compact',
 }: MessagingNotificationPreferencesProps) {
   const [prefs, setPrefs] = useState<NotificationPrefs>({
     allow_critical_email: false,
@@ -86,19 +88,28 @@ export default function MessagingNotificationPreferences({
 
   if (loading) {
     return (
-      <div className={`flex items-center gap-2 text-xs text-gray-500 ${className}`}>
-        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading alert settings…
+      <div className={`flex items-center gap-2 text-sm text-gray-500 ${className}`}>
+        <Loader2 className="w-4 h-4 animate-spin" /> Loading alert settings…
       </div>
     )
   }
 
+  const isPage = variant === 'page'
+
   return (
-    <div className={`rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-2 ${className}`}>
-      <div className="text-xs font-semibold text-gray-800">Critical alerts (opt-in)</div>
-      <p className="text-[11px] text-gray-600 leading-snug">
+    <div
+      className={`rounded-xl border border-gray-200 bg-white space-y-3 ${
+        isPage ? 'p-5 shadow-sm' : 'bg-gray-50 p-3'
+      } ${className}`}
+    >
+      <div className={isPage ? 'text-base font-semibold text-gray-900' : 'text-xs font-semibold text-gray-800'}>
+        Critical alerts (opt-in)
+      </div>
+      <p className={`text-gray-600 leading-snug ${isPage ? 'text-sm' : 'text-[11px]'}`}>
         Email and SMS are sent only for urgent critical messages — never digests or routine chat.
+        If you use multiple Vortex portals, these choices stay in sync.
       </p>
-      <label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer">
+      <label className={`flex items-center gap-2 text-gray-700 cursor-pointer ${isPage ? 'text-sm' : 'text-xs'}`}>
         <input
           type="checkbox"
           checked={prefs.allow_critical_email}
@@ -107,7 +118,7 @@ export default function MessagingNotificationPreferences({
         />
         Email for critical messages
       </label>
-      <label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer">
+      <label className={`flex items-center gap-2 text-gray-700 cursor-pointer ${isPage ? 'text-sm' : 'text-xs'}`}>
         <input
           type="checkbox"
           checked={prefs.allow_critical_sms}
@@ -122,7 +133,7 @@ export default function MessagingNotificationPreferences({
           value={prefs.phone_e164 ?? ''}
           onChange={(e) => setPrefs((p) => ({ ...p, phone_e164: e.target.value }))}
           placeholder="+15551234567"
-          className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-xs"
+          className={`w-full border border-gray-300 rounded-md px-3 py-2 ${isPage ? 'text-sm' : 'text-xs'}`}
         />
       )}
       <div className="flex items-center gap-2 pt-1">
@@ -130,7 +141,9 @@ export default function MessagingNotificationPreferences({
           type="button"
           onClick={() => void save()}
           disabled={saving}
-          className="text-xs font-semibold bg-vortex-red text-white px-3 py-1.5 rounded-md disabled:opacity-60"
+          className={`font-semibold bg-vortex-red text-white px-4 py-2 rounded-md disabled:opacity-60 ${
+            isPage ? 'text-sm' : 'text-xs'
+          }`}
         >
           {saving ? 'Saving…' : 'Save'}
         </button>

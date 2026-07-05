@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu } from 'lucide-react'
+import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Settings } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
@@ -15,8 +15,10 @@ import MemberHomePanel from './member/MemberHomePanel'
 import MemberBillingPanel from './member/MemberBillingPanel'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
+import { NOTIFICATION_NAV_EVENT, type NotificationNavigateDetail } from '../utils/notificationNavigation'
 import { coachFetch } from '../coach/api'
 import { fetchEventMessageThreads, pickEventDiscussionThreadId } from './messaging/messagingApi'
+import PortalPreferencesPanel from './messaging/PortalPreferencesPanel'
 import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
 import type { PortalId } from '../utils/portalSession'
 import { firstVisiblePortalTab, isPortalTabVisible, orderPortalItems } from '../utils/portalTabConfig'
@@ -29,7 +31,7 @@ interface MemberDashboardProps {
   onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
 }
 
-export type MemberTab = 'home' | 'profile' | 'classes' | 'events' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages'
+export type MemberTab = 'home' | 'profile' | 'classes' | 'events' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages' | 'preferences'
 
 const NAV: Array<{ tab: MemberTab; label: string; icon: typeof Home }> = [
   { tab: 'home', label: 'Home', icon: Home },
@@ -41,6 +43,7 @@ const NAV: Array<{ tab: MemberTab; label: string; icon: typeof Home }> = [
   { tab: 'events', label: 'Events', icon: Calendar },
   { tab: 'billing', label: 'Billing', icon: CreditCard },
   { tab: 'waivers', label: 'Waivers', icon: FileText },
+  { tab: 'preferences', label: 'Preferences', icon: Settings },
 ]
 
 interface FamilyMember {
@@ -699,14 +702,15 @@ export default function MemberDashboard({
   }, [])
 
   useEffect(() => {
-    const onOpenMessageThread = (evt: globalThis.Event) => {
-      const threadId = Number((evt as CustomEvent<{ threadId?: number }>).detail?.threadId)
-      if (!Number.isFinite(threadId) || threadId <= 0) return
-      setActiveTab('messages')
-      setOpenMessageThreadId(threadId)
+    const onNavigateNotification = (evt: globalThis.Event) => {
+      const detail = (evt as CustomEvent<NotificationNavigateDetail>).detail
+      if (!detail || detail.portal !== 'member') return
+      if (detail.tab) setActiveTab(detail.tab as MemberTab)
+      if (detail.threadId != null) setOpenMessageThreadId(detail.threadId)
+      setNavOpen(false)
     }
-    window.addEventListener('vortex:open-message-thread', onOpenMessageThread)
-    return () => window.removeEventListener('vortex:open-message-thread', onOpenMessageThread)
+    window.addEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
+    return () => window.removeEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
   }, [])
 
   useEffect(() => {
@@ -2441,6 +2445,18 @@ export default function MemberDashboard({
                     </div>
                   )}
                 </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'preferences' && (
+              <motion.div
+                key="preferences"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <PortalPreferencesPanel role="member" fetcher={coachFetch} />
               </motion.div>
             )}
           </AnimatePresence>

@@ -2,6 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Bell } from 'lucide-react'
 import { coachFetch } from '../coach/api'
 import { adminApiRequest } from '../utils/api'
+import {
+  dispatchNotificationNavigate,
+  isNotificationNavigable,
+  resolveNotificationTarget,
+} from '../utils/notificationNavigation'
 import { HEADER_ACTION_BTN } from './PortalNavButtons'
 
 interface NotificationRow {
@@ -20,12 +25,13 @@ interface NotificationBellProps {
 }
 
 const MAX_LOAD_ATTEMPTS = 4
+const PANEL_MARGIN = 12
 
-function threadIdFromPayload(payload?: Record<string, unknown>): number | null {
-  if (!payload) return null
-  const raw = payload.thread_id ?? payload.threadId
-  const id = Number(raw)
-  return Number.isFinite(id) && id > 0 ? id : null
+interface PanelPosition {
+  top: number
+  left: number
+  width: number
+  maxHeight: number
 }
 
 async function portalFetch<T>(
@@ -44,18 +50,14 @@ async function portalFetch<T>(
   return coachFetch<T>(endpoint, options)
 }
 
-export function openMessageThread(threadId: number): void {
-  window.dispatchEvent(
-    new CustomEvent('vortex:open-message-thread', { detail: { threadId } }),
-  )
-}
-
 export default function NotificationBell({ apiPrefix, onOpenThread }: NotificationBellProps) {
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<NotificationRow[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [panelPos, setPanelPos] = useState<PanelPosition | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const base = `/api/${apiPrefix}/notifications`
 
@@ -85,12 +87,41 @@ export default function NotificationBell({ apiPrefix, onOpenThread }: Notificati
     }
   }, [apiPrefix, base])
 
+  const updatePanelPosition = useCallback(() => {
+    const button = buttonRef.current
+    if (!button) return
+    const rect = button.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const width = Math.min(320, viewportWidth - PANEL_MARGIN * 2)
+    const left = Math.max(
+      PANEL_MARGIN,
+      Math.min(rect.right - width, viewportWidth - width - PANEL_MARGIN),
+    )
+    const top = rect.bottom + 8
+    const maxHeight = Math.max(160, window.innerHeight - top - PANEL_MARGIN)
+    setPanelPos({ top, left, width, maxHeight })
+  }, [])
+
   useEffect(() => {
     void load()
     return () => {
       if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
     }
   }, [load])
+
+  useEffect(() => {
+    if (!open) {
+      setPanelPos(null)
+      return
+    }
+    updatePanelPosition()
+    window.addEventListener('resize', updatePanelPosition)
+    window.addEventListener('scroll', updatePanelPosition, true)
+    return () => {
+      window.removeEventListener('resize', updatePanelPosition)
+      window.removeEventListener('scroll', updatePanelPosition, true)
+    }
+  }, [open, updatePanelPosition])
 
   useEffect(() => {
     if (!open) return
@@ -125,24 +156,22 @@ export default function NotificationBell({ apiPrefix, onOpenThread }: Notificati
     }
   }
 
-  const navigateToThread = (threadId: number) => {
-    setOpen(false)
-    if (onOpenThread) {
-      onOpenThread(threadId)
-    } else {
-      openMessageThread(threadId)
-    }
-  }
-
   const handleNotificationClick = (notification: NotificationRow) => {
     if (!notification.read_at) void markRead(notification.id)
-    const threadId = threadIdFromPayload(notification.payload)
-    if (threadId != null) navigateToThread(threadId)
+    const target = resolveNotificationTarget(notification.kind, notification.payload, apiPrefix)
+    if (!target) return
+    setOpen(false)
+    if (onOpenThread && target.threadId != null) {
+      onOpenThread(target.threadId)
+      return
+    }
+    dispatchNotificationNavigate(target)
   }
 
   return (
     <div className="relative" ref={panelRef}>
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => {
           setOpen((o) => !o)
@@ -163,9 +192,17 @@ export default function NotificationBell({ apiPrefix, onOpenThread }: Notificati
           </span>
         )}
       </button>
-      {open && (
-        <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-auto bg-white border border-gray-200 rounded-xl shadow-lg z-50">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
+      {open && panelPos && (
+        <div
+          className="fixed z-[100] overflow-auto overscroll-contain bg-white border border-gray-200 rounded-xl shadow-lg"
+          style={{
+            top: panelPos.top,
+            left: panelPos.left,
+            width: panelPos.width,
+            maxHeight: panelPos.maxHeight,
+          }}
+        >
+          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 sticky top-0 bg-white z-10">
             <span className="text-sm font-semibold text-gray-800">Notifications</span>
             {unreadCount > 0 && (
               <button
@@ -184,13 +221,15 @@ export default function NotificationBell({ apiPrefix, onOpenThread }: Notificati
           ) : (
             <ul className="divide-y divide-gray-100">
               {notifications.map((n) => {
-                const threadId = threadIdFromPayload(n.payload)
+                const navigable = isNotificationNavigable(n.kind, n.payload, apiPrefix)
                 return (
                   <li key={n.id}>
                     <button
                       type="button"
                       onClick={() => handleNotificationClick(n)}
-                      className={`w-full text-left px-3 py-2.5 hover:bg-gray-50 ${!n.read_at ? 'bg-blue-50/50' : ''}`}
+                      className={`w-full text-left px-3 py-2.5 hover:bg-gray-50 ${
+                        !n.read_at ? 'bg-blue-50/50' : ''
+                      } ${navigable ? 'cursor-pointer' : 'cursor-default'}`}
                     >
                       <div className="text-sm font-medium text-gray-900">{n.title}</div>
                       {n.body && (
@@ -200,8 +239,8 @@ export default function NotificationBell({ apiPrefix, onOpenThread }: Notificati
                         <div className="text-[10px] text-gray-400">
                           {new Date(n.created_at).toLocaleString()}
                         </div>
-                        {threadId != null && (
-                          <span className="text-[10px] font-semibold text-vortex-red">Open thread</span>
+                        {navigable && (
+                          <span className="text-[10px] font-semibold text-vortex-red shrink-0">Open</span>
                         )}
                       </div>
                     </button>

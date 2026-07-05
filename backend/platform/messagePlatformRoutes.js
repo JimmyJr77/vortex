@@ -134,6 +134,26 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
     return { thread, facilityId, viewer: { memberId } }
   }
 
+  function notificationPrefsHandler(portal, method) {
+    return async (req, res) => {
+      try {
+        await ensureSchema()
+        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+          return bad(res, 'Admin access required.', 403)
+        }
+        const facilityId = req.platformAuth.user.facility_id
+        const viewer = portal === 'member' ? memberViewer(req) : portal === 'coach' ? coachViewer(req) : adminViewer(req)
+        if (method === 'GET') {
+          ok(res, await getNotificationPreferences(pool, facilityId, viewer))
+        } else {
+          ok(res, await updateNotificationPreferences(pool, facilityId, viewer, req.body || {}))
+        }
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    }
+  }
+
   const portals = ['coach', 'member', 'admin']
 
   for (const portal of portals) {
@@ -268,33 +288,10 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
       }
     })
 
-    app.get(`/api/${portal}/messages/notification-preferences`, auth, async (req, res) => {
-      try {
-        await ensureSchema()
-        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
-          return bad(res, 'Admin access required.', 403)
-        }
-        const facilityId = req.platformAuth.user.facility_id
-        const viewer = portal === 'member' ? memberViewer(req) : portal === 'coach' ? coachViewer(req) : adminViewer(req)
-        ok(res, await getNotificationPreferences(pool, facilityId, viewer))
-      } catch (error) {
-        bad(res, error.message, 500)
-      }
-    })
-
-    app.patch(`/api/${portal}/messages/notification-preferences`, auth, async (req, res) => {
-      try {
-        await ensureSchema()
-        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
-          return bad(res, 'Admin access required.', 403)
-        }
-        const facilityId = req.platformAuth.user.facility_id
-        const viewer = portal === 'member' ? memberViewer(req) : portal === 'coach' ? coachViewer(req) : adminViewer(req)
-        ok(res, await updateNotificationPreferences(pool, facilityId, viewer, req.body || {}))
-      } catch (error) {
-        bad(res, error.message, 500)
-      }
-    })
+    app.get(`/api/${portal}/messages/notification-preferences`, auth, notificationPrefsHandler(portal, 'GET'))
+    app.patch(`/api/${portal}/messages/notification-preferences`, auth, notificationPrefsHandler(portal, 'PATCH'))
+    app.get(`/api/${portal}/preferences/notifications`, auth, notificationPrefsHandler(portal, 'GET'))
+    app.patch(`/api/${portal}/preferences/notifications`, auth, notificationPrefsHandler(portal, 'PATCH'))
 
     app.post(`/api/${portal}/messages/:threadId/messages/:messageId/ack`, auth, async (req, res) => {
       try {

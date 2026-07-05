@@ -15,7 +15,6 @@ import CriticalMessageToggle from '../messaging/CriticalMessageToggle'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
 import { markThreadRead } from '../messaging/messagingApi'
-import MessagingNotificationPreferences from '../messaging/MessagingNotificationPreferences'
 import MessagingThreadFaq from '../messaging/MessagingThreadFaq'
 import {
   countThreadsByInboxTab,
@@ -37,7 +36,13 @@ import { useMessageRealtime } from '../../hooks/useMessageRealtime'
 
 type MemberPickerScope = 'my_classes' | 'all'
 
-export default function MessagesPanel() {
+export default function MessagesPanel({
+  initialThreadId = null,
+  onInitialThreadOpened,
+}: {
+  initialThreadId?: number | null
+  onInitialThreadOpened?: () => void
+} = {}) {
   const [memberScope, setMemberScope] = useState<MemberPickerScope>('my_classes')
   const [recipientOptions, setRecipientOptions] = useState<RecipientOption[]>([])
   const [recipientsLoading, setRecipientsLoading] = useState(true)
@@ -194,6 +199,11 @@ export default function MessagesPanel() {
       setDetailLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (initialThreadId == null) return
+    void openThread(initialThreadId).finally(() => onInitialThreadOpened?.())
+  }, [initialThreadId])
 
   const sendReply = async () => {
     if (!selectedId || (!reply.trim() && !pendingAttachment)) return
@@ -413,10 +423,7 @@ export default function MessagesPanel() {
             onSearchChange={setThreadSearch}
             searchPlaceholder="Search threads…"
             headerExtra={
-              <>
-                <MessagingInboxTabs activeTab={inboxTab} onChange={setInboxTab} counts={inboxCounts} />
-                <MessagingNotificationPreferences role="coach" fetcher={coachFetch} />
-              </>
+              <MessagingInboxTabs activeTab={inboxTab} onChange={setInboxTab} counts={inboxCounts} />
             }
           >
             {loading ? (
