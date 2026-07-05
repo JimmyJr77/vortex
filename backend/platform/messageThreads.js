@@ -893,6 +893,7 @@ const MESSAGE_ENRICH_SELECT = `
       FROM coaching.message_checklist c
       WHERE c.message_id = msg.id
     ) AS checklist
+  FROM coaching.message msg
 `
 
 export async function loadEnrichedMessagesForThread(pool, threadId) {

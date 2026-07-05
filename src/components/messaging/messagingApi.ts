@@ -146,3 +146,16 @@ export async function deleteEventCalendarItem(
 ): Promise<void> {
   await fetcher(`/api/admin/events/${eventId}/calendar-items/${itemId}`, { method: 'DELETE' })
 }
+
+export interface CalendarInboxRow {
+  calendar_item: EventCalendarItem
+  discussion_thread_id: number | null
+}
+
+export async function fetchCalendarInboxRows(
+  role: MessagingRole,
+  fetcher: Fetcher,
+): Promise<CalendarInboxRow[]> {
+  const rows = await fetcher(`/api/${role}/messages/calendar-inbox-rows`) as CalendarInboxRow[]
+  return Array.isArray(rows) ? rows : []
+}

@@ -29,8 +29,14 @@ export default function MessagingThreadRow({
         <div className="min-w-0 flex-1">
           <div className="font-semibold text-gray-900 text-sm truncate flex items-center gap-1">
             {thread.is_favorite && <span className="text-yellow-400 text-xs" aria-hidden>★</span>}
+            {thread.is_calendar_inbox_row && (
+              <span className="text-[10px] font-bold uppercase tracking-wide text-amber-700 shrink-0">Cal</span>
+            )}
             {threadListTitle(thread)}
           </div>
+          {thread.is_calendar_inbox_row && thread.calendar_event_name && (
+            <div className="text-xs text-amber-800/80 truncate">{thread.calendar_event_name}</div>
+          )}
           {subtitle && <div className="text-xs text-gray-500 truncate">{subtitle}</div>}
           {thread.last_message_body && (
             <div className="text-xs text-gray-400 truncate mt-0.5">{thread.last_message_body}</div>

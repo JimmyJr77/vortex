@@ -56,6 +56,7 @@ import {
   upsertEventRsvp,
   getEventRsvp,
   listEventRsvps,
+  listCalendarInboxRows,
 } from './messageEventCalendar.js'
 import {
   getSchedulingFormThread,
@@ -192,6 +193,24 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         }
         const facilityId = req.platformAuth.user.facility_id
         ok(res, await ensureDefaultTags(pool, facilityId))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.get(`/api/${portal}/messages/calendar-inbox-rows`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+          return bad(res, 'Admin access required.', 403)
+        }
+        const facilityId = req.platformAuth.user.facility_id
+        const memberId = portal === 'member' ? memberViewer(req).memberId : null
+        if (portal === 'member' && memberId == null) {
+          return bad(res, 'Member context required.', 403)
+        }
+        const limit = Math.min(num(req.query.limit) || 100, 200)
+        ok(res, await listCalendarInboxRows(pool, facilityId, { memberId, limit }))
       } catch (error) {
         bad(res, error.message, 500)
       }

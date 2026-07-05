@@ -121,33 +121,37 @@ export async function listUpcomingCalendarItemsForMember(pool, memberId, facilit
   }))
 }
 
-export async function listCalendarItemsAsThreadRows(pool, facilityId, { memberId = null, limit = 100 } = {}) {
+export async function listCalendarInboxRows(pool, facilityId, { memberId = null, limit = 100 } = {}) {
   const params = [facilityId, limit]
   let participantSql = ''
   if (memberId != null) {
     params.unshift(memberId)
     participantSql = `
       AND EXISTS (
-        SELECT 1 FROM coaching.message_thread_participant p
-        JOIN coaching.message_thread_link cl ON cl.object_type = 'event'
-          AND cl.object_id = c.event_id AND cl.link_role = 'discussion'
-        WHERE p.thread_id = cl.thread_id AND p.member_id = $1
+        SELECT 1
+        FROM coaching.message_thread_link cl
+        JOIN coaching.message_thread can ON can.id = cl.thread_id
+        JOIN coaching.message_thread d ON d.linked_thread_id = can.id AND d.kind = 'discussion'
+        JOIN coaching.message_thread_participant p ON p.thread_id = d.id AND p.member_id = $1
+        WHERE cl.object_type = 'event' AND cl.object_id = c.event_id AND cl.link_role = 'canonical'
       )`
   }
 
+  const discussionSubquery = `
+    SELECT d.id
+    FROM coaching.message_thread_link cl
+    JOIN coaching.message_thread can ON can.id = cl.thread_id
+    JOIN coaching.message_thread d ON d.linked_thread_id = can.id AND d.kind = 'discussion'
+    WHERE cl.object_type = 'event' AND cl.object_id = c.event_id AND cl.link_role = 'canonical'
+    ORDER BY can.created_at ASC, d.created_at ASC
+    LIMIT 1
+  `
+
   const r = await pool.query(
     `SELECT c.*, e.event_name,
-       (
-         SELECT d.id
-         FROM coaching.message_thread_link cl
-         JOIN coaching.message_thread d ON d.id = cl.thread_id
-         WHERE cl.object_type = 'event' AND cl.object_id = c.event_id
-           AND cl.link_role = 'discussion'
-         ORDER BY d.created_at ASC
-         LIMIT 1
-       ) AS discussion_thread_id
+       (${discussionSubquery}) AS discussion_thread_id
      FROM coaching.event_calendar_item c
-     JOIN public.events e ON e.id = c.event_id AND e.archived IS NOT TRUE
+     JOIN public.events e ON e.id = c.event_id AND COALESCE(e.archived, FALSE) IS NOT TRUE
      WHERE c.facility_id = $${memberId != null ? 2 : 1}
        ${participantSql}
      ORDER BY c.when_start ASC NULLS LAST, c.sort_order ASC, c.id ASC
@@ -159,6 +163,11 @@ export async function listCalendarItemsAsThreadRows(pool, facilityId, { memberId
     calendar_item: mapCalendarRow(row),
     discussion_thread_id: row.discussion_thread_id != null ? Number(row.discussion_thread_id) : null,
   }))
+}
+
+/** @deprecated use listCalendarInboxRows */
+export async function listCalendarItemsAsThreadRows(pool, facilityId, options = {}) {
+  return listCalendarInboxRows(pool, facilityId, options)
 }
 
 export async function upsertEventRsvp(pool, eventId, memberId, status) {

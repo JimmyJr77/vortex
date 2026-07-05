@@ -41,6 +41,7 @@ export function threadListAccentCategory(thread: MessageThread): ThreadListAccen
 }
 
 export function threadListAccentClass(thread: MessageThread): string {
+  if (thread.is_calendar_inbox_row) return 'border-l-amber-500'
   const category = threadListAccentCategory(thread)
   if (category === 'event') return 'border-l-purple-500'
   if (category === 'scheduling') return 'border-l-teal-500'
@@ -137,5 +138,39 @@ export function defaultThreadListOrder(threads: MessageThread[]): MessageThread[
 }
 
 export function defaultLandingThreadId(threads: MessageThread[]): number | null {
-  return defaultThreadListOrder(threads)[0]?.id ?? null
+  return defaultThreadListOrder(threads.filter((t) => !t.is_calendar_inbox_row))[0]?.id ?? null
+}
+
+export function calendarItemToInboxThread(
+  item: {
+    id: number
+    title: string
+    event_name?: string | null
+    when_start?: string | null
+    where_text?: string | null
+  },
+  discussionThreadId: number,
+): MessageThread {
+  const whenLabel = item.when_start
+    ? new Date(item.when_start).toLocaleString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+    : null
+  const preview = [item.event_name, whenLabel, item.where_text].filter(Boolean).join(' · ')
+
+  return {
+    id: -item.id,
+    subject: item.title,
+    last_message_body: preview || 'Calendar item',
+    is_calendar_inbox_row: true,
+    calendar_item_id: item.id,
+    target_thread_id: discussionThreadId,
+    calendar_event_name: item.event_name ?? null,
+    kind: 'general',
+    tags: [{ id: -item.id, slug: 'event-info', label: 'Calendar' }],
+    unread_count: 0,
+  }
 }

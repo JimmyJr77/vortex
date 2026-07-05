@@ -17,8 +17,15 @@ import MessagingMobileShell from '../messaging/MessagingMobileShell'
 import MessagingInboxTabs, { type MessagingInboxTab } from '../messaging/MessagingInboxTabs'
 import MessagingThreadRow from '../messaging/MessagingThreadRow'
 import MessagingContextBanner from '../messaging/MessagingContextBanner'
+import EventCalendarItemBanner from '../messaging/EventCalendarItemBanner'
 import MessagingInfoCard from '../messaging/MessagingInfoCard'
 import CriticalMessageToggle from '../messaging/CriticalMessageToggle'
+import MessageComposerCollaboration, {
+  EMPTY_COLLABORATION_DRAFT,
+  collaborationDraftIsValid,
+  type CollaborationDraft,
+} from '../messaging/MessageComposerCollaboration'
+import { attachMessageCollaboration } from '../messaging/attachMessageCollaboration'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
 import { markThreadRead } from '../messaging/messagingApi'
@@ -27,14 +34,13 @@ import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
 import MessagingMaximizeToggle from '../messaging/MessagingMaximizeToggle'
 import MessagePinSelectionBar from '../messaging/MessagePinSelectionBar'
 import { useThreadPinGroups } from '../messaging/useThreadPinGroups'
+import { useMessagingEventsInbox } from '../messaging/useMessagingEventsInbox'
 import {
   countThreadsByInboxTab,
-  filterMessageThreads,
   filterThreadsByInboxTab,
   messagingWorkspaceRoot,
   messagingWorkspaceShell,
   messagingWorkspaceThreadOpen,
-  sortMessageThreads,
   defaultLandingThreadId,
   threadListTitle,
 } from '../messaging/messagingLayout'
@@ -101,6 +107,7 @@ export default function MessagesPanel({
     is_critical: false,
     requires_ack: false,
   })
+  const [collaborationDraft, setCollaborationDraft] = useState<CollaborationDraft>(EMPTY_COLLABORATION_DRAFT)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const autoOpenedRef = useRef(false)
   const viewer = useMemo(() => getMessageViewer('coach'), [])
@@ -110,10 +117,17 @@ export default function MessagesPanel({
     () => filterThreadsByInboxTab(threads, inboxTab),
     [threads, inboxTab],
   )
-  const filteredThreads = useMemo(
-    () => sortMessageThreads(filterMessageThreads(tabFilteredThreads, threadSearch), listSort, listSortDir),
-    [tabFilteredThreads, threadSearch, listSort, listSortDir],
-  )
+  const eventsInbox = useMessagingEventsInbox({
+    enabled: true,
+    inboxTab,
+    tabFilteredThreads,
+    listSearch: threadSearch,
+    listSort,
+    listSortDir,
+    role: 'coach',
+    fetcher: coachFetch,
+  })
+  const filteredThreads = eventsInbox.displayedThreads
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
     [threadParticipants],
@@ -202,14 +216,16 @@ export default function MessagesPanel({
     },
   })
 
-  const openThread = async (id: number) => {
-    setSelectedId(id)
+  const openThread = async (rowId: number) => {
+    const { threadId } = eventsInbox.resolveThreadSelection(rowId)
+    if (threadId <= 0) return
+    setSelectedId(threadId)
     setDetailLoading(true)
     setError(null)
-    const listRow = threads.find((t) => t.id === id)
+    const listRow = threads.find((t) => t.id === threadId)
     setThreadFavorite(Boolean(listRow?.is_favorite))
     try {
-      const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/coach/messages/${id}`)
+      const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/coach/messages/${threadId}`)
       setThreadSubject(data.thread.subject ?? null)
       setThreadSubjectLocked(Boolean(data.thread.subject_locked))
       setThreadScope(data.thread.thread_scope ?? 'coaching_circle')
@@ -221,7 +237,7 @@ export default function MessagesPanel({
       setPendingFaqReply(null)
       setMessages(data.messages)
       const lastId = data.messages[data.messages.length - 1]?.id
-      void markThreadRead('coach', id, coachFetch, lastId)
+      void markThreadRead('coach', threadId, coachFetch, lastId)
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load thread')
@@ -298,6 +314,17 @@ export default function MessagesPanel({
       setReplyTarget(null)
       setPendingAttachment(null)
       setCriticalFlags({ is_critical: false, requires_ack: false })
+      if (
+        collaborationDraft.mode !== 'off'
+        && collaborationDraftIsValid(collaborationDraft)
+      ) {
+        await attachMessageCollaboration('coach', selectedId, msg.id, collaborationDraft, coachFetch)
+        const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(
+          `/api/coach/messages/${selectedId}`,
+        )
+        setMessages(data.messages)
+        setCollaborationDraft(EMPTY_COLLABORATION_DRAFT)
+      }
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message')
@@ -497,8 +524,11 @@ export default function MessagesPanel({
       <div className={messagingWorkspaceShell}>
       <MessagingMobileShell
         selectedThreadId={selectedId}
-        onSelectThread={setSelectedId}
-        onBack={() => setSelectedId(null)}
+        onSelectThread={(id) => { if (id != null) void openThread(id) }}
+        onBack={() => {
+          eventsInbox.setActiveCalendarItem(null)
+          setSelectedId(null)
+        }}
         maximized={maximized}
         listPanel={
           <MessagingThreadListShell
@@ -621,6 +651,11 @@ export default function MessagesPanel({
                 <>
                   <div className="px-4 pt-2 shrink-0">
                     <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
+                    <MessageComposerCollaboration
+                      value={collaborationDraft}
+                      onChange={setCollaborationDraft}
+                      disabled={sending}
+                    />
                   </div>
                   <MessageReplyComposer
                     reply={reply}
@@ -660,6 +695,7 @@ export default function MessagesPanel({
                         }
                         onJump={(id) => void openThread(id)}
                       />
+                      <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
                       <MessagingInfoCard infoJson={threadInfoJson} />
                     </>
                   )}

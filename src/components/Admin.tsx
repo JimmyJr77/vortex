@@ -33,7 +33,7 @@ import {
   NOTIFICATION_NAV_EVENT,
   type NotificationNavigateDetail,
 } from '../utils/notificationNavigation'
-import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, DollarSign, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell } from 'lucide-react'
+import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, DollarSign, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell, CircleHelp } from 'lucide-react'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
 
@@ -74,7 +74,7 @@ interface Category {
 
 type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
-export type GroupId = 'home' | 'messaging' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'preferences' | 'settings'
+export type GroupId = 'home' | 'messaging' | 'faqLibrary' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'preferences' | 'settings'
 
 interface AccessContext {
   permissions: string[]
@@ -122,7 +122,8 @@ interface GroupDef {
 
 const GROUPS: GroupDef[] = [
   { id: 'home', label: 'Home', icon: Home, sections: [] },
-  { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages', 'faqs'] },
+  { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
+  { id: 'faqLibrary', label: 'FAQ library', icon: CircleHelp, sections: ['faqs'] },
   { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'access'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classes', 'coaches', 'scheduling', 'classesEvents'] },
@@ -466,7 +467,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
           </div>
         </nav>
 
-        <main className={`min-w-0 flex flex-col min-h-0 flex-1 ${activeGroup === 'messaging' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+        <main className={`min-w-0 flex flex-col min-h-0 flex-1 ${activeGroup === 'messaging' || activeGroup === 'faqLibrary' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           <div className="flex flex-col flex-1 min-h-0 h-full">
           {accessLoading ? (
             <div className="rounded-xl bg-white p-8 text-center text-gray-600 shadow-sm">
@@ -516,7 +517,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.2 }}
-                  className={`min-w-0 ${activeTab === 'messages' ? 'flex flex-col flex-1 min-h-0 h-full' : ''}`}
+                  className={`min-w-0 ${activeTab === 'messages' || activeTab === 'faqs' ? 'flex flex-col flex-1 min-h-0 h-full' : ''}`}
                 >
                   {renderSection()}
                 </motion.div>

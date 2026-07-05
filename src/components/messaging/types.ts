@@ -56,6 +56,10 @@ export interface MessageThread {
   info_json?: Record<string, unknown> | null
   has_files?: boolean
   file_count?: number
+  is_calendar_inbox_row?: boolean
+  calendar_item_id?: number
+  target_thread_id?: number
+  calendar_event_name?: string | null
 }
 
 export interface ThreadParticipant {

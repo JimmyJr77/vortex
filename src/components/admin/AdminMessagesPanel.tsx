@@ -8,8 +8,15 @@ import MessagingMobileShell from '../messaging/MessagingMobileShell'
 import MessagingInboxTabs, { type MessagingInboxTab } from '../messaging/MessagingInboxTabs'
 import MessagingThreadRow from '../messaging/MessagingThreadRow'
 import MessagingContextBanner from '../messaging/MessagingContextBanner'
+import EventCalendarItemBanner from '../messaging/EventCalendarItemBanner'
 import MessagingInfoCard from '../messaging/MessagingInfoCard'
 import CriticalMessageToggle from '../messaging/CriticalMessageToggle'
+import MessageComposerCollaboration, {
+  EMPTY_COLLABORATION_DRAFT,
+  collaborationDraftIsValid,
+  type CollaborationDraft,
+} from '../messaging/MessageComposerCollaboration'
+import { attachMessageCollaboration } from '../messaging/attachMessageCollaboration'
 import RecipientPicker, { recipientsToPayload } from '../messaging/RecipientPicker'
 import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
@@ -20,6 +27,7 @@ import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
 import MessagingMaximizeToggle from '../messaging/MessagingMaximizeToggle'
 import MessagePinSelectionBar from '../messaging/MessagePinSelectionBar'
 import { useThreadPinGroups } from '../messaging/useThreadPinGroups'
+import { useMessagingEventsInbox } from '../messaging/useMessagingEventsInbox'
 import MessagingMessageThread from '../messaging/MessagingMessageThread'
 import { buildReplyQuote, stripReplyQuote } from '../messaging/messageFormatting'
 import { prepareMessageBodyForSend, type MessageMentionPayload } from '../messaging/messageMentions'
@@ -31,12 +39,10 @@ import MessagingThreadListSortMenu, {
 } from '../messaging/MessagingThreadListSortMenu'
 import {
   countThreadsByInboxTab,
-  filterMessageThreads,
   filterThreadsByInboxTab,
   messagingWorkspaceRoot,
   messagingWorkspaceShell,
   messagingWorkspaceThreadOpen,
-  sortMessageThreads,
   defaultLandingThreadId,
   threadListTitle,
 } from '../messaging/messagingLayout'
@@ -110,6 +116,7 @@ export default function AdminMessagesPanel({
     is_critical: false,
     requires_ack: false,
   })
+  const [collaborationDraft, setCollaborationDraft] = useState<CollaborationDraft>(EMPTY_COLLABORATION_DRAFT)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const autoOpenedRef = useRef(false)
 
@@ -123,10 +130,17 @@ export default function AdminMessagesPanel({
     if (tab === 'archived') return threads
     return filterThreadsByInboxTab(threads, inboxTab)
   }, [threads, inboxTab, tab])
-  const displayedThreads = useMemo(() => {
-    const filtered = filterMessageThreads(tabFilteredThreads, listSearch)
-    return sortMessageThreads(filtered, listSort, listSortDir)
-  }, [tabFilteredThreads, listSearch, listSort, listSortDir])
+  const eventsInbox = useMessagingEventsInbox({
+    enabled: tab !== 'archived',
+    inboxTab: tab === 'archived' ? 'all' : inboxTab,
+    tabFilteredThreads,
+    listSearch,
+    listSort,
+    listSortDir,
+    role: 'admin',
+    fetcher: adminFetch,
+  })
+  const displayedThreads = eventsInbox.displayedThreads
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
     [threadParticipants],
@@ -218,14 +232,16 @@ export default function AdminMessagesPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, selectedId])
 
-  const openThread = async (id: number) => {
-    setSelectedId(id)
+  const openThread = async (rowId: number) => {
+    const { threadId } = eventsInbox.resolveThreadSelection(rowId)
+    if (threadId <= 0) return
+    setSelectedId(threadId)
     setDetailLoading(true)
     setError(null)
-    const listRow = threads.find((t) => t.id === id)
+    const listRow = threads.find((t) => t.id === threadId)
     setThreadFavorite(Boolean(listRow?.is_favorite))
     try {
-      const data = await adminFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/admin/messages/${id}`)
+      const data = await adminFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/admin/messages/${threadId}`)
       setThreadSubject(data.thread.subject ?? null)
       setThreadSubjectLocked(Boolean(data.thread.subject_locked))
       setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
@@ -236,7 +252,7 @@ export default function AdminMessagesPanel({
       setPendingFaqReply(null)
       setMessages(data.messages)
       const lastId = data.messages[data.messages.length - 1]?.id
-      void markThreadRead('admin', id, adminFetch, lastId)
+      void markThreadRead('admin', threadId, adminFetch, lastId)
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load thread')
@@ -325,6 +341,17 @@ export default function AdminMessagesPanel({
       setReplyTarget(null)
       setPendingAttachment(null)
       setCriticalFlags({ is_critical: false, requires_ack: false })
+      if (
+        collaborationDraft.mode !== 'off'
+        && collaborationDraftIsValid(collaborationDraft)
+      ) {
+        await attachMessageCollaboration('admin', selectedId, msg.id, collaborationDraft, adminFetch)
+        const data = await adminFetch<{ thread: MessageThread; messages: MessageRow[] }>(
+          `/api/admin/messages/${selectedId}`,
+        )
+        setMessages(data.messages)
+        setCollaborationDraft(EMPTY_COLLABORATION_DRAFT)
+      }
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message')
@@ -526,8 +553,11 @@ export default function AdminMessagesPanel({
       <div className={messagingWorkspaceShell}>
       <MessagingMobileShell
         selectedThreadId={selectedId}
-        onSelectThread={setSelectedId}
-        onBack={() => setSelectedId(null)}
+        onSelectThread={(id) => { if (id != null) void openThread(id) }}
+        onBack={() => {
+          eventsInbox.setActiveCalendarItem(null)
+          setSelectedId(null)
+        }}
         maximized={maximized}
         listPanel={
           <MessagingThreadListShell
@@ -664,6 +694,11 @@ export default function AdminMessagesPanel({
                   <>
                     <div className="px-4 pt-2 shrink-0">
                       <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
+                      <MessageComposerCollaboration
+                        value={collaborationDraft}
+                        onChange={setCollaborationDraft}
+                        disabled={sending}
+                      />
                     </div>
                     <MessageReplyComposer
                       reply={reply}
@@ -703,6 +738,7 @@ export default function AdminMessagesPanel({
                         }
                         onJump={(id) => void openThread(id)}
                       />
+                      <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
                       <MessagingInfoCard infoJson={threadInfoJson} />
                     </>
                   )}
@@ -802,6 +838,11 @@ export default function AdminMessagesPanel({
                 <>
                   <div className="px-4 pt-2 shrink-0">
                     <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
+                    <MessageComposerCollaboration
+                      value={collaborationDraft}
+                      onChange={setCollaborationDraft}
+                      disabled={sending}
+                    />
                   </div>
                   <MessageReplyComposer
                     reply={reply}
@@ -841,6 +882,7 @@ export default function AdminMessagesPanel({
                         }
                         onJump={(id) => void openThread(id)}
                       />
+                      <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
                       <MessagingInfoCard infoJson={threadInfoJson} />
                     </>
                   )}

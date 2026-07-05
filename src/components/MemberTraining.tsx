@@ -15,6 +15,7 @@ import MessagingMobileShell from './messaging/MessagingMobileShell'
 import MessagingInboxTabs, { type MessagingInboxTab } from './messaging/MessagingInboxTabs'
 import MessagingThreadRow from './messaging/MessagingThreadRow'
 import MessagingContextBanner from './messaging/MessagingContextBanner'
+import EventCalendarItemBanner from './messaging/EventCalendarItemBanner'
 import MessagingInfoCard from './messaging/MessagingInfoCard'
 import { getMessageViewer } from './messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from './messaging/messageAttachmentUpload'
@@ -24,14 +25,13 @@ import MessagingThreadDetailShell from './messaging/MessagingThreadDetailShell'
 import MessagingMaximizeToggle from './messaging/MessagingMaximizeToggle'
 import MessagePinSelectionBar from './messaging/MessagePinSelectionBar'
 import { useThreadPinGroups } from './messaging/useThreadPinGroups'
+import { useMessagingEventsInbox } from './messaging/useMessagingEventsInbox'
 import {
   countThreadsByInboxTab,
-  filterMessageThreads,
   filterThreadsByInboxTab,
   messagingWorkspaceRoot,
   messagingWorkspaceShell,
   messagingWorkspaceThreadOpen,
-  sortMessageThreads,
   defaultLandingThreadId,
   threadListTitle,
 } from './messaging/messagingLayout'
@@ -877,10 +877,17 @@ export function MemberMessagesTab({
     () => filterThreadsByInboxTab(threads, inboxTab),
     [threads, inboxTab],
   )
-  const filteredThreads = useMemo(
-    () => sortMessageThreads(filterMessageThreads(tabFilteredThreads, threadSearch), listSort, listSortDir),
-    [tabFilteredThreads, threadSearch, listSort, listSortDir],
-  )
+  const eventsInbox = useMessagingEventsInbox({
+    enabled: true,
+    inboxTab,
+    tabFilteredThreads,
+    listSearch: threadSearch,
+    listSort,
+    listSortDir,
+    role: 'member',
+    fetcher: coachFetch,
+  })
+  const filteredThreads = eventsInbox.displayedThreads
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
     [threadParticipants],
@@ -952,12 +959,14 @@ export function MemberMessagesTab({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, selectedId])
 
-  const openThread = async (id: number) => {
-    setSelectedId(id)
-    const listRow = threads.find((t) => t.id === id)
+  const openThread = async (rowId: number) => {
+    const { threadId } = eventsInbox.resolveThreadSelection(rowId)
+    if (threadId <= 0) return
+    setSelectedId(threadId)
+    const listRow = threads.find((t) => t.id === threadId)
     setThreadFavorite(Boolean(listRow?.is_favorite))
     try {
-      const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/member/messages/${id}`)
+      const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/member/messages/${threadId}`)
       setSubject(data.thread.subject ?? null)
       setSubjectLocked(Boolean(data.thread.subject_locked))
       setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
@@ -966,7 +975,7 @@ export function MemberMessagesTab({
       setFaqPanelOpen(false)
       setMessages(data.messages)
       const lastId = data.messages[data.messages.length - 1]?.id
-      void markThreadRead('member', id, coachFetch, lastId)
+      void markThreadRead('member', threadId, coachFetch, lastId)
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load thread')
@@ -1167,8 +1176,11 @@ export function MemberMessagesTab({
       <div className={messagingWorkspaceShell}>
       <MessagingMobileShell
         selectedThreadId={selectedId}
-        onSelectThread={setSelectedId}
-        onBack={() => setSelectedId(null)}
+        onSelectThread={(id) => { if (id != null) void openThread(id) }}
+        onBack={() => {
+          eventsInbox.setActiveCalendarItem(null)
+          setSelectedId(null)
+        }}
         maximized={maximized}
         listPanel={
           <MessagingThreadListShell
@@ -1308,6 +1320,7 @@ export function MemberMessagesTab({
                     }
                     onJump={(id) => void openThread(id)}
                   />
+                  <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
                   <MessagingInfoCard infoJson={threadInfoJson} />
                 </>
               )}
