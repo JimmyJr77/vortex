@@ -20,11 +20,11 @@ export default function MessagingMobileShell({
 
   return (
     <div className={messagingWorkspaceGrid}>
-      <div className={`min-h-0 flex flex-col ${showDetail ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`min-h-0 flex flex-col h-full ${showDetail ? 'hidden lg:flex' : 'flex'}`}>
         {listPanel}
       </div>
-      <div className={`min-h-0 flex flex-col ${showDetail ? 'flex' : 'hidden lg:flex'}`}>
-        <div className="messaging-panel flex flex-col min-h-0 flex-1">
+      <div className={`min-h-0 flex flex-col h-full ${showDetail ? 'flex' : 'hidden lg:flex'}`}>
+        <div className="messaging-panel flex flex-col min-h-0 flex-1 h-full">
           {showDetail && (
             <div className="lg:hidden shrink-0 px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-white">
               <button

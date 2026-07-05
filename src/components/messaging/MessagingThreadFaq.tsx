@@ -88,7 +88,7 @@ export default function MessagingThreadFaq({
   if (items.length === 0 && !canEdit) return null
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-3 space-y-2">
+    <div className="mx-4 my-3 rounded-lg border border-gray-200 bg-white p-3 space-y-2">
       <div className="text-xs font-semibold text-gray-800">Thread FAQ</div>
       {items.length === 0 ? (
         <p className="text-[11px] text-gray-500">No FAQ entries yet.</p>

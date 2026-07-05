@@ -14,6 +14,7 @@ import { getMessageViewer } from './messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from './messaging/messageAttachmentUpload'
 import { markThreadRead } from './messaging/messagingApi'
 import MessagingThreadFaq from './messaging/MessagingThreadFaq'
+import MessagingThreadDetailShell from './messaging/MessagingThreadDetailShell'
 import {
   countThreadsByInboxTab,
   filterMessageThreads,
@@ -1061,8 +1062,8 @@ export function MemberMessagesTab({
   }
 
   return (
-    <div className={messagingWorkspaceRoot} style={{ ['--messaging-chrome' as string]: '14rem' }}>
-      <div className="shrink-0 flex items-center justify-between flex-wrap gap-3">
+    <div className={messagingWorkspaceRoot} style={{ ['--messaging-viewport-top' as string]: '18rem' }}>
+      <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
         </h2>
@@ -1152,35 +1153,54 @@ export function MemberMessagesTab({
           !selectedId ? (
             <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-6">Select a thread or start a new one.</div>
           ) : (
-            <>
-              <div className="shrink-0 px-4 py-2 border-b flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-sm font-semibold truncate">{subject || 'Conversation'}</span>
-                  {subjectLocked && (
-                    <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
-                  )}
+            <MessagingThreadDetailShell
+              header={
+                <div className="px-4 py-2 border-b flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm font-semibold truncate">{subject || 'Conversation'}</span>
+                    {subjectLocked && (
+                      <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
+                    )}
+                  </div>
+                  <ThreadHeaderMenu
+                    subject={subject}
+                    subjectLocked={subjectLocked}
+                    canEdit={!subjectLocked}
+                    onUpdateSubject={updateThreadSubject}
+                    recipientOptions={recipientOptions}
+                    existingParticipantKeys={existingParticipantKeys}
+                    recipientsLoading={recipientsLoading}
+                    onAddRecipients={addRecipients}
+                    enrollmentGroups={enrollmentGroups}
+                    resolveEnrollmentGroup={resolveEnrollmentGroup}
+                    groupsLoading={groupsLoading}
+                    canHideFromInbox
+                    onHideFromInbox={hideFromInbox}
+                    isFavorite={threadFavorite}
+                    onToggleFavorite={toggleFavorite}
+                    favoriteLoading={favoriteLoading}
+                    canAttach
+                    onAttachmentPick={setPendingAttachment}
+                  />
                 </div>
-                <ThreadHeaderMenu
-                  subject={subject}
-                  subjectLocked={subjectLocked}
-                  canEdit={!subjectLocked}
-                  onUpdateSubject={updateThreadSubject}
-                  recipientOptions={recipientOptions}
-                  existingParticipantKeys={existingParticipantKeys}
-                  recipientsLoading={recipientsLoading}
-                  onAddRecipients={addRecipients}
-                  enrollmentGroups={enrollmentGroups}
-                  resolveEnrollmentGroup={resolveEnrollmentGroup}
-                  groupsLoading={groupsLoading}
-                  canHideFromInbox
-                  onHideFromInbox={hideFromInbox}
-                  isFavorite={threadFavorite}
-                  onToggleFavorite={toggleFavorite}
-                  favoriteLoading={favoriteLoading}
-                  canAttach
-                  onAttachmentPick={setPendingAttachment}
-                />
-              </div>
+              }
+              footer={
+                <>
+                  <div className="border-t border-gray-100 px-4 pt-3">
+                    <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
+                  </div>
+                  <MessageReplyComposer
+                    reply={reply}
+                    onReplyChange={setReply}
+                    onSend={() => void sendReply()}
+                    sending={sending}
+                    placeholder="Reply…"
+                    pendingAttachment={pendingAttachment}
+                    onClearAttachment={() => setPendingAttachment(null)}
+                  />
+                </>
+              }
+            >
               <MessagingContextBanner
                 linkedThreadId={linkedThreadId}
                 linkedThreadTitle={
@@ -1192,7 +1212,7 @@ export function MemberMessagesTab({
               />
               <MessagingInfoCard infoJson={threadInfoJson} />
               <MessagingThreadFaq role="member" threadId={selectedId} fetcher={coachFetch} />
-              <div className="messaging-scroll p-4 space-y-2">
+              <div className="p-4 space-y-2">
                 {messages.map((m) => (
                   <MessageBubble
                     key={m.id}
@@ -1211,19 +1231,7 @@ export function MemberMessagesTab({
                 ))}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="shrink-0 border-t border-gray-100 px-4 pt-3">
-                <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
-              </div>
-              <MessageReplyComposer
-                reply={reply}
-                onReplyChange={setReply}
-                onSend={() => void sendReply()}
-                sending={sending}
-                placeholder="Reply…"
-                pendingAttachment={pendingAttachment}
-                onClearAttachment={() => setPendingAttachment(null)}
-              />
-            </>
+            </MessagingThreadDetailShell>
           )
         }
       />

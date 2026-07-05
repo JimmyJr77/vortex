@@ -3375,10 +3375,12 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const sort = ['title', 'created', 'updated'].includes(String(req.query.sort || ''))
         ? String(req.query.sort)
         : (status === 'archived' || (status === 'open' && scope === 'all') ? 'title' : 'updated')
+      const sortDir = req.query.sortDir === 'asc' || req.query.sortDir === 'desc' ? req.query.sortDir : null
       const q = req.query.q ? String(req.query.q) : null
       let rows = await queryAdminMessageThreads(pool, facilityId, {
         status,
         sort,
+        sortDir,
         q,
         scope: status === 'archived' ? 'all' : scope,
         adminUserId: scope === 'mine' ? adminUserId : null,

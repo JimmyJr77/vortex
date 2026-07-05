@@ -97,7 +97,8 @@
   }
 
   .messaging-workspace {
-    height: calc(100dvh - var(--site-header-height) - var(--messaging-chrome, 13rem));
+    height: calc(100dvh - var(--messaging-viewport-top, calc(var(--site-header-height) + var(--messaging-chrome, 10rem))));
+    min-height: 420px;
   }
 
   .messaging-panel {

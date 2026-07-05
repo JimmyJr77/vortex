@@ -17,6 +17,13 @@ import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
 import { markThreadRead } from '../messaging/messagingApi'
 import MessagingThreadFaq from '../messaging/MessagingThreadFaq'
+import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
+import MessagingThreadListSortMenu, {
+  defaultSortDir,
+  toApiThreadSort,
+  type ThreadListSortDir,
+  type ThreadListSortField,
+} from '../messaging/MessagingThreadListSortMenu'
 import {
   countThreadsByInboxTab,
   filterMessageThreads,
@@ -36,7 +43,6 @@ import { mergeRecipientOptions, participantKey } from '../messaging/types'
 import { useMessageRealtime } from '../../hooks/useMessageRealtime'
 
 type AdminMessagesTab = 'active-mine' | 'active-all' | 'archived'
-type ListSort = 'title' | 'created'
 
 async function adminFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const res = await adminApiRequest(endpoint, options)
@@ -74,7 +80,8 @@ export default function AdminMessagesPanel({
   const [newBody, setNewBody] = useState('')
   const [listSearch, setListSearch] = useState('')
   const [listSearchApplied, setListSearchApplied] = useState('')
-  const [listSort, setListSort] = useState<ListSort>('title')
+  const [listSort, setListSort] = useState<ThreadListSortField>('title')
+  const [listSortDir, setListSortDir] = useState<ThreadListSortDir>(() => defaultSortDir('title'))
   const [enrollmentGroups, setEnrollmentGroups] = useState<EnrollmentGroup[]>([])
   const [groupsLoading, setGroupsLoading] = useState(true)
   const [threadFavorite, setThreadFavorite] = useState(false)
@@ -145,7 +152,8 @@ export default function AdminMessagesPanel({
         params.set('scope', 'all')
       }
       if (isFlatView) {
-        params.set('sort', listSort)
+        params.set('sort', toApiThreadSort(listSort))
+        params.set('sortDir', listSortDir)
         if (listSearchApplied.trim()) params.set('q', listSearchApplied.trim())
       }
       setThreads(await adminFetch<MessageThread[]>(`/api/admin/messages?${params.toString()}`))
@@ -154,7 +162,7 @@ export default function AdminMessagesPanel({
     } finally {
       setLoading(false)
     }
-  }, [tab, isFlatView, listSort, listSearchApplied])
+  }, [tab, isFlatView, listSort, listSortDir, listSearchApplied])
 
   useEffect(() => {
     setSelectedId(null)
@@ -346,8 +354,8 @@ export default function AdminMessagesPanel({
         : 'Select a thread to view and reply.'
 
   return (
-    <div className={messagingWorkspaceRoot} style={{ ['--messaging-chrome' as string]: '17rem' }}>
-      <div className="shrink-0 flex items-center justify-between flex-wrap gap-3">
+    <div className={messagingWorkspaceRoot} style={{ ['--messaging-viewport-top' as string]: '22rem' }}>
+      <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
@@ -367,7 +375,7 @@ export default function AdminMessagesPanel({
         )}
       </div>
 
-      <div className="shrink-0 flex gap-2 border-b border-gray-200 flex-wrap">
+      <div className={`shrink-0 gap-2 border-b border-gray-200 flex-wrap ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
         {(
           [
             ['active-mine', 'Active · Admin'],
@@ -438,33 +446,30 @@ export default function AdminMessagesPanel({
         listPanel={
           <MessagingThreadListShell
             title={listPanelTitle}
+            titleAction={
+              isFlatView ? (
+                <MessagingThreadListSortMenu
+                  sort={listSort}
+                  sortDir={listSortDir}
+                  onChange={(sort, sortDir) => {
+                    setListSort(sort)
+                    setListSortDir(sortDir)
+                  }}
+                />
+              ) : undefined
+            }
             search={listSearch}
             onSearchChange={setListSearch}
             onSearchSubmit={isFlatView ? applyListSearch : undefined}
             searchPlaceholder={isFlatView ? 'Title, user, or message text… (Enter to search)' : 'Search threads…'}
             headerExtra={
               tab === 'archived' ? undefined : (
-                <>
-                  <MessagingInboxTabs
-                    activeTab={inboxTab}
-                    onChange={setInboxTab}
-                    counts={inboxCounts}
-                    hiddenTabs={['archived']}
-                  />
-                  {isFlatView ? (
-                    <label className="block text-sm">
-                      <span className="block text-xs font-semibold text-gray-500 mb-1">Sort</span>
-                      <select
-                        value={listSort}
-                        onChange={(e) => setListSort(e.target.value as ListSort)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                      >
-                        <option value="title">Title (A–Z)</option>
-                        <option value="created">Date created</option>
-                      </select>
-                    </label>
-                  ) : null}
-                </>
+                <MessagingInboxTabs
+                  activeTab={inboxTab}
+                  onChange={setInboxTab}
+                  counts={inboxCounts}
+                  hiddenTabs={['archived']}
+                />
               )
             }
           >
@@ -498,55 +503,76 @@ export default function AdminMessagesPanel({
           ) : detailLoading ? (
             <div className="flex-1 flex items-center justify-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
           ) : isFlatView ? (
-            <>
-              <div className="shrink-0 px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-sm text-gray-900">{threadSubject || 'Conversation'}</div>
-                  {threadParticipants.length > 0 && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      {threadParticipants.map((p) => p.name).filter(Boolean).join(' · ')}
+            <MessagingThreadDetailShell
+              header={
+                <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-sm text-gray-900">{threadSubject || 'Conversation'}</div>
+                    {threadParticipants.length > 0 && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {threadParticipants.map((p) => p.name).filter(Boolean).join(' · ')}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {tab === 'archived' ? (
+                      <ThreadHeaderMenu
+                        subject={threadSubject}
+                        subjectLocked={threadSubjectLocked}
+                        canLock={false}
+                        canEdit={false}
+                        onUpdateSubject={updateThreadSubject}
+                        isGloballyArchived
+                        onRestoreThread={restoreThreadGlobally}
+                        isFavorite={threadFavorite}
+                        onToggleFavorite={toggleFavorite}
+                        favoriteLoading={favoriteLoading}
+                      />
+                    ) : (
+                      <ThreadHeaderMenu
+                        subject={threadSubject}
+                        subjectLocked={threadSubjectLocked}
+                        canLock
+                        canEdit
+                        onUpdateSubject={updateThreadSubject}
+                        recipientOptions={recipientOptions}
+                        existingParticipantKeys={existingParticipantKeys}
+                        recipientsLoading={recipientsLoading}
+                        onAddRecipients={addRecipients}
+                        enrollmentGroups={enrollmentGroups}
+                        resolveEnrollmentGroup={resolveEnrollmentGroup}
+                        groupsLoading={groupsLoading}
+                        canHideFromInbox
+                        onHideFromInbox={hideFromInbox}
+                        isFavorite={threadFavorite}
+                        onToggleFavorite={toggleFavorite}
+                        favoriteLoading={favoriteLoading}
+                        canAttach={tab === 'active-all'}
+                        onAttachmentPick={setPendingAttachment}
+                      />
+                    )}
+                  </div>
+                </div>
+              }
+              footer={
+                canReply ? (
+                  <>
+                    <div className="border-t border-gray-100 px-4 pt-3">
+                      <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
                     </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {tab === 'archived' ? (
-                    <ThreadHeaderMenu
-                      subject={threadSubject}
-                      subjectLocked={threadSubjectLocked}
-                      canLock={false}
-                      canEdit={false}
-                      onUpdateSubject={updateThreadSubject}
-                      isGloballyArchived
-                      onRestoreThread={restoreThreadGlobally}
-                      isFavorite={threadFavorite}
-                      onToggleFavorite={toggleFavorite}
-                      favoriteLoading={favoriteLoading}
+                    <MessageReplyComposer
+                      reply={reply}
+                      onReplyChange={setReply}
+                      onSend={() => void sendReply()}
+                      sending={sending}
+                      placeholder="Reply as admin…"
+                      pendingAttachment={pendingAttachment}
+                      onClearAttachment={() => setPendingAttachment(null)}
                     />
-                  ) : (
-                    <ThreadHeaderMenu
-                      subject={threadSubject}
-                      subjectLocked={threadSubjectLocked}
-                      canLock
-                      canEdit
-                      onUpdateSubject={updateThreadSubject}
-                      recipientOptions={recipientOptions}
-                      existingParticipantKeys={existingParticipantKeys}
-                      recipientsLoading={recipientsLoading}
-                      onAddRecipients={addRecipients}
-                      enrollmentGroups={enrollmentGroups}
-                      resolveEnrollmentGroup={resolveEnrollmentGroup}
-                      groupsLoading={groupsLoading}
-                      canHideFromInbox
-                      onHideFromInbox={hideFromInbox}
-                      isFavorite={threadFavorite}
-                      onToggleFavorite={toggleFavorite}
-                      favoriteLoading={favoriteLoading}
-                      canAttach={tab === 'active-all'}
-                      onAttachmentPick={setPendingAttachment}
-                    />
-                  )}
-                </div>
-              </div>
+                  </>
+                ) : undefined
+              }
+            >
               <MessagingContextBanner
                 linkedThreadId={linkedThreadId}
                 linkedThreadTitle={
@@ -557,13 +583,47 @@ export default function AdminMessagesPanel({
                 onJump={(id) => void openThread(id)}
               />
               <MessagingInfoCard infoJson={threadInfoJson} />
-              <div className="messaging-scroll">
+              <div>
                 <ArchivedMessageLines messages={messages} />
                 <div ref={messagesEndRef} />
               </div>
-              {canReply && (
+            </MessagingThreadDetailShell>
+          ) : (
+            <MessagingThreadDetailShell
+              header={
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="font-semibold text-sm truncate">{threadSubject || 'Conversation'}</span>
+                    {threadSubjectLocked && (
+                      <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
+                    )}
+                  </div>
+                  <ThreadHeaderMenu
+                    subject={threadSubject}
+                    subjectLocked={threadSubjectLocked}
+                    canLock
+                    canEdit
+                    onUpdateSubject={updateThreadSubject}
+                    recipientOptions={recipientOptions}
+                    existingParticipantKeys={existingParticipantKeys}
+                    recipientsLoading={recipientsLoading}
+                    onAddRecipients={addRecipients}
+                    enrollmentGroups={enrollmentGroups}
+                    resolveEnrollmentGroup={resolveEnrollmentGroup}
+                    groupsLoading={groupsLoading}
+                    canHideFromInbox
+                    onHideFromInbox={hideFromInbox}
+                    isFavorite={threadFavorite}
+                    onToggleFavorite={toggleFavorite}
+                    favoriteLoading={favoriteLoading}
+                    canAttach
+                    onAttachmentPick={setPendingAttachment}
+                  />
+                </div>
+              }
+              footer={
                 <>
-                  <div className="shrink-0 border-t border-gray-100 px-4 pt-3">
+                  <div className="border-t border-gray-100 px-4 pt-3">
                     <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
                   </div>
                   <MessageReplyComposer
@@ -576,39 +636,8 @@ export default function AdminMessagesPanel({
                     onClearAttachment={() => setPendingAttachment(null)}
                   />
                 </>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="shrink-0 px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <span className="font-semibold text-sm truncate">{threadSubject || 'Conversation'}</span>
-                  {threadSubjectLocked && (
-                    <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
-                  )}
-                </div>
-                <ThreadHeaderMenu
-                  subject={threadSubject}
-                  subjectLocked={threadSubjectLocked}
-                  canLock
-                  canEdit
-                  onUpdateSubject={updateThreadSubject}
-                  recipientOptions={recipientOptions}
-                  existingParticipantKeys={existingParticipantKeys}
-                  recipientsLoading={recipientsLoading}
-                  onAddRecipients={addRecipients}
-                  enrollmentGroups={enrollmentGroups}
-                  resolveEnrollmentGroup={resolveEnrollmentGroup}
-                  groupsLoading={groupsLoading}
-                  canHideFromInbox
-                  onHideFromInbox={hideFromInbox}
-                  isFavorite={threadFavorite}
-                  onToggleFavorite={toggleFavorite}
-                  favoriteLoading={favoriteLoading}
-                  canAttach
-                  onAttachmentPick={setPendingAttachment}
-                />
-              </div>
+              }
+            >
               <MessagingContextBanner
                 linkedThreadId={linkedThreadId}
                 linkedThreadTitle={
@@ -620,7 +649,7 @@ export default function AdminMessagesPanel({
               />
               <MessagingInfoCard infoJson={threadInfoJson} />
               <MessagingThreadFaq role="admin" threadId={selectedId} fetcher={adminFetch} canEdit />
-              <div className="messaging-scroll p-4 space-y-3">
+              <div className="p-4 space-y-3">
                 {messages.map((m) => (
                   <MessageBubble
                     key={m.id}
@@ -638,19 +667,7 @@ export default function AdminMessagesPanel({
                 ))}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="shrink-0 border-t border-gray-100 px-4 pt-3">
-                <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
-              </div>
-              <MessageReplyComposer
-                reply={reply}
-                onReplyChange={setReply}
-                onSend={() => void sendReply()}
-                sending={sending}
-                placeholder="Reply as admin…"
-                pendingAttachment={pendingAttachment}
-                onClearAttachment={() => setPendingAttachment(null)}
-              />
-            </>
+            </MessagingThreadDetailShell>
           )
         }
       />

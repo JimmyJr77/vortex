@@ -309,9 +309,10 @@ export async function loadThreadWithParticipants(pool, threadId, facilityId) {
 /**
  * Admin thread list with optional search (subject, participants, message bodies) and sort.
  * sort: title | created | updated (default: updated = last_message_at)
+ * sortDir: asc | desc — default depends on sort (title asc, created/updated desc)
  * scope: all | mine — when mine, only threads the admin user participates in
  */
-export async function queryAdminMessageThreads(pool, facilityId, { status = 'open', sort = 'updated', q = null, limit = 300, scope = 'all', adminUserId = null, favoriteUserId = null, inboxHideUserId = null }) {
+export async function queryAdminMessageThreads(pool, facilityId, { status = 'open', sort = 'updated', sortDir = null, q = null, limit = 300, scope = 'all', adminUserId = null, favoriteUserId = null, inboxHideUserId = null }) {
   const params = [facilityId, status]
   const pattern = q && String(q).trim() ? `%${String(q).trim()}%` : null
   let searchSql = ''
@@ -361,11 +362,17 @@ export async function queryAdminMessageThreads(pool, facilityId, { status = 'ope
 
   let orderSql = MESSAGE_THREAD_FAVORITE_ORDER
   if (sort === 'title') {
-    orderSql = `CASE WHEN fav.favorited_at IS NOT NULL THEN 0 ELSE 1 END, fav.favorited_at ASC NULLS LAST, LOWER(COALESCE(NULLIF(TRIM(t.subject), ''), 'conversation')) ASC, t.created_at DESC`
+    const titleDir = sortDir === 'desc' ? 'DESC' : 'ASC'
+    orderSql = `CASE WHEN fav.favorited_at IS NOT NULL THEN 0 ELSE 1 END, fav.favorited_at ASC NULLS LAST, LOWER(COALESCE(NULLIF(TRIM(t.subject), ''), 'conversation')) ${titleDir}, t.created_at DESC`
   } else if (sort === 'created') {
-    orderSql = `CASE WHEN fav.favorited_at IS NOT NULL THEN 0 ELSE 1 END, fav.favorited_at ASC NULLS LAST, t.created_at DESC`
+    const createdDir = sortDir === 'asc' ? 'ASC' : 'DESC'
+    orderSql = `CASE WHEN fav.favorited_at IS NOT NULL THEN 0 ELSE 1 END, fav.favorited_at ASC NULLS LAST, t.created_at ${createdDir}`
   } else if (sort === 'updated') {
-    orderSql = MESSAGE_THREAD_FAVORITE_ORDER
+    if (sortDir === 'asc') {
+      orderSql = `CASE WHEN fav.favorited_at IS NOT NULL THEN 0 ELSE 1 END, fav.favorited_at ASC NULLS LAST, t.last_message_at ASC NULLS LAST, t.created_at ASC`
+    } else {
+      orderSql = MESSAGE_THREAD_FAVORITE_ORDER
+    }
   }
 
   const favUserId = favoriteUserId ?? adminUserId

@@ -1,7 +1,7 @@
 import type { MessageThread } from './types'
 import type { MessagingInboxTab } from './MessagingInboxTabs'
 
-/** Shared layout classes — pair with `--messaging-chrome` on the root wrapper. */
+/** Shared layout classes — set `--messaging-viewport-top` on the root wrapper for viewport height. */
 export const messagingWorkspaceRoot = 'flex flex-col gap-4 messaging-workspace min-h-[420px]'
 export const messagingWorkspaceGrid = 'grid gap-4 lg:gap-5 lg:grid-cols-[minmax(220px,280px)_1fr] flex-1 min-h-0 messaging-workspace-grid'
 export const messagingPanel = 'messaging-panel'

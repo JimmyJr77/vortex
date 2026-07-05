@@ -16,6 +16,7 @@ import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
 import { markThreadRead } from '../messaging/messagingApi'
 import MessagingThreadFaq from '../messaging/MessagingThreadFaq'
+import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
 import {
   countThreadsByInboxTab,
   filterMessageThreads,
@@ -318,8 +319,8 @@ export default function MessagesPanel({
   }
 
   return (
-    <div className={messagingWorkspaceRoot} style={{ ['--messaging-chrome' as string]: '13rem' }}>
-      <div className="shrink-0 flex items-center justify-between flex-wrap gap-3">
+    <div className={messagingWorkspaceRoot} style={{ ['--messaging-viewport-top' as string]: '19rem' }}>
+      <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
@@ -453,47 +454,66 @@ export default function MessagesPanel({
           ) : detailLoading ? (
             <div className="flex-1 flex items-center justify-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
           ) : (
-            <>
-              <div className="shrink-0 px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <span className="font-semibold text-sm truncate">{threadSubject || 'Conversation'}</span>
-                  {threadSubjectLocked && (
-                    <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
-                  )}
+            <MessagingThreadDetailShell
+              header={
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="font-semibold text-sm truncate">{threadSubject || 'Conversation'}</span>
+                    {threadSubjectLocked && (
+                      <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {threadScope === 'assigned_coach' && (
+                      <button
+                        type="button"
+                        onClick={() => void openToCoachingCircle()}
+                        className="text-xs font-semibold text-vortex-red hover:underline"
+                      >
+                        Share with coaching circle
+                      </button>
+                    )}
+                    <ThreadHeaderMenu
+                      subject={threadSubject}
+                      subjectLocked={threadSubjectLocked}
+                      canLock
+                      canEdit
+                      onUpdateSubject={updateThreadSubject}
+                      recipientOptions={recipientOptions}
+                      existingParticipantKeys={existingParticipantKeys}
+                      recipientsLoading={recipientsLoading}
+                      onAddRecipients={addRecipients}
+                      enrollmentGroups={enrollmentGroups}
+                      resolveEnrollmentGroup={resolveEnrollmentGroup}
+                      groupsLoading={groupsLoading}
+                      canHideFromInbox
+                      onHideFromInbox={hideFromInbox}
+                      isFavorite={threadFavorite}
+                      onToggleFavorite={toggleFavorite}
+                      favoriteLoading={favoriteLoading}
+                      canAttach
+                      onAttachmentPick={setPendingAttachment}
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {threadScope === 'assigned_coach' && (
-                    <button
-                      type="button"
-                      onClick={() => void openToCoachingCircle()}
-                      className="text-xs font-semibold text-vortex-red hover:underline"
-                    >
-                      Share with coaching circle
-                    </button>
-                  )}
-                  <ThreadHeaderMenu
-                    subject={threadSubject}
-                    subjectLocked={threadSubjectLocked}
-                    canLock
-                    canEdit
-                    onUpdateSubject={updateThreadSubject}
-                    recipientOptions={recipientOptions}
-                    existingParticipantKeys={existingParticipantKeys}
-                    recipientsLoading={recipientsLoading}
-                    onAddRecipients={addRecipients}
-                    enrollmentGroups={enrollmentGroups}
-                    resolveEnrollmentGroup={resolveEnrollmentGroup}
-                    groupsLoading={groupsLoading}
-                    canHideFromInbox
-                    onHideFromInbox={hideFromInbox}
-                    isFavorite={threadFavorite}
-                    onToggleFavorite={toggleFavorite}
-                    favoriteLoading={favoriteLoading}
-                    canAttach
-                    onAttachmentPick={setPendingAttachment}
+              }
+              footer={
+                <>
+                  <div className="border-t border-gray-100 px-4 pt-3">
+                    <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
+                  </div>
+                  <MessageReplyComposer
+                    reply={reply}
+                    onReplyChange={setReply}
+                    onSend={() => void sendReply()}
+                    sending={sending}
+                    placeholder="Type a reply…"
+                    pendingAttachment={pendingAttachment}
+                    onClearAttachment={() => setPendingAttachment(null)}
                   />
-                </div>
-              </div>
+                </>
+              }
+            >
               <MessagingContextBanner
                 linkedThreadId={linkedThreadId}
                 linkedThreadTitle={
@@ -505,7 +525,7 @@ export default function MessagesPanel({
               />
               <MessagingInfoCard infoJson={threadInfoJson} />
               <MessagingThreadFaq role="coach" threadId={selectedId} fetcher={coachFetch} canEdit />
-              <div className="messaging-scroll p-4 space-y-3">
+              <div className="p-4 space-y-3">
                 {messages.map((m) => (
                   <MessageBubble
                     key={m.id}
@@ -523,19 +543,7 @@ export default function MessagesPanel({
                 ))}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="shrink-0 border-t border-gray-100 px-4 pt-3">
-                <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
-              </div>
-              <MessageReplyComposer
-                reply={reply}
-                onReplyChange={setReply}
-                onSend={() => void sendReply()}
-                sending={sending}
-                placeholder="Type a reply…"
-                pendingAttachment={pendingAttachment}
-                onClearAttachment={() => setPendingAttachment(null)}
-              />
-            </>
+            </MessagingThreadDetailShell>
           )
         }
       />

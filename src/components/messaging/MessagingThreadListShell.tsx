@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 interface MessagingThreadListShellProps {
   title: string
+  titleAction?: ReactNode
   search: string
   onSearchChange: (value: string) => void
   onSearchSubmit?: () => void
@@ -12,6 +13,7 @@ interface MessagingThreadListShellProps {
 
 export default function MessagingThreadListShell({
   title,
+  titleAction,
   search,
   onSearchChange,
   onSearchSubmit,
@@ -21,7 +23,10 @@ export default function MessagingThreadListShell({
 }: MessagingThreadListShellProps) {
   return (
     <div className="messaging-panel flex flex-col min-h-0">
-      <div className="px-4 py-3 border-b border-gray-100 font-semibold text-sm shrink-0">{title}</div>
+      <div className="px-4 py-3 border-b border-gray-100 shrink-0 flex items-center justify-between gap-2">
+        <span className="font-semibold text-sm min-w-0 truncate">{title}</span>
+        {titleAction}
+      </div>
       <div className="px-3 py-2 border-b border-gray-100 shrink-0 space-y-2">
         <input
           type="search"
