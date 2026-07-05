@@ -33,6 +33,9 @@ import {
   setMessageChecklistClosed,
   upsertSignupResponse,
   claimChecklistItem,
+  unclaimChecklistItem,
+  dismissPoll,
+  dismissSignupSheet,
   createCollaborationMessage,
   listThreadFaq,
   createThreadFaq,
@@ -52,6 +55,8 @@ import {
   getEventThreads,
   subscribeMemberToEventThreads,
   getEventChatStatus,
+  provisionAdditionalEventBoard,
+  linkThreadToEvent,
 } from './messageEventThreads.js'
 import {
   listEventCalendarItems,
@@ -64,6 +69,12 @@ import {
   listEventRsvps,
   listCalendarInboxRows,
 } from './messageEventCalendar.js'
+import {
+  queryMemberClassMessageOptions,
+  queryStaffClassMessageOptions,
+  createClassMessageThread,
+} from './messageClassThreads.js'
+import { listScheduleInboxRows, listHighlightEvents } from './messageScheduleInbox.js'
 import {
   getSchedulingFormThread,
   postSchedulingSystemMessage,
@@ -222,6 +233,112 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         bad(res, error.message, 500)
       }
     })
+
+    app.get(`/api/${portal}/messages/schedule-inbox-rows`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+          return bad(res, 'Admin access required.', 403)
+        }
+        const facilityId = req.platformAuth.user.facility_id
+        const memberId = portal === 'member' ? memberViewer(req).memberId : null
+        if (portal === 'member' && memberId == null) {
+          return bad(res, 'Member context required.', 403)
+        }
+        const limit = Math.min(num(req.query.limit) || 150, 250)
+        ok(res, await listScheduleInboxRows(pool, facilityId, { memberId, limit }))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.get(`/api/${portal}/messages/class-options`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+          return bad(res, 'Admin access required.', 403)
+        }
+        const facilityId = req.platformAuth.user.facility_id
+        if (portal === 'member') {
+          const memberId = memberViewer(req).memberId
+          if (memberId == null) return bad(res, 'Member context required.', 403)
+          ok(res, await queryMemberClassMessageOptions(pool, facilityId, memberId))
+          return
+        }
+        const coachUserId = portal === 'coach' ? Number(req.platformAuth.user.id) : null
+        ok(res, await queryStaffClassMessageOptions(pool, facilityId, { coachUserId }))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    if (portal !== 'member') {
+      app.post(`/api/${portal}/messages/class-threads`, auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+            return bad(res, 'Admin access required.', 403)
+          }
+          const facilityId = req.platformAuth.user.facility_id
+          const formId = num(req.body?.form_id ?? req.body?.formId)
+          if (!formId) return bad(res, 'form_id is required.')
+          const adminUserId = Number(req.platformAuth.user.id)
+          ok(res, await createClassMessageThread(pool, formId, facilityId, {
+            subject: req.body?.subject ?? null,
+            adminUserId,
+          }))
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+
+      app.get(`/api/${portal}/messages/highlight-events`, auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+            return bad(res, 'Admin access required.', 403)
+          }
+          const facilityId = req.platformAuth.user.facility_id
+          ok(res, await listHighlightEvents(pool, facilityId))
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+    } else {
+      app.post('/api/member/messages/class-threads', auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          const facilityId = req.platformAuth.user.facility_id
+          const memberId = memberViewer(req).memberId
+          if (memberId == null) return bad(res, 'Member context required.', 403)
+          const formId = num(req.body?.form_id ?? req.body?.formId)
+          if (!formId) return bad(res, 'form_id is required.')
+          const enrolled = await queryMemberClassMessageOptions(pool, facilityId, memberId)
+          if (!enrolled.some((row) => row.id === formId)) {
+            return bad(res, 'You are not enrolled in this class.', 403)
+          }
+          ok(res, await createClassMessageThread(pool, formId, facilityId, {
+            subject: req.body?.subject ?? null,
+            adminUserId: null,
+          }))
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+    }
+
+    if (portal === 'coach') {
+      app.post('/api/coach/events/:eventId/calendar-items', auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          const facilityId = req.platformAuth.user.facility_id
+          const eventId = num(req.params.eventId)
+          ok(res, await createEventCalendarItem(pool, eventId, facilityId, req.body ?? {}))
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+    }
 
     app.patch(`/api/${portal}/messages/:threadId/tags`, auth, async (req, res) => {
       try {
@@ -422,15 +539,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
           options,
           closesAt: req.body?.closes_at ?? req.body?.closesAt ?? null,
         })
-        const message = await loadEnrichedMessageById(pool, created.id)
-        emitMessageCreated({
-          facilityId: ctx.facilityId,
-          threadId,
-          userId: ctx.viewer.userId ?? undefined,
-          memberId: ctx.viewer.memberId ?? undefined,
-          data: message,
-        })
-        ok(res, { message, poll: await loadMessagePoll(pool, created.id) ?? poll })
+        ok(res, { poll: await loadMessagePoll(pool, created.id) ?? poll })
       } catch (error) {
         bad(res, error.message, 500)
       }
@@ -446,6 +555,21 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         const updated = await setMessagePollClosed(pool, pollId, req.body?.is_closed ?? req.body?.isClosed, threadId)
         if (!updated) return bad(res, 'Poll not found.', 404)
         ok(res, updated)
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/polls/:pollId/ignore`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const pollId = num(req.params.pollId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const result = await dismissPoll(pool, pollId, ctx.viewer)
+        if (!result) return bad(res, 'Unable to ignore poll.', 400)
+        ok(res, result)
       } catch (error) {
         bad(res, error.message, 500)
       }
@@ -473,6 +597,8 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         const sheetType = String(req.body?.sheet_type ?? req.body?.sheetType ?? 'items')
         const items = Array.isArray(req.body?.items) ? req.body.items : []
         if (!title) return bad(res, 'title is required.')
+        const eventDate = String(req.body?.event_date ?? req.body?.eventDate ?? '').trim()
+        if (!eventDate) return bad(res, 'event_date is required.')
         if (!['rsvp', 'items', 'support'].includes(sheetType)) return bad(res, 'Invalid signup list type.')
         if (sheetType !== 'rsvp' && items.length === 0) return bad(res, 'items are required.')
         const created = await createCollaborationMessage(pool, threadId, ctx.viewer, portal, `Signup list: ${title}`)
@@ -481,16 +607,9 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
           sheetType,
           config: req.body?.config || {},
           closesAt: req.body?.closes_at ?? req.body?.closesAt ?? null,
+          eventDate,
         })
-        const message = await loadEnrichedMessageById(pool, created.id)
-        emitMessageCreated({
-          facilityId: ctx.facilityId,
-          threadId,
-          userId: ctx.viewer.userId ?? undefined,
-          memberId: ctx.viewer.memberId ?? undefined,
-          data: message,
-        })
-        ok(res, { message, signup })
+        ok(res, { signup })
       } catch (error) {
         bad(res, error.message, 500)
       }
@@ -506,6 +625,21 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         const updated = await setMessageChecklistClosed(pool, signupId, req.body?.is_closed ?? req.body?.isClosed, threadId)
         if (!updated) return bad(res, 'Signup list not found.', 404)
         ok(res, updated)
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/signup-sheets/:signupId/ignore`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const signupId = num(req.params.signupId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const result = await dismissSignupSheet(pool, signupId, ctx.viewer)
+        if (!result) return bad(res, 'Unable to ignore signup list.', 400)
+        ok(res, result)
       } catch (error) {
         bad(res, error.message, 500)
       }
@@ -695,6 +829,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
           sheetType: req.body?.sheet_type ?? req.body?.sheetType ?? 'items',
           config: req.body?.config || {},
           closesAt: req.body?.closes_at ?? req.body?.closesAt ?? null,
+          eventDate: req.body?.event_date ?? req.body?.eventDate ?? null,
         }))
       } catch (error) {
         bad(res, error.message, 500)
@@ -724,7 +859,23 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         if (!ctx) return
         const itemIndex = num(req.body?.item_index ?? req.body?.itemIndex)
         if (itemIndex == null) return bad(res, 'item_index is required.')
-        ok(res, await claimChecklistItem(pool, messageId, itemIndex, ctx.viewer))
+        const claimNote = req.body?.claim_note ?? req.body?.claimNote ?? null
+        ok(res, await claimChecklistItem(pool, messageId, itemIndex, ctx.viewer, claimNote))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/messages/:messageId/checklist/unclaim`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const messageId = num(req.params.messageId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const itemIndex = num(req.body?.item_index ?? req.body?.itemIndex)
+        if (itemIndex == null) return bad(res, 'item_index is required.')
+        ok(res, await unclaimChecklistItem(pool, messageId, itemIndex, ctx.viewer))
       } catch (error) {
         bad(res, error.message, 500)
       }
@@ -915,6 +1066,39 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         detail: { event_id: eventId, discussion_id: result.discussion.id },
       })
       ok(res, result)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/admin/events/:eventId/message-boards', auth, async (req, res) => {
+    try {
+      await ensureSchema()
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const eventId = num(req.params.eventId)
+      const adminUserId = Number(req.platformAuth.user.id)
+      const result = await provisionAdditionalEventBoard(pool, eventId, facilityId, {
+        subject: req.body?.subject,
+        adminUserId,
+      })
+      ok(res, result)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/admin/events/:eventId/message-threads/link', auth, async (req, res) => {
+    try {
+      await ensureSchema()
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const eventId = num(req.params.eventId)
+      const threadId = num(req.body?.thread_id ?? req.body?.threadId)
+      if (!threadId) return bad(res, 'thread_id is required.')
+      ok(res, await linkThreadToEvent(pool, threadId, eventId, facilityId, {
+        linkRole: req.body?.link_role ?? req.body?.linkRole ?? 'discussion',
+      }))
     } catch (error) {
       bad(res, error.message, 500)
     }

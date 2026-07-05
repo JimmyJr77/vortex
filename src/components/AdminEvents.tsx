@@ -8,6 +8,8 @@ import {
   fetchEventCalendarItems,
   fetchEventMessageThreads,
   provisionEventMessageThreads,
+  provisionAdditionalEventBoard,
+  linkThreadToEvent,
   type EventCalendarItem,
 } from './messaging/messagingApi'
 import { formatDateForInput, formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
@@ -606,7 +608,10 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
   const [editLog, setEditLog] = useState<Array<{ id: number; eventId: string | number; field: string; oldValue: string; newValue: string; changedBy: string; changedAt: string; adminName?: string; adminEmail?: string; createdAt?: string; changes?: Record<string, { oldValue: unknown; newValue: unknown }> }>>([])
   const [editLogLoading, setEditLogLoading] = useState(false)
   const [eventChatExists, setEventChatExists] = useState(false)
+  const [eventBoards, setEventBoards] = useState<Array<{ id: number; subject?: string | null; kind?: string }>>([])
   const [eventChatSyncing, setEventChatSyncing] = useState(false)
+  const [eventBoardAdding, setEventBoardAdding] = useState(false)
+  const [linkThreadIdInput, setLinkThreadIdInput] = useState('')
   const [calendarItems, setCalendarItems] = useState<EventCalendarItem[]>([])
   const [calendarLoading, setCalendarLoading] = useState(false)
   const [calendarDraft, setCalendarDraft] = useState({
@@ -634,6 +639,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     setCalendarLoading(true)
     try {
       const threads = await fetchEventMessageThreads('admin', id, adminMessagingFetch)
+      setEventBoards(threads.map((t) => ({ id: t.id, subject: t.subject, kind: t.kind })))
       setEventChatExists(threads.length > 0)
       const items = await fetchEventCalendarItems(id, adminMessagingFetch)
       setCalendarItems(items)
@@ -669,11 +675,43 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
         },
       )
       setEventChatExists(true)
+      await loadEventChatMeta(Number(editingEventId))
       alert(eventChatExists ? 'Event chat synced.' : 'Event chat created.')
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Could not sync event chat')
     } finally {
       setEventChatSyncing(false)
+    }
+  }
+
+  const handleAddEventBoard = async () => {
+    if (editingEventId == null) return
+    setEventBoardAdding(true)
+    try {
+      await provisionAdditionalEventBoard(Number(editingEventId), adminMessagingFetch, {
+        subject: eventFormData.eventName ? `${eventFormData.eventName} — Board` : undefined,
+      })
+      await loadEventChatMeta(Number(editingEventId))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Could not add event board')
+    } finally {
+      setEventBoardAdding(false)
+    }
+  }
+
+  const handleLinkExistingThread = async () => {
+    if (editingEventId == null) return
+    const threadId = Number(linkThreadIdInput.trim())
+    if (!Number.isFinite(threadId) || threadId <= 0) {
+      alert('Enter a valid thread ID.')
+      return
+    }
+    try {
+      await linkThreadToEvent(Number(editingEventId), adminMessagingFetch, { thread_id: threadId })
+      setLinkThreadIdInput('')
+      await loadEventChatMeta(Number(editingEventId))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Could not link thread')
     }
   }
 
@@ -2128,19 +2166,56 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                             : 'No chat yet — create one when the event is ready.'}
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => void handleSyncEventChat()}
-                        disabled={eventChatSyncing}
-                        className="inline-flex items-center gap-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-60"
-                      >
-                        {eventChatSyncing ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <MessageSquare className="w-4 h-4" />
+                      {eventBoards.length > 0 && (
+                        <ul className="space-y-1 mb-3">
+                          {eventBoards.map((board) => (
+                            <li key={board.id} className="text-xs text-gray-300">
+                              #{board.id} · {board.subject || 'Untitled'} ({board.kind || 'thread'})
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => void handleSyncEventChat()}
+                          disabled={eventChatSyncing}
+                          className="inline-flex items-center gap-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                        >
+                          {eventChatSyncing ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <MessageSquare className="w-4 h-4" />
+                          )}
+                          {eventChatExists ? 'Sync event chat' : 'Create event chat'}
+                        </button>
+                        {eventChatExists && (
+                          <button
+                            type="button"
+                            onClick={() => void handleAddEventBoard()}
+                            disabled={eventBoardAdding}
+                            className="inline-flex items-center gap-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                          >
+                            {eventBoardAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                            Add another board
+                          </button>
                         )}
-                        {eventChatExists ? 'Sync event chat' : 'Create event chat'}
-                      </button>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 mt-3">
+                        <input
+                          value={linkThreadIdInput}
+                          onChange={(e) => setLinkThreadIdInput(e.target.value)}
+                          placeholder="Thread ID to link"
+                          className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white w-40"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => void handleLinkExistingThread()}
+                          className="rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 text-sm font-semibold"
+                        >
+                          Link existing thread
+                        </button>
+                      </div>
                     </div>
 
                     <div>

@@ -1,4 +1,4 @@
-import type { MessageChecklist, MessagePoll, MessageRow, MessagingRole, SignupSheetType } from './types'
+import type { MessageChecklist, MessagePoll, MessagingRole, SignupSheetType } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 
@@ -63,7 +63,107 @@ export interface EventChatStatus {
   hasChat: boolean
   subscribed: boolean
   discussionThreadId: number | null
+  discussionThreadIds?: number[]
   canonicalThreadId: number | null
+  boards?: { id: number; subject?: string | null; kind?: string }[]
+}
+
+export interface ClassMessageOption {
+  id: number
+  name: string
+  member_count?: number
+  is_assigned?: boolean
+}
+
+export interface ScheduleInboxRow {
+  row_key: string
+  source: 'event' | 'class' | 'calendar_item'
+  title: string
+  who_text?: string | null
+  what_text?: string | null
+  why_text?: string | null
+  when_start?: string | null
+  when_end?: string | null
+  where_text?: string | null
+  notes?: string | null
+  linked_event_id?: number | null
+  linked_form_id?: number | null
+  calendar_item_id?: number | null
+  discussion_thread_id?: number | null
+  class_ids?: number[]
+  event_name?: string | null
+}
+
+export interface HighlightEventOption {
+  id: number
+  event_name?: string
+  eventName?: string
+}
+
+export async function fetchClassMessageOptions(
+  role: MessagingRole,
+  fetcher: Fetcher,
+): Promise<ClassMessageOption[]> {
+  const rows = await fetcher(`/api/${role}/messages/class-options`) as ClassMessageOption[]
+  return Array.isArray(rows) ? rows : []
+}
+
+export async function createClassMessageThread(
+  role: MessagingRole,
+  fetcher: Fetcher,
+  payload: { form_id: number; subject?: string | null },
+): Promise<{ thread_id: number }> {
+  return fetcher(`/api/${role}/messages/class-threads`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }) as Promise<{ thread_id: number }>
+}
+
+export async function fetchScheduleInboxRows(
+  role: MessagingRole,
+  fetcher: Fetcher,
+): Promise<ScheduleInboxRow[]> {
+  const rows = await fetcher(`/api/${role}/messages/schedule-inbox-rows`) as ScheduleInboxRow[]
+  return Array.isArray(rows) ? rows : []
+}
+
+export async function provisionAdditionalEventBoard(
+  eventId: number,
+  fetcher: Fetcher,
+  payload: { subject?: string } = {},
+): Promise<{ discussion?: { id: number } }> {
+  return fetcher(`/api/admin/events/${eventId}/message-boards`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }) as Promise<{ discussion?: { id: number } }>
+}
+
+export async function linkThreadToEvent(
+  eventId: number,
+  fetcher: Fetcher,
+  payload: { thread_id: number; link_role?: string },
+): Promise<unknown> {
+  return fetcher(`/api/admin/events/${eventId}/message-threads/link`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function fetchHighlightEvents(
+  role: MessagingRole,
+  fetcher: Fetcher,
+): Promise<HighlightEventOption[]> {
+  if (role === 'admin') {
+    const result = await fetcher('/api/admin/events')
+    if (Array.isArray(result)) return result
+    const wrapped = result as { data?: HighlightEventOption[] }
+    return Array.isArray(wrapped?.data) ? wrapped.data : []
+  }
+  const rows = await fetcher(`/api/${role}/messages/highlight-events`) as HighlightEventOption[]
+  return Array.isArray(rows) ? rows : []
 }
 
 export async function fetchEventChatStatus(
@@ -130,13 +230,17 @@ export async function fetchEventCalendarItems(
 export async function createEventCalendarItem(
   eventId: number,
   fetcher: Fetcher,
-  payload: Partial<EventCalendarItem>,
+  payload: Partial<EventCalendarItem> & { class_ids?: number[] },
+  role: MessagingRole = 'admin',
 ): Promise<EventCalendarItem> {
-  return await fetcher(`/api/admin/events/${eventId}/calendar-items`, {
+  const path = role === 'coach'
+    ? `/api/coach/events/${eventId}/calendar-items`
+    : `/api/admin/events/${eventId}/calendar-items`
+  return fetcher(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-  }) as EventCalendarItem
+  }) as Promise<EventCalendarItem>
 }
 
 export async function deleteEventCalendarItem(
@@ -174,12 +278,12 @@ export async function createThreadPoll(
   threadId: number,
   fetcher: Fetcher,
   payload: { question: string; options: string[]; closes_at?: string | null },
-): Promise<{ message?: MessageRow; poll?: MessagePoll }> {
+): Promise<{ poll?: MessagePoll }> {
   return await fetcher(`/api/${role}/messages/${threadId}/polls`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-  }) as { message?: MessageRow; poll?: MessagePoll }
+  }) as { poll?: MessagePoll }
 }
 
 export async function closeThreadPoll(
@@ -212,16 +316,17 @@ export async function createThreadSignupSheet(
   payload: {
     title: string
     sheet_type: SignupSheetType
+    event_date: string
     items?: { text: string }[]
     config?: Record<string, unknown>
     closes_at?: string | null
   },
-): Promise<{ message?: MessageRow; signup?: MessageChecklist }> {
+): Promise<{ signup?: MessageChecklist }> {
   return await fetcher(`/api/${role}/messages/${threadId}/signup-sheets`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-  }) as { message?: MessageRow; signup?: MessageChecklist }
+  }) as { signup?: MessageChecklist }
 }
 
 export async function closeThreadSignupSheet(
@@ -258,12 +363,45 @@ export async function claimSignupItem(
   messageId: number,
   fetcher: Fetcher,
   itemIndex: number,
+  claimNote?: string | null,
 ): Promise<MessageChecklist> {
   return await fetcher(`/api/${role}/messages/${threadId}/messages/${messageId}/checklist/claim`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ item_index: itemIndex, claim_note: claimNote ?? null }),
+  }) as MessageChecklist
+}
+
+export async function unclaimSignupItem(
+  role: MessagingRole,
+  threadId: number,
+  messageId: number,
+  fetcher: Fetcher,
+  itemIndex: number,
+): Promise<MessageChecklist> {
+  return await fetcher(`/api/${role}/messages/${threadId}/messages/${messageId}/checklist/unclaim`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ item_index: itemIndex }),
   }) as MessageChecklist
+}
+
+export async function ignoreThreadPoll(
+  role: MessagingRole,
+  threadId: number,
+  pollId: number,
+  fetcher: Fetcher,
+): Promise<void> {
+  await fetcher(`/api/${role}/messages/${threadId}/polls/${pollId}/ignore`, { method: 'POST' })
+}
+
+export async function ignoreThreadSignupSheet(
+  role: MessagingRole,
+  threadId: number,
+  signupId: number,
+  fetcher: Fetcher,
+): Promise<void> {
+  await fetcher(`/api/${role}/messages/${threadId}/signup-sheets/${signupId}/ignore`, { method: 'POST' })
 }
 
 export async function voteThreadPoll(

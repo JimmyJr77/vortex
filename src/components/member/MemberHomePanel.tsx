@@ -8,7 +8,7 @@ import {
   Calendar,
   CreditCard,
   FileText,
-  Settings,
+  Bell,
 } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { MemberTab } from '../MemberDashboard'
@@ -29,7 +29,7 @@ const CARD_ICONS: Record<Exclude<MemberTab, 'home'>, ComponentType<{ className?:
   events: Calendar,
   billing: CreditCard,
   waivers: FileText,
-  preferences: Settings,
+  preferences: Bell,
 }
 
 const ALL_CARDS = MEMBER_PORTAL_TAB_OPTIONS.filter((option) => option.key !== 'home').map((option) => {

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Lock, MoreHorizontal, Pencil, Paperclip, Star, UserPlus, Archive, ArchiveRestore, CircleHelp, Vote, ListChecks } from 'lucide-react'
 import RecipientPicker from './RecipientPicker'
-import type { EnrollmentGroup, MessageChecklist, MessagePoll, RecipientOption } from './types'
+import type { EnrollmentGroup, RecipientOption } from './types'
 import { mergeRecipientOptions } from './types'
 import MessageThreadPinControls from './MessageThreadPinControls'
 import type { PinFilterMode } from './types'
 import { MESSAGE_ATTACHMENT_ACCEPT } from './messageAttachmentUpload'
-import ThreadCollaborationChips from './ThreadCollaborationChips'
+import ThreadCollaborationIcons from './ThreadCollaborationIcons'
 
 interface ThreadHeaderMenuProps {
   subject: string | null
@@ -36,12 +36,10 @@ interface ThreadHeaderMenuProps {
   importantFilterActive?: boolean
   onImportantFilterChange?: () => void
   pinControlsDisabled?: boolean
-  polls?: MessagePoll[]
-  signups?: MessageChecklist[]
-  activePollId?: number | null
-  activeSignupId?: number | null
-  onOpenPoll?: (poll: MessagePoll) => void
-  onOpenSignup?: (signup: MessageChecklist) => void
+  hasActionablePoll?: boolean
+  hasActionableSignup?: boolean
+  onPollIconClick?: () => void
+  onSignupIconClick?: () => void
   onCreatePoll?: () => void
   onRespondPoll?: () => void
   onCreateSignup?: () => void
@@ -76,12 +74,10 @@ export default function ThreadHeaderMenu({
   importantFilterActive = false,
   onImportantFilterChange,
   pinControlsDisabled = false,
-  polls = [],
-  signups = [],
-  activePollId = null,
-  activeSignupId = null,
-  onOpenPoll,
-  onOpenSignup,
+  hasActionablePoll = false,
+  hasActionableSignup = false,
+  onPollIconClick,
+  onSignupIconClick,
   onCreatePoll,
   onRespondPoll,
   onCreateSignup,
@@ -192,7 +188,7 @@ export default function ThreadHeaderMenu({
     attachmentInputRef.current?.click()
   }
 
-  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment && !onOpenFaq && !onPinFilterChange && !onImportantFilterChange && !canCollaborate && polls.length === 0 && signups.length === 0) return null
+  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment && !onOpenFaq && !onPinFilterChange && !onImportantFilterChange && !canCollaborate && !hasActionablePoll && !hasActionableSignup) return null
 
   return (
     <div ref={rootRef} className="relative shrink-0 flex items-center gap-0.5">
@@ -209,16 +205,12 @@ export default function ThreadHeaderMenu({
           }}
         />
       )}
-      {(polls.length > 0 || signups.length > 0) && onOpenPoll && onOpenSignup && (
-        <ThreadCollaborationChips
-          polls={polls}
-          signups={signups}
-          activePollId={activePollId}
-          activeSignupId={activeSignupId}
-          onPollClick={onOpenPoll}
-          onSignupClick={onOpenSignup}
-        />
-      )}
+      <ThreadCollaborationIcons
+        hasActionablePoll={hasActionablePoll}
+        hasActionableSignup={hasActionableSignup}
+        onPollIconClick={onPollIconClick}
+        onSignupIconClick={onSignupIconClick}
+      />
       {(onPinFilterChange || onImportantFilterChange) && (
         <MessageThreadPinControls
           pinFilter={pinFilter}

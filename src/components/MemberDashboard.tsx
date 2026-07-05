@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Settings, CircleHelp } from 'lucide-react'
+import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Bell, CircleHelp } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
@@ -45,7 +45,7 @@ const NAV: Array<{ tab: MemberTab; label: string; icon: typeof Home }> = [
   { tab: 'events', label: 'Events', icon: Calendar },
   { tab: 'billing', label: 'Billing', icon: CreditCard },
   { tab: 'waivers', label: 'Waivers', icon: FileText },
-  { tab: 'preferences', label: 'Preferences', icon: Settings },
+  { tab: 'preferences', label: 'Preferences', icon: Bell },
 ]
 
 interface FamilyMember {
@@ -691,8 +691,23 @@ export default function MemberDashboard({
     setEventMessagesLoadingId(id)
     try {
       const status = eventChatStatusById[id] ?? await fetchEventChatStatus(id, coachFetch)
-      const threadId = status.discussionThreadId
-        ?? pickEventDiscussionThreadId(await fetchEventMessageThreads('member', id, coachFetch))
+      const boardIds = status.discussionThreadIds?.length
+        ? status.discussionThreadIds
+        : status.discussionThreadId != null
+          ? [status.discussionThreadId]
+          : []
+      let threadId: number | null = boardIds[0] ?? null
+      if (threadId == null) {
+        threadId = pickEventDiscussionThreadId(await fetchEventMessageThreads('member', id, coachFetch))
+      }
+      if (boardIds.length > 1 && threadId != null) {
+        const labels = boardIds.map((bid, index) => `${index + 1}. Thread #${bid}`).join('\n')
+        const pick = window.prompt(`This event has multiple chat boards. Enter a number:\n${labels}`, '1')
+        const pickedIndex = Number(pick) - 1
+        if (Number.isFinite(pickedIndex) && pickedIndex >= 0 && pickedIndex < boardIds.length) {
+          threadId = boardIds[pickedIndex]
+        }
+      }
       if (threadId != null) {
         setOpenMessageThreadId(threadId)
         setActiveTab('messages')

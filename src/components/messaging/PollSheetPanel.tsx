@@ -5,7 +5,7 @@ import type { MessagePoll, MessagingRole } from './types'
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 
 interface PollSheetPanelProps {
-  mode: 'create' | 'pick' | 'view'
+  mode: 'list' | 'create' | 'pick' | 'view'
   polls: MessagePoll[]
   activePoll: MessagePoll | null
   role: MessagingRole
@@ -15,6 +15,105 @@ interface PollSheetPanelProps {
   onPick: (poll: MessagePoll) => void
   onRefresh: () => Promise<void>
   onClosePoll: (pollId: number, closed: boolean) => Promise<void>
+  onIgnorePoll: (pollId: number) => Promise<void>
+}
+
+function PollVoteCard({
+  poll,
+  role,
+  threadId,
+  fetcher,
+  onRefresh,
+  onClosePoll,
+  onIgnorePoll,
+  canStaffClose,
+}: {
+  poll: MessagePoll
+  role: MessagingRole
+  threadId: number
+  fetcher: Fetcher
+  onRefresh: () => Promise<void>
+  onClosePoll: (pollId: number, closed: boolean) => Promise<void>
+  onIgnorePoll: (pollId: number) => Promise<void>
+  canStaffClose: boolean
+}) {
+  const optionList = Array.isArray(poll.options) ? poll.options : []
+  const votes = Array.isArray(poll.votes) ? poll.votes : []
+  const counts = optionList.map((_, index) => votes.filter((vote) => Number(vote.option_index) === index).length)
+  const total = counts.reduce((sum, count) => sum + count, 0)
+  const messageId = Number(poll.message_id)
+
+  const vote = async (index: number) => {
+    if (!Number.isFinite(messageId) || poll.is_closed) return
+    await voteThreadPoll(role, threadId, messageId, fetcher, index)
+    await onRefresh()
+  }
+
+  const ignore = async () => {
+    if (poll.id == null) return
+    await onIgnorePoll(Number(poll.id))
+  }
+
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold text-gray-900">{poll.question}</div>
+          <div className="text-xs text-gray-500 mt-0.5">
+            {poll.is_closed ? 'Closed' : 'Open'} · {poll.vote_count ?? votes.length} votes
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {poll.actionable && poll.id != null && (
+            <button
+              type="button"
+              onClick={() => void ignore()}
+              className="text-xs font-semibold text-gray-500 hover:text-gray-800"
+            >
+              Ignore
+            </button>
+          )}
+          {canStaffClose && poll.id != null && (
+            <button
+              type="button"
+              onClick={() => void onClosePoll(Number(poll.id), !poll.is_closed)}
+              className="text-xs font-semibold text-gray-600 hover:text-gray-900"
+            >
+              {poll.is_closed ? 'Reopen' : 'Close'}
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        {optionList.map((option, index) => {
+          const count = counts[index] ?? 0
+          const pct = total > 0 ? Math.round((count / total) * 100) : 0
+          const isMine = poll.my_vote != null && Number(poll.my_vote.option_index) === index
+          return (
+            <button
+              key={index}
+              type="button"
+              disabled={poll.is_closed}
+              onClick={() => void vote(index)}
+              className={`w-full rounded-lg border px-3 py-2 text-left text-sm hover:bg-gray-50 disabled:opacity-60 ${
+                isMine ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span>{String(option)}</span>
+                <span className="text-xs text-gray-500">{count}{total > 0 ? ` · ${pct}%` : ''}</span>
+              </div>
+              {total > 0 && (
+                <div className="mt-1 h-1 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full bg-blue-500/70" style={{ width: `${pct}%` }} />
+                </div>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 export default function PollSheetPanel({
@@ -28,10 +127,12 @@ export default function PollSheetPanel({
   onPick,
   onRefresh,
   onClosePoll,
+  onIgnorePoll,
 }: PollSheetPanelProps) {
   const [question, setQuestion] = useState('')
   const [options, setOptions] = useState(['', ''])
   const [saving, setSaving] = useState(false)
+  const canStaffClose = role !== 'member'
 
   const submit = async () => {
     const cleanOptions = options.map((option) => option.trim()).filter(Boolean)
@@ -115,62 +216,41 @@ export default function PollSheetPanel({
     )
   }
 
-  if (!activePoll) return <div className="text-sm text-gray-500">Choose a poll to respond.</div>
-
-  const optionList = Array.isArray(activePoll.options) ? activePoll.options : []
-  const votes = Array.isArray(activePoll.votes) ? activePoll.votes : []
-  const counts = optionList.map((_, index) => votes.filter((vote) => Number(vote.option_index) === index).length)
-  const total = counts.reduce((sum, count) => sum + count, 0)
-  const messageId = Number(activePoll.message_id)
-
-  const vote = async (index: number) => {
-    if (!Number.isFinite(messageId) || activePoll.is_closed) return
-    await voteThreadPoll(role, threadId, messageId, fetcher, index)
-    await onRefresh()
+  if (mode === 'list') {
+    if (polls.length === 0) {
+      return <div className="text-sm text-gray-500">No polls in this thread yet.</div>
+    }
+    return (
+      <div className="space-y-3">
+        {polls.map((poll) => (
+          <PollVoteCard
+            key={poll.id}
+            poll={poll}
+            role={role}
+            threadId={threadId}
+            fetcher={fetcher}
+            onRefresh={onRefresh}
+            onClosePoll={onClosePoll}
+            onIgnorePoll={onIgnorePoll}
+            canStaffClose={canStaffClose}
+          />
+        ))}
+      </div>
+    )
   }
 
+  if (!activePoll) return <div className="text-sm text-gray-500">Choose a poll to respond.</div>
+
   return (
-    <div className="space-y-3">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-blue-800">Poll</div>
-          <div className="text-sm font-semibold text-gray-900">{activePoll.question}</div>
-        </div>
-        {activePoll.id != null && (
-          <button
-            type="button"
-            onClick={() => void onClosePoll(Number(activePoll.id), !activePoll.is_closed)}
-            className="shrink-0 text-xs font-semibold text-gray-600 hover:text-gray-900"
-          >
-            {activePoll.is_closed ? 'Reopen' : 'Close'}
-          </button>
-        )}
-      </div>
-      <div className="space-y-1.5">
-        {optionList.map((option, index) => {
-          const count = counts[index] ?? 0
-          const pct = total > 0 ? Math.round((count / total) * 100) : 0
-          return (
-            <button
-              key={index}
-              type="button"
-              disabled={activePoll.is_closed}
-              onClick={() => void vote(index)}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-left text-sm hover:bg-gray-50 disabled:opacity-60"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span>{String(option)}</span>
-                <span className="text-xs text-gray-500">{count}{total > 0 ? ` · ${pct}%` : ''}</span>
-              </div>
-              {total > 0 && (
-                <div className="mt-1 h-1 rounded-full bg-gray-100 overflow-hidden">
-                  <div className="h-full bg-blue-500/70" style={{ width: `${pct}%` }} />
-                </div>
-              )}
-            </button>
-          )
-        })}
-      </div>
-    </div>
+    <PollVoteCard
+      poll={activePoll}
+      role={role}
+      threadId={threadId}
+      fetcher={fetcher}
+      onRefresh={onRefresh}
+      onClosePoll={onClosePoll}
+      onIgnorePoll={onIgnorePoll}
+      canStaffClose={canStaffClose}
+    />
   )
 }

@@ -3,7 +3,7 @@ import RecipientPicker, { recipientsToPayload } from './messaging/RecipientPicke
 import ThreadHeaderMenu from './messaging/ThreadHeaderMenu'
 import MessageReplyComposer from './messaging/MessageReplyComposer'
 import MessagingMessageThread from './messaging/MessagingMessageThread'
-import MessagingThreadListSortMenu, {
+import {
   defaultSortDir,
   type ThreadListSortDir,
   type ThreadListSortField,
@@ -25,9 +25,15 @@ import MessagingThreadDetailShell from './messaging/MessagingThreadDetailShell'
 import MessagingMaximizeToggle from './messaging/MessagingMaximizeToggle'
 import MessagePinSelectionBar from './messaging/MessagePinSelectionBar'
 import { useThreadPinGroups } from './messaging/useThreadPinGroups'
-import ThreadCollaborationPanel from './messaging/ThreadCollaborationPanel'
+import MessagingThreadPollsPanel from './messaging/MessagingThreadPollsPanel'
+import MessagingThreadSignupsPanel from './messaging/MessagingThreadSignupsPanel'
 import { useThreadCollaboration } from './messaging/useThreadCollaboration'
-import { useMessagingEventsInbox } from './messaging/useMessagingEventsInbox'
+import { useMessagingInboxList } from './messaging/useMessagingInboxList'
+import MessagingThreadListHeaderActions from './messaging/MessagingThreadListHeaderActions'
+import { getInboxPrimaryAction } from './messaging/messagingInboxActions'
+import ClassThreadCreateModal from './messaging/ClassThreadCreateModal'
+import FileUploadComposeModal from './messaging/FileUploadComposeModal'
+import ScheduleItemBanner from './messaging/ScheduleItemBanner'
 import {
   countThreadsByInboxTab,
   filterThreadsByInboxTab,
@@ -46,7 +52,7 @@ import type {
 } from './messaging/types'
 import { mergeRecipientOptions, participantKey } from './messaging/types'
 import { useMessageRealtime } from '../hooks/useMessageRealtime'
-import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Trophy, Video, X } from 'lucide-react'
+import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Trophy, Video, X, Plus } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts'
 import { coachFetch } from '../coach/api'
 import type { Workout } from '../coach/types'
@@ -870,17 +876,18 @@ export function MemberMessagesTab({
   const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
   const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
   const [faqPanelOpen, setFaqPanelOpen] = useState(false)
+  const [classModalOpen, setClassModalOpen] = useState(false)
+  const [fileModalOpen, setFileModalOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const autoOpenedRef = useRef(false)
   const viewer = useMemo(() => getMessageViewer('member'), [])
   const pins = useThreadPinGroups(selectedId, 'member', coachFetch)
-  const inboxCounts = useMemo(() => countThreadsByInboxTab(threads), [threads])
+  const inboxCountsBase = useMemo(() => countThreadsByInboxTab(threads), [threads])
   const tabFilteredThreads = useMemo(
     () => filterThreadsByInboxTab(threads, inboxTab),
     [threads, inboxTab],
   )
-  const eventsInbox = useMessagingEventsInbox({
-    enabled: true,
+  const inboxList = useMessagingInboxList({
     inboxTab,
     tabFilteredThreads,
     listSearch: threadSearch,
@@ -889,7 +896,15 @@ export function MemberMessagesTab({
     role: 'member',
     fetcher: coachFetch,
   })
-  const filteredThreads = eventsInbox.displayedThreads
+  const filteredThreads = inboxList.displayedThreads
+  const inboxCounts = useMemo(
+    () => ({ ...inboxCountsBase, ...inboxList.inboxCountsPatch }),
+    [inboxCountsBase, inboxList.inboxCountsPatch],
+  )
+  const primaryAction = useMemo(
+    () => getInboxPrimaryAction(inboxTab, 'member'),
+    [inboxTab],
+  )
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
     [threadParticipants],
@@ -935,11 +950,14 @@ export function MemberMessagesTab({
     role: 'member',
     threadId: selectedId,
     fetcher: coachFetch,
-    onMessageCreated: (message) => setMessages((prev) => (
-      prev.some((row) => row.id === message.id) ? prev : [...prev, message]
-    )),
     onChanged: () => void loadThreads(),
   })
+  const anyTakeoverPanelOpen = faqPanelOpen || collaboration.pollPanelOpen || collaboration.signupPanelOpen
+  const closeTakeoverPanels = () => {
+    setFaqPanelOpen(false)
+    collaboration.closePollPanel()
+    collaboration.closeSignupPanel()
+  }
 
   useEffect(() => {
     void loadThreads()
@@ -971,7 +989,8 @@ export function MemberMessagesTab({
   }, [messages, selectedId])
 
   const openThread = async (rowId: number) => {
-    const { threadId } = eventsInbox.resolveThreadSelection(rowId)
+    const resolved = inboxList.resolveThreadSelection(rowId)
+    const threadId = resolved.threadId
     if (threadId <= 0) return
     setSelectedId(threadId)
     const listRow = threads.find((t) => t.id === threadId)
@@ -1095,6 +1114,24 @@ export function MemberMessagesTab({
     void loadThreads()
   }
 
+  const handlePrimaryCreate = () => {
+    if (primaryAction.disabled) return
+    setNewOpen(false)
+    switch (primaryAction.mode) {
+      case 'message':
+        setNewOpen(true)
+        break
+      case 'class':
+        setClassModalOpen(true)
+        break
+      case 'file':
+        setFileModalOpen(true)
+        break
+      default:
+        break
+    }
+  }
+
   const startThread = async () => {
     if (!newBody.trim() || newRecipients.length === 0) return
     setSending(true)
@@ -1137,10 +1174,12 @@ export function MemberMessagesTab({
           )}
           <button
             type="button"
-            onClick={() => setNewOpen((v) => !v)}
-            className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700"
+            onClick={handlePrimaryCreate}
+            disabled={primaryAction.hidden || primaryAction.disabled}
+            title={primaryAction.disabled ? primaryAction.disabledReason : undefined}
+            className="flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 disabled:opacity-60"
           >
-            {newOpen ? 'Cancel' : 'New thread'}
+            <Plus className="w-4 h-4" /> {primaryAction.hidden ? 'New message thread' : primaryAction.label}
           </button>
         </div>
       </div>
@@ -1189,7 +1228,7 @@ export function MemberMessagesTab({
         selectedThreadId={selectedId}
         onSelectThread={(id) => { if (id != null) void openThread(id) }}
         onBack={() => {
-          eventsInbox.setActiveCalendarItem(null)
+          inboxList.setActiveScheduleRow(null)
           setSelectedId(null)
         }}
         maximized={maximized}
@@ -1198,22 +1237,18 @@ export function MemberMessagesTab({
             maximized={maximized}
             title="Threads"
             titleAction={
-              <div className="flex items-center gap-1 shrink-0">
-                {maximized && onMaximizedChange && (
-                  <MessagingMaximizeToggle
-                    maximized={maximized}
-                    onToggle={() => onMaximizedChange(false)}
-                  />
-                )}
-                <MessagingThreadListSortMenu
-                  sort={listSort}
-                  sortDir={listSortDir}
-                  onChange={(sort, sortDir) => {
-                    setListSort(sort)
-                    setListSortDir(sortDir)
-                  }}
-                />
-              </div>
+              <MessagingThreadListHeaderActions
+                primaryAction={primaryAction}
+                onPrimaryCreate={handlePrimaryCreate}
+                sort={listSort}
+                sortDir={listSortDir}
+                onSortChange={(sort, sortDir) => {
+                  setListSort(sort)
+                  setListSortDir(sortDir)
+                }}
+                maximized={maximized}
+                onMaximizedChange={onMaximizedChange}
+              />
             }
             search={threadSearch}
             onSearchChange={setThreadSearch}
@@ -1255,11 +1290,11 @@ export function MemberMessagesTab({
                       <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
                     )}
                   </div>
-                  {faqPanelOpen ? (
+                  {anyTakeoverPanelOpen ? (
                     <button
                       type="button"
-                      aria-label="Close FAQ"
-                      onClick={() => setFaqPanelOpen(false)}
+                      aria-label="Close panel"
+                      onClick={closeTakeoverPanels}
                       className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                     >
                       <X className="w-5 h-5" />
@@ -1289,23 +1324,43 @@ export function MemberMessagesTab({
                     importantFilterActive={pins.importantFilterActive}
                     onImportantFilterChange={pins.toggleImportantFilter}
                     pinControlsDisabled={pins.pinSelectionActive}
-                    polls={collaboration.polls}
-                    signups={collaboration.signups}
-                    activePollId={collaboration.activePollId}
-                    activeSignupId={collaboration.activeSignupId}
-                    onOpenPoll={collaboration.openPoll}
-                    onOpenSignup={collaboration.openSignup}
-                    onCreatePoll={() => collaboration.setPanelMode('create-poll')}
-                    onRespondPoll={() => collaboration.setPanelMode('pick-poll')}
-                    onCreateSignup={() => collaboration.setPanelMode('create-signup')}
-                    onSignupNow={() => collaboration.setPanelMode('pick-signup')}
-                    onOpenFaq={() => setFaqPanelOpen(true)}
+                    hasActionablePoll={collaboration.hasActionablePoll}
+                    hasActionableSignup={collaboration.hasActionableSignup}
+                    onPollIconClick={() => {
+                      setFaqPanelOpen(false)
+                      collaboration.openPollPanel({ scrollToLatest: true })
+                    }}
+                    onSignupIconClick={() => {
+                      setFaqPanelOpen(false)
+                      collaboration.openSignupPanel({ scrollToLatest: true })
+                    }}
+                    onCreatePoll={() => {
+                      setFaqPanelOpen(false)
+                      collaboration.openPollPanel({ mode: 'create-poll' })
+                    }}
+                    onRespondPoll={() => {
+                      setFaqPanelOpen(false)
+                      collaboration.openPollPanel({ mode: 'pick-poll' })
+                    }}
+                    onCreateSignup={() => {
+                      setFaqPanelOpen(false)
+                      collaboration.openSignupPanel({ mode: 'create-signup' })
+                    }}
+                    onSignupNow={() => {
+                      setFaqPanelOpen(false)
+                      collaboration.openSignupPanel({ mode: 'pick-signup' })
+                    }}
+                    onOpenFaq={() => {
+                      collaboration.closePollPanel()
+                      collaboration.closeSignupPanel()
+                      setFaqPanelOpen(true)
+                    }}
                   />
                   )}
                 </div>
               }
               footer={
-                faqPanelOpen ? undefined : (
+                anyTakeoverPanelOpen ? undefined : (
                 <MessageReplyComposer
                   reply={reply}
                   onReplyChange={setReply}
@@ -1320,7 +1375,44 @@ export function MemberMessagesTab({
                 )
               }
             >
-              {faqPanelOpen ? (
+              {collaboration.pollPanelOpen && collaboration.panelMode ? (
+                <MessagingThreadPollsPanel
+                  mode={collaboration.panelMode as 'list-poll' | 'create-poll' | 'pick-poll' | 'view-poll'}
+                  polls={collaboration.polls}
+                  activePoll={collaboration.activePoll}
+                  role="member"
+                  threadId={selectedId}
+                  fetcher={coachFetch}
+                  loading={collaboration.loading}
+                  error={collaboration.error}
+                  scrollToLatest={collaboration.scrollPollToLatest}
+                  onScrollToLatestDone={collaboration.clearScrollPollToLatest}
+                  onCreatePoll={collaboration.createPoll}
+                  onPickPoll={collaboration.openPoll}
+                  onRefresh={collaboration.refresh}
+                  onClosePoll={collaboration.setPollClosed}
+                  onIgnorePoll={collaboration.ignorePoll}
+                />
+              ) : collaboration.signupPanelOpen && collaboration.panelMode ? (
+                <MessagingThreadSignupsPanel
+                  mode={collaboration.panelMode as 'list-signup' | 'create-signup' | 'pick-signup' | 'view-signup'}
+                  signups={collaboration.signups}
+                  activeSignup={collaboration.activeSignup}
+                  role="member"
+                  threadId={selectedId}
+                  fetcher={coachFetch}
+                  viewerMemberId={viewer.memberId}
+                  loading={collaboration.loading}
+                  error={collaboration.error}
+                  scrollToLatest={collaboration.scrollSignupToLatest}
+                  onScrollToLatestDone={collaboration.clearScrollSignupToLatest}
+                  onCreateSignup={collaboration.createSignup}
+                  onPickSignup={collaboration.openSignup}
+                  onRefresh={collaboration.refresh}
+                  onCloseSignup={collaboration.setSignupClosed}
+                  onIgnoreSignup={collaboration.ignoreSignup}
+                />
+              ) : faqPanelOpen ? (
                 <MessagingThreadFaq
                   role="member"
                   threadId={selectedId}
@@ -1341,28 +1433,9 @@ export function MemberMessagesTab({
                     }
                     onJump={(id) => void openThread(id)}
                   />
-                  <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
+                  <EventCalendarItemBanner item={inboxList.activeCalendarItem} />
+                  <ScheduleItemBanner item={inboxList.activeScheduleRow} />
                   <MessagingInfoCard infoJson={threadInfoJson} />
-                  <ThreadCollaborationPanel
-                    mode={collaboration.panelMode}
-                    polls={collaboration.polls}
-                    signups={collaboration.signups}
-                    activePoll={collaboration.activePoll}
-                    activeSignup={collaboration.activeSignup}
-                    role="member"
-                    threadId={selectedId}
-                    fetcher={coachFetch}
-                    loading={collaboration.loading}
-                    error={collaboration.error}
-                    onDismiss={() => collaboration.setPanelMode(null)}
-                    onCreatePoll={collaboration.createPoll}
-                    onCreateSignup={collaboration.createSignup}
-                    onPickPoll={collaboration.openPoll}
-                    onPickSignup={collaboration.openSignup}
-                    onRefresh={collaboration.refresh}
-                    onClosePoll={collaboration.setPollClosed}
-                    onCloseSignup={collaboration.setSignupClosed}
-                  />
                 </>
               )}
               {pins.pinSelection && (
@@ -1399,8 +1472,6 @@ export function MemberMessagesTab({
                     prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
                   )
                 }}
-                onOpenPoll={collaboration.openPoll}
-                onOpenSignup={collaboration.openSignup}
                 className="p-4 space-y-2"
               />
               </>
@@ -1410,6 +1481,27 @@ export function MemberMessagesTab({
         }
       />
       </div>
+      <ClassThreadCreateModal
+        open={classModalOpen}
+        onClose={() => setClassModalOpen(false)}
+        role="member"
+        fetcher={coachFetch}
+        onCreated={(threadId) => {
+          void loadThreads()
+          void openThread(threadId)
+        }}
+      />
+      <FileUploadComposeModal
+        open={fileModalOpen}
+        onClose={() => setFileModalOpen(false)}
+        portal="member"
+        fetcher={coachFetch}
+        threads={threads}
+        onUploaded={(threadId) => {
+          void loadThreads()
+          void openThread(threadId)
+        }}
+      />
     </div>
   )
 }

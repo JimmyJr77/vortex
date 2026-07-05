@@ -12,10 +12,9 @@ import MessageAttachmentDisplay from './MessageAttachmentDisplay'
 import MessagingFileChip from './MessagingFileChip'
 import MessageReactionBar, { type MessageReactionGroup } from './MessageReactionBar'
 import MessageMentionBody from './MessageMentionBody'
-import { MessageChecklistBlock, MessagePollBlock } from './MessageCollaboration'
 import { viewerIsMentioned } from './messageMentions'
 import { isCriticalFlashMuted, setCriticalFlashMuted } from './criticalFlashMute'
-import type { MessageChecklist, MessagePoll, MessagingRole, ThreadParticipant } from './types'
+import type { MessagingRole, ThreadParticipant } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 
@@ -40,8 +39,6 @@ interface MessageBubbleProps {
   pinSelected?: boolean
   onPinSelectionToggle?: (message: MessageRow) => void
   reactionsDisabled?: boolean
-  onOpenPoll?: (poll: MessagePoll) => void
-  onOpenSignup?: (signup: MessageChecklist) => void
 }
 
 export default function MessageBubble({
@@ -61,8 +58,6 @@ export default function MessageBubble({
   pinSelected = false,
   onPinSelectionToggle,
   reactionsDisabled = false,
-  onOpenPoll,
-  onOpenSignup,
 }: MessageBubbleProps) {
   const footerMeta = messageFooterMeta(message, viewer)
   const isDeleted = Boolean(message.deleted_at)
@@ -78,21 +73,6 @@ export default function MessageBubble({
   const touchStart = useRef<{ x: number; y: number } | null>(null)
   const longPressHandled = useRef(false)
   const [actionMenu, setActionMenu] = useState<{ x: number; y: number } | null>(null)
-  const [pollState, setPollState] = useState<MessagePoll | null>(message.poll ?? null)
-  const [checklistState, setChecklistState] = useState<MessageChecklist | null>(
-    message.checklist
-      ? { ...message.checklist, items: message.checklist.items ?? [] }
-      : null,
-  )
-
-  useEffect(() => {
-    setPollState(message.poll ?? null)
-    setChecklistState(
-      message.checklist
-        ? { ...message.checklist, items: message.checklist.items ?? [] }
-        : null,
-    )
-  }, [message.id, message.poll, message.checklist])
 
   useEffect(() => {
     if (!isCritical) return
@@ -311,34 +291,6 @@ export default function MessageBubble({
               <MessagingFileChip key={file.id ?? `${file.url}-${index}`} file={file} compact />
             ))}
           </div>
-        )}
-        {!isDeleted && pollState && threadId != null && role && fetcher && (
-          <MessagePollBlock
-            poll={pollState}
-            messageId={message.id}
-            threadId={threadId}
-            role={role}
-            fetcher={fetcher}
-            viewerMemberId={viewer.memberId}
-            viewerUserId={viewer.userId}
-            onOpenInPanel={(poll) => onOpenPoll?.({ ...poll, message_id: message.id })}
-            onPollUpdated={(poll) => setPollState({
-              ...poll,
-              options: poll.options ?? (poll as MessagePoll & { options_json?: unknown[] }).options_json ?? [],
-              votes: poll.votes ?? [],
-            })}
-          />
-        )}
-        {!isDeleted && checklistState && threadId != null && role && fetcher && (
-          <MessageChecklistBlock
-            checklist={checklistState}
-            messageId={message.id}
-            threadId={threadId}
-            role={role}
-            fetcher={fetcher}
-            onOpenInPanel={(checklist) => onOpenSignup?.({ ...checklist, message_id: message.id })}
-            onChecklistUpdated={setChecklistState}
-          />
         )}
       </div>
       <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0 w-full">

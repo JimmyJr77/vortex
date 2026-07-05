@@ -805,12 +805,30 @@ export async function loadMessageReactions(pool, messageId) {
 
 export async function createMessagePoll(pool, messageId, { question, options, closesAt }) {
   const r = await pool.query(
-    `INSERT INTO coaching.message_poll (message_id, question, options_json, closes_at)
-     VALUES ($1, $2, $3::jsonb, $4)
+    `INSERT INTO coaching.message_poll (message_id, question, options_json, closes_at, expires_at)
+     VALUES ($1, $2, $3::jsonb, $4, COALESCE($4, now()) + interval '1 month')
      RETURNING *`,
     [messageId, question, JSON.stringify(options || []), closesAt ?? null],
   )
   return normalizePollRow(r.rows[0])
+}
+
+function enrichPollRow(row, viewer) {
+  if (!row) return null
+  const normalized = normalizePollRow(row)
+  const ignored = Boolean(row.ignored)
+  const participated = normalized.my_vote != null
+  const expired = row.expires_at != null && new Date(row.expires_at) <= new Date()
+  const actionable = !expired && !ignored && !participated && !normalized.is_closed
+  return {
+    ...normalized,
+    message_id: row.message_id,
+    expires_at: row.expires_at ?? null,
+    ignored,
+    participated,
+    actionable,
+    created_at: row.created_at,
+  }
 }
 
 function normalizePollRow(row) {
@@ -873,17 +891,40 @@ export async function loadMessagePoll(pool, messageId) {
   return normalizePollRow(row)
 }
 
+export async function purgeExpiredCollaboration(pool) {
+  await pool.query(
+    `DELETE FROM coaching.message m
+     WHERE m.id IN (
+       SELECT p.message_id FROM coaching.message_poll p
+       WHERE p.expires_at IS NOT NULL AND p.expires_at <= now()
+     )`,
+  )
+  await pool.query(
+    `DELETE FROM coaching.message m
+     WHERE m.id IN (
+       SELECT c.message_id FROM coaching.message_checklist c
+       WHERE c.expires_at IS NOT NULL AND c.expires_at <= now()
+     )`,
+  )
+}
+
 export async function listThreadPolls(pool, threadId, viewer) {
+  await purgeExpiredCollaboration(pool)
   const params = [threadId]
   const myVoteWhere = viewer?.userId != null
     ? 'v.user_id = $2'
     : viewer?.memberId != null
       ? 'v.member_id = $2'
       : 'FALSE'
+  const dismissWhere = viewer?.userId != null
+    ? 'd.user_id = $2'
+    : viewer?.memberId != null
+      ? 'd.member_id = $2'
+      : 'FALSE'
   if (viewer?.userId != null) params.push(viewer.userId)
   if (viewer?.memberId != null) params.push(viewer.memberId)
   const r = await pool.query(
-    `SELECT p.*,
+    `SELECT p.*, m.id AS message_id,
        COUNT(v_all.id)::int AS vote_count,
        COALESCE(
          json_agg(json_build_object(
@@ -905,16 +946,52 @@ export async function listThreadPolls(pool, threadId, viewer) {
          WHERE v.poll_id = p.id AND ${myVoteWhere}
          ORDER BY v.voted_at DESC
          LIMIT 1
-       ) AS my_vote
+       ) AS my_vote,
+       EXISTS (
+         SELECT 1 FROM coaching.message_collaboration_dismiss d
+         WHERE d.poll_id = p.id AND ${dismissWhere}
+       ) AS ignored
      FROM coaching.message_poll p
      JOIN coaching.message m ON m.id = p.message_id
      LEFT JOIN coaching.message_poll_vote v_all ON v_all.poll_id = p.id
-     WHERE m.thread_id = $1 AND m.deleted_at IS NULL
-     GROUP BY p.id
-     ORDER BY p.created_at DESC, p.id DESC`,
+     WHERE m.thread_id = $1
+       AND m.deleted_at IS NULL
+       AND (p.expires_at IS NULL OR p.expires_at > now())
+     GROUP BY p.id, m.id
+     ORDER BY p.created_at ASC, p.id ASC`,
     params,
   )
-  return r.rows.map(normalizePollRow)
+  return r.rows.map((row) => enrichPollRow(row, viewer))
+}
+
+export async function dismissPoll(pool, pollId, viewer) {
+  if (viewer?.userId != null) {
+    await pool.query(
+      `DELETE FROM coaching.message_collaboration_dismiss
+       WHERE poll_id = $1 AND user_id = $2`,
+      [pollId, viewer.userId],
+    )
+    await pool.query(
+      `INSERT INTO coaching.message_collaboration_dismiss (poll_id, user_id, dismissed_at)
+       VALUES ($1, $2, now())`,
+      [pollId, viewer.userId],
+    )
+    return { poll_id: pollId, ignored: true }
+  }
+  if (viewer?.memberId != null) {
+    await pool.query(
+      `DELETE FROM coaching.message_collaboration_dismiss
+       WHERE poll_id = $1 AND member_id = $2`,
+      [pollId, viewer.memberId],
+    )
+    await pool.query(
+      `INSERT INTO coaching.message_collaboration_dismiss (poll_id, member_id, dismissed_at)
+       VALUES ($1, $2, now())`,
+      [pollId, viewer.memberId],
+    )
+    return { poll_id: pollId, ignored: true }
+  }
+  return null
 }
 
 export async function setMessagePollClosed(pool, pollId, isClosed, threadId = null) {
@@ -951,12 +1028,46 @@ function normalizeChecklistRow(row) {
   }
 }
 
+function signupParticipated(row, viewer) {
+  if (normalizeSheetType(row.sheet_type) === 'rsvp') {
+    return row.my_response != null
+  }
+  const items = Array.isArray(row.items_json) ? row.items_json : []
+  return items.some((item) => {
+    if (!item || typeof item !== 'object') return false
+    if (viewer?.userId != null && Number(item.assigned_user_id) === Number(viewer.userId)) return true
+    if (viewer?.memberId != null && Number(item.assigned_member_id) === Number(viewer.memberId)) return true
+    return false
+  })
+}
+
+function enrichChecklistRow(row, viewer) {
+  if (!row) return null
+  const normalized = normalizeChecklistRow(row)
+  const ignored = Boolean(row.ignored)
+  const participated = signupParticipated(row, viewer)
+  const expired = row.expires_at != null && new Date(row.expires_at) <= new Date()
+  const actionable = !expired && !ignored && !participated && !normalized.is_closed
+  return {
+    ...normalized,
+    message_id: row.message_id,
+    event_date: row.event_date ?? null,
+    expires_at: row.expires_at ?? null,
+    ignored,
+    participated,
+    actionable,
+    created_at: row.created_at,
+  }
+}
+
 export async function createMessageChecklist(pool, messageId, items, meta = {}) {
+  const eventDate = String(meta.eventDate ?? meta.event_date ?? '').trim()
+  if (!eventDate) throw new Error('event_date is required.')
   const r = await pool.query(
     `INSERT INTO coaching.message_checklist (
-       message_id, title, sheet_type, items_json, config_json, closes_at
+       message_id, title, sheet_type, items_json, config_json, closes_at, event_date, expires_at
      )
-     VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6)
+     VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6, $7::date, ($7::date + interval '30 days'))
      RETURNING *`,
     [
       messageId,
@@ -965,6 +1076,7 @@ export async function createMessageChecklist(pool, messageId, items, meta = {}) 
       JSON.stringify(items || []),
       JSON.stringify(meta.config || meta.config_json || {}),
       meta.closesAt ?? meta.closes_at ?? null,
+      eventDate,
     ],
   )
   return normalizeChecklistRow(r.rows[0])
@@ -991,16 +1103,22 @@ export async function loadMessageChecklist(pool, messageId) {
 }
 
 export async function listThreadSignupSheets(pool, threadId, viewer) {
+  await purgeExpiredCollaboration(pool)
   const params = [threadId]
   const myResponseWhere = viewer?.userId != null
     ? 'sr.user_id = $2'
     : viewer?.memberId != null
       ? 'sr.member_id = $2'
       : 'FALSE'
+  const dismissWhere = viewer?.userId != null
+    ? 'd.user_id = $2'
+    : viewer?.memberId != null
+      ? 'd.member_id = $2'
+      : 'FALSE'
   if (viewer?.userId != null) params.push(viewer.userId)
   if (viewer?.memberId != null) params.push(viewer.memberId)
   const r = await pool.query(
-    `SELECT c.*,
+    `SELECT c.*, m.id AS message_id,
        COUNT(sr_all.id)::int AS response_count,
        COALESCE(
          json_agg(json_build_object(
@@ -1022,16 +1140,52 @@ export async function listThreadSignupSheets(pool, threadId, viewer) {
          WHERE sr.checklist_id = c.id AND ${myResponseWhere}
          ORDER BY sr.responded_at DESC
          LIMIT 1
-       ) AS my_response
+       ) AS my_response,
+       EXISTS (
+         SELECT 1 FROM coaching.message_collaboration_dismiss d
+         WHERE d.checklist_id = c.id AND ${dismissWhere}
+       ) AS ignored
      FROM coaching.message_checklist c
      JOIN coaching.message m ON m.id = c.message_id
      LEFT JOIN coaching.message_signup_response sr_all ON sr_all.checklist_id = c.id
-     WHERE m.thread_id = $1 AND m.deleted_at IS NULL
-     GROUP BY c.id
-     ORDER BY c.created_at DESC, c.id DESC`,
+     WHERE m.thread_id = $1
+       AND m.deleted_at IS NULL
+       AND (c.expires_at IS NULL OR c.expires_at > now())
+     GROUP BY c.id, m.id
+     ORDER BY c.created_at ASC, c.id ASC`,
     params,
   )
-  return r.rows.map(normalizeChecklistRow)
+  return r.rows.map((row) => enrichChecklistRow(row, viewer))
+}
+
+export async function dismissSignupSheet(pool, checklistId, viewer) {
+  if (viewer?.userId != null) {
+    await pool.query(
+      `DELETE FROM coaching.message_collaboration_dismiss
+       WHERE checklist_id = $1 AND user_id = $2`,
+      [checklistId, viewer.userId],
+    )
+    await pool.query(
+      `INSERT INTO coaching.message_collaboration_dismiss (checklist_id, user_id, dismissed_at)
+       VALUES ($1, $2, now())`,
+      [checklistId, viewer.userId],
+    )
+    return { checklist_id: checklistId, ignored: true }
+  }
+  if (viewer?.memberId != null) {
+    await pool.query(
+      `DELETE FROM coaching.message_collaboration_dismiss
+       WHERE checklist_id = $1 AND member_id = $2`,
+      [checklistId, viewer.memberId],
+    )
+    await pool.query(
+      `INSERT INTO coaching.message_collaboration_dismiss (checklist_id, member_id, dismissed_at)
+       VALUES ($1, $2, now())`,
+      [checklistId, viewer.memberId],
+    )
+    return { checklist_id: checklistId, ignored: true }
+  }
+  return null
 }
 
 export async function setMessageChecklistClosed(pool, checklistId, isClosed, threadId = null) {
@@ -1076,7 +1230,7 @@ export async function upsertSignupResponse(pool, messageId, response, viewer) {
   return null
 }
 
-export async function claimChecklistItem(pool, messageId, itemIndex, viewer) {
+export async function claimChecklistItem(pool, messageId, itemIndex, viewer, claimNote = null) {
   const checklist = await loadMessageChecklist(pool, messageId)
   if (!checklist) throw new Error('Checklist not found.')
   const items = Array.isArray(checklist.items_json) ? [...checklist.items_json] : []
@@ -1085,10 +1239,37 @@ export async function claimChecklistItem(pool, messageId, itemIndex, viewer) {
     throw new Error('Invalid checklist item.')
   }
   const current = items[idx] && typeof items[idx] === 'object' ? { ...items[idx] } : { text: String(items[idx] ?? '') }
+  if (current.assigned_member_id != null || current.assigned_user_id != null) {
+    throw new Error('Item already claimed.')
+  }
   items[idx] = {
     ...current,
     assigned_member_id: viewer?.memberId ?? null,
     assigned_user_id: viewer?.userId ?? null,
+    claim_note: claimNote != null ? String(claimNote).trim() || null : null,
+  }
+  await pool.query(
+    `UPDATE coaching.message_checklist SET items_json = $2::jsonb WHERE message_id = $1`,
+    [messageId, JSON.stringify(items)],
+  )
+  return loadMessageChecklist(pool, messageId)
+}
+
+export async function unclaimChecklistItem(pool, messageId, itemIndex, viewer) {
+  const checklist = await loadMessageChecklist(pool, messageId)
+  if (!checklist) throw new Error('Checklist not found.')
+  const items = Array.isArray(checklist.items_json) ? [...checklist.items_json] : []
+  const idx = Number(itemIndex)
+  if (!Number.isInteger(idx) || idx < 0 || idx >= items.length) {
+    throw new Error('Invalid checklist item.')
+  }
+  const current = items[idx] && typeof items[idx] === 'object' ? { ...items[idx] } : { text: String(items[idx] ?? '') }
+  const ownsItem =
+    (viewer?.userId != null && Number(current.assigned_user_id) === Number(viewer.userId))
+    || (viewer?.memberId != null && Number(current.assigned_member_id) === Number(viewer.memberId))
+  if (!ownsItem) throw new Error('You can only unclaim your own signup.')
+  items[idx] = {
+    text: String(current.text ?? items[idx] ?? ''),
   }
   await pool.query(
     `UPDATE coaching.message_checklist SET items_json = $2::jsonb WHERE message_id = $1`,
@@ -1111,10 +1292,6 @@ export async function createCollaborationMessage(pool, threadId, viewer, portal,
       String(body || '').trim(),
       portal,
     ],
-  )
-  await pool.query(
-    `UPDATE coaching.message_thread SET last_message_at = now() WHERE id = $1`,
-    [threadId],
   )
   return inserted.rows[0]
 }

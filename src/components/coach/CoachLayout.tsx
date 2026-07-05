@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect, useMemo } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
-import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Settings, CircleHelp } from 'lucide-react'
+import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Bell, CircleHelp } from 'lucide-react'
 import PortalPreferencesPanel from '../messaging/PortalPreferencesPanel'
 import MessagingFaqMasterPanel from '../messaging/MessagingFaqMasterPanel'
 import HomePanel from './HomePanel'
@@ -78,7 +78,7 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'reviews', label: 'Form Review', icon: Video },
   { tab: 'insights', label: 'Insights', icon: BarChart3 },
   { tab: 'roster', label: 'Roster', icon: Users },
-  { tab: 'preferences', label: 'Preferences', icon: Settings },
+  { tab: 'preferences', label: 'Preferences', icon: Bell },
 ]
 
 export default function CoachLayout({ coach, onLogout, availablePortals = ['coach'], onSwitchPortal }: CoachLayoutProps) {

@@ -56,7 +56,21 @@ export async function createEventCalendarItem(pool, eventId, facilityId, payload
       Number(payload.sort_order ?? payload.sortOrder ?? 0),
     ],
   )
-  return mapCalendarRow(r.rows[0])
+  const item = mapCalendarRow(r.rows[0])
+  const classIds = payload.class_ids ?? payload.classIds ?? []
+  if (Array.isArray(classIds) && classIds.length > 0) {
+    for (const formId of classIds) {
+      const fid = Number(formId)
+      if (!Number.isFinite(fid)) continue
+      await pool.query(
+        `INSERT INTO coaching.event_calendar_item_class (calendar_item_id, scheduling_form_id)
+         VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        [item.id, fid],
+      )
+    }
+    item.class_ids = classIds.map(Number).filter(Number.isFinite)
+  }
+  return item
 }
 
 export async function updateEventCalendarItem(pool, itemId, facilityId, payload) {

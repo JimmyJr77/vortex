@@ -443,6 +443,7 @@ async function applyCoachingMessagePlatformSchema(pool) {
     )
   `)
   await pool.query(`ALTER TABLE coaching.message_poll ADD COLUMN IF NOT EXISTS is_closed BOOLEAN NOT NULL DEFAULT FALSE`)
+  await pool.query(`ALTER TABLE coaching.message_poll ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ`)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS coaching.message_poll_vote (
       id            BIGSERIAL PRIMARY KEY,
@@ -472,6 +473,8 @@ async function applyCoachingMessagePlatformSchema(pool) {
   await pool.query(`ALTER TABLE coaching.message_checklist ADD COLUMN IF NOT EXISTS config_json JSONB NOT NULL DEFAULT '{}'`)
   await pool.query(`ALTER TABLE coaching.message_checklist ADD COLUMN IF NOT EXISTS closes_at TIMESTAMPTZ`)
   await pool.query(`ALTER TABLE coaching.message_checklist ADD COLUMN IF NOT EXISTS is_closed BOOLEAN NOT NULL DEFAULT FALSE`)
+  await pool.query(`ALTER TABLE coaching.message_checklist ADD COLUMN IF NOT EXISTS event_date DATE`)
+  await pool.query(`ALTER TABLE coaching.message_checklist ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ`)
   await pool.query(`
     DO $$
     BEGIN
@@ -504,6 +507,41 @@ async function applyCoachingMessagePlatformSchema(pool) {
   await pool.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_message_signup_response_member
       ON coaching.message_signup_response(checklist_id, member_id) WHERE member_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS coaching.message_collaboration_dismiss (
+      id            BIGSERIAL PRIMARY KEY,
+      poll_id       BIGINT REFERENCES coaching.message_poll(id) ON DELETE CASCADE,
+      checklist_id  BIGINT REFERENCES coaching.message_checklist(id) ON DELETE CASCADE,
+      user_id       BIGINT REFERENCES public.app_user(id) ON DELETE CASCADE,
+      member_id     BIGINT REFERENCES public.member(id) ON DELETE CASCADE,
+      dismissed_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+      CHECK (user_id IS NOT NULL OR member_id IS NOT NULL),
+      CHECK (
+        (poll_id IS NOT NULL AND checklist_id IS NULL)
+        OR (poll_id IS NULL AND checklist_id IS NOT NULL)
+      )
+    )
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_collaboration_dismiss_poll_user
+      ON coaching.message_collaboration_dismiss(poll_id, user_id)
+      WHERE poll_id IS NOT NULL AND user_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_collaboration_dismiss_poll_member
+      ON coaching.message_collaboration_dismiss(poll_id, member_id)
+      WHERE poll_id IS NOT NULL AND member_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_collaboration_dismiss_checklist_user
+      ON coaching.message_collaboration_dismiss(checklist_id, user_id)
+      WHERE checklist_id IS NOT NULL AND user_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_collaboration_dismiss_checklist_member
+      ON coaching.message_collaboration_dismiss(checklist_id, member_id)
+      WHERE checklist_id IS NOT NULL AND member_id IS NOT NULL
   `)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS coaching.thread_faq (

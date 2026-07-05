@@ -30,6 +30,10 @@ function threadHasSchedulingLink(t: MessageThread): boolean {
   )
 }
 
+function threadHasClassLink(t: MessageThread): boolean {
+  return t.links?.some((l) => l.object_type === 'scheduling_form') === true
+}
+
 export { threadHasEventLink, threadHasSchedulingLink }
 
 export type ThreadListAccentCategory = 'event' | 'scheduling' | 'message'
@@ -59,9 +63,11 @@ export function filterThreadsByInboxTab(threads: MessageThread[], tab: Messaging
     case 'pinned':
       return threads.filter((t) => Boolean(t.is_favorite) && t.status !== 'archived')
     case 'events':
-      return threads.filter((t) => t.status !== 'archived' && threadHasEventLink(t))
+      return threads.filter((t) => t.status !== 'archived' && threadHasEventLink(t) && !t.is_calendar_inbox_row)
     case 'scheduling':
-      return threads.filter((t) => t.status !== 'archived' && threadHasSchedulingLink(t))
+      return []
+    case 'classes':
+      return threads.filter((t) => t.status !== 'archived' && threadHasClassLink(t))
     case 'files':
       return threads.filter((t) => t.status !== 'archived' && threadHasFiles(t))
     case 'archived':
@@ -79,6 +85,7 @@ export function countThreadsByInboxTab(threads: MessageThread[]): Partial<Record
     pinned: filterThreadsByInboxTab(threads, 'pinned').length,
     events: filterThreadsByInboxTab(threads, 'events').length,
     scheduling: filterThreadsByInboxTab(threads, 'scheduling').length,
+    classes: filterThreadsByInboxTab(threads, 'classes').length,
     files: filterThreadsByInboxTab(threads, 'files').length,
     archived: filterThreadsByInboxTab(threads, 'archived').length,
   }
@@ -138,7 +145,7 @@ export function defaultThreadListOrder(threads: MessageThread[]): MessageThread[
 }
 
 export function defaultLandingThreadId(threads: MessageThread[]): number | null {
-  return defaultThreadListOrder(threads.filter((t) => !t.is_calendar_inbox_row))[0]?.id ?? null
+  return defaultThreadListOrder(threads.filter((t) => !t.is_calendar_inbox_row && !t.is_schedule_inbox_row))[0]?.id ?? null
 }
 
 export function calendarItemToInboxThread(
@@ -173,4 +180,61 @@ export function calendarItemToInboxThread(
     tags: [{ id: -item.id, slug: 'event-info', label: 'Calendar' }],
     unread_count: 0,
   }
+}
+
+export function scheduleRowVirtualId(rowKey: string): number {
+  let hash = 0
+  for (let i = 0; i < rowKey.length; i += 1) {
+    hash = ((hash << 5) - hash) + rowKey.charCodeAt(i)
+    hash |= 0
+  }
+  return hash > 0 ? -hash : hash
+}
+
+export function scheduleRowToInboxThread(row: {
+  row_key: string
+  source: 'event' | 'class' | 'calendar_item'
+  title: string
+  who_text?: string | null
+  what_text?: string | null
+  why_text?: string | null
+  when_start?: string | null
+  where_text?: string | null
+  event_name?: string | null
+  discussion_thread_id?: number | null
+}): MessageThread {
+  const whenLabel = row.when_start
+    ? new Date(row.when_start).toLocaleString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+    : null
+  const preview = [row.event_name, whenLabel, row.where_text, row.what_text].filter(Boolean).join(' · ')
+  const sourceLabel = row.source === 'class' ? 'Class' : row.source === 'event' ? 'Event' : 'Schedule'
+
+  return {
+    id: scheduleRowVirtualId(row.row_key),
+    subject: row.title,
+    last_message_body: preview || sourceLabel,
+    is_schedule_inbox_row: true,
+    schedule_row_key: row.row_key,
+    schedule_source: row.source,
+    target_thread_id: row.discussion_thread_id ?? undefined,
+    calendar_event_name: row.event_name ?? null,
+    kind: 'general',
+    tags: [{ id: 0, slug: 'event-info', label: sourceLabel }],
+    unread_count: 0,
+  }
+}
+
+export function mergeScheduleInboxThreads(
+  tabFilteredThreads: MessageThread[],
+  scheduleRows: Parameters<typeof scheduleRowToInboxThread>[0][],
+): MessageThread[] {
+  const virtualRows = scheduleRows.map((row) => scheduleRowToInboxThread(row))
+  const keys = new Set(virtualRows.map((t) => t.schedule_row_key))
+  const deduped = tabFilteredThreads.filter((t) => !t.schedule_row_key || !keys.has(t.schedule_row_key))
+  return [...deduped, ...virtualRows]
 }

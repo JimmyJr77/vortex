@@ -13,7 +13,7 @@ import {
   GitBranch,
   MessageSquare,
   Video,
-  Settings,
+  Bell,
   CircleHelp,
 } from 'lucide-react'
 import type { ComponentType } from 'react'
@@ -41,7 +41,7 @@ const CARD_ICONS: Record<Exclude<CoachTab, 'home'>, ComponentType<{ className?: 
   reviews: Video,
   insights: BarChart3,
   roster: Users,
-  preferences: Settings,
+  preferences: Bell,
 }
 
 const ALL_CARDS = COACH_PORTAL_TAB_OPTIONS.filter((option) => option.key !== 'home').map((option) => {

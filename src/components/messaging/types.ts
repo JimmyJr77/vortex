@@ -60,6 +60,9 @@ export interface MessageThread {
   calendar_item_id?: number
   target_thread_id?: number
   calendar_event_name?: string | null
+  is_schedule_inbox_row?: boolean
+  schedule_row_key?: string
+  schedule_source?: 'event' | 'class' | 'calendar_item'
 }
 
 export interface ThreadParticipant {
@@ -115,10 +118,15 @@ export interface MessagePoll {
   question: string
   options: unknown[]
   closes_at?: string | null
+  expires_at?: string | null
   is_closed?: boolean
   votes?: MessagePollVote[]
   vote_count?: number
   my_vote?: MessagePollVote | null
+  ignored?: boolean
+  participated?: boolean
+  actionable?: boolean
+  created_at?: string
 }
 
 export type SignupSheetType = 'rsvp' | 'items' | 'support'
@@ -142,10 +150,16 @@ export interface MessageChecklist {
   items: unknown[]
   config?: Record<string, unknown> | null
   closes_at?: string | null
+  event_date?: string | null
+  expires_at?: string | null
   is_closed?: boolean
   responses?: SignupResponse[]
   response_count?: number
   my_response?: SignupResponse | null
+  ignored?: boolean
+  participated?: boolean
+  actionable?: boolean
+  created_at?: string
 }
 
 export type ThreadPollSummary = MessagePoll

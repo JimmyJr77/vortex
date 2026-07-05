@@ -62,6 +62,8 @@ export async function initPlatformTables(pool) {
     '069_coaching_thread_faq_master_list.sql',
     '070_event_calendar_and_rsvp.sql',
     '071_thread_signup_sheets.sql',
+    '072_collaboration_panel_lifecycle.sql',
+    '073_event_calendar_item_classes.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

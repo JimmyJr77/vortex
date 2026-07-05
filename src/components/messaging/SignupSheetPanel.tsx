@@ -1,19 +1,22 @@
 import { useState } from 'react'
-import { claimSignupItem, respondToSignupSheet } from './messagingApi'
+import { claimSignupItem, respondToSignupSheet, unclaimSignupItem } from './messagingApi'
 import type { MessageChecklist, MessagingRole, SignupResponse, SignupSheetType } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 
 interface SignupSheetPanelProps {
-  mode: 'create' | 'pick' | 'view'
+  mode: 'list' | 'create' | 'pick' | 'view'
   signups: MessageChecklist[]
   activeSignup: MessageChecklist | null
   role: MessagingRole
   threadId: number
   fetcher: Fetcher
+  viewerUserId?: number | null
+  viewerMemberId?: number | null
   onCreate: (payload: {
     title: string
     sheet_type: SignupSheetType
+    event_date: string
     items?: { text: string }[]
     config?: Record<string, unknown>
     closes_at?: string | null
@@ -21,6 +24,12 @@ interface SignupSheetPanelProps {
   onPick: (signup: MessageChecklist) => void
   onRefresh: () => Promise<void>
   onCloseSignup: (signupId: number, closed: boolean) => Promise<void>
+  onIgnoreSignup: (signupId: number) => Promise<void>
+}
+
+interface ItemRow {
+  id: string
+  text: string
 }
 
 function itemText(item: unknown): string {
@@ -28,10 +37,27 @@ function itemText(item: unknown): string {
   return String(item || '')
 }
 
+function itemClaimNote(item: unknown): string {
+  if (!item || typeof item !== 'object') return ''
+  return String((item as Record<string, unknown>).claim_note || '').trim()
+}
+
 function isClaimed(item: unknown): boolean {
   if (!item || typeof item !== 'object') return false
   const row = item as Record<string, unknown>
   return row.assigned_member_id != null || row.assigned_user_id != null
+}
+
+function isClaimedByViewer(
+  item: unknown,
+  viewerUserId?: number | null,
+  viewerMemberId?: number | null,
+): boolean {
+  if (!item || typeof item !== 'object') return false
+  const row = item as Record<string, unknown>
+  if (viewerUserId != null && Number(row.assigned_user_id) === Number(viewerUserId)) return true
+  if (viewerMemberId != null && Number(row.assigned_member_id) === Number(viewerMemberId)) return true
+  return false
 }
 
 function responseLabel(response: SignupResponse): string {
@@ -44,133 +70,40 @@ function responseLabel(response: SignupResponse): string {
   return 'Responded'
 }
 
-export default function SignupSheetPanel({
-  mode,
-  signups,
-  activeSignup,
+function SignupParticipateCard({
+  signup,
   role,
   threadId,
   fetcher,
-  onCreate,
-  onPick,
+  viewerUserId,
+  viewerMemberId,
   onRefresh,
   onCloseSignup,
-}: SignupSheetPanelProps) {
-  const [title, setTitle] = useState('')
-  const [sheetType, setSheetType] = useState<SignupSheetType>('rsvp')
-  const [itemsText, setItemsText] = useState('')
+  onIgnoreSignup,
+  canStaffClose,
+}: {
+  signup: MessageChecklist
+  role: MessagingRole
+  threadId: number
+  fetcher: Fetcher
+  viewerUserId?: number | null
+  viewerMemberId?: number | null
+  onRefresh: () => Promise<void>
+  onCloseSignup: (signupId: number, closed: boolean) => Promise<void>
+  onIgnoreSignup: (signupId: number) => Promise<void>
+  canStaffClose: boolean
+}) {
+  const type = (signup.sheet_type || 'items') as SignupSheetType
+  const items = Array.isArray(signup.items) ? signup.items : []
+  const responses = Array.isArray(signup.responses) ? signup.responses : []
+  const messageId = Number(signup.message_id)
   const [rsvp, setRsvp] = useState<'yes' | 'no' | 'maybe'>('yes')
   const [guestCount, setGuestCount] = useState(1)
   const [notes, setNotes] = useState('')
-  const [saving, setSaving] = useState(false)
-
-  const create = async () => {
-    const items = itemsText
-      .split('\n')
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((text) => ({ text }))
-    if (!title.trim()) return
-    if (sheetType !== 'rsvp' && items.length === 0) return
-    setSaving(true)
-    try {
-      await onCreate({
-        title: title.trim(),
-        sheet_type: sheetType,
-        items,
-        config: { allow_notes: true, allow_guest_count: sheetType === 'rsvp' },
-      })
-      setTitle('')
-      setItemsText('')
-      setSheetType('rsvp')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  if (mode === 'create') {
-    return (
-      <div className="space-y-3">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-emerald-800">New signup list</div>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Signup list title"
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-          />
-        </div>
-        <div className="grid gap-2 sm:grid-cols-3">
-          {[
-            ['rsvp', 'RSVP'],
-            ['items', 'Bring items'],
-            ['support', 'Event support'],
-          ].map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setSheetType(value as SignupSheetType)}
-              className={`rounded-lg border px-3 py-2 text-sm font-semibold ${
-                sheetType === value ? 'border-emerald-700 bg-emerald-50 text-emerald-900' : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        {sheetType !== 'rsvp' && (
-          <textarea
-            value={itemsText}
-            onChange={(e) => setItemsText(e.target.value)}
-            rows={5}
-            placeholder={sheetType === 'items' ? 'One item per line, e.g. Drinks' : 'One support slot per line, e.g. Setup tables'}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm resize-none"
-          />
-        )}
-        <button
-          type="button"
-          disabled={saving || !title.trim() || (sheetType !== 'rsvp' && !itemsText.trim())}
-          onClick={() => void create()}
-          className="ml-auto flex rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
-        >
-          Create signup list
-        </button>
-      </div>
-    )
-  }
-
-  if (mode === 'pick') {
-    return (
-      <div className="space-y-2">
-        <div className="text-xs font-semibold uppercase tracking-wide text-emerald-800">Signup now</div>
-        {signups.length === 0 ? (
-          <div className="text-sm text-gray-500">No signup lists have been created in this thread yet.</div>
-        ) : (
-          signups.map((signup) => (
-            <button
-              key={signup.id}
-              type="button"
-              onClick={() => onPick(signup)}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-left text-sm hover:bg-gray-50"
-            >
-              <div className="font-semibold text-gray-900">{signup.title || 'Signup list'}</div>
-              <div className="text-xs text-gray-500">{signup.is_closed ? 'Closed' : 'Open'} · {signup.response_count ?? signup.responses?.length ?? 0} responses</div>
-            </button>
-          ))
-        )}
-      </div>
-    )
-  }
-
-  if (!activeSignup) return <div className="text-sm text-gray-500">Choose a signup list.</div>
-
-  const type = (activeSignup.sheet_type || 'items') as SignupSheetType
-  const items = Array.isArray(activeSignup.items) ? activeSignup.items : []
-  const responses = Array.isArray(activeSignup.responses) ? activeSignup.responses : []
-  const messageId = Number(activeSignup.message_id)
+  const [claimNotes, setClaimNotes] = useState<Record<number, string>>({})
 
   const submitRsvp = async () => {
-    if (!Number.isFinite(messageId) || activeSignup.is_closed) return
+    if (!Number.isFinite(messageId) || signup.is_closed) return
     await respondToSignupSheet(role, threadId, messageId, fetcher, {
       status: rsvp,
       guest_count: Math.max(0, Number(guestCount) || 0),
@@ -180,30 +113,52 @@ export default function SignupSheetPanel({
   }
 
   const claim = async (index: number) => {
-    if (!Number.isFinite(messageId) || activeSignup.is_closed) return
-    await claimSignupItem(role, threadId, messageId, fetcher, index)
+    if (!Number.isFinite(messageId) || signup.is_closed) return
+    await claimSignupItem(role, threadId, messageId, fetcher, index, claimNotes[index] ?? null)
     await onRefresh()
   }
 
+  const unclaim = async (index: number) => {
+    if (!Number.isFinite(messageId) || signup.is_closed) return
+    await unclaimSignupItem(role, threadId, messageId, fetcher, index)
+    await onRefresh()
+  }
+
+  const ignore = async () => {
+    if (signup.id == null) return
+    await onIgnoreSignup(Number(signup.id))
+  }
+
   return (
-    <div className="space-y-3">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-emerald-800">Signup list</div>
-          <div className="text-sm font-semibold text-gray-900">{activeSignup.title || 'Signup list'}</div>
-          <div className="text-xs text-gray-500">
+          <div className="text-sm font-semibold text-gray-900">{signup.title || 'Signup list'}</div>
+          <div className="text-xs text-gray-500 mt-0.5">
             {type === 'rsvp' ? 'RSVP' : type === 'support' ? 'Event support' : 'Bring items'}
+            {signup.event_date ? ` · Event ${signup.event_date}` : ''}
           </div>
         </div>
-        {activeSignup.id != null && (
-          <button
-            type="button"
-            onClick={() => void onCloseSignup(Number(activeSignup.id), !activeSignup.is_closed)}
-            className="shrink-0 text-xs font-semibold text-gray-600 hover:text-gray-900"
-          >
-            {activeSignup.is_closed ? 'Reopen' : 'Close'}
-          </button>
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          {signup.actionable && signup.id != null && (
+            <button
+              type="button"
+              onClick={() => void ignore()}
+              className="text-xs font-semibold text-gray-500 hover:text-gray-800"
+            >
+              Ignore
+            </button>
+          )}
+          {canStaffClose && signup.id != null && (
+            <button
+              type="button"
+              onClick={() => void onCloseSignup(Number(signup.id), !signup.is_closed)}
+              className="text-xs font-semibold text-gray-600 hover:text-gray-900"
+            >
+              {signup.is_closed ? 'Reopen' : 'Close'}
+            </button>
+          )}
+        </div>
       </div>
       {type === 'rsvp' ? (
         <div className="space-y-3">
@@ -243,7 +198,7 @@ export default function SignupSheetPanel({
           </div>
           <button
             type="button"
-            disabled={activeSignup.is_closed}
+            disabled={signup.is_closed}
             onClick={() => void submitRsvp()}
             className="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
           >
@@ -264,26 +219,257 @@ export default function SignupSheetPanel({
           )}
         </div>
       ) : (
-        <ul className="space-y-1.5">
-          {items.map((item, index) => (
-            <li key={index} className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2 text-sm">
-              <span className="text-gray-800">{itemText(item)}</span>
-              {isClaimed(item) ? (
-                <span className="shrink-0 text-xs text-gray-500">Claimed</span>
-              ) : (
-                <button
-                  type="button"
-                  disabled={activeSignup.is_closed}
-                  onClick={() => void claim(index)}
-                  className="shrink-0 text-xs font-semibold text-vortex-red hover:underline disabled:opacity-50"
-                >
-                  {type === 'support' ? 'I’ll help' : 'I’ll bring this'}
-                </button>
-              )}
-            </li>
-          ))}
+        <ul className="space-y-2">
+          {items.map((item, index) => {
+            const claimed = isClaimed(item)
+            const mine = isClaimedByViewer(item, viewerUserId, viewerMemberId)
+            const note = itemClaimNote(item)
+            return (
+              <li key={index} className="rounded-lg border border-gray-200 px-3 py-2 text-sm space-y-2">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-gray-800">{itemText(item)}</span>
+                  {claimed && !mine && (
+                    <span className="shrink-0 text-xs text-gray-500">Claimed</span>
+                  )}
+                  {mine && (
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs font-semibold text-emerald-700">Claimed</span>
+                      <button
+                        type="button"
+                        disabled={signup.is_closed}
+                        onClick={() => void unclaim(index)}
+                        className="text-xs font-semibold text-vortex-red hover:underline disabled:opacity-50"
+                      >
+                        Unclaim
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {mine && note && (
+                  <div className="text-xs text-gray-500">{note}</div>
+                )}
+                {!claimed && (
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <input
+                      value={claimNotes[index] ?? ''}
+                      onChange={(e) => setClaimNotes((prev) => ({ ...prev, [index]: e.target.value }))}
+                      placeholder="Optional note"
+                      className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+                    />
+                    <button
+                      type="button"
+                      disabled={signup.is_closed}
+                      onClick={() => void claim(index)}
+                      className="shrink-0 text-xs font-semibold text-vortex-red hover:underline disabled:opacity-50"
+                    >
+                      {type === 'support' ? 'I’ll help' : 'I’ll do this'}
+                    </button>
+                  </div>
+                )}
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>
+  )
+}
+
+export default function SignupSheetPanel({
+  mode,
+  signups,
+  activeSignup,
+  role,
+  threadId,
+  fetcher,
+  viewerUserId = null,
+  viewerMemberId = null,
+  onCreate,
+  onPick,
+  onRefresh,
+  onCloseSignup,
+  onIgnoreSignup,
+}: SignupSheetPanelProps) {
+  const [title, setTitle] = useState('')
+  const [eventDate, setEventDate] = useState('')
+  const [sheetType, setSheetType] = useState<SignupSheetType>('rsvp')
+  const [itemRows, setItemRows] = useState<ItemRow[]>([{ id: '1', text: '' }])
+  const [saving, setSaving] = useState(false)
+  const canStaffClose = role !== 'member'
+
+  const create = async () => {
+    const items = itemRows.map((row) => row.text.trim()).filter(Boolean).map((text) => ({ text }))
+    if (!title.trim() || !eventDate.trim()) return
+    if (sheetType !== 'rsvp' && items.length === 0) return
+    setSaving(true)
+    try {
+      await onCreate({
+        title: title.trim(),
+        sheet_type: sheetType,
+        event_date: eventDate.trim(),
+        items,
+        config: { allow_notes: true, allow_guest_count: sheetType === 'rsvp' },
+      })
+      setTitle('')
+      setEventDate('')
+      setItemRows([{ id: '1', text: '' }])
+      setSheetType('rsvp')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (mode === 'create') {
+    return (
+      <div className="space-y-3">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-emerald-800">New signup list</div>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Signup list title"
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-700">Event date</label>
+          <input
+            type="date"
+            value={eventDate}
+            onChange={(e) => setEventDate(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            required
+          />
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {[
+            ['rsvp', 'RSVP'],
+            ['items', 'Bring items'],
+            ['support', 'Event support'],
+          ].map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setSheetType(value as SignupSheetType)}
+              className={`rounded-lg border px-3 py-2 text-sm font-semibold ${
+                sheetType === value ? 'border-emerald-700 bg-emerald-50 text-emerald-900' : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {sheetType !== 'rsvp' && (
+          <div className="space-y-2">
+            {itemRows.map((row, index) => (
+              <div key={row.id} className="flex items-center gap-2">
+                <input
+                  value={row.text}
+                  onChange={(e) => {
+                    const next = [...itemRows]
+                    next[index] = { ...next[index], text: e.target.value }
+                    setItemRows(next)
+                  }}
+                  placeholder={sheetType === 'items' ? 'Item to bring' : 'Support slot'}
+                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+                {itemRows.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setItemRows(itemRows.filter((_, i) => i !== index))}
+                    className="text-xs text-gray-500 hover:text-gray-800"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setItemRows([...itemRows, { id: String(Date.now()), text: '' }])}
+              className="text-xs font-semibold text-vortex-red hover:underline"
+            >
+              Add item
+            </button>
+          </div>
+        )}
+        <button
+          type="button"
+          disabled={saving || !title.trim() || !eventDate.trim() || (sheetType !== 'rsvp' && !itemRows.some((row) => row.text.trim()))}
+          onClick={() => void create()}
+          className="ml-auto flex rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+        >
+          Create signup list
+        </button>
+      </div>
+    )
+  }
+
+  if (mode === 'pick') {
+    return (
+      <div className="space-y-2">
+        <div className="text-xs font-semibold uppercase tracking-wide text-emerald-800">Signup now</div>
+        {signups.length === 0 ? (
+          <div className="text-sm text-gray-500">No signup lists have been created in this thread yet.</div>
+        ) : (
+          signups.map((signup) => (
+            <button
+              key={signup.id}
+              type="button"
+              onClick={() => onPick(signup)}
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-left text-sm hover:bg-gray-50"
+            >
+              <div className="font-semibold text-gray-900">{signup.title || 'Signup list'}</div>
+              <div className="text-xs text-gray-500">
+                {signup.is_closed ? 'Closed' : 'Open'} · {signup.response_count ?? signup.responses?.length ?? 0} responses
+                {signup.event_date ? ` · ${signup.event_date}` : ''}
+              </div>
+            </button>
+          ))
+        )}
+      </div>
+    )
+  }
+
+  if (mode === 'list') {
+    if (signups.length === 0) {
+      return <div className="text-sm text-gray-500">No signup lists in this thread yet.</div>
+    }
+    return (
+      <div className="space-y-3">
+        {signups.map((signup) => (
+          <SignupParticipateCard
+            key={signup.id}
+            signup={signup}
+            role={role}
+            threadId={threadId}
+            fetcher={fetcher}
+            viewerUserId={viewerUserId}
+            viewerMemberId={viewerMemberId}
+            onRefresh={onRefresh}
+            onCloseSignup={onCloseSignup}
+            onIgnoreSignup={onIgnoreSignup}
+            canStaffClose={canStaffClose}
+          />
+        ))}
+      </div>
+    )
+  }
+
+  if (!activeSignup) return <div className="text-sm text-gray-500">Choose a signup list.</div>
+
+  return (
+    <SignupParticipateCard
+      signup={activeSignup}
+      role={role}
+      threadId={threadId}
+      fetcher={fetcher}
+      viewerUserId={viewerUserId}
+      viewerMemberId={viewerMemberId}
+      onRefresh={onRefresh}
+      onCloseSignup={onCloseSignup}
+      onIgnoreSignup={onIgnoreSignup}
+      canStaffClose={canStaffClose}
+    />
   )
 }

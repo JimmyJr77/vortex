@@ -21,13 +21,21 @@ import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
 import MessagingMaximizeToggle from '../messaging/MessagingMaximizeToggle'
 import MessagePinSelectionBar from '../messaging/MessagePinSelectionBar'
 import { useThreadPinGroups } from '../messaging/useThreadPinGroups'
-import ThreadCollaborationPanel from '../messaging/ThreadCollaborationPanel'
+import MessagingThreadPollsPanel from '../messaging/MessagingThreadPollsPanel'
+import MessagingThreadSignupsPanel from '../messaging/MessagingThreadSignupsPanel'
 import { useThreadCollaboration } from '../messaging/useThreadCollaboration'
-import { useMessagingEventsInbox } from '../messaging/useMessagingEventsInbox'
+import { useMessagingInboxList } from '../messaging/useMessagingInboxList'
+import MessagingThreadListHeaderActions from '../messaging/MessagingThreadListHeaderActions'
+import { getInboxPrimaryAction } from '../messaging/messagingInboxActions'
+import ClassThreadCreateModal from '../messaging/ClassThreadCreateModal'
+import EventBoardCreateModal from '../messaging/EventBoardCreateModal'
+import FileUploadComposeModal from '../messaging/FileUploadComposeModal'
+import CalendarItemComposePanel from '../messaging/CalendarItemComposePanel'
+import ScheduleItemBanner from '../messaging/ScheduleItemBanner'
 import MessagingMessageThread from '../messaging/MessagingMessageThread'
 import { buildReplyQuote, stripReplyQuote } from '../messaging/messageFormatting'
 import { prepareMessageBodyForSend, type MessageMentionPayload } from '../messaging/messageMentions'
-import MessagingThreadListSortMenu, {
+import {
   defaultSortDir,
   toApiThreadSort,
   type ThreadListSortDir,
@@ -108,6 +116,10 @@ export default function AdminMessagesPanel({
   const [faqPanelOpen, setFaqPanelOpen] = useState(false)
   const [faqDraft, setFaqDraft] = useState<ThreadFaqDraft | null>(null)
   const [pendingFaqReply, setPendingFaqReply] = useState<{ question: string; prefix: string } | null>(null)
+  const [classModalOpen, setClassModalOpen] = useState(false)
+  const [eventBoardModalOpen, setEventBoardModalOpen] = useState(false)
+  const [fileModalOpen, setFileModalOpen] = useState(false)
+  const [calendarComposeOpen, setCalendarComposeOpen] = useState(false)
   const [criticalFlags, setCriticalFlags] = useState<CriticalComposeFlags>({
     is_critical: false,
     requires_ack: false,
@@ -120,13 +132,12 @@ export default function AdminMessagesPanel({
 
   const viewer = useMemo(() => getMessageViewer('admin'), [])
   const pins = useThreadPinGroups(selectedId, 'admin', adminFetch)
-  const inboxCounts = useMemo(() => countThreadsByInboxTab(threads), [threads])
+  const inboxCountsBase = useMemo(() => countThreadsByInboxTab(threads), [threads])
   const tabFilteredThreads = useMemo(() => {
     if (tab === 'archived') return threads
     return filterThreadsByInboxTab(threads, inboxTab)
   }, [threads, inboxTab, tab])
-  const eventsInbox = useMessagingEventsInbox({
-    enabled: tab !== 'archived',
+  const inboxList = useMessagingInboxList({
     inboxTab: tab === 'archived' ? 'all' : inboxTab,
     tabFilteredThreads,
     listSearch,
@@ -134,8 +145,17 @@ export default function AdminMessagesPanel({
     listSortDir,
     role: 'admin',
     fetcher: adminFetch,
+    enabled: tab !== 'archived',
   })
-  const displayedThreads = eventsInbox.displayedThreads
+  const displayedThreads = inboxList.displayedThreads
+  const inboxCounts = useMemo(
+    () => ({ ...inboxCountsBase, ...inboxList.inboxCountsPatch }),
+    [inboxCountsBase, inboxList.inboxCountsPatch],
+  )
+  const primaryAction = useMemo(
+    () => getInboxPrimaryAction(inboxTab, 'admin', { archived: tab === 'archived' }),
+    [inboxTab, tab],
+  )
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
     [threadParticipants],
@@ -193,11 +213,14 @@ export default function AdminMessagesPanel({
     role: 'admin',
     threadId: selectedId,
     fetcher: adminFetch,
-    onMessageCreated: (message) => setMessages((prev) => (
-      prev.some((row) => row.id === message.id) ? prev : [...prev, message]
-    )),
     onChanged: () => void loadThreads(),
   })
+  const anyTakeoverPanelOpen = faqPanelOpen || collaboration.pollPanelOpen || collaboration.signupPanelOpen
+  const closeTakeoverPanels = () => {
+    setFaqPanelOpen(false)
+    collaboration.closePollPanel()
+    collaboration.closeSignupPanel()
+  }
 
   useEffect(() => {
     autoOpenedRef.current = false
@@ -237,8 +260,10 @@ export default function AdminMessagesPanel({
   }, [messages, selectedId])
 
   const openThread = async (rowId: number) => {
-    const { threadId } = eventsInbox.resolveThreadSelection(rowId)
+    const resolved = inboxList.resolveThreadSelection(rowId)
+    const threadId = resolved.threadId
     if (threadId <= 0) return
+    setCalendarComposeOpen(false)
     setSelectedId(threadId)
     setDetailLoading(true)
     setError(null)
@@ -307,16 +332,32 @@ export default function AdminMessagesPanel({
       }
     : {}
   const collaborationHeaderProps = {
-    polls: collaboration.polls,
-    signups: collaboration.signups,
-    activePollId: collaboration.activePollId,
-    activeSignupId: collaboration.activeSignupId,
-    onOpenPoll: collaboration.openPoll,
-    onOpenSignup: collaboration.openSignup,
-    onCreatePoll: () => collaboration.setPanelMode('create-poll'),
-    onRespondPoll: () => collaboration.setPanelMode('pick-poll'),
-    onCreateSignup: () => collaboration.setPanelMode('create-signup'),
-    onSignupNow: () => collaboration.setPanelMode('pick-signup'),
+    hasActionablePoll: collaboration.hasActionablePoll,
+    hasActionableSignup: collaboration.hasActionableSignup,
+    onPollIconClick: () => {
+      setFaqPanelOpen(false)
+      collaboration.openPollPanel({ scrollToLatest: true })
+    },
+    onSignupIconClick: () => {
+      setFaqPanelOpen(false)
+      collaboration.openSignupPanel({ scrollToLatest: true })
+    },
+    onCreatePoll: () => {
+      setFaqPanelOpen(false)
+      collaboration.openPollPanel({ mode: 'create-poll' })
+    },
+    onRespondPoll: () => {
+      setFaqPanelOpen(false)
+      collaboration.openPollPanel({ mode: 'pick-poll' })
+    },
+    onCreateSignup: () => {
+      setFaqPanelOpen(false)
+      collaboration.openSignupPanel({ mode: 'create-signup' })
+    },
+    onSignupNow: () => {
+      setFaqPanelOpen(false)
+      collaboration.openSignupPanel({ mode: 'pick-signup' })
+    },
   }
 
   const sendReply = async (mentions: MessageMentionPayload[] = []) => {
@@ -350,6 +391,8 @@ export default function AdminMessagesPanel({
           question: pendingFaqReply.question,
           answer: stripReplyQuote(replyText, pendingFaqReply.prefix),
         })
+        collaboration.closePollPanel()
+        collaboration.closeSignupPanel()
         setFaqPanelOpen(true)
         setPendingFaqReply(null)
       }
@@ -362,6 +405,32 @@ export default function AdminMessagesPanel({
       setError(err instanceof Error ? err.message : 'Failed to send message')
     } finally {
       setSending(false)
+    }
+  }
+
+  const handlePrimaryCreate = () => {
+    if (primaryAction.disabled || tab === 'archived') return
+    setNewOpen(false)
+    setCalendarComposeOpen(false)
+    switch (primaryAction.mode) {
+      case 'message':
+        setNewOpen(true)
+        break
+      case 'class':
+        setClassModalOpen(true)
+        break
+      case 'eventBoard':
+        setEventBoardModalOpen(true)
+        break
+      case 'calendarItem':
+        setSelectedId(null)
+        setCalendarComposeOpen(true)
+        break
+      case 'file':
+        setFileModalOpen(true)
+        break
+      default:
+        break
     }
   }
 
@@ -482,10 +551,12 @@ export default function AdminMessagesPanel({
             )}
             <button
               type="button"
-              onClick={() => setNewOpen((v) => !v)}
-              className="flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700"
+              onClick={handlePrimaryCreate}
+              disabled={primaryAction.disabled}
+              title={primaryAction.disabled ? primaryAction.disabledReason : undefined}
+              className="flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 disabled:opacity-60"
             >
-              <Plus className="w-4 h-4" /> New message
+              <Plus className="w-4 h-4" /> {primaryAction.label}
             </button>
           </div>
         )}
@@ -560,7 +631,9 @@ export default function AdminMessagesPanel({
         selectedThreadId={selectedId}
         onSelectThread={(id) => { if (id != null) void openThread(id) }}
         onBack={() => {
-          eventsInbox.setActiveCalendarItem(null)
+          inboxList.setActiveCalendarItem(null)
+          inboxList.setActiveScheduleRow(null)
+          setCalendarComposeOpen(false)
           setSelectedId(null)
         }}
         maximized={maximized}
@@ -569,22 +642,18 @@ export default function AdminMessagesPanel({
             maximized={maximized}
             title={listPanelTitle}
             titleAction={
-              <div className="flex items-center gap-1 shrink-0">
-                {maximized && onMaximizedChange && (
-                  <MessagingMaximizeToggle
-                    maximized={maximized}
-                    onToggle={() => onMaximizedChange(false)}
-                  />
-                )}
-                <MessagingThreadListSortMenu
-                  sort={listSort}
-                  sortDir={listSortDir}
-                  onChange={(sort, sortDir) => {
-                    setListSort(sort)
-                    setListSortDir(sortDir)
-                  }}
-                />
-              </div>
+              <MessagingThreadListHeaderActions
+                primaryAction={primaryAction}
+                onPrimaryCreate={handlePrimaryCreate}
+                sort={listSort}
+                sortDir={listSortDir}
+                onSortChange={(sort, sortDir) => {
+                  setListSort(sort)
+                  setListSortDir(sortDir)
+                }}
+                maximized={maximized}
+                onMaximizedChange={onMaximizedChange}
+              />
             }
             search={listSearch}
             onSearchChange={setListSearch}
@@ -623,7 +692,19 @@ export default function AdminMessagesPanel({
           </MessagingThreadListShell>
         }
         detailPanel={
-          !selectedId ? (
+          calendarComposeOpen ? (
+            <CalendarItemComposePanel
+              fetcher={adminFetch}
+              role="admin"
+              onCancel={() => setCalendarComposeOpen(false)}
+              onCreated={(_row, threadId) => {
+                setCalendarComposeOpen(false)
+                inboxList.refreshScheduleRows()
+                void loadThreads()
+                if (threadId != null) void openThread(threadId)
+              }}
+            />
+          ) : !selectedId ? (
             <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-8">
               {emptyDetailHint}
             </div>
@@ -642,11 +723,11 @@ export default function AdminMessagesPanel({
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    {faqPanelOpen ? (
+                    {anyTakeoverPanelOpen ? (
                       <button
                         type="button"
-                        aria-label="Close FAQ"
-                        onClick={() => setFaqPanelOpen(false)}
+                        aria-label="Close panel"
+                        onClick={closeTakeoverPanels}
                         className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                       >
                         <X className="w-5 h-5" />
@@ -663,7 +744,11 @@ export default function AdminMessagesPanel({
                         isFavorite={threadFavorite}
                         onToggleFavorite={toggleFavorite}
                         favoriteLoading={favoriteLoading}
-                        onOpenFaq={() => setFaqPanelOpen(true)}
+                        onOpenFaq={() => {
+                          collaboration.closePollPanel()
+                          collaboration.closeSignupPanel()
+                          setFaqPanelOpen(true)
+                        }}
                         {...pinHeaderProps}
                         {...collaborationHeaderProps}
                       />
@@ -688,7 +773,11 @@ export default function AdminMessagesPanel({
                         favoriteLoading={favoriteLoading}
                         canAttach={tab === 'active-all'}
                         onAttachmentPick={setPendingAttachment}
-                        onOpenFaq={() => setFaqPanelOpen(true)}
+                        onOpenFaq={() => {
+                          collaboration.closePollPanel()
+                          collaboration.closeSignupPanel()
+                          setFaqPanelOpen(true)
+                        }}
                         {...pinHeaderProps}
                         {...collaborationHeaderProps}
                       />
@@ -697,7 +786,7 @@ export default function AdminMessagesPanel({
                 </div>
               }
               footer={
-                canReply && !faqPanelOpen ? (
+                canReply && !anyTakeoverPanelOpen ? (
                   <>
                     <div className="px-4 pt-2 shrink-0">
                       <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
@@ -717,7 +806,44 @@ export default function AdminMessagesPanel({
                 ) : undefined
               }
             >
-              {faqPanelOpen ? (
+              {collaboration.pollPanelOpen && collaboration.panelMode ? (
+                <MessagingThreadPollsPanel
+                  mode={collaboration.panelMode as 'list-poll' | 'create-poll' | 'pick-poll' | 'view-poll'}
+                  polls={collaboration.polls}
+                  activePoll={collaboration.activePoll}
+                  role="admin"
+                  threadId={selectedId}
+                  fetcher={adminFetch}
+                  loading={collaboration.loading}
+                  error={collaboration.error}
+                  scrollToLatest={collaboration.scrollPollToLatest}
+                  onScrollToLatestDone={collaboration.clearScrollPollToLatest}
+                  onCreatePoll={collaboration.createPoll}
+                  onPickPoll={collaboration.openPoll}
+                  onRefresh={collaboration.refresh}
+                  onClosePoll={collaboration.setPollClosed}
+                  onIgnorePoll={collaboration.ignorePoll}
+                />
+              ) : collaboration.signupPanelOpen && collaboration.panelMode ? (
+                <MessagingThreadSignupsPanel
+                  mode={collaboration.panelMode as 'list-signup' | 'create-signup' | 'pick-signup' | 'view-signup'}
+                  signups={collaboration.signups}
+                  activeSignup={collaboration.activeSignup}
+                  role="admin"
+                  threadId={selectedId}
+                  fetcher={adminFetch}
+                  viewerUserId={viewer.userId}
+                  loading={collaboration.loading}
+                  error={collaboration.error}
+                  scrollToLatest={collaboration.scrollSignupToLatest}
+                  onScrollToLatestDone={collaboration.clearScrollSignupToLatest}
+                  onCreateSignup={collaboration.createSignup}
+                  onPickSignup={collaboration.openSignup}
+                  onRefresh={collaboration.refresh}
+                  onCloseSignup={collaboration.setSignupClosed}
+                  onIgnoreSignup={collaboration.ignoreSignup}
+                />
+              ) : faqPanelOpen ? (
                 <MessagingThreadFaq
                   role="admin"
                   threadId={selectedId}
@@ -740,28 +866,9 @@ export default function AdminMessagesPanel({
                         }
                         onJump={(id) => void openThread(id)}
                       />
-                      <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
+                      <EventCalendarItemBanner item={inboxList.activeCalendarItem} />
+                      <ScheduleItemBanner item={inboxList.activeScheduleRow} />
                       <MessagingInfoCard infoJson={threadInfoJson} />
-                      <ThreadCollaborationPanel
-                        mode={collaboration.panelMode}
-                        polls={collaboration.polls}
-                        signups={collaboration.signups}
-                        activePoll={collaboration.activePoll}
-                        activeSignup={collaboration.activeSignup}
-                        role="admin"
-                        threadId={selectedId}
-                        fetcher={adminFetch}
-                        loading={collaboration.loading}
-                        error={collaboration.error}
-                        onDismiss={() => collaboration.setPanelMode(null)}
-                        onCreatePoll={collaboration.createPoll}
-                        onCreateSignup={collaboration.createSignup}
-                        onPickPoll={collaboration.openPoll}
-                        onPickSignup={collaboration.openSignup}
-                        onRefresh={collaboration.refresh}
-                        onClosePoll={collaboration.setPollClosed}
-                        onCloseSignup={collaboration.setSignupClosed}
-                      />
                     </>
                   )}
                   {pins.pinSelection && tab === 'active-all' && (
@@ -799,8 +906,6 @@ export default function AdminMessagesPanel({
                           prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
                         )
                       }}
-                      onOpenPoll={collaboration.openPoll}
-                      onOpenSignup={collaboration.openSignup}
                     />
                   ) : (
                     <div>
@@ -821,11 +926,11 @@ export default function AdminMessagesPanel({
                       <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
                     )}
                   </div>
-                  {faqPanelOpen ? (
+                  {anyTakeoverPanelOpen ? (
                     <button
                       type="button"
-                      aria-label="Close FAQ"
-                      onClick={() => setFaqPanelOpen(false)}
+                      aria-label="Close panel"
+                      onClick={closeTakeoverPanels}
                       className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                     >
                       <X className="w-5 h-5" />
@@ -851,7 +956,11 @@ export default function AdminMessagesPanel({
                       favoriteLoading={favoriteLoading}
                       canAttach
                       onAttachmentPick={setPendingAttachment}
-                      onOpenFaq={() => setFaqPanelOpen(true)}
+                      onOpenFaq={() => {
+                        collaboration.closePollPanel()
+                        collaboration.closeSignupPanel()
+                        setFaqPanelOpen(true)
+                      }}
                       {...pinHeaderProps}
                       {...collaborationHeaderProps}
                     />
@@ -859,7 +968,7 @@ export default function AdminMessagesPanel({
                 </div>
               }
               footer={
-                faqPanelOpen ? undefined : (
+                anyTakeoverPanelOpen ? undefined : (
                 <>
                   <div className="px-4 pt-2 shrink-0">
                     <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
@@ -879,7 +988,44 @@ export default function AdminMessagesPanel({
                 )
               }
             >
-              {faqPanelOpen ? (
+              {collaboration.pollPanelOpen && collaboration.panelMode ? (
+                <MessagingThreadPollsPanel
+                  mode={collaboration.panelMode as 'list-poll' | 'create-poll' | 'pick-poll' | 'view-poll'}
+                  polls={collaboration.polls}
+                  activePoll={collaboration.activePoll}
+                  role="admin"
+                  threadId={selectedId}
+                  fetcher={adminFetch}
+                  loading={collaboration.loading}
+                  error={collaboration.error}
+                  scrollToLatest={collaboration.scrollPollToLatest}
+                  onScrollToLatestDone={collaboration.clearScrollPollToLatest}
+                  onCreatePoll={collaboration.createPoll}
+                  onPickPoll={collaboration.openPoll}
+                  onRefresh={collaboration.refresh}
+                  onClosePoll={collaboration.setPollClosed}
+                  onIgnorePoll={collaboration.ignorePoll}
+                />
+              ) : collaboration.signupPanelOpen && collaboration.panelMode ? (
+                <MessagingThreadSignupsPanel
+                  mode={collaboration.panelMode as 'list-signup' | 'create-signup' | 'pick-signup' | 'view-signup'}
+                  signups={collaboration.signups}
+                  activeSignup={collaboration.activeSignup}
+                  role="admin"
+                  threadId={selectedId}
+                  fetcher={adminFetch}
+                  viewerUserId={viewer.userId}
+                  loading={collaboration.loading}
+                  error={collaboration.error}
+                  scrollToLatest={collaboration.scrollSignupToLatest}
+                  onScrollToLatestDone={collaboration.clearScrollSignupToLatest}
+                  onCreateSignup={collaboration.createSignup}
+                  onPickSignup={collaboration.openSignup}
+                  onRefresh={collaboration.refresh}
+                  onCloseSignup={collaboration.setSignupClosed}
+                  onIgnoreSignup={collaboration.ignoreSignup}
+                />
+              ) : faqPanelOpen ? (
                 <MessagingThreadFaq
                   role="admin"
                   threadId={selectedId}
@@ -902,28 +1048,9 @@ export default function AdminMessagesPanel({
                         }
                         onJump={(id) => void openThread(id)}
                       />
-                      <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
+                      <EventCalendarItemBanner item={inboxList.activeCalendarItem} />
+                      <ScheduleItemBanner item={inboxList.activeScheduleRow} />
                       <MessagingInfoCard infoJson={threadInfoJson} />
-                      <ThreadCollaborationPanel
-                        mode={collaboration.panelMode}
-                        polls={collaboration.polls}
-                        signups={collaboration.signups}
-                        activePoll={collaboration.activePoll}
-                        activeSignup={collaboration.activeSignup}
-                        role="admin"
-                        threadId={selectedId}
-                        fetcher={adminFetch}
-                        loading={collaboration.loading}
-                        error={collaboration.error}
-                        onDismiss={() => collaboration.setPanelMode(null)}
-                        onCreatePoll={collaboration.createPoll}
-                        onCreateSignup={collaboration.createSignup}
-                        onPickPoll={collaboration.openPoll}
-                        onPickSignup={collaboration.openSignup}
-                        onRefresh={collaboration.refresh}
-                        onClosePoll={collaboration.setPollClosed}
-                        onCloseSignup={collaboration.setSignupClosed}
-                      />
                     </>
                   )}
                   {pins.pinSelection && (
@@ -960,8 +1087,6 @@ export default function AdminMessagesPanel({
                         prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
                       )
                     }}
-                    onOpenPoll={collaboration.openPoll}
-                    onOpenSignup={collaboration.openSignup}
                   />
                 </>
               )}
@@ -970,6 +1095,36 @@ export default function AdminMessagesPanel({
         }
       />
       </div>
+      <ClassThreadCreateModal
+        open={classModalOpen}
+        onClose={() => setClassModalOpen(false)}
+        role="admin"
+        fetcher={adminFetch}
+        onCreated={(threadId) => {
+          void loadThreads()
+          void openThread(threadId)
+        }}
+      />
+      <EventBoardCreateModal
+        open={eventBoardModalOpen}
+        onClose={() => setEventBoardModalOpen(false)}
+        fetcher={adminFetch}
+        onCreated={(threadId) => {
+          void loadThreads()
+          void openThread(threadId)
+        }}
+      />
+      <FileUploadComposeModal
+        open={fileModalOpen}
+        onClose={() => setFileModalOpen(false)}
+        portal="admin"
+        fetcher={adminFetch}
+        threads={threads}
+        onUploaded={(threadId) => {
+          void loadThreads()
+          void openThread(threadId)
+        }}
+      />
     </div>
   )
 }

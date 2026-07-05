@@ -917,7 +917,12 @@ const MESSAGE_ENRICH_SELECT = `
 
 export async function loadEnrichedMessagesForThread(pool, threadId) {
   const r = await pool.query(
-    `${MESSAGE_ENRICH_SELECT} WHERE msg.thread_id = $1 ORDER BY msg.created_at ASC`,
+    `${MESSAGE_ENRICH_SELECT}
+     WHERE msg.thread_id = $1
+       AND msg.deleted_at IS NULL
+       AND NOT EXISTS (SELECT 1 FROM coaching.message_poll p WHERE p.message_id = msg.id)
+       AND NOT EXISTS (SELECT 1 FROM coaching.message_checklist c WHERE c.message_id = msg.id)
+     ORDER BY msg.created_at ASC`,
     [threadId],
   )
   return r.rows

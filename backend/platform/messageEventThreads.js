@@ -253,16 +253,50 @@ export async function provisionEventThreads(pool, eventId, facilityId, {
   return { canonical, discussion, created: true }
 }
 
-export async function getEventThreads(pool, eventId, facilityId) {
-  const { canonical, discussion } = await findEventThreadPair(pool, eventId, facilityId)
-  if (canonical) {
-    const rows = [canonical]
-    if (discussion) rows.push(discussion)
-    return rows
+/** Create an additional discussion board linked to an existing event (multi-board). */
+export async function provisionAdditionalEventBoard(pool, eventId, facilityId, {
+  subject,
+  adminUserId,
+}) {
+  const { canonical } = await findEventThreadPair(pool, eventId, facilityId)
+  if (!canonical) {
+    throw new Error('Create the primary event chat first.')
   }
 
+  await ensureDefaultTags(pool, facilityId)
+  const title = subject?.trim() || `${canonical.subject || `Event ${eventId}`} — Board`
+  const discussion = await createDiscussionThread(pool, facilityId, eventId, canonical, title.replace(/ — Discussion$/, ''))
+
+  await pool.query(
+    `UPDATE coaching.message_thread SET subject = $1 WHERE id = $2`,
+    [title.endsWith(' — Discussion') ? title : `${title} — Discussion`, discussion.id],
+  )
+
+  const eventRow = await pool.query(`SELECT * FROM events WHERE id = $1`, [eventId])
+  const audienceMemberIds = await resolveEventAudienceMemberIds(pool, eventRow.rows[0] || {})
+  await insertThreadParticipants(pool, discussion.id, {
+    memberIds: audienceMemberIds,
+    userIds: adminUserId != null ? [Number(adminUserId)] : [],
+  })
+
+  return { discussion, created: true }
+}
+
+/** Link an existing thread to an event as a discussion board. */
+export async function linkThreadToEvent(pool, threadId, eventId, facilityId, { linkRole = 'discussion' } = {}) {
+  const threadRes = await pool.query(
+    `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+    [threadId, facilityId],
+  )
+  if (threadRes.rows.length === 0) throw new Error('Thread not found.')
+  await linkThreadToObject(pool, threadId, 'event', eventId, linkRole)
+  await setThreadTags(pool, threadId, ['event-info', 'team-comms'], facilityId)
+  return threadRes.rows[0]
+}
+
+export async function getEventThreads(pool, eventId, facilityId) {
   const r = await pool.query(
-    `SELECT t.*
+    `SELECT DISTINCT t.*
      FROM coaching.message_thread t
      JOIN coaching.message_thread_link l ON l.thread_id = t.id
      WHERE l.object_type = 'event' AND l.object_id = $1
@@ -271,7 +305,7 @@ export async function getEventThreads(pool, eventId, facilityId) {
        WHEN 'canonical' THEN 0
        WHEN 'discussion' THEN 1
        ELSE 2
-     END, t.created_at`,
+     END, t.created_at ASC`,
     [eventId, facilityId],
   )
   return r.rows
@@ -325,12 +359,25 @@ export async function subscribeMemberToEventThreads(pool, eventId, facilityId, m
 }
 
 export async function getEventChatStatus(pool, eventId, facilityId, memberId = null) {
-  const { canonical, discussion } = await findEventThreadPair(pool, eventId, facilityId)
+  const threads = await getEventThreads(pool, eventId, facilityId)
+  const canonical = threads.find((t) => t.kind === 'canonical') ?? null
+  const discussions = threads.filter((t) => t.kind === 'discussion')
+  const discussion = discussions[0] ?? null
   const hasChat = Boolean(canonical)
-  const discussionThreadId = discussion?.id ?? canonical?.id ?? null
   let subscribed = false
   if (memberId != null && hasChat) {
     subscribed = await memberIsEventChatParticipant(pool, eventId, facilityId, memberId)
   }
-  return { hasChat, subscribed, discussionThreadId, canonicalThreadId: canonical?.id ?? null }
+  return {
+    hasChat,
+    subscribed,
+    discussionThreadId: discussion?.id != null ? Number(discussion.id) : null,
+    discussionThreadIds: discussions.map((t) => Number(t.id)),
+    canonicalThreadId: canonical?.id != null ? Number(canonical.id) : null,
+    boards: threads.map((t) => ({
+      id: Number(t.id),
+      subject: t.subject,
+      kind: t.kind,
+    })),
+  }
 }

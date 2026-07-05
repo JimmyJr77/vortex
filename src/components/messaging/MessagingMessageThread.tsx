@@ -3,7 +3,7 @@ import MessageBubble from './MessageBubble'
 import { formatMessageDayLabel, isFirstMessageOfDay } from './messageFormatting'
 import type { MessageReactionGroup } from './MessageReactionBar'
 import type { MessageViewer } from './messageBubbleStyle'
-import type { MessageChecklist, MessageDisplayGroup, MessagePoll, MessageRow, MessagingRole, ThreadParticipant } from './types'
+import type { MessageDisplayGroup, MessageRow, MessagingRole, ThreadParticipant } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 
@@ -36,8 +36,6 @@ interface MessagingMessageThreadProps {
   pinFilterActive?: boolean
   importantFilterActive?: boolean
   onReactionsUpdated?: (messageId: number, reactions: MessageReactionGroup[]) => void
-  onOpenPoll?: (poll: MessagePoll) => void
-  onOpenSignup?: (signup: MessageChecklist) => void
   className?: string
 }
 
@@ -61,8 +59,6 @@ function renderBubble(
     pinSelectedIds,
     onPinSelectionToggle,
     onReactionsUpdated,
-    onOpenPoll,
-    onOpenSignup,
   } = props
 
   return (
@@ -83,8 +79,6 @@ function renderBubble(
       pinSelected={pinSelectedIds?.has(m.id) ?? false}
       onPinSelectionToggle={onPinSelectionToggle}
       onReactionsUpdated={onReactionsUpdated}
-      onOpenPoll={onOpenPoll}
-      onOpenSignup={onOpenSignup}
     />
   )
 }
@@ -110,8 +104,6 @@ export default function MessagingMessageThread({
   pinFilterActive = false,
   importantFilterActive = false,
   onReactionsUpdated,
-  onOpenPoll,
-  onOpenSignup,
   className = 'p-4 space-y-3',
 }: MessagingMessageThreadProps) {
   const bubbleProps = {
@@ -130,8 +122,6 @@ export default function MessagingMessageThread({
     pinSelectedIds,
     onPinSelectionToggle,
     onReactionsUpdated,
-    onOpenPoll,
-    onOpenSignup,
   }
 
   if (pinFilterActive) {
