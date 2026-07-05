@@ -7,7 +7,7 @@ import MessageReplyComposer from '../messaging/MessageReplyComposer'
 import RecipientPicker, { recipientsToPayload } from '../messaging/RecipientPicker'
 import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
-import { uploadMessageAttachment } from '../messaging/messageAttachmentUpload'
+import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
 import type { EnrollmentGroup, MessageRow, MessageThread, RecipientOption, ThreadParticipant } from '../messaging/types'
 import { mergeRecipientOptions, participantKey } from '../messaging/types'
 
@@ -35,7 +35,6 @@ export default function AdminMessagesPanel() {
   const [threadSubject, setThreadSubject] = useState<string | null>(null)
   const [threadSubjectLocked, setThreadSubjectLocked] = useState(false)
   const [threadParticipants, setThreadParticipants] = useState<ThreadParticipant[]>([])
-  const [threadStatus, setThreadStatus] = useState<'open' | 'archived'>('open')
   const [recipientOptions, setRecipientOptions] = useState<RecipientOption[]>([])
   const [recipientsLoading, setRecipientsLoading] = useState(true)
   const [loading, setLoading] = useState(true)
@@ -132,7 +131,6 @@ export default function AdminMessagesPanel() {
       setThreadSubject(data.thread.subject ?? null)
       setThreadSubjectLocked(Boolean(data.thread.subject_locked))
       setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
-      setThreadStatus(data.thread.status === 'archived' ? 'archived' : 'open')
       setMessages(data.messages)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load thread')
@@ -145,7 +143,7 @@ export default function AdminMessagesPanel() {
     if (!selectedId || (!reply.trim() && !pendingAttachment) || !canReply) return
     setSending(true)
     try {
-      let attachmentPayload: Record<string, string | null> = {}
+      let attachmentPayload: Partial<UploadedAttachment> = {}
       if (pendingAttachment) {
         attachmentPayload = await uploadMessageAttachment(pendingAttachment, () =>
           adminFetch('/api/admin/messages/upload-signature'),
