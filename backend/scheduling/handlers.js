@@ -1832,7 +1832,7 @@ export function createSchedulingHandlers(pool) {
       if (!Number.isFinite(id)) {
         return res.status(400).json({ success: false, message: 'Invalid id' })
       }
-      const source = req.query?.source === 'member_program' ? 'member_program' : 'scheduling'
+      const source = 'scheduling'
       const client = await pool.connect()
       try {
         try {
@@ -1841,14 +1841,6 @@ export function createSchedulingHandlers(pool) {
           console.warn('[scheduling] delete schema ensure:', schemaErr?.message ?? schemaErr)
         }
         await client.query('BEGIN')
-        if (source === 'member_program') {
-          const del = await client.query('DELETE FROM member_program WHERE id = $1 RETURNING id', [id])
-          await client.query('COMMIT')
-          if (del.rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'Enrollment not found' })
-          }
-          return res.json({ success: true })
-        }
 
         const existing = await client.query(
           'SELECT id, slot_group_id, status FROM scheduling_signup WHERE id = $1 FOR UPDATE',
@@ -2836,41 +2828,6 @@ export function createSchedulingHandlers(pool) {
           return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
         }
         res.status(500).json({ success: false, message: err.message || 'Failed to submit signups' })
-      }
-    },
-
-    async listLegacyForms(_req, res) {
-      try {
-        const result = await pool.query(
-          `
-          SELECT sf.*,
-            EXISTS(
-              SELECT 1 FROM events e
-              WHERE e.scheduling_form_id = sf.id AND COALESCE(e.archived, FALSE) = FALSE
-            ) AS event_linked,
-            (SELECT COUNT(*)::int FROM scheduling_signup s WHERE s.form_id = sf.id) AS signup_count,
-            (SELECT COUNT(*)::int FROM scheduling_slot_group sg WHERE sg.form_id = sf.id) AS slot_group_count
-          FROM scheduling_form sf
-          WHERE sf.deleted_at IS NULL
-            AND sf.program_id IS NULL
-            AND sf.programs_id IS NULL
-          ORDER BY sf.created_at ASC
-          `,
-        )
-        res.json({
-          success: true,
-          data: result.rows.map((row) => ({
-            ...mapFormRow(row),
-            programId: null,
-            programsId: null,
-            eventLinked: Boolean(row.event_linked),
-            signupCount: Number(row.signup_count),
-            slotGroupCount: Number(row.slot_group_count),
-          })),
-        })
-      } catch (err) {
-        console.error('[scheduling] listLegacyForms:', err)
-        res.status(500).json({ success: false, message: 'Failed to load legacy forms' })
       }
     },
 

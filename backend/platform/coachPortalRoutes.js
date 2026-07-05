@@ -2434,11 +2434,18 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   // LIVE SESSIONS & ATTENDANCE (gym floor)
   // ==========================================================
 
-  async function loadSessionRoster(programId, iterationId, facilityId) {
-    const ids = await queryCoachRosterMemberIds(pool, {
-      program_id: programId,
-      class_iteration_id: iterationId,
-    }, facilityId)
+  async function loadSessionRoster(session, facilityId) {
+    let assignment = {}
+    if (session.assignment_id) {
+      const row = await pool.query(
+        `SELECT * FROM public.coach_class_assignment WHERE id = $1`,
+        [session.assignment_id],
+      )
+      if (row.rows[0]) assignment = row.rows[0]
+    } else if (session.program_id) {
+      assignment = { program_id: session.program_id }
+    }
+    const ids = await queryCoachRosterMemberIds(pool, assignment, facilityId)
     if (ids.length === 0) return []
     const result = await pool.query(
       `
@@ -2472,7 +2479,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
       // Scheduled instances for the coach's classes on this date.
       const classes = await pool.query(
-        `SELECT DISTINCT program_id, class_iteration_id FROM public.coach_class_assignment WHERE coach_user_id = $1 AND program_id IS NOT NULL`,
+        `SELECT DISTINCT program_id, scheduling_form_id FROM public.coach_class_assignment WHERE coach_user_id = $1 AND (program_id IS NOT NULL OR scheduling_form_id IS NOT NULL)`,
         [coachUserId],
       )
       const scheduled = []
@@ -2517,10 +2524,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         if (existing.rows.length > 0) return ok(res, existing.rows[0])
       }
       const created = await pool.query(
-        `INSERT INTO coaching.session (facility_id, coach_user_id, assignment_id, program_id, class_iteration_id, workout_id, calendar_event_key, session_date, start_time, end_time, title, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'planned') RETURNING *`,
+        `INSERT INTO coaching.session (facility_id, coach_user_id, assignment_id, program_id, workout_id, calendar_event_key, session_date, start_time, end_time, title, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'planned') RETURNING *`,
         [
-          facilityId, coachUserId, num(req.body?.assignment_id), num(req.body?.program_id), num(req.body?.class_iteration_id),
+          facilityId, coachUserId, num(req.body?.assignment_id), num(req.body?.program_id),
           num(req.body?.workout_id), eventKey, sessionDate, req.body?.start_time || null, req.body?.end_time || null, req.body?.title || null,
         ],
       )
@@ -2540,7 +2547,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const session = sessionRow.rows[0]
 
       const [roster, attendance, completions, workout] = await Promise.all([
-        loadSessionRoster(session.program_id, session.class_iteration_id, facilityId),
+        loadSessionRoster(session, facilityId),
         pool.query(`SELECT member_id, status, check_in_at, note FROM coaching.session_attendance WHERE session_id = $1`, [id]),
         pool.query(`SELECT member_id, status, reps, rpe, coach_grade, coach_note FROM coaching.completion_log WHERE session_id = $1`, [id]),
         session.workout_id ? loadWorkout(Number(session.workout_id), facilityId) : Promise.resolve(null),

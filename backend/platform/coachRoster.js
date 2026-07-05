@@ -1,5 +1,5 @@
 /**
- * Coach roster resolution: scheduling signups (offerings/class times) + legacy member_program.
+ * Coach roster resolution via scheduling signups (offerings/class times).
  */
 
 import { resolveProgramsSchema } from '../programs/schema.js'
@@ -83,7 +83,6 @@ async function applyCoachClassAssignmentSchema(pool) {
           AND programs_id IS NULL
           AND program_id IS NULL
           AND scheduling_form_id IS NULL
-          AND class_iteration_id IS NULL
           AND scheduling_offering_id IS NULL
           AND scheduling_time_slot_id IS NULL;
         ALTER TABLE coach_class_assignment DROP COLUMN scheduling_category_id;
@@ -98,7 +97,6 @@ async function applyCoachClassAssignmentSchema(pool) {
           programs_id IS NOT NULL
           OR program_id IS NOT NULL
           OR scheduling_form_id IS NOT NULL
-          OR class_iteration_id IS NOT NULL
           OR scheduling_offering_id IS NOT NULL
           OR scheduling_time_slot_id IS NOT NULL
         )
@@ -120,7 +118,6 @@ async function applyCoachClassAssignmentSchema(pool) {
         AND scheduling_form_id IS NULL
         AND scheduling_offering_id IS NULL
         AND scheduling_time_slot_id IS NULL
-        AND class_iteration_id IS NULL
   `)
   await pool.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_assignment_class_event
@@ -130,7 +127,6 @@ async function applyCoachClassAssignmentSchema(pool) {
         AND scheduling_form_id IS NULL
         AND scheduling_offering_id IS NULL
         AND scheduling_time_slot_id IS NULL
-        AND class_iteration_id IS NULL
   `)
   await pool.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS ux_coach_assignment_scheduling_form
@@ -382,7 +378,6 @@ export async function resolveCoachAssignmentPayload(pool, facilityId, body) {
     scheduling_form_id: null,
     scheduling_offering_id: null,
     scheduling_time_slot_id: null,
-    class_iteration_id: null,
   }
 
   async function assertTopProgram(id) {
@@ -630,34 +625,12 @@ export function coachAssignmentSignupMatchSql(ccaAlias, programFkColumn, include
   `
 }
 
-function rosterMemberProgramFilterSql(programIdx, iterIdx, programsIdx, programFkColumn) {
-  return `
-    AND (
-      ($${iterIdx}::bigint IS NOT NULL AND mp.iteration_id = $${iterIdx})
-      OR (
-        $${iterIdx}::bigint IS NULL
-        AND $${programIdx}::bigint IS NOT NULL
-        AND mp.program_id = $${programIdx}
-      )
-      OR (
-        $${iterIdx}::bigint IS NULL
-        AND $${programIdx}::bigint IS NULL
-        AND $${programsIdx}::bigint IS NOT NULL
-        AND EXISTS (
-          SELECT 1 FROM program px WHERE px.id = mp.program_id AND px.${programFkColumn} = $${programsIdx}
-        )
-      )
-    )
-  `
-}
-
 function assignmentScopeEmpty(row) {
   return !row.programs_id
     && !row.program_id
     && !row.scheduling_form_id
     && !row.scheduling_offering_id
     && !row.scheduling_time_slot_id
-    && !row.class_iteration_id
 }
 
 /** Member IDs enrolled in a coach's program/class assignment (scheduling + legacy). */
@@ -671,7 +644,6 @@ export async function queryCoachRosterMemberIds(pool, assignment, facilityId) {
   const formId = row.scheduling_form_id != null ? Number(row.scheduling_form_id) : null
   const offeringId = row.scheduling_offering_id != null ? Number(row.scheduling_offering_id) : null
   const timeSlotId = row.scheduling_time_slot_id != null ? Number(row.scheduling_time_slot_id) : null
-  const iterId = row.class_iteration_id != null ? Number(row.class_iteration_id) : null
 
   const signupFilter = rosterSignupMatchSql({
     programFkColumn: schema.programFkColumn,
@@ -685,30 +657,18 @@ export async function queryCoachRosterMemberIds(pool, assignment, facilityId) {
 
   const r = await pool.query(
     `
-      WITH roster_ids AS (
-        SELECT DISTINCT m.id
-        FROM scheduling_signup s
-        JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
-        JOIN member m ON m.id = s.member_id
-        WHERE m.facility_id = $6
-          AND m.is_active = TRUE
-          AND s.member_id IS NOT NULL
-          AND s.orphaned_at IS NULL
-          AND s.status IN ('confirmed', 'waitlisted')
-          ${signupFilter}
-
-        UNION
-
-        SELECT DISTINCT m.id
-        FROM member_program mp
-        JOIN member m ON m.id = mp.member_id
-        WHERE m.facility_id = $6
-          AND m.is_active = TRUE
-          ${rosterMemberProgramFilterSql(2, 7, 1, schema.programFkColumn)}
-      )
-      SELECT id FROM roster_ids
+      SELECT DISTINCT m.id
+      FROM scheduling_signup s
+      JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+      JOIN member m ON m.id = s.member_id
+      WHERE m.facility_id = $6
+        AND m.is_active = TRUE
+        AND s.member_id IS NOT NULL
+        AND s.orphaned_at IS NULL
+        AND s.status IN ('confirmed', 'waitlisted')
+        ${signupFilter}
     `,
-    [programsId, pid, formId, offeringId, timeSlotId, facilityId, iterId],
+    [programsId, pid, formId, offeringId, timeSlotId, facilityId],
   )
   return r.rows.map((row) => Number(row.id))
 }
@@ -717,7 +677,6 @@ export async function queryCoachRosterMemberIds(pool, assignment, facilityId) {
 export async function queryCoachRosterMembers(pool, {
   programId,
   schedulingFormId,
-  classIterationId,
   programsId,
   schedulingOfferingId,
   schedulingTimeSlotId,
@@ -731,7 +690,6 @@ export async function queryCoachRosterMembers(pool, {
     scheduling_form_id: schedulingFormId,
     scheduling_offering_id: schedulingOfferingId,
     scheduling_time_slot_id: schedulingTimeSlotId,
-    class_iteration_id: classIterationId,
   }
   const schema = await resolveProgramsSchema(pool)
   const programsTop = assignment.programs_id != null ? Number(assignment.programs_id) : null
@@ -739,7 +697,6 @@ export async function queryCoachRosterMembers(pool, {
   const formId = assignment.scheduling_form_id != null ? Number(assignment.scheduling_form_id) : null
   const offeringId = assignment.scheduling_offering_id != null ? Number(assignment.scheduling_offering_id) : null
   const timeSlotId = assignment.scheduling_time_slot_id != null ? Number(assignment.scheduling_time_slot_id) : null
-  const iterId = assignment.class_iteration_id != null ? Number(assignment.class_iteration_id) : null
 
   const signupFilter = rosterSignupMatchSql({
     programFkColumn: schema.programFkColumn,
@@ -764,15 +721,6 @@ export async function queryCoachRosterMembers(pool, {
           AND s.orphaned_at IS NULL
           AND s.status IN ('confirmed', 'waitlisted')
           ${signupFilter}
-
-        UNION
-
-        SELECT DISTINCT m.id
-        FROM member_program mp
-        JOIN member m ON m.id = mp.member_id
-        WHERE m.facility_id = $6
-          AND m.is_active = TRUE
-          ${rosterMemberProgramFilterSql(2, 7, 1, schema.programFkColumn)}
       )
       SELECT
         m.id,
@@ -809,7 +757,7 @@ export async function queryCoachRosterMembers(pool, {
        AND crn.note_date = CURRENT_DATE
       ORDER BY m.last_name, m.first_name
     `,
-    [programsTop, pid, formId, offeringId, timeSlotId, facilityId, iterId, assignmentId, coachUserId],
+    [programsTop, pid, formId, offeringId, timeSlotId, facilityId, assignmentId, coachUserId],
   )
   return r.rows
 }
@@ -847,26 +795,6 @@ export async function queryCoachUserIdsForMember(pool, memberId, facilityId) {
             AND s.orphaned_at IS NULL
             AND s.status IN ('confirmed', 'waitlisted')
             AND ${signupMatch}
-        )
-        OR EXISTS (
-          SELECT 1 FROM member_program mp
-          WHERE mp.member_id = $1
-            AND (
-              (cca.class_iteration_id IS NOT NULL AND mp.iteration_id = cca.class_iteration_id)
-              OR (
-                cca.class_iteration_id IS NULL
-                AND cca.program_id IS NOT NULL
-                AND mp.program_id = cca.program_id
-              )
-              OR (
-                cca.class_iteration_id IS NULL
-                AND cca.program_id IS NULL
-                AND cca.programs_id IS NOT NULL
-                AND EXISTS (
-                  SELECT 1 FROM program px WHERE px.id = mp.program_id AND px.${schema.programFkColumn} = cca.programs_id
-                )
-              )
-            )
         )
       )
     `,

@@ -1189,10 +1189,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           program_id,
           scheduling_form_id,
           scheduling_offering_id,
-          scheduling_time_slot_id,
-          class_iteration_id
+          scheduling_time_slot_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        VALUES ($1, $2, $3, $4, $5, $6)
         ON CONFLICT DO NOTHING
         RETURNING *
       `,
@@ -1203,7 +1202,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         payload.scheduling_form_id,
         payload.scheduling_offering_id,
         payload.scheduling_time_slot_id,
-        payload.class_iteration_id,
       ],
     )
     res.json({ success: true, data: created.rows[0] ?? null })
@@ -1840,7 +1838,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       const memberId = Number(ctx.user.member_id ?? ctx.user.id)
       const familyId = ctx.user.family_id
       const { loadMemberPassBalances } = await import('../programs/multiClassPass.js')
-      const canSeeFamily = ctx.roles.includes('PARENT_GUARDIAN')
+      const canSeeFamily = Number(account.payer_member_id) === memberId
 
       let memberIds = [memberId]
       if (canSeeFamily && familyId) {
@@ -1881,8 +1879,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         data: { account: null, charges: [], payments: [], chargesCents: 0, paymentsCents: 0, balanceCents: 0, canSeeFamily: false },
       })
     }
-    const canSeeFamily =
-      Number(account.payer_member_id) === memberId || ctx.roles.includes('PARENT_GUARDIAN')
+    const canSeeFamily = Number(account.payer_member_id) === memberId
 
     const view = await buildBillingAccountView(pool, account, {
       memberScopeId: canSeeFamily ? null : memberId,
@@ -1924,7 +1921,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
     const account = await ensureBillingAccount(pool, familyId)
     if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
-    const canPay = Number(account.payer_member_id) === memberId || ctx.roles.includes('PARENT_GUARDIAN')
+    const canPay = Number(account.payer_member_id) === memberId
     if (!canPay) return res.status(403).json({ success: false, message: 'Only the family payer can make a payment.' })
 
     const ledger = await pool.query(
@@ -1965,7 +1962,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
     const account = await ensureBillingAccount(pool, familyId)
     if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
-    const canPay = Number(account.payer_member_id) === memberId || ctx.roles.includes('PARENT_GUARDIAN')
+    const canPay = Number(account.payer_member_id) === memberId
     if (!canPay) {
       return res.status(403).json({ success: false, message: 'Only the family payer can complete enrollment checkout.' })
     }
@@ -2135,7 +2132,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!familyId) return res.json({ success: true, data: [] })
     const account = await ensureBillingAccount(pool, familyId)
     if (!account) return res.json({ success: true, data: [] })
-    const canSeeFamily = Number(account.payer_member_id) === memberId || ctx.roles.includes('PARENT_GUARDIAN')
+    const canSeeFamily = Number(account.payer_member_id) === memberId
     const linesFilter = canSeeFamily ? '' : 'AND l.member_id = $2'
     const params = canSeeFamily ? [account.id] : [account.id, memberId]
     const result = await pool.query(
@@ -2161,7 +2158,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!familyId) return res.json({ success: true, data: [] })
     const account = await ensureBillingAccount(pool, familyId)
     if (!account) return res.json({ success: true, data: [] })
-    const canSeeFamily = Number(account.payer_member_id) === memberId || ctx.roles.includes('PARENT_GUARDIAN')
+    const canSeeFamily = Number(account.payer_member_id) === memberId
     if (!canSeeFamily) return res.json({ success: true, data: [] })
     const payments = await pool.query(
       `SELECT * FROM billing_payment WHERE family_billing_account_id = $1 ORDER BY paid_at DESC, id DESC`,
@@ -2446,7 +2443,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       schedulingFormId: a.scheduling_form_id,
       schedulingOfferingId: a.scheduling_offering_id,
       schedulingTimeSlotId: a.scheduling_time_slot_id,
-      classIterationId: a.class_iteration_id,
       facilityId,
       assignmentId,
       coachUserId,

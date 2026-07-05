@@ -578,14 +578,6 @@ export interface SchedulingFormSummary {
   programMaxFreeSlotsTotal?: number | null
 }
 
-export interface LegacySchedulingForm extends SchedulingFormSummary {
-  programId: number | null
-  programsId: number | null
-  eventLinked: boolean
-  signupCount: number
-  slotGroupCount: number
-}
-
 export interface SchedulingFormDetail extends SchedulingFormSummary {
   slotGroups: SchedulingSlotGroup[]
   timeSlots: SchedulingTimeSlot[]
@@ -1488,7 +1480,7 @@ export type AdminEnrollmentStatus =
 
 export interface AdminEnrollmentRow {
   id: number
-  source: 'scheduling' | 'member_program'
+  source: 'scheduling'
   sport_name: string | null
   program_name: string | null
   class_name: string | null
@@ -1642,12 +1634,9 @@ export async function adminSetSignupDiscount(id: number, payload: SignupDiscount
   await parseJson(res)
 }
 
-export async function adminDeleteEnrollment(
-  id: number,
-  source: 'scheduling' | 'member_program',
-): Promise<void> {
+export async function adminDeleteEnrollment(id: number): Promise<void> {
   const res = await adminApiRequest(
-    `/api/admin/scheduling/enrollments/${id}?source=${encodeURIComponent(source)}`,
+    `/api/admin/scheduling/enrollments/${id}`,
     { method: 'DELETE' },
   )
   await parseJson(res)
@@ -1738,11 +1727,6 @@ export async function adminFetchSchedulingCalendar(params: {
     qs.set('programId', String(params.programId))
   }
   const res = await adminApiRequest(`/api/admin/scheduling/calendar?${qs.toString()}`)
-  return parseJson(res)
-}
-
-export async function adminFetchLegacySchedulingForms(): Promise<LegacySchedulingForm[]> {
-  const res = await adminApiRequest('/api/admin/scheduling/legacy-forms')
   return parseJson(res)
 }
 

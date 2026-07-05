@@ -606,9 +606,6 @@ export async function queryStaffMessageEnrollmentGroups(pool, facilityId) {
                   JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
                   WHERE s.member_id = m.id AND sf.program_id = p.id AND ${ACTIVE_SIGNUP}
                 )
-                OR EXISTS (
-                  SELECT 1 FROM member_program mp WHERE mp.member_id = m.id AND mp.program_id = p.id
-                )
               )
           ) AS member_count
         FROM program p

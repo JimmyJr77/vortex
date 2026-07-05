@@ -1,37 +1,15 @@
 /**
- * Family enrollment rows for the member portal — one row per scheduling slot
- * (scheduling_signup), with legacy member_program rows when no signup exists.
+ * Family enrollment rows for the member portal — one row per scheduling signup.
  */
 
 import {
   applyEnrollmentTaxonomy,
   buildEnrollmentContextLine,
-  loadEnrollmentTaxonomyByClassIds,
   loadEnrollmentTaxonomyByFormIds,
   loadGroupDisplayLabels,
   resolveEnrollmentOfferingDisplay,
   slotLabelForSignupRow,
 } from '../scheduling/slotDisplayLabel.js'
-
-function parseSelectedDays(raw) {
-  if (!raw) return []
-  if (Array.isArray(raw)) return raw
-  if (typeof raw === 'string') {
-    try {
-      const parsed = JSON.parse(raw)
-      return Array.isArray(parsed) ? parsed : []
-    } catch {
-      return []
-    }
-  }
-  return []
-}
-
-function formatLegacySlotLabel(selectedDays, daysPerWeek) {
-  if (selectedDays.length > 0) return selectedDays.join(', ')
-  if (daysPerWeek != null) return `${daysPerWeek} day${Number(daysPerWeek) === 1 ? '' : 's'}/week`
-  return '—'
-}
 
 export async function queryFamilyMemberEnrollments(pool, memberIds) {
   if (!memberIds?.length) return []
@@ -155,96 +133,5 @@ export async function queryFamilyMemberEnrollments(pool, memberIds) {
     )
   })
 
-  let legacyRows = []
-  try {
-    const legacyResult = await pool.query(
-      `
-        SELECT
-          mp.id,
-          mp.member_id,
-          mp.program_id,
-          mp.days_per_week,
-          mp.selected_days,
-          mp.created_at,
-          m.first_name AS member_first_name,
-          m.last_name AS member_last_name,
-          COALESCE(class_p.display_name, class_p.name, 'Class') AS class_name,
-          COALESCE(pr.display_name, pr.name) AS program_name,
-          sport_dt.name AS sport_name
-        FROM member_program mp
-        JOIN member m ON m.id = mp.member_id
-        LEFT JOIN program class_p ON class_p.id = mp.program_id
-        LEFT JOIN ${programsTable} pr ON pr.id = class_p.${programFkColumn}
-        LEFT JOIN discipline_tag sport_dt ON sport_dt.id = pr.primary_discipline_tag_id
-        WHERE mp.member_id = ANY($1::bigint[])
-          AND NOT EXISTS (
-            SELECT 1
-            FROM scheduling_signup ss
-            JOIN scheduling_form sf ON sf.id = ss.form_id AND sf.deleted_at IS NULL
-            WHERE ss.member_id = mp.member_id
-              AND ss.orphaned_at IS NULL
-              AND ss.status IN ('confirmed', 'waitlisted')
-              AND (
-                sf.program_id = mp.program_id
-                OR sf.programs_id = mp.program_id
-              )
-          )
-        ORDER BY class_name, m.last_name, m.first_name, mp.id
-      `,
-      [memberIds],
-    )
-
-    const classIds = legacyResult.rows.map((row) => Number(row.program_id))
-    const taxonomyByClassId = await loadEnrollmentTaxonomyByClassIds(pool, classIds)
-
-    legacyRows = legacyResult.rows.map((row) => {
-      const selectedDays = parseSelectedDays(row.selected_days)
-      const taxonomy = taxonomyByClassId.get(Number(row.program_id))
-      const programName = taxonomy?.programName ?? (row.program_name || null)
-      const sportName = taxonomy?.sportName ?? (row.sport_name || null)
-      const className = taxonomy?.className ?? (row.class_name || 'Class')
-      const classContextLine =
-        taxonomy?.classContextLine ??
-        (buildEnrollmentContextLine({
-          sportName,
-          programName,
-          className,
-        }) ||
-          className)
-      return applyEnrollmentTaxonomy(
-        {
-          id: Number(row.id),
-          member_id: Number(row.member_id),
-          member_first_name: row.member_first_name || '',
-          member_last_name: row.member_last_name || '',
-          class_name: className,
-          sport_name: sportName,
-          program_name: programName,
-          class_context_line: classContextLine,
-          program_id:
-            taxonomy?.programId ??
-            (row.program_id != null ? Number(row.program_id) : null),
-          form_id: null,
-          slot_group_id: null,
-          time_slot_id: null,
-          offering_id: null,
-          slot_label: formatLegacySlotLabel(selectedDays, row.days_per_week),
-          offering_label: null,
-          offering_start_date: null,
-          offering_end_date: null,
-          offering_dates: '—',
-          status: 'enrolled',
-          created_at: row.created_at,
-          source: 'legacy',
-          days_per_week: row.days_per_week,
-          selected_days: selectedDays,
-        },
-        taxonomy,
-      )
-    })
-  } catch {
-    legacyRows = []
-  }
-
-  return [...schedulingRows, ...legacyRows]
+  return schedulingRows
 }

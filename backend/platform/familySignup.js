@@ -514,22 +514,7 @@ async function applyEnrollmentRow(client, {
   const programName = enrollment.programName || progRes.rows[0]?.label || 'Class'
 
   const programKey = `${memberId}:${classEventId}`
-  let memberProgramId = null
   if (!programKeysCreated.has(programKey)) {
-    const mpInsert = await client.query(
-      `
-        INSERT INTO member_program (member_id, program_id, days_per_week, selected_days, created_at, updated_at)
-        VALUES ($1, $2, COALESCE($3, 1), $4::jsonb, now(), now())
-        RETURNING id
-      `,
-      [
-        memberId,
-        classEventId,
-        enrollment.daysPerWeek ?? 1,
-        selectedDaysJsonb(enrollment.selectedDays),
-      ],
-    )
-    memberProgramId = Number(mpInsert.rows[0]?.id)
     programKeysCreated.add(programKey)
   }
 
@@ -575,7 +560,6 @@ async function applyEnrollmentRow(client, {
 
   return {
     memberId,
-    memberProgramId,
     schedulingSignupId,
     programName,
     slotLabel: enrollment.scheduleLabel || '',
@@ -1096,7 +1080,6 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           status: receipt.status,
           selectedDays: receipt.selectedDays,
           schedulingSignupId: receipt.schedulingSignupId,
-          memberProgramId: receipt.memberProgramId,
         })
       } catch (err) {
         console.warn('[signup] enrollment receipt failed:', err?.message || err)

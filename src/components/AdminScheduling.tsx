@@ -3,7 +3,6 @@ import { Calendar, Loader2, X } from 'lucide-react'
 import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
 import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
 import AdminSchedulingOfferings from './scheduling/AdminSchedulingOfferings'
-import AdminSchedulingLegacyForms from './scheduling/AdminSchedulingLegacyForms'
 import { formatSetupContextLine } from './scheduling/SchedulingSetupContextCard'
 import {
   adminFetchSchedulingForm,
@@ -466,8 +465,6 @@ const AdminScheduling = ({
           )}
         </div>
       </div>
-
-      <AdminSchedulingLegacyForms onDeleted={() => loadForms()} />
     </div>
   )
 }

@@ -113,7 +113,7 @@ export default function AdminEnrollmentActionModal({
   onClose: () => void
   onChanged: () => void
 }) {
-  const isLegacy = row.source === 'member_program'
+  const isLegacy = false
   const status = normalizeAdminEnrollmentStatus(row.status)
   const hasScheduledPause = Boolean(row.pause_effective_date) && status !== 'paused'
   const [busy, setBusy] = useState<string | null>(null)
@@ -431,7 +431,7 @@ export default function AdminEnrollmentActionModal({
                   <button
                     type="button"
                     onClick={() =>
-                      run('delete', () => adminDeleteEnrollment(row.id, row.source))
+                      run('delete', () => adminDeleteEnrollment(row.id))
                     }
                     disabled={busy === 'delete'}
                     className="inline-flex items-center gap-1 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"

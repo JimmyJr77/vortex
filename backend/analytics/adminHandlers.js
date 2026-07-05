@@ -56,12 +56,14 @@ export function createAdminAnalyticsHandlers(pool) {
       let enrollments = { rows: [{ count: 0 }] }
       try {
         enrollments = await pool.query(
-          `SELECT COUNT(*)::int AS count FROM member_program
-           WHERE created_at >= $1 AND created_at <= $2`,
+          `SELECT COUNT(*)::int AS count FROM scheduling_signup
+           WHERE orphaned_at IS NULL AND created_at >= $1 AND created_at <= $2`,
           [from, to],
         )
       } catch {
-        enrollments = await pool.query(`SELECT COUNT(*)::int AS count FROM member_program`)
+        enrollments = await pool.query(
+          `SELECT COUNT(*)::int AS count FROM scheduling_signup WHERE orphaned_at IS NULL`,
+        )
       }
 
       const sessionParams = [from, to, ...host.params]
@@ -202,8 +204,8 @@ export function createAdminAnalyticsHandlers(pool) {
       let enrolled = { rows: [{ c: 0 }] }
       try {
         enrolled = await pool.query(
-          `SELECT COUNT(DISTINCT mp.member_id)::int AS c FROM member_program mp
-           WHERE mp.created_at >= $1 AND mp.created_at <= $2`,
+          `SELECT COUNT(DISTINCT s.member_id)::int AS c FROM scheduling_signup s
+           WHERE s.orphaned_at IS NULL AND s.created_at >= $1 AND s.created_at <= $2`,
           [from, to],
         )
       } catch {
@@ -262,11 +264,12 @@ export function createAdminAnalyticsHandlers(pool) {
       let enrollmentsByProgram = []
       try {
         const er = await pool.query(
-          `SELECT p.display_name, COUNT(mp.id)::int AS count
-           FROM member_program mp
-           JOIN program p ON p.id = mp.program_id
-           WHERE mp.created_at >= $1 AND mp.created_at <= $2
-           GROUP BY p.display_name ORDER BY count DESC`,
+          `SELECT COALESCE(p.display_name, sf.title, 'Unknown') AS display_name, COUNT(s.id)::int AS count
+           FROM scheduling_signup s
+           JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+           LEFT JOIN program p ON p.id = sf.program_id
+           WHERE s.orphaned_at IS NULL AND s.created_at >= $1 AND s.created_at <= $2
+           GROUP BY COALESCE(p.display_name, sf.title, 'Unknown') ORDER BY count DESC`,
           [from, to],
         )
         enrollmentsByProgram = er.rows

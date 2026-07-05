@@ -99,9 +99,6 @@ export default function MemberEnrollmentsTab({ memberId }: { memberId: number; e
                     <td className="px-3 py-2 text-gray-700">{row.program_name || '—'}</td>
                     <td className="px-3 py-2">
                       <div className="font-medium text-gray-900">{row.class_name || '—'}</div>
-                      {row.source === 'member_program' && (
-                        <div className="text-[10px] uppercase tracking-wide text-gray-400">Legacy</div>
-                      )}
                     </td>
                     <td className="px-3 py-2 text-gray-600">
                       {row.offering_label || row.offering_dates || '—'}

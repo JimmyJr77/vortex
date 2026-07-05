@@ -280,10 +280,7 @@ INSERT INTO role (key, name, description, is_system) VALUES
   ('MASTER_ADMIN', 'Master Admin', 'Full platform access with no admin limits.', TRUE),
   ('ADMIN', 'Admin', 'Administrative user with assigned permissions.', TRUE),
   ('COACH', 'Coach', 'Coach portal and class/roster access.', TRUE),
-  ('MEMBER', 'Member', 'Athlete or family member portal access.', TRUE),
-  ('PARENT_GUARDIAN', 'Parent/Guardian', 'Family management access.', TRUE),
-  ('ATHLETE', 'Athlete', 'Athlete account access.', TRUE),
-  ('ATHLETE_VIEWER', 'Athlete Viewer', 'Read-only athlete account access.', TRUE)
+  ('MEMBER_ATHLETE', 'Member / Athlete', 'Logged-in account that registers themselves or their family members for classes and events.', TRUE)
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -348,7 +345,7 @@ INSERT INTO role_permission (role_id, permission_id)
 SELECT r.id, p.id
 FROM role r
 JOIN permission p ON p.key IN ('members.view', 'billing.view', 'waivers.view')
-WHERE r.key IN ('MEMBER', 'PARENT_GUARDIAN', 'ATHLETE', 'ATHLETE_VIEWER')
+WHERE r.key = 'MEMBER_ATHLETE'
 ON CONFLICT DO NOTHING;
 
 INSERT INTO admin_profile (user_id, is_master_admin)

@@ -639,7 +639,7 @@ export async function confirmEnrollmentCheckoutSession(
   }
 
   const canPay =
-    Number(pending.payer_member_id) === Number(memberId) || (roles ?? []).includes('PARENT_GUARDIAN')
+    Number(pending.payer_member_id) === Number(memberId)
   if (!canPay) {
     throw new Error('Only the family payer or a guardian can confirm enrollment checkout.')
   }

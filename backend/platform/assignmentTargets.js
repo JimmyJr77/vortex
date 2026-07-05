@@ -64,10 +64,6 @@ export async function queryAssignmentTargetMemberIds(pool, { targetType, targetI
               JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
               WHERE s.member_id = m.id AND sf.program_id = $1 AND ${ACTIVE_SIGNUP}
             )
-            OR EXISTS (
-              SELECT 1 FROM member_program mp
-              WHERE mp.member_id = m.id AND mp.program_id = $1
-            )
           )
       `,
       [tid, fid],
@@ -332,39 +328,15 @@ export function planAssignmentMemberMatchSql(memberIdx, familyIdx) {
                 )
               )
           )
-          OR EXISTS (
-            SELECT 1 FROM member_program mp
-            WHERE mp.member_id = $${memberIdx}
-              AND (
-                (cca.class_iteration_id IS NOT NULL AND mp.iteration_id = cca.class_iteration_id)
-                OR (cca.class_iteration_id IS NULL AND cca.program_id IS NOT NULL AND mp.program_id = cca.program_id)
-                OR (
-                  cca.class_iteration_id IS NULL
-                  AND cca.program_id IS NULL
-                  AND cca.programs_id IS NOT NULL
-                  AND EXISTS (
-                    SELECT 1 FROM program px
-                    WHERE px.id = mp.program_id
-                      AND px.programs_id = cca.programs_id
-                  )
-                )
-              )
-          )
         )
     ))
-    OR (pa.target_type = 'program' AND (
-      EXISTS (
-        SELECT 1 FROM scheduling_signup s
-        JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
-        WHERE s.member_id = $${memberIdx}
-          AND s.orphaned_at IS NULL
-          AND s.status IN ('confirmed', 'waitlisted')
-          AND sf.program_id = pa.target_id
-      )
-      OR EXISTS (
-        SELECT 1 FROM member_program mp
-        WHERE mp.member_id = $${memberIdx} AND mp.program_id = pa.target_id
-      )
+    OR (pa.target_type = 'program' AND EXISTS (
+      SELECT 1 FROM scheduling_signup s
+      JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+      WHERE s.member_id = $${memberIdx}
+        AND s.orphaned_at IS NULL
+        AND s.status IN ('confirmed', 'waitlisted')
+        AND sf.program_id = pa.target_id
     ))
     OR (pa.target_type = 'scheduling_class' AND EXISTS (
       SELECT 1 FROM scheduling_signup s

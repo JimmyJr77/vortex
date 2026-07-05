@@ -85,12 +85,12 @@ export const ENTITIES = {
       enrollments: {
         label: 'Program enrollments',
         cardinality: 'many',
-        from: 'member_program bridge JOIN program tgt ON tgt.id = bridge.program_id',
+        from: 'scheduling_signup bridge JOIN scheduling_form sf ON sf.id = bridge.form_id JOIN program tgt ON tgt.id = sf.program_id',
         baseLink: 'bridge.member_id',
         fields: [
           { key: 'program', label: 'Program', expr: 'tgt.display_name', type: 'text' },
           { key: 'category', label: 'Program category', expr: 'tgt.category::text', type: 'text' },
-          { key: 'days_per_week', label: 'Days/week', expr: 'bridge.days_per_week', type: 'number' },
+          { key: 'status', label: 'Signup status', expr: 'bridge.status', type: 'text' },
         ],
       },
       emergencyContacts: {

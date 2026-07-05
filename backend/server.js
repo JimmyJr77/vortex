@@ -759,39 +759,6 @@ export const initDatabase = async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_day_time ON class(day_of_week, start_time)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_active ON class(is_active)`)
 
-    // Create class_iteration table for multiple iterations per program
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS class_iteration (
-        id                  BIGSERIAL PRIMARY KEY,
-        program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
-        iteration_number    INTEGER NOT NULL,
-        days_of_week        INTEGER[] NOT NULL DEFAULT ARRAY[1,2,3,4,5] CHECK (array_length(days_of_week, 1) > 0),
-        start_time          TIME NOT NULL DEFAULT '18:00:00',
-        end_time            TIME NOT NULL DEFAULT '19:30:00',
-        time_blocks         JSONB DEFAULT NULL,
-        duration_type       VARCHAR(20) NOT NULL DEFAULT 'indefinite' CHECK (duration_type IN ('indefinite', '3_month_block', 'finite')),
-        start_date          DATE,
-        end_date            DATE,
-        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-        UNIQUE (program_id, iteration_number)
-      )
-    `)
-    
-    // Add time_blocks column if it doesn't exist (for existing tables)
-    await pool.query(`
-      DO $$ 
-      BEGIN
-        IF NOT EXISTS (
-          SELECT 1 FROM information_schema.columns 
-          WHERE table_name = 'class_iteration' AND column_name = 'time_blocks'
-        ) THEN
-          ALTER TABLE class_iteration ADD COLUMN time_blocks JSONB DEFAULT NULL;
-        END IF;
-      END $$;
-    `)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_program ON class_iteration(program_id)`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_number ON class_iteration(program_id, iteration_number)`)
 
     // Seed programs - Early Development
     await pool.query(`
@@ -1186,23 +1153,6 @@ export const initDatabase = async () => {
       console.warn('[initDatabase] Could not create index on family_username (column may not exist):', indexError.message)
     }
 
-    // Create member_program table (replaces athlete_program)
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS member_program (
-        id                  BIGSERIAL PRIMARY KEY,
-        member_id           BIGINT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
-        program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
-        iteration_id        BIGINT REFERENCES class_iteration(id) ON DELETE CASCADE,
-        days_per_week       INTEGER NOT NULL,
-        selected_days       JSONB,
-        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-        UNIQUE (member_id, program_id, iteration_id)
-      )
-    `)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_program_member ON member_program(member_id)`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_program_program ON member_program(program_id)`)
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_program_iteration ON member_program(iteration_id)`)
     
     // Create emergency_contact table (uses member table only)
     await pool.query(`
@@ -1778,13 +1728,14 @@ const updateMemberAthleteStatus = async (memberId) => {
     let hasEnrollments = false
     try {
       const enrollmentCheck = await pool.query(`
-        SELECT COUNT(*) as count FROM member_program WHERE member_id = $1
+        SELECT COUNT(*) as count FROM scheduling_signup
+        WHERE member_id = $1 AND orphaned_at IS NULL
+          AND status IN ('confirmed', 'waitlisted', 'paused', 'completed')
       `, [memberId])
       
       hasEnrollments = parseInt(enrollmentCheck.rows[0]?.count || '0') > 0
     } catch (enrollmentError) {
-      // If member_program table doesn't exist, member has no enrollments
-      console.warn('[updateMemberAthleteStatus] member_program table may not exist:', enrollmentError.message)
+      console.warn('[updateMemberAthleteStatus] enrollment check failed:', enrollmentError.message)
       hasEnrollments = false
     }
     
@@ -2537,25 +2488,6 @@ const authenticateAdmin = async (req, res, next) => {
         console.error('[ADMIN AUTH] Error checking app_user table (ID+email):', appUserError.message)
       }
       
-      // Try legacy admins table with ID and email match
-      try {
-        const adminCheck = await pool.query(`
-          SELECT id, email, is_master
-          FROM admins
-          WHERE id = $1 AND email = $2
-        `, [adminId, tokenEmail])
-        
-        if (adminCheck.rows.length > 0) {
-          const admin = adminCheck.rows[0]
-          req.adminId = admin.id
-          req.adminEmail = admin.email
-          req.isAdmin = true
-          console.log('[ADMIN AUTH] Authenticated admin (legacy admins table, matched by ID and email):', { adminId: admin.id, email: admin.email })
-          return next()
-        }
-      } catch (adminsError) {
-        console.error('[ADMIN AUTH] Error checking admins table (ID+email):', adminsError.message)
-      }
     }
     
     // Fallback: Check by ID only (for tokens without email)
@@ -2622,30 +2554,9 @@ const authenticateAdmin = async (req, res, next) => {
       }
     } catch (appUserError) {
       console.error('[ADMIN AUTH] Error checking app_user table (ID only):', appUserError.message)
-      // Continue to fallback check
     }
     
-    // Fallback: Check legacy admins table (for backward compatibility during migration)
-    try {
-      const adminCheck = await pool.query(`
-        SELECT id, email, is_master
-        FROM admins
-        WHERE id = $1
-      `, [adminId])
-      
-      if (adminCheck.rows.length > 0) {
-        const admin = adminCheck.rows[0]
-        req.adminId = admin.id
-        req.adminEmail = admin.email
-        req.isAdmin = true
-        console.log('[ADMIN AUTH] Authenticated admin (legacy admins table, ID only):', { adminId: admin.id, email: admin.email })
-        return next()
-      }
-    } catch (adminsError) {
-      console.error('[ADMIN AUTH] Error checking admins table (ID only):', adminsError.message)
-    }
-    
-    console.log('[ADMIN AUTH] Admin not found in app_user or admins table:', { adminId })
+    console.log('[ADMIN AUTH] Admin not found in app_user:', { adminId })
     return res.status(401).json({ 
       success: false, 
       message: 'Invalid token: Admin account not found' 
@@ -2771,7 +2682,7 @@ function legacyAdminPermissionFor(req) {
   }
   if (path.startsWith('/schools')) return method === 'GET' ? 'schools.view' : 'schools.manage'
   if (path.startsWith('/analytics')) return 'analytics.view'
-  if (path.startsWith('/db-queries') || path.startsWith('/database') || path.startsWith('/create-member-program-table')) return 'admin_access.manage'
+  if (path.startsWith('/db-queries') || path.startsWith('/database')) return 'admin_access.manage'
   if (path.startsWith('/email')) return 'admin_access.manage'
   return null
 }
@@ -3855,20 +3766,20 @@ app.get('/api/admin/members', async (req, res) => {
       try {
         const enrollmentsQuery = `
           SELECT 
-            mp.member_id,
+            ss.member_id,
             json_agg(
               jsonb_build_object(
-                'id', mp.id,
-                'program_id', mp.program_id,
-                'program_display_name', COALESCE(p.display_name, ''),
-                'days_per_week', mp.days_per_week,
-                'selected_days', mp.selected_days
+                'id', ss.id,
+                'form_id', ss.form_id,
+                'status', ss.status,
+                'program_display_name', COALESCE(p.display_name, sf.title, '')
               )
             ) as enrollments
-          FROM member_program mp
-          LEFT JOIN program p ON mp.program_id = p.id
-          WHERE mp.member_id = ANY($1::bigint[])
-          GROUP BY mp.member_id
+          FROM scheduling_signup ss
+          LEFT JOIN scheduling_form sf ON sf.id = ss.form_id AND sf.deleted_at IS NULL
+          LEFT JOIN program p ON p.id = sf.program_id
+          WHERE ss.member_id = ANY($1::bigint[]) AND ss.orphaned_at IS NULL
+          GROUP BY ss.member_id
         `
         const enrollmentsResult = await pool.query(enrollmentsQuery, [memberIds])
         
@@ -3876,8 +3787,7 @@ app.get('/api/admin/members', async (req, res) => {
           enrollmentsMap[row.member_id] = row.enrollments || []
         })
       } catch (enrollmentsError) {
-        // If member_program table doesn't exist, just continue with empty enrollments
-        console.warn('[GET /api/admin/members] Error fetching enrollments (member_program table may not exist):', enrollmentsError.message)
+        console.warn('[GET /api/admin/members] Error fetching enrollments:', enrollmentsError.message)
         enrollmentsMap = {}
       }
     }
@@ -4221,29 +4131,27 @@ app.get('/api/admin/athletes', async (req, res) => {
       try {
         const enrollmentsResult = await pool.query(`
           SELECT 
-            mp.member_id,
+            ss.member_id,
             json_agg(
               jsonb_build_object(
-                'id', mp.id,
-                'program_id', mp.program_id,
-                'iteration_id', mp.iteration_id,
-                'program_display_name', COALESCE(p.display_name, ''),
-                'days_per_week', mp.days_per_week,
-                'selected_days', mp.selected_days
+                'id', ss.id,
+                'form_id', ss.form_id,
+                'status', ss.status,
+                'program_display_name', COALESCE(p.display_name, sf.title, '')
               )
             ) as enrollments
-          FROM member_program mp
-          LEFT JOIN program p ON mp.program_id = p.id
-          WHERE mp.member_id = ANY($1::bigint[])
-          GROUP BY mp.member_id
+          FROM scheduling_signup ss
+          LEFT JOIN scheduling_form sf ON sf.id = ss.form_id AND sf.deleted_at IS NULL
+          LEFT JOIN program p ON p.id = sf.program_id
+          WHERE ss.member_id = ANY($1::bigint[]) AND ss.orphaned_at IS NULL
+          GROUP BY ss.member_id
         `, [memberIds])
         
         enrollmentsResult.rows.forEach(row => {
           enrollmentsMap[row.member_id] = row.enrollments || []
         })
       } catch (enrollmentsError) {
-        // member_program table might not exist yet
-        console.warn('Error fetching enrollments (table might not exist):', enrollmentsError.message)
+        console.warn('Error fetching enrollments:', enrollmentsError.message)
       }
     }
     
@@ -4294,59 +4202,20 @@ app.get('/api/admin/athletes', async (req, res) => {
 app.get('/api/admin/athletes/:id/enrollments', async (req, res) => {
   try {
     const { id } = req.params
-    
-    // Check if member_program table exists
-    const tableCheck = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'member_program'
-      )
-    `)
-    
-    if (!tableCheck.rows[0].exists) {
-      return res.json({
-        success: true,
-        data: []
-      })
-    }
-    
     const enrollmentsResult = await pool.query(`
-      SELECT 
-        mp.id,
-        mp.program_id,
-        mp.iteration_id,
-        mp.days_per_week,
-        mp.selected_days,
-        p.display_name as program_display_name,
+      SELECT ss.id, ss.form_id, ss.status, ss.created_at,
+        COALESCE(p.display_name, sf.title) as program_display_name,
         p.name as program_name
-      FROM member_program mp
-      LEFT JOIN program p ON mp.program_id = p.id
-      WHERE mp.member_id = $1
-      ORDER BY mp.created_at DESC
+      FROM scheduling_signup ss
+      LEFT JOIN scheduling_form sf ON sf.id = ss.form_id AND sf.deleted_at IS NULL
+      LEFT JOIN program p ON p.id = sf.program_id
+      WHERE ss.member_id = $1 AND ss.orphaned_at IS NULL
+      ORDER BY ss.created_at DESC
     `, [id])
-    
-    const enrollments = enrollmentsResult.rows.map(e => ({
-      id: e.id,
-      program_id: e.program_id,
-      iteration_id: e.iteration_id,
-      days_per_week: e.days_per_week,
-      selected_days: e.selected_days,
-      program_display_name: e.program_display_name,
-      program_name: e.program_name
-    }))
-    
-    res.json({
-      success: true,
-      data: enrollments
-    })
+    res.json({ success: true, data: enrollmentsResult.rows })
   } catch (error) {
     console.error('Get athlete enrollments error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    })
+    res.status(500).json({ success: false, message: 'Internal server error' })
   }
 })
 
@@ -4677,7 +4546,7 @@ app.patch('/api/admin/members/:id/archive', async (req, res) => {
               AND m2.id != member.id
             ) THEN 'family_active'
             WHEN EXISTS (
-              SELECT 1 FROM member_program mp WHERE mp.member_id = member.id
+              SELECT 1 FROM scheduling_signup ss WHERE ss.member_id = member.id AND ss.orphaned_at IS NULL
             ) THEN 'enrolled'
             ELSE 'legacy'
           END
@@ -5107,7 +4976,7 @@ app.patch('/api/admin/users/:id/archive', async (req, res) => {
       ? "UPDATE member SET status = 'archived', is_active = FALSE, updated_at = CURRENT_TIMESTAMP WHERE app_user_id = $1 OR (app_user_id IS NULL AND id = $1)"
       : `UPDATE member SET 
           status = CASE
-            WHEN EXISTS (SELECT 1 FROM member_program WHERE member_id = member.id) 
+            WHEN EXISTS (SELECT 1 FROM scheduling_signup ss WHERE ss.member_id = member.id AND ss.orphaned_at IS NULL) 
             THEN 'enrolled'
             ELSE 'legacy'
           END,
@@ -6808,25 +6677,22 @@ app.get('/api/admin/members/:id', async (req, res) => {
     try {
       const enrollmentsResult = await pool.query(`
         SELECT 
-          mp.id,
-          mp.program_id,
-          mp.iteration_id,
-          mp.days_per_week,
-          mp.selected_days,
-          mp.created_at,
-          mp.updated_at,
-          p.display_name as program_display_name
-        FROM member_program mp
-        LEFT JOIN program p ON mp.program_id = p.id
-        WHERE mp.member_id = $1
-        ORDER BY mp.created_at DESC
+          ss.id,
+          ss.form_id,
+          ss.status,
+          ss.created_at,
+          ss.updated_at,
+          COALESCE(p.display_name, sf.title) as program_display_name
+        FROM scheduling_signup ss
+        LEFT JOIN scheduling_form sf ON sf.id = ss.form_id AND sf.deleted_at IS NULL
+        LEFT JOIN program p ON p.id = sf.program_id
+        WHERE ss.member_id = $1 AND ss.orphaned_at IS NULL
+        ORDER BY ss.created_at DESC
       `, [id])
       enrollments = enrollmentsResult.rows.map(e => ({
         id: e.id,
-        programId: e.program_id,
-        iterationId: e.iteration_id,
-        daysPerWeek: e.days_per_week,
-        selectedDays: e.selected_days,
+        formId: e.form_id,
+        status: e.status,
         programDisplayName: e.program_display_name,
         createdAt: e.created_at,
         updatedAt: e.updated_at
@@ -8771,20 +8637,20 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
       try {
         const enrollmentsQuery = `
           SELECT 
-            mp.member_id,
+            ss.member_id,
             json_agg(
               jsonb_build_object(
-                'id', mp.id,
-                'program_id', mp.program_id,
-                'program_display_name', COALESCE(p.display_name, ''),
-                'days_per_week', mp.days_per_week,
-                'selected_days', mp.selected_days
+                'id', ss.id,
+                'form_id', ss.form_id,
+                'status', ss.status,
+                'program_display_name', COALESCE(p.display_name, sf.title, '')
               )
             ) as enrollments
-          FROM member_program mp
-          LEFT JOIN program p ON mp.program_id = p.id
-          WHERE mp.member_id = ANY($1::bigint[])
-          GROUP BY mp.member_id
+          FROM scheduling_signup ss
+          LEFT JOIN scheduling_form sf ON sf.id = ss.form_id AND sf.deleted_at IS NULL
+          LEFT JOIN program p ON p.id = sf.program_id
+          WHERE ss.member_id = ANY($1::bigint[]) AND ss.orphaned_at IS NULL
+          GROUP BY ss.member_id
         `
         const enrollmentsResult = await pool.query(enrollmentsQuery, [memberIds])
         enrollmentsResult.rows.forEach(row => {
@@ -9348,335 +9214,6 @@ app.post('/api/members/family/:id/mark-for-removal', authenticateMember, async (
   }
 })
 
-// Enroll in class
-const workerId = process.env.RENDER_SERVICE_ID || process.pid || 'unknown'
-console.log(`[Server Init ${workerId}] Registering POST /api/members/enroll endpoint`)
-app.post('/api/members/enroll', authenticateMember, async (req, res) => {
-  console.log(`[Enroll ${workerId}] Enrollment request received on worker ${workerId}`)
-  console.log('[Enroll] Enrollment request received:', { 
-    userId: req.userId, 
-    isAdmin: req.isAdmin,
-    body: req.body 
-  })
-  try {
-    const userId = req.userId || req.memberId
-    const { programId, familyMemberId, iterationId, daysPerWeek, selectedDays } = req.body
-
-    if (!programId || !familyMemberId || !iterationId || !daysPerWeek) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required fields: programId, familyMemberId, iterationId, daysPerWeek'
-      })
-    }
-
-    if (!selectedDays || !Array.isArray(selectedDays) || selectedDays.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please select at least one day of the week'
-      })
-    }
-
-    if (selectedDays.length !== daysPerWeek) {
-      return res.status(400).json({
-        success: false,
-        message: `Number of selected days (${selectedDays.length}) must match days per week (${daysPerWeek})`
-      })
-    }
-    
-    // Validate that iteration belongs to program
-    const iterationCheck = await pool.query(`
-      SELECT id, program_id, days_of_week, start_time, end_time
-      FROM class_iteration
-      WHERE id = $1 AND program_id = $2
-    `, [iterationId, programId])
-    
-    if (iterationCheck.rows.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid iteration for this program'
-      })
-    }
-    
-    const iteration = iterationCheck.rows[0]
-    const iterationDays = iteration.days_of_week || []
-    
-    // Validate that selected days are within iteration's available days
-    const dayNameToNumber = {
-      'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 0
-    }
-    const selectedDayNumbers = selectedDays.map((day) => dayNameToNumber[day]).filter((num) => num !== undefined)
-    
-    const invalidDays = selectedDayNumbers.filter((dayNum) => !iterationDays.includes(dayNum))
-    if (invalidDays.length > 0) {
-      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-      return res.status(400).json({
-        success: false,
-        message: `Selected days must be within the iteration's available days: ${iterationDays.map((d) => dayNames[d]).join(', ')}`
-      })
-    }
-
-    // Get the member - familyMemberId should be a member ID
-    const memberCheck = await pool.query(`
-      SELECT m.id, m.app_user_id, m.first_name, m.last_name, m.family_id, m.email, m.status, m.is_active
-      FROM member m
-      WHERE m.id = $1 AND m.is_active = TRUE
-    `, [familyMemberId])
-    
-    if (memberCheck.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Family member not found or inactive'
-      })
-    }
-    
-    const member = memberCheck.rows[0]
-
-    // Check permissions - admins can enroll anyone, others can only enroll their own family members
-    if (!req.isAdmin) {
-      // Check if user is a parent/guardian of this member's family
-      const userResult = await pool.query(`
-        SELECT u.id, u.role
-        FROM app_user u
-        WHERE u.id = $1 AND u.is_active = TRUE
-      `, [userId])
-
-      if (userResult.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'User not found'
-        })
-      }
-
-      const isParentGuardian = await userIsAdult(userId)
-      
-      // Check if the user is the member or is part of the member's family.
-      let isFamilyMember = false
-      if (member.id === userId || member.app_user_id === userId) {
-        isFamilyMember = true
-      }
-      if (member.family_id) {
-        isFamilyMember = isFamilyMember || await userHasFamilyAccess(userId, member.family_id)
-      }
-      
-      if (!isParentGuardian && !isFamilyMember) {
-        return res.status(403).json({
-          success: false,
-          message: 'You do not have permission to enroll this family member'
-        })
-      }
-    }
-
-    // Check if program exists
-    let programCheck
-    try {
-      const columnCheck = await pool.query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'program' AND column_name = 'archived'
-      `)
-      const hasArchivedColumn = columnCheck.rows.length > 0
-      
-      if (hasArchivedColumn) {
-        programCheck = await pool.query(`
-          SELECT id, name, display_name
-          FROM program
-          WHERE id = $1 AND archived = FALSE AND is_active = TRUE
-        `, [programId])
-      } else {
-        programCheck = await pool.query(`
-          SELECT id, name, display_name
-          FROM program
-          WHERE id = $1 AND is_active = TRUE
-        `, [programId])
-      }
-    } catch (queryError) {
-      console.error('Error checking program:', queryError)
-      throw queryError
-    }
-
-    if (programCheck.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Program not found or not available'
-      })
-    }
-
-    // Create enrollment record in member_program table
-    // First, ensure the table exists (create if it doesn't)
-    try {
-      await pool.query(`
-        CREATE TABLE IF NOT EXISTS member_program (
-          id                  BIGSERIAL PRIMARY KEY,
-          member_id           BIGINT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
-          program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
-          iteration_id        BIGINT REFERENCES class_iteration(id) ON DELETE CASCADE,
-          days_per_week       INTEGER NOT NULL,
-          selected_days       JSONB,
-          created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-          updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-          UNIQUE (member_id, program_id, iteration_id)
-        )
-      `)
-      
-      // Create indexes if they don't exist
-      await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_program_member ON member_program(member_id)`)
-      await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_program_program ON member_program(program_id)`)
-      await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_program_iteration ON member_program(iteration_id)`)
-    } catch (tableError) {
-      // If table creation fails, log but continue - might already exist
-      console.warn('[Enrollment] Could not ensure member_program table exists:', tableError.message)
-    }
-    
-    // Now insert the enrollment record
-    let memberProgramId = null
-    try {
-      const selectedDaysJson = JSON.stringify(selectedDays)
-      
-      const enrollInsert = await pool.query(`
-        INSERT INTO member_program (member_id, program_id, iteration_id, days_per_week, selected_days, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5::jsonb, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-        ON CONFLICT (member_id, program_id, iteration_id) DO UPDATE
-        SET days_per_week = $4, selected_days = $5::jsonb, updated_at = CURRENT_TIMESTAMP
-        RETURNING id
-      `, [member.id, programId, iterationId, daysPerWeek, selectedDaysJson])
-      memberProgramId = enrollInsert.rows[0]?.id
-    } catch (error) {
-      console.error('Error creating enrollment record:', error)
-      console.error('Error stack:', error.stack)
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to create enrollment record: ' + (error.message || 'Unknown error'),
-        error: process.env.NODE_ENV !== 'production' ? error.message : undefined
-      })
-    }
-
-    // Update member athlete status (will check enrollments + waivers)
-    await updateMemberAthleteStatus(member.id)
-
-    // Optional launch billing hook: enrollments can immediately generate a ledger charge.
-    const chargeAmountCents = Number(req.body?.chargeAmountCents ?? 0)
-    if (member.family_id && Number.isFinite(chargeAmountCents) && chargeAmountCents > 0) {
-      try {
-        await pool.query(`
-          INSERT INTO family_billing_account (family_id, payer_member_id, is_active)
-          VALUES ($1, $2, TRUE)
-          ON CONFLICT (family_id) DO NOTHING
-        `, [member.family_id, member.id])
-
-        const accountResult = await pool.query(
-          `SELECT id FROM family_billing_account WHERE family_id = $1 LIMIT 1`,
-          [member.family_id],
-        )
-        const accountId = accountResult.rows[0]?.id
-        if (accountId) {
-          await pool.query(`
-            INSERT INTO billing_charge (family_billing_account_id, member_id, description, amount_cents)
-            VALUES ($1, $2, $3, $4)
-          `, [
-            accountId,
-            member.id,
-            req.body?.chargeDescription || `Enrollment charge: ${programCheck.rows[0].display_name}`,
-            chargeAmountCents,
-          ])
-        }
-      } catch (billingError) {
-        console.warn('[Enrollment] Billing charge creation failed:', billingError.message)
-      }
-    }
-
-    // Best-effort enrollment receipt email (never blocks enrollment).
-    const slotLabel =
-      iteration.start_time && iteration.end_time
-        ? `${selectedDays.join(', ')} · ${iteration.start_time}–${iteration.end_time}`
-        : selectedDays.join(', ')
-    void notifyEnrollmentReceipt(pool, {
-      memberId: member.id,
-      programName: programCheck.rows[0].display_name,
-      slotLabel,
-      status: 'confirmed',
-      selectedDays,
-      memberProgramId,
-    })
-
-    res.json({
-      success: true,
-      message: `${member.first_name} ${member.last_name} has been enrolled in ${programCheck.rows[0].display_name}`
-    })
-  } catch (error) {
-    console.error('Enroll error:', error)
-    console.error('Error stack:', error.stack)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error: ' + (error.message || 'Unknown error'),
-      error: process.env.NODE_ENV !== 'production' ? error.message : undefined
-    })
-  }
-})
-
-// Unenroll from program (member endpoint)
-app.delete('/api/members/enroll/:enrollmentId', authenticateMember, async (req, res) => {
-  try {
-    const { enrollmentId } = req.params
-    const userId = req.userId || req.memberId
-    
-    // Get enrollment info - use member_program instead of athlete_program
-    const enrollmentCheck = await pool.query(`
-      SELECT mp.*, m.id as member_id, m.first_name, m.last_name, m.family_id, m.status
-      FROM member_program mp
-      JOIN member m ON mp.member_id = m.id
-      WHERE mp.id = $1
-    `, [enrollmentId])
-    
-    if (enrollmentCheck.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Enrollment not found'
-      })
-    }
-    
-    const enrollment = enrollmentCheck.rows[0]
-    const memberId = enrollment.member_id
-    
-    // Check permission (must be parent/guardian or the member themselves)
-    if (!req.isAdmin) {
-      const hasParentRole = await userIsAdult(userId)
-      
-      // Check if user is the member or part of the member's family.
-      let isFamilyMember = false
-      if (memberId === userId) {
-        isFamilyMember = true
-      }
-      if (enrollment.family_id) {
-        isFamilyMember = isFamilyMember || await userHasFamilyAccess(userId, enrollment.family_id)
-      }
-      
-      if (!hasParentRole && !isFamilyMember) {
-        return res.status(403).json({
-          success: false,
-          message: 'You do not have permission to unenroll this member'
-        })
-      }
-    }
-    
-    // Delete enrollment
-    await pool.query('DELETE FROM member_program WHERE id = $1', [enrollmentId])
-    
-    // Update member athlete status (will check enrollments + waivers)
-    await updateMemberAthleteStatus(memberId)
-    
-    res.json({
-      success: true,
-      message: `${enrollment.first_name} ${enrollment.last_name} has been unenrolled`
-    })
-  } catch (error) {
-    console.error('Unenroll error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    })
-  }
-})
-
 // Get family enrollments
 app.get('/api/members/enrollments', authenticateMember, async (req, res) => {
   try {
@@ -9873,106 +9410,6 @@ app.get('/api/members/categories', authenticateMember, async (req, res) => {
   }
 })
 
-// Get program iterations for members (member-accessible endpoint)
-app.get('/api/members/programs/:programId/iterations', authenticateMember, async (req, res) => {
-  try {
-    const { programId } = req.params
-    
-    // Ensure table exists (create if missing)
-    try {
-      await ensureClassIterationTable()
-    } catch (error) {
-      // If table creation fails, return empty array gracefully
-      console.warn('Could not ensure class_iteration table exists:', error.message)
-      return res.json({
-        success: true,
-        data: [],
-        warning: 'class_iteration table not available'
-      })
-    }
-    
-    let result
-    try {
-      result = await pool.query(`
-        SELECT 
-          id,
-          program_id as "programId",
-          iteration_number as "iterationNumber",
-          days_of_week as "daysOfWeek",
-          start_time as "startTime",
-          end_time as "endTime",
-          time_blocks as "timeBlocks",
-          duration_type as "durationType",
-          start_date as "startDate",
-          end_date as "endDate",
-          created_at as "createdAt",
-          updated_at as "updatedAt"
-        FROM class_iteration
-        WHERE program_id = $1
-        ORDER BY iteration_number ASC
-      `, [programId])
-    } catch (queryError) {
-      // If column doesn't exist, try to add it and retry
-      if (queryError.code === '42703' && queryError.message.includes('time_blocks')) {
-        console.log('time_blocks column missing, adding it now...')
-        try {
-          await pool.query(`
-            ALTER TABLE class_iteration ADD COLUMN IF NOT EXISTS time_blocks JSONB DEFAULT NULL
-          `)
-          console.log('✅ Added time_blocks column, retrying query...')
-          // Retry the query
-          result = await pool.query(`
-            SELECT 
-              id,
-              program_id as "programId",
-              iteration_number as "iterationNumber",
-              days_of_week as "daysOfWeek",
-              start_time as "startTime",
-              end_time as "endTime",
-              time_blocks as "timeBlocks",
-              duration_type as "durationType",
-              start_date as "startDate",
-              end_date as "endDate",
-              created_at as "createdAt",
-              updated_at as "updatedAt"
-            FROM class_iteration
-            WHERE program_id = $1
-            ORDER BY iteration_number ASC
-          `, [programId])
-        } catch (alterError) {
-          console.error('Error adding time_blocks column:', alterError)
-          return res.json({
-            success: true,
-            data: [],
-            warning: 'Could not add time_blocks column'
-          })
-        }
-      } else {
-        // If table doesn't exist, return empty array
-        if (queryError.message && (queryError.message.includes('does not exist') || (queryError.message.includes('relation') && queryError.message.includes('class_iteration')))) {
-          return res.json({
-            success: true,
-            data: [],
-            warning: 'class_iteration table not found'
-          })
-        }
-        throw queryError
-      }
-    }
-    
-    res.json({
-      success: true,
-      data: result.rows
-    })
-  } catch (error) {
-    console.error('Get program iterations error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    })
-  }
-})
 
 // ========== HIGHLIGHT HELPERS ==========
 
@@ -11127,66 +10564,6 @@ app.delete('/api/admin/highlights/:id', async (req, res) => {
   }
 })
 
-// Admin endpoint to create member_program table if it doesn't exist
-app.post('/api/admin/create-member-program-table', authenticateAdmin, async (req, res) => {
-  try {
-    console.log('[Create member_program table] Request received')
-    
-    // Check if table already exists
-    const tableCheck = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'member_program'
-      )
-    `)
-    
-    if (tableCheck.rows[0].exists) {
-      return res.json({
-        success: true,
-        message: 'member_program table already exists',
-        tableExists: true
-      })
-    }
-    
-    // Create member_program table
-    await pool.query(`
-      CREATE TABLE member_program (
-        id                  BIGSERIAL PRIMARY KEY,
-        member_id           BIGINT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
-        program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
-        iteration_id        BIGINT REFERENCES class_iteration(id) ON DELETE CASCADE,
-        days_per_week       INTEGER NOT NULL,
-        selected_days       JSONB,
-        created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-        updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-        UNIQUE (member_id, program_id, iteration_id)
-      )
-    `)
-    console.log('[Create member_program table] Table created')
-    
-    // Create indexes
-    await pool.query(`CREATE INDEX idx_member_program_member ON member_program(member_id)`)
-    await pool.query(`CREATE INDEX idx_member_program_program ON member_program(program_id)`)
-    await pool.query(`CREATE INDEX idx_member_program_iteration ON member_program(iteration_id)`)
-    console.log('[Create member_program table] Indexes created')
-    
-    res.json({
-      success: true,
-      message: 'member_program table and indexes created successfully',
-      tableExists: false,
-      created: true
-    })
-  } catch (error) {
-    console.error('[Create member_program table] Error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Error creating member_program table: ' + error.message,
-      error: process.env.NODE_ENV !== 'production' ? error.stack : undefined
-    })
-  }
-})
-
 // Seed events (admin endpoint - for initial setup)
 app.post('/api/admin/events/seed', async (req, res) => {
   try {
@@ -11229,7 +10606,6 @@ app.post('/api/admin/events/seed', async (req, res) => {
 
 // Admin login (accepts username or email)
 // Updated to use app_user table with MASTER_ADMIN / ADMIN roles (modern RBAC system)
-// Falls back to admins table for backward compatibility during migration
 app.post('/api/admin/login', async (req, res) => {
   try {
     const { error, value } = adminLoginSchema.validate(req.body)
@@ -11354,29 +10730,6 @@ app.post('/api/admin/login', async (req, res) => {
       // Continue to fallback
     }
     
-    // Fallback: Check legacy admins table (for backward compatibility)
-    if (!admin) {
-      try {
-        let query, params
-        if (isEmail) {
-          query = 'SELECT * FROM admins WHERE email = $1'
-          params = [usernameOrEmail]
-        } else {
-          query = 'SELECT * FROM admins WHERE LOWER(username) = LOWER($1)'
-          params = [usernameOrEmail]
-        }
-        
-        const adminsResult = await pool.query(query, params)
-        
-        if (adminsResult.rows.length > 0) {
-          admin = adminsResult.rows[0]
-          userSource = 'admins'
-          console.log('[Admin Login] Found admin in legacy admins table:', admin.email)
-          console.warn('[Admin Login] WARNING: Using legacy admins table. Consider migrating to app_user table.')
-        }
-      } catch (adminsError) {
-        console.error('[Admin Login] Error checking admins table:', adminsError.message)
-      }
     }
 
     if (!admin) {
@@ -12471,974 +11824,6 @@ app.delete('/api/admin/programs/:id', async (req, res) => {
   }
 })
 
-// ========== CLASS ITERATION ENDPOINTS ==========
-
-// Get all iterations for a program
-app.get('/api/admin/programs/:programId/iterations', async (req, res) => {
-  try {
-    const { programId } = req.params
-    
-    // Ensure table exists (create if missing)
-    try {
-      await ensureClassIterationTable()
-    } catch (error) {
-      // If table creation fails, return empty array gracefully
-      console.warn('Could not ensure class_iteration table exists:', error.message)
-      return res.json({
-        success: true,
-        data: [],
-        warning: 'class_iteration table not available'
-      })
-    }
-    
-    let result
-    try {
-      result = await pool.query(`
-      SELECT 
-        id,
-        program_id as "programId",
-        iteration_number as "iterationNumber",
-        days_of_week as "daysOfWeek",
-        start_time as "startTime",
-        end_time as "endTime",
-        time_blocks as "timeBlocks",
-        duration_type as "durationType",
-        start_date as "startDate",
-        end_date as "endDate",
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-      FROM class_iteration
-      WHERE program_id = $1
-      ORDER BY iteration_number ASC
-    `, [programId])
-    } catch (queryError) {
-      // If column doesn't exist, try to add it and retry
-      if (queryError.code === '42703' && queryError.message.includes('time_blocks')) {
-        console.log('time_blocks column missing, adding it now...')
-        try {
-          await pool.query(`
-            ALTER TABLE class_iteration ADD COLUMN IF NOT EXISTS time_blocks JSONB DEFAULT NULL
-          `)
-          console.log('✅ Added time_blocks column, retrying query...')
-          // Retry the query
-          result = await pool.query(`
-            SELECT 
-              id,
-              program_id as "programId",
-              iteration_number as "iterationNumber",
-              days_of_week as "daysOfWeek",
-              start_time as "startTime",
-              end_time as "endTime",
-              time_blocks as "timeBlocks",
-              duration_type as "durationType",
-              start_date as "startDate",
-              end_date as "endDate",
-              created_at as "createdAt",
-              updated_at as "updatedAt"
-            FROM class_iteration
-            WHERE program_id = $1
-            ORDER BY iteration_number ASC
-          `, [programId])
-        } catch (alterError) {
-          // If adding column fails, return data without time_blocks
-          console.warn('Could not add time_blocks column, returning data without it:', alterError.message)
-          result = await pool.query(`
-            SELECT 
-              id,
-              program_id as "programId",
-              iteration_number as "iterationNumber",
-              days_of_week as "daysOfWeek",
-              start_time as "startTime",
-              end_time as "endTime",
-              NULL as "timeBlocks",
-              duration_type as "durationType",
-              start_date as "startDate",
-              end_date as "endDate",
-              created_at as "createdAt",
-              updated_at as "updatedAt"
-            FROM class_iteration
-            WHERE program_id = $1
-            ORDER BY iteration_number ASC
-          `, [programId])
-        }
-      } else {
-        throw queryError
-      }
-    }
-
-    res.json({
-      success: true,
-      data: result.rows
-    })
-  } catch (error) {
-    console.error('Get iterations error:', error)
-    // If table doesn't exist, return empty array instead of error
-    if (error.message && (error.message.includes('does not exist') || error.message.includes('relation') && error.message.includes('class_iteration'))) {
-      console.warn('class_iteration table does not exist - returning empty array')
-      return res.json({
-        success: true,
-        data: [],
-        warning: 'class_iteration table not found - migration may be needed'
-      })
-    }
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    })
-  }
-})
-
-/** Ensures program_categories, skill_levels, and program.category_id/archived exist (local DB bootstrap). */
-let programTaxonomyCache = null
-async function resolveProgramTaxonomy() {
-  if (programTaxonomyCache) return programTaxonomyCache
-  const tableCheck = await pool.query(`
-    SELECT table_name FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_name IN ('programs', 'program_categories')
-  `)
-  const hasPrograms = tableCheck.rows.some((r) => r.table_name === 'programs')
-  const programsTable = hasPrograms ? 'programs' : 'program_categories'
-  const colCheck = await pool.query(`
-    SELECT column_name FROM information_schema.columns
-    WHERE table_name = 'program' AND column_name IN ('programs_id', 'category_id')
-  `)
-  const programFkColumn = colCheck.rows.some((r) => r.column_name === 'programs_id')
-    ? 'programs_id'
-    : 'category_id'
-  const activeColCheck = await pool.query(
-    `SELECT 1 FROM information_schema.columns WHERE table_name = $1 AND column_name = 'is_active' LIMIT 1`,
-    [programsTable],
-  )
-  programTaxonomyCache = {
-    programsTable,
-    programFkColumn,
-    hasProgramIsActive: activeColCheck.rows.length > 0,
-  }
-  return programTaxonomyCache
-}
-
-async function deactivateClassesForProgram(programsId, taxonomy) {
-  const { programsTable, programFkColumn } = taxonomy
-  await pool.query(
-    `UPDATE program SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
-     WHERE ${programFkColumn} = $1 AND archived = FALSE`,
-    [programsId],
-  )
-  try {
-    await pool.query(
-      `UPDATE scheduling_form sf SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
-       FROM program p
-       WHERE sf.program_id = p.id AND p.${programFkColumn} = $1`,
-      [programsId],
-    )
-  } catch {
-    /* scheduling_form optional */
-  }
-  try {
-    await pool.query(
-      `UPDATE scheduling_form SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
-       WHERE programs_id = $1 AND deleted_at IS NULL`,
-      [programsId],
-    )
-  } catch {
-    /* programs_id on scheduling_form optional */
-  }
-  try {
-    await pool.query(
-      `UPDATE ${programsTable} SET scheduling_active = FALSE, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1`,
-      [programsId],
-    )
-  } catch {
-    /* scheduling_active optional */
-  }
-}
-
-const ensureProgramCategoriesSchema = async () => {
-  const migrationFiles = [
-    'add_categories_levels_tables.sql',
-    'add_category_description.sql',
-    'add_programs_is_active.sql',
-  ]
-
-  for (const file of migrationFiles) {
-    const migrationPath = path.join(__dirname, 'migrations', file)
-    if (!fs.existsSync(migrationPath)) {
-      console.warn(`[ensureProgramCategoriesSchema] Missing migration file: ${file}`)
-      continue
-    }
-
-    try {
-      await pool.query(fs.readFileSync(migrationPath, 'utf8'))
-    } catch (err) {
-      // Idempotent migrations may warn on duplicates; rethrow missing-relation errors
-      if (err.code === '42P01') {
-        console.error(`[ensureProgramCategoriesSchema] ${file} failed:`, err.message)
-        throw err
-      }
-      console.warn(`[ensureProgramCategoriesSchema] ${file}:`, err.message)
-    }
-  }
-
-    console.log('✅ Program categories schema ensured')
-  programTaxonomyCache = null
-  try {
-    const { ensureProgramsSchedulingSchema } = await import('./programs/schema.js')
-    await ensureProgramsSchedulingSchema(pool)
-  } catch (err) {
-    console.warn('[ensureProgramCategoriesSchema] unify programs:', err.message)
-  }
-}
-
-// Helper function to ensure class_iteration table exists
-const ensureClassIterationTable = async () => {
-  try {
-    const tableCheck = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'class_iteration'
-      )
-    `)
-    
-    if (!tableCheck.rows[0].exists) {
-      console.log('Creating class_iteration table...')
-      
-      // First, verify the program table exists (required for foreign key)
-      const programTableCheck = await pool.query(`
-        SELECT EXISTS (
-          SELECT FROM information_schema.tables 
-          WHERE table_schema = 'public' 
-          AND table_name = 'program'
-        )
-      `)
-      
-      if (!programTableCheck.rows[0].exists) {
-        throw new Error('Cannot create class_iteration table: program table does not exist')
-      }
-      
-      await pool.query(`
-        CREATE TABLE IF NOT EXISTS class_iteration (
-          id                  BIGSERIAL PRIMARY KEY,
-          program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
-          iteration_number    INTEGER NOT NULL,
-          days_of_week        INTEGER[] NOT NULL DEFAULT ARRAY[1,2,3,4,5] CHECK (array_length(days_of_week, 1) > 0),
-          start_time          TIME NOT NULL DEFAULT '18:00:00',
-          end_time            TIME NOT NULL DEFAULT '19:30:00',
-          time_blocks         JSONB DEFAULT NULL,
-          duration_type       VARCHAR(20) NOT NULL DEFAULT 'indefinite' CHECK (duration_type IN ('indefinite', '3_month_block', 'finite')),
-          start_date          DATE,
-          end_date            DATE,
-          created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-          updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-          UNIQUE (program_id, iteration_number)
-        )
-      `)
-      await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_program ON class_iteration(program_id)`)
-      await pool.query(`CREATE INDEX IF NOT EXISTS idx_class_iteration_number ON class_iteration(program_id, iteration_number)`)
-      console.log('✅ class_iteration table created successfully')
-    } else {
-      console.log('✅ class_iteration table already exists')
-    }
-    
-    // Always ensure time_blocks column exists (even if table was created before this column was added)
-      await pool.query(`
-        DO $$ 
-        BEGIN
-          IF NOT EXISTS (
-            SELECT 1 FROM information_schema.columns 
-            WHERE table_name = 'class_iteration' AND column_name = 'time_blocks'
-          ) THEN
-            ALTER TABLE class_iteration ADD COLUMN time_blocks JSONB DEFAULT NULL;
-          RAISE NOTICE 'Added time_blocks column to class_iteration table';
-          END IF;
-        END $$;
-      `)
-  } catch (error) {
-    console.error('❌ Error ensuring class_iteration table exists:', error)
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      detail: error.detail,
-      hint: error.hint
-    })
-    throw error
-  }
-}
-
-// Create a new iteration for a program
-app.post('/api/admin/programs/:programId/iterations', async (req, res) => {
-  try {
-    const { programId } = req.params
-    const { daysOfWeek, startTime, endTime, timeBlocks, durationType, startDate, endDate } = req.body
-
-    // Validate program exists
-    const programCheck = await pool.query('SELECT id FROM program WHERE id = $1', [programId])
-    if (programCheck.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Program not found'
-      })
-    }
-
-    // Ensure table exists (create if missing)
-    try {
-    await ensureClassIterationTable()
-    } catch (tableError) {
-      console.error('Failed to ensure class_iteration table exists:', tableError)
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to initialize class_iteration table',
-        error: process.env.NODE_ENV === 'development' ? tableError.message : undefined,
-        details: process.env.NODE_ENV === 'development' ? {
-          code: tableError.code,
-          detail: tableError.detail,
-          hint: tableError.hint
-        } : undefined
-      })
-    }
-
-    // Get the next iteration number
-    const maxIterationResult = await pool.query(
-      'SELECT COALESCE(MAX(iteration_number), 0) as max_num FROM class_iteration WHERE program_id = $1',
-      [programId]
-    )
-    const nextIterationNumber = (maxIterationResult.rows[0].max_num || 0) + 1
-
-    // Default values
-    const defaultDaysOfWeek = daysOfWeek || [1, 2, 3, 4, 5] // Mon-Fri
-    const defaultStartTime = startTime || '18:00:00' // 6pm
-    const defaultEndTime = endTime || '19:30:00' // 7:30pm
-    const defaultDurationType = durationType || 'indefinite'
-
-    // Validate duration type specific fields
-    if (defaultDurationType === 'finite' && (!startDate || !endDate)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Start date and end date are required for finite duration'
-      })
-    }
-
-    if (defaultDurationType === '3_month_block' && !startDate) {
-      return res.status(400).json({
-        success: false,
-        message: 'Start date is required for 3-month block duration'
-      })
-    }
-
-    // Process timeBlocks if provided
-    // Store timeBlocks if provided (even if single block), otherwise null for backward compatibility
-    // For JSONB columns, stringify and cast in SQL to avoid encoding issues
-    let timeBlocksValue = null
-    if (timeBlocks && Array.isArray(timeBlocks) && timeBlocks.length > 0) {
-      timeBlocksValue = timeBlocks
-    }
-    
-    // For JSONB columns, pass raw object/array - pg library handles conversion automatically
-    let result
-    try {
-      result = await pool.query(`
-      INSERT INTO class_iteration (
-        program_id,
-        iteration_number,
-        days_of_week,
-        start_time,
-        end_time,
-        time_blocks,
-        duration_type,
-        start_date,
-        end_date
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING 
-        id,
-        program_id as "programId",
-        iteration_number as "iterationNumber",
-        days_of_week as "daysOfWeek",
-        start_time as "startTime",
-        end_time as "endTime",
-        time_blocks as "timeBlocks",
-        duration_type as "durationType",
-        start_date as "startDate",
-        end_date as "endDate",
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-    `, [
-      programId,
-      nextIterationNumber,
-      defaultDaysOfWeek,
-      defaultStartTime,
-      defaultEndTime,
-      timeBlocksValue, // Pass raw object/array, pg library handles JSONB conversion
-      defaultDurationType,
-      defaultDurationType === 'indefinite' ? null : startDate,
-      defaultDurationType === 'finite' ? endDate : null
-    ])
-    } catch (insertError) {
-      // If column doesn't exist, try to add it and retry
-      if (insertError.code === '42703' && insertError.message.includes('time_blocks')) {
-        console.log('time_blocks column missing in INSERT, adding it now...')
-        try {
-          await pool.query(`
-            ALTER TABLE class_iteration ADD COLUMN IF NOT EXISTS time_blocks JSONB DEFAULT NULL
-          `)
-          console.log('✅ Added time_blocks column, retrying INSERT...')
-          // Retry the INSERT with proper JSONB casting
-          result = await pool.query(`
-            INSERT INTO class_iteration (
-              program_id,
-              iteration_number,
-              days_of_week,
-              start_time,
-              end_time,
-              time_blocks,
-              duration_type,
-              start_date,
-              end_date
-            )
-            VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9)
-            RETURNING 
-              id,
-              program_id as "programId",
-              iteration_number as "iterationNumber",
-              days_of_week as "daysOfWeek",
-              start_time as "startTime",
-              end_time as "endTime",
-              time_blocks as "timeBlocks",
-              duration_type as "durationType",
-              start_date as "startDate",
-              end_date as "endDate",
-              created_at as "createdAt",
-              updated_at as "updatedAt"
-          `, [
-            programId,
-            nextIterationNumber,
-            defaultDaysOfWeek,
-            defaultStartTime,
-            defaultEndTime,
-            timeBlocksParam,
-            defaultDurationType,
-            defaultDurationType === 'indefinite' ? null : startDate,
-            defaultDurationType === 'finite' ? endDate : null
-          ])
-        } catch (retryError) {
-          throw retryError
-        }
-      } else {
-        throw insertError
-      }
-    }
-
-    res.json({
-      success: true,
-      message: 'Iteration created successfully',
-      data: result.rows[0]
-    })
-  } catch (error) {
-    console.error('Create iteration error:', error)
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      detail: error.detail,
-      hint: error.hint,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    })
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      details: process.env.NODE_ENV === 'development' ? {
-        code: error.code,
-        detail: error.detail,
-        hint: error.hint
-      } : undefined
-    })
-  }
-})
-
-// Update an iteration
-app.put('/api/admin/programs/:programId/iterations/:iterationId', async (req, res) => {
-  const { programId, iterationId } = req.params
-  
-  try {
-    const { daysOfWeek, startTime, endTime, timeBlocks, durationType, startDate, endDate } = req.body
-
-    // Ensure table exists (create if missing)
-    try {
-    await ensureClassIterationTable()
-    } catch (tableError) {
-      console.error('Failed to ensure class_iteration table exists:', tableError)
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to initialize class_iteration table',
-        error: process.env.NODE_ENV === 'development' ? tableError.message : undefined
-      })
-    }
-
-    // Validate iteration exists and belongs to program
-    const checkResult = await pool.query(
-      'SELECT id FROM class_iteration WHERE id = $1 AND program_id = $2',
-      [iterationId, programId]
-    )
-    if (checkResult.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Iteration not found'
-      })
-    }
-
-    // Validate and normalize daysOfWeek
-    let normalizedDaysOfWeek = daysOfWeek
-    if (!daysOfWeek || !Array.isArray(daysOfWeek) || daysOfWeek.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'daysOfWeek must be a non-empty array'
-      })
-    }
-
-    // Convert to integers and validate each day is between 1-7
-    try {
-      normalizedDaysOfWeek = daysOfWeek.map(day => {
-        const numDay = typeof day === 'string' ? parseInt(day, 10) : day
-        if (!Number.isInteger(numDay) || numDay < 1 || numDay > 7) {
-          throw new Error(`Invalid day value: ${day}`)
-        }
-        return numDay
-      })
-    } catch (validationError) {
-      return res.status(400).json({
-        success: false,
-        message: 'daysOfWeek must contain integers between 1 and 7 (1=Monday, 7=Sunday)'
-      })
-    }
-
-    if (!startTime || typeof startTime !== 'string') {
-      return res.status(400).json({
-        success: false,
-        message: 'startTime is required and must be a string'
-      })
-    }
-
-    if (!endTime || typeof endTime !== 'string') {
-      return res.status(400).json({
-        success: false,
-        message: 'endTime is required and must be a string'
-      })
-    }
-
-    if (!durationType || !['indefinite', '3_month_block', 'finite'].includes(durationType)) {
-      return res.status(400).json({
-        success: false,
-        message: 'durationType must be one of: indefinite, 3_month_block, finite'
-      })
-    }
-
-    // Validate duration type specific fields
-    if (durationType === 'finite' && (!startDate || !endDate)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Start date and end date are required for finite duration'
-      })
-    }
-
-    if (durationType === '3_month_block' && !startDate) {
-      return res.status(400).json({
-        success: false,
-        message: 'Start date is required for 3-month block duration'
-      })
-    }
-
-    // Process timeBlocks if provided
-    // Store timeBlocks if provided (even if single block), otherwise null for backward compatibility
-    // For JSONB columns, pass the JavaScript object directly - pg will handle conversion
-    let timeBlocksValue = null
-    if (timeBlocks) {
-      // If timeBlocks is a string, try to parse it
-      let parsedTimeBlocks = timeBlocks
-      if (typeof timeBlocks === 'string') {
-        try {
-          parsedTimeBlocks = JSON.parse(timeBlocks)
-        } catch (parseError) {
-          console.error('Failed to parse timeBlocks as JSON:', parseError)
-          return res.status(400).json({
-            success: false,
-            message: 'timeBlocks must be a valid JSON array'
-          })
-        }
-      }
-
-      // Validate it's an array
-      if (!Array.isArray(parsedTimeBlocks)) {
-        return res.status(400).json({
-          success: false,
-          message: 'timeBlocks must be an array'
-        })
-      }
-
-      // Validate and clean each time block
-      if (parsedTimeBlocks.length > 0) {
-        try {
-          const cleanedTimeBlocks = parsedTimeBlocks.map(tb => {
-            if (!tb || typeof tb !== 'object') {
-              throw new Error('Each time block must be an object')
-            }
-            if (!Array.isArray(tb.daysOfWeek) || tb.daysOfWeek.length === 0) {
-              throw new Error('Each time block must have a non-empty daysOfWeek array')
-            }
-            if (!tb.startTime || typeof tb.startTime !== 'string') {
-              throw new Error('Each time block must have a valid startTime string')
-            }
-            if (!tb.endTime || typeof tb.endTime !== 'string') {
-              throw new Error('Each time block must have a valid endTime string')
-            }
-            return {
-              daysOfWeek: tb.daysOfWeek,
-              startTime: tb.startTime,
-              endTime: tb.endTime
-            }
-          })
-          // Ensure it's a proper JavaScript array/object, not a string
-          timeBlocksValue = cleanedTimeBlocks
-        } catch (validationError) {
-          return res.status(400).json({
-            success: false,
-            message: validationError.message || 'Invalid timeBlocks format'
-          })
-        }
-      }
-    }
-
-    // Log the request for debugging
-    console.log('Request body received:', JSON.stringify(req.body, null, 2))
-    console.log('Request params:', { programId, iterationId })
-    console.log('timeBlocksValue type:', typeof timeBlocksValue, 'value:', JSON.stringify(timeBlocksValue))
-    
-    let result
-    try {
-      // For JSONB columns, the pg library handles conversion automatically
-      // Pass the raw object/array and let pg convert it to JSONB
-      let finalTimeBlocksValue = timeBlocksValue
-      if (timeBlocksValue && typeof timeBlocksValue === 'string') {
-        try {
-          finalTimeBlocksValue = JSON.parse(timeBlocksValue)
-        } catch (parseErr) {
-          console.error('timeBlocksValue was a string but failed to parse:', parseErr)
-          finalTimeBlocksValue = null
-        }
-      }
-      
-      result = await pool.query(`
-      UPDATE class_iteration
-      SET 
-        days_of_week = $1,
-        start_time = $2,
-        end_time = $3,
-        time_blocks = $4,
-        duration_type = $5,
-        start_date = $6,
-        end_date = $7,
-        updated_at = now()
-      WHERE id = $8 AND program_id = $9
-      RETURNING 
-        id,
-        program_id as "programId",
-        iteration_number as "iterationNumber",
-        days_of_week as "daysOfWeek",
-        start_time as "startTime",
-        end_time as "endTime",
-        time_blocks as "timeBlocks",
-        duration_type as "durationType",
-        start_date as "startDate",
-        end_date as "endDate",
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-    `, [
-      normalizedDaysOfWeek,
-      startTime,
-      endTime,
-      finalTimeBlocksValue, // Pass raw object/array, pg library handles JSONB conversion
-      durationType,
-      durationType === 'indefinite' ? null : startDate,
-      durationType === 'finite' ? endDate : null,
-      iterationId,
-      programId
-    ])
-    } catch (updateError) {
-      console.error('Update iteration error:', updateError)
-      // If column doesn't exist, try to add it and retry
-      if (updateError.code === '42703' && updateError.message.includes('time_blocks')) {
-        console.log('time_blocks column missing in UPDATE, adding it now...')
-        try {
-          await pool.query(`
-            ALTER TABLE class_iteration ADD COLUMN IF NOT EXISTS time_blocks JSONB DEFAULT NULL
-          `)
-          console.log('✅ Added time_blocks column, retrying UPDATE...')
-          // Ensure timeBlocksValue is properly formatted for retry
-          let retryTimeBlocksValue = timeBlocksValue
-          if (timeBlocksValue && typeof timeBlocksValue === 'string') {
-            try {
-              retryTimeBlocksValue = JSON.parse(timeBlocksValue)
-            } catch (parseErr) {
-              console.error('timeBlocksValue was a string but failed to parse in retry:', parseErr)
-              retryTimeBlocksValue = null
-            }
-          }
-          
-          // Retry the UPDATE
-          result = await pool.query(`
-            UPDATE class_iteration
-            SET 
-              days_of_week = $1,
-              start_time = $2,
-              end_time = $3,
-              time_blocks = $4,
-              duration_type = $5,
-              start_date = $6,
-              end_date = $7,
-              updated_at = now()
-            WHERE id = $8 AND program_id = $9
-            RETURNING 
-              id,
-              program_id as "programId",
-              iteration_number as "iterationNumber",
-              days_of_week as "daysOfWeek",
-              start_time as "startTime",
-              end_time as "endTime",
-              time_blocks as "timeBlocks",
-              duration_type as "durationType",
-              start_date as "startDate",
-              end_date as "endDate",
-              created_at as "createdAt",
-              updated_at as "updatedAt"
-          `, [
-            normalizedDaysOfWeek,
-            startTime,
-            endTime,
-            retryTimeBlocksValue, // Pass raw object/array, pg library handles JSONB conversion
-            durationType,
-            durationType === 'indefinite' ? null : startDate,
-            durationType === 'finite' ? endDate : null,
-            iterationId,
-            programId
-          ])
-        } catch (retryError) {
-          throw retryError
-        }
-      } else {
-        throw updateError
-      }
-    }
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Iteration not found'
-      })
-    }
-
-    res.json({
-      success: true,
-      message: 'Iteration updated successfully',
-      data: result.rows[0]
-    })
-  } catch (error) {
-    console.error('Update iteration error:', error)
-    console.error('Request body received:', JSON.stringify(req.body, null, 2))
-    console.error('Request params:', { programId, iterationId })
-    
-    // Provide more specific error messages for common issues
-    let errorMessage = 'Internal server error'
-    if (error.code === '22P02') {
-      errorMessage = 'Invalid data format - check that all fields are correctly formatted'
-    } else if (error.code === '23502') {
-      errorMessage = 'Required field is missing'
-    } else if (error.code === '23514') {
-      errorMessage = 'Data validation failed - check field constraints'
-    } else if (error.message) {
-      errorMessage = error.message
-    }
-
-    res.status(500).json({
-      success: false,
-      message: errorMessage,
-      error: process.env.NODE_ENV === 'development' ? {
-        message: error.message,
-        code: error.code,
-        detail: error.detail,
-        where: error.where
-      } : undefined
-    })
-  }
-})
-
-// Delete an iteration
-app.delete('/api/admin/programs/:programId/iterations/:iterationId', async (req, res) => {
-  try {
-    const { programId, iterationId } = req.params
-
-    // Ensure table exists (create if missing)
-    try {
-    await ensureClassIterationTable()
-    } catch (tableError) {
-      console.error('Failed to ensure class_iteration table exists:', tableError)
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to initialize class_iteration table',
-        error: process.env.NODE_ENV === 'development' ? tableError.message : undefined
-      })
-    }
-
-    // Validate iteration exists and belongs to program
-    const checkResult = await pool.query(
-      'SELECT id FROM class_iteration WHERE id = $1 AND program_id = $2',
-      [iterationId, programId]
-    )
-    if (checkResult.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Iteration not found'
-      })
-    }
-
-    await pool.query(
-      'DELETE FROM class_iteration WHERE id = $1 AND program_id = $2',
-      [iterationId, programId]
-    )
-
-    res.json({
-      success: true,
-      message: 'Iteration deleted successfully'
-    })
-  } catch (error) {
-    console.error('Delete iteration error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    })
-  }
-})
-
-// Get iterations with enrollment stats (enrollment counts per day)
-app.get('/api/admin/programs/:programId/iterations/stats', async (req, res) => {
-  try {
-    const { programId } = req.params
-    
-    // Ensure table exists (create if missing)
-    try {
-      await ensureClassIterationTable()
-    } catch (error) {
-      console.warn('Could not ensure class_iteration table exists:', error.message)
-      return res.json({
-        success: true,
-        data: [],
-        warning: 'class_iteration table not available'
-      })
-    }
-    
-    // Get all iterations for the program
-    let iterationsResult
-    try {
-      iterationsResult = await pool.query(`
-        SELECT 
-          id,
-          program_id as "programId",
-          iteration_number as "iterationNumber",
-          days_of_week as "daysOfWeek",
-          start_time as "startTime",
-          end_time as "endTime",
-          time_blocks as "timeBlocks",
-          duration_type as "durationType",
-          start_date as "startDate",
-          end_date as "endDate",
-          created_at as "createdAt",
-          updated_at as "updatedAt"
-        FROM class_iteration
-        WHERE program_id = $1
-        ORDER BY iteration_number ASC
-      `, [programId])
-    } catch (queryError) {
-      if (queryError.message && (queryError.message.includes('does not exist') || queryError.message.includes('relation') && queryError.message.includes('class_iteration'))) {
-        return res.json({
-          success: true,
-          data: [],
-          warning: 'class_iteration table not found'
-        })
-      }
-      throw queryError
-    }
-    
-    const iterations = iterationsResult.rows
-    
-    // Check if member_program table exists
-    const memberProgramTableCheck = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'member_program'
-      )
-    `)
-    
-    const hasMemberProgramTable = memberProgramTableCheck.rows[0].exists
-    
-    // For each iteration, get enrollment counts per day
-    const iterationsWithStats = await Promise.all(iterations.map(async (iteration) => {
-      const dayCounts = {
-        monday: 0,
-        tuesday: 0,
-        wednesday: 0,
-        thursday: 0,
-        friday: 0,
-        saturday: 0,
-        sunday: 0
-      }
-      
-      if (hasMemberProgramTable) {
-        try {
-          // Get all enrollments for this iteration
-          const enrollmentsResult = await pool.query(`
-            SELECT selected_days
-            FROM member_program
-            WHERE iteration_id = $1 AND selected_days IS NOT NULL
-          `, [iteration.id])
-          
-          // Count enrollments per day
-          enrollmentsResult.rows.forEach(row => {
-            if (row.selected_days && Array.isArray(row.selected_days)) {
-              row.selected_days.forEach(day => {
-                const dayLower = day.toLowerCase()
-                if (dayCounts.hasOwnProperty(dayLower)) {
-                  dayCounts[dayLower]++
-                }
-              })
-            }
-          })
-        } catch (enrollmentError) {
-          console.warn('Error fetching enrollment stats for iteration:', iteration.id, enrollmentError.message)
-        }
-      }
-      
-      return {
-        ...iteration,
-        enrollmentCounts: dayCounts
-      }
-    }))
-    
-    res.json({
-      success: true,
-      data: iterationsWithStats
-    })
-  } catch (error) {
-    console.error('Get iteration stats error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    })
-  }
-})
-
 // ========== CATEGORY ENDPOINTS ==========
 
 // Get all categories (admin endpoint)
@@ -14389,10 +12774,6 @@ const startServer = async () => {
         const methods = Object.keys(middleware.route.methods).join(', ').toUpperCase()
         console.log(`[Server ${workerId}]   ${methods} ${middleware.route.path}`)
         routeCount++
-        if (middleware.route.path === '/api/members/enroll') {
-          enrollmentFound = true
-          console.log(`[Server ${workerId}]   ✅ Found enrollment endpoint: ${methods} ${middleware.route.path}`)
-        }
       }
     })
     console.log(`[Server ${workerId}] Total routes registered: ${routeCount}`)
@@ -14417,7 +12798,6 @@ const startServer = async () => {
         console.log(`[Server ${workerId}] 📊 Health check: http://localhost:${PORT}/api/health`)
         console.log(`[Server ${workerId}] 📝 Registrations: http://localhost:${PORT}/api/registrations`)
         console.log(`[Server ${workerId}] 📧 Newsletter: http://localhost:${PORT}/api/newsletter`)
-        console.log(`[Server ${workerId}] 📝 Enrollment: POST http://localhost:${PORT}/api/members/enroll`)
         if (!enrollmentFound) {
           console.error(`[Server ${workerId}] ⚠️ ERROR: Enrollment endpoint missing on worker ${workerId}!`)
         }

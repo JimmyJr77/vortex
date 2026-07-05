@@ -43,6 +43,8 @@ export async function initPlatformTables(pool) {
     '045_drop_family_member_relationship_label.sql',
     '046_signup_billing_charges.sql',
     '047_stripe_billing_scaffold.sql',
+    '048_program_pricing_cost_options.sql',
+    '049_multi_class_pass.sql',
     '053_billing_recurring_model.sql',
     '054_billing_anchor_first.sql',
     '055_enrollment_cancel_effective.sql',
@@ -79,6 +81,10 @@ export async function initPlatformTables(pool) {
     '086_coaching_session_templates.sql',
     '087_coaching_phase_order_slot_education.sql',
     '088_archive_orphan_scheduling_forms.sql',
+    '089_drop_class_iteration.sql',
+    '090_drop_member_program.sql',
+    '091_drop_admins_and_trim_roles.sql',
+    '092_drop_sport_pricing_default.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

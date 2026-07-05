@@ -1,15 +1,12 @@
 /**
  * Unified admin enrollments view for a member.
  *
- * One row per enrollment (scheduling_signup of any lifecycle status, plus legacy
- * member_program rows folded in) with the columns the admin table needs:
+ * One row per scheduling_signup enrollment with columns the admin table needs:
  * sport, program, class, offering, schedule, class cost, adjusted cost (after
  * discounts), status, and the billing-subscription status when present.
  *
  * Per-class cost is taken from the live pricing preview (existingClasses[].monthlyPrice),
- * which is a marginal allocation that reconciles to the member's true monthly total —
- * this is what makes the per-class numbers and the total agree (the old view showed each
- * signup's stored snapshot, which for weekly-tier programs did not reconcile).
+ * which is a marginal allocation that reconciles to the member's true monthly total.
  */
 
 import {
@@ -328,74 +325,12 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
     return enriched
   })
 
-  // Legacy member_program rows (folded in, labeled). No modern cost source.
-  let legacyRows = []
-  try {
-    const legacyResult = await pool.query(
-      `
-        SELECT mp.id, mp.program_id, mp.days_per_week, mp.selected_days, mp.created_at,
-          COALESCE(class_p.display_name, class_p.name, 'Class') AS class_name,
-          COALESCE(pr.display_name, pr.name) AS program_name,
-          sport_dt.name AS sport_name
-        FROM member_program mp
-        LEFT JOIN program class_p ON class_p.id = mp.program_id
-        LEFT JOIN ${programsTable} pr ON pr.id = class_p.${programFkColumn}
-        LEFT JOIN discipline_tag sport_dt ON sport_dt.id = pr.primary_discipline_tag_id
-        WHERE mp.member_id = $1
-        ORDER BY class_name, mp.id
-      `,
-      [memberId],
-    )
-    const taxonomyByClassId = await loadEnrollmentTaxonomyByClassIds(
-      pool,
-      legacyResult.rows.map((row) => Number(row.program_id)),
-    )
-    legacyRows = legacyResult.rows.map((row) => {
-      const selectedDays = parseSelectedDays(row.selected_days)
-      const taxonomy = taxonomyByClassId.get(Number(row.program_id))
-      const programName = taxonomy?.programName ?? (row.program_name || null)
-      const sportName = taxonomy?.sportName ?? (row.sport_name || null)
-      const className = taxonomy?.className ?? (row.class_name || 'Class')
-      return applyEnrollmentTaxonomy(
-        {
-          id: Number(row.id),
-          source: 'member_program',
-          sport_name: sportName,
-          program_name: programName,
-          class_name: className,
-          program_id: taxonomy?.programId ?? (row.program_id != null ? Number(row.program_id) : null),
-          form_id: null,
-          slot_group_id: null,
-          time_slot_id: null,
-          offering_id: null,
-          offering_label: null,
-          offering_dates: '—',
-          schedule: formatLegacySlotLabel(selectedDays, row.days_per_week),
-          status: 'active',
-          billing_status: null,
-          class_cost_cents: null,
-          adjusted_cost_cents: null,
-          manual_discount_cents: null,
-          manual_discount_pct: null,
-          manual_discount_reason: null,
-          manual_discount_rule_id: null,
-          completed_at: null,
-          created_at: row.created_at,
-        },
-        taxonomy,
-      )
-    })
-  } catch (err) {
-    console.warn('[adminEnrollmentsView] legacy load failed:', err.message)
-    legacyRows = []
-  }
-
   return {
     member: {
       id: Number(memberRow.id),
       firstName: memberRow.first_name,
       lastName: memberRow.last_name,
     },
-    rows: [...schedulingRows, ...legacyRows],
+    rows: schedulingRows,
   }
 }

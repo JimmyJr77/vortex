@@ -402,21 +402,6 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
       }
     })
 
-    app.post(`/api/${portal}/messages/:threadId/pin/:messageId`, auth, async (req, res) => {
-      try {
-        await ensureSchema()
-        const threadId = num(req.params.threadId)
-        const messageId = num(req.params.messageId)
-        const ctx = await assertThreadAccess(req, res, threadId, portal)
-        if (!ctx) return
-        const pin = await pinMessage(pool, threadId, messageId, ctx.viewer)
-        if (!pin) return bad(res, 'Message not found.', 404)
-        ok(res, pin)
-      } catch (error) {
-        bad(res, error.message, 500)
-      }
-    })
-
     app.get(`/api/${portal}/messages/:threadId/pin-groups`, auth, async (req, res) => {
       try {
         await ensureSchema()
@@ -831,7 +816,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
       }
     })
 
-    // Poll vote
+    // Poll vote (legacy carrier messages may still reference message-bound polls)
     app.post(`/api/${portal}/messages/:threadId/messages/:messageId/poll/vote`, auth, async (req, res) => {
       try {
         await ensureSchema()
@@ -850,49 +835,6 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
       }
     })
 
-    app.post(`/api/${portal}/messages/:threadId/messages/:messageId/poll`, auth, async (req, res) => {
-      try {
-        await ensureSchema()
-        const threadId = num(req.params.threadId)
-        const messageId = num(req.params.messageId)
-        const ctx = await assertThreadAccess(req, res, threadId, portal)
-        if (!ctx) return
-        const question = String(req.body?.question || '').trim()
-        const options = Array.isArray(req.body?.options) ? req.body.options : []
-        if (!question || options.length < 2) {
-          return bad(res, 'question and at least two options are required.')
-        }
-        ok(res, await createMessagePoll(pool, messageId, {
-          question,
-          options,
-          closesAt: req.body?.closes_at ?? req.body?.closesAt ?? null,
-        }))
-      } catch (error) {
-        bad(res, error.message, 500)
-      }
-    })
-
-    app.post(`/api/${portal}/messages/:threadId/messages/:messageId/checklist`, auth, async (req, res) => {
-      try {
-        await ensureSchema()
-        const threadId = num(req.params.threadId)
-        const messageId = num(req.params.messageId)
-        const ctx = await assertThreadAccess(req, res, threadId, portal)
-        if (!ctx) return
-        const items = Array.isArray(req.body?.items) ? req.body.items : []
-        if (items.length === 0) return bad(res, 'items are required.')
-        ok(res, await createMessageChecklist(pool, messageId, items, {
-          title: req.body?.title || 'Signup list',
-          sheetType: req.body?.sheet_type ?? req.body?.sheetType ?? 'items',
-          config: req.body?.config || {},
-          closesAt: req.body?.closes_at ?? req.body?.closesAt ?? null,
-          eventDate: req.body?.event_date ?? req.body?.eventDate ?? null,
-        }))
-      } catch (error) {
-        bad(res, error.message, 500)
-      }
-    })
-
     app.post(`/api/${portal}/messages/:threadId/messages/:messageId/signup/respond`, auth, async (req, res) => {
       try {
         await ensureSchema()
@@ -902,37 +844,6 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         if (!ctx) return
         await upsertSignupResponse(pool, messageId, req.body?.response || {}, ctx.viewer)
         ok(res, await loadMessageChecklist(pool, messageId))
-      } catch (error) {
-        bad(res, error.message, 500)
-      }
-    })
-
-    app.post(`/api/${portal}/messages/:threadId/messages/:messageId/checklist/claim`, auth, async (req, res) => {
-      try {
-        await ensureSchema()
-        const threadId = num(req.params.threadId)
-        const messageId = num(req.params.messageId)
-        const ctx = await assertThreadAccess(req, res, threadId, portal)
-        if (!ctx) return
-        const itemIndex = num(req.body?.item_index ?? req.body?.itemIndex)
-        if (itemIndex == null) return bad(res, 'item_index is required.')
-        const claimNote = req.body?.claim_note ?? req.body?.claimNote ?? null
-        ok(res, await claimChecklistItem(pool, messageId, itemIndex, ctx.viewer, claimNote))
-      } catch (error) {
-        bad(res, error.message, 500)
-      }
-    })
-
-    app.post(`/api/${portal}/messages/:threadId/messages/:messageId/checklist/unclaim`, auth, async (req, res) => {
-      try {
-        await ensureSchema()
-        const threadId = num(req.params.threadId)
-        const messageId = num(req.params.messageId)
-        const ctx = await assertThreadAccess(req, res, threadId, portal)
-        if (!ctx) return
-        const itemIndex = num(req.body?.item_index ?? req.body?.itemIndex)
-        if (itemIndex == null) return bad(res, 'item_index is required.')
-        ok(res, await unclaimChecklistItem(pool, messageId, itemIndex, ctx.viewer))
       } catch (error) {
         bad(res, error.message, 500)
       }

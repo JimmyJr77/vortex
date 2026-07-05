@@ -107,13 +107,12 @@ export async function issueEnrollmentReceipt(pool, params) {
 
   await pool.query(
     `INSERT INTO enrollment_receipt_token (
-      member_id, scheduling_signup_id, member_program_id,
+      member_id, scheduling_signup_id,
       recipient_email, token_hash, payload, expires_at
-    ) VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7)`,
+    ) VALUES ($1, $2, $3, $4, $5::jsonb, $6)`,
     [
       Number(memberId),
       schedulingSignupId != null ? Number(schedulingSignupId) : null,
-      memberProgramId != null ? Number(memberProgramId) : null,
       to,
       tokenHash,
       JSON.stringify(payload),

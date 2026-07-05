@@ -6,7 +6,7 @@ import type { Workout } from '../../coach/types'
 interface SavedSession {
   id: number
   program_id?: number | null
-  class_iteration_id?: number | null
+  class_iteration_id?: number | null // legacy column removed; kept optional for old API payloads
   workout_id?: number | null
   workout_title?: string | null
   calendar_event_key?: string | null
