@@ -58,6 +58,8 @@ export async function initPlatformTables(pool) {
     '065_coaching_message_platform_foundation.sql',
     '066_coaching_message_files_alerts.sql',
     '067_coaching_message_collaboration.sql',
+    '068_coaching_message_pin_groups.sql',
+    '069_coaching_thread_faq_master_list.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

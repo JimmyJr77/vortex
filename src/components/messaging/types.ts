@@ -140,3 +140,25 @@ export interface CriticalComposeFlags {
   is_critical: boolean
   requires_ack: boolean
 }
+
+export interface MessagePinGroup {
+  id: number
+  thread_id: number
+  user_id?: number | null
+  member_id?: number | null
+  created_at: string
+  message_ids: number[]
+}
+
+export interface SuperPinGroup {
+  message_ids: number[]
+  created_at: string
+  source_group_ids?: number[]
+}
+
+export type PinFilterMode = 'off' | 'mine' | 'super'
+
+export interface MessageDisplayGroup {
+  groupId?: number
+  messageIds: number[]
+}

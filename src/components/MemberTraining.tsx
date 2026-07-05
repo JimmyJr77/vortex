@@ -21,6 +21,8 @@ import { uploadMessageAttachment, type UploadedAttachment } from './messaging/me
 import { markThreadRead } from './messaging/messagingApi'
 import MessagingThreadFaq from './messaging/MessagingThreadFaq'
 import MessagingThreadDetailShell from './messaging/MessagingThreadDetailShell'
+import MessagePinSelectionBar from './messaging/MessagePinSelectionBar'
+import { useThreadPinGroups } from './messaging/useThreadPinGroups'
 import {
   countThreadsByInboxTab,
   filterMessageThreads,
@@ -40,7 +42,7 @@ import type {
 } from './messaging/types'
 import { mergeRecipientOptions, participantKey } from './messaging/types'
 import { useMessageRealtime } from '../hooks/useMessageRealtime'
-import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Trophy, Video } from 'lucide-react'
+import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Trophy, Video, X } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts'
 import { coachFetch } from '../coach/api'
 import type { Workout } from '../coach/types'
@@ -859,8 +861,10 @@ export function MemberMessagesTab({
   const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('all')
   const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
   const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
+  const [faqPanelOpen, setFaqPanelOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const viewer = useMemo(() => getMessageViewer('member'), [])
+  const pins = useThreadPinGroups(selectedId, 'member', coachFetch)
   const inboxCounts = useMemo(() => countThreadsByInboxTab(threads), [threads])
   const tabFilteredThreads = useMemo(
     () => filterThreadsByInboxTab(threads, inboxTab),
@@ -952,6 +956,7 @@ export function MemberMessagesTab({
       setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
       setThreadInfoJson(data.thread.info_json ?? null)
       setLinkedThreadId(data.thread.linked_thread_id ?? null)
+      setFaqPanelOpen(false)
       setMessages(data.messages)
       const lastId = data.messages[data.messages.length - 1]?.id
       void markThreadRead('member', id, coachFetch, lastId)
@@ -1193,6 +1198,16 @@ export function MemberMessagesTab({
                       <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
                     )}
                   </div>
+                  {faqPanelOpen ? (
+                    <button
+                      type="button"
+                      aria-label="Close FAQ"
+                      onClick={() => setFaqPanelOpen(false)}
+                      className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  ) : (
                   <ThreadHeaderMenu
                     subject={subject}
                     subjectLocked={subjectLocked}
@@ -1212,10 +1227,16 @@ export function MemberMessagesTab({
                     favoriteLoading={favoriteLoading}
                     canAttach
                     onAttachmentPick={setPendingAttachment}
+                    pinFilter={pins.pinFilter}
+                    onPinFilterChange={pins.togglePinFilter}
+                    pinControlsDisabled={pins.pinSelectionActive}
+                    onOpenFaq={() => setFaqPanelOpen(true)}
                   />
+                  )}
                 </div>
               }
               footer={
+                faqPanelOpen ? undefined : (
                 <MessageReplyComposer
                   reply={reply}
                   onReplyChange={setReply}
@@ -1227,8 +1248,19 @@ export function MemberMessagesTab({
                   pendingAttachment={pendingAttachment}
                   onClearAttachment={() => setPendingAttachment(null)}
                 />
+                )
               }
             >
+              {faqPanelOpen ? (
+                <MessagingThreadFaq
+                  role="member"
+                  threadId={selectedId}
+                  fetcher={coachFetch}
+                  canEdit={false}
+                  variant="panel"
+                />
+              ) : (
+              <>
               <MessagingContextBanner
                 linkedThreadId={linkedThreadId}
                 linkedThreadTitle={
@@ -1239,7 +1271,14 @@ export function MemberMessagesTab({
                 onJump={(id) => void openThread(id)}
               />
               <MessagingInfoCard infoJson={threadInfoJson} />
-              <MessagingThreadFaq role="member" threadId={selectedId} fetcher={coachFetch} canEdit />
+              {pins.pinSelection && (
+                <MessagePinSelectionBar
+                  selectedCount={pins.pinSelection.size}
+                  saving={pins.saving}
+                  onSave={() => void pins.savePinSelection()}
+                  onCancel={pins.cancelPinSelection}
+                />
+              )}
               <MessagingMessageThread
                 messages={messages}
                 viewer={viewer}
@@ -1250,6 +1289,16 @@ export function MemberMessagesTab({
                 messagesEndRef={messagesEndRef}
                 showSenderName={false}
                 onReply={replyToMessage}
+                onPinComment={(message) => pins.startPinSelection(message.id)}
+                canUnpinMessage={(message) =>
+                  pins.pinFilter === 'mine' && Boolean(pins.findOwnedGroupForMessage(message.id))
+                }
+                onUnpin={(message) => void pins.unpinMessage(message.id)}
+                pinSelectionActive={pins.pinSelectionActive}
+                pinSelectedIds={pins.pinSelection ?? undefined}
+                onPinSelectionToggle={(message) => pins.togglePinSelectionMessage(message.id)}
+                displayGroups={pins.displayGroups}
+                pinFilterActive={pins.pinFilter !== 'off'}
                 onReactionsUpdated={(messageId, reactions) => {
                   setMessages((prev) =>
                     prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
@@ -1257,6 +1306,8 @@ export function MemberMessagesTab({
                 }}
                 className="p-4 space-y-2"
               />
+              </>
+              )}
             </MessagingThreadDetailShell>
           )
         }

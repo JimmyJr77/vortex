@@ -24,6 +24,12 @@ interface MessageBubbleProps {
   onReactionsUpdated?: (messageId: number, reactions: MessageReactionGroup[]) => void
   onReply?: (message: MessageRow) => void
   onReplyWithFaq?: (message: MessageRow) => void
+  onPinComment?: (message: MessageRow) => void
+  canUnpin?: boolean
+  onUnpin?: (message: MessageRow) => void
+  pinSelectionActive?: boolean
+  pinSelected?: boolean
+  onPinSelectionToggle?: (message: MessageRow) => void
   reactionsDisabled?: boolean
 }
 
@@ -37,6 +43,12 @@ export default function MessageBubble({
   onReactionsUpdated,
   onReply,
   onReplyWithFaq,
+  onPinComment,
+  canUnpin = false,
+  onUnpin,
+  pinSelectionActive = false,
+  pinSelected = false,
+  onPinSelectionToggle,
   reactionsDisabled = false,
 }: MessageBubbleProps) {
   const footerMeta = messageFooterMeta(message, viewer)
@@ -48,6 +60,8 @@ export default function MessageBubble({
   const touchStart = useRef<{ x: number; y: number } | null>(null)
   const longPressHandled = useRef(false)
   const [actionMenu, setActionMenu] = useState<{ x: number; y: number } | null>(null)
+
+  const hasContextMenu = Boolean(onReply || onPinComment || (canUnpin && onUnpin))
 
   useEffect(() => {
     if (!actionMenu) return
@@ -68,20 +82,25 @@ export default function MessageBubble({
   }
 
   const openActionMenu = (x: number, y: number, e?: SyntheticEvent) => {
-    if (!onReply || isDeleted) return
+    if (!hasContextMenu || isDeleted) return
     e?.preventDefault()
-    if (!onReplyWithFaq) {
-      onReply(message)
-      return
-    }
     setActionMenu({ x, y })
+  }
+
+  const handleBubbleClick = (e: React.MouseEvent) => {
+    if (!pinSelectionActive || !onPinSelectionToggle || isDeleted) return
+    if ((e.target as HTMLElement).closest('button, a, input, textarea')) return
+    onPinSelectionToggle(message)
   }
 
   return (
     <div
       className={`${messageBubbleClassName(message, viewer)}${
         mentionedYou ? ' ring-2 ring-vortex-red ring-offset-1' : ''
+      }${pinSelected ? ' ring-2 ring-amber-400 ring-offset-1' : ''}${
+        pinSelectionActive && !isDeleted ? ' cursor-pointer' : ''
       } flex flex-col touch-manipulation`}
+      onClick={pinSelectionActive ? handleBubbleClick : undefined}
       onContextMenu={(e) => {
         if (longPressHandled.current) {
           e.preventDefault()
@@ -91,7 +110,7 @@ export default function MessageBubble({
         openActionMenu(e.clientX, e.clientY, e)
       }}
       onTouchStart={(e) => {
-        if (!onReply || isDeleted) return
+        if (pinSelectionActive || !hasContextMenu || isDeleted) return
         longPressHandled.current = false
         const t = e.touches[0]
         if (!t) return
@@ -126,31 +145,59 @@ export default function MessageBubble({
     >
       {actionMenu && (
         <div
-          className="fixed z-50 w-40 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+          className="fixed z-50 w-44 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
           style={{ left: actionMenu.x, top: actionMenu.y }}
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            type="button"
-            onClick={() => {
-              setActionMenu(null)
-              onReply?.(message)
-            }}
-            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
-          >
-            Reply
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setActionMenu(null)
-              onReplyWithFaq?.(message)
-            }}
-            className="w-full px-3 py-2 text-left text-sm font-semibold text-vortex-red hover:bg-red-50"
-          >
-            Reply + FAQ
-          </button>
+          {onReply && (
+            <button
+              type="button"
+              onClick={() => {
+                setActionMenu(null)
+                onReply(message)
+              }}
+              className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+            >
+              Reply
+            </button>
+          )}
+          {onReplyWithFaq && (
+            <button
+              type="button"
+              onClick={() => {
+                setActionMenu(null)
+                onReplyWithFaq(message)
+              }}
+              className="w-full px-3 py-2 text-left text-sm font-semibold text-vortex-red hover:bg-red-50"
+            >
+              Reply + FAQ
+            </button>
+          )}
+          {onPinComment && !pinSelectionActive && (
+            <button
+              type="button"
+              onClick={() => {
+                setActionMenu(null)
+                onPinComment(message)
+              }}
+              className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+            >
+              Pin comment
+            </button>
+          )}
+          {canUnpin && onUnpin && (
+            <button
+              type="button"
+              onClick={() => {
+                setActionMenu(null)
+                onUnpin(message)
+              }}
+              className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+            >
+              Unpin
+            </button>
+          )}
         </div>
       )}
       {(message.is_critical || isDeleted || isEdited || mentionedYou) && (
@@ -213,7 +260,7 @@ export default function MessageBubble({
             messageId={message.id}
             fetcher={fetcher}
             reactions={message.reactions}
-            disabled={reactionsDisabled}
+            disabled={reactionsDisabled || pinSelectionActive}
             onUpdated={(reactions) => onReactionsUpdated?.(message.id, reactions)}
           />
         )}

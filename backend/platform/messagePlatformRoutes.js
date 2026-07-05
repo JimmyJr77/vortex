@@ -11,6 +11,9 @@ import {
   enrichThreadsWithTags,
   linkThreadToObject,
   pinMessage,
+  createMessagePinGroup,
+  deleteMessagePinGroup,
+  loadThreadPinGroupsResponse,
   searchMessages,
   listMessageFiles,
   acknowledgeMessage,
@@ -25,6 +28,10 @@ import {
   createThreadFaq,
   updateThreadFaq,
   deleteThreadFaq,
+  listFacilityFaqLibrary,
+  listMemberMasterFaqs,
+  createFacilityFaqEntry,
+  deleteFacilityFaqEntry,
   logMessageAudit,
   exportMessageAudit,
   getMessageRetentionPolicy,
@@ -248,6 +255,51 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
       }
     })
 
+    app.get(`/api/${portal}/messages/:threadId/pin-groups`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        ok(res, await loadThreadPinGroupsResponse(pool, threadId, ctx.viewer))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/pin-groups`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const rawIds = req.body?.message_ids ?? req.body?.messageIds
+        const messageIds = Array.isArray(rawIds) ? rawIds.map((id) => num(id)).filter(Number.isFinite) : []
+        if (messageIds.length === 0) return bad(res, 'message_ids is required.')
+        const group = await createMessagePinGroup(pool, threadId, messageIds, ctx.viewer)
+        if (!group) return bad(res, 'Message not found.', 404)
+        ok(res, group)
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.delete(`/api/${portal}/messages/:threadId/pin-groups/:groupId`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const groupId = num(req.params.groupId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const result = await deleteMessagePinGroup(pool, groupId, ctx.viewer)
+        if (result === 'forbidden') return bad(res, 'You can only unpin your own pin groups.', 403)
+        if (!result) return bad(res, 'Pin group not found.', 404)
+        ok(res, result)
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
     app.get(`/api/${portal}/messages/search`, auth, async (req, res) => {
       try {
         await ensureSchema()
@@ -390,6 +442,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
     app.post(`/api/${portal}/messages/:threadId/faq`, auth, async (req, res) => {
       try {
         await ensureSchema()
+        if (portal === 'member') return bad(res, 'Members cannot add thread FAQs.', 403)
         const threadId = num(req.params.threadId)
         const ctx = await assertThreadAccess(req, res, threadId, portal)
         if (!ctx) return
@@ -401,6 +454,9 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
           answer,
           sortOrder: num(req.body?.sort_order ?? req.body?.sortOrder),
           createdByUserId: ctx.viewer.userId,
+          inMasterList: Boolean(req.body?.in_master_list ?? req.body?.inMasterList),
+          masterSortOrder: num(req.body?.master_sort_order ?? req.body?.masterSortOrder),
+          facilityId: ctx.facilityId,
         }))
       } catch (error) {
         bad(res, error.message, 500)
@@ -410,6 +466,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
     app.patch(`/api/${portal}/messages/:threadId/faq/:faqId`, auth, async (req, res) => {
       try {
         await ensureSchema()
+        if (portal === 'member') return bad(res, 'Members cannot edit thread FAQs.', 403)
         const threadId = num(req.params.threadId)
         const ctx = await assertThreadAccess(req, res, threadId, portal)
         if (!ctx) return
@@ -418,6 +475,8 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
           question: req.body?.question,
           answer: req.body?.answer,
           sortOrder: num(req.body?.sort_order ?? req.body?.sortOrder),
+          inMasterList: req.body?.in_master_list ?? req.body?.inMasterList,
+          masterSortOrder: num(req.body?.master_sort_order ?? req.body?.masterSortOrder),
         }))
       } catch (error) {
         bad(res, error.message, 500)
@@ -427,6 +486,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
     app.delete(`/api/${portal}/messages/:threadId/faq/:faqId`, auth, async (req, res) => {
       try {
         await ensureSchema()
+        if (portal === 'member') return bad(res, 'Members cannot delete thread FAQs.', 403)
         const threadId = num(req.params.threadId)
         const ctx = await assertThreadAccess(req, res, threadId, portal)
         if (!ctx) return
@@ -436,6 +496,96 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         bad(res, error.message, 500)
       }
     })
+
+    if (portal === 'coach' || portal === 'admin') {
+      app.get(`/api/${portal}/messages/faq-library`, auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+            return bad(res, 'Admin access required.', 403)
+          }
+          const facilityId = req.platformAuth.user.facility_id
+          ok(res, await listFacilityFaqLibrary(pool, facilityId))
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+
+      app.post(`/api/${portal}/messages/faq-library`, auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+            return bad(res, 'Admin access required.', 403)
+          }
+          const facilityId = req.platformAuth.user.facility_id
+          const question = String(req.body?.question || '').trim()
+          const answer = String(req.body?.answer || '').trim()
+          if (!question || !answer) return bad(res, 'question and answer are required.')
+          const created = await createFacilityFaqEntry(pool, facilityId, {
+            threadId: num(req.body?.thread_id ?? req.body?.threadId),
+            question,
+            answer,
+            sortOrder: num(req.body?.sort_order ?? req.body?.sortOrder),
+            createdByUserId: Number(req.platformAuth.user.id),
+            inMasterList: Boolean(req.body?.in_master_list ?? req.body?.inMasterList),
+            masterSortOrder: num(req.body?.master_sort_order ?? req.body?.masterSortOrder),
+          })
+          if (!created) return bad(res, 'Could not create FAQ entry.', 400)
+          ok(res, created)
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+
+      app.patch(`/api/${portal}/messages/faq-library/:faqId`, auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+            return bad(res, 'Admin access required.', 403)
+          }
+          const faqId = num(req.params.faqId)
+          const updated = await updateThreadFaq(pool, faqId, {
+            question: req.body?.question,
+            answer: req.body?.answer,
+            sortOrder: num(req.body?.sort_order ?? req.body?.sortOrder),
+            inMasterList: req.body?.in_master_list ?? req.body?.inMasterList,
+            masterSortOrder: num(req.body?.master_sort_order ?? req.body?.masterSortOrder),
+          })
+          if (!updated) return bad(res, 'FAQ not found.', 404)
+          ok(res, updated)
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+
+      app.delete(`/api/${portal}/messages/faq-library/:faqId`, auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+            return bad(res, 'Admin access required.', 403)
+          }
+          const facilityId = req.platformAuth.user.facility_id
+          const result = await deleteFacilityFaqEntry(pool, facilityId, num(req.params.faqId))
+          if (result === 'forbidden') return bad(res, 'FAQ not found.', 404)
+          if (!result) return bad(res, 'FAQ not found.', 404)
+          ok(res, result)
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+    }
+
+    if (portal === 'member') {
+      app.get('/api/member/faqs', auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          const facilityId = req.platformAuth.user.facility_id
+          ok(res, await listMemberMasterFaqs(pool, facilityId))
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+    }
   }
 
   // Admin-only event thread provisioning

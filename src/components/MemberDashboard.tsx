@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Settings } from 'lucide-react'
+import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Settings, CircleHelp } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
@@ -19,6 +19,7 @@ import { NOTIFICATION_NAV_EVENT, type NotificationNavigateDetail } from '../util
 import { coachFetch } from '../coach/api'
 import { fetchEventMessageThreads, pickEventDiscussionThreadId } from './messaging/messagingApi'
 import PortalPreferencesPanel from './messaging/PortalPreferencesPanel'
+import MemberMasterFaqsPanel from './messaging/MemberMasterFaqsPanel'
 import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
 import type { PortalId } from '../utils/portalSession'
 import { firstVisiblePortalTab, isPortalTabVisible, orderPortalItems } from '../utils/portalTabConfig'
@@ -31,7 +32,7 @@ interface MemberDashboardProps {
   onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
 }
 
-export type MemberTab = 'home' | 'profile' | 'classes' | 'events' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages' | 'preferences'
+export type MemberTab = 'home' | 'profile' | 'classes' | 'events' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages' | 'faqs' | 'preferences'
 
 const NAV: Array<{ tab: MemberTab; label: string; icon: typeof Home }> = [
   { tab: 'home', label: 'Home', icon: Home },
@@ -40,6 +41,7 @@ const NAV: Array<{ tab: MemberTab; label: string; icon: typeof Home }> = [
   { tab: 'training', label: 'Training', icon: Dumbbell },
   { tab: 'progress', label: 'Progress', icon: TrendingUp },
   { tab: 'messages', label: 'Messages', icon: MessageSquare },
+  { tab: 'faqs', label: 'FAQs', icon: CircleHelp },
   { tab: 'events', label: 'Events', icon: Calendar },
   { tab: 'billing', label: 'Billing', icon: CreditCard },
   { tab: 'waivers', label: 'Waivers', icon: FileText },
@@ -2070,6 +2072,19 @@ export default function MemberDashboard({
                   initialThreadId={openMessageThreadId}
                   onInitialThreadOpened={() => setOpenMessageThreadId(null)}
                 />
+              </motion.div>
+            )}
+
+            {activeTab === 'faqs' && (
+              <motion.div
+                key="faqs"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="p-4"
+              >
+                <MemberMasterFaqsPanel />
               </motion.div>
             )}
 

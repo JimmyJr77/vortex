@@ -95,9 +95,9 @@ export default function MessageReplyComposer({
   }
 
   return (
-    <div className="p-4 border-t border-gray-100 shrink-0 bg-white">
+    <div className="flex flex-col flex-1 min-h-0 px-4 pb-4 pt-2 bg-white">
       {pendingAttachment && (
-        <div className="mb-2 flex items-center gap-2 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5">
+        <div className="mb-2 shrink-0 flex items-center gap-2 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5">
           <Paperclip className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate flex-1">{pendingAttachment.name}</span>
           {onClearAttachment && (
@@ -112,8 +112,8 @@ export default function MessageReplyComposer({
           )}
         </div>
       )}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
+      <div className="flex gap-2 items-end flex-1 min-h-0">
+        <div className="relative flex-1 min-h-0 flex flex-col">
           {showMentionMenu && mentionOptions.length > 0 && (
             <div className="absolute bottom-full left-0 right-0 mb-1 max-h-40 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg z-20">
               {mentionOptions.slice(0, 8).map((participant) => {
@@ -139,7 +139,6 @@ export default function MessageReplyComposer({
           <textarea
             ref={inputRef}
             value={reply}
-            rows={1}
             onChange={(e) => {
               onReplyChange(e.target.value)
               syncMentionMenu(e.target.value, e.target.selectionStart ?? e.target.value.length)
@@ -151,7 +150,7 @@ export default function MessageReplyComposer({
               syncMentionMenu(reply, e.currentTarget.selectionStart ?? reply.length)
             }}
             placeholder={placeholder}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none min-h-[42px]"
+            className="w-full flex-1 min-h-[42px] border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none"
             onKeyDown={(e) => {
               if (showMentionMenu && mentionOptions.length > 0 && e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
@@ -169,7 +168,7 @@ export default function MessageReplyComposer({
           type="button"
           onClick={handleSend}
           disabled={sending || !canSend}
-          className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60 self-end"
+          className="h-[42px] shrink-0 inline-flex items-center justify-center bg-gray-900 text-white px-4 rounded-lg text-sm font-semibold disabled:opacity-60"
         >
           {sendLabel}
         </button>

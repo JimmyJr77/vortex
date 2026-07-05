@@ -287,19 +287,164 @@ export async function loadThreadLinks(pool, threadId) {
 }
 
 export async function pinMessage(pool, threadId, messageId, viewer) {
-  const msgCheck = await pool.query(
-    `SELECT id FROM coaching.message WHERE id = $1 AND thread_id = $2`,
-    [messageId, threadId],
-  )
-  if (msgCheck.rows.length === 0) return null
+  return createMessagePinGroup(pool, threadId, [messageId], viewer)
+}
+
+function viewerOwnsPinGroup(group, viewer) {
+  if (viewer?.userId != null && group.user_id != null) {
+    return Number(group.user_id) === Number(viewer.userId)
+  }
+  if (viewer?.memberId != null && group.member_id != null) {
+    return Number(group.member_id) === Number(viewer.memberId)
+  }
+  return false
+}
+
+function normalizePinGroupRow(row) {
+  const rawIds = row.message_ids
+  const messageIds = Array.isArray(rawIds)
+    ? rawIds.map(Number).filter(Number.isFinite)
+    : typeof rawIds === 'string'
+      ? JSON.parse(rawIds).map(Number).filter(Number.isFinite)
+      : []
+  return {
+    id: Number(row.id),
+    thread_id: Number(row.thread_id),
+    user_id: row.user_id != null ? Number(row.user_id) : null,
+    member_id: row.member_id != null ? Number(row.member_id) : null,
+    created_at: row.created_at,
+    message_ids: messageIds,
+  }
+}
+
+const PIN_GROUP_SELECT = `
+  SELECT g.id, g.thread_id, g.user_id, g.member_id, g.created_at,
+    COALESCE(
+      json_agg(i.message_id ORDER BY msg.created_at, i.message_id)
+        FILTER (WHERE i.message_id IS NOT NULL),
+      '[]'::json
+    ) AS message_ids
+  FROM coaching.message_pin_group g
+  LEFT JOIN coaching.message_pin_group_item i ON i.group_id = g.id
+  LEFT JOIN coaching.message msg ON msg.id = i.message_id
+`
+
+export function mergePinGroupsIntoSuper(groups) {
+  const components = (groups || []).map((group) => ({
+    messageIds: new Set(group.message_ids || []),
+    earliestCreated: group.created_at,
+    sourceGroupIds: [group.id],
+  }))
+
+  let merged = true
+  while (merged) {
+    merged = false
+    for (let i = 0; i < components.length; i += 1) {
+      for (let j = i + 1; j < components.length; j += 1) {
+        const a = components[i]
+        const b = components[j]
+        const intersects = [...a.messageIds].some((id) => b.messageIds.has(id))
+        if (!intersects) continue
+        for (const id of b.messageIds) a.messageIds.add(id)
+        if (new Date(b.earliestCreated).getTime() < new Date(a.earliestCreated).getTime()) {
+          a.earliestCreated = b.earliestCreated
+        }
+        a.sourceGroupIds.push(...b.sourceGroupIds)
+        components.splice(j, 1)
+        merged = true
+        break
+      }
+      if (merged) break
+    }
+  }
+
+  return components
+    .map((component) => ({
+      message_ids: [...component.messageIds].sort((a, b) => a - b),
+      created_at: component.earliestCreated,
+      source_group_ids: [...new Set(component.sourceGroupIds)],
+    }))
+    .sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+    )
+}
+
+async function loadPinGroupsForThread(pool, threadId, { viewer = null } = {}) {
+  const params = [threadId]
+  let where = 'WHERE g.thread_id = $1'
+  if (viewer) {
+    if (viewer.userId != null) {
+      params.push(viewer.userId)
+      where += ` AND g.user_id = $${params.length}`
+    } else if (viewer.memberId != null) {
+      params.push(viewer.memberId)
+      where += ` AND g.member_id = $${params.length}`
+    }
+  }
   const r = await pool.query(
-    `INSERT INTO coaching.message_pin (thread_id, message_id, pinned_by_user_id, pinned_by_member_id)
-     VALUES ($1, $2, $3, $4)
-     ON CONFLICT (thread_id, message_id) DO UPDATE SET pinned_at = now()
-     RETURNING *`,
-    [threadId, messageId, viewer?.userId ?? null, viewer?.memberId ?? null],
+    `${PIN_GROUP_SELECT}
+     ${where}
+     GROUP BY g.id
+     ORDER BY g.created_at ASC`,
+    params,
   )
-  return r.rows[0]
+  return r.rows.map(normalizePinGroupRow)
+}
+
+export async function createMessagePinGroup(pool, threadId, messageIds, viewer) {
+  const ids = [...new Set((messageIds || []).map(Number).filter(Number.isFinite))]
+  if (ids.length === 0) return null
+  if (viewer?.userId == null && viewer?.memberId == null) return null
+
+  const msgCheck = await pool.query(
+    `SELECT id FROM coaching.message
+     WHERE thread_id = $1 AND deleted_at IS NULL AND id = ANY($2::bigint[])`,
+    [threadId, ids],
+  )
+  if (msgCheck.rows.length !== ids.length) return null
+
+  const groupRes = await pool.query(
+    `INSERT INTO coaching.message_pin_group (thread_id, user_id, member_id)
+     VALUES ($1, $2, $3)
+     RETURNING id`,
+    [threadId, viewer?.userId ?? null, viewer?.memberId ?? null],
+  )
+  const groupId = groupRes.rows[0].id
+  for (const messageId of ids) {
+    await pool.query(
+      `INSERT INTO coaching.message_pin_group_item (group_id, message_id) VALUES ($1, $2)`,
+      [groupId, messageId],
+    )
+  }
+
+  const loaded = await loadPinGroupsForThread(pool, threadId, { viewer })
+  return loaded.find((row) => row.id === Number(groupId)) ?? null
+}
+
+export async function deleteMessagePinGroup(pool, groupId, viewer) {
+  const r = await pool.query(`SELECT * FROM coaching.message_pin_group WHERE id = $1`, [groupId])
+  const group = r.rows[0]
+  if (!group) return null
+  if (!viewerOwnsPinGroup(group, viewer)) return 'forbidden'
+  await pool.query(`DELETE FROM coaching.message_pin_group WHERE id = $1`, [groupId])
+  return { deleted: true, id: Number(groupId) }
+}
+
+export async function loadViewerPinGroups(pool, threadId, viewer) {
+  return loadPinGroupsForThread(pool, threadId, { viewer })
+}
+
+export async function loadSuperPinGroups(pool, threadId) {
+  const all = await loadPinGroupsForThread(pool, threadId)
+  return mergePinGroupsIntoSuper(all)
+}
+
+export async function loadThreadPinGroupsResponse(pool, threadId, viewer) {
+  const [mine, superGroups] = await Promise.all([
+    loadViewerPinGroups(pool, threadId, viewer),
+    loadSuperPinGroups(pool, threadId),
+  ])
+  return { mine, super: superGroups }
 }
 
 export async function loadPinnedMessages(pool, threadId) {
@@ -730,6 +875,16 @@ export async function loadMessageChecklist(pool, messageId) {
 
 // --- FAQ ---
 
+async function resolveFaqFacilityId(pool, threadId, facilityId) {
+  if (facilityId != null) return facilityId
+  if (threadId == null) return null
+  const r = await pool.query(
+    `SELECT facility_id FROM coaching.message_thread WHERE id = $1`,
+    [threadId],
+  )
+  return r.rows[0]?.facility_id ?? null
+}
+
 export async function listThreadFaq(pool, threadId) {
   const r = await pool.query(
     `SELECT * FROM coaching.thread_faq WHERE thread_id = $1 ORDER BY sort_order, id`,
@@ -738,31 +893,128 @@ export async function listThreadFaq(pool, threadId) {
   return r.rows
 }
 
-export async function createThreadFaq(pool, threadId, { question, answer, sortOrder, createdByUserId }) {
+export async function listFacilityFaqLibrary(pool, facilityId) {
   const r = await pool.query(
-    `INSERT INTO coaching.thread_faq (thread_id, question, answer, sort_order, created_by_user_id)
-     VALUES ($1, $2, $3, $4, $5)
+    `SELECT tf.*, t.subject AS thread_subject
+     FROM coaching.thread_faq tf
+     LEFT JOIN coaching.message_thread t ON t.id = tf.thread_id
+     WHERE tf.facility_id = $1
+        OR (tf.facility_id IS NULL AND t.facility_id = $1)
+     ORDER BY tf.in_master_list DESC, COALESCE(tf.master_sort_order, tf.sort_order, 0), tf.created_at DESC`,
+    [facilityId],
+  )
+  return r.rows
+}
+
+export async function listMemberMasterFaqs(pool, facilityId) {
+  const r = await pool.query(
+    `SELECT tf.id, tf.question, tf.answer, tf.master_sort_order, tf.sort_order
+     FROM coaching.thread_faq tf
+     LEFT JOIN coaching.message_thread t ON t.id = tf.thread_id
+     WHERE tf.in_master_list = TRUE
+       AND (tf.facility_id = $1 OR t.facility_id = $1)
+     ORDER BY COALESCE(tf.master_sort_order, tf.sort_order, 0), tf.id`,
+    [facilityId],
+  )
+  return r.rows
+}
+
+export async function createThreadFaq(pool, threadId, { question, answer, sortOrder, createdByUserId, inMasterList = false, masterSortOrder = null, facilityId = null }) {
+  const resolvedFacilityId = await resolveFaqFacilityId(pool, threadId, facilityId)
+  const r = await pool.query(
+    `INSERT INTO coaching.thread_faq (
+       thread_id, facility_id, question, answer, sort_order,
+       in_master_list, master_sort_order, created_by_user_id, updated_at
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
      RETURNING *`,
-    [threadId, question, answer, sortOrder ?? 0, createdByUserId ?? null],
+    [
+      threadId ?? null,
+      resolvedFacilityId,
+      question,
+      answer,
+      sortOrder ?? 0,
+      Boolean(inMasterList),
+      masterSortOrder,
+      createdByUserId ?? null,
+    ],
   )
   return r.rows[0]
 }
 
-export async function updateThreadFaq(pool, faqId, { question, answer, sortOrder }) {
+export async function createFacilityFaqEntry(pool, facilityId, payload) {
+  const threadId = payload.threadId ?? payload.thread_id ?? null
+  if (threadId != null) {
+    const threadCheck = await pool.query(
+      `SELECT id FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+      [threadId, facilityId],
+    )
+    if (threadCheck.rows.length === 0) return null
+  }
+  return createThreadFaq(pool, threadId, {
+    question: payload.question,
+    answer: payload.answer,
+    sortOrder: payload.sortOrder ?? payload.sort_order,
+    createdByUserId: payload.createdByUserId ?? payload.created_by_user_id,
+    inMasterList: payload.inMasterList ?? payload.in_master_list,
+    masterSortOrder: payload.masterSortOrder ?? payload.master_sort_order,
+    facilityId,
+  })
+}
+
+export async function updateThreadFaq(pool, faqId, { question, answer, sortOrder, inMasterList, masterSortOrder }) {
   const r = await pool.query(
     `UPDATE coaching.thread_faq
      SET question = COALESCE($2, question),
          answer = COALESCE($3, answer),
-         sort_order = COALESCE($4, sort_order)
+         sort_order = COALESCE($4, sort_order),
+         in_master_list = COALESCE($5, in_master_list),
+         master_sort_order = CASE WHEN $6::int IS NOT NULL THEN $6 ELSE master_sort_order END,
+         updated_at = now()
      WHERE id = $1
      RETURNING *`,
-    [faqId, question ?? null, answer ?? null, sortOrder ?? null],
+    [
+      faqId,
+      question ?? null,
+      answer ?? null,
+      sortOrder ?? null,
+      inMasterList == null ? null : Boolean(inMasterList),
+      masterSortOrder ?? null,
+    ],
   )
+  return r.rows[0] ?? null
+}
+
+export async function getThreadFaqById(pool, faqId) {
+  const r = await pool.query(`SELECT * FROM coaching.thread_faq WHERE id = $1`, [faqId])
   return r.rows[0] ?? null
 }
 
 export async function deleteThreadFaq(pool, faqId) {
   await pool.query(`DELETE FROM coaching.thread_faq WHERE id = $1`, [faqId])
+}
+
+export async function deleteFacilityFaqEntry(pool, facilityId, faqId) {
+  const row = await getThreadFaqById(pool, faqId)
+  if (!row) return null
+  if (row.facility_id != null && Number(row.facility_id) !== Number(facilityId)) {
+    if (row.thread_id != null) {
+      const threadCheck = await pool.query(
+        `SELECT 1 FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [row.thread_id, facilityId],
+      )
+      if (threadCheck.rows.length === 0) return 'forbidden'
+    } else {
+      return 'forbidden'
+    }
+  } else if (row.facility_id == null && row.thread_id != null) {
+    const threadCheck = await pool.query(
+      `SELECT 1 FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+      [row.thread_id, facilityId],
+    )
+    if (threadCheck.rows.length === 0) return 'forbidden'
+  }
+  await deleteThreadFaq(pool, faqId)
+  return { deleted: true, id: faqId }
 }
 
 export async function saveMessageMentions(pool, messageId, mentions) {

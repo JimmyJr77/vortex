@@ -296,6 +296,37 @@ async function applyCoachingMessagePlatformSchema(pool) {
     )
   `)
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS coaching.message_pin_group (
+      id          BIGSERIAL PRIMARY KEY,
+      thread_id   BIGINT NOT NULL REFERENCES coaching.message_thread(id) ON DELETE CASCADE,
+      user_id     BIGINT REFERENCES public.app_user(id) ON DELETE CASCADE,
+      member_id   BIGINT REFERENCES public.member(id) ON DELETE CASCADE,
+      created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+      CHECK (user_id IS NOT NULL OR member_id IS NOT NULL)
+    )
+  `)
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_message_pin_group_thread_user
+      ON coaching.message_pin_group(thread_id, user_id)
+      WHERE user_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_message_pin_group_thread_member
+      ON coaching.message_pin_group(thread_id, member_id)
+      WHERE member_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS coaching.message_pin_group_item (
+      group_id    BIGINT NOT NULL REFERENCES coaching.message_pin_group(id) ON DELETE CASCADE,
+      message_id  BIGINT NOT NULL REFERENCES coaching.message(id) ON DELETE CASCADE,
+      PRIMARY KEY (group_id, message_id)
+    )
+  `)
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_message_pin_group_item_message
+      ON coaching.message_pin_group_item(message_id)
+  `)
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS coaching.message_thread_editor (
       id            BIGSERIAL PRIMARY KEY,
       thread_id     BIGINT NOT NULL REFERENCES coaching.message_thread(id) ON DELETE CASCADE,
@@ -432,13 +463,30 @@ async function applyCoachingMessagePlatformSchema(pool) {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS coaching.thread_faq (
       id            BIGSERIAL PRIMARY KEY,
-      thread_id     BIGINT NOT NULL REFERENCES coaching.message_thread(id) ON DELETE CASCADE,
+      thread_id     BIGINT REFERENCES coaching.message_thread(id) ON DELETE CASCADE,
+      facility_id   BIGINT REFERENCES public.facility(id) ON DELETE CASCADE,
       question      TEXT NOT NULL,
       answer        TEXT NOT NULL,
       sort_order    INT NOT NULL DEFAULT 0,
+      in_master_list BOOLEAN NOT NULL DEFAULT FALSE,
+      master_sort_order INT,
       created_by_user_id BIGINT REFERENCES public.app_user(id) ON DELETE SET NULL,
-      created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
     )
+  `)
+  await pool.query(`ALTER TABLE coaching.thread_faq ADD COLUMN IF NOT EXISTS facility_id BIGINT REFERENCES public.facility(id) ON DELETE CASCADE`)
+  await pool.query(`ALTER TABLE coaching.thread_faq ADD COLUMN IF NOT EXISTS in_master_list BOOLEAN NOT NULL DEFAULT FALSE`)
+  await pool.query(`ALTER TABLE coaching.thread_faq ADD COLUMN IF NOT EXISTS master_sort_order INT`)
+  await pool.query(`ALTER TABLE coaching.thread_faq ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now()`)
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_thread_faq_facility
+      ON coaching.thread_faq(facility_id)
+  `)
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_thread_faq_master
+      ON coaching.thread_faq(facility_id, in_master_list)
+      WHERE in_master_list = TRUE
   `)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS coaching.message_reaction (

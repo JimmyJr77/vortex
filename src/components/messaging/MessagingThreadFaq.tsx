@@ -9,6 +9,10 @@ export interface ThreadFaqRow {
   question: string
   answer: string
   sort_order?: number
+  in_master_list?: boolean
+  master_sort_order?: number | null
+  thread_id?: number | null
+  thread_subject?: string | null
 }
 
 export interface ThreadFaqDraft {
@@ -71,7 +75,7 @@ export default function MessagingThreadFaq({
   }, [initialDraft])
 
   const addFaq = async () => {
-    if (!question.trim() || !answer.trim()) return
+    if (!canEdit || !question.trim() || !answer.trim()) return
     setSaving(true)
     try {
       await fetcher(FAQ_PATH[role](threadId), {
@@ -88,6 +92,7 @@ export default function MessagingThreadFaq({
   }
 
   const removeFaq = async (faqId: number) => {
+    if (!canEdit) return
     try {
       await fetcher(`${FAQ_PATH[role](threadId)}/${faqId}`, { method: 'DELETE' })
       await load()
@@ -104,7 +109,7 @@ export default function MessagingThreadFaq({
     )
   }
 
-  if (items.length === 0 && !canEdit) return null
+  if (items.length === 0 && !canEdit && variant !== 'panel') return null
 
   const q = search.trim().toLowerCase()
   const visibleItems = q
@@ -117,47 +122,48 @@ export default function MessagingThreadFaq({
       ? 'h-full bg-white flex flex-col min-h-0'
       : 'mx-4 my-3 rounded-lg border border-gray-200 bg-white p-3 space-y-2'
 
-  const showSearch = variant === 'panel' || items.length > 0
-
   return (
     <div className={rootClass}>
       <div className={variant === 'panel' ? 'shrink-0 px-4 py-3 border-b border-gray-100 space-y-2' : 'space-y-2'}>
         <div className={variant === 'panel' ? 'text-sm font-semibold text-gray-900' : 'text-xs font-semibold text-gray-800'}>
           Thread FAQ
         </div>
-        {showSearch && (
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search FAQ…"
-              aria-label="Search FAQ"
-              className={`w-full border border-gray-300 rounded-lg pl-9 pr-3 text-sm ${
-                variant === 'panel' ? 'py-2' : 'py-1.5 text-xs'
-              }`}
-            />
-          </div>
-        )}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search FAQ…"
+            aria-label="Search FAQ"
+            className={`w-full border border-gray-300 rounded-lg pl-9 pr-3 text-sm ${
+              variant === 'panel' ? 'py-2' : 'py-1.5 text-xs'
+            }`}
+          />
+        </div>
       </div>
       <div className={variant === 'panel' ? 'flex-1 min-h-0 overflow-y-auto p-4 space-y-3' : 'space-y-2'}>
         {items.length === 0 ? (
-          <p className="text-[11px] text-gray-500">No FAQ entries yet.</p>
+          <p className="text-sm text-gray-500">
+            {canEdit ? 'No FAQ entries yet. Add one below.' : 'No FAQ entries for this conversation yet.'}
+          </p>
         ) : visibleItems.length === 0 ? (
-          <p className="text-[11px] text-gray-500">No FAQ entries match your search.</p>
+          <p className="text-sm text-gray-500">No FAQ entries match your search.</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {visibleItems.map((item) => (
-              <li key={item.id} className="text-xs border-b border-gray-100 pb-2 last:border-0">
-                <div className="font-semibold text-gray-900">{item.question}</div>
-                <div className="text-gray-600 mt-0.5 whitespace-pre-wrap">{item.answer}</div>
+              <li key={item.id} className="flex items-start gap-2 border-b border-gray-100 pb-3 last:border-0">
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-gray-900">{item.question}</div>
+                  <div className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">{item.answer}</div>
+                </div>
                 {canEdit && (
                   <button
                     type="button"
+                    aria-label="Remove FAQ"
                     onClick={() => void removeFaq(item.id)}
-                    className="mt-1 inline-flex items-center gap-1 text-[10px] text-red-600 hover:underline"
+                    className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50"
                   >
-                    <Trash2 className="w-3 h-3" /> Remove
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 )}
               </li>
@@ -171,20 +177,20 @@ export default function MessagingThreadFaq({
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Question"
-            className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-xs"
+            className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm"
           />
           <textarea
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             placeholder="Answer"
             rows={2}
-            className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-xs"
+            className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm"
           />
           <button
             type="button"
             onClick={() => void addFaq()}
             disabled={saving || !question.trim() || !answer.trim()}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-vortex-red disabled:opacity-50"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-vortex-red disabled:opacity-50"
           >
             <Plus className="w-3.5 h-3.5" /> Add to FAQ
           </button>

@@ -3,6 +3,8 @@ import { Lock, MoreHorizontal, Pencil, Paperclip, Star, UserPlus, Archive, Archi
 import RecipientPicker from './RecipientPicker'
 import type { EnrollmentGroup, RecipientOption } from './types'
 import { mergeRecipientOptions } from './types'
+import MessageThreadPinControls from './MessageThreadPinControls'
+import type { PinFilterMode } from './types'
 import { MESSAGE_ATTACHMENT_ACCEPT } from './messageAttachmentUpload'
 
 interface ThreadHeaderMenuProps {
@@ -28,6 +30,9 @@ interface ThreadHeaderMenuProps {
   onAttachmentPick?: (file: File) => void
   canAttach?: boolean
   onOpenFaq?: () => void
+  pinFilter?: PinFilterMode
+  onPinFilterChange?: (mode: 'mine' | 'super') => void
+  pinControlsDisabled?: boolean
 }
 
 export default function ThreadHeaderMenu({
@@ -53,6 +58,9 @@ export default function ThreadHeaderMenu({
   onAttachmentPick,
   canAttach = false,
   onOpenFaq,
+  pinFilter = 'off',
+  onPinFilterChange,
+  pinControlsDisabled = false,
 }: ThreadHeaderMenuProps) {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -158,7 +166,7 @@ export default function ThreadHeaderMenu({
     attachmentInputRef.current?.click()
   }
 
-  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment && !onOpenFaq) return null
+  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment && !onOpenFaq && !onPinFilterChange) return null
 
   return (
     <div ref={rootRef} className="relative shrink-0 flex items-center gap-0.5">
@@ -173,6 +181,13 @@ export default function ThreadHeaderMenu({
             if (file && onAttachmentPick) onAttachmentPick(file)
             e.target.value = ''
           }}
+        />
+      )}
+      {onPinFilterChange && (
+        <MessageThreadPinControls
+          pinFilter={pinFilter}
+          onPinFilterChange={onPinFilterChange}
+          disabled={pinControlsDisabled}
         />
       )}
       {onToggleFavorite && (

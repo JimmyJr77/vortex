@@ -17,7 +17,11 @@ import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/m
 import { markThreadRead } from '../messaging/messagingApi'
 import MessagingThreadFaq, { type ThreadFaqDraft } from '../messaging/MessagingThreadFaq'
 import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
+import MessagePinSelectionBar from '../messaging/MessagePinSelectionBar'
+import { useThreadPinGroups } from '../messaging/useThreadPinGroups'
 import MessagingMessageThread from '../messaging/MessagingMessageThread'
+import MessagingLeftPanelTabs, { type MessagingLeftPanel } from '../messaging/MessagingLeftPanelTabs'
+import MessagingFaqMasterPanel from '../messaging/MessagingFaqMasterPanel'
 import { buildReplyQuote, stripReplyQuote } from '../messaging/messageFormatting'
 import { prepareMessageBodyForSend, type MessageMentionPayload } from '../messaging/messageMentions'
 import MessagingThreadListSortMenu, {
@@ -101,12 +105,14 @@ export default function AdminMessagesPanel({
     is_critical: false,
     requires_ack: false,
   })
+  const [leftPanel, setLeftPanel] = useState<MessagingLeftPanel>('threads')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const isFlatView = tab === 'active-all' || tab === 'archived'
   const canReply = tab === 'active-mine' || tab === 'active-all'
 
   const viewer = useMemo(() => getMessageViewer('admin'), [])
+  const pins = useThreadPinGroups(selectedId, 'admin', adminFetch)
   const inboxCounts = useMemo(() => countThreadsByInboxTab(threads), [threads])
   const tabFilteredThreads = useMemo(() => {
     if (tab === 'archived') return threads
@@ -253,6 +259,15 @@ export default function AdminMessagesPanel({
       prefix,
     })
   }, [])
+
+  const showPinControls = tab !== 'archived'
+  const pinHeaderProps = showPinControls
+    ? {
+        pinFilter: pins.pinFilter,
+        onPinFilterChange: pins.togglePinFilter,
+        pinControlsDisabled: pins.pinSelectionActive,
+      }
+    : {}
 
   const sendReply = async (mentions: MessageMentionPayload[] = []) => {
     if (!selectedId || (!reply.trim() && !pendingAttachment) || !canReply) return
@@ -488,19 +503,34 @@ export default function AdminMessagesPanel({
         onSelectThread={setSelectedId}
         onBack={() => setSelectedId(null)}
         listPanel={
+          leftPanel === 'faq-master' && tab !== 'archived' ? (
+            <div className="flex flex-col min-h-0 h-full max-h-full overflow-hidden">
+              <div className="shrink-0 px-4 py-2 border-b border-gray-100 flex justify-end bg-white">
+                <MessagingLeftPanelTabs active={leftPanel} onChange={setLeftPanel} />
+              </div>
+              <div className="flex-1 min-h-0">
+                <MessagingFaqMasterPanel role="admin" fetcher={adminFetch} threads={threads} />
+              </div>
+            </div>
+          ) : (
           <MessagingThreadListShell
             title={listPanelTitle}
             titleAction={
-              isFlatView ? (
-                <MessagingThreadListSortMenu
-                  sort={listSort}
-                  sortDir={listSortDir}
-                  onChange={(sort, sortDir) => {
-                    setListSort(sort)
-                    setListSortDir(sortDir)
-                  }}
-                />
-              ) : undefined
+              <div className="flex items-center gap-1">
+                {tab !== 'archived' && (
+                  <MessagingLeftPanelTabs active={leftPanel} onChange={setLeftPanel} />
+                )}
+                {isFlatView ? (
+                  <MessagingThreadListSortMenu
+                    sort={listSort}
+                    sortDir={listSortDir}
+                    onChange={(sort, sortDir) => {
+                      setListSort(sort)
+                      setListSortDir(sortDir)
+                    }}
+                  />
+                ) : null}
+              </div>
             }
             search={listSearch}
             onSearchChange={setListSearch}
@@ -537,6 +567,7 @@ export default function AdminMessagesPanel({
               </div>
             )}
           </MessagingThreadListShell>
+          )
         }
         detailPanel={
           !selectedId ? (
@@ -580,6 +611,7 @@ export default function AdminMessagesPanel({
                         onToggleFavorite={toggleFavorite}
                         favoriteLoading={favoriteLoading}
                         onOpenFaq={() => setFaqPanelOpen(true)}
+                        {...pinHeaderProps}
                       />
                     ) : (
                       <ThreadHeaderMenu
@@ -603,6 +635,7 @@ export default function AdminMessagesPanel({
                         canAttach={tab === 'active-all'}
                         onAttachmentPick={setPendingAttachment}
                         onOpenFaq={() => setFaqPanelOpen(true)}
+                        {...pinHeaderProps}
                       />
                     )}
                   </div>
@@ -611,7 +644,7 @@ export default function AdminMessagesPanel({
               footer={
                 canReply && !faqPanelOpen ? (
                   <>
-                    <div className="border-t border-gray-100 px-4 pt-3">
+                    <div className="px-4 pt-2 shrink-0">
                       <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
                     </div>
                     <MessageReplyComposer
@@ -651,10 +684,47 @@ export default function AdminMessagesPanel({
                     onJump={(id) => void openThread(id)}
                   />
                   <MessagingInfoCard infoJson={threadInfoJson} />
-                  <div>
-                    <ArchivedMessageLines messages={messages} />
-                    <div ref={messagesEndRef} />
-                  </div>
+                  {pins.pinSelection && tab === 'active-all' && (
+                    <MessagePinSelectionBar
+                      selectedCount={pins.pinSelection.size}
+                      saving={pins.saving}
+                      onSave={() => void pins.savePinSelection()}
+                      onCancel={pins.cancelPinSelection}
+                    />
+                  )}
+                  {tab === 'active-all' ? (
+                    <MessagingMessageThread
+                      messages={messages}
+                      viewer={viewer}
+                      threadId={selectedId}
+                      role="admin"
+                      fetcher={adminFetch}
+                      participants={threadParticipants}
+                      messagesEndRef={messagesEndRef}
+                      onReply={replyToMessage}
+                      onReplyWithFaq={replyToMessageWithFaq}
+                      onPinComment={(message) => pins.startPinSelection(message.id)}
+                      canUnpinMessage={(message) =>
+                        pins.pinFilter === 'mine' && Boolean(pins.findOwnedGroupForMessage(message.id))
+                      }
+                      onUnpin={(message) => void pins.unpinMessage(message.id)}
+                      pinSelectionActive={pins.pinSelectionActive}
+                      pinSelectedIds={pins.pinSelection ?? undefined}
+                      onPinSelectionToggle={(message) => pins.togglePinSelectionMessage(message.id)}
+                      displayGroups={pins.displayGroups}
+                      pinFilterActive={pins.pinFilter !== 'off'}
+                      onReactionsUpdated={(messageId, reactions) => {
+                        setMessages((prev) =>
+                          prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
+                        )
+                      }}
+                    />
+                  ) : (
+                    <div>
+                      <ArchivedMessageLines messages={messages} />
+                      <div ref={messagesEndRef} />
+                    </div>
+                  )}
                 </>
               )}
             </MessagingThreadDetailShell>
@@ -699,6 +769,7 @@ export default function AdminMessagesPanel({
                       canAttach
                       onAttachmentPick={setPendingAttachment}
                       onOpenFaq={() => setFaqPanelOpen(true)}
+                      {...pinHeaderProps}
                     />
                   )}
                 </div>
@@ -706,7 +777,7 @@ export default function AdminMessagesPanel({
               footer={
                 faqPanelOpen ? undefined : (
                 <>
-                  <div className="border-t border-gray-100 px-4 pt-3">
+                  <div className="px-4 pt-2 shrink-0">
                     <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
                   </div>
                   <MessageReplyComposer
@@ -746,6 +817,14 @@ export default function AdminMessagesPanel({
                     onJump={(id) => void openThread(id)}
                   />
                   <MessagingInfoCard infoJson={threadInfoJson} />
+                  {pins.pinSelection && (
+                    <MessagePinSelectionBar
+                      selectedCount={pins.pinSelection.size}
+                      saving={pins.saving}
+                      onSave={() => void pins.savePinSelection()}
+                      onCancel={pins.cancelPinSelection}
+                    />
+                  )}
                   <MessagingMessageThread
                     messages={messages}
                     viewer={viewer}
@@ -756,6 +835,16 @@ export default function AdminMessagesPanel({
                     messagesEndRef={messagesEndRef}
                     onReply={replyToMessage}
                     onReplyWithFaq={replyToMessageWithFaq}
+                    onPinComment={(message) => pins.startPinSelection(message.id)}
+                    canUnpinMessage={(message) =>
+                      pins.pinFilter === 'mine' && Boolean(pins.findOwnedGroupForMessage(message.id))
+                    }
+                    onUnpin={(message) => void pins.unpinMessage(message.id)}
+                    pinSelectionActive={pins.pinSelectionActive}
+                    pinSelectedIds={pins.pinSelection ?? undefined}
+                    onPinSelectionToggle={(message) => pins.togglePinSelectionMessage(message.id)}
+                    displayGroups={pins.displayGroups}
+                    pinFilterActive={pins.pinFilter !== 'off'}
                     onReactionsUpdated={(messageId, reactions) => {
                       setMessages((prev) =>
                         prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),

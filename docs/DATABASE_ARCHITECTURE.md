@@ -468,6 +468,8 @@ adjust §4 relationship diagrams (e.g. remove `class_iteration` from the ER char
 |--------|--------|---------------|-------|
 | `coaching.message.attachment_url` / `attachment_name` / `attachment_mime` | Active (legacy) | `coaching.message_file` ([066](../backend/migrations/066_coaching_message_files_alerts.sql)) | Single-file columns still written by [messageMedia.js](../backend/platform/messageMedia.js); dual-write until UI/API migrate fully to multi-file payloads. |
 | `coaching.message_thread.member_id` + `coach_user_id` (dyadic model) | Active (legacy) | `coaching.message_thread_participant` | Older threads may still rely on dyadic columns; new threads use participant rows. |
+| `coaching.message_pin` | Superseded | `coaching.message_pin_group` + `coaching.message_pin_group_item` ([068](../backend/migrations/068_coaching_message_pin_groups.sql)) | Thread-global single-message pin (`UNIQUE (thread_id, message_id)`); `POST .../pin/:messageId` in [messagePlatformRoutes.js](../backend/platform/messagePlatformRoutes.js). Pre-drop: `SELECT COUNT(*) FROM coaching.message_pin;` |
+| `POST /api/{portal}/messages/:threadId/pin/:messageId` | Superseded | `POST .../pin-groups` with `{ message_ids }` | Legacy route in [messagePlatformRoutes.js](../backend/platform/messagePlatformRoutes.js); retained as single-message alias until callers removed. |
 
 **Pre-drop check:** `SELECT COUNT(*) FROM coaching.message WHERE attachment_url IS NOT NULL AND NOT EXISTS (SELECT 1 FROM coaching.message_file mf WHERE mf.message_id = message.id);`
 
