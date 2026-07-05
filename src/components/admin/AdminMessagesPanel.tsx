@@ -281,6 +281,8 @@ export default function AdminMessagesPanel({
     ? {
         pinFilter: pins.pinFilter,
         onPinFilterChange: pins.togglePinFilter,
+        importantFilterActive: pins.importantFilterActive,
+        onImportantFilterChange: pins.toggleImportantFilter,
         pinControlsDisabled: pins.pinSelectionActive,
       }
     : {}
@@ -457,7 +459,7 @@ export default function AdminMessagesPanel({
         )}
       </div>
 
-      <div className={`shrink-0 gap-2 border-b border-gray-200 flex-wrap ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`shrink-0 gap-2 border-b border-gray-200 flex-wrap ${maximized ? 'hidden' : selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
         {(
           [
             ['active-mine', 'Active · Admin'],
@@ -478,13 +480,7 @@ export default function AdminMessagesPanel({
 
       {error && <div className="shrink-0 rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
 
-      {maximized && onMaximizedChange && (
-        <div className="shrink-0 flex justify-end px-2 py-1 bg-white border-b border-gray-100">
-          <MessagingMaximizeToggle maximized={maximized} onToggle={() => onMaximizedChange(false)} />
-        </div>
-      )}
-
-      {tab !== 'archived' && newOpen && (
+      {tab !== 'archived' && newOpen && !maximized && (
         <div className="shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
           <h3 className="font-semibold text-gray-800">New thread</h3>
           <RecipientPicker
@@ -536,7 +532,13 @@ export default function AdminMessagesPanel({
           <MessagingThreadListShell
             title={listPanelTitle}
             titleAction={
-              isFlatView ? (
+              <div className="flex items-center gap-1 shrink-0">
+                {maximized && onMaximizedChange && (
+                  <MessagingMaximizeToggle
+                    maximized={maximized}
+                    onToggle={() => onMaximizedChange(false)}
+                  />
+                )}
                 <MessagingThreadListSortMenu
                   sort={listSort}
                   sortDir={listSortDir}
@@ -545,7 +547,7 @@ export default function AdminMessagesPanel({
                     setListSortDir(sortDir)
                   }}
                 />
-              ) : null
+              </div>
             }
             search={listSearch}
             onSearchChange={setListSearch}
@@ -688,7 +690,7 @@ export default function AdminMessagesPanel({
                 />
               ) : (
                 <>
-                  {pins.pinFilter === 'off' && (
+                  {pins.pinFilter === 'off' && !pins.importantFilterActive && (
                     <>
                       <MessagingContextBanner
                         linkedThreadId={linkedThreadId}
@@ -731,6 +733,7 @@ export default function AdminMessagesPanel({
                       onPinSelectionToggle={(message) => pins.togglePinSelectionMessage(message.id)}
                       displayGroups={pins.displayGroups}
                       pinFilterActive={pins.pinFilter !== 'off'}
+                      importantFilterActive={pins.importantFilterActive}
                       onReactionsUpdated={(messageId, reactions) => {
                         setMessages((prev) =>
                           prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
@@ -825,7 +828,7 @@ export default function AdminMessagesPanel({
                 />
               ) : (
                 <>
-                  {pins.pinFilter === 'off' && (
+                  {pins.pinFilter === 'off' && !pins.importantFilterActive && (
                     <>
                       <MessagingContextBanner
                         linkedThreadId={linkedThreadId}
@@ -867,6 +870,7 @@ export default function AdminMessagesPanel({
                     onPinSelectionToggle={(message) => pins.togglePinSelectionMessage(message.id)}
                     displayGroups={pins.displayGroups}
                     pinFilterActive={pins.pinFilter !== 'off'}
+                    importantFilterActive={pins.importantFilterActive}
                     onReactionsUpdated={(messageId, reactions) => {
                       setMessages((prev) =>
                         prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),

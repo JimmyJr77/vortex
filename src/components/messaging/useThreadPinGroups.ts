@@ -20,6 +20,7 @@ export function useThreadPinGroups(
   fetcher: Fetcher,
 ) {
   const [pinFilter, setPinFilter] = useState<PinFilterMode>('off')
+  const [importantFilterActive, setImportantFilterActive] = useState(false)
   const [pinSelection, setPinSelection] = useState<Set<number> | null>(null)
   const [mine, setMine] = useState<MessagePinGroup[]>([])
   const [superGroups, setSuperGroups] = useState<SuperPinGroup[]>([])
@@ -45,6 +46,7 @@ export function useThreadPinGroups(
 
   useEffect(() => {
     setPinFilter('off')
+    setImportantFilterActive(false)
     setPinSelection(null)
     void refresh()
   }, [threadId, refresh])
@@ -57,11 +59,19 @@ export function useThreadPinGroups(
 
   const togglePinFilter = useCallback((mode: 'mine' | 'super') => {
     if (pinSelection) return
+    setImportantFilterActive(false)
     setPinFilter((prev) => (prev === mode ? 'off' : mode))
+  }, [pinSelection])
+
+  const toggleImportantFilter = useCallback(() => {
+    if (pinSelection) return
+    setPinFilter('off')
+    setImportantFilterActive((prev) => !prev)
   }, [pinSelection])
 
   const startPinSelection = useCallback((messageId: number) => {
     setPinFilter('off')
+    setImportantFilterActive(false)
     setPinSelection(new Set([messageId]))
   }, [])
 
@@ -139,6 +149,8 @@ export function useThreadPinGroups(
   return {
     pinFilter,
     togglePinFilter,
+    importantFilterActive,
+    toggleImportantFilter,
     pinSelection,
     startPinSelection,
     togglePinSelectionMessage,

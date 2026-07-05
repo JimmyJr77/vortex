@@ -30,6 +30,23 @@ function threadHasSchedulingLink(t: MessageThread): boolean {
   )
 }
 
+export { threadHasEventLink, threadHasSchedulingLink }
+
+export type ThreadListAccentCategory = 'event' | 'scheduling' | 'message'
+
+export function threadListAccentCategory(thread: MessageThread): ThreadListAccentCategory {
+  if (threadHasEventLink(thread)) return 'event'
+  if (threadHasSchedulingLink(thread)) return 'scheduling'
+  return 'message'
+}
+
+export function threadListAccentClass(thread: MessageThread): string {
+  const category = threadListAccentCategory(thread)
+  if (category === 'event') return 'border-l-purple-500'
+  if (category === 'scheduling') return 'border-l-teal-500'
+  return (thread.unread_count ?? 0) > 0 ? 'border-l-blue-500' : 'border-l-gray-300'
+}
+
 function threadHasFiles(t: MessageThread): boolean {
   return Boolean(t.has_files) || (t.file_count ?? 0) > 0
 }

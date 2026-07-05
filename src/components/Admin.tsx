@@ -447,7 +447,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
 
       {/* Workspace: sidebar groups + main content */}
       <div className={`${messagingFullscreen ? 'flex-1 min-h-0 overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
-        <nav className={`${messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden'} lg:block`}>
+        <nav className={messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleGroups.map((group) => {
               const Icon = group.icon
@@ -479,8 +479,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
               adminName={adminInfo?.firstName}
             />
           ) : (
-            <div className={`${activeTab === 'messages' || activeTab === 'faqs' ? 'flex flex-col flex-1 min-h-0 h-full gap-4' : 'space-y-4'}`}>
-              {groupSections.length > 1 && (
+            <div className={`${activeTab === 'messages' || activeTab === 'faqs' ? `flex flex-col flex-1 min-h-0 h-full ${messagingFullscreen ? 'gap-0' : 'gap-4'}` : 'space-y-4'}`}>
+              {groupSections.length > 1 && !messagingFullscreen && (
                 <HorizontalScrollContainer
                   className="border-b border-gray-200"
                   fadeFromClassName="from-gray-50"

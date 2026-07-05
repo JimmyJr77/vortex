@@ -200,13 +200,8 @@ export default function MessageBubble({
           )}
         </div>
       )}
-      {(message.is_critical || isDeleted || isEdited || mentionedYou) && (
+      {(message.is_critical || isDeleted || isEdited) && (
         <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-          {mentionedYou && (
-            <span className="inline-flex items-center rounded-full bg-vortex-red/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-vortex-red">
-              Mentioned you
-            </span>
-          )}
           {message.is_critical && (
             <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
               Critical

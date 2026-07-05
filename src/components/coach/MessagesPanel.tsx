@@ -419,13 +419,7 @@ export default function MessagesPanel({
 
       {error && <div className="shrink-0 rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
 
-      {maximized && onMaximizedChange && (
-        <div className="shrink-0 flex justify-end px-2 py-1 bg-white border-b border-gray-100">
-          <MessagingMaximizeToggle maximized={maximized} onToggle={() => onMaximizedChange(false)} />
-        </div>
-      )}
-
-      {newOpen && (
+      {newOpen && !maximized && (
         <div className="shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
           <h3 className="font-semibold text-gray-800">New thread</h3>
           <div className="flex flex-wrap gap-2">
@@ -509,14 +503,22 @@ export default function MessagesPanel({
           <MessagingThreadListShell
             title="Threads"
             titleAction={
-              <MessagingThreadListSortMenu
-                sort={listSort}
-                sortDir={listSortDir}
-                onChange={(sort, sortDir) => {
-                  setListSort(sort)
-                  setListSortDir(sortDir)
-                }}
-              />
+              <div className="flex items-center gap-1 shrink-0">
+                {maximized && onMaximizedChange && (
+                  <MessagingMaximizeToggle
+                    maximized={maximized}
+                    onToggle={() => onMaximizedChange(false)}
+                  />
+                )}
+                <MessagingThreadListSortMenu
+                  sort={listSort}
+                  sortDir={listSortDir}
+                  onChange={(sort, sortDir) => {
+                    setListSort(sort)
+                    setListSortDir(sortDir)
+                  }}
+                />
+              </div>
             }
             search={threadSearch}
             onSearchChange={setThreadSearch}
@@ -604,6 +606,8 @@ export default function MessagesPanel({
                         onOpenFaq={() => setFaqPanelOpen(true)}
                         pinFilter={pins.pinFilter}
                         onPinFilterChange={pins.togglePinFilter}
+                        importantFilterActive={pins.importantFilterActive}
+                        onImportantFilterChange={pins.toggleImportantFilter}
                         pinControlsDisabled={pins.pinSelectionActive}
                       />
                     )}
@@ -643,7 +647,7 @@ export default function MessagesPanel({
                 />
               ) : (
                 <>
-                  {pins.pinFilter === 'off' && (
+                  {pins.pinFilter === 'off' && !pins.importantFilterActive && (
                     <>
                       <MessagingContextBanner
                         linkedThreadId={linkedThreadId}
@@ -685,6 +689,7 @@ export default function MessagesPanel({
                     onPinSelectionToggle={(message) => pins.togglePinSelectionMessage(message.id)}
                     displayGroups={pins.displayGroups}
                     pinFilterActive={pins.pinFilter !== 'off'}
+                    importantFilterActive={pins.importantFilterActive}
                     onReactionsUpdated={(messageId, reactions) => {
                       setMessages((prev) =>
                         prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),

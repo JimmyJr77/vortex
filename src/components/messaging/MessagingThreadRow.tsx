@@ -1,5 +1,5 @@
 import type { MessageThread } from './types'
-import { threadListTitle } from './messagingLayout'
+import { threadListAccentClass, threadListTitle } from './messagingLayout'
 
 interface MessagingThreadRowProps {
   thread: MessageThread
@@ -17,12 +17,13 @@ export default function MessagingThreadRow({
   meta,
 }: MessagingThreadRowProps) {
   const unread = thread.unread_count ?? 0
+  const accentClass = threadListAccentClass(thread)
 
   return (
     <button
       type="button"
       onClick={() => onSelect(thread.id)}
-      className={`w-full px-4 py-3 text-left hover:bg-gray-50 ${selected ? 'bg-red-50' : ''}`}
+      className={`w-full pl-3 pr-4 py-3 text-left border-l-4 hover:bg-gray-50 ${accentClass} ${selected ? 'bg-red-50' : ''}`}
     >
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">

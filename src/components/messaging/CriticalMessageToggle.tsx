@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import type { CriticalComposeFlags } from './types'
 
@@ -7,20 +8,43 @@ interface CriticalMessageToggleProps {
   disabled?: boolean
 }
 
+const CONFIRM_WORD = 'critical'
+
 export default function CriticalMessageToggle({ value, onChange, disabled = false }: CriticalMessageToggleProps) {
+  const [confirmText, setConfirmText] = useState('')
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  useEffect(() => {
+    if (!value.is_critical) {
+      setConfirmText('')
+      setShowConfirm(false)
+    }
+  }, [value.is_critical])
+
+  const applyConfirmText = (text: string) => {
+    setConfirmText(text)
+    const confirmed = text === CONFIRM_WORD
+    onChange({
+      is_critical: confirmed,
+      requires_ack: confirmed ? value.requires_ack : false,
+    })
+  }
+
   return (
     <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2 space-y-2">
       <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
-          checked={value.is_critical}
+          checked={value.is_critical || showConfirm}
           disabled={disabled}
           onChange={(e) => {
-            const is_critical = e.target.checked
-            onChange({
-              is_critical,
-              requires_ack: is_critical ? value.requires_ack : false,
-            })
+            if (e.target.checked) {
+              setShowConfirm(true)
+              return
+            }
+            setShowConfirm(false)
+            setConfirmText('')
+            onChange({ is_critical: false, requires_ack: false })
           }}
           className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
         />
@@ -29,17 +53,37 @@ export default function CriticalMessageToggle({ value, onChange, disabled = fals
           Critical message
         </span>
       </label>
-      {value.is_critical && (
-        <label className="flex items-center gap-2 pl-6 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={value.requires_ack}
-            disabled={disabled}
-            onChange={(e) => onChange({ ...value, requires_ack: e.target.checked })}
-            className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
-          />
-          <span className="text-xs font-medium text-gray-700">Require acknowledgment</span>
-        </label>
+      {(showConfirm || value.is_critical) && (
+        <div className="pl-6 space-y-2">
+          <label className="block text-xs font-medium text-gray-700">
+            Type <span className="font-mono">{CONFIRM_WORD}</span> to confirm
+            <input
+              type="text"
+              value={confirmText}
+              disabled={disabled}
+              onChange={(e) => applyConfirmText(e.target.value)}
+              placeholder={CONFIRM_WORD}
+              autoComplete="off"
+              spellCheck={false}
+              className="mt-1 w-full max-w-xs border border-gray-300 rounded-md px-2 py-1.5 text-sm bg-white"
+            />
+          </label>
+          {confirmText.length > 0 && confirmText !== CONFIRM_WORD && (
+            <p className="text-xs text-red-600">Enter exactly &ldquo;{CONFIRM_WORD}&rdquo; in lowercase.</p>
+          )}
+          {value.is_critical && (
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={value.requires_ack}
+                disabled={disabled}
+                onChange={(e) => onChange({ ...value, requires_ack: e.target.checked })}
+                className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+              />
+              <span className="text-xs font-medium text-gray-700">Require acknowledgment</span>
+            </label>
+          )}
+        </div>
       )}
     </div>
   )

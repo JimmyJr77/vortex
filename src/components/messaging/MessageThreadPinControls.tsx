@@ -1,15 +1,17 @@
-import { Pin } from 'lucide-react'
+import { CircleAlert, Pin } from 'lucide-react'
 import type { PinFilterMode } from './types'
 
 interface MessageThreadPinControlsProps {
   pinFilter: PinFilterMode
   onPinFilterChange: (mode: 'mine' | 'super') => void
+  importantFilterActive?: boolean
+  onImportantFilterChange?: () => void
   disabled?: boolean
 }
 
 function SuperPinIcon({ active }: { active: boolean }) {
   return (
-    <span className="relative inline-flex w-5 h-5 translate-y-[5px]" aria-hidden>
+    <span className="relative inline-flex w-5 h-5 translate-y-[3px]" aria-hidden>
       <Pin
         className={`absolute left-0 top-0 w-3.5 h-3.5 ${
           active ? 'fill-yellow-400 text-yellow-400 stroke-black' : 'text-gray-400'
@@ -29,10 +31,32 @@ function SuperPinIcon({ active }: { active: boolean }) {
 export default function MessageThreadPinControls({
   pinFilter,
   onPinFilterChange,
+  importantFilterActive = false,
+  onImportantFilterChange,
   disabled = false,
 }: MessageThreadPinControlsProps) {
   return (
     <>
+      {onImportantFilterChange && (
+        <button
+          type="button"
+          aria-label={importantFilterActive ? 'Show all messages' : 'Show staff and critical messages only'}
+          aria-pressed={importantFilterActive}
+          disabled={disabled}
+          onClick={onImportantFilterChange}
+          className={`p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-60 ${
+            importantFilterActive ? 'ring-1 ring-black' : ''
+          }`}
+          title="Staff & critical"
+        >
+          <CircleAlert
+            className={`w-5 h-5 ${
+              importantFilterActive ? 'fill-yellow-400 text-yellow-400 stroke-black' : 'text-gray-400'
+            }`}
+            strokeWidth={importantFilterActive ? 1.5 : 1.75}
+          />
+        </button>
+      )}
       <button
         type="button"
         aria-label={pinFilter === 'super' ? 'Show all messages' : 'Show everyone\'s pinned messages'}

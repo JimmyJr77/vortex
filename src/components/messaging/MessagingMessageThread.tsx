@@ -7,6 +7,14 @@ import type { MessageDisplayGroup, MessageRow, MessagingRole, ThreadParticipant 
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 
+function isImportantMessage(message: MessageRow): boolean {
+  return (
+    Boolean(message.is_critical)
+    || message.sender_kind === 'coach'
+    || message.sender_kind === 'admin'
+  )
+}
+
 interface MessagingMessageThreadProps {
   messages: MessageRow[]
   viewer: MessageViewer
@@ -26,13 +34,14 @@ interface MessagingMessageThreadProps {
   onPinSelectionToggle?: (message: MessageRow) => void
   displayGroups?: MessageDisplayGroup[]
   pinFilterActive?: boolean
+  importantFilterActive?: boolean
   onReactionsUpdated?: (messageId: number, reactions: MessageReactionGroup[]) => void
   className?: string
 }
 
 function renderBubble(
   m: MessageRow,
-  props: Omit<MessagingMessageThreadProps, 'messages' | 'displayGroups' | 'pinFilterActive' | 'className' | 'messagesEndRef'>,
+  props: Omit<MessagingMessageThreadProps, 'messages' | 'displayGroups' | 'pinFilterActive' | 'importantFilterActive' | 'className' | 'messagesEndRef'>,
 ) {
   const {
     viewer,
@@ -93,6 +102,7 @@ export default function MessagingMessageThread({
   onPinSelectionToggle,
   displayGroups,
   pinFilterActive = false,
+  importantFilterActive = false,
   onReactionsUpdated,
   className = 'p-4 space-y-3',
 }: MessagingMessageThreadProps) {
@@ -150,6 +160,32 @@ export default function MessagingMessageThread({
                 </div>
               )
             })}
+          </div>
+        ))}
+        {messagesEndRef ? <div ref={messagesEndRef} /> : null}
+      </div>
+    )
+  }
+
+  if (importantFilterActive) {
+    const filtered = messages.filter(isImportantMessage)
+    if (filtered.length === 0) {
+      return (
+        <div className={`${className} text-center text-sm text-gray-500 py-8`}>
+          No staff or critical messages in this thread.
+        </div>
+      )
+    }
+    return (
+      <div className={className}>
+        {filtered.map((m, index) => (
+          <div key={m.id}>
+            {isFirstMessageOfDay(filtered, index) && (
+              <div className="text-center text-[11px] font-medium text-gray-400 py-2">
+                {formatMessageDayLabel(m.created_at)}
+              </div>
+            )}
+            {renderBubble(m, bubbleProps)}
           </div>
         ))}
         {messagesEndRef ? <div ref={messagesEndRef} /> : null}

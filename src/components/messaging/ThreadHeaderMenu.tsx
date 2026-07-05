@@ -32,6 +32,8 @@ interface ThreadHeaderMenuProps {
   onOpenFaq?: () => void
   pinFilter?: PinFilterMode
   onPinFilterChange?: (mode: 'mine' | 'super') => void
+  importantFilterActive?: boolean
+  onImportantFilterChange?: () => void
   pinControlsDisabled?: boolean
 }
 
@@ -60,6 +62,8 @@ export default function ThreadHeaderMenu({
   onOpenFaq,
   pinFilter = 'off',
   onPinFilterChange,
+  importantFilterActive = false,
+  onImportantFilterChange,
   pinControlsDisabled = false,
 }: ThreadHeaderMenuProps) {
   const [open, setOpen] = useState(false)
@@ -166,7 +170,7 @@ export default function ThreadHeaderMenu({
     attachmentInputRef.current?.click()
   }
 
-  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment && !onOpenFaq && !onPinFilterChange) return null
+  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment && !onOpenFaq && !onPinFilterChange && !onImportantFilterChange) return null
 
   return (
     <div ref={rootRef} className="relative shrink-0 flex items-center gap-0.5">
@@ -183,10 +187,12 @@ export default function ThreadHeaderMenu({
           }}
         />
       )}
-      {onPinFilterChange && (
+      {(onPinFilterChange || onImportantFilterChange) && (
         <MessageThreadPinControls
           pinFilter={pinFilter}
-          onPinFilterChange={onPinFilterChange}
+          onPinFilterChange={onPinFilterChange ?? (() => {})}
+          importantFilterActive={importantFilterActive}
+          onImportantFilterChange={onImportantFilterChange}
           disabled={pinControlsDisabled}
         />
       )}
