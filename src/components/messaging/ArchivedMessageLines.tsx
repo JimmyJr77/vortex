@@ -1,4 +1,5 @@
 import type { MessageRow } from './types'
+import MessageAttachmentDisplay from './MessageAttachmentDisplay'
 
 interface ArchivedMessageLinesProps {
   messages: MessageRow[]
@@ -29,6 +30,11 @@ export default function ArchivedMessageLines({ messages }: ArchivedMessageLinesP
             <span className="text-gray-400">#{m.id}</span>
           </div>
           <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">{m.body}</div>
+          {m.attachment_url && (
+            <div className="mt-1">
+              <MessageAttachmentDisplay url={m.attachment_url} name={m.attachment_name} mime={m.attachment_mime} />
+            </div>
+          )}
         </div>
       ))}
     </div>

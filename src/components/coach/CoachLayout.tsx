@@ -156,15 +156,13 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
               {coach.fullName && <p className="text-gray-400 text-xs">{coach.fullName}</p>}
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap justify-end">
-            <NotificationBell apiPrefix="coach" />
-            <PortalNavButtons
-              activePortal="coach"
-              availablePortals={availablePortals}
-              onSwitchPortal={onSwitchPortal}
-              onLogout={onLogout}
-            />
-          </div>
+          <PortalNavButtons
+            activePortal="coach"
+            availablePortals={availablePortals}
+            onSwitchPortal={onSwitchPortal}
+            onLogout={onLogout}
+            notifications={<NotificationBell apiPrefix="coach" />}
+          />
         </div>
       </header>
 

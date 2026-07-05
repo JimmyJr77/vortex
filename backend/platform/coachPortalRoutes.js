@@ -47,6 +47,19 @@ import {
   setMessageThreadStatus,
   loadEnrichedMessagesForThread,
   loadEnrichedMessageById,
+  queryMemberMessageEnrollmentGroups,
+  queryStaffMessageEnrollmentGroups,
+  resolveMessageEnrollmentGroupMembers,
+  setMessageThreadFavorite,
+  setMessageThreadInboxHidden,
+  clearInboxHideForThread,
+  cloudinaryMessageAttachmentSignature,
+  parseMessageAttachmentPayload,
+  messageHasContent,
+  MESSAGE_THREAD_FAVORITE_ORDER,
+  messageThreadFavoriteJoinSql,
+  messageThreadFavoriteSelectSql,
+  messageThreadInboxHideFilterSql,
 } from './messageThreads.js'
 
 function ok(res, data) {
@@ -2700,16 +2713,43 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   app.use('/api/coach/messages', ensureMessagesSchema)
   app.use('/api/admin/messages', ensureMessagesSchema)
 
-  async function appendThreadMessage(threadId, { senderUserId, senderMemberId, body, senderPortal }) {
+  app.get('/api/coach/messages/upload-signature', auth, (req, res) => {
+    ok(res, cloudinaryMessageAttachmentSignature())
+  })
+
+  app.get('/api/member/messages/upload-signature', auth, (req, res) => {
+    ok(res, cloudinaryMessageAttachmentSignature())
+  })
+
+  app.get('/api/admin/messages/upload-signature', auth, (req, res) => {
+    if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+    ok(res, cloudinaryMessageAttachmentSignature())
+  })
+
+  async function appendThreadMessage(threadId, { senderUserId, senderMemberId, body, senderPortal, attachment }) {
+    const text = String(body || '').trim() || null
     const inserted = await pool.query(
-      `INSERT INTO coaching.message (thread_id, sender_user_id, sender_member_id, body, sender_portal)
-       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-      [threadId, senderUserId ?? null, senderMemberId ?? null, body, senderPortal ?? null],
+      `INSERT INTO coaching.message (
+         thread_id, sender_user_id, sender_member_id, body, sender_portal,
+         attachment_url, attachment_name, attachment_mime
+       )
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+      [
+        threadId,
+        senderUserId ?? null,
+        senderMemberId ?? null,
+        text,
+        senderPortal ?? null,
+        attachment?.url ?? null,
+        attachment?.name ?? null,
+        attachment?.mime ?? null,
+      ],
     )
     await pool.query(
       `UPDATE coaching.message_thread SET last_message_at = now(), updated_at = now() WHERE id = $1`,
       [threadId],
     )
+    await clearInboxHideForThread(pool, threadId)
     return loadEnrichedMessageById(pool, inserted.rows[0].id)
   }
 
@@ -2817,6 +2857,65 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.get('/api/coach/messages/enrollment-groups', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      ok(res, await queryStaffMessageEnrollmentGroups(pool, facilityId))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/messages/group-members', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const groupType = String(req.query.type || '')
+      const groupId = num(req.query.id)
+      if (!groupId || !['primary_sport', 'program', 'scheduling_class'].includes(groupType)) {
+        return bad(res, 'Valid type and id are required.')
+      }
+      ok(res, await resolveMessageEnrollmentGroupMembers(pool, { facilityId, groupType, groupId }))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/coach/messages/:threadId/favorite', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const threadId = num(req.params.threadId)
+      const favorite = Boolean(req.body?.favorite)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      if (!await coachHasThreadAccess(threadRes.rows[0], coachUserId)) return bad(res, 'Thread not found.', 404)
+      ok(res, await setMessageThreadFavorite(pool, { threadId, facilityId, userId: coachUserId, favorite }))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/coach/messages/:threadId/inbox', auth, async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const threadId = num(req.params.threadId)
+      const hidden = req.body?.hidden !== false
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      if (!await coachHasThreadAccess(threadRes.rows[0], coachUserId)) return bad(res, 'Thread not found.', 404)
+      ok(res, await setMessageThreadInboxHidden(pool, { threadId, facilityId, userId: coachUserId, hidden }))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
   app.get('/api/member/messages/recipient-options', auth, async (req, res) => {
     try {
       const ctx = req.platformAuth
@@ -2829,18 +2928,106 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.get('/api/member/messages/enrollment-groups', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      ok(res, await queryMemberMessageEnrollmentGroups(pool, facilityId, memberId))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/member/messages/group-members', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const groupType = String(req.query.type || '')
+      const groupId = num(req.query.id)
+      if (!groupId || groupType !== 'scheduling_class') {
+        return bad(res, 'Valid class id is required.')
+      }
+      const allowed = await queryMemberMessageEnrollmentGroups(pool, facilityId, memberId)
+      if (!allowed.some((g) => g.groupType === groupType && g.id === groupId)) {
+        return bad(res, 'Class not found.', 404)
+      }
+      ok(res, await resolveMessageEnrollmentGroupMembers(pool, {
+        facilityId,
+        groupType,
+        groupId,
+        excludeMemberId: memberId,
+      }))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/member/messages/:threadId/favorite', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const threadId = num(req.params.threadId)
+      const favorite = Boolean(req.body?.favorite)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
+        return bad(res, 'Thread not found.', 404)
+      }
+      ok(res, await setMessageThreadFavorite(pool, { threadId, facilityId, memberId, favorite }))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/member/messages/:threadId/inbox', auth, async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const threadId = num(req.params.threadId)
+      const hidden = req.body?.hidden !== false
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      const thread = threadRes.rows[0]
+      const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
+        return bad(res, 'Thread not found.', 404)
+      }
+      ok(res, await setMessageThreadInboxHidden(pool, { threadId, facilityId, memberId, hidden }))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
   app.get('/api/coach/messages', auth, async (req, res) => {
     try {
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
       const status = req.query.status === 'archived' ? 'archived' : 'open'
+      const favJoin = messageThreadFavoriteJoinSql({ userId: coachUserId, threadAlias: 't', favAlias: 'fav' })
+      const inboxHideSql = status === 'open'
+        ? messageThreadInboxHideFilterSql({ userId: coachUserId, threadAlias: 't' })
+        : ''
       const result = await pool.query(
         `
           SELECT t.*, m.first_name, m.last_name,
             lm.body AS last_message_body,
-            lm.created_at AS last_message_created_at
+            lm.created_at AS last_message_created_at,
+            ${messageThreadFavoriteSelectSql('fav')}
           FROM coaching.message_thread t
           JOIN public.member m ON m.id = t.member_id
+          ${favJoin}
           LEFT JOIN LATERAL (
             SELECT body, created_at FROM coaching.message
             WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
@@ -2855,7 +3042,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
                 WHERE p.thread_id = t.id AND p.user_id = $3
               )
             )
-          ORDER BY t.last_message_at DESC NULLS LAST, t.created_at DESC
+          ${inboxHideSql}
+          ORDER BY ${MESSAGE_THREAD_FAVORITE_ORDER}
           LIMIT 100
         `,
         [facilityId, status, coachUserId],
@@ -2885,7 +3073,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
       const body = String(req.body?.body || '').trim()
-      if (!body) return bad(res, 'body is required.')
+      const attachment = parseMessageAttachmentPayload(req.body)
+      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
       const { userIds, memberIds } = parseRecipientPayload(req.body)
       const validMembers = await validateMemberRecipients(pool, facilityId, memberIds)
       const validStaff = await validateStaffRecipients(pool, facilityId, userIds.filter((id) => id !== coachUserId))
@@ -2904,7 +3093,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         userIds: [coachUserId, ...validStaff],
         memberIds: validMembers,
       })
-      const message = await appendThreadMessage(thread.id, { senderUserId: coachUserId, body, senderPortal: 'coach' })
+      const message = await appendThreadMessage(thread.id, { senderUserId: coachUserId, body, senderPortal: 'coach', attachment })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: coachUserId })
       ok(res, { thread, message })
     } catch (error) {
@@ -2918,7 +3107,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const coachUserId = Number(req.platformAuth.user.id)
       const threadId = num(req.params.threadId)
       const body = String(req.body?.body || '').trim()
-      if (!body) return bad(res, 'body is required.')
+      const attachment = parseMessageAttachmentPayload(req.body)
+      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
       const threadRes = await pool.query(
         `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
         [threadId, facilityId],
@@ -2930,7 +3120,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         await pool.query(`UPDATE coaching.message_thread SET coach_user_id = $1 WHERE id = $2`, [coachUserId, threadId])
         thread.coach_user_id = coachUserId
       }
-      const message = await appendThreadMessage(threadId, { senderUserId: coachUserId, body, senderPortal: 'coach' })
+      const message = await appendThreadMessage(threadId, { senderUserId: coachUserId, body, senderPortal: 'coach', attachment })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: coachUserId })
       ok(res, message)
     } catch (error) {
@@ -3029,6 +3219,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         q,
         scope: status === 'archived' ? 'all' : scope,
         adminUserId: scope === 'mine' ? adminUserId : null,
+        favoriteUserId: adminUserId,
+        inboxHideUserId: adminUserId,
       })
       ok(res, rows)
     } catch (error) {
@@ -3042,7 +3234,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const facilityId = req.platformAuth.user.facility_id
       const adminUserId = Number(req.platformAuth.user.id)
       const body = String(req.body?.body || '').trim()
-      if (!body) return bad(res, 'body is required.')
+      const attachment = parseMessageAttachmentPayload(req.body)
+      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
       const { userIds, memberIds } = parseRecipientPayload(req.body)
       const validMembers = await validateMemberRecipients(pool, facilityId, memberIds)
       const validStaff = await validateStaffRecipients(pool, facilityId, userIds.filter((id) => id !== adminUserId))
@@ -3061,7 +3254,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         userIds: [adminUserId, ...validStaff],
         memberIds: validMembers,
       })
-      const message = await appendThreadMessage(thread.id, { senderUserId: adminUserId, body, senderPortal: 'admin' })
+      const message = await appendThreadMessage(thread.id, { senderUserId: adminUserId, body, senderPortal: 'admin', attachment })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: adminUserId })
       ok(res, { thread, message })
     } catch (error) {
@@ -3089,7 +3282,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const adminUserId = Number(req.platformAuth.user.id)
       const threadId = num(req.params.threadId)
       const body = String(req.body?.body || '').trim()
-      if (!body) return bad(res, 'body is required.')
+      const attachment = parseMessageAttachmentPayload(req.body)
+      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
       const threadRes = await pool.query(
         `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
         [threadId, facilityId],
@@ -3097,7 +3291,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
       await insertThreadParticipants(pool, thread.id, { userIds: [adminUserId] })
-      const message = await appendThreadMessage(threadId, { senderUserId: adminUserId, body, senderPortal: 'admin' })
+      const message = await appendThreadMessage(threadId, { senderUserId: adminUserId, body, senderPortal: 'admin', attachment })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: adminUserId })
       ok(res, message)
     } catch (error) {
@@ -3135,6 +3329,67 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
       const facilityId = req.platformAuth.user.facility_id
       ok(res, await queryAdminRecipientOptions(pool, facilityId))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/admin/messages/enrollment-groups', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      ok(res, await queryStaffMessageEnrollmentGroups(pool, facilityId))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/admin/messages/group-members', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const groupType = String(req.query.type || '')
+      const groupId = num(req.query.id)
+      if (!groupId || !['primary_sport', 'program', 'scheduling_class'].includes(groupType)) {
+        return bad(res, 'Valid type and id are required.')
+      }
+      ok(res, await resolveMessageEnrollmentGroupMembers(pool, { facilityId, groupType, groupId }))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/admin/messages/:threadId/favorite', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const adminUserId = Number(req.platformAuth.user.id)
+      const threadId = num(req.params.threadId)
+      const favorite = Boolean(req.body?.favorite)
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      ok(res, await setMessageThreadFavorite(pool, { threadId, facilityId, userId: adminUserId, favorite }))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/admin/messages/:threadId/inbox', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const adminUserId = Number(req.platformAuth.user.id)
+      const threadId = num(req.params.threadId)
+      const hidden = req.body?.hidden !== false
+      const threadRes = await pool.query(
+        `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+        [threadId, facilityId],
+      )
+      if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
+      ok(res, await setMessageThreadInboxHidden(pool, { threadId, facilityId, userId: adminUserId, hidden }))
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -3198,15 +3453,19 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
       const facilityId = ctx.user.facility_id
+      const favJoin = messageThreadFavoriteJoinSql({ memberId, threadAlias: 't', favAlias: 'fav' })
+      const inboxHideSql = messageThreadInboxHideFilterSql({ memberId, threadAlias: 't' })
       const result = await pool.query(
         `
           SELECT t.*,
             athlete.first_name,
             athlete.last_name,
             lm.body AS last_message_body,
-            lm.created_at AS last_message_created_at
+            lm.created_at AS last_message_created_at,
+            ${messageThreadFavoriteSelectSql('fav')}
           FROM coaching.message_thread t
           LEFT JOIN public.member athlete ON athlete.id = t.member_id
+          ${favJoin}
           LEFT JOIN LATERAL (
             SELECT body, created_at FROM coaching.message
             WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
@@ -3233,7 +3492,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
                 )
               )
             )
-          ORDER BY t.last_message_at DESC NULLS LAST, t.created_at DESC
+          ${inboxHideSql}
+          ORDER BY ${MESSAGE_THREAD_FAVORITE_ORDER}
         `,
         [facilityId, memberId],
       )
@@ -3272,7 +3532,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
       const facilityId = ctx.user.facility_id
       const body = String(req.body?.body || '').trim()
-      if (!body) return bad(res, 'body is required.')
+      const attachment = parseMessageAttachmentPayload(req.body)
+      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
       const subject = req.body?.subject ? String(req.body.subject).trim() : null
       const { userIds, memberIds } = parseRecipientPayload(req.body)
       const validMembers = await validateMemberRecipients(pool, facilityId, memberIds, memberId)
@@ -3292,7 +3553,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         userIds: validStaff,
         memberIds: [memberId, ...validMembers],
       })
-      const message = await appendThreadMessage(thread.id, { senderMemberId: memberId, body, senderPortal: 'member' })
+      const message = await appendThreadMessage(thread.id, { senderMemberId: memberId, body, senderPortal: 'member', attachment })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderMemberId: memberId })
       ok(res, { thread, message })
     } catch (error) {
@@ -3307,7 +3568,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const facilityId = ctx.user.facility_id
       const threadId = num(req.params.threadId)
       const body = String(req.body?.body || '').trim()
-      if (!body) return bad(res, 'body is required.')
+      const attachment = parseMessageAttachmentPayload(req.body)
+      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
       const threadRes = await pool.query(
         `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
         [threadId, facilityId],
@@ -3318,7 +3580,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
         return bad(res, 'Thread not found.', 404)
       }
-      const message = await appendThreadMessage(threadId, { senderMemberId: memberId, body, senderPortal: 'member' })
+      const message = await appendThreadMessage(threadId, { senderMemberId: memberId, body, senderPortal: 'member', attachment })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderMemberId: memberId })
       ok(res, message)
     } catch (error) {

@@ -1519,15 +1519,13 @@ export default function MemberDashboard({
               VORTEX <span className="text-vortex-red">MEMBER</span> PORTAL
             </h1>
           </div>
-          <div className="flex items-center gap-2 flex-wrap justify-end">
-            <NotificationBell apiPrefix="member" />
-            <PortalNavButtons
-              activePortal="member"
-              availablePortals={availablePortals}
-              onSwitchPortal={onSwitchPortal}
-              onLogout={onLogout}
-            />
-          </div>
+          <PortalNavButtons
+            activePortal="member"
+            availablePortals={availablePortals}
+            onSwitchPortal={onSwitchPortal}
+            onLogout={onLogout}
+            notifications={<NotificationBell apiPrefix="member" />}
+          />
         </div>
       </div>
 

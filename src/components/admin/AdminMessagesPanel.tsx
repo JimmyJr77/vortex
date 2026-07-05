@@ -3,11 +3,13 @@ import { Loader2, MessageSquare, Plus } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
 import ArchivedMessageLines from '../messaging/ArchivedMessageLines'
 import MessageBubble from '../messaging/MessageBubble'
+import MessageReplyComposer from '../messaging/MessageReplyComposer'
 import RecipientPicker, { recipientsToPayload } from '../messaging/RecipientPicker'
 import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
-import type { MessageRow, MessageThread, RecipientOption, ThreadParticipant } from '../messaging/types'
-import { participantKey } from '../messaging/types'
+import { uploadMessageAttachment } from '../messaging/messageAttachmentUpload'
+import type { EnrollmentGroup, MessageRow, MessageThread, RecipientOption, ThreadParticipant } from '../messaging/types'
+import { mergeRecipientOptions, participantKey } from '../messaging/types'
 
 type AdminMessagesTab = 'active-mine' | 'active-all' | 'archived'
 type ListSort = 'title' | 'created'
@@ -48,6 +50,11 @@ export default function AdminMessagesPanel() {
   const [listSearch, setListSearch] = useState('')
   const [listSearchApplied, setListSearchApplied] = useState('')
   const [listSort, setListSort] = useState<ListSort>('title')
+  const [enrollmentGroups, setEnrollmentGroups] = useState<EnrollmentGroup[]>([])
+  const [groupsLoading, setGroupsLoading] = useState(true)
+  const [threadFavorite, setThreadFavorite] = useState(false)
+  const [favoriteLoading, setFavoriteLoading] = useState(false)
+  const [pendingAttachment, setPendingAttachment] = useState<File | null>(null)
 
   const isFlatView = tab === 'active-all' || tab === 'archived'
   const canReply = tab === 'active-mine' || tab === 'active-all'
@@ -65,6 +72,24 @@ export default function AdminMessagesPanel() {
       .catch(() => {})
       .finally(() => setRecipientsLoading(false))
   }, [])
+
+  useEffect(() => {
+    setGroupsLoading(true)
+    adminFetch<EnrollmentGroup[]>('/api/admin/messages/enrollment-groups')
+      .then(setEnrollmentGroups)
+      .catch(() => setEnrollmentGroups([]))
+      .finally(() => setGroupsLoading(false))
+  }, [])
+
+  const resolveEnrollmentGroup = useCallback(async (group: EnrollmentGroup) => {
+    const params = new URLSearchParams({ type: group.groupType, id: String(group.id) })
+    return adminFetch<RecipientOption[]>(`/api/admin/messages/group-members?${params.toString()}`)
+  }, [])
+
+  const addEnrollmentGroupToNew = useCallback(async (group: EnrollmentGroup) => {
+    const added = await resolveEnrollmentGroup(group)
+    setNewRecipients((prev) => mergeRecipientOptions(prev, added))
+  }, [resolveEnrollmentGroup])
 
   const loadThreads = useCallback(async () => {
     setLoading(true)
@@ -100,6 +125,8 @@ export default function AdminMessagesPanel() {
     setSelectedId(id)
     setDetailLoading(true)
     setError(null)
+    const listRow = threads.find((t) => t.id === id)
+    setThreadFavorite(Boolean(listRow?.is_favorite))
     try {
       const data = await adminFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/admin/messages/${id}`)
       setThreadSubject(data.thread.subject ?? null)
@@ -115,15 +142,22 @@ export default function AdminMessagesPanel() {
   }
 
   const sendReply = async () => {
-    if (!selectedId || !reply.trim() || !canReply) return
+    if (!selectedId || (!reply.trim() && !pendingAttachment) || !canReply) return
     setSending(true)
     try {
+      let attachmentPayload: Record<string, string | null> = {}
+      if (pendingAttachment) {
+        attachmentPayload = await uploadMessageAttachment(pendingAttachment, () =>
+          adminFetch('/api/admin/messages/upload-signature'),
+        )
+      }
       const msg = await adminFetch<MessageRow>(`/api/admin/messages/${selectedId}`, {
         method: 'POST',
-        body: JSON.stringify({ body: reply.trim() }),
+        body: JSON.stringify({ body: reply.trim(), ...attachmentPayload }),
       })
       setMessages((prev) => [...prev, msg])
       setReply('')
+      setPendingAttachment(null)
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message')
@@ -177,15 +211,43 @@ export default function AdminMessagesPanel() {
     setThreadParticipants(Array.isArray(updated.participants) ? updated.participants : [])
   }
 
-  const setArchiveStatus = async (archived: boolean) => {
+  const hideFromInbox = async () => {
     if (!selectedId) return
-    await adminFetch<MessageThread>(`/api/admin/messages/${selectedId}/status`, {
+    await adminFetch(`/api/admin/messages/${selectedId}/inbox`, {
       method: 'PATCH',
-      body: JSON.stringify({ archived }),
+      body: JSON.stringify({ hidden: true }),
     })
     setSelectedId(null)
     setMessages([])
     void loadThreads()
+  }
+
+  const restoreThreadGlobally = async () => {
+    if (!selectedId) return
+    await adminFetch<MessageThread>(`/api/admin/messages/${selectedId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ archived: false }),
+    })
+    setSelectedId(null)
+    setMessages([])
+    void loadThreads()
+  }
+
+  const toggleFavorite = async (favorite: boolean) => {
+    if (!selectedId) return
+    setFavoriteLoading(true)
+    try {
+      await adminFetch(`/api/admin/messages/${selectedId}/favorite`, {
+        method: 'PATCH',
+        body: JSON.stringify({ favorite }),
+      })
+      setThreadFavorite(favorite)
+      void loadThreads()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update favorite')
+    } finally {
+      setFavoriteLoading(false)
+    }
   }
 
   const applyListSearch = () => {
@@ -254,6 +316,10 @@ export default function AdminMessagesPanel() {
             onChange={setNewRecipients}
             loading={recipientsLoading}
             placeholder="Search members, coaches, admins…"
+            enrollmentGroups={enrollmentGroups}
+            onAddEnrollmentGroup={addEnrollmentGroupToNew}
+            groupsLoading={groupsLoading}
+            groupActionLabel="Add all enrolled in"
           />
           <input
             value={newSubject}
@@ -337,7 +403,10 @@ export default function AdminMessagesPanel() {
                   onClick={() => void openThread(t.id)}
                   className={`w-full px-4 py-3 text-left hover:bg-gray-50 ${selectedId === t.id ? 'bg-red-50' : ''}`}
                 >
-                  <div className="font-semibold text-gray-900 text-sm truncate">{threadTitle(t)}</div>
+                  <div className="font-semibold text-gray-900 text-sm truncate flex items-center gap-1">
+                    {t.is_favorite && <span className="text-yellow-400 text-xs" aria-hidden>★</span>}
+                    {threadTitle(t)}
+                  </div>
                   {t.participant_names && (
                     <div className="text-xs text-gray-500 truncate">{t.participant_names}</div>
                   )}
@@ -375,13 +444,18 @@ export default function AdminMessagesPanel() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {tab === 'archived' ? (
-                    <button
-                      type="button"
-                      onClick={() => void setArchiveStatus(false)}
-                      className="text-xs font-semibold text-vortex-red hover:underline"
-                    >
-                      Restore thread
-                    </button>
+                    <ThreadHeaderMenu
+                      subject={threadSubject}
+                      subjectLocked={threadSubjectLocked}
+                      canLock={false}
+                      canEdit={false}
+                      onUpdateSubject={updateThreadSubject}
+                      isGloballyArchived
+                      onRestoreThread={restoreThreadGlobally}
+                      isFavorite={threadFavorite}
+                      onToggleFavorite={toggleFavorite}
+                      favoriteLoading={favoriteLoading}
+                    />
                   ) : (
                     <ThreadHeaderMenu
                       subject={threadSubject}
@@ -393,9 +467,16 @@ export default function AdminMessagesPanel() {
                       existingParticipantKeys={existingParticipantKeys}
                       recipientsLoading={recipientsLoading}
                       onAddRecipients={addRecipients}
-                      canArchive
-                      isArchived={false}
-                      onArchive={setArchiveStatus}
+                      enrollmentGroups={enrollmentGroups}
+                      resolveEnrollmentGroup={resolveEnrollmentGroup}
+                      groupsLoading={groupsLoading}
+                      canHideFromInbox
+                      onHideFromInbox={hideFromInbox}
+                      isFavorite={threadFavorite}
+                      onToggleFavorite={toggleFavorite}
+                      favoriteLoading={favoriteLoading}
+                      canAttach={tab === 'active-all'}
+                      onAttachmentPick={setPendingAttachment}
                     />
                   )}
                 </div>
@@ -404,28 +485,15 @@ export default function AdminMessagesPanel() {
                 <ArchivedMessageLines messages={messages} />
               </div>
               {canReply && (
-                <div className="p-4 border-t border-gray-100 flex gap-2">
-                  <input
-                    value={reply}
-                    onChange={(e) => setReply(e.target.value)}
-                    placeholder="Reply as admin…"
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        void sendReply()
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => void sendReply()}
-                    disabled={sending || !reply.trim()}
-                    className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
-                  >
-                    Send
-                  </button>
-                </div>
+                <MessageReplyComposer
+                  reply={reply}
+                  onReplyChange={setReply}
+                  onSend={() => void sendReply()}
+                  sending={sending}
+                  placeholder="Reply as admin…"
+                  pendingAttachment={pendingAttachment}
+                  onClearAttachment={() => setPendingAttachment(null)}
+                />
               )}
             </>
           ) : (
@@ -447,9 +515,16 @@ export default function AdminMessagesPanel() {
                   existingParticipantKeys={existingParticipantKeys}
                   recipientsLoading={recipientsLoading}
                   onAddRecipients={addRecipients}
-                  canArchive
-                  isArchived={threadStatus === 'archived'}
-                  onArchive={setArchiveStatus}
+                  enrollmentGroups={enrollmentGroups}
+                  resolveEnrollmentGroup={resolveEnrollmentGroup}
+                  groupsLoading={groupsLoading}
+                  canHideFromInbox
+                  onHideFromInbox={hideFromInbox}
+                  isFavorite={threadFavorite}
+                  onToggleFavorite={toggleFavorite}
+                  favoriteLoading={favoriteLoading}
+                  canAttach
+                  onAttachmentPick={setPendingAttachment}
                 />
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[360px]">
@@ -457,28 +532,15 @@ export default function AdminMessagesPanel() {
                   <MessageBubble key={m.id} message={m} viewer={viewer} />
                 ))}
               </div>
-              <div className="p-4 border-t border-gray-100 flex gap-2">
-                <input
-                  value={reply}
-                  onChange={(e) => setReply(e.target.value)}
-                  placeholder="Reply as admin…"
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      void sendReply()
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => void sendReply()}
-                  disabled={sending || !reply.trim()}
-                  className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
-                >
-                  Send
-                </button>
-              </div>
+              <MessageReplyComposer
+                reply={reply}
+                onReplyChange={setReply}
+                onSend={() => void sendReply()}
+                sending={sending}
+                placeholder="Reply as admin…"
+                pendingAttachment={pendingAttachment}
+                onClearAttachment={() => setPendingAttachment(null)}
+              />
             </>
           )}
         </div>

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Lock, MoreHorizontal, Pencil, UserPlus, Archive, ArchiveRestore } from 'lucide-react'
+import { Lock, MoreHorizontal, Pencil, Paperclip, Star, UserPlus, Archive, ArchiveRestore } from 'lucide-react'
 import RecipientPicker from './RecipientPicker'
-import type { RecipientOption } from './types'
+import type { EnrollmentGroup, RecipientOption } from './types'
+import { mergeRecipientOptions } from './types'
+import { MESSAGE_ATTACHMENT_ACCEPT } from './messageAttachmentUpload'
 
 interface ThreadHeaderMenuProps {
   subject: string | null
@@ -13,9 +15,18 @@ interface ThreadHeaderMenuProps {
   existingParticipantKeys?: string[]
   recipientsLoading?: boolean
   onAddRecipients?: (recipients: RecipientOption[]) => Promise<void>
-  canArchive?: boolean
-  isArchived?: boolean
-  onArchive?: (archived: boolean) => Promise<void>
+  enrollmentGroups?: EnrollmentGroup[]
+  resolveEnrollmentGroup?: (group: EnrollmentGroup) => Promise<RecipientOption[]>
+  groupsLoading?: boolean
+  canHideFromInbox?: boolean
+  onHideFromInbox?: () => Promise<void>
+  isGloballyArchived?: boolean
+  onRestoreThread?: () => Promise<void>
+  isFavorite?: boolean
+  onToggleFavorite?: (favorite: boolean) => Promise<void>
+  favoriteLoading?: boolean
+  onAttachmentPick?: (file: File) => void
+  canAttach?: boolean
 }
 
 export default function ThreadHeaderMenu({
@@ -28,9 +39,18 @@ export default function ThreadHeaderMenu({
   existingParticipantKeys = [],
   recipientsLoading = false,
   onAddRecipients,
-  canArchive = false,
-  isArchived = false,
-  onArchive,
+  enrollmentGroups = [],
+  resolveEnrollmentGroup,
+  groupsLoading = false,
+  canHideFromInbox = false,
+  onHideFromInbox,
+  isGloballyArchived = false,
+  onRestoreThread,
+  isFavorite = false,
+  onToggleFavorite,
+  favoriteLoading = false,
+  onAttachmentPick,
+  canAttach = false,
 }: ThreadHeaderMenuProps) {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -39,9 +59,12 @@ export default function ThreadHeaderMenu({
   const [pickedRecipients, setPickedRecipients] = useState<RecipientOption[]>([])
   const [saving, setSaving] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const attachmentInputRef = useRef<HTMLInputElement>(null)
 
   const canAddRecipients = Boolean(onAddRecipients)
-  const canArchiveThread = Boolean(onArchive) && canArchive
+  const canHideInbox = Boolean(onHideFromInbox) && canHideFromInbox
+  const canRestoreThread = Boolean(onRestoreThread) && isGloballyArchived
+  const canPickAttachment = Boolean(onAttachmentPick) && canAttach && !isGloballyArchived
   const existingKeys = useMemo(() => new Set(existingParticipantKeys), [existingParticipantKeys])
   const availableOptions = useMemo(
     () => recipientOptions.filter((o) => !existingKeys.has(o.key)),
@@ -95,21 +118,75 @@ export default function ThreadHeaderMenu({
     }
   }
 
-  const toggleArchive = async () => {
-    if (!onArchive) return
+  const hideFromInbox = async () => {
+    if (!onHideFromInbox) return
     setSaving(true)
     try {
-      await onArchive(!isArchived)
+      await onHideFromInbox()
       setOpen(false)
     } finally {
       setSaving(false)
     }
   }
 
-  if (!canEdit && !canLock && !canAddRecipients && !canArchiveThread) return null
+  const restoreThread = async () => {
+    if (!onRestoreThread) return
+    setSaving(true)
+    try {
+      await onRestoreThread()
+      setOpen(false)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const toggleFavorite = async () => {
+    if (!onToggleFavorite) return
+    setSaving(true)
+    try {
+      await onToggleFavorite(!isFavorite)
+      setOpen(false)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const pickAttachment = () => {
+    setOpen(false)
+    attachmentInputRef.current?.click()
+  }
+
+  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment) return null
 
   return (
-    <div ref={rootRef} className="relative shrink-0">
+    <div ref={rootRef} className="relative shrink-0 flex items-center gap-0.5">
+      {canPickAttachment && (
+        <input
+          ref={attachmentInputRef}
+          type="file"
+          className="hidden"
+          accept={MESSAGE_ATTACHMENT_ACCEPT}
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file && onAttachmentPick) onAttachmentPick(file)
+            e.target.value = ''
+          }}
+        />
+      )}
+      {onToggleFavorite && (
+        <button
+          type="button"
+          aria-label={isFavorite ? 'Remove favorite' : 'Favorite thread'}
+          disabled={favoriteLoading}
+          onClick={() => void onToggleFavorite(!isFavorite)}
+          className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-60"
+        >
+          <Star
+            className={`w-5 h-5 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`}
+            strokeWidth={isFavorite ? 0 : 1.75}
+          />
+        </button>
+      )}
       <button
         type="button"
         aria-label="Thread options"
@@ -142,18 +219,44 @@ export default function ThreadHeaderMenu({
               <UserPlus className="w-4 h-4" /> Add recipients
             </button>
           )}
-          {canArchiveThread && (
+          {onToggleFavorite && (
+            <button
+              type="button"
+              disabled={saving || favoriteLoading}
+              onClick={() => void toggleFavorite()}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 disabled:opacity-60"
+            >
+              <Star className={`w-4 h-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+              {isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            </button>
+          )}
+          {canPickAttachment && (
+            <button
+              type="button"
+              onClick={pickAttachment}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
+            >
+              <Paperclip className="w-4 h-4" /> Add attachment
+            </button>
+          )}
+          {canHideInbox && !isGloballyArchived && (
             <button
               type="button"
               disabled={saving}
-              onClick={() => void toggleArchive()}
+              onClick={() => void hideFromInbox()}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 disabled:opacity-60"
             >
-              {isArchived ? (
-                <><ArchiveRestore className="w-4 h-4" /> Restore thread</>
-              ) : (
-                <><Archive className="w-4 h-4" /> Archive thread</>
-              )}
+              <Archive className="w-4 h-4" /> Archive from inbox
+            </button>
+          )}
+          {canRestoreThread && (
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() => void restoreThread()}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 disabled:opacity-60"
+            >
+              <ArchiveRestore className="w-4 h-4" /> Restore thread
             </button>
           )}
           {canLock && (
@@ -213,6 +316,12 @@ export default function ThreadHeaderMenu({
               loading={recipientsLoading}
               placeholder="Search people to add…"
               label="Add to this thread"
+              enrollmentGroups={enrollmentGroups}
+              onAddEnrollmentGroup={resolveEnrollmentGroup ? async (group) => {
+                const added = await resolveEnrollmentGroup(group)
+                setPickedRecipients((prev) => mergeRecipientOptions(prev, added))
+              } : undefined}
+              groupsLoading={groupsLoading}
             />
             <div className="flex justify-end gap-2">
               <button

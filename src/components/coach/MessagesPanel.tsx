@@ -4,9 +4,11 @@ import { coachFetch } from '../../coach/api'
 import RecipientPicker, { recipientsToPayload } from '../messaging/RecipientPicker'
 import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
 import MessageBubble from '../messaging/MessageBubble'
+import MessageReplyComposer from '../messaging/MessageReplyComposer'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
-import type { MessageRow, MessageThread, RecipientOption, ThreadParticipant } from '../messaging/types'
-import { participantKey } from '../messaging/types'
+import { uploadMessageAttachment } from '../messaging/messageAttachmentUpload'
+import type { EnrollmentGroup, MessageRow, MessageThread, RecipientOption, ThreadParticipant } from '../messaging/types'
+import { mergeRecipientOptions, participantKey } from '../messaging/types'
 
 type MemberPickerScope = 'my_classes' | 'all'
 
@@ -31,6 +33,11 @@ export default function MessagesPanel() {
   const [newSubject, setNewSubject] = useState('')
   const [newBody, setNewBody] = useState('')
   const [recipientLoadError, setRecipientLoadError] = useState<string | null>(null)
+  const [enrollmentGroups, setEnrollmentGroups] = useState<EnrollmentGroup[]>([])
+  const [groupsLoading, setGroupsLoading] = useState(true)
+  const [threadFavorite, setThreadFavorite] = useState(false)
+  const [favoriteLoading, setFavoriteLoading] = useState(false)
+  const [pendingAttachment, setPendingAttachment] = useState<File | null>(null)
   const viewer = useMemo(() => getMessageViewer('coach'), [])
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
@@ -59,6 +66,24 @@ export default function MessagesPanel() {
   }, [memberScope, loadRecipientOptions])
 
   useEffect(() => {
+    setGroupsLoading(true)
+    coachFetch<EnrollmentGroup[]>('/api/coach/messages/enrollment-groups')
+      .then(setEnrollmentGroups)
+      .catch(() => setEnrollmentGroups([]))
+      .finally(() => setGroupsLoading(false))
+  }, [])
+
+  const resolveEnrollmentGroup = useCallback(async (group: EnrollmentGroup) => {
+    const params = new URLSearchParams({ type: group.groupType, id: String(group.id) })
+    return coachFetch<RecipientOption[]>(`/api/coach/messages/group-members?${params.toString()}`)
+  }, [])
+
+  const addEnrollmentGroupToNew = useCallback(async (group: EnrollmentGroup) => {
+    const added = await resolveEnrollmentGroup(group)
+    setNewRecipients((prev) => mergeRecipientOptions(prev, added))
+  }, [resolveEnrollmentGroup])
+
+  useEffect(() => {
     setNewRecipients((prev) => prev.filter((r) => recipientOptions.some((o) => o.key === r.key)))
   }, [recipientOptions])
 
@@ -81,6 +106,8 @@ export default function MessagesPanel() {
     setSelectedId(id)
     setDetailLoading(true)
     setError(null)
+    const listRow = threads.find((t) => t.id === id)
+    setThreadFavorite(Boolean(listRow?.is_favorite))
     try {
       const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/coach/messages/${id}`)
       setThreadSubject(data.thread.subject ?? null)
@@ -96,15 +123,22 @@ export default function MessagesPanel() {
   }
 
   const sendReply = async () => {
-    if (!selectedId || !reply.trim()) return
+    if (!selectedId || (!reply.trim() && !pendingAttachment)) return
     setSending(true)
     try {
+      let attachmentPayload: Record<string, string | null> = {}
+      if (pendingAttachment) {
+        attachmentPayload = await uploadMessageAttachment(pendingAttachment, () =>
+          coachFetch('/api/coach/messages/upload-signature'),
+        )
+      }
       const msg = await coachFetch<MessageRow>(`/api/coach/messages/${selectedId}`, {
         method: 'POST',
-        body: JSON.stringify({ body: reply.trim() }),
+        body: JSON.stringify({ body: reply.trim(), ...attachmentPayload }),
       })
       setMessages((prev) => [...prev, msg])
       setReply('')
+      setPendingAttachment(null)
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message')
@@ -133,15 +167,32 @@ export default function MessagesPanel() {
     setThreadParticipants(Array.isArray(updated.participants) ? updated.participants : [])
   }
 
-  const setArchiveStatus = async (archived: boolean) => {
+  const hideFromInbox = async () => {
     if (!selectedId) return
-    await coachFetch<MessageThread>(`/api/coach/messages/${selectedId}/status`, {
+    await coachFetch(`/api/coach/messages/${selectedId}/inbox`, {
       method: 'PATCH',
-      body: JSON.stringify({ archived }),
+      body: JSON.stringify({ hidden: true }),
     })
     setSelectedId(null)
     setMessages([])
     void loadThreads()
+  }
+
+  const toggleFavorite = async (favorite: boolean) => {
+    if (!selectedId) return
+    setFavoriteLoading(true)
+    try {
+      await coachFetch(`/api/coach/messages/${selectedId}/favorite`, {
+        method: 'PATCH',
+        body: JSON.stringify({ favorite }),
+      })
+      setThreadFavorite(favorite)
+      void loadThreads()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update favorite')
+    } finally {
+      setFavoriteLoading(false)
+    }
   }
 
   const openToCoachingCircle = async () => {
@@ -240,6 +291,10 @@ export default function MessagesPanel() {
             onChange={setNewRecipients}
             loading={recipientsLoading}
             placeholder="Search athletes, coaches, admins…"
+            enrollmentGroups={enrollmentGroups}
+            onAddEnrollmentGroup={addEnrollmentGroupToNew}
+            groupsLoading={groupsLoading}
+            groupActionLabel="Add all enrolled in"
           />
           <input
             value={newSubject}
@@ -286,7 +341,8 @@ export default function MessagesPanel() {
                   onClick={() => void openThread(t.id)}
                   className={`w-full px-4 py-3 text-left hover:bg-gray-50 ${selectedId === t.id ? 'bg-red-50' : ''}`}
                 >
-                  <div className="font-semibold text-gray-900 text-sm truncate">
+                  <div className="font-semibold text-gray-900 text-sm truncate flex items-center gap-1">
+                    {t.is_favorite && <span className="text-yellow-400 text-xs" aria-hidden>★</span>}
                     {t.subject || (t.first_name ? `${t.first_name} ${t.last_name}` : 'Conversation')}
                   </div>
                   {t.subject && t.first_name && (
@@ -335,8 +391,16 @@ export default function MessagesPanel() {
                     existingParticipantKeys={existingParticipantKeys}
                     recipientsLoading={recipientsLoading}
                     onAddRecipients={addRecipients}
-                    canArchive
-                    onArchive={setArchiveStatus}
+                    enrollmentGroups={enrollmentGroups}
+                    resolveEnrollmentGroup={resolveEnrollmentGroup}
+                    groupsLoading={groupsLoading}
+                    canHideFromInbox
+                    onHideFromInbox={hideFromInbox}
+                    isFavorite={threadFavorite}
+                    onToggleFavorite={toggleFavorite}
+                    favoriteLoading={favoriteLoading}
+                    canAttach
+                    onAttachmentPick={setPendingAttachment}
                   />
                 </div>
               </div>
@@ -345,28 +409,15 @@ export default function MessagesPanel() {
                   <MessageBubble key={m.id} message={m} viewer={viewer} />
                 ))}
               </div>
-              <div className="p-4 border-t border-gray-100 flex gap-2">
-                <input
-                  value={reply}
-                  onChange={(e) => setReply(e.target.value)}
-                  placeholder="Type a reply…"
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      void sendReply()
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => void sendReply()}
-                  disabled={sending || !reply.trim()}
-                  className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
-                >
-                  Send
-                </button>
-              </div>
+              <MessageReplyComposer
+                reply={reply}
+                onReplyChange={setReply}
+                onSend={() => void sendReply()}
+                sending={sending}
+                placeholder="Type a reply…"
+                pendingAttachment={pendingAttachment}
+                onClearAttachment={() => setPendingAttachment(null)}
+              />
             </>
           )}
         </div>

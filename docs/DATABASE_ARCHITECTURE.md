@@ -193,6 +193,9 @@ adds `message_thread.subject_locked`, nullable `message_thread.member_id` (staff
 and `message_thread_participant` (`thread_id` + optional `user_id` / `member_id` for group
 recipients). **`061_coaching_message_sender_portal.sql`** adds `message.sender_portal`
 (`admin` | `coach` | `member`) so UI can color bubbles by portal origin for multi-role users.
+**`062_coaching_message_thread_favorite.sql`** adds `message_thread_favorite` (per user/member
+starred threads, sorted to top of list by `favorited_at`). **`063_coaching_message_thread_inbox_hide.sql`**
+adds `message_thread_inbox_hide` (per-user inbox archive; cleared when thread gets a new message).
 **`025`** adds `goal` / `achievement`. **Loose
 BIGINT refs (no FK)** are deliberate for polymorphic/calendar wiring:
 `plan_assignment.target_id`/`assignable_id` (polymorphic by `*_type`),

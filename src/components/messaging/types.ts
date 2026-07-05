@@ -14,6 +14,8 @@ export interface MessageThread {
   status?: 'open' | 'archived'
   participant_names?: string | null
   participants?: ThreadParticipant[]
+  is_favorite?: boolean
+  favorited_at?: string | null
 }
 
 export interface ThreadParticipant {
@@ -36,6 +38,9 @@ export interface MessageRow {
   sender_portal?: 'member' | 'coach' | 'admin'
   sender_user_id?: number | null
   sender_member_id?: number | null
+  attachment_url?: string | null
+  attachment_name?: string | null
+  attachment_mime?: string | null
   created_at: string
 }
 
@@ -44,6 +49,32 @@ export interface RecipientOption {
   id: number
   kind: 'member' | 'coach' | 'admin'
   name: string
+}
+
+export interface EnrollmentGroup {
+  key: string
+  groupType: 'primary_sport' | 'program' | 'scheduling_class'
+  id: number
+  name: string
+  memberCount?: number
+}
+
+export function mergeRecipientOptions(existing: RecipientOption[], added: RecipientOption[]): RecipientOption[] {
+  const keys = new Set(existing.map((r) => r.key))
+  const next = [...existing]
+  for (const r of added) {
+    if (!keys.has(r.key)) {
+      keys.add(r.key)
+      next.push(r)
+    }
+  }
+  return next
+}
+
+export function enrollmentGroupLabel(group: EnrollmentGroup): string {
+  if (group.groupType === 'primary_sport') return `${group.name} (sport)`
+  if (group.groupType === 'program') return `${group.name} (program)`
+  return group.name
 }
 
 export type MessagingRole = 'member' | 'coach' | 'admin'

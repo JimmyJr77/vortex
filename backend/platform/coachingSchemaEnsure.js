@@ -137,4 +137,53 @@ async function applyCoachingMessageThreadSchema(pool) {
     SET sender_portal = 'member'
     WHERE sender_portal IS NULL AND sender_member_id IS NOT NULL
   `)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS coaching.message_thread_favorite (
+      id            BIGSERIAL PRIMARY KEY,
+      thread_id     BIGINT NOT NULL REFERENCES coaching.message_thread(id) ON DELETE CASCADE,
+      user_id       BIGINT REFERENCES public.app_user(id) ON DELETE CASCADE,
+      member_id     BIGINT REFERENCES public.member(id) ON DELETE CASCADE,
+      favorited_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+      CHECK (user_id IS NOT NULL OR member_id IS NOT NULL)
+    )
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_message_thread_favorite_user
+      ON coaching.message_thread_favorite(thread_id, user_id)
+      WHERE user_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_message_thread_favorite_member
+      ON coaching.message_thread_favorite(thread_id, member_id)
+      WHERE member_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS coaching.message_thread_inbox_hide (
+      id          BIGSERIAL PRIMARY KEY,
+      thread_id   BIGINT NOT NULL REFERENCES coaching.message_thread(id) ON DELETE CASCADE,
+      user_id     BIGINT REFERENCES public.app_user(id) ON DELETE CASCADE,
+      member_id   BIGINT REFERENCES public.member(id) ON DELETE CASCADE,
+      hidden_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+      CHECK (user_id IS NOT NULL OR member_id IS NOT NULL)
+    )
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_message_thread_inbox_hide_user
+      ON coaching.message_thread_inbox_hide(thread_id, user_id)
+      WHERE user_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_message_thread_inbox_hide_member
+      ON coaching.message_thread_inbox_hide(thread_id, member_id)
+      WHERE member_id IS NOT NULL
+  `)
+  await pool.query(`
+    ALTER TABLE coaching.message ADD COLUMN IF NOT EXISTS attachment_url TEXT
+  `)
+  await pool.query(`
+    ALTER TABLE coaching.message ADD COLUMN IF NOT EXISTS attachment_name TEXT
+  `)
+  await pool.query(`
+    ALTER TABLE coaching.message ADD COLUMN IF NOT EXISTS attachment_mime TEXT
+  `)
 }

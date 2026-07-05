@@ -52,6 +52,9 @@ export async function initPlatformTables(pool) {
     '059_facility_portal_config.sql',
     '060_coaching_message_enhancements.sql',
     '061_coaching_message_sender_portal.sql',
+    '062_coaching_message_thread_favorite.sql',
+    '063_coaching_message_thread_inbox_hide.sql',
+    '064_coaching_message_attachments.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

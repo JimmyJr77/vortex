@@ -2,6 +2,9 @@
  * Shared helpers for coaching.message_thread + message_thread_participant.
  */
 
+import { queryAssignmentTargetMemberIds } from './assignmentTargets.js'
+import { resolveProgramsSchema } from '../programs/schema.js'
+
 function uniqNums(values) {
   return [...new Set(values.map(Number).filter(Number.isFinite))]
 }
@@ -308,7 +311,7 @@ export async function loadThreadWithParticipants(pool, threadId, facilityId) {
  * sort: title | created | updated (default: updated = last_message_at)
  * scope: all | mine — when mine, only threads the admin user participates in
  */
-export async function queryAdminMessageThreads(pool, facilityId, { status = 'open', sort = 'updated', q = null, limit = 300, scope = 'all', adminUserId = null }) {
+export async function queryAdminMessageThreads(pool, facilityId, { status = 'open', sort = 'updated', q = null, limit = 300, scope = 'all', adminUserId = null, favoriteUserId = null, inboxHideUserId = null }) {
   const params = [facilityId, status]
   const pattern = q && String(q).trim() ? `%${String(q).trim()}%` : null
   let searchSql = ''
@@ -356,12 +359,24 @@ export async function queryAdminMessageThreads(pool, facilityId, { status = 'ope
     `
   }
 
-  let orderSql = 't.last_message_at DESC NULLS LAST, t.created_at DESC'
+  let orderSql = MESSAGE_THREAD_FAVORITE_ORDER
   if (sort === 'title') {
-    orderSql = `LOWER(COALESCE(NULLIF(TRIM(t.subject), ''), 'conversation')) ASC, t.created_at DESC`
+    orderSql = `CASE WHEN fav.favorited_at IS NOT NULL THEN 0 ELSE 1 END, fav.favorited_at ASC NULLS LAST, LOWER(COALESCE(NULLIF(TRIM(t.subject), ''), 'conversation')) ASC, t.created_at DESC`
   } else if (sort === 'created') {
-    orderSql = 't.created_at DESC'
+    orderSql = `CASE WHEN fav.favorited_at IS NOT NULL THEN 0 ELSE 1 END, fav.favorited_at ASC NULLS LAST, t.created_at DESC`
+  } else if (sort === 'updated') {
+    orderSql = MESSAGE_THREAD_FAVORITE_ORDER
   }
+
+  const favUserId = favoriteUserId ?? adminUserId
+  const hideUserId = inboxHideUserId ?? (status === 'open' ? favUserId : null)
+  const favJoin = favUserId != null
+    ? messageThreadFavoriteJoinSql({ userId: Number(favUserId), threadAlias: 't', favAlias: 'fav' })
+    : ''
+  const favSelect = favUserId != null ? `, ${messageThreadFavoriteSelectSql('fav')}` : ''
+  const inboxHideSql = hideUserId != null
+    ? messageThreadInboxHideFilterSql({ userId: Number(hideUserId), threadAlias: 't' })
+    : ''
 
   params.push(Number(limit) || 300)
   const limitParam = `$${params.length}`
@@ -370,7 +385,7 @@ export async function queryAdminMessageThreads(pool, facilityId, { status = 'ope
     `
       SELECT t.*, m.first_name, m.last_name,
         lm.body AS last_message_body,
-        lm.created_at AS last_message_created_at,
+        lm.created_at AS last_message_created_at${favSelect},
         (
           SELECT string_agg(names.n, ', ')
           FROM (
@@ -386,12 +401,14 @@ export async function queryAdminMessageThreads(pool, facilityId, { status = 'ope
         ) AS participant_names
       FROM coaching.message_thread t
       LEFT JOIN public.member m ON m.id = t.member_id
+      ${favJoin}
       LEFT JOIN LATERAL (
         SELECT body, created_at FROM coaching.message
         WHERE thread_id = t.id ORDER BY created_at DESC LIMIT 1
       ) lm ON TRUE
       WHERE t.facility_id = $1 AND t.status = $2
       ${participantSql}
+      ${inboxHideSql}
       ${searchSql}
       ORDER BY ${orderSql}
       LIMIT ${limitParam}
@@ -410,6 +427,272 @@ export async function setMessageThreadStatus(pool, threadId, facilityId, status)
   )
   return updated.rows[0] ?? null
 }
+
+const ACTIVE_SIGNUP = `
+  s.member_id IS NOT NULL
+  AND s.orphaned_at IS NULL
+  AND s.status IN ('confirmed', 'waitlisted')
+`
+
+function mapEnrollmentGroup(row, groupType) {
+  return {
+    key: `group:${groupType}:${row.id}`,
+    groupType,
+    id: Number(row.id),
+    name: row.name || `${groupType} ${row.id}`,
+    memberCount: row.member_count != null ? Number(row.member_count) : undefined,
+  }
+}
+
+/** Enrollment groups for bulk recipient add (member portal: own classes only). */
+export async function queryMemberMessageEnrollmentGroups(pool, facilityId, memberId) {
+  const r = await pool.query(
+    `
+      SELECT sf.id, sf.title AS name, COUNT(DISTINCT s2.member_id)::int AS member_count
+      FROM scheduling_signup s
+      JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+      JOIN scheduling_signup s2 ON s2.form_id = sf.id
+        AND s2.member_id IS NOT NULL AND s2.orphaned_at IS NULL
+        AND s2.status IN ('confirmed', 'waitlisted')
+      JOIN member m ON m.id = s2.member_id AND m.facility_id = $1 AND m.is_active = TRUE
+      WHERE s.member_id = $2 AND ${ACTIVE_SIGNUP}
+      GROUP BY sf.id, sf.title
+      ORDER BY sf.title
+    `,
+    [facilityId, memberId],
+  )
+  return r.rows.map((row) => mapEnrollmentGroup(row, 'scheduling_class'))
+}
+
+/** Enrollment groups for coach/admin bulk recipient add (sport, program, class). */
+export async function queryStaffMessageEnrollmentGroups(pool, facilityId) {
+  const schema = await resolveProgramsSchema(pool)
+  const [sports, programs, classes] = await Promise.all([
+    pool.query(
+      `
+        SELECT dt.id, dt.name,
+          (
+            SELECT COUNT(DISTINCT s.member_id)::int
+            FROM scheduling_signup s
+            JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+            JOIN ${schema.programsTable} top ON top.id = sf.programs_id
+            JOIN member m ON m.id = s.member_id AND m.facility_id = $1 AND m.is_active = TRUE
+            WHERE top.primary_discipline_tag_id = dt.id AND ${ACTIVE_SIGNUP}
+          ) AS member_count
+        FROM discipline_tag dt
+        WHERE dt.facility_id = $1
+          AND EXISTS (
+            SELECT 1 FROM ${schema.programsTable} top
+            WHERE top.primary_discipline_tag_id = dt.id
+              AND (top.facility_id = $1 OR top.facility_id IS NULL)
+          )
+        ORDER BY dt.name
+      `,
+      [facilityId],
+    ),
+    pool.query(
+      `
+        SELECT p.id, p.display_name AS name,
+          (
+            SELECT COUNT(DISTINCT m.id)::int
+            FROM member m
+            WHERE m.facility_id = $1 AND m.is_active = TRUE
+              AND (
+                EXISTS (
+                  SELECT 1 FROM scheduling_signup s
+                  JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+                  WHERE s.member_id = m.id AND sf.program_id = p.id AND ${ACTIVE_SIGNUP}
+                )
+                OR EXISTS (
+                  SELECT 1 FROM member_program mp WHERE mp.member_id = m.id AND mp.program_id = p.id
+                )
+              )
+          ) AS member_count
+        FROM program p
+        WHERE p.facility_id = $1 AND p.is_active = TRUE
+        ORDER BY p.display_name
+      `,
+      [facilityId],
+    ),
+    pool.query(
+      `
+        SELECT sf.id, sf.title AS name, COUNT(DISTINCT s.member_id)::int AS member_count
+        FROM scheduling_form sf
+        JOIN scheduling_signup s ON s.form_id = sf.id AND ${ACTIVE_SIGNUP}
+        JOIN member m ON m.id = s.member_id AND m.facility_id = $1 AND m.is_active = TRUE
+        WHERE sf.deleted_at IS NULL AND sf.is_active = TRUE
+        GROUP BY sf.id, sf.title
+        HAVING COUNT(DISTINCT s.member_id) > 0
+        ORDER BY sf.title
+      `,
+      [facilityId],
+    ),
+  ])
+  return [
+    ...sports.rows.filter((row) => Number(row.member_count) > 0).map((row) => mapEnrollmentGroup(row, 'primary_sport')),
+    ...programs.rows.filter((row) => Number(row.member_count) > 0).map((row) => mapEnrollmentGroup(row, 'program')),
+    ...classes.rows.map((row) => mapEnrollmentGroup(row, 'scheduling_class')),
+  ]
+}
+
+export async function resolveMessageEnrollmentGroupMembers(pool, { facilityId, groupType, groupId, excludeMemberId = null }) {
+  const allowed = ['primary_sport', 'program', 'scheduling_class']
+  if (!allowed.includes(groupType)) return []
+  const ids = await queryAssignmentTargetMemberIds(pool, {
+    targetType: groupType,
+    targetId: groupId,
+    facilityId,
+  })
+  const filtered = excludeMemberId != null
+    ? ids.filter((id) => id !== Number(excludeMemberId))
+    : ids
+  if (filtered.length === 0) return []
+  const r = await pool.query(
+    `SELECT id, first_name, last_name FROM member
+     WHERE facility_id = $1 AND is_active = TRUE AND id = ANY($2::bigint[])
+     ORDER BY last_name, first_name`,
+    [facilityId, filtered],
+  )
+  return r.rows.map((m) => ({
+    key: `member:${m.id}`,
+    id: Number(m.id),
+    kind: 'member',
+    name: `${m.first_name || ''} ${m.last_name || ''}`.trim() || `Member ${m.id}`,
+  }))
+}
+
+export async function setMessageThreadFavorite(pool, { threadId, facilityId, userId = null, memberId = null, favorite }) {
+  const thread = await pool.query(
+    `SELECT id FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+    [threadId, facilityId],
+  )
+  if (thread.rows.length === 0) return null
+  if (favorite) {
+    if (userId != null) {
+      await pool.query(
+        `DELETE FROM coaching.message_thread_favorite WHERE thread_id = $1 AND user_id = $2`,
+        [threadId, userId],
+      )
+      await pool.query(
+        `INSERT INTO coaching.message_thread_favorite (thread_id, user_id, favorited_at) VALUES ($1, $2, now())`,
+        [threadId, userId],
+      )
+    } else if (memberId != null) {
+      await pool.query(
+        `DELETE FROM coaching.message_thread_favorite WHERE thread_id = $1 AND member_id = $2`,
+        [threadId, memberId],
+      )
+      await pool.query(
+        `INSERT INTO coaching.message_thread_favorite (thread_id, member_id, favorited_at) VALUES ($1, $2, now())`,
+        [threadId, memberId],
+      )
+    }
+    return { is_favorite: true }
+  }
+  if (userId != null) {
+    await pool.query(
+      `DELETE FROM coaching.message_thread_favorite WHERE thread_id = $1 AND user_id = $2`,
+      [threadId, userId],
+    )
+  } else if (memberId != null) {
+    await pool.query(
+      `DELETE FROM coaching.message_thread_favorite WHERE thread_id = $1 AND member_id = $2`,
+      [threadId, memberId],
+    )
+  }
+  return { is_favorite: false }
+}
+
+/** Sort: favorites first (oldest favorite at top), then by last activity. */
+export const MESSAGE_THREAD_FAVORITE_ORDER = `
+  CASE WHEN fav.favorited_at IS NOT NULL THEN 0 ELSE 1 END,
+  fav.favorited_at ASC NULLS LAST,
+  t.last_message_at DESC NULLS LAST,
+  t.created_at DESC
+`
+
+export function messageThreadFavoriteJoinSql({ userId = null, memberId = null, threadAlias = 't', favAlias = 'fav' }) {
+  if (userId != null) {
+    return `LEFT JOIN coaching.message_thread_favorite ${favAlias} ON ${favAlias}.thread_id = ${threadAlias}.id AND ${favAlias}.user_id = ${userId}`
+  }
+  if (memberId != null) {
+    return `LEFT JOIN coaching.message_thread_favorite ${favAlias} ON ${favAlias}.thread_id = ${threadAlias}.id AND ${favAlias}.member_id = ${memberId}`
+  }
+  return ''
+}
+
+export function messageThreadFavoriteSelectSql(favAlias = 'fav') {
+  return `(fav.favorited_at IS NOT NULL) AS is_favorite, fav.favorited_at`
+}
+
+export function messageThreadInboxHideFilterSql({ userId = null, memberId = null, threadAlias = 't' }) {
+  if (userId != null) {
+    return `
+      AND NOT EXISTS (
+        SELECT 1 FROM coaching.message_thread_inbox_hide ih
+        WHERE ih.thread_id = ${threadAlias}.id AND ih.user_id = ${Number(userId)}
+      )
+    `
+  }
+  if (memberId != null) {
+    return `
+      AND NOT EXISTS (
+        SELECT 1 FROM coaching.message_thread_inbox_hide ih
+        WHERE ih.thread_id = ${threadAlias}.id AND ih.member_id = ${Number(memberId)}
+      )
+    `
+  }
+  return ''
+}
+
+export async function setMessageThreadInboxHidden(pool, { threadId, facilityId, userId = null, memberId = null, hidden }) {
+  const thread = await pool.query(
+    `SELECT id FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+    [threadId, facilityId],
+  )
+  if (thread.rows.length === 0) return null
+  if (hidden) {
+    if (userId != null) {
+      await pool.query(
+        `DELETE FROM coaching.message_thread_inbox_hide WHERE thread_id = $1 AND user_id = $2`,
+        [threadId, userId],
+      )
+      await pool.query(
+        `INSERT INTO coaching.message_thread_inbox_hide (thread_id, user_id, hidden_at) VALUES ($1, $2, now())`,
+        [threadId, userId],
+      )
+    } else if (memberId != null) {
+      await pool.query(
+        `DELETE FROM coaching.message_thread_inbox_hide WHERE thread_id = $1 AND member_id = $2`,
+        [threadId, memberId],
+      )
+      await pool.query(
+        `INSERT INTO coaching.message_thread_inbox_hide (thread_id, member_id, hidden_at) VALUES ($1, $2, now())`,
+        [threadId, memberId],
+      )
+    }
+    return { hidden: true }
+  }
+  if (userId != null) {
+    await pool.query(
+      `DELETE FROM coaching.message_thread_inbox_hide WHERE thread_id = $1 AND user_id = $2`,
+      [threadId, userId],
+    )
+  } else if (memberId != null) {
+    await pool.query(
+      `DELETE FROM coaching.message_thread_inbox_hide WHERE thread_id = $1 AND member_id = $2`,
+      [threadId, memberId],
+    )
+  }
+  return { hidden: false }
+}
+
+/** New activity restores the thread to every participant's inbox. */
+export async function clearInboxHideForThread(pool, threadId) {
+  await pool.query(`DELETE FROM coaching.message_thread_inbox_hide WHERE thread_id = $1`, [threadId])
+}
+
+export { cloudinaryMessageAttachmentSignature, parseMessageAttachmentPayload, messageHasContent } from './messageMedia.js'
 
 const MESSAGE_ENRICH_SELECT = `
   SELECT msg.*,

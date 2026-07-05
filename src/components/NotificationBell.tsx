@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Bell } from 'lucide-react'
 import { coachFetch } from '../coach/api'
+import { HEADER_ACTION_BTN } from './PortalNavButtons'
 
 interface NotificationRow {
   id: number
@@ -104,7 +105,7 @@ export default function NotificationBell({ apiPrefix }: NotificationBellProps) {
           setOpen((o) => !o)
           if (!open) void load()
         }}
-        className={`relative flex items-center justify-center px-3 md:px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+        className={`relative ${HEADER_ACTION_BTN} ${
           unreadCount > 0
             ? 'notification-bell-unread text-white hover:opacity-90'
             : 'bg-gray-700 text-white hover:bg-gray-600'

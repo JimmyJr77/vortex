@@ -383,15 +383,13 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
               VORTEX <span className="text-vortex-red">ADMIN</span>
             </h1>
           </div>
-          <div className="flex items-center gap-2 flex-wrap justify-end">
-            <NotificationBell apiPrefix="admin" />
-            <PortalNavButtons
-              activePortal="admin"
-              availablePortals={availablePortals}
-              onSwitchPortal={onSwitchPortal}
-              onLogout={onLogout}
-            />
-          </div>
+          <PortalNavButtons
+            activePortal="admin"
+            availablePortals={availablePortals}
+            onSwitchPortal={onSwitchPortal}
+            onLogout={onLogout}
+            notifications={<NotificationBell apiPrefix="admin" />}
+          />
         </div>
       </div>
 
