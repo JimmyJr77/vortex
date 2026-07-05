@@ -148,8 +148,9 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
   `POST /api/members/login`, `POST /api/members/request-password-reset`.
 - **[src/components/MemberTraining.tsx](../src/components/MemberTraining.tsx)** —
   `MemberTrainingTab` (assignments + completion logging), `MemberProgressTab` (assessment
-  trends, skill grades, PRs, daily wellness check-in), and `MemberMessagesTab` (multi-recipient
-  threads to coaches/admins/members; ⋯ menu to edit thread name when unlocked).
+  trends, skill grades, PRs, daily wellness check-in), and `MemberMessagesTab` (mobile-first inbox
+  with tabs All/Unread/Events/Scheduling/Files, WebSocket live updates, unread badges, event thread
+  deep links from Events tab, critical-alert opt-in preferences, reactions + FAQ).
 - **[src/components/PortalNavButtons.tsx](../src/components/PortalNavButtons.tsx)** — portal switcher.
 - **[src/components/FamilyMemberModal.tsx](../src/components/FamilyMemberModal.tsx)** —
   ⚠️ legacy dark admin-oriented stub; **not** used by the member portal (family CRUD is inline).

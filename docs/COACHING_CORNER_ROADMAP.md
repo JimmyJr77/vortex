@@ -150,6 +150,9 @@ goals and lightweight achievements.*
 - `PATCH …/messages/:threadId/status` — archive or restore thread (admin + coach).
 - `GET /api/coach/messages/recipient-options`, `/api/member/messages/recipient-options` (multi-recipient picker).
 - `PATCH …/messages/:threadId/subject` — rename thread; coaches/admins may set `subject_locked`.
+- **Mobile messaging platform (065–067)** ✅ — tags, read/unread, WebSocket `/ws/messages`, inbox tabs,
+  event canonical + discussion threads, scheduling system messages, file library, critical opt-in alerts,
+  reactions/polls/FAQ/audit export; rate limits via `MESSAGE_SEND_RATE_MAX`.
 - Goals: `GET/POST /api/coach/athletes/:id/goals`, `PATCH /api/coach/goals/:id`,
   `GET /api/member/training/goals`.
 - Achievements: auto `milestone` on PR (`notify: false` on duplicate); manual coach award;
@@ -158,6 +161,8 @@ goals and lightweight achievements.*
 **Frontend ✅ (except video review UI)**
 - `NotificationBell` (coach + member headers).
 - `MessagesPanel` (coach tab), `MemberMessagesTab` (member tab), `AdminMessagesPanel` (admin Accounts group).
+- `MessagingMobileShell` master-detail layout, `MessagingInboxTabs`, `NotificationBell` deep links,
+  `MessagingNotificationPreferences`, `MessageReactionBar`, `MessagingThreadFaq`.
 - Shared `ThreadHeaderMenu` (⋯ → edit/lock thread name), `RecipientPicker` (multi-select chips).
 - Goals widget on `MemberProgressTab`; coach goal CRUD in `InsightsPanel`.
 - Achievements on member progress tab; print-friendly parent report from narrative + PRs.

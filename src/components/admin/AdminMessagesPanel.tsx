@@ -1,15 +1,40 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Loader2, MessageSquare, Plus } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
 import ArchivedMessageLines from '../messaging/ArchivedMessageLines'
 import MessageBubble from '../messaging/MessageBubble'
 import MessageReplyComposer from '../messaging/MessageReplyComposer'
+import MessagingThreadListShell from '../messaging/MessagingThreadListShell'
+import MessagingMobileShell from '../messaging/MessagingMobileShell'
+import MessagingInboxTabs, { type MessagingInboxTab } from '../messaging/MessagingInboxTabs'
+import MessagingThreadRow from '../messaging/MessagingThreadRow'
+import MessagingContextBanner from '../messaging/MessagingContextBanner'
+import MessagingInfoCard from '../messaging/MessagingInfoCard'
+import CriticalMessageToggle from '../messaging/CriticalMessageToggle'
 import RecipientPicker, { recipientsToPayload } from '../messaging/RecipientPicker'
 import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
-import type { EnrollmentGroup, MessageRow, MessageThread, RecipientOption, ThreadParticipant } from '../messaging/types'
+import { markThreadRead } from '../messaging/messagingApi'
+import MessagingNotificationPreferences from '../messaging/MessagingNotificationPreferences'
+import MessagingThreadFaq from '../messaging/MessagingThreadFaq'
+import {
+  countThreadsByInboxTab,
+  filterMessageThreads,
+  filterThreadsByInboxTab,
+  messagingWorkspaceRoot,
+  threadListTitle,
+} from '../messaging/messagingLayout'
+import type {
+  CriticalComposeFlags,
+  EnrollmentGroup,
+  MessageRow,
+  MessageThread,
+  RecipientOption,
+  ThreadParticipant,
+} from '../messaging/types'
 import { mergeRecipientOptions, participantKey } from '../messaging/types'
+import { useMessageRealtime } from '../../hooks/useMessageRealtime'
 
 type AdminMessagesTab = 'active-mine' | 'active-all' | 'archived'
 type ListSort = 'title' | 'created'
@@ -21,10 +46,6 @@ async function adminFetch<T>(endpoint: string, options: RequestInit = {}): Promi
     throw new Error(json?.message || `Request failed: ${res.status}`)
   }
   return (json?.data ?? json) as T
-}
-
-function threadTitle(t: MessageThread) {
-  return t.subject?.trim() || (t.first_name ? `${t.first_name} ${t.last_name}`.trim() : 'Conversation')
 }
 
 export default function AdminMessagesPanel() {
@@ -54,11 +75,28 @@ export default function AdminMessagesPanel() {
   const [threadFavorite, setThreadFavorite] = useState(false)
   const [favoriteLoading, setFavoriteLoading] = useState(false)
   const [pendingAttachment, setPendingAttachment] = useState<File | null>(null)
+  const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('all')
+  const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
+  const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
+  const [criticalFlags, setCriticalFlags] = useState<CriticalComposeFlags>({
+    is_critical: false,
+    requires_ack: false,
+  })
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const isFlatView = tab === 'active-all' || tab === 'archived'
   const canReply = tab === 'active-mine' || tab === 'active-all'
 
   const viewer = useMemo(() => getMessageViewer('admin'), [])
+  const inboxCounts = useMemo(() => countThreadsByInboxTab(threads), [threads])
+  const tabFilteredThreads = useMemo(() => {
+    if (tab === 'archived') return threads
+    return filterThreadsByInboxTab(threads, inboxTab)
+  }, [threads, inboxTab, tab])
+  const displayedThreads = useMemo(() => {
+    if (tab === 'active-mine') return filterMessageThreads(tabFilteredThreads, listSearch)
+    return tabFilteredThreads
+  }, [tabFilteredThreads, listSearch, tab])
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
     [threadParticipants],
@@ -117,8 +155,34 @@ export default function AdminMessagesPanel() {
     setSelectedId(null)
     setMessages([])
     setNewOpen(false)
+    setInboxTab(tab === 'archived' ? 'archived' : 'all')
     void loadThreads()
-  }, [loadThreads])
+  }, [loadThreads, tab])
+
+  useMessageRealtime({
+    role: 'admin',
+    threadId: selectedId,
+    onMessageCreated: (payload) => {
+      if (payload.threadId === selectedId && payload.data) {
+        setMessages((prev) => {
+          const next = payload.data as MessageRow
+          if (prev.some((m) => m.id === next.id)) return prev
+          return [...prev, next]
+        })
+      }
+      void loadThreads()
+    },
+    onReadUpdated: () => {
+      void loadThreads()
+    },
+    onNotificationCreated: () => {
+      void loadThreads()
+    },
+  })
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, selectedId])
 
   const openThread = async (id: number) => {
     setSelectedId(id)
@@ -131,7 +195,12 @@ export default function AdminMessagesPanel() {
       setThreadSubject(data.thread.subject ?? null)
       setThreadSubjectLocked(Boolean(data.thread.subject_locked))
       setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
+      setThreadInfoJson(data.thread.info_json ?? null)
+      setLinkedThreadId(data.thread.linked_thread_id ?? null)
       setMessages(data.messages)
+      const lastId = data.messages[data.messages.length - 1]?.id
+      void markThreadRead('admin', id, adminFetch, lastId)
+      void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load thread')
     } finally {
@@ -149,11 +218,17 @@ export default function AdminMessagesPanel() {
       }
       const msg = await adminFetch<MessageRow>(`/api/admin/messages/${selectedId}`, {
         method: 'POST',
-        body: JSON.stringify({ body: reply.trim(), ...attachmentPayload }),
+        body: JSON.stringify({
+          body: reply.trim(),
+          ...attachmentPayload,
+          is_critical: criticalFlags.is_critical,
+          requires_ack: criticalFlags.requires_ack,
+        }),
       })
       setMessages((prev) => [...prev, msg])
       setReply('')
       setPendingAttachment(null)
+      setCriticalFlags({ is_critical: false, requires_ack: false })
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message')
@@ -261,8 +336,8 @@ export default function AdminMessagesPanel() {
         : 'Select a thread to view and reply.'
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+    <div className={messagingWorkspaceRoot} style={{ ['--messaging-chrome' as string]: '17rem' }}>
+      <div className="shrink-0 flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
@@ -282,7 +357,7 @@ export default function AdminMessagesPanel() {
         )}
       </div>
 
-      <div className="flex gap-2 border-b border-gray-200 flex-wrap">
+      <div className="shrink-0 flex gap-2 border-b border-gray-200 flex-wrap">
         {(
           [
             ['active-mine', 'Active · Admin'],
@@ -301,10 +376,10 @@ export default function AdminMessagesPanel() {
         ))}
       </div>
 
-      {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
+      {error && <div className="shrink-0 rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
 
       {tab !== 'archived' && newOpen && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className="shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
           <h3 className="font-semibold text-gray-800">New thread</h3>
           <RecipientPicker
             options={recipientOptions}
@@ -346,82 +421,68 @@ export default function AdminMessagesPanel() {
         </div>
       )}
 
-      {isFlatView && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-          <div className="flex flex-wrap gap-2 items-end">
-            <label className="flex-1 min-w-[200px] text-sm">
-              <span className="block text-xs font-semibold text-gray-500 mb-1">Search</span>
-              <input
-                value={listSearch}
-                onChange={(e) => setListSearch(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') applyListSearch() }}
-                placeholder="Title, user, or message text…"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </label>
-            <button
-              type="button"
-              onClick={applyListSearch}
-              className="px-4 py-2 text-sm font-semibold border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Search
-            </button>
-            <label className="text-sm">
-              <span className="block text-xs font-semibold text-gray-500 mb-1">Sort</span>
-              <select
-                value={listSort}
-                onChange={(e) => setListSort(e.target.value as ListSort)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              >
-                <option value="title">Title (A–Z)</option>
-                <option value="created">Date created</option>
-              </select>
-            </label>
-          </div>
-        </div>
-      )}
-
-      <div className="grid gap-5 lg:grid-cols-[300px_1fr] min-h-[420px]">
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col">
-          <div className="px-4 py-3 border-b border-gray-100 font-semibold text-sm shrink-0">
-            {listPanelTitle}
-          </div>
-          {loading ? (
-            <div className="p-4 flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
-          ) : threads.length === 0 ? (
-            <div className="p-4 text-sm text-gray-500">No threads found.</div>
-          ) : (
-            <div className="divide-y divide-gray-100 overflow-y-auto max-h-[520px]">
-              {threads.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => void openThread(t.id)}
-                  className={`w-full px-4 py-3 text-left hover:bg-gray-50 ${selectedId === t.id ? 'bg-red-50' : ''}`}
-                >
-                  <div className="font-semibold text-gray-900 text-sm truncate flex items-center gap-1">
-                    {t.is_favorite && <span className="text-yellow-400 text-xs" aria-hidden>★</span>}
-                    {threadTitle(t)}
-                  </div>
-                  {t.participant_names && (
-                    <div className="text-xs text-gray-500 truncate">{t.participant_names}</div>
-                  )}
-                  {isFlatView && t.created_at && (
-                    <div className="text-[10px] text-gray-400 mt-0.5">
-                      Created {new Date(t.created_at).toLocaleDateString()}
-                    </div>
-                  )}
-                  {t.last_message_body && tab === 'active-mine' && (
-                    <div className="text-xs text-gray-400 truncate mt-0.5">{t.last_message_body}</div>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className={`bg-white border border-gray-200 rounded-xl flex flex-col min-h-[420px] ${isFlatView ? 'font-sans' : ''}`}>
-          {!selectedId ? (
+      <MessagingMobileShell
+        selectedThreadId={selectedId}
+        onSelectThread={setSelectedId}
+        onBack={() => setSelectedId(null)}
+        listPanel={
+          <MessagingThreadListShell
+            title={listPanelTitle}
+            search={listSearch}
+            onSearchChange={setListSearch}
+            onSearchSubmit={isFlatView ? applyListSearch : undefined}
+            searchPlaceholder={isFlatView ? 'Title, user, or message text… (Enter to search)' : 'Search threads…'}
+            headerExtra={
+              tab === 'archived' ? undefined : (
+                <>
+                  <MessagingInboxTabs
+                    activeTab={inboxTab}
+                    onChange={setInboxTab}
+                    counts={inboxCounts}
+                    hiddenTabs={['archived']}
+                  />
+                  <MessagingNotificationPreferences role="admin" fetcher={adminFetch} />
+                  {isFlatView ? (
+                    <label className="block text-sm">
+                      <span className="block text-xs font-semibold text-gray-500 mb-1">Sort</span>
+                      <select
+                        value={listSort}
+                        onChange={(e) => setListSort(e.target.value as ListSort)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      >
+                        <option value="title">Title (A–Z)</option>
+                        <option value="created">Date created</option>
+                      </select>
+                    </label>
+                  ) : null}
+                </>
+              )
+            }
+          >
+            {loading ? (
+              <div className="p-4 flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
+            ) : displayedThreads.length === 0 ? (
+              <div className="p-4 text-sm text-gray-500">
+                {threads.length === 0 ? 'No threads found.' : 'No threads match your filters.'}
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {displayedThreads.map((t) => (
+                  <MessagingThreadRow
+                    key={t.id}
+                    thread={t}
+                    selected={selectedId === t.id}
+                    onSelect={(id) => void openThread(id)}
+                    subtitle={t.participant_names}
+                    meta={isFlatView && t.created_at ? `Created ${new Date(t.created_at).toLocaleDateString()}` : null}
+                  />
+                ))}
+              </div>
+            )}
+          </MessagingThreadListShell>
+        }
+        detailPanel={
+          !selectedId ? (
             <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-8">
               {emptyDetailHint}
             </div>
@@ -429,7 +490,7 @@ export default function AdminMessagesPanel() {
             <div className="flex-1 flex items-center justify-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
           ) : isFlatView ? (
             <>
-              <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-start justify-between gap-3">
+              <div className="shrink-0 px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold text-sm text-gray-900">{threadSubject || 'Conversation'}</div>
                   {threadParticipants.length > 0 && (
@@ -477,24 +538,40 @@ export default function AdminMessagesPanel() {
                   )}
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto">
+              <MessagingContextBanner
+                linkedThreadId={linkedThreadId}
+                linkedThreadTitle={
+                  linkedThreadId != null
+                    ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
+                    : null
+                }
+                onJump={(id) => void openThread(id)}
+              />
+              <MessagingInfoCard infoJson={threadInfoJson} />
+              <div className="messaging-scroll">
                 <ArchivedMessageLines messages={messages} />
+                <div ref={messagesEndRef} />
               </div>
               {canReply && (
-                <MessageReplyComposer
-                  reply={reply}
-                  onReplyChange={setReply}
-                  onSend={() => void sendReply()}
-                  sending={sending}
-                  placeholder="Reply as admin…"
-                  pendingAttachment={pendingAttachment}
-                  onClearAttachment={() => setPendingAttachment(null)}
-                />
+                <>
+                  <div className="shrink-0 border-t border-gray-100 px-4 pt-3">
+                    <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
+                  </div>
+                  <MessageReplyComposer
+                    reply={reply}
+                    onReplyChange={setReply}
+                    onSend={() => void sendReply()}
+                    sending={sending}
+                    placeholder="Reply as admin…"
+                    pendingAttachment={pendingAttachment}
+                    onClearAttachment={() => setPendingAttachment(null)}
+                  />
+                </>
               )}
             </>
           ) : (
             <>
-              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
+              <div className="shrink-0 px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <span className="font-semibold text-sm truncate">{threadSubject || 'Conversation'}</span>
                   {threadSubjectLocked && (
@@ -523,10 +600,37 @@ export default function AdminMessagesPanel() {
                   onAttachmentPick={setPendingAttachment}
                 />
               </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[360px]">
+              <MessagingContextBanner
+                linkedThreadId={linkedThreadId}
+                linkedThreadTitle={
+                  linkedThreadId != null
+                    ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
+                    : null
+                }
+                onJump={(id) => void openThread(id)}
+              />
+              <MessagingInfoCard infoJson={threadInfoJson} />
+              <MessagingThreadFaq role="admin" threadId={selectedId} fetcher={adminFetch} canEdit />
+              <div className="messaging-scroll p-4 space-y-3">
                 {messages.map((m) => (
-                  <MessageBubble key={m.id} message={m} viewer={viewer} />
+                  <MessageBubble
+                    key={m.id}
+                    message={m}
+                    viewer={viewer}
+                    threadId={selectedId}
+                    role="admin"
+                    fetcher={adminFetch}
+                    onReactionsUpdated={(messageId, reactions) => {
+                      setMessages((prev) =>
+                        prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
+                      )
+                    }}
+                  />
                 ))}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="shrink-0 border-t border-gray-100 px-4 pt-3">
+                <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
               </div>
               <MessageReplyComposer
                 reply={reply}
@@ -538,9 +642,9 @@ export default function AdminMessagesPanel() {
                 onClearAttachment={() => setPendingAttachment(null)}
               />
             </>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
     </div>
   )
 }

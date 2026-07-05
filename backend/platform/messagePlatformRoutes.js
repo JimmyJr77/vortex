@@ -1,0 +1,626 @@
+/**
+ * Message platform HTTP routes — tags, read state, search, collaboration, events.
+ */
+
+import { ensureCoachingMessagePlatformSchema } from './coachingSchemaEnsure.js'
+import {
+  ensureDefaultTags,
+  setThreadTags,
+  markThreadRead,
+  enrichThreadsWithUnread,
+  enrichThreadsWithTags,
+  linkThreadToObject,
+  pinMessage,
+  searchMessages,
+  listMessageFiles,
+  acknowledgeMessage,
+  getNotificationPreferences,
+  updateNotificationPreferences,
+  addMessageReaction,
+  removeMessageReaction,
+  loadMessageReactions,
+  voteMessagePoll,
+  loadMessagePoll,
+  listThreadFaq,
+  createThreadFaq,
+  updateThreadFaq,
+  deleteThreadFaq,
+  logMessageAudit,
+  exportMessageAudit,
+  getMessageRetentionPolicy,
+} from './messagePlatform.js'
+import { provisionEventThreads, getEventThreads } from './messageEventThreads.js'
+import {
+  getSchedulingFormThread,
+  postSchedulingSystemMessage,
+  provisionSchedulingFormThread,
+} from './messageSchedulingThreads.js'
+import { broadcastMessageEvent } from './messageRealtime.js'
+import {
+  memberIsThreadParticipant,
+  coachCanAccessThreadWithParticipants,
+} from './messageThreads.js'
+
+let emitMessageCreatedImpl = (payload) => {
+  broadcastMessageEvent({ type: 'message.created', ...payload })
+}
+
+/** Hook for message send — broadcasts message.created. */
+export function emitMessageCreated(payload) {
+  emitMessageCreatedImpl(payload)
+}
+
+export function registerMessagePlatformRoutes(app, pool, deps) {
+  const {
+    ok,
+    bad,
+    num,
+    auth,
+    isStaffAdmin,
+    createInAppNotification,
+    sendEmail,
+    memberCanAccessMessageThread,
+    coachHasThreadAccess,
+  } = deps
+
+  if (deps.broadcastMessageEvent) {
+    emitMessageCreatedImpl = (payload) => deps.broadcastMessageEvent({ type: 'message.created', ...payload })
+  }
+
+  async function ensureSchema() {
+    await ensureCoachingMessagePlatformSchema(pool)
+  }
+
+  function coachViewer(req) {
+    return { userId: Number(req.platformAuth.user.id) }
+  }
+
+  function memberViewer(req) {
+    const ctx = req.platformAuth
+    return { memberId: num(ctx.user.member_id ?? ctx.user.id) }
+  }
+
+  function adminViewer(req) {
+    return { userId: Number(req.platformAuth.user.id) }
+  }
+
+  async function loadThreadForFacility(threadId, facilityId) {
+    const r = await pool.query(
+      `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
+      [threadId, facilityId],
+    )
+    return r.rows[0] ?? null
+  }
+
+  async function coachCanViewThread(thread, coachUserId) {
+    return coachHasThreadAccess
+      ? coachHasThreadAccess(thread, coachUserId)
+      : coachCanAccessThreadWithParticipants(pool, thread, coachUserId)
+  }
+
+  async function memberCanViewThread(threadId, memberId, thread) {
+    const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
+    if (isParticipant) return true
+    return memberCanAccessMessageThread(memberId, thread.member_id)
+  }
+
+  async function assertThreadAccess(req, res, threadId, portal) {
+    const facilityId = req.platformAuth.user.facility_id
+    const thread = await loadThreadForFacility(threadId, facilityId)
+    if (!thread) {
+      bad(res, 'Thread not found.', 404)
+      return null
+    }
+    if (portal === 'admin') {
+      if (!isStaffAdmin(req.platformAuth)) {
+        bad(res, 'Admin access required.', 403)
+        return null
+      }
+      return { thread, facilityId, viewer: adminViewer(req) }
+    }
+    if (portal === 'coach') {
+      const coachUserId = Number(req.platformAuth.user.id)
+      if (!await coachCanViewThread(thread, coachUserId)) {
+        bad(res, 'Thread not found.', 404)
+        return null
+      }
+      return { thread, facilityId, viewer: coachViewer(req) }
+    }
+    const memberId = memberViewer(req).memberId
+    if (!await memberCanViewThread(threadId, memberId, thread)) {
+      bad(res, 'Thread not found.', 404)
+      return null
+    }
+    return { thread, facilityId, viewer: { memberId } }
+  }
+
+  const portals = ['coach', 'member', 'admin']
+
+  for (const portal of portals) {
+    app.get(`/api/${portal}/messages/tags`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+          return bad(res, 'Admin access required.', 403)
+        }
+        const facilityId = req.platformAuth.user.facility_id
+        ok(res, await ensureDefaultTags(pool, facilityId))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.patch(`/api/${portal}/messages/:threadId/tags`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const slugs = Array.isArray(req.body?.tags) ? req.body.tags : req.body?.tag_slugs
+        ok(res, await setThreadTags(pool, threadId, slugs || [], ctx.facilityId))
+        broadcastMessageEvent({
+          type: 'thread.updated',
+          facilityId: ctx.facilityId,
+          threadId,
+          data: { tags: true },
+        })
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/read`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const messageId = num(req.body?.message_id ?? req.body?.messageId)
+        const read = await markThreadRead(pool, {
+          threadId,
+          userId: ctx.viewer.userId,
+          memberId: ctx.viewer.memberId,
+          messageId,
+        })
+        broadcastMessageEvent({
+          type: 'read.updated',
+          facilityId: ctx.facilityId,
+          threadId,
+          userId: ctx.viewer.userId,
+          memberId: ctx.viewer.memberId,
+          data: read,
+        })
+        ok(res, read)
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/link`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const objectType = String(req.body?.object_type || req.body?.objectType || '')
+        const objectId = num(req.body?.object_id ?? req.body?.objectId)
+        const linkRole = String(req.body?.link_role || req.body?.linkRole || 'related')
+        if (!objectType || objectId == null) return bad(res, 'object_type and object_id are required.')
+        ok(res, await linkThreadToObject(pool, threadId, objectType, objectId, linkRole))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/pin/:messageId`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const messageId = num(req.params.messageId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const pin = await pinMessage(pool, threadId, messageId, ctx.viewer)
+        if (!pin) return bad(res, 'Message not found.', 404)
+        ok(res, pin)
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.get(`/api/${portal}/messages/search`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+          return bad(res, 'Admin access required.', 403)
+        }
+        const facilityId = req.platformAuth.user.facility_id
+        const viewer = portal === 'member' ? memberViewer(req) : portal === 'coach' ? coachViewer(req) : adminViewer(req)
+        ok(res, await searchMessages(pool, facilityId, {
+          q: req.query.q,
+          tag: req.query.tag,
+          objectType: req.query.object_type || req.query.objectType,
+          objectId: num(req.query.object_id ?? req.query.objectId),
+          hasFile: req.query.has_file === 'true' || req.query.hasFile === 'true',
+          viewer,
+          limit: num(req.query.limit),
+        }))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.get(`/api/${portal}/messages/files`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+          return bad(res, 'Admin access required.', 403)
+        }
+        const facilityId = req.platformAuth.user.facility_id
+        const viewer = portal === 'member' ? memberViewer(req) : portal === 'coach' ? coachViewer(req) : adminViewer(req)
+        ok(res, await listMessageFiles(pool, facilityId, {
+          tag: req.query.tag,
+          threadId: num(req.query.thread_id ?? req.query.threadId),
+          limit: num(req.query.limit),
+          viewer,
+        }))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.get(`/api/${portal}/messages/notification-preferences`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+          return bad(res, 'Admin access required.', 403)
+        }
+        const facilityId = req.platformAuth.user.facility_id
+        const viewer = portal === 'member' ? memberViewer(req) : portal === 'coach' ? coachViewer(req) : adminViewer(req)
+        ok(res, await getNotificationPreferences(pool, facilityId, viewer))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.patch(`/api/${portal}/messages/notification-preferences`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+          return bad(res, 'Admin access required.', 403)
+        }
+        const facilityId = req.platformAuth.user.facility_id
+        const viewer = portal === 'member' ? memberViewer(req) : portal === 'coach' ? coachViewer(req) : adminViewer(req)
+        ok(res, await updateNotificationPreferences(pool, facilityId, viewer, req.body || {}))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/messages/:messageId/ack`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const messageId = num(req.params.messageId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        ok(res, await acknowledgeMessage(pool, messageId, ctx.viewer))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.get(`/api/${portal}/events/:eventId/message-threads`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) {
+          return bad(res, 'Admin access required.', 403)
+        }
+        const facilityId = req.platformAuth.user.facility_id
+        const eventId = num(req.params.eventId)
+        const threads = await getEventThreads(pool, eventId, facilityId)
+        const viewer = portal === 'member' ? memberViewer(req) : portal === 'coach' ? coachViewer(req) : adminViewer(req)
+        let enriched = await enrichThreadsWithTags(pool, threads)
+        enriched = await enrichThreadsWithUnread(pool, enriched, viewer)
+        ok(res, enriched)
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    // Reactions
+    app.post(`/api/${portal}/messages/:threadId/messages/:messageId/reactions`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const messageId = num(req.params.messageId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const emoji = String(req.body?.emoji || '').trim()
+        if (!emoji) return bad(res, 'emoji is required.')
+        await addMessageReaction(pool, messageId, emoji, ctx.viewer)
+        ok(res, await loadMessageReactions(pool, messageId))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.delete(`/api/${portal}/messages/:threadId/messages/:messageId/reactions/:emoji`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const messageId = num(req.params.messageId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        await removeMessageReaction(pool, messageId, decodeURIComponent(req.params.emoji), ctx.viewer)
+        ok(res, await loadMessageReactions(pool, messageId))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    // Poll vote
+    app.post(`/api/${portal}/messages/:threadId/messages/:messageId/poll/vote`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const messageId = num(req.params.messageId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const optionIndex = num(req.body?.option_index ?? req.body?.optionIndex)
+        if (optionIndex == null) return bad(res, 'option_index is required.')
+        const poll = await loadMessagePoll(pool, messageId)
+        if (!poll) return bad(res, 'Poll not found.', 404)
+        ok(res, await voteMessagePoll(pool, poll.id, optionIndex, ctx.viewer))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    // FAQ
+    app.get(`/api/${portal}/messages/:threadId/faq`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        ok(res, await listThreadFaq(pool, threadId))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/faq`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const question = String(req.body?.question || '').trim()
+        const answer = String(req.body?.answer || '').trim()
+        if (!question || !answer) return bad(res, 'question and answer are required.')
+        ok(res, await createThreadFaq(pool, threadId, {
+          question,
+          answer,
+          sortOrder: num(req.body?.sort_order ?? req.body?.sortOrder),
+          createdByUserId: ctx.viewer.userId,
+        }))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.patch(`/api/${portal}/messages/:threadId/faq/:faqId`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const faqId = num(req.params.faqId)
+        ok(res, await updateThreadFaq(pool, faqId, {
+          question: req.body?.question,
+          answer: req.body?.answer,
+          sortOrder: num(req.body?.sort_order ?? req.body?.sortOrder),
+        }))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.delete(`/api/${portal}/messages/:threadId/faq/:faqId`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        await deleteThreadFaq(pool, num(req.params.faqId))
+        ok(res, { deleted: true })
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+  }
+
+  // Admin-only event thread provisioning
+  app.post('/api/admin/events/:eventId/message-threads', auth, async (req, res) => {
+    try {
+      await ensureSchema()
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const eventId = num(req.params.eventId)
+      const adminUserId = Number(req.platformAuth.user.id)
+      const result = await provisionEventThreads(pool, eventId, facilityId, {
+        subject: req.body?.subject,
+        infoJson: req.body?.info_json ?? req.body?.infoJson,
+        participantMemberIds: req.body?.participant_member_ids ?? req.body?.participantMemberIds,
+        participantUserIds: req.body?.participant_user_ids ?? req.body?.participantUserIds,
+        adminUserId,
+      })
+      await logMessageAudit(pool, {
+        facilityId,
+        threadId: result.canonical.id,
+        actor: { userId: adminUserId },
+        action: 'event_threads_provisioned',
+        detail: { event_id: eventId, discussion_id: result.discussion.id },
+      })
+      ok(res, result)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // Admin notifications (staff user inbox)
+  app.get('/api/admin/notifications', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      await ensureSchema()
+      const userId = Number(req.platformAuth.user.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const unreadOnly = req.query.unreadOnly === 'true'
+      const limit = Math.min(num(req.query.limit) || 50, 100)
+      const params = [userId, facilityId]
+      let where = `recipient_user_id = $1 AND facility_id = $2`
+      if (unreadOnly) where += ` AND read_at IS NULL`
+      params.push(limit)
+      const result = await pool.query(
+        `SELECT id, kind, title, body, payload, read_at, created_at
+         FROM coaching.notification
+         WHERE ${where}
+         ORDER BY created_at DESC
+         LIMIT $${params.length}`,
+        params,
+      )
+      const countRes = await pool.query(
+        `SELECT COUNT(*)::int AS n FROM coaching.notification
+         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+        [userId, facilityId],
+      )
+      ok(res, { notifications: result.rows, unreadCount: countRes.rows[0]?.n ?? 0 })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.patch('/api/admin/notifications/:id/read', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const userId = Number(req.platformAuth.user.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const id = num(req.params.id)
+      const updated = await pool.query(
+        `UPDATE coaching.notification SET read_at = now()
+         WHERE id = $1 AND recipient_user_id = $2 AND facility_id = $3 AND read_at IS NULL
+         RETURNING *`,
+        [id, userId, facilityId],
+      )
+      if (updated.rows.length === 0) return bad(res, 'Notification not found.', 404)
+      broadcastMessageEvent({
+        type: 'notification.created',
+        facilityId,
+        userId,
+        data: { read: true, notification_id: id },
+      })
+      ok(res, updated.rows[0])
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/admin/notifications/mark-all-read', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const userId = Number(req.platformAuth.user.id)
+      const facilityId = req.platformAuth.user.facility_id
+      await pool.query(
+        `UPDATE coaching.notification SET read_at = now()
+         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+        [userId, facilityId],
+      )
+      ok(res, { ok: true })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/admin/scheduling/forms/:formId/message-thread', auth, async (req, res) => {
+    try {
+      await ensureSchema()
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const formId = num(req.params.formId)
+      const adminUserId = Number(req.platformAuth.user.id)
+      const thread = await provisionSchedulingFormThread(pool, formId, facilityId, {
+        subject: req.body?.subject,
+        adminUserId,
+      })
+      ok(res, thread)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/admin/scheduling/forms/:formId/system-message', auth, async (req, res) => {
+    try {
+      await ensureSchema()
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const formId = num(req.params.formId)
+      const adminUserId = Number(req.platformAuth.user.id)
+      const result = await postSchedulingSystemMessage(pool, {
+        formId,
+        facilityId,
+        body: req.body?.body,
+        isCritical: Boolean(req.body?.is_critical),
+        senderUserId: adminUserId,
+      })
+      emitMessageCreatedImpl({
+        facilityId,
+        threadId: result.threadId,
+        userId: adminUserId,
+        data: { message_id: result.messageId },
+      })
+      ok(res, result)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  for (const portal of ['coach', 'member', 'admin']) {
+    app.get(`/api/${portal}/scheduling/forms/:formId/message-thread`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const facilityId = req.platformAuth.user.facility_id
+        const thread = await getSchedulingFormThread(pool, num(req.params.formId), facilityId)
+        ok(res, thread)
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+  }
+
+  app.get('/api/admin/messages/retention-policy', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      ok(res, getMessageRetentionPolicy())
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/admin/messages/audit-export', auth, async (req, res) => {
+    try {
+      await ensureSchema()
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const rows = await exportMessageAudit(pool, facilityId, {
+        since: req.query.since ? String(req.query.since) : null,
+        until: req.query.until ? String(req.query.until) : null,
+        limit: num(req.query.limit),
+      })
+      ok(res, { rows, count: rows.length, exported_at: new Date().toISOString() })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  console.log('✅ Message platform routes registered')
+}

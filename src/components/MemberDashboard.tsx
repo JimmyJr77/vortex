@@ -15,6 +15,8 @@ import MemberHomePanel from './member/MemberHomePanel'
 import MemberBillingPanel from './member/MemberBillingPanel'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
+import { coachFetch } from '../coach/api'
+import { fetchEventMessageThreads, pickEventDiscussionThreadId } from './messaging/messagingApi'
 import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
 import type { PortalId } from '../utils/portalSession'
 import { firstVisiblePortalTab, isPortalTabVisible, orderPortalItems } from '../utils/portalTabConfig'
@@ -198,6 +200,8 @@ export default function MemberDashboard({
   onSwitchPortal,
 }: MemberDashboardProps) {
   const [activeTab, setActiveTab] = useState<MemberTab>('home')
+  const [openMessageThreadId, setOpenMessageThreadId] = useState<number | null>(null)
+  const [eventMessagesLoadingId, setEventMessagesLoadingId] = useState<number | null>(null)
   const [navOpen, setNavOpen] = useState(false)
   const [profileData, setProfileData] = useState<any>(null)
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([])
@@ -670,9 +674,39 @@ export default function MemberDashboard({
     }
   }
 
+  const openEventMessages = async (eventId: number | string) => {
+    const id = Number(eventId)
+    if (!Number.isFinite(id) || id <= 0) return
+    setEventMessagesLoadingId(id)
+    try {
+      const threads = await fetchEventMessageThreads('member', id, coachFetch)
+      const threadId = pickEventDiscussionThreadId(threads)
+      if (threadId != null) {
+        setOpenMessageThreadId(threadId)
+        setActiveTab('messages')
+      } else {
+        alert('No message threads are available for this event yet.')
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Could not open event messages')
+    } finally {
+      setEventMessagesLoadingId(null)
+    }
+  }
 
   useEffect(() => {
     fetchProfileData()
+  }, [])
+
+  useEffect(() => {
+    const onOpenMessageThread = (evt: globalThis.Event) => {
+      const threadId = Number((evt as CustomEvent<{ threadId?: number }>).detail?.threadId)
+      if (!Number.isFinite(threadId) || threadId <= 0) return
+      setActiveTab('messages')
+      setOpenMessageThreadId(threadId)
+    }
+    window.addEventListener('vortex:open-message-thread', onOpenMessageThread)
+    return () => window.removeEventListener('vortex:open-message-thread', onOpenMessageThread)
   }, [])
 
   useEffect(() => {
@@ -2026,7 +2060,10 @@ export default function MemberDashboard({
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <MemberMessagesTab />
+                <MemberMessagesTab
+                  initialThreadId={openMessageThreadId}
+                  onInitialThreadOpened={() => setOpenMessageThreadId(null)}
+                />
               </motion.div>
             )}
 
@@ -2290,6 +2327,18 @@ export default function MemberDashboard({
                                 </a>
                               </div>
                             )}
+
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                onClick={() => void openEventMessages(event.id)}
+                                disabled={eventMessagesLoadingId === Number(event.id)}
+                                className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60 min-h-[44px]"
+                              >
+                                <MessageSquare className="w-4 h-4" />
+                                {eventMessagesLoadingId === Number(event.id) ? 'Opening…' : 'Event messages'}
+                              </button>
+                            </div>
 
                             {event.schedulingFormId != null && (
                               <EventAttachedSignup formId={event.schedulingFormId} />

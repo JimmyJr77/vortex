@@ -462,6 +462,15 @@ WHERE NOT EXISTS (
 When a cleanup migration ships, update this section (mark **Removed**, cite migration number) and
 adjust §4 relationship diagrams (e.g. remove `class_iteration` from the ER chart when dropped).
 
+### 10.8 Messaging platform legacy columns (post–065 migrations)
+
+| Object | Status | Superseded by | Notes |
+|--------|--------|---------------|-------|
+| `coaching.message.attachment_url` / `attachment_name` / `attachment_mime` | Active (legacy) | `coaching.message_file` ([066](../backend/migrations/066_coaching_message_files_alerts.sql)) | Single-file columns still written by [messageMedia.js](../backend/platform/messageMedia.js); dual-write until UI/API migrate fully to multi-file payloads. |
+| `coaching.message_thread.member_id` + `coach_user_id` (dyadic model) | Active (legacy) | `coaching.message_thread_participant` | Older threads may still rely on dyadic columns; new threads use participant rows. |
+
+**Pre-drop check:** `SELECT COUNT(*) FROM coaching.message WHERE attachment_url IS NOT NULL AND NOT EXISTS (SELECT 1 FROM coaching.message_file mf WHERE mf.message_id = message.id);`
+
 ### 10.7 Agent recording protocol (mandatory)
 
 Cursor rule [`.cursor/rules/database-cleanup-backlog.mdc`](../.cursor/rules/database-cleanup-backlog.mdc)

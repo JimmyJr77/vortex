@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
+import { provisionEventMessageThreads } from './messaging/messagingApi'
 import { formatDateForInput, formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { adminFetchSchedulingForms, type SchedulingFormSummary } from '../utils/schedulingApi'
 import EventAttachedSignup from './EventAttachedSignup'
@@ -790,6 +791,36 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       })
 
       if (response.ok) {
+        const saved = await response.json().catch(() => ({}))
+        const eventId = editingEventId ?? saved?.data?.id ?? saved?.id
+        if (eventId != null) {
+          try {
+            await provisionEventMessageThreads(
+              Number(eventId),
+              async (ep, options) => {
+                const r = await adminApiRequest(ep, options)
+                if (!r.ok) {
+                  const err = await r.json().catch(() => ({}))
+                  throw new Error(err?.message || 'Failed to create event message threads')
+                }
+              },
+              {
+                subject: dataToSubmit.eventName,
+                info_json: {
+                  shortDescription: dataToSubmit.shortDescription,
+                  longDescription: dataToSubmit.longDescription,
+                  startDate: dataToSubmit.startDate,
+                  endDate: dataToSubmit.endDate,
+                  address: dataToSubmit.address,
+                  keyDetails: dataToSubmit.keyDetails,
+                  datesAndTimes: dataToSubmit.datesAndTimes,
+                },
+              },
+            )
+          } catch (threadErr) {
+            console.warn('Event message threads:', threadErr)
+          }
+        }
         await fetchEvents()
         setShowEventForm(false)
         setEditingEventId(null)

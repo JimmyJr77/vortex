@@ -703,6 +703,10 @@ export {
 
 const MESSAGE_ENRICH_SELECT = `
   SELECT msg.*,
+    msg.is_critical,
+    msg.requires_ack,
+    msg.edited_at,
+    msg.deleted_at,
     CASE WHEN msg.sender_member_id IS NOT NULL THEN (SELECT first_name FROM public.member WHERE id = msg.sender_member_id)
          ELSE (SELECT full_name FROM public.app_user WHERE id = msg.sender_user_id) END AS sender_name,
     CASE
@@ -737,7 +741,24 @@ const MESSAGE_ENRICH_SELECT = `
         ) THEN 'admin'
         ELSE 'coach'
       END
-    ) AS sender_portal
+    ) AS sender_portal,
+    COALESCE(
+      (SELECT json_agg(json_build_object(
+        'id', mf.id, 'url', mf.url, 'name', mf.name, 'mime', mf.mime, 'tag_slug', mf.tag_slug
+      ) ORDER BY mf.created_at)
+      FROM coaching.message_file mf WHERE mf.message_id = msg.id),
+      '[]'::json
+    ) AS files,
+    COALESCE(
+      (SELECT json_agg(json_build_object('emoji', rx.emoji, 'count', rx.cnt) ORDER BY rx.emoji)
+       FROM (
+         SELECT emoji, COUNT(*)::int AS cnt
+         FROM coaching.message_reaction mr
+         WHERE mr.message_id = msg.id
+         GROUP BY emoji
+       ) rx),
+      '[]'::json
+    ) AS reactions
   FROM coaching.message msg
 `
 

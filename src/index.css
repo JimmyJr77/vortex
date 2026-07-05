@@ -95,4 +95,27 @@
   .notification-bell-unread .notification-bell-icon {
     animation: notification-bell-icon-pulse 2.5s ease-in-out infinite;
   }
+
+  .messaging-workspace {
+    height: calc(100dvh - var(--site-header-height) - var(--messaging-chrome, 13rem));
+  }
+
+  .messaging-panel {
+    @apply bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col min-h-0;
+  }
+
+  .messaging-scroll {
+    @apply flex-1 min-h-0 overflow-y-auto;
+  }
+
+  @media (max-width: 1023px) {
+    .messaging-workspace-grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
+    }
+
+    .messaging-workspace-grid > * {
+      min-height: 0;
+    }
+  }
 }

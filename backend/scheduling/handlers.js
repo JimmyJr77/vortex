@@ -12,6 +12,8 @@ import {
   updateMemberPassword,
 } from '../members/createMemberStub.js'
 import { notifyEnrollmentReceipt, notifyWelcomeNewMember } from '../email/memberNotifications.js'
+import { notifySignupStatusChange, notifyTimeSlotScheduleChange } from '../platform/messageSchedulingThreads.js'
+import { broadcastMessageEvent } from '../platform/messageRealtime.js'
 import { sendDemotionEmail } from './demotionEmail.js'
 import { sendMagicLinkEmail } from './magicLinkEmail.js'
 import { sendPromotionEmail } from './promotionEmail.js'
@@ -3598,6 +3600,23 @@ export function createSchedulingHandlers(pool) {
             `SELECT COUNT(*)::int AS c FROM scheduling_signup WHERE time_slot_id = $1 AND status = 'confirmed'`,
             [req.params.id],
           )
+          try {
+            const schedMsg = await notifyTimeSlotScheduleChange(pool, {
+              timeSlotId: Number(req.params.id),
+              changeType: 'reschedule',
+              detail: 'A class time was updated. Please review your schedule.',
+            })
+            if (schedMsg?.threadId) {
+              broadcastMessageEvent({
+                type: 'message.created',
+                facilityId: Number(formRes.rows[0]?.facility_id),
+                threadId: schedMsg.threadId,
+                data: { message_id: schedMsg.messageId },
+              })
+            }
+          } catch (schedMsgErr) {
+            console.warn('[scheduling] schedule message notify:', schedMsgErr?.message ?? schedMsgErr)
+          }
           return res.json({
             success: true,
             data: mapSlotRow(result.rows[0], signupRes.rows[0].c, formRes.rows[0]),
@@ -3656,6 +3675,30 @@ export function createSchedulingHandlers(pool) {
               })
             }
           }
+        }
+
+        try {
+          const formRes = await pool.query(
+            `SELECT sf.facility_id FROM scheduling_slot_group sg
+             JOIN scheduling_form sf ON sf.id = sg.form_id
+             WHERE sg.id = $1`,
+            [groupId],
+          )
+          const schedMsg = await notifyTimeSlotScheduleChange(pool, {
+            timeSlotId: Number(req.params.id),
+            changeType: 'cancel',
+            detail: 'A class time slot was removed. Please review your schedule.',
+          })
+          if (schedMsg?.threadId) {
+            broadcastMessageEvent({
+              type: 'message.created',
+              facilityId: Number(formRes.rows[0]?.facility_id),
+              threadId: schedMsg.threadId,
+              data: { message_id: schedMsg.messageId },
+            })
+          }
+        } catch (schedMsgErr) {
+          console.warn('[scheduling] slot delete message notify:', schedMsgErr?.message ?? schedMsgErr)
         }
 
         await pool.query('DELETE FROM scheduling_time_slot WHERE id = $1', [req.params.id])
@@ -4190,6 +4233,30 @@ export function createSchedulingHandlers(pool) {
             }
           } catch (emailErr) {
             console.error('[scheduling] reconfirm waitlist email failed:', emailErr.message)
+          }
+        }
+
+        if (updatedRow?.form_id) {
+          try {
+            const schedMsg = await notifySignupStatusChange(pool, updatedRow, {
+              previousStatus,
+              targetStatus,
+              adminUserId: req.platformAuth?.user?.id ? Number(req.platformAuth.user.id) : null,
+            })
+            if (schedMsg?.threadId) {
+              const formRes = await pool.query(
+                `SELECT facility_id FROM scheduling_form WHERE id = $1`,
+                [updatedRow.form_id],
+              )
+              broadcastMessageEvent({
+                type: 'message.created',
+                facilityId: Number(formRes.rows[0]?.facility_id),
+                threadId: schedMsg.threadId,
+                data: { message_id: schedMsg.messageId },
+              })
+            }
+          } catch (schedMsgErr) {
+            console.warn('[scheduling] signup status message notify:', schedMsgErr?.message ?? schedMsgErr)
           }
         }
 

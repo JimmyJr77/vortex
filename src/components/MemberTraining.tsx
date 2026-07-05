@@ -1,12 +1,37 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import RecipientPicker, { recipientsToPayload } from './messaging/RecipientPicker'
 import ThreadHeaderMenu from './messaging/ThreadHeaderMenu'
 import MessageBubble from './messaging/MessageBubble'
 import MessageReplyComposer from './messaging/MessageReplyComposer'
+import MessagingThreadListShell from './messaging/MessagingThreadListShell'
+import MessagingMobileShell from './messaging/MessagingMobileShell'
+import MessagingInboxTabs, { type MessagingInboxTab } from './messaging/MessagingInboxTabs'
+import MessagingThreadRow from './messaging/MessagingThreadRow'
+import MessagingContextBanner from './messaging/MessagingContextBanner'
+import MessagingInfoCard from './messaging/MessagingInfoCard'
+import CriticalMessageToggle from './messaging/CriticalMessageToggle'
 import { getMessageViewer } from './messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from './messaging/messageAttachmentUpload'
-import type { EnrollmentGroup, MessageRow, MessageThread, RecipientOption, ThreadParticipant } from './messaging/types'
+import { markThreadRead } from './messaging/messagingApi'
+import MessagingNotificationPreferences from './messaging/MessagingNotificationPreferences'
+import MessagingThreadFaq from './messaging/MessagingThreadFaq'
+import {
+  countThreadsByInboxTab,
+  filterMessageThreads,
+  filterThreadsByInboxTab,
+  messagingWorkspaceRoot,
+  threadListTitle,
+} from './messaging/messagingLayout'
+import type {
+  CriticalComposeFlags,
+  EnrollmentGroup,
+  MessageRow,
+  MessageThread,
+  RecipientOption,
+  ThreadParticipant,
+} from './messaging/types'
 import { mergeRecipientOptions, participantKey } from './messaging/types'
+import { useMessageRealtime } from '../hooks/useMessageRealtime'
 import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Trophy, Video } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts'
 import { coachFetch } from '../coach/api'
@@ -791,7 +816,13 @@ function WellnessCheckinCard() {
   )
 }
 
-export function MemberMessagesTab() {
+export function MemberMessagesTab({
+  initialThreadId = null,
+  onInitialThreadOpened,
+}: {
+  initialThreadId?: number | null
+  onInitialThreadOpened?: () => void
+} = {}) {
   const [threads, setThreads] = useState<MessageThread[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [messages, setMessages] = useState<MessageRow[]>([])
@@ -813,7 +844,25 @@ export function MemberMessagesTab() {
   const [pendingAttachment, setPendingAttachment] = useState<File | null>(null)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [threadSearch, setThreadSearch] = useState('')
+  const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('all')
+  const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
+  const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
+  const [criticalFlags, setCriticalFlags] = useState<CriticalComposeFlags>({
+    is_critical: false,
+    requires_ack: false,
+  })
+  const messagesEndRef = useRef<HTMLDivElement>(null)
   const viewer = useMemo(() => getMessageViewer('member'), [])
+  const inboxCounts = useMemo(() => countThreadsByInboxTab(threads), [threads])
+  const tabFilteredThreads = useMemo(
+    () => filterThreadsByInboxTab(threads, inboxTab),
+    [threads, inboxTab],
+  )
+  const filteredThreads = useMemo(
+    () => filterMessageThreads(tabFilteredThreads, threadSearch),
+    [tabFilteredThreads, threadSearch],
+  )
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
     [threadParticipants],
@@ -860,6 +909,31 @@ export function MemberMessagesTab() {
     void loadThreads()
   }, [loadThreads])
 
+  useMessageRealtime({
+    role: 'member',
+    threadId: selectedId,
+    onMessageCreated: (payload) => {
+      if (payload.threadId === selectedId && payload.data) {
+        setMessages((prev) => {
+          const next = payload.data as MessageRow
+          if (prev.some((m) => m.id === next.id)) return prev
+          return [...prev, next]
+        })
+      }
+      void loadThreads()
+    },
+    onReadUpdated: () => {
+      void loadThreads()
+    },
+    onNotificationCreated: () => {
+      void loadThreads()
+    },
+  })
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, selectedId])
+
   const openThread = async (id: number) => {
     setSelectedId(id)
     const listRow = threads.find((t) => t.id === id)
@@ -869,11 +943,21 @@ export function MemberMessagesTab() {
       setSubject(data.thread.subject ?? null)
       setSubjectLocked(Boolean(data.thread.subject_locked))
       setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
+      setThreadInfoJson(data.thread.info_json ?? null)
+      setLinkedThreadId(data.thread.linked_thread_id ?? null)
       setMessages(data.messages)
+      const lastId = data.messages[data.messages.length - 1]?.id
+      void markThreadRead('member', id, coachFetch, lastId)
+      void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load thread')
     }
   }
+
+  useEffect(() => {
+    if (initialThreadId == null) return
+    void openThread(initialThreadId).finally(() => onInitialThreadOpened?.())
+  }, [initialThreadId])
 
   const sendReply = async () => {
     if (!selectedId || (!reply.trim() && !pendingAttachment)) return
@@ -885,11 +969,17 @@ export function MemberMessagesTab() {
       }
       const msg = await coachFetch<MessageRow>(`/api/member/messages/${selectedId}`, {
         method: 'POST',
-        body: JSON.stringify({ body: reply.trim(), ...attachmentPayload }),
+        body: JSON.stringify({
+          body: reply.trim(),
+          ...attachmentPayload,
+          is_critical: criticalFlags.is_critical,
+          requires_ack: criticalFlags.requires_ack,
+        }),
       })
       setMessages((prev) => [...prev, msg])
       setReply('')
       setPendingAttachment(null)
+      setCriticalFlags({ is_critical: false, requires_ack: false })
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send')
@@ -972,8 +1062,8 @@ export function MemberMessagesTab() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+    <div className={messagingWorkspaceRoot} style={{ ['--messaging-chrome' as string]: '14rem' }}>
+      <div className="shrink-0 flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
         </h2>
@@ -985,10 +1075,10 @@ export function MemberMessagesTab() {
           {newOpen ? 'Cancel' : 'New thread'}
         </button>
       </div>
-      {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
+      {error && <div className="shrink-0 rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
 
       {newOpen && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className="shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
           <h3 className="font-semibold text-gray-800 text-sm">Start a conversation</h3>
           <RecipientPicker
             options={recipientOptions}
@@ -1025,38 +1115,49 @@ export function MemberMessagesTab() {
         </div>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-3 py-2 border-b text-sm font-semibold">Threads</div>
-          {loading ? (
-            <div className="p-3 text-sm text-gray-500 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
-          ) : threads.length === 0 ? (
-            <div className="p-3 text-sm text-gray-500">No conversations yet.</div>
-          ) : (
-            <div className="divide-y divide-gray-100">
-              {threads.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => void openThread(t.id)}
-                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${selectedId === t.id ? 'bg-red-50' : ''}`}
-                >
-                  <div className="font-medium truncate flex items-center gap-1">
-                    {t.is_favorite && <span className="text-yellow-400 text-xs" aria-hidden>★</span>}
-                    {t.subject || 'Conversation'}
-                  </div>
-                  {t.last_message_body && <div className="text-xs text-gray-400 truncate">{t.last_message_body}</div>}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl min-h-[280px] flex flex-col">
-          {!selectedId ? (
+      <MessagingMobileShell
+        selectedThreadId={selectedId}
+        onSelectThread={setSelectedId}
+        onBack={() => setSelectedId(null)}
+        listPanel={
+          <MessagingThreadListShell
+            title="Threads"
+            search={threadSearch}
+            onSearchChange={setThreadSearch}
+            searchPlaceholder="Search threads…"
+            headerExtra={
+              <>
+                <MessagingInboxTabs activeTab={inboxTab} onChange={setInboxTab} counts={inboxCounts} />
+                <MessagingNotificationPreferences role="member" fetcher={coachFetch} />
+              </>
+            }
+          >
+            {loading ? (
+              <div className="p-3 text-sm text-gray-500 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
+            ) : filteredThreads.length === 0 ? (
+              <div className="p-3 text-sm text-gray-500">
+                {threads.length === 0 ? 'No conversations yet.' : 'No threads match your filters.'}
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {filteredThreads.map((t) => (
+                  <MessagingThreadRow
+                    key={t.id}
+                    thread={t}
+                    selected={selectedId === t.id}
+                    onSelect={(id) => void openThread(id)}
+                  />
+                ))}
+              </div>
+            )}
+          </MessagingThreadListShell>
+        }
+        detailPanel={
+          !selectedId ? (
             <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-6">Select a thread or start a new one.</div>
           ) : (
             <>
-              <div className="px-4 py-2 border-b flex items-center justify-between gap-2">
+              <div className="shrink-0 px-4 py-2 border-b flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-sm font-semibold truncate">{subject || 'Conversation'}</span>
                   {subjectLocked && (
@@ -1084,10 +1185,38 @@ export function MemberMessagesTab() {
                   onAttachmentPick={setPendingAttachment}
                 />
               </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              <MessagingContextBanner
+                linkedThreadId={linkedThreadId}
+                linkedThreadTitle={
+                  linkedThreadId != null
+                    ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
+                    : null
+                }
+                onJump={(id) => void openThread(id)}
+              />
+              <MessagingInfoCard infoJson={threadInfoJson} />
+              <MessagingThreadFaq role="member" threadId={selectedId} fetcher={coachFetch} />
+              <div className="messaging-scroll p-4 space-y-2">
                 {messages.map((m) => (
-                  <MessageBubble key={m.id} message={m} viewer={viewer} showSenderName={false} />
+                  <MessageBubble
+                    key={m.id}
+                    message={m}
+                    viewer={viewer}
+                    showSenderName={false}
+                    threadId={selectedId}
+                    role="member"
+                    fetcher={coachFetch}
+                    onReactionsUpdated={(messageId, reactions) => {
+                      setMessages((prev) =>
+                        prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
+                      )
+                    }}
+                  />
                 ))}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="shrink-0 border-t border-gray-100 px-4 pt-3">
+                <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
               </div>
               <MessageReplyComposer
                 reply={reply}
@@ -1099,9 +1228,9 @@ export function MemberMessagesTab() {
                 onClearAttachment={() => setPendingAttachment(null)}
               />
             </>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
     </div>
   )
 }

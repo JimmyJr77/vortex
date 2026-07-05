@@ -24,7 +24,7 @@ export default function MessageReplyComposer({
   const canSend = Boolean(reply.trim() || pendingAttachment)
 
   return (
-    <div className="p-4 border-t border-gray-100">
+    <div className="p-4 border-t border-gray-100 shrink-0 bg-white">
       {pendingAttachment && (
         <div className="mb-2 flex items-center gap-2 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5">
           <Paperclip className="w-3.5 h-3.5 shrink-0" />

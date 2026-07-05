@@ -1,3 +1,35 @@
+export type ThreadKind = 'general' | 'canonical' | 'discussion' | 'announcement'
+
+export type ThreadLinkObjectType =
+  | 'event'
+  | 'scheduling_form'
+  | 'program'
+  | 'scheduling_offering'
+  | 'family'
+  | 'scheduling_time_slot'
+
+export interface ThreadTag {
+  id: number
+  slug: string
+  label: string
+}
+
+export interface ThreadLink {
+  id?: number
+  object_type: ThreadLinkObjectType | string
+  object_id: number
+  link_role?: 'canonical' | 'discussion' | 'related'
+}
+
+export interface MessageFile {
+  id?: number
+  url: string
+  name: string
+  mime?: string | null
+  size_bytes?: number | null
+  tag_slug?: string | null
+}
+
 export interface MessageThread {
   id: number
   subject?: string | null
@@ -5,6 +37,8 @@ export interface MessageThread {
   member_id?: number | null
   coach_user_id?: number | null
   thread_scope?: 'assigned_coach' | 'coaching_circle'
+  kind?: ThreadKind | string
+  linked_thread_id?: number | null
   first_name?: string
   last_name?: string
   last_message_body?: string | null
@@ -16,6 +50,12 @@ export interface MessageThread {
   participants?: ThreadParticipant[]
   is_favorite?: boolean
   favorited_at?: string | null
+  tags?: ThreadTag[]
+  unread_count?: number
+  links?: ThreadLink[]
+  info_json?: Record<string, unknown> | null
+  has_files?: boolean
+  file_count?: number
 }
 
 export interface ThreadParticipant {
@@ -41,6 +81,12 @@ export interface MessageRow {
   attachment_url?: string | null
   attachment_name?: string | null
   attachment_mime?: string | null
+  is_critical?: boolean
+  requires_ack?: boolean
+  edited_at?: string | null
+  deleted_at?: string | null
+  files?: MessageFile[]
+  reactions?: { emoji: string; count: number }[]
   created_at: string
 }
 
@@ -82,4 +128,9 @@ export type MessagingRole = 'member' | 'coach' | 'admin'
 export interface ThreadSubjectUpdate {
   subject: string | null
   subject_locked?: boolean
+}
+
+export interface CriticalComposeFlags {
+  is_critical: boolean
+  requires_ack: boolean
 }

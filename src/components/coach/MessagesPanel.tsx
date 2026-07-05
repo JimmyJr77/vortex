@@ -1,14 +1,39 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Loader2, MessageSquare, Plus } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import RecipientPicker, { recipientsToPayload } from '../messaging/RecipientPicker'
 import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
 import MessageBubble from '../messaging/MessageBubble'
 import MessageReplyComposer from '../messaging/MessageReplyComposer'
+import MessagingThreadListShell from '../messaging/MessagingThreadListShell'
+import MessagingMobileShell from '../messaging/MessagingMobileShell'
+import MessagingInboxTabs, { type MessagingInboxTab } from '../messaging/MessagingInboxTabs'
+import MessagingThreadRow from '../messaging/MessagingThreadRow'
+import MessagingContextBanner from '../messaging/MessagingContextBanner'
+import MessagingInfoCard from '../messaging/MessagingInfoCard'
+import CriticalMessageToggle from '../messaging/CriticalMessageToggle'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
-import type { EnrollmentGroup, MessageRow, MessageThread, RecipientOption, ThreadParticipant } from '../messaging/types'
+import { markThreadRead } from '../messaging/messagingApi'
+import MessagingNotificationPreferences from '../messaging/MessagingNotificationPreferences'
+import MessagingThreadFaq from '../messaging/MessagingThreadFaq'
+import {
+  countThreadsByInboxTab,
+  filterMessageThreads,
+  filterThreadsByInboxTab,
+  messagingWorkspaceRoot,
+  threadListTitle,
+} from '../messaging/messagingLayout'
+import type {
+  CriticalComposeFlags,
+  EnrollmentGroup,
+  MessageRow,
+  MessageThread,
+  RecipientOption,
+  ThreadParticipant,
+} from '../messaging/types'
 import { mergeRecipientOptions, participantKey } from '../messaging/types'
+import { useMessageRealtime } from '../../hooks/useMessageRealtime'
 
 type MemberPickerScope = 'my_classes' | 'all'
 
@@ -38,7 +63,25 @@ export default function MessagesPanel() {
   const [threadFavorite, setThreadFavorite] = useState(false)
   const [favoriteLoading, setFavoriteLoading] = useState(false)
   const [pendingAttachment, setPendingAttachment] = useState<File | null>(null)
+  const [threadSearch, setThreadSearch] = useState('')
+  const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('all')
+  const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
+  const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
+  const [criticalFlags, setCriticalFlags] = useState<CriticalComposeFlags>({
+    is_critical: false,
+    requires_ack: false,
+  })
+  const messagesEndRef = useRef<HTMLDivElement>(null)
   const viewer = useMemo(() => getMessageViewer('coach'), [])
+  const inboxCounts = useMemo(() => countThreadsByInboxTab(threads), [threads])
+  const tabFilteredThreads = useMemo(
+    () => filterThreadsByInboxTab(threads, inboxTab),
+    [threads, inboxTab],
+  )
+  const filteredThreads = useMemo(
+    () => filterMessageThreads(tabFilteredThreads, threadSearch),
+    [tabFilteredThreads, threadSearch],
+  )
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
     [threadParticipants],
@@ -87,6 +130,10 @@ export default function MessagesPanel() {
     setNewRecipients((prev) => prev.filter((r) => recipientOptions.some((o) => o.key === r.key)))
   }, [recipientOptions])
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, selectedId])
+
   const loadThreads = useCallback(async () => {
     setLoading(true)
     try {
@@ -102,6 +149,27 @@ export default function MessagesPanel() {
     void loadThreads()
   }, [loadThreads])
 
+  useMessageRealtime({
+    role: 'coach',
+    threadId: selectedId,
+    onMessageCreated: (payload) => {
+      if (payload.threadId === selectedId && payload.data) {
+        setMessages((prev) => {
+          const next = payload.data as MessageRow
+          if (prev.some((m) => m.id === next.id)) return prev
+          return [...prev, next]
+        })
+      }
+      void loadThreads()
+    },
+    onReadUpdated: () => {
+      void loadThreads()
+    },
+    onNotificationCreated: () => {
+      void loadThreads()
+    },
+  })
+
   const openThread = async (id: number) => {
     setSelectedId(id)
     setDetailLoading(true)
@@ -114,7 +182,12 @@ export default function MessagesPanel() {
       setThreadSubjectLocked(Boolean(data.thread.subject_locked))
       setThreadScope(data.thread.thread_scope ?? 'coaching_circle')
       setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
+      setThreadInfoJson(data.thread.info_json ?? null)
+      setLinkedThreadId(data.thread.linked_thread_id ?? null)
       setMessages(data.messages)
+      const lastId = data.messages[data.messages.length - 1]?.id
+      void markThreadRead('coach', id, coachFetch, lastId)
+      void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load thread')
     } finally {
@@ -132,11 +205,17 @@ export default function MessagesPanel() {
       }
       const msg = await coachFetch<MessageRow>(`/api/coach/messages/${selectedId}`, {
         method: 'POST',
-        body: JSON.stringify({ body: reply.trim(), ...attachmentPayload }),
+        body: JSON.stringify({
+          body: reply.trim(),
+          ...attachmentPayload,
+          is_critical: criticalFlags.is_critical,
+          requires_ack: criticalFlags.requires_ack,
+        }),
       })
       setMessages((prev) => [...prev, msg])
       setReply('')
       setPendingAttachment(null)
+      setCriticalFlags({ is_critical: false, requires_ack: false })
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message')
@@ -229,8 +308,8 @@ export default function MessagesPanel() {
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+    <div className={messagingWorkspaceRoot} style={{ ['--messaging-chrome' as string]: '13rem' }}>
+      <div className="shrink-0 flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
@@ -246,10 +325,10 @@ export default function MessagesPanel() {
         </button>
       </div>
 
-      {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
+      {error && <div className="shrink-0 rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
 
       {newOpen && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className="shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
           <h3 className="font-semibold text-gray-800">New thread</h3>
           <div className="flex flex-wrap gap-2">
             <button
@@ -323,46 +402,52 @@ export default function MessagesPanel() {
         </div>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[280px_1fr] min-h-[400px]">
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 font-semibold text-sm">Threads</div>
-          {loading ? (
-            <div className="p-4 flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
-          ) : threads.length === 0 ? (
-            <div className="p-4 text-sm text-gray-500">No threads yet.</div>
-          ) : (
-            <div className="divide-y divide-gray-100 max-h-[480px] overflow-y-auto">
-              {threads.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => void openThread(t.id)}
-                  className={`w-full px-4 py-3 text-left hover:bg-gray-50 ${selectedId === t.id ? 'bg-red-50' : ''}`}
-                >
-                  <div className="font-semibold text-gray-900 text-sm truncate flex items-center gap-1">
-                    {t.is_favorite && <span className="text-yellow-400 text-xs" aria-hidden>★</span>}
-                    {t.subject || (t.first_name ? `${t.first_name} ${t.last_name}` : 'Conversation')}
-                  </div>
-                  {t.subject && t.first_name && (
-                    <div className="text-xs text-gray-500 truncate">{t.first_name} {t.last_name}</div>
-                  )}
-                  {t.last_message_body && (
-                    <div className="text-xs text-gray-400 truncate mt-0.5">{t.last_message_body}</div>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-xl flex flex-col min-h-[400px]">
-          {!selectedId ? (
+      <MessagingMobileShell
+        selectedThreadId={selectedId}
+        onSelectThread={setSelectedId}
+        onBack={() => setSelectedId(null)}
+        listPanel={
+          <MessagingThreadListShell
+            title="Threads"
+            search={threadSearch}
+            onSearchChange={setThreadSearch}
+            searchPlaceholder="Search threads…"
+            headerExtra={
+              <>
+                <MessagingInboxTabs activeTab={inboxTab} onChange={setInboxTab} counts={inboxCounts} />
+                <MessagingNotificationPreferences role="coach" fetcher={coachFetch} />
+              </>
+            }
+          >
+            {loading ? (
+              <div className="p-4 flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
+            ) : filteredThreads.length === 0 ? (
+              <div className="p-4 text-sm text-gray-500">
+                {threads.length === 0 ? 'No threads yet.' : 'No threads match your filters.'}
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {filteredThreads.map((t) => (
+                  <MessagingThreadRow
+                    key={t.id}
+                    thread={t}
+                    selected={selectedId === t.id}
+                    onSelect={(id) => void openThread(id)}
+                    subtitle={t.subject && t.first_name ? `${t.first_name} ${t.last_name}` : null}
+                  />
+                ))}
+              </div>
+            )}
+          </MessagingThreadListShell>
+        }
+        detailPanel={
+          !selectedId ? (
             <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-8">Select a thread or start a new message.</div>
           ) : detailLoading ? (
             <div className="flex-1 flex items-center justify-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
           ) : (
             <>
-              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
+              <div className="shrink-0 px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <span className="font-semibold text-sm truncate">{threadSubject || 'Conversation'}</span>
                   {threadSubjectLocked && (
@@ -402,10 +487,37 @@ export default function MessagesPanel() {
                   />
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[360px]">
+              <MessagingContextBanner
+                linkedThreadId={linkedThreadId}
+                linkedThreadTitle={
+                  linkedThreadId != null
+                    ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
+                    : null
+                }
+                onJump={(id) => void openThread(id)}
+              />
+              <MessagingInfoCard infoJson={threadInfoJson} />
+              <MessagingThreadFaq role="coach" threadId={selectedId} fetcher={coachFetch} canEdit />
+              <div className="messaging-scroll p-4 space-y-3">
                 {messages.map((m) => (
-                  <MessageBubble key={m.id} message={m} viewer={viewer} />
+                  <MessageBubble
+                    key={m.id}
+                    message={m}
+                    viewer={viewer}
+                    threadId={selectedId}
+                    role="coach"
+                    fetcher={coachFetch}
+                    onReactionsUpdated={(messageId, reactions) => {
+                      setMessages((prev) =>
+                        prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
+                      )
+                    }}
+                  />
                 ))}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="shrink-0 border-t border-gray-100 px-4 pt-3">
+                <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
               </div>
               <MessageReplyComposer
                 reply={reply}
@@ -417,9 +529,9 @@ export default function MessagesPanel() {
                 onClearAttachment={() => setPendingAttachment(null)}
               />
             </>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
     </div>
   )
 }

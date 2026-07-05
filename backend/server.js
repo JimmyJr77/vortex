@@ -1,4 +1,5 @@
 import express from 'express'
+import http from 'http'
 import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
@@ -43,6 +44,7 @@ import { registerFamilySignupRoutes, createPortalFamilyMember } from './platform
 import { queryFamilyMemberEnrollments } from './platform/memberEnrollments.js'
 import { listActiveFamilyMemberIds, syncFamilyMemberLinks } from './platform/familyMembers.js'
 import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
+import { attachMessageWebSocket } from './platform/messageRealtime.js'
 import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
 import { ensureCoachingNotificationSchema, ensureCoachingMessageThreadSchema } from './platform/coachingSchemaEnsure.js'
 import { generateTemporaryPassword, sendTemporaryPasswordEmail } from './scheduling/tempPasswordEmail.js'
@@ -14404,7 +14406,9 @@ const startServer = async () => {
   
   // Only start the HTTP server if not running as a migration script
   if (process.env.RUN_MIGRATION_ONLY !== 'true') {
-    app.listen(PORT, () => {
+    const server = http.createServer(app)
+    attachMessageWebSocket(server, { jwtSecret: JWT_SECRET, pool })
+    server.listen(PORT, () => {
         console.log(`[Server ${workerId}] 🚀 Server running on port ${PORT} (worker ${workerId})`)
         registerEmailPool(pool)
         startAccountInviteReminderScheduler(pool)

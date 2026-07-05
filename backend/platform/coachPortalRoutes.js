@@ -11,6 +11,7 @@
 // ============================================================
 
 import crypto from 'crypto'
+import rateLimit from 'express-rate-limit'
 import { authMiddleware, requirePermission, requireAnyPermission } from './registerRoutes.js'
 import { sendEmail, isEmailConfigured } from '../email/sendEmail.js'
 import { llmProgressNarrative } from './aiService.js'
@@ -30,6 +31,15 @@ import {
   queryMinorChildGuardianMemberIds,
 } from './coachRoster.js'
 import { ensureCoachingNotificationSchema, ensureCoachingMessageThreadSchema } from './coachingSchemaEnsure.js'
+import {
+  enrichThreadsWithUnread,
+  enrichThreadsWithTags,
+  enrichThreadsWithMeta,
+  saveMessageFile,
+  saveMessageMentions,
+} from './messagePlatform.js'
+import { registerMessagePlatformRoutes, emitMessageCreated } from './messagePlatformRoutes.js'
+import { sendCriticalMessageAlerts, parseMentions } from './criticalAlerts.js'
 import {
   insertThreadParticipants,
   coachCanAccessThreadWithParticipants,
@@ -75,6 +85,37 @@ function bad(res, message, status = 400) {
 function num(value) {
   const n = Number(value)
   return Number.isFinite(n) ? n : null
+}
+
+function messageHasExtendedContent(body, attachment, files) {
+  if (messageHasContent(body, attachment)) return true
+  return Array.isArray(files) && files.some((f) => f && String(f.url || '').trim())
+}
+
+function parseMessageFilesPayload(body) {
+  if (!Array.isArray(body?.files)) return []
+  return body.files
+    .map((f) => ({
+      url: f?.url ? String(f.url).trim() : null,
+      name: f?.name ? String(f.name).trim() || 'Attachment' : 'Attachment',
+      mime: f?.mime ? String(f.mime).trim() : null,
+      tag_slug: f?.tag_slug ?? f?.tagSlug ?? null,
+    }))
+    .filter((f) => f.url)
+}
+
+function parseMessageSendBody(rawBody) {
+  const body = String(rawBody?.body || '').trim()
+  const attachment = parseMessageAttachmentPayload(rawBody)
+  const files = parseMessageFilesPayload(rawBody)
+  return {
+    body,
+    attachment,
+    files,
+    isCritical: Boolean(rawBody?.is_critical ?? rawBody?.isCritical),
+    requiresAck: Boolean(rawBody?.requires_ack ?? rawBody?.requiresAck),
+    mentions: Array.isArray(rawBody?.mentions) ? rawBody.mentions : null,
+  }
 }
 
 function slugify(text) {
@@ -2756,14 +2797,56 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     return handleMessageAttachmentUpload(req, res)
   })
 
-  async function appendThreadMessage(threadId, { senderUserId, senderMemberId, body, senderPortal, attachment }) {
+  const messageSendLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: Number(process.env.MESSAGE_SEND_RATE_MAX || 30),
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: 'Too many messages sent. Please wait a moment.' },
+    keyGenerator: (req) => {
+      const uid = req.platformAuth?.user?.id
+      return uid ? `msg-send:${uid}` : `msg-send:${req.ip}`
+    },
+  })
+
+  const criticalMessageLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: Number(process.env.CRITICAL_MESSAGE_RATE_MAX || 10),
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: 'Critical message limit reached. Try again later.' },
+    keyGenerator: (req) => {
+      const uid = req.platformAuth?.user?.id
+      return uid ? `msg-critical:${uid}` : `msg-critical:${req.ip}`
+    },
+  })
+
+  function applyCriticalRateLimit(req, res, next) {
+    if (req.body?.is_critical || req.body?.isCritical) {
+      return criticalMessageLimiter(req, res, next)
+    }
+    return next()
+  }
+
+  async function appendThreadMessage(threadId, {
+    senderUserId,
+    senderMemberId,
+    body,
+    senderPortal,
+    attachment,
+    isCritical = false,
+    requiresAck = false,
+    files = [],
+    mentions = null,
+  }) {
     const text = normalizeMessageBodyForInsert(body)
     const inserted = await pool.query(
       `INSERT INTO coaching.message (
          thread_id, sender_user_id, sender_member_id, body, sender_portal,
-         attachment_url, attachment_name, attachment_mime
+         attachment_url, attachment_name, attachment_mime,
+         is_critical, requires_ack
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
       [
         threadId,
         senderUserId ?? null,
@@ -2773,14 +2856,56 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         attachment?.url ?? null,
         attachment?.name ?? null,
         attachment?.mime ?? null,
+        Boolean(isCritical),
+        Boolean(requiresAck),
       ],
     )
+    const messageId = inserted.rows[0].id
+    const threadRes = await pool.query(`SELECT * FROM coaching.message_thread WHERE id = $1`, [threadId])
+    const thread = threadRes.rows[0]
+
+    for (const file of files || []) {
+      await saveMessageFile(pool, {
+        messageId,
+        threadId,
+        facilityId: thread.facility_id,
+        url: file.url,
+        name: file.name,
+        mime: file.mime,
+        viewer: senderUserId != null ? { userId: senderUserId } : { memberId: senderMemberId },
+      })
+    }
+
+    const resolvedMentions = mentions ?? parseMentions(text)
+    if (resolvedMentions.length > 0) {
+      await saveMessageMentions(pool, messageId, resolvedMentions)
+    }
+
     await pool.query(
       `UPDATE coaching.message_thread SET last_message_at = now(), updated_at = now() WHERE id = $1`,
       [threadId],
     )
     await clearInboxHideForThread(pool, threadId)
-    return loadEnrichedMessageById(pool, inserted.rows[0].id)
+    const message = await loadEnrichedMessageById(pool, messageId)
+
+    emitMessageCreated({
+      facilityId: thread.facility_id,
+      threadId,
+      userId: senderUserId ?? undefined,
+      memberId: senderMemberId ?? undefined,
+      data: { message },
+    })
+
+    if (message.is_critical) {
+      void sendCriticalMessageAlerts(pool, {
+        thread,
+        message,
+        createInAppNotification,
+        sendEmail,
+      })
+    }
+
+    return message
   }
 
   async function memberCanAccessMessageThread(viewerMemberId, threadMemberId) {
@@ -3078,7 +3203,11 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         `,
         [facilityId, status, coachUserId],
       )
-      ok(res, result.rows)
+      let rows = result.rows
+      rows = await enrichThreadsWithTags(pool, rows)
+      rows = await enrichThreadsWithUnread(pool, rows, { userId: coachUserId })
+      rows = await enrichThreadsWithMeta(pool, rows)
+      ok(res, rows)
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -3098,13 +3227,12 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/coach/messages', auth, async (req, res) => {
+  app.post('/api/coach/messages', auth, messageSendLimiter, applyCriticalRateLimit, async (req, res) => {
     try {
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
-      const body = String(req.body?.body || '').trim()
-      const attachment = parseMessageAttachmentPayload(req.body)
-      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
+      const { body, attachment, files, isCritical, requiresAck, mentions } = parseMessageSendBody(req.body)
+      if (!messageHasExtendedContent(body, attachment, files)) return bad(res, 'Message text or attachment is required.')
       const { userIds, memberIds } = parseRecipientPayload(req.body)
       const validMembers = await validateMemberRecipients(pool, facilityId, memberIds)
       const validStaff = await validateStaffRecipients(pool, facilityId, userIds.filter((id) => id !== coachUserId))
@@ -3123,7 +3251,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         userIds: [coachUserId, ...validStaff],
         memberIds: validMembers,
       })
-      const message = await appendThreadMessage(thread.id, { senderUserId: coachUserId, body, senderPortal: 'coach', attachment })
+      const message = await appendThreadMessage(thread.id, {
+        senderUserId: coachUserId, body, senderPortal: 'coach', attachment,
+        isCritical, requiresAck, files, mentions,
+      })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: coachUserId })
       ok(res, { thread, message })
     } catch (error) {
@@ -3131,14 +3262,13 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/coach/messages/:threadId', auth, async (req, res) => {
+  app.post('/api/coach/messages/:threadId', auth, messageSendLimiter, applyCriticalRateLimit, async (req, res) => {
     try {
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
       const threadId = num(req.params.threadId)
-      const body = String(req.body?.body || '').trim()
-      const attachment = parseMessageAttachmentPayload(req.body)
-      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
+      const { body, attachment, files, isCritical, requiresAck, mentions } = parseMessageSendBody(req.body)
+      if (!messageHasExtendedContent(body, attachment, files)) return bad(res, 'Message text or attachment is required.')
       const threadRes = await pool.query(
         `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
         [threadId, facilityId],
@@ -3150,7 +3280,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         await pool.query(`UPDATE coaching.message_thread SET coach_user_id = $1 WHERE id = $2`, [coachUserId, threadId])
         thread.coach_user_id = coachUserId
       }
-      const message = await appendThreadMessage(threadId, { senderUserId: coachUserId, body, senderPortal: 'coach', attachment })
+      const message = await appendThreadMessage(threadId, {
+        senderUserId: coachUserId, body, senderPortal: 'coach', attachment,
+        isCritical, requiresAck, files, mentions,
+      })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: coachUserId })
       ok(res, message)
     } catch (error) {
@@ -3243,7 +3376,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         ? String(req.query.sort)
         : (status === 'archived' || (status === 'open' && scope === 'all') ? 'title' : 'updated')
       const q = req.query.q ? String(req.query.q) : null
-      const rows = await queryAdminMessageThreads(pool, facilityId, {
+      let rows = await queryAdminMessageThreads(pool, facilityId, {
         status,
         sort,
         q,
@@ -3252,20 +3385,22 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         favoriteUserId: adminUserId,
         inboxHideUserId: adminUserId,
       })
+      rows = await enrichThreadsWithTags(pool, rows)
+      rows = await enrichThreadsWithUnread(pool, rows, { userId: adminUserId })
+      rows = await enrichThreadsWithMeta(pool, rows)
       ok(res, rows)
     } catch (error) {
       bad(res, error.message, 500)
     }
   })
 
-  app.post('/api/admin/messages', auth, async (req, res) => {
+  app.post('/api/admin/messages', auth, messageSendLimiter, applyCriticalRateLimit, async (req, res) => {
     try {
       if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
       const facilityId = req.platformAuth.user.facility_id
       const adminUserId = Number(req.platformAuth.user.id)
-      const body = String(req.body?.body || '').trim()
-      const attachment = parseMessageAttachmentPayload(req.body)
-      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
+      const { body, attachment, files, isCritical, requiresAck, mentions } = parseMessageSendBody(req.body)
+      if (!messageHasExtendedContent(body, attachment, files)) return bad(res, 'Message text or attachment is required.')
       const { userIds, memberIds } = parseRecipientPayload(req.body)
       const validMembers = await validateMemberRecipients(pool, facilityId, memberIds)
       const validStaff = await validateStaffRecipients(pool, facilityId, userIds.filter((id) => id !== adminUserId))
@@ -3284,7 +3419,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         userIds: [adminUserId, ...validStaff],
         memberIds: validMembers,
       })
-      const message = await appendThreadMessage(thread.id, { senderUserId: adminUserId, body, senderPortal: 'admin', attachment })
+      const message = await appendThreadMessage(thread.id, {
+        senderUserId: adminUserId, body, senderPortal: 'admin', attachment,
+        isCritical, requiresAck, files, mentions,
+      })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: adminUserId })
       ok(res, { thread, message })
     } catch (error) {
@@ -3305,15 +3443,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/admin/messages/:threadId', auth, async (req, res) => {
+  app.post('/api/admin/messages/:threadId', auth, messageSendLimiter, applyCriticalRateLimit, async (req, res) => {
     try {
       if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
       const facilityId = req.platformAuth.user.facility_id
       const adminUserId = Number(req.platformAuth.user.id)
       const threadId = num(req.params.threadId)
-      const body = String(req.body?.body || '').trim()
-      const attachment = parseMessageAttachmentPayload(req.body)
-      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
+      const { body, attachment, files, isCritical, requiresAck, mentions } = parseMessageSendBody(req.body)
+      if (!messageHasExtendedContent(body, attachment, files)) return bad(res, 'Message text or attachment is required.')
       const threadRes = await pool.query(
         `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
         [threadId, facilityId],
@@ -3321,7 +3458,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
       await insertThreadParticipants(pool, thread.id, { userIds: [adminUserId] })
-      const message = await appendThreadMessage(threadId, { senderUserId: adminUserId, body, senderPortal: 'admin', attachment })
+      const message = await appendThreadMessage(threadId, {
+        senderUserId: adminUserId, body, senderPortal: 'admin', attachment,
+        isCritical, requiresAck, files, mentions,
+      })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId: adminUserId })
       ok(res, message)
     } catch (error) {
@@ -3527,7 +3667,11 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         `,
         [facilityId, memberId],
       )
-      ok(res, result.rows)
+      let rows = result.rows
+      rows = await enrichThreadsWithTags(pool, rows)
+      rows = await enrichThreadsWithUnread(pool, rows, { memberId })
+      rows = await enrichThreadsWithMeta(pool, rows)
+      ok(res, rows)
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -3556,14 +3700,13 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/member/messages', auth, async (req, res) => {
+  app.post('/api/member/messages', auth, messageSendLimiter, applyCriticalRateLimit, async (req, res) => {
     try {
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
       const facilityId = ctx.user.facility_id
-      const body = String(req.body?.body || '').trim()
-      const attachment = parseMessageAttachmentPayload(req.body)
-      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
+      const { body, attachment, files, isCritical, requiresAck, mentions } = parseMessageSendBody(req.body)
+      if (!messageHasExtendedContent(body, attachment, files)) return bad(res, 'Message text or attachment is required.')
       const subject = req.body?.subject ? String(req.body.subject).trim() : null
       const { userIds, memberIds } = parseRecipientPayload(req.body)
       const validMembers = await validateMemberRecipients(pool, facilityId, memberIds, memberId)
@@ -3583,7 +3726,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         userIds: validStaff,
         memberIds: [memberId, ...validMembers],
       })
-      const message = await appendThreadMessage(thread.id, { senderMemberId: memberId, body, senderPortal: 'member', attachment })
+      const message = await appendThreadMessage(thread.id, {
+        senderMemberId: memberId, body, senderPortal: 'member', attachment,
+        isCritical, requiresAck, files, mentions,
+      })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderMemberId: memberId })
       ok(res, { thread, message })
     } catch (error) {
@@ -3591,15 +3737,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/member/messages/:threadId', auth, async (req, res) => {
+  app.post('/api/member/messages/:threadId', auth, messageSendLimiter, applyCriticalRateLimit, async (req, res) => {
     try {
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
       const facilityId = ctx.user.facility_id
       const threadId = num(req.params.threadId)
-      const body = String(req.body?.body || '').trim()
-      const attachment = parseMessageAttachmentPayload(req.body)
-      if (!messageHasContent(body, attachment)) return bad(res, 'Message text or attachment is required.')
+      const { body, attachment, files, isCritical, requiresAck, mentions } = parseMessageSendBody(req.body)
+      if (!messageHasExtendedContent(body, attachment, files)) return bad(res, 'Message text or attachment is required.')
       const threadRes = await pool.query(
         `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,
         [threadId, facilityId],
@@ -3610,7 +3755,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
         return bad(res, 'Thread not found.', 404)
       }
-      const message = await appendThreadMessage(threadId, { senderMemberId: memberId, body, senderPortal: 'member', attachment })
+      const message = await appendThreadMessage(threadId, {
+        senderMemberId: memberId, body, senderPortal: 'member', attachment,
+        isCritical, requiresAck, files, mentions,
+      })
       void notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderMemberId: memberId })
       ok(res, message)
     } catch (error) {
@@ -4027,6 +4175,19 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     can,
     createInAppNotification,
     resolveAssignedCoachUserIdsForMember,
+  })
+
+  registerMessagePlatformRoutes(app, pool, {
+    ok,
+    bad,
+    num,
+    auth,
+    jwtSecret,
+    isStaffAdmin,
+    createInAppNotification,
+    sendEmail,
+    memberCanAccessMessageThread,
+    coachHasThreadAccess,
   })
 
   console.log('✅ Coach portal routes registered')
