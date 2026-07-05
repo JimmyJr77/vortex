@@ -10,7 +10,7 @@ export type MessagingInboxTab =
 const TAB_DEFS: { id: MessagingInboxTab; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'unread', label: 'Unread' },
-  { id: 'pinned', label: 'Pinned' },
+  { id: 'pinned', label: 'Favorites' },
   { id: 'events', label: 'Events' },
   { id: 'scheduling', label: 'Scheduling' },
   { id: 'files', label: 'Files' },
@@ -34,34 +34,22 @@ export default function MessagingInboxTabs({
   const tabs = TAB_DEFS.filter((t) => !hidden.has(t.id))
 
   return (
-    <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-thin">
+    <select
+      value={activeTab}
+      onChange={(e) => onChange(e.target.value as MessagingInboxTab)}
+      aria-label="Filter threads"
+      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900"
+    >
       {tabs.map(({ id, label }) => {
         const count = counts?.[id]
-        const active = activeTab === id
+        const suffix = count != null && count > 0 ? ` (${count > 99 ? '99+' : count})` : ''
         return (
-          <button
-            key={id}
-            type="button"
-            onClick={() => onChange(id)}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-              active
-                ? 'bg-vortex-red text-white border-vortex-red'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900'
-            }`}
-          >
+          <option key={id} value={id}>
             {label}
-            {count != null && count > 0 && (
-              <span
-                className={`ml-1.5 inline-flex min-w-[1.125rem] h-[1.125rem] px-1 items-center justify-center rounded-full text-[10px] font-bold ${
-                  active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700'
-                }`}
-              >
-                {count > 99 ? '99+' : count}
-              </span>
-            )}
-          </button>
+            {suffix}
+          </option>
         )
       })}
-    </div>
+    </select>
   )
 }
